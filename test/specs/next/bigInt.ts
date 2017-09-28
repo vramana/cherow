@@ -39,8 +39,9 @@ describe('Next - BigInt', () => {
                 {
                     "type": "ExpressionStatement",
                     "expression": {
-                        "type": "BigIntLiteral",
+                        "type": "Literal",
                         "value": 349,
+                        "bigint": "0b101011101n",
                         "start": 0,
                         "end": 12,
                         "loc": {
@@ -97,7 +98,8 @@ describe('Next - BigInt', () => {
                 {
                     "type": "ExpressionStatement",
                     "expression": {
-                        "type": "BigIntLiteral",
+                        "type": "Literal",
+                        "bigint": "0o16432n",
                         "value": 7450,
                         "start": 0,
                         "end": 8,
@@ -155,8 +157,9 @@ describe('Next - BigInt', () => {
                 {
                     "type": "ExpressionStatement",
                     "expression": {
-                        "type": "BigIntLiteral",
+                        "type": "Literal",
                         "value": 16773411,
+                        "bigint": "0xFFF123n",
                         "start": 0,
                         "end": 9,
                         "loc": {
@@ -213,8 +216,9 @@ describe('Next - BigInt', () => {
                 {
                     "type": "ExpressionStatement",
                     "expression": {
-                        "type": "BigIntLiteral",
+                        "type": "Literal",
                         "value": 100,
+                        "bigint": "100",
                         "start": 0,
                         "end": 5,
                         "loc": {
@@ -271,8 +275,9 @@ describe('Next - BigInt', () => {
                 {
                     "type": "ExpressionStatement",
                     "expression": {
-                        "type": "BigIntLiteral",
+                        "type": "Literal",
                         "value": 9223372036854776000,
+                        "bigint": "9223372036854775807",
                         "start": 0,
                         "end": 21,
                         "loc": {
