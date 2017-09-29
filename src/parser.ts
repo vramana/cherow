@@ -1077,24 +1077,24 @@ export class Parser {
                     case Chars.Hyphen:
                         this.advance();
                         if (!this.hasNext()) this.error(Errors.InvalidNumber);
-                    case Chars.Zero:
-                    case Chars.One:
-                    case Chars.Two:
-                    case Chars.Three:
-                    case Chars.Four:
-                    case Chars.Five:
-                    case Chars.Six:
-                    case Chars.Seven:
-                    case Chars.Eight:
-                    case Chars.Nine:
-                        this.advance();
-                        this.skipDigits();
-                        end = this.index;
-                    default:
+                    default: // ignore
                 }
+
+                const next = this.nextChar();
+
+                if (next >= Chars.Zero && next <= Chars.Nine) {
+                    this.advance();
+                    this.skipDigits();
+                } else {
+                   this.error(Errors.InvalidNumber);
+                }
+
+                end = this.index;
 
             default: // ignore
         }
+
+        if (isIdentifierStart(this.nextChar())) this.error(Errors.InvalidNumber);
 
         if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.substring(start, end);
 

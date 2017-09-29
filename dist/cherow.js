@@ -1444,23 +1444,21 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                     this.advance();
                     if (!this.hasNext())
                         { this.error(126 /* InvalidNumber */); }
-                case 48 /* Zero */:
-                case 49 /* One */:
-                case 50 /* Two */:
-                case 51 /* Three */:
-                case 52 /* Four */:
-                case 53 /* Five */:
-                case 54 /* Six */:
-                case 55 /* Seven */:
-                case 56 /* Eight */:
-                case 57 /* Nine */:
-                    this.advance();
-                    this.skipDigits();
-                    end = this.index;
-                default:
+                default: // ignore
             }
+            var next = this.nextChar();
+            if (next >= 48 /* Zero */ && next <= 57 /* Nine */) {
+                this.advance();
+                this.skipDigits();
+            }
+            else {
+                this.error(126 /* InvalidNumber */);
+            }
+            end = this.index;
         default: // ignore
     }
+    if (isIdentifierStart(this.nextChar()))
+        { this.error(126 /* InvalidNumber */); }
     if (this.flags & 33554432 /* OptionsRaw */)
         { this.tokenRaw = this.source.substring(start, end); }
     this.tokenValue = parseFloat(this.source.substring(start, end));
