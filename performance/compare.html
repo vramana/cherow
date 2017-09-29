@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!--[if IE 8]>
+<html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="en"> <!--<![endif]-->
+
+<head>
+    <meta charset="utf-8"/>
+    <title>Cherow: Speed Comparisons</title>
+    <meta name="viewport" content="width=device-width"/>
+    <link rel="stylesheet" href="./assets/style.css">
+    <link rel="stylesheet" href="./assets/foundation.min.css">
+
+    <script src="https://unpkg.com/cherow/dist/cherow.js"></script>
+    <script src="https://unpkg.com/acorn/dist/acorn.js"></script>
+    <script src="https://unpkg.com/esprima@4.0.0/dist/esprima.js"></script>
+    <script src="http://shift-ast.org/js/shift-parser.js"></script>
+
+    <script src="compare.js"></script>
+    <script src="3rdparty/benchmark.js"></script>
+    <script src="3rdparty/XMLHttpRequest.js"></script>
+    <script>
+        /*jslint browser:true, sloppy:true */
+        /*global setupBenchmarks:true*/
+        window.onload = function () {
+            window.setTimeout(setupBenchmarks, 211);
+        };
+    </script>
+</head>
+
+<body>
+
+<!-- Title and subtitle -->
+<div class="row">
+    <div class="twelve columns">
+        <h3 class="subheader"><strong>Speed Comparison</strong> keeps everything in perspective</h3>
+    </div>
+</div>
+
+<!-- Main content -->
+<div class="row">
+    <div class="twelve columns">
+
+        <p>
+            <input id="run" class="medium radius button" type="submit" value="Run speed comparison" disabled/>
+        </p>
+
+        <p id="status">Please wait...</p>
+        <p id="result"></p>
+
+        <p>Every parser produces the syntax tree with location marking in every syntax node.</p>
+
+        <p>Time measurement is carried out using <a href="http://benchmarkjs.com" target="_blank">Benchmark.js</a><span
+                id="benchmarkjs-version"></span>.</p>
+
+    </div>
+
+</div>
+
+
+</body>
+</html>
