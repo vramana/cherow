@@ -1,7 +1,7 @@
 import { Chars } from './chars';
 import * as ESTree from './estree';
 import { isKeyword, isDigit, hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isValidDestructuringAssignmentTarget, isDirective, getQualifiedJSXName, isStartOfExpression, isValidSimpleAssignmentTarget } from './common';
-import { Flags, Context, ScopeMasks, RegExpState, ObjectFlags, RegExpFlag, ParenthesizedState, IterationState, NumberState } from './masks';
+import { Flags, Context, ScopeMasks, RegExpState, ObjectFlags, RegExpFlag, ParenthesizedState, IterationState } from './masks';
 import { createError, Errors } from './errors';
 import { Token, tokenDesc, descKeyword } from './token';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
@@ -937,7 +937,11 @@ export class Parser {
 
         this.tokenValue = code;
 
-        if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) return this.scanBigInt();
+        if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) {
+            this.advance();
+            this.flags |= Flags.BigInt;
+        }
+
         if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startPos, this.index);
         return Token.NumericLiteral;
     }
@@ -966,7 +970,11 @@ export class Parser {
 
         this.tokenValue = code;
 
-        if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) return this.scanBigInt();
+        if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) {
+            this.advance();
+            this.flags |= Flags.BigInt;
+        }
+
 
         if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startPos, this.index);
 
@@ -996,7 +1004,11 @@ export class Parser {
 
         this.tokenValue = code;
 
-        if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) return this.scanBigInt();
+        if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) {
+            this.advance();
+            this.flags |= Flags.BigInt;
+        }
+
         if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startPos, this.index);
         return Token.NumericLiteral;
     }
@@ -1023,20 +1035,13 @@ export class Parser {
 
         this.tokenValue = code;
 
-        if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) return this.scanBigInt();
+        if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) {
+            this.advance();
+            this.flags |= Flags.BigInt;
+        }
         if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startPos, this.index);
 
         return Token.NumericLiteral;
-    }
-
-    private scanBigInt() {
-        this.advance();
-
-        if (this.flags & Flags.OptionsRaw) {
-            this.tokenRaw = this.source.slice(this.startPos, this.index);
-        }
-
-        return Token.BigIntLiteral;
     }
 
     private skipDigits() {
@@ -1063,13 +1068,12 @@ export class Parser {
     private scanNumber(context: Context, ch: Chars): Token {
 
         const start = this.index;
-        let state = NumberState.None;
 
         this.skipDigits();
 
         if (this.nextChar() === Chars.Period) {
 
-            state |= NumberState.Float;
+            if (!(this.flags & Flags.Float)) this.flags |= Flags.Float;
 
             this.advance();
             this.skipDigits();
@@ -1080,16 +1084,16 @@ export class Parser {
         switch (this.nextChar()) {
             case Chars.LowerN:
                 if (this.flags & Flags.OptionsNext) {
-                    if (state & NumberState.Float) this.error(Errors.Unexpected);
+                    if (this.flags & Flags.Float) this.error(Errors.Unexpected);
                     this.advance();
-                    state |= NumberState.BigInt;
+                    if (!(this.flags & Flags.BigInt)) this.flags |= Flags.BigInt;
                 }
             case Chars.UpperE:
             case Chars.LowerE:
 
                 this.advance();
 
-                state |= NumberState.Float;
+                if (!(this.flags & Flags.Float)) this.flags |= Flags.Float;
 
                 switch (this.nextChar()) {
                     case Chars.Plus:
@@ -1117,8 +1121,6 @@ export class Parser {
         if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.substring(start, end);
 
         this.tokenValue = parseFloat(this.source.substring(start, end));
-
-        if (state & NumberState.BigInt) return Token.BigIntLiteral;
 
         return Token.NumericLiteral;
     }
@@ -4292,9 +4294,8 @@ export class Parser {
                         return this.parseRegularExpression(context);
                     default: // ignore
                 }
-            case Token.BigIntLiteral:
-                return this.parseBigIntLiteral(context);
             case Token.NumericLiteral:
+                if (this.flags & Flags.BigInt) return this.parseBigIntLiteral(context);
             case Token.StringLiteral:
                 return this.parseLiteral(context);
             case Token.ThisKeyword:
@@ -4885,7 +4886,7 @@ export class Parser {
         const value = this.tokenValue;
         const raw = this.tokenRaw;
 
-        this.expect(context, Token.BigIntLiteral);
+        this.nextToken(context);
 
         const node = this.finishNode(pos, {
             type: 'Literal',
@@ -4903,13 +4904,13 @@ export class Parser {
         const value = this.tokenValue;
         const raw = this.tokenRaw;
 
-        if (context & Context.Strict &&  this.flags & Flags.Noctals) {
+        if (context & Context.Strict && this.flags & Flags.Noctals) {
             this.error(Errors.UnexpectedToken, 'Go to hell!');
         }
 
         this.nextToken(context);
-        
-        
+
+
 
         const node = this.finishNode(pos, {
             type: 'Literal',

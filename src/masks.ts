@@ -55,24 +55,23 @@ export const enum Flags {
     AllowConstructorWithSupoer   = 1 << 14,
     Arrow                        = 1 << 15, // If node was parsed in the 'arrow' context
     AsyncArrow                   = 1 << 16, // If node was parsed in the 'async' context
-    Noctals                       = 1 << 17, // If node contans noctals
+
+    /** Numeric */
+    Noctals                      = 1 << 17,
+    BigInt                       = 1 << 18,
+    Float                        = 1 << 19,
+    Decimal                      = 1 << 20,
 
     /* Options */
-    OptionsRanges                = 1 << 18,
-    OptionsLoc                   = 1 << 19,
-    OptionsSource                = 1 << 20,
-    OptionsJSX                   = 1 << 21,
-    OptionsRaw                   = 1 << 22,
-    OptionsNext                  = 1 << 23,
-    OptionsOnComment             = 1 << 24,
-    OptionsOnToken               = 1 << 25,
-    OptionsV8                    = 1 << 26,
-}
-
-export const enum NumberState {
-    None    = 0,
-    Float   = 1 << 0,
-    BigInt  = 1 << 1,
+    OptionsRanges                = 1 << 21,
+    OptionsLoc                   = 1 << 22,
+    OptionsSource                = 1 << 23,
+    OptionsJSX                   = 1 << 24,
+    OptionsRaw                   = 1 << 25,
+    OptionsNext                  = 1 << 26,
+    OptionsOnComment             = 1 << 27,
+    OptionsOnToken               = 1 << 28,
+    OptionsV8                    = 1 << 29,
 }
 
 export const enum IterationState {

@@ -4,7 +4,7 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Next - BigInt', () => {
-
+/*
     it('should fail on invalid rest elison', () => {
         expect(() => {
             parseScript('1.0n', {
@@ -26,7 +26,7 @@ describe('Next - BigInt', () => {
             });
         }).to.not.throw();
     });
-
+*/
     it('should parse binary', () => {
         expect(parseScript(`0b101011101n`, {
             raw: true,
