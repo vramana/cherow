@@ -1,6 +1,6 @@
 import { Chars } from './chars';
 import * as ESTree from './estree';
-import { isKeyword, isDigit, hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isValidDestructuringAssignmentTarget, isDirective, getQualifiedJSXName, isStartOfExpression, isValidSimpleAssignmentTarget } from './common';
+import { isKeyword, hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isValidDestructuringAssignmentTarget, isDirective, getQualifiedJSXName, isStartOfExpression, isValidSimpleAssignmentTarget } from './common';
 import { Flags, Context, ScopeMasks, RegExpState, ObjectFlags, RegExpFlag, ParenthesizedState, IterationState } from './masks';
 import { createError, Errors } from './errors';
 import { Token, tokenDesc, descKeyword } from './token';
@@ -660,8 +660,6 @@ export class Parser {
                         if (index < this.source.length && ch >= Chars.Zero && ch <= Chars.Seven) {
                             return this.scanNumberLiteral(context);
                         }
-
-                        this.flags |= Flags.Decimal;
                     }
 
                     // '1' - '9'
@@ -910,40 +908,28 @@ export class Parser {
 
         if (context & Context.Strict) this.error(Errors.StrictOctalEscape);
 
-        this.flags |= Flags.Noctals;
+        if (!(this.flags & Flags.Noctal)) this.flags |= Flags.Noctal;
 
         this.advance();
 
-        const start = this.index;
-
         let ch = this.nextChar();
 
-        // Invalid:  '00o0', '00b0'
-        switch (this.source.charCodeAt(this.index + 1)) {
-            case Chars.LowerB:
-            case Chars.UpperB:
-            case Chars.LowerO:
-            case Chars.UpperO:
-                this.error(Errors.Unexpected);
-            default: // ignore
-        }
-
         let code = 0;
+        let isDecimal = false;
+
         while (this.hasNext()) {
             ch = this.nextChar();
-            if (!isDigit(ch)) break;
+            if (!isDecimal && ch >= Chars.Eight) isDecimal = true;
+            if (!(Chars.Zero <= ch && ch <= Chars.Nine)) break;
             code = code * 8 + (ch - 48);
             this.advance();
         }
 
-        this.tokenValue = code;
-
-        if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) {
-            this.advance();
-            this.flags |= Flags.BigInt;
-        }
+        if (this.flags & Flags.OptionsNext && this.consume(Chars.LowerN)) this.flags |= Flags.BigInt;
 
         if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startPos, this.index);
+
+        this.tokenValue = isDecimal ? parseInt(this.source.slice(this.startPos, this.index), 10) : code;
         return Token.NumericLiteral;
     }
 
@@ -963,7 +949,7 @@ export class Parser {
 
         while (this.hasNext()) {
             ch = this.nextChar();
-            if (!isDigit(ch)) break;
+            if (!(Chars.Zero <= ch && ch <= Chars.Seven)) break;
             if (ch < Chars.Zero || ch >= Chars.Eight) this.error(Errors.InvalidBinaryDigit);
             code = (code << 3) | (ch - Chars.Zero);
             this.advance();
@@ -971,11 +957,7 @@ export class Parser {
 
         this.tokenValue = code;
 
-        if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) {
-            this.advance();
-            this.flags |= Flags.BigInt;
-        }
-
+        if (this.flags & Flags.OptionsNext && this.consume(Chars.LowerN)) this.flags |= Flags.BigInt;
 
         if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startPos, this.index);
 
@@ -995,9 +977,7 @@ export class Parser {
 
         while (this.hasNext()) {
             ch = this.nextChar();
-
             const digit = toHex(ch);
-
             if (digit < 0) break;
             code = code << 4 | digit;
             this.advance();
@@ -1005,10 +985,7 @@ export class Parser {
 
         this.tokenValue = code;
 
-        if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) {
-            this.advance();
-            this.flags |= Flags.BigInt;
-        }
+        if (this.flags & Flags.OptionsNext && this.consume(Chars.LowerN)) this.flags |= Flags.BigInt;
 
         if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startPos, this.index);
         return Token.NumericLiteral;
@@ -1022,24 +999,23 @@ export class Parser {
         let code = ch - Chars.Zero;
 
         // Invalid:  '0b'
-        if (ch !== Chars.Zero && ch !== Chars.One) this.error(Errors.InvalidBinaryDigit);
+        if (ch !== Chars.Zero && ch !== Chars.One) {
+            this.error(Errors.InvalidBinaryDigit);
+        }
 
         this.advance();
 
         while (this.hasNext()) {
             ch = this.nextChar();
-            if (!isDigit(ch)) break;
-            if (!(ch === Chars.Zero || ch === Chars.One)) this.error(Errors.InvalidBinaryDigit);
+            if (!(ch === Chars.Zero || ch === Chars.One)) break;
             code = (code << 1) | (ch - Chars.Zero);
             this.advance();
         }
 
         this.tokenValue = code;
 
-        if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) {
-            this.advance();
-            this.flags |= Flags.BigInt;
-        }
+        if (this.flags & Flags.OptionsNext && this.consume(Chars.LowerN)) this.flags |= Flags.BigInt;
+
         if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startPos, this.index);
 
         return Token.NumericLiteral;
@@ -4905,9 +4881,8 @@ export class Parser {
         const value = this.tokenValue;
         const raw = this.tokenRaw;
 
-        if (context & Context.Strict) {
-            if (this.flags & Flags.Noctals) this.error(Errors.Unexpected);
-        }
+        if (context & Context.Strict && this.flags & Flags.Decimal) this.error(Errors.Unexpected);
+        if (context & Context.Strict && this.flags & Flags.Noctal) this.error(Errors.Unexpected);
 
         this.nextToken(context);
 

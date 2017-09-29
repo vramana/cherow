@@ -2158,7 +2158,7 @@ describe('Literal - Numeric', () => {
                         "end": 4,
                         "start": 0,
                         "type": "Literal",
-                        "value": 88,
+                        "value": 128,
                       },
                       "start": 0,
                       "type": "ExpressionStatement"

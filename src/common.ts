@@ -13,10 +13,6 @@ export function tryCreate(pattern: string, flags: string) {
     }
 }
 
-export function isDigit(ch: number): boolean {
-    return ch >= Chars.Zero && ch <= Chars.Nine;
-}
-
 /**
  * Convert code points
  * @param codePoint

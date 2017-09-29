@@ -13,9 +13,6 @@ function tryCreate(pattern, flags) {
         return null;
     }
 }
-function isDigit(ch) {
-    return ch >= 48 /* Zero */ && ch <= 57 /* Nine */;
-}
 /**
  * Convert code points
  * @param codePoint
@@ -1062,7 +1059,6 @@ Parser.prototype.scanToken = function scanToken (context) {
                     if (index$1 < this$1.source.length && ch >= 48 /* Zero */ && ch <= 55 /* Seven */) {
                         return this$1.scanNumberLiteral(context);
                     }
-                    this$1.flags |= 1048576 /* Decimal */;
                 }
             // '1' - '9'
             case 49 /* One */:
@@ -1295,33 +1291,26 @@ Parser.prototype.scanNumberLiteral = function scanNumberLiteral (context) {
 
     if (context & 2 /* Strict */)
         { this.error(7 /* StrictOctalEscape */); }
-    this.flags |= 131072 /* Noctals */;
+    if (!(this.flags & 131072 /* Noctal */))
+        { this.flags |= 131072 /* Noctal */; }
     this.advance();
     var ch = this.nextChar();
-    // Invalid:  '00o0', '00b0'
-    switch (this.source.charCodeAt(this.index + 1)) {
-        case 98 /* LowerB */:
-        case 66 /* UpperB */:
-        case 111 /* LowerO */:
-        case 79 /* UpperO */:
-            this.error(0 /* Unexpected */);
-        default: // ignore
-    }
     var code = 0;
+    var isDecimal = false;
     while (this.hasNext()) {
         ch = this$1.nextChar();
-        if (!isDigit(ch))
+        if (!isDecimal && ch >= 56 /* Eight */)
+            { isDecimal = true; }
+        if (!(48 /* Zero */ <= ch && ch <= 57 /* Nine */))
             { break; }
         code = code * 8 + (ch - 48);
         this$1.advance();
     }
-    this.tokenValue = code;
-    if (this.flags & 67108864 /* OptionsNext */ && ch === 110 /* LowerN */) {
-        this.advance();
-        this.flags |= 262144 /* BigInt */;
-    }
+    if (this.flags & 67108864 /* OptionsNext */ && this.consume(110 /* LowerN */))
+        { this.flags |= 262144 /* BigInt */; }
     if (this.flags & 33554432 /* OptionsRaw */)
         { this.tokenRaw = this.source.slice(this.startPos, this.index); }
+    this.tokenValue = isDecimal ? parseInt(this.source.slice(this.startPos, this.index), 10) : code;
     return 2 /* NumericLiteral */;
 };
 Parser.prototype.scanOctalDigits = function scanOctalDigits (context) {
@@ -1338,7 +1327,7 @@ Parser.prototype.scanOctalDigits = function scanOctalDigits (context) {
     this.advance();
     while (this.hasNext()) {
         ch = this$1.nextChar();
-        if (!isDigit(ch))
+        if (!(48 /* Zero */ <= ch && ch <= 55 /* Seven */))
             { break; }
         if (ch < 48 /* Zero */ || ch >= 56 /* Eight */)
             { this$1.error(50 /* InvalidBinaryDigit */); }
@@ -1346,10 +1335,8 @@ Parser.prototype.scanOctalDigits = function scanOctalDigits (context) {
         this$1.advance();
     }
     this.tokenValue = code;
-    if (this.flags & 67108864 /* OptionsNext */ && ch === 110 /* LowerN */) {
-        this.advance();
-        this.flags |= 262144 /* BigInt */;
-    }
+    if (this.flags & 67108864 /* OptionsNext */ && this.consume(110 /* LowerN */))
+        { this.flags |= 262144 /* BigInt */; }
     if (this.flags & 33554432 /* OptionsRaw */)
         { this.tokenRaw = this.source.slice(this.startPos, this.index); }
     return 2 /* NumericLiteral */;
@@ -1372,10 +1359,8 @@ Parser.prototype.scanHexadecimalDigit = function scanHexadecimalDigit () {
         this$1.advance();
     }
     this.tokenValue = code;
-    if (this.flags & 67108864 /* OptionsNext */ && ch === 110 /* LowerN */) {
-        this.advance();
-        this.flags |= 262144 /* BigInt */;
-    }
+    if (this.flags & 67108864 /* OptionsNext */ && this.consume(110 /* LowerN */))
+        { this.flags |= 262144 /* BigInt */; }
     if (this.flags & 33554432 /* OptionsRaw */)
         { this.tokenRaw = this.source.slice(this.startPos, this.index); }
     return 2 /* NumericLiteral */;
@@ -1387,23 +1372,20 @@ Parser.prototype.scanBinaryDigits = function scanBinaryDigits (context) {
     var ch = this.nextChar();
     var code = ch - 48;
     // Invalid:  '0b'
-    if (ch !== 48 /* Zero */ && ch !== 49 /* One */)
-        { this.error(50 /* InvalidBinaryDigit */); }
+    if (ch !== 48 /* Zero */ && ch !== 49 /* One */) {
+        this.error(50 /* InvalidBinaryDigit */);
+    }
     this.advance();
     while (this.hasNext()) {
         ch = this$1.nextChar();
-        if (!isDigit(ch))
-            { break; }
         if (!(ch === 48 /* Zero */ || ch === 49 /* One */))
-            { this$1.error(50 /* InvalidBinaryDigit */); }
+            { break; }
         code = (code << 1) | (ch - 48 /* Zero */);
         this$1.advance();
     }
     this.tokenValue = code;
-    if (this.flags & 67108864 /* OptionsNext */ && ch === 110 /* LowerN */) {
-        this.advance();
-        this.flags |= 262144 /* BigInt */;
-    }
+    if (this.flags & 67108864 /* OptionsNext */ && this.consume(110 /* LowerN */))
+        { this.flags |= 262144 /* BigInt */; }
     if (this.flags & 33554432 /* OptionsRaw */)
         { this.tokenRaw = this.source.slice(this.startPos, this.index); }
     return 2 /* NumericLiteral */;
@@ -4833,10 +4815,10 @@ Parser.prototype.parseLiteral = function parseLiteral (context) {
     var pos = this.getLocations();
     var value = this.tokenValue;
     var raw = this.tokenRaw;
-    if (context & 2 /* Strict */) {
-        if (this.flags & 131072 /* Noctals */)
-            { this.error(0 /* Unexpected */); }
-    }
+    if (context & 2 /* Strict */ && this.flags & 1048576 /* Decimal */)
+        { this.error(0 /* Unexpected */); }
+    if (context & 2 /* Strict */ && this.flags & 131072 /* Noctal */)
+        { this.error(0 /* Unexpected */); }
     this.nextToken(context);
     var node = this.finishNode(pos, {
         type: 'Literal',

@@ -57,10 +57,10 @@ export const enum Flags {
     AsyncArrow                   = 1 << 16, // If node was parsed in the 'async' context
 
     /** Numeric */
-    Noctals                      = 1 << 17,
-    BigInt                       = 1 << 18,
-    Float                        = 1 << 19,
-    Decimal                      = 1 << 20,
+    Noctal                       = 1 << 17, // e.g. `0777`
+    BigInt                       = 1 << 18, // e.g. `100n`
+    Float                        = 1 << 19, // e.g. `09.01`
+    Decimal                      = 1 << 20, // e.g. `123`
 
     /* Options */
     OptionsRanges                = 1 << 21,
