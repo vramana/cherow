@@ -122,7 +122,8 @@ export const enum Errors {
     MissingInitializer,
     InvalidLabeledForOf,
     InvalidVarDeclInForIn,
-    InvalidRestOperatorArg
+    InvalidRestOperatorArg,
+    InvalidNoctalInteger
 }
 
 export const ErrorMessages: {
@@ -250,8 +251,7 @@ export const ErrorMessages: {
     [Errors.InvalidLabeledForOf]: 'The body of a for-of statement must not be a labeled function declaration',
     [Errors.InvalidVarDeclInForIn]: 'Invalid variable declaration in for-in statement',
     [Errors.InvalidRestOperatorArg]: 'Invalid rest operator\'s argument',
-    
-    
+    [Errors.InvalidNoctalInteger]: 'Unexpected noctal integer literal',
 };
 
 function constructError(msg: string, column: number): Error {

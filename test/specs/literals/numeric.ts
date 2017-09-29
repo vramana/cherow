@@ -1196,7 +1196,7 @@ describe('Literal - Numeric', () => {
             })
         })
     
-        it('should pare hexIntegerLiteral :: 0X0 Digits', () => {
+        it('should pare hex integer literal :: 0X0 Digits', () => {
             expect(parseScript('0X010', {
                 ranges: true,
                 raw: true,
@@ -1715,7 +1715,12 @@ describe('Literal - Numeric', () => {
                     "type": "Program"
                 })
             })
-    
+
+            it('should fail on invalid hex with invalid letters', () => {
+                expect(() => {
+                    parseScript('0x¤%&/()')
+                }).to.throw();
+            });
 
             it('should fail on binary invalid unicode escape sequence', () => {
                 expect(() => {
@@ -1726,7 +1731,7 @@ describe('Literal - Numeric', () => {
             it('should fail on binary invalid unicode escape sequence', () => {
                 expect(() => {
                     parseScript('"use strict"; 018')
-                }).to.not.throw();
+                }).to.throw();
             });
 
             it('should fail on binary invalid unicode escape sequence', () => {
@@ -1821,6 +1826,7 @@ describe('Literal - Numeric', () => {
                     parseScript('0o1a')
                 }).to.throw('');
             });
+            
     
             it('should fail on "0O18"', () => {
                 expect(() => {
@@ -1845,7 +1851,76 @@ describe('Literal - Numeric', () => {
                     parseScript('0o18')
                 }).to.throw('');
             });
-    
+
+            it('should fail on 07 (strict)', () => {
+                expect(() => {
+                    parseScript('"use strict"; 07')
+                }).to.throw('');
+            });
+
+            it('should fail on 019 (strict)', () => {
+                expect(() => {
+                    parseScript('"use strict"; 019')
+                }).to.throw('');
+            });
+
+            it('09.0', () => {
+                expect(parseScript('09.0', {
+                    ranges: true,
+                    raw: true,
+                    locations: true
+                })).to.eql({
+                    "type": "Program",
+                    "body": [
+                        {
+                            "type": "ExpressionStatement",
+                            "expression": {
+                                "type": "Literal",
+                                "value": 9,
+                                "start": 0,
+                                "end": 4,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 4
+                                    }
+                                },
+                                "raw": "09.0"
+                            },
+                            "start": 0,
+                            "end": 4,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 4
+                                }
+                            }
+                        }
+                    ],
+                    "sourceType": "script",
+                    "start": 0,
+                    "end": 4,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 4
+                        }
+                    }
+                });
+            });
+
             it('0O0', () => {
                 expect(parseScript('0O0', {
                     ranges: true,

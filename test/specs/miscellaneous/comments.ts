@@ -53,6 +53,78 @@ describe('Miscellaneous - comments', () => {
             });
     });
 
+    it('should parse a single "//\r\nfoo"', () => {
+      expect(parseScript('//\rfoo\n', {
+          ranges: true
+      })).to.eql({
+          "body": [
+            {
+              "end": 6,
+              "expression": {
+                "end": 6,
+                "name": "foo",
+                "start": 3,
+                "type": "Identifier"
+              },
+              "start": 3,
+              "type": "ExpressionStatement"
+            }
+          ],
+          "end": 7,
+          "sourceType": "script",
+          "start": 0,
+          "type": "Program"
+        });
+  });
+
+    it('should parse a single "//\rfoo\n"', () => {
+      expect(parseScript('//\rfoo\n', {
+          ranges: true
+      })).to.eql({
+          "body": [
+            {
+              "end": 6,
+              "expression": {
+                "end": 6,
+                "name": "foo",
+                "start": 3,
+                "type": "Identifier"
+              },
+              "start": 3,
+              "type": "ExpressionStatement"
+            }
+          ],
+          "end": 7,
+          "sourceType": "script",
+          "start": 0,
+          "type": "Program"
+        });
+  });
+
+  it('should parse a single "//\nfoo\r\t"', () => {
+    expect(parseScript('//\nfoo\r\t', {
+        ranges: true
+    })).to.eql({
+        "body": [
+          {
+            "end": 6,
+            "expression": {
+              "end": 6,
+              "name": "foo",
+              "start": 3,
+              "type": "Identifier"
+            },
+            "start": 3,
+            "type": "ExpressionStatement"
+          }
+        ],
+        "end": 8,
+        "sourceType": "script",
+        "start": 0,
+        "type": "Program"
+      });
+});
+
     it('should parse a single " /****/"', () => {
         expect(parseScript(' /****/', {
             ranges: true
