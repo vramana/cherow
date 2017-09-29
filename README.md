@@ -3,28 +3,28 @@
 [![CircleCI](https://circleci.com/gh/cherow/cherow.svg?style=svg)](https://circleci.com/gh/cherow/cherow)
 [![Coverage Status](https://coveralls.io/repos/github/cherow/cherow/badge.svg?branch=master)](https://coveralls.io/github/cherow/cherow?branch=master)
 
-Cherow is a very fast, standard-compliant [ECMAScript](http://www.ecma-international.org/publications/standards/Ecma-262.htm) parser written in ECMAScript. 
+Cherow is a very fast, standards-compliant [ECMAScript](http://www.ecma-international.org/publications/standards/Ecma-262.htm) parser written in ECMAScript.
 
-It strictly follows the ECMAScript® 2018 Language Specification and should parse according these specifications
+It strictly follows the ECMAScript® 2018 Language Specification and should parse according to these specifications.
 
 It's safe to use in production.
 
-**Note!** if you find a bug, open a issue ticket and we will try our best to solve it within 30 - 60 minutes. 
+**Note!** if you find a bug, open an issue ticket and we will try our best to solve it within 30 - 60 minutes.
 
-A online demo can be found [here](https://cherow.github.io/cherow/).
+An online demo can be found [here](https://cherow.github.io/cherow/).
 
-## Features 
+## Features
 
 - Full support for ECMAScript® 2018 [(ECMA-262 8th Edition)](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
 - Stage 3 proposals (*experimental*)
-- Support for JSX, a syntax extension for React
+- Support for [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), a syntax extension for React
 - Skips shebang comment nodes by default
 - Optional tracking of syntax node location (index-based and line-column)
-- 5200 unit tests 
+- 5200 unit tests
 
 ## ESNext features
 
-`Stage 3` features support. This need to be enabled with the `next` option
+`Stage 3` features support. These need to be enabled with the `next` option.
 
 - Import()
 - Asynchronous Iteration
@@ -35,7 +35,7 @@ A online demo can be found [here](https://cherow.github.io/cherow/).
 
 ## V8 experimental features
 
-This need to be enabled with the `v8` option
+These need to be enabled with the `v8` option.
 
 - Do expressions
 
@@ -50,7 +50,7 @@ This need to be enabled with the `v8` option
 
 ## API
 
-Cherow can be used to perform syntactic analysis of JavaScript program. 
+Cherow can be used to perform syntactic analysis of JavaScript programs.
 
 **Note!** there does not exist an `sourceType: module` option for parsing module code. According the ECMAScript specs you should use either `parseScript` or `parseModule`.
 
@@ -63,8 +63,8 @@ cherow.parseScript('const fooBar = 123;');
 cherow.parseModule('const fooBar = 123;');
 
 ```
-## Parsing with options
 
+## Parsing with options
 
 ```js
 
@@ -75,7 +75,7 @@ cherow.parseScript('const fooBar = 123;', { ranges: true, raw: true, next: true}
 
 ## Comments
 
-Single line, multiline and HTML comments are supported, and can be collected as well. Shebang comment node - `#!foo` - are
+Single line, multiline and HTML comments are supported, and can be collected as well. Shebang comment nodes (`#!foo`) are
 skipped by default, and can't be collected.
 
 ### Collecting comments
@@ -84,18 +84,18 @@ Collecting comments works just the same way as for Acorn.
 ```js
 
 // Function
-cherow.parseScript('// foo', 
-   { 
-       comments: function(type, comment, start, end) {} 
+cherow.parseScript('// foo',
+   {
+       comments: function(type, comment, start, end) {}
    }
 );
 
 // Array
 const commentArray = [];
 
-cherow.parseScript('// foo', 
-    { 
-        comments: commentArray 
+cherow.parseScript('// foo',
+    {
+        comments: commentArray
     }
 );
 
@@ -103,15 +103,14 @@ cherow.parseScript('// foo',
 
 ## Acorn and Esprima differences
 
-The main difference between Cherow and Acorn and Esprima is that the mention libraries either doesn't parse everything 
-according to TC39, or they doesn't fail as they should according to the ECMAScript specs.
+The main difference between Cherow and Acorn/Esprima is that the latter libraries either don't parse everything
+according to TC39, or they don't fail as they should according to the ECMAScript specs.
 
-Cherow parses everything after the specs, and fails 90% after the specs (*work in progress*). 
-
+Cherow parses everything after the specs, and fails 90% after the specs (*work in progress*).
 
 ## Performance and benchmarks
 
-The most important thing for an ECMAScript parser is the performance. Especially important is it when the parser is a 
+The most important thing for an ECMAScript parser is performance, especially when it is a
 dependency in other libraries. Poor performance will slow down the main library.
 
 Cherow has been developed from scratch with only one goal - performance.
@@ -123,18 +122,16 @@ You can find the benchmarks [here](BENCHMARK.md).
 Cherow outputs a sensible syntax tree format as standardized by [ESTree project](https://github.com/estree/estree), and does
 not add any "extra" properties to any of its nodes.
 
-However there is a small difference from other parsers because Cherow outputs a `await` property on the `ForStatement` node.
+However there is a small difference from other parsers because Cherow outputs an `await` property on the `ForStatement` node.
 This because of the `Asynchronous Iteration` implementation.
 
-
 ## Contribution
- 
+
  You are welcome to contribute. As a golden rule - always run benchmarks to verify that you haven't created any
  bottlenecks or did something that you shouldn't.
 
 *Terms of contribution:*
 
 - Think twice before you try to implement anything
-- Minimum 1.5 mill ops/sec for light weight cases, and 800k - 1 mill ops/sec for "heavy" cases
 - Avoid duplicating the source code
 - Create tests that cover what you have implemented
