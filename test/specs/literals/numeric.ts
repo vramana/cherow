@@ -4,8 +4,258 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Literal - Numeric', () => {
+
+        it('should fail on octal extension (000) in strict mode', () => {
+            expect(() => {
+                parseScript('"use strict"; var foo = 000;')
+            }).to.throw();
+        });
+
+        it('should fail on octal extension (07) in strict mode', () => {
+            expect(() => {
+                parseScript('"use strict"; var foo = 07;')
+            }).to.throw();
+        });
+
+        it('should fail on octal extension (05) in strict mode', () => {
+            expect(() => {
+                parseScript('"use strict"; var foo = 05;')
+            }).to.throw();
+        });
+
+        it('should fail on octal extension (010) in strict mode', () => {
+            expect(() => {
+                parseScript('"use strict"; var y = 010;')
+            }).to.throw();
+        });
+
+        it('should fail on invalid hex', () => {
+            expect(() => {
+                parseScript('0x')
+            }).to.throw();
+        });
+
+        it('should fail on invalid binary digit', () => {
+            expect(() => {
+                parseScript('0b2;')
+            }).to.throw();
+        });
+    
+        it('should fail on invalid binary leading', () => {
+            expect(() => {
+                parseScript('00b0;')
+            }).to.throw();
+        });
+    
+        it('should fail on invalid binary truncated', () => {
+            expect(() => {
+                parseScript('0b;')
+            }).to.throw();
+        });
+    
+        it('should fail on invalid binary unicode', () => {
+            expect(() => {
+                parseScript('0\\u00620;')
+            }).to.throw();
+        });
+    
+        it('should fail on invalid binary truncated', () => {
+            expect(() => {
+                parseScript('"use strict"; 00;')
+            }).to.throw();
+        });
+    
+        it('should fail on invalid octal digit', () => {
+            expect(() => {
+                parseScript('0o8;')
+            }).to.throw();
+        });
+    
+        it('should fail on invalid octal truncated', () => {
+            expect(() => {
+                parseScript('0o;')
+            }).to.throw();
+        });
+    
+        it('should fail on invalid octal unicode', () => {
+            expect(() => {
+                parseScript('0\\u006f0;')
+            }).to.throw();
+        });
+    
+        it('should fail on invalid non octal decimal literal ( strict)', () => {
+            expect(() => {
+                parseScript('"use strict"; 08;')
+            }).to.not.throw();
+        });
+    
     
         describe('ExponentPart :: ExponentIndicator ( /+/-) 0 DecimalDigits is allowed', () => {
+    
+            it('8E+01', () => {
+                expect(parseScript('8E+01', {
+                    ranges: true,
+                    raw: true,
+                    locations: true
+                })).to.eql({
+                    "type": "Program",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 5
+                        }
+                    },
+                    "body": [{
+                        "type": "ExpressionStatement",
+                        "start": 0,
+                        "end": 5,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 5
+                            }
+                        },
+                        "expression": {
+                            "type": "Literal",
+                            "start": 0,
+                            "end": 5,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 5
+                                }
+                            },
+                            "value": 80,
+                            "raw": "8E+01"
+                        }
+                    }],
+                    "sourceType": "script"
+                });
+            });
+    
+            it('3e00', () => {
+                expect(parseScript('3e00', {
+                    ranges: true,
+                    raw: true,
+                    locations: true
+                })).to.eql({
+                    "type": "Program",
+                    "start": 0,
+                    "end": 4,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 4
+                        }
+                    },
+                    "body": [{
+                        "type": "ExpressionStatement",
+                        "start": 0,
+                        "end": 4,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 4
+                            }
+                        },
+                        "expression": {
+                            "type": "Literal",
+                            "start": 0,
+                            "end": 4,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 4
+                                }
+                            },
+                            "value": 3,
+                            "raw": "3e00"
+                        }
+                    }],
+                    "sourceType": "script"
+                });
+            });
+    
+            it('0e+01', () => {
+                expect(parseScript('0e+01', {
+                    ranges: true,
+                    raw: true,
+                    locations: true
+                })).to.eql({
+                    "type": "Program",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 5
+                        }
+                    },
+                    "body": [{
+                        "type": "ExpressionStatement",
+                        "start": 0,
+                        "end": 5,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 5
+                            }
+                        },
+                        "expression": {
+                            "type": "Literal",
+                            "start": 0,
+                            "end": 5,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 5
+                                }
+                            },
+                            "value": 0,
+                            "raw": "0e+01"
+                        }
+                    }],
+                    "sourceType": "script"
+                });
+            });
     
             it('1e+01', () => {
                 expect(parseScript('1e+01', {
@@ -17,53 +267,51 @@ describe('Literal - Numeric', () => {
                     "start": 0,
                     "end": 5,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 5
-                      }
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 5
+                        }
                     },
-                    "body": [
-                      {
+                    "body": [{
                         "type": "ExpressionStatement",
                         "start": 0,
                         "end": 5,
                         "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 0
-                          },
-                          "end": {
-                            "line": 1,
-                            "column": 5
-                          }
-                        },
-                        "expression": {
-                          "type": "Literal",
-                          "start": 0,
-                          "end": 5,
-                          "loc": {
                             "start": {
-                              "line": 1,
-                              "column": 0
+                                "line": 1,
+                                "column": 0
                             },
                             "end": {
-                              "line": 1,
-                              "column": 5
+                                "line": 1,
+                                "column": 5
                             }
-                          },
-                          "value": 10,
-                          "raw": "1e+01"
+                        },
+                        "expression": {
+                            "type": "Literal",
+                            "start": 0,
+                            "end": 5,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 5
+                                }
+                            },
+                            "value": 10,
+                            "raw": "1e+01"
                         }
-                      }
-                    ],
+                    }],
                     "sourceType": "script"
-                  })
+                })
             })
-            
+    
             it('2e+01', () => {
                 expect(parseScript('2e+01', {
                     ranges: true,
@@ -98,51 +346,49 @@ describe('Literal - Numeric', () => {
                     "start": 0,
                     "end": 5,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 5
-                      }
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 5
+                        }
                     },
-                    "body": [
-                      {
+                    "body": [{
                         "type": "ExpressionStatement",
                         "start": 0,
                         "end": 5,
                         "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 0
-                          },
-                          "end": {
-                            "line": 1,
-                            "column": 5
-                          }
-                        },
-                        "expression": {
-                          "type": "Literal",
-                          "start": 0,
-                          "end": 5,
-                          "loc": {
                             "start": {
-                              "line": 1,
-                              "column": 0
+                                "line": 1,
+                                "column": 0
                             },
                             "end": {
-                              "line": 1,
-                              "column": 5
+                                "line": 1,
+                                "column": 5
                             }
-                          },
-                          "value": 40,
-                          "raw": "4e+01"
+                        },
+                        "expression": {
+                            "type": "Literal",
+                            "start": 0,
+                            "end": 5,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 5
+                                }
+                            },
+                            "value": 40,
+                            "raw": "4e+01"
                         }
-                      }
-                    ],
+                    }],
                     "sourceType": "script"
-                  })
+                })
             })
     
     
@@ -180,51 +426,49 @@ describe('Literal - Numeric', () => {
                     "start": 0,
                     "end": 5,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 5
-                      }
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 5
+                        }
                     },
-                    "body": [
-                      {
+                    "body": [{
                         "type": "ExpressionStatement",
                         "start": 0,
                         "end": 5,
                         "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 0
-                          },
-                          "end": {
-                            "line": 1,
-                            "column": 5
-                          }
-                        },
-                        "expression": {
-                          "type": "Literal",
-                          "start": 0,
-                          "end": 5,
-                          "loc": {
                             "start": {
-                              "line": 1,
-                              "column": 0
+                                "line": 1,
+                                "column": 0
                             },
                             "end": {
-                              "line": 1,
-                              "column": 5
+                                "line": 1,
+                                "column": 5
                             }
-                          },
-                          "value": 90,
-                          "raw": "9e+01"
+                        },
+                        "expression": {
+                            "type": "Literal",
+                            "start": 0,
+                            "end": 5,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 5
+                                }
+                            },
+                            "value": 90,
+                            "raw": "9e+01"
                         }
-                      }
-                    ],
+                    }],
                     "sourceType": "script"
-                  })
+                })
             })
     
             it('3E-01', () => {
@@ -237,51 +481,49 @@ describe('Literal - Numeric', () => {
                     "start": 0,
                     "end": 5,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 5
-                      }
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 5
+                        }
                     },
-                    "body": [
-                      {
+                    "body": [{
                         "type": "ExpressionStatement",
                         "start": 0,
                         "end": 5,
                         "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 0
-                          },
-                          "end": {
-                            "line": 1,
-                            "column": 5
-                          }
-                        },
-                        "expression": {
-                          "type": "Literal",
-                          "start": 0,
-                          "end": 5,
-                          "loc": {
                             "start": {
-                              "line": 1,
-                              "column": 0
+                                "line": 1,
+                                "column": 0
                             },
                             "end": {
-                              "line": 1,
-                              "column": 5
+                                "line": 1,
+                                "column": 5
                             }
-                          },
-                          "value": 0.3,
-                          "raw": "3E-01"
+                        },
+                        "expression": {
+                            "type": "Literal",
+                            "start": 0,
+                            "end": 5,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 5
+                                }
+                            },
+                            "value": 0.3,
+                            "raw": "3E-01"
                         }
-                      }
-                    ],
+                    }],
                     "sourceType": "script"
-                  })
+                })
             })
     
     
@@ -343,51 +585,49 @@ describe('Literal - Numeric', () => {
                     "start": 0,
                     "end": 4,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 4
-                      }
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 4
+                        }
                     },
-                    "body": [
-                      {
+                    "body": [{
                         "type": "ExpressionStatement",
                         "start": 0,
                         "end": 4,
                         "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 0
-                          },
-                          "end": {
-                            "line": 1,
-                            "column": 4
-                          }
-                        },
-                        "expression": {
-                          "type": "Literal",
-                          "start": 0,
-                          "end": 4,
-                          "loc": {
                             "start": {
-                              "line": 1,
-                              "column": 0
+                                "line": 1,
+                                "column": 0
                             },
                             "end": {
-                              "line": 1,
-                              "column": 4
+                                "line": 1,
+                                "column": 4
                             }
-                          },
-                          "value": 80,
-                          "raw": "8e01"
+                        },
+                        "expression": {
+                            "type": "Literal",
+                            "start": 0,
+                            "end": 4,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 4
+                                }
+                            },
+                            "value": 80,
+                            "raw": "8e01"
                         }
-                      }
-                    ],
+                    }],
                     "sourceType": "script"
-                  })
+                })
             })
         });
     
@@ -879,55 +1119,55 @@ describe('Literal - Numeric', () => {
                 })
             })
         });
-
-                    it('should parse decimalIntegerLiteral :: 0, NoNZeroDigit', () => {
-                        expect(parseScript('9', {
-                            ranges: true,
-                            raw: true
-                        })).to.eql({
-                            "body": [{
-                                "end": 1,
-                                "expression": {
-                                    "end": 1,
-                                    "raw": "9",
-                                    "start": 0,
-                                    "type": "Literal",
-                                    "value": 9
-                                },
-                                "start": 0,
-                                "type": "ExpressionStatement"
-                            }],
-                            "end": 1,
-                            "sourceType": "script",
-                            "start": 0,
-                            "type": "Program"
-                        })
-                    })
-            
-                    it('should parse exponentPart :: e DecimalDigits', () => {
-                        expect(parseScript('0e1', {
-                            ranges: true,
-                            raw: true
-                        })).to.eql({
-                            "body": [{
-                                "end": 3,
-                                "expression": {
-                                    "end": 3,
-                                    "raw": "0e1",
-                                    "start": 0,
-                                    "type": "Literal",
-                                    "value": 0
-                                },
-                                "start": 0,
-                                "type": "ExpressionStatement"
-                            }],
-                            "end": 3,
-                            "sourceType": "script",
-                            "start": 0,
-                            "type": "Program"
-                        })
-                    })
-        
+    
+        it('should parse decimalIntegerLiteral :: 0, NoNZeroDigit', () => {
+            expect(parseScript('9', {
+                ranges: true,
+                raw: true
+            })).to.eql({
+                "body": [{
+                    "end": 1,
+                    "expression": {
+                        "end": 1,
+                        "raw": "9",
+                        "start": 0,
+                        "type": "Literal",
+                        "value": 9
+                    },
+                    "start": 0,
+                    "type": "ExpressionStatement"
+                }],
+                "end": 1,
+                "sourceType": "script",
+                "start": 0,
+                "type": "Program"
+            })
+        })
+    
+        it('should parse exponentPart :: e DecimalDigits', () => {
+            expect(parseScript('0e1', {
+                ranges: true,
+                raw: true
+            })).to.eql({
+                "body": [{
+                    "end": 3,
+                    "expression": {
+                        "end": 3,
+                        "raw": "0e1",
+                        "start": 0,
+                        "type": "Literal",
+                        "value": 0
+                    },
+                    "start": 0,
+                    "type": "ExpressionStatement"
+                }],
+                "end": 3,
+                "sourceType": "script",
+                "start": 0,
+                "type": "Program"
+            })
+        })
+    
         describe('DecimalIntegerLiteral :: NoNZeroDigit DecimalDigigts', () => {
     
             it('11.', () => {
@@ -954,7 +1194,7 @@ describe('Literal - Numeric', () => {
                 })
             })
         });
-       
+    
         it('should parse decimalIntegerLiteral :: 0, NoNZeroDigit.', () => {
             expect(parseScript('0.', {
                 ranges: true,
@@ -1194,9 +1434,174 @@ describe('Literal - Numeric', () => {
                 "start": 0,
                 "type": "Program"
             })
-        })
+        });
     
-        it('should pare hex integer literal :: 0X0 Digits', () => {
+        it('should parse "0X010000000"', () => {
+            expect(parseScript('0X010000000', {
+                ranges: true,
+                raw: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 11,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 11
+                    }
+                },
+                "body": [{
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 11,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 11
+                        }
+                    },
+                    "expression": {
+                        "type": "Literal",
+                        "start": 0,
+                        "end": 11,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 11
+                            }
+                        },
+                        "value": 268435456,
+                        "raw": "0X010000000"
+                    }
+                }],
+                "sourceType": "script"
+            });
+        });
+    
+        it('should parse "0X010000"', () => {
+            expect(parseScript('0X010000', {
+                ranges: true,
+                raw: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 8,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 8
+                    }
+                },
+                "body": [{
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 8,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 8
+                        }
+                    },
+                    "expression": {
+                        "type": "Literal",
+                        "start": 0,
+                        "end": 8,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 8
+                            }
+                        },
+                        "value": 65536,
+                        "raw": "0X010000"
+                    }
+                }],
+                "sourceType": "script"
+            });
+        });
+    
+        it('should parse "0x10"', () => {
+            expect(parseScript('0x10', {
+                ranges: true,
+                raw: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 4,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 4
+                    }
+                },
+                "body": [{
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 4,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 4
+                        }
+                    },
+                    "expression": {
+                        "type": "Literal",
+                        "start": 0,
+                        "end": 4,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 4
+                            }
+                        },
+                        "value": 16,
+                        "raw": "0x10"
+                    }
+                }],
+                "sourceType": "script"
+            });
+        });
+    
+        it('should parse hex integer literal :: 0X0 Digits', () => {
             expect(parseScript('0X010', {
                 ranges: true,
                 raw: true,
@@ -1206,51 +1611,49 @@ describe('Literal - Numeric', () => {
                 "start": 0,
                 "end": 5,
                 "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
-                  },
-                  "end": {
-                    "line": 1,
-                    "column": 5
-                  }
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 5
+                    }
                 },
-                "body": [
-                  {
+                "body": [{
                     "type": "ExpressionStatement",
                     "start": 0,
                     "end": 5,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 5
-                      }
-                    },
-                    "expression": {
-                      "type": "Literal",
-                      "start": 0,
-                      "end": 5,
-                      "loc": {
                         "start": {
-                          "line": 1,
-                          "column": 0
+                            "line": 1,
+                            "column": 0
                         },
                         "end": {
-                          "line": 1,
-                          "column": 5
+                            "line": 1,
+                            "column": 5
                         }
-                      },
-                      "value": 16,
-                      "raw": "0X010"
+                    },
+                    "expression": {
+                        "type": "Literal",
+                        "start": 0,
+                        "end": 5,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 5
+                            }
+                        },
+                        "value": 16,
+                        "raw": "0X010"
                     }
-                  }
-                ],
+                }],
                 "sourceType": "script"
-              });
+            });
         })
     
         it('should pare hexIntegerLiteral :: 0X1 Digits', () => {
@@ -1263,53 +1666,51 @@ describe('Literal - Numeric', () => {
                 "start": 0,
                 "end": 4,
                 "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
-                  },
-                  "end": {
-                    "line": 1,
-                    "column": 4
-                  }
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 4
+                    }
                 },
-                "body": [
-                  {
+                "body": [{
                     "type": "ExpressionStatement",
                     "start": 0,
                     "end": 4,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 4
-                      }
-                    },
-                    "expression": {
-                      "type": "Literal",
-                      "start": 0,
-                      "end": 4,
-                      "loc": {
                         "start": {
-                          "line": 1,
-                          "column": 0
+                            "line": 1,
+                            "column": 0
                         },
                         "end": {
-                          "line": 1,
-                          "column": 4
+                            "line": 1,
+                            "column": 4
                         }
-                      },
-                      "value": 26,
-                      "raw": "0X1A"
+                    },
+                    "expression": {
+                        "type": "Literal",
+                        "start": 0,
+                        "end": 4,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 4
+                            }
+                        },
+                        "value": 26,
+                        "raw": "0X1A"
                     }
-                  }
-                ],
+                }],
                 "sourceType": "script"
-              })
+            })
         })
-
+    
         it('should pare hexIntegerLiteral :: 0X1 Digits', () => {
             expect(parseScript('0012', {
                 ranges: true,
@@ -1320,51 +1721,49 @@ describe('Literal - Numeric', () => {
                 "start": 0,
                 "end": 4,
                 "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
-                  },
-                  "end": {
-                    "line": 1,
-                    "column": 4
-                  }
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 4
+                    }
                 },
-                "body": [
-                  {
+                "body": [{
                     "type": "ExpressionStatement",
                     "start": 0,
                     "end": 4,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 4
-                      }
-                    },
-                    "expression": {
-                      "type": "Literal",
-                      "start": 0,
-                      "end": 4,
-                      "loc": {
                         "start": {
-                          "line": 1,
-                          "column": 0
+                            "line": 1,
+                            "column": 0
                         },
                         "end": {
-                          "line": 1,
-                          "column": 4
+                            "line": 1,
+                            "column": 4
                         }
-                      },
-                      "value": 10,
-                      "raw": "0012"
+                    },
+                    "expression": {
+                        "type": "Literal",
+                        "start": 0,
+                        "end": 4,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 4
+                            }
+                        },
+                        "value": 10,
+                        "raw": "0012"
                     }
-                  }
-                ],
+                }],
                 "sourceType": "script"
-              })
+            })
         })
     
         it('should parse simple digit', () => {
@@ -1377,51 +1776,49 @@ describe('Literal - Numeric', () => {
                 "start": 0,
                 "end": 1,
                 "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
-                  },
-                  "end": {
-                    "line": 1,
-                    "column": 1
-                  }
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 1
+                    }
                 },
-                "body": [
-                  {
+                "body": [{
                     "type": "ExpressionStatement",
                     "start": 0,
                     "end": 1,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 1
-                      }
-                    },
-                    "expression": {
-                      "type": "Literal",
-                      "start": 0,
-                      "end": 1,
-                      "loc": {
                         "start": {
-                          "line": 1,
-                          "column": 0
+                            "line": 1,
+                            "column": 0
                         },
                         "end": {
-                          "line": 1,
-                          "column": 1
+                            "line": 1,
+                            "column": 1
                         }
-                      },
-                      "value": 3,
-                      "raw": "3"
+                    },
+                    "expression": {
+                        "type": "Literal",
+                        "start": 0,
+                        "end": 1,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 1
+                            }
+                        },
+                        "value": 3,
+                        "raw": "3"
                     }
-                  }
-                ],
+                }],
                 "sourceType": "script"
-              })
+            })
         })
     
         it('should parse long decimal number with exponentIndicator :: E+', () => {
@@ -1507,51 +1904,49 @@ describe('Literal - Numeric', () => {
                     "start": 0,
                     "end": 3,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 3
-                      }
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 3
+                        }
                     },
-                    "body": [
-                      {
+                    "body": [{
                         "type": "ExpressionStatement",
                         "start": 0,
                         "end": 3,
                         "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 0
-                          },
-                          "end": {
-                            "line": 1,
-                            "column": 3
-                          }
-                        },
-                        "expression": {
-                          "type": "Literal",
-                          "start": 0,
-                          "end": 3,
-                          "loc": {
                             "start": {
-                              "line": 1,
-                              "column": 0
+                                "line": 1,
+                                "column": 0
                             },
                             "end": {
-                              "line": 1,
-                              "column": 3
+                                "line": 1,
+                                "column": 3
                             }
-                          },
-                          "value": 0,
-                          "raw": "0b0"
+                        },
+                        "expression": {
+                            "type": "Literal",
+                            "start": 0,
+                            "end": 3,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 3
+                                }
+                            },
+                            "value": 0,
+                            "raw": "0b0"
                         }
-                      }
-                    ],
+                    }],
                     "sourceType": "script"
-                  })
+                })
             })
     
             it('0b00', () => {
@@ -1564,51 +1959,49 @@ describe('Literal - Numeric', () => {
                     "start": 0,
                     "end": 4,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 4
-                      }
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 4
+                        }
                     },
-                    "body": [
-                      {
+                    "body": [{
                         "type": "ExpressionStatement",
                         "start": 0,
                         "end": 4,
                         "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 0
-                          },
-                          "end": {
-                            "line": 1,
-                            "column": 4
-                          }
-                        },
-                        "expression": {
-                          "type": "Literal",
-                          "start": 0,
-                          "end": 4,
-                          "loc": {
                             "start": {
-                              "line": 1,
-                              "column": 0
+                                "line": 1,
+                                "column": 0
                             },
                             "end": {
-                              "line": 1,
-                              "column": 4
+                                "line": 1,
+                                "column": 4
                             }
-                          },
-                          "value": 0,
-                          "raw": "0b00"
+                        },
+                        "expression": {
+                            "type": "Literal",
+                            "start": 0,
+                            "end": 4,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 4
+                                }
+                            },
+                            "value": 0,
+                            "raw": "0b00"
                         }
-                      }
-                    ],
+                    }],
                     "sourceType": "script"
-                  })
+                })
             })
     
             it('0B1', () => {
@@ -1621,51 +2014,49 @@ describe('Literal - Numeric', () => {
                     "start": 0,
                     "end": 3,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 3
-                      }
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 3
+                        }
                     },
-                    "body": [
-                      {
+                    "body": [{
                         "type": "ExpressionStatement",
                         "start": 0,
                         "end": 3,
                         "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 0
-                          },
-                          "end": {
-                            "line": 1,
-                            "column": 3
-                          }
-                        },
-                        "expression": {
-                          "type": "Literal",
-                          "start": 0,
-                          "end": 3,
-                          "loc": {
                             "start": {
-                              "line": 1,
-                              "column": 0
+                                "line": 1,
+                                "column": 0
                             },
                             "end": {
-                              "line": 1,
-                              "column": 3
+                                "line": 1,
+                                "column": 3
                             }
-                          },
-                          "value": 1,
-                          "raw": "0B1"
+                        },
+                        "expression": {
+                            "type": "Literal",
+                            "start": 0,
+                            "end": 3,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 3
+                                }
+                            },
+                            "value": 1,
+                            "raw": "0B1"
                         }
-                      }
-                    ],
+                    }],
                     "sourceType": "script"
-                  })
+                })
             })
     
             it('0b10', () => {
@@ -1715,25 +2106,25 @@ describe('Literal - Numeric', () => {
                     "type": "Program"
                 })
             })
-
+    
             it('should fail on invalid hex with invalid letters', () => {
                 expect(() => {
                     parseScript('0x¤%&/()')
                 }).to.throw();
             });
-
+    
             it('should fail on binary invalid unicode escape sequence', () => {
                 expect(() => {
                     parseScript('"use strict"; 09')
                 }).to.not.throw();
             });
-
+    
             it('should fail on binary invalid unicode escape sequence', () => {
                 expect(() => {
                     parseScript('"use strict"; 018')
                 }).to.throw();
             });
-
+    
             it('should fail on binary invalid unicode escape sequence', () => {
                 expect(() => {
                     parseScript('0\\u00620')
@@ -1826,7 +2217,7 @@ describe('Literal - Numeric', () => {
                     parseScript('0o1a')
                 }).to.throw('');
             });
-            
+    
     
             it('should fail on "0O18"', () => {
                 expect(() => {
@@ -1851,19 +2242,19 @@ describe('Literal - Numeric', () => {
                     parseScript('0o18')
                 }).to.throw('');
             });
-
+    
             it('should fail on 07 (strict)', () => {
                 expect(() => {
                     parseScript('"use strict"; 07')
                 }).to.throw('');
             });
-
+    
             it('should fail on 019 (strict)', () => {
                 expect(() => {
                     parseScript('"use strict"; 019')
                 }).to.throw('');
             });
-
+    
             it('09.0', () => {
                 expect(parseScript('09.0', {
                     ranges: true,
@@ -1871,26 +2262,11 @@ describe('Literal - Numeric', () => {
                     locations: true
                 })).to.eql({
                     "type": "Program",
-                    "body": [
-                        {
-                            "type": "ExpressionStatement",
-                            "expression": {
-                                "type": "Literal",
-                                "value": 9,
-                                "start": 0,
-                                "end": 4,
-                                "loc": {
-                                    "start": {
-                                        "line": 1,
-                                        "column": 0
-                                    },
-                                    "end": {
-                                        "line": 1,
-                                        "column": 4
-                                    }
-                                },
-                                "raw": "09.0"
-                            },
+                    "body": [{
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "Literal",
+                            "value": 9,
                             "start": 0,
                             "end": 4,
                             "loc": {
@@ -1902,9 +2278,22 @@ describe('Literal - Numeric', () => {
                                     "line": 1,
                                     "column": 4
                                 }
+                            },
+                            "raw": "09.0"
+                        },
+                        "start": 0,
+                        "end": 4,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 4
                             }
                         }
-                    ],
+                    }],
                     "sourceType": "script",
                     "start": 0,
                     "end": 4,
@@ -1920,7 +2309,7 @@ describe('Literal - Numeric', () => {
                     }
                 });
             });
-
+    
             it('0O0', () => {
                 expect(parseScript('0O0', {
                     ranges: true,
@@ -1931,51 +2320,49 @@ describe('Literal - Numeric', () => {
                     "start": 0,
                     "end": 3,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 3
-                      }
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 3
+                        }
                     },
-                    "body": [
-                      {
+                    "body": [{
                         "type": "ExpressionStatement",
                         "start": 0,
                         "end": 3,
                         "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 0
-                          },
-                          "end": {
-                            "line": 1,
-                            "column": 3
-                          }
-                        },
-                        "expression": {
-                          "type": "Literal",
-                          "start": 0,
-                          "end": 3,
-                          "loc": {
                             "start": {
-                              "line": 1,
-                              "column": 0
+                                "line": 1,
+                                "column": 0
                             },
                             "end": {
-                              "line": 1,
-                              "column": 3
+                                "line": 1,
+                                "column": 3
                             }
-                          },
-                          "value": 0,
-                          "raw": "0O0"
+                        },
+                        "expression": {
+                            "type": "Literal",
+                            "start": 0,
+                            "end": 3,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 3
+                                }
+                            },
+                            "value": 0,
+                            "raw": "0O0"
                         }
-                      }
-                    ],
+                    }],
                     "sourceType": "script"
-                  })
+                })
             })
     
             it('0o07', () => {
@@ -2049,7 +2436,7 @@ describe('Literal - Numeric', () => {
                     "type": "Program"
                 })
             })
-
+    
             it('0008', () => {
                 expect(parseScript('0008', {
                     ranges: true,
@@ -2073,7 +2460,7 @@ describe('Literal - Numeric', () => {
                     "type": "Program"
                 })
             })
-
+    
             it('09', () => {
                 expect(parseScript('09', {
                     ranges: true,
@@ -2097,7 +2484,7 @@ describe('Literal - Numeric', () => {
                     "type": "Program"
                 })
             })
-
+    
             it('08', () => {
                 expect(parseScript('08', {
                     ranges: true,
@@ -2121,7 +2508,7 @@ describe('Literal - Numeric', () => {
                     "type": "Program"
                 })
             })
-
+    
             it('09.5', () => {
                 expect(parseScript('09.5', {
                     ranges: true,
@@ -2146,28 +2533,26 @@ describe('Literal - Numeric', () => {
                 })
             })
         })
-
+    
         it('should parse "0128"', () => {
             expect(parseScript('0128', {
                 ranges: true
             })).to.eql({
-                  "body": [
-                    {
-                      "end": 4,
-                      "expression": {
+                "body": [{
+                    "end": 4,
+                    "expression": {
                         "end": 4,
                         "start": 0,
                         "type": "Literal",
                         "value": 128,
-                      },
-                      "start": 0,
-                      "type": "ExpressionStatement"
                     },
-                  ],
-                  "end": 4,
-                  "sourceType": "script",
-                  "start": 0,
-                  "type": "Program"
-                });
+                    "start": 0,
+                    "type": "ExpressionStatement"
+                }, ],
+                "end": 4,
+                "sourceType": "script",
+                "start": 0,
+                "type": "Program"
+            });
         });
     });

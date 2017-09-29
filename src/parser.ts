@@ -971,7 +971,7 @@ export class Parser {
         let ch = this.nextChar();
         let code = toHex(ch);
 
-        if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
+        if (code < 0) this.error(Errors.InvalidRadix);
 
         this.advance();
 
@@ -3949,7 +3949,6 @@ export class Parser {
         while (true) {
 
             if (this.parseOptional(context, Token.Period)) {
-
                 if (context & Context.Parenthesis && !(this.flags & Flags.HasMemberExpression)) {
                     this.errorLocation = this.trackErrorLocation();
                     this.flags |= Flags.HasMemberExpression;
@@ -4238,7 +4237,7 @@ export class Parser {
         if (!this.isIdentifier(context, this.token)) this.error(Errors.UnexpectedToken, tokenDesc(token));
         const expr = this.parseIdentifier(context);
         context &= ~Context.Await;
-
+        this.flags &= ~Flags.Arrow;
         if (this.token === Token.Arrow) {
             // Invalid: 'var af = switch => 1;'
             if (hasMask(token, Token.Reserved)) this.error(Errors.UnexpectedToken, tokenDesc(token));
@@ -4881,7 +4880,6 @@ export class Parser {
         const value = this.tokenValue;
         const raw = this.tokenRaw;
 
-        if (context & Context.Strict && this.flags & Flags.Decimal) this.error(Errors.Unexpected);
         if (context & Context.Strict && this.flags & Flags.Noctal) this.error(Errors.Unexpected);
 
         this.nextToken(context);

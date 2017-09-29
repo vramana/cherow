@@ -324,6 +324,7 @@ ErrorMessages[121 /* InvalidLabeledForOf */] = 'The body of a for-of statement m
 ErrorMessages[122 /* InvalidVarDeclInForIn */] = 'Invalid variable declaration in for-in statement';
 ErrorMessages[123 /* InvalidRestOperatorArg */] = 'Invalid rest operator\'s argument';
 ErrorMessages[124 /* InvalidNoctalInteger */] = 'Unexpected noctal integer literal';
+ErrorMessages[125 /* InvalidRadix */] = 'Expected number in radix';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -1348,7 +1349,7 @@ Parser.prototype.scanHexadecimalDigit = function scanHexadecimalDigit () {
     var ch = this.nextChar();
     var code = toHex(ch);
     if (code < 0)
-        { this.error(74 /* InvalidHexEscapeSequence */); }
+        { this.error(125 /* InvalidRadix */); }
     this.advance();
     while (this.hasNext()) {
         ch = this$1.nextChar();
@@ -4225,6 +4226,7 @@ Parser.prototype.parseIdentifierOrArrow = function parseIdentifierOrArrow (conte
         { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }
     var expr = this.parseIdentifier(context);
     context &= ~2048 /* Await */;
+    this.flags &= ~32768 /* Arrow */;
     if (this.token === 10 /* Arrow */) {
         // Invalid: 'var af = switch => 1;'
         if (hasMask(token, 12288 /* Reserved */))
@@ -4815,8 +4817,6 @@ Parser.prototype.parseLiteral = function parseLiteral (context) {
     var pos = this.getLocations();
     var value = this.tokenValue;
     var raw = this.tokenRaw;
-    if (context & 2 /* Strict */ && this.flags & 1048576 /* Decimal */)
-        { this.error(0 /* Unexpected */); }
     if (context & 2 /* Strict */ && this.flags & 131072 /* Noctal */)
         { this.error(0 /* Unexpected */); }
     this.nextToken(context);

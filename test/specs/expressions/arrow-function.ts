@@ -193,7 +193,7 @@ describe('Expressions - Arrow function', () => {
     it('should fail if Arrow parameters contain yield expressions', () => {
         expect(() => {
             parseScript('const foo = () => { console.log(new.target); };');
-        }).to.throw('');
+        }).to.not.throw('');
     });
 
     it('should fail on invalid unary operator after arrow body', () => {
@@ -10403,4 +10403,231 @@ var await;
             "sourceType": "script"
           });
     });
+
+    it('should parse two arrows with call expression as body', () => {
+      expect(parseScript(`a(b, () => { c(d, () => { }); });`, {
+          ranges: true,
+          locations: true,
+          raw: true,
+      })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 33,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 33
+            }
+          },
+          "body": [
+            {
+              "type": "ExpressionStatement",
+              "start": 0,
+              "end": 33,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 33
+                }
+              },
+              "expression": {
+                "type": "CallExpression",
+                "start": 0,
+                "end": 32,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 32
+                  }
+                },
+                "callee": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 1,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1
+                    }
+                  },
+                  "name": "a"
+                },
+                "arguments": [
+                  {
+                    "type": "Identifier",
+                    "start": 2,
+                    "end": 3,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 2
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 3
+                      }
+                    },
+                    "name": "b"
+                  },
+                  {
+                    "type": "ArrowFunctionExpression",
+                    "start": 5,
+                    "end": 31,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 5
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 31
+                      }
+                    },
+                    "id": null,
+                    "generator": false,
+                    "expression": false,
+                    "async": false,
+                    "params": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "start": 11,
+                      "end": 31,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 11
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 31
+                        }
+                      },
+                      "body": [
+                        {
+                          "type": "ExpressionStatement",
+                          "start": 13,
+                          "end": 29,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 13
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 29
+                            }
+                          },
+                          "expression": {
+                            "type": "CallExpression",
+                            "start": 13,
+                            "end": 28,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 13
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 28
+                              }
+                            },
+                            "callee": {
+                              "type": "Identifier",
+                              "start": 13,
+                              "end": 14,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 13
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 14
+                                }
+                              },
+                              "name": "c"
+                            },
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "start": 15,
+                                "end": 16,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 15
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 16
+                                  }
+                                },
+                                "name": "d"
+                              },
+                              {
+                                "type": "ArrowFunctionExpression",
+                                "start": 18,
+                                "end": 27,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 18
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 27
+                                  }
+                                },
+                                "id": null,
+                                "generator": false,
+                                "expression": false,
+                                "async": false,
+                                "params": [],
+                                "body": {
+                                  "type": "BlockStatement",
+                                  "start": 24,
+                                  "end": 27,
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 24
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 27
+                                    }
+                                  },
+                                  "body": []
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "sourceType": "script"
+        });
+  });
+
 });

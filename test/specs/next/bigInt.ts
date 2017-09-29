@@ -5,26 +5,52 @@ const expect = chai.expect;
 
 describe('Next - BigInt', () => {
 
-    it('should fail on invalid float', () => {
+    it('should fail on invalid exponent part', () => {
         expect(() => {
-            parseScript('1.0n', {
+            parseScript('0e0n;', {
                 next: true
             });
         }).to.throw();
     });
-    it('should fail on invalid e', () => {
+
+    it('should fail on invalid hexadecimal digit', () => {
         expect(() => {
-            parseScript('2e9n', {
+            parseScript('0xgn;', {
+                next: true
+            });
+        }).to.throw('Expected number in radix');
+    });
+
+    it('should fail if the MV is not an integer', () => {
+        expect(() => {
+            parseScript('2017.8n;', {
                 next: true
             });
         }).to.throw();
     });
-    it('should fail on invalid noctal', () => {
+
+    it('should fail if binary contain an invalid digit', () => {
         expect(() => {
-            parseScript('016432n', {
+            parseScript('0b2n;', {
                 next: true
             });
-        }).to.not.throw();
+        }).to.throw();
+    });
+
+    it('should fail if octal contain an invalid digit', () => {
+        expect(() => {
+            parseScript('0o9n;', {
+                next: true
+            });
+        }).to.throw();
+    });
+
+    it('should fail if if the MV is not an integer (dot decimalDigits)', () => {
+        expect(() => {
+            parseScript('.0000000001n;', {
+                next: true
+            });
+        }).to.throw();
     });
 
     it('should parse binary', () => {
@@ -203,7 +229,6 @@ describe('Next - BigInt', () => {
             }
         });
     });
-
     it('should parse small number', () => {
         expect(parseScript(`100n`, {
             raw: true,

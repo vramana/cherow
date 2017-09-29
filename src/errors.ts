@@ -123,7 +123,8 @@ export const enum Errors {
     InvalidLabeledForOf,
     InvalidVarDeclInForIn,
     InvalidRestOperatorArg,
-    InvalidNoctalInteger
+    InvalidNoctalInteger,
+    InvalidRadix
 }
 
 export const ErrorMessages: {
@@ -252,6 +253,7 @@ export const ErrorMessages: {
     [Errors.InvalidVarDeclInForIn]: 'Invalid variable declaration in for-in statement',
     [Errors.InvalidRestOperatorArg]: 'Invalid rest operator\'s argument',
     [Errors.InvalidNoctalInteger]: 'Unexpected noctal integer literal',
+    [Errors.InvalidRadix]: 'Expected number in radix',
 };
 
 function constructError(msg: string, column: number): Error {
