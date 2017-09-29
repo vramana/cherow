@@ -133,6 +133,5 @@ This because of the `Asynchronous Iteration` implementation.
 *Terms of contribution:*
 
 - Think twice before you try to implement anything
-- Minimum 1.5m ops/sec for lightweight cases, and 800k-1m ops/sec for "heavy" cases
 - Avoid duplicating the source code
 - Create tests that cover what you have implemented
