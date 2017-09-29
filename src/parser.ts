@@ -4905,19 +4905,11 @@ export class Parser {
         const value = this.tokenValue;
         const raw = this.tokenRaw;
 
-        // Invalid: "use strict; 08"
-        // Invalid: "use strict; 09"
-        if (context & Context.Strict && this.flags & Flags.Decimal) {
-            if (this.tokenValue === 9 || this.tokenValue === 8) this.error(Errors.Unexpected);
-        }
-
-        if (context & Context.Strict && this.flags & Flags.Noctals) {
-            this.error(Errors.Unexpected);
+        if (context & Context.Strict) {
+            if (this.flags & Flags.Noctals) this.error(Errors.Unexpected);
         }
 
         this.nextToken(context);
-
-
 
         const node = this.finishNode(pos, {
             type: 'Literal',

@@ -2186,13 +2186,13 @@ is y`);
     it('should fail on "use strict; 08"', () => {
         expect(() => {
             parseScript(`'use strict'; 08`);
-        }).to.throw('');
+        }).to.not.throw('');
     });
 
     it('should fail on "use strict; 09"', () => {
         expect(() => {
             parseScript(`'use strict'; 09`);
-        }).to.throw('');
+        }).to.not.throw('');
     });
 
     it('should fail on "for(let[a]().b of 0);"', () => {
