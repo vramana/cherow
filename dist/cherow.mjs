@@ -1423,8 +1423,8 @@ Parser.prototype.scanNumber = function scanNumber (context) {
         case 69 /* UpperE */:
         case 101 /* LowerE */:
             this.advance();
-            if (!(this.flags & 524288 /* Float */))
-                { this.flags |= 524288 /* Float */; }
+            if (!(this.flags & 1048576 /* Exponent */))
+                { this.flags |= 1048576 /* Exponent */; }
             // scan exponent
             switch (this.nextChar()) {
                 case 43 /* Plus */:
@@ -1457,7 +1457,7 @@ Parser.prototype.scanNumber = function scanNumber (context) {
         // BigInt - Stage 3 proposal
         case 110 /* LowerN */:
             if (this.flags & 67108864 /* OptionsNext */) {
-                if (this.flags & 524288 /* Float */)
+                if (this.flags & 1572864 /* FloatOrExponent */)
                     { this.error(0 /* Unexpected */); }
                 this.advance();
                 if (!(this.flags & 262144 /* BigInt */))
@@ -1470,9 +1470,10 @@ Parser.prototype.scanNumber = function scanNumber (context) {
     // not be an identifier start or a decimal digit.
     if (isIdentifierStart(this.nextChar()))
         { this.error(126 /* InvalidNumber */); }
+    var raw = this.source.substring(start, end);
     if (this.flags & 33554432 /* OptionsRaw */)
-        { this.tokenRaw = this.source.substring(start, end); }
-    this.tokenValue = parseFloat(this.source.substring(start, end));
+        { this.tokenRaw = raw; }
+    this.tokenValue = this.flags & 1572864 /* FloatOrExponent */ ? parseFloat(raw) : parseInt(raw, 10);
     return 2 /* NumericLiteral */;
 };
 Parser.prototype.scanRegularExpression = function scanRegularExpression () {

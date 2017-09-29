@@ -1065,7 +1065,7 @@ export class Parser {
 
                 this.advance();
 
-                if (!(this.flags & Flags.Float)) this.flags |= Flags.Float;
+                if (!(this.flags & Flags.Exponent)) this.flags |= Flags.Exponent;
 
                  // scan exponent
                 switch (this.nextChar()) {
@@ -1102,7 +1102,7 @@ export class Parser {
                 // BigInt - Stage 3 proposal
             case Chars.LowerN:
                 if (this.flags & Flags.OptionsNext) {
-                    if (this.flags & Flags.Float) this.error(Errors.Unexpected);
+                    if (this.flags & Flags.FloatOrExponent) this.error(Errors.Unexpected);
                     this.advance();
                     if (!(this.flags & Flags.BigInt)) this.flags |= Flags.BigInt;
                     end = this.index;
@@ -1111,13 +1111,15 @@ export class Parser {
             default: // ignore
         }
 
-         // The source character immediately following a numeric literal must
-         // not be an identifier start or a decimal digit.
+        // The source character immediately following a numeric literal must
+        // not be an identifier start or a decimal digit.
         if (isIdentifierStart(this.nextChar())) this.error(Errors.InvalidNumber);
 
-        if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.substring(start, end);
+        const raw = this.source.substring(start, end);
 
-        this.tokenValue = parseFloat(this.source.substring(start, end));
+        if (this.flags & Flags.OptionsRaw) this.tokenRaw = raw;
+
+        this.tokenValue = this.flags & Flags.FloatOrExponent ? parseFloat(raw) : parseInt(raw, 10);
 
         return Token.NumericLiteral;
     }

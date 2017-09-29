@@ -56,11 +56,11 @@ export const enum Flags {
     Arrow                        = 1 << 15, // If node was parsed in the 'arrow' context
     AsyncArrow                   = 1 << 16, // If node was parsed in the 'async' context
 
-    /** Numeric */
+    /* Numeric */
     Noctal                       = 1 << 17, // e.g. `0777`
     BigInt                       = 1 << 18, // e.g. `100n`
     Float                        = 1 << 19, // e.g. `09.01`
-    Decimal                      = 1 << 20, // e.g. `123`
+    Exponent                     = 1 << 20, // e.g. `10e2`
 
     /* Options */
     OptionsRanges                = 1 << 21,
@@ -72,6 +72,9 @@ export const enum Flags {
     OptionsOnComment             = 1 << 27,
     OptionsOnToken               = 1 << 28,
     OptionsV8                    = 1 << 29,
+
+    // BigInt implementation can't handle either float or exponent acc. TC-39
+    FloatOrExponent = Float | Exponent
 }
 
 export const enum IterationState {
