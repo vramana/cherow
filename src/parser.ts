@@ -1216,7 +1216,7 @@ export class Parser {
                             mask |= RegExpFlag.DotAll;
                             break;
                         }
-                        // falls through
+
                     default:
                         if (code >= 0xd800 && code <= 0xdc00) code = this.nextUnicodeChar();
                         if (!isIdentifierPart(code)) break loop;
@@ -1226,7 +1226,9 @@ export class Parser {
                 this.column++;
             }
 
+        this.endPos = this.index;
         this.index = index;
+        
 
         const pattern = this.source.slice(bodyStart, bodyEnd);
         const flags = this.source.slice(flagsStart, this.index);
@@ -4387,9 +4389,6 @@ export class Parser {
         }
     }
 
-    // NOTE! By doing it this way we are about 67% faster than Esprima, and 83% faster
-    // than Acorn in micro-benchmarks. And we hit the 3 mill ops/sec milestone in
-    // a few cases. Average 1.9 mill ops/sec. This is DAMN fast!!
     private parseTemplateTail(context: Context, pos: Location): ESTree.TemplateLiteral {
         const quasis = this.parseTemplateElement(context, pos);
         return this.finishNode(pos, {
@@ -4898,8 +4897,9 @@ export class Parser {
         this.expect(context, Token.BigIntLiteral);
 
         const node = this.finishNode(pos, {
-            type: 'BigIntLiteral',
-            value
+            type: 'Literal',
+            value,
+            bigint: raw
         });
 
         if (this.flags & Flags.OptionsRaw) node.raw = raw;

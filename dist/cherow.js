@@ -1573,7 +1573,6 @@ Parser.prototype.scanRegularExpression = function scanRegularExpression () {
                     mask |= 32 /* DotAll */;
                     break;
                 }
-            // falls through
             default:
                 if (code >= 0xd800 && code <= 0xdc00)
                     { code = this$1.nextUnicodeChar(); }
@@ -1584,6 +1583,7 @@ Parser.prototype.scanRegularExpression = function scanRegularExpression () {
         index++;
         this$1.column++;
     }
+    this.endPos = this.index;
     this.index = index;
     var pattern = this.source.slice(bodyStart, bodyEnd);
     var flags = this.source.slice(flagsStart, this.index);
@@ -4378,9 +4378,6 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
             return this.parseIdentifierOrArrow(context & ~1024 /* Parenthesis */, pos);
     }
 };
-// NOTE! By doing it this way we are about 67% faster than Esprima, and 83% faster
-// than Acorn in micro-benchmarks. And we hit the 3 mill ops/sec milestone in
-// a few cases. Average 1.9 mill ops/sec. This is DAMN fast!!
 Parser.prototype.parseTemplateTail = function parseTemplateTail (context, pos) {
     var quasis = this.parseTemplateElement(context, pos);
     return this.finishNode(pos, {
@@ -4837,8 +4834,9 @@ Parser.prototype.parseBigIntLiteral = function parseBigIntLiteral (context) {
     var raw = this.tokenRaw;
     this.expect(context, 116 /* BigIntLiteral */);
     var node = this.finishNode(pos, {
-        type: 'BigIntLiteral',
-        value: value
+        type: 'Literal',
+        value: value,
+        bigint: raw
     });
     if (this.flags & 2097152 /* OptionsRaw */)
         { node.raw = raw; }
