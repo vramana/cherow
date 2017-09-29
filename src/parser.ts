@@ -379,7 +379,12 @@ export class Parser {
                         if (next === Chars.Hyphen) {
                             this.advance();
                             if (this.consume(Chars.GreaterThan)) {
-                                if (!(context & Context.Module) || this.flags & Flags.LineTerminator) this.skipSingleLineComment(3);
+                                if (!(context & Context.Module) || this.flags & Flags.LineTerminator) {
+                                   this.skipSingleLineComment(3);
+                                } else {
+                                    this.index -= 2;
+                                    this.column -= 2;
+                                }
                                 continue;
                             }
                             return Token.Decrement;
