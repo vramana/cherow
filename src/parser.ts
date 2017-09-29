@@ -929,6 +929,7 @@ export class Parser {
         let code = 0;
 
         while (this.hasNext()) {
+            if (ch >= Chars.Eight) this.flags |= Flags.Decimal;
             ch = this.nextChar();
             if (!isDigit(ch)) break;
             code = code * 8 + (ch - 48);
@@ -938,6 +939,7 @@ export class Parser {
         this.tokenValue = code;
 
         if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) {
+            if (this.flags & Flags.Decimal) this.error(Errors.Unexpected);
             this.advance();
             this.flags |= Flags.BigInt;
         }
@@ -4905,7 +4907,7 @@ export class Parser {
         const raw = this.tokenRaw;
 
         if (context & Context.Strict && this.flags & Flags.Noctals) {
-            this.error(Errors.UnexpectedToken, 'Go to hell!');
+            this.error(Errors.Unexpected);
         }
 
         this.nextToken(context);

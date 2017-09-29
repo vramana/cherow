@@ -4,29 +4,29 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Next - BigInt', () => {
-/*
-    it('should fail on invalid rest elison', () => {
+
+    it('should fail on invalid float', () => {
         expect(() => {
             parseScript('1.0n', {
                 next: true
             });
         }).to.throw();
     });
-    it('should fail on invalid rest elison', () => {
+    it('should fail on invalid e', () => {
         expect(() => {
             parseScript('2e9n', {
                 next: true
             });
         }).to.throw();
     });
-    it('should fail on invalid floating number', () => {
+    it('should fail on invalid noctal', () => {
         expect(() => {
             parseScript('016432n', {
                 next: true
             });
-        }).to.not.throw();
+        }).to.throw();
     });
-*/
+
     it('should parse binary', () => {
         expect(parseScript(`0b101011101n`, {
             raw: true,
