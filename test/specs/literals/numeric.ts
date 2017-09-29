@@ -1725,7 +1725,7 @@ describe('Literal - Numeric', () => {
             it('should fail on binary invalid unicode escape sequence', () => {
                 expect(() => {
                     parseScript('"use strict"; 09')
-                }).to.not.throw();
+                }).to.throw();
             });
 
             it('should fail on binary invalid unicode escape sequence', () => {

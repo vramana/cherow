@@ -660,6 +660,8 @@ export class Parser {
                         if (index < this.source.length && ch >= Chars.Zero && ch <= Chars.Seven) {
                             return this.scanNumberLiteral(context);
                         }
+
+                        this.flags |= Flags.Decimal;
                     }
 
                     // '1' - '9'
@@ -927,9 +929,7 @@ export class Parser {
         }
 
         let code = 0;
-
         while (this.hasNext()) {
-            if (ch >= Chars.Eight) this.flags |= Flags.Decimal;
             ch = this.nextChar();
             if (!isDigit(ch)) break;
             code = code * 8 + (ch - 48);
@@ -939,7 +939,6 @@ export class Parser {
         this.tokenValue = code;
 
         if (this.flags & Flags.OptionsNext && ch === Chars.LowerN) {
-            if (this.flags & Flags.Decimal) this.error(Errors.Unexpected);
             this.advance();
             this.flags |= Flags.BigInt;
         }
@@ -4905,6 +4904,12 @@ export class Parser {
         const pos = this.getLocations();
         const value = this.tokenValue;
         const raw = this.tokenRaw;
+
+        // Invalid: "use strict; 08"
+        // Invalid: "use strict; 09"
+        if (context & Context.Strict && this.flags & Flags.Decimal) {
+            if (this.tokenValue === 9 || this.tokenValue === 8) this.error(Errors.Unexpected);
+        }
 
         if (context & Context.Strict && this.flags & Flags.Noctals) {
             this.error(Errors.Unexpected);
