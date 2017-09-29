@@ -5,6 +5,12 @@ const expect = chai.expect;
 
 describe('Literal - Numeric', () => {
 
+        it('should fail "const t = 2.34e-;const b = 4.3e--3;"', () => {
+            expect(() => {
+                parseScript('const t = 2.34e-;const b = 4.3e--3;')
+            }).to.throw();
+        });
+
         it('should fail on octal extension (000) in strict mode', () => {
             expect(() => {
                 parseScript('"use strict"; var foo = 000;')

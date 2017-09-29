@@ -620,7 +620,7 @@ export class Parser {
 
                         const next = this.source.charCodeAt(index);
                         if (next >= Chars.Zero && next <= Chars.Nine) {
-                            this.scanNumber(context, first);
+                            this.scanNumber(context);
                             return Token.NumericLiteral;
                         } else if (next === Chars.Period) {
                             index++;
@@ -673,7 +673,7 @@ export class Parser {
                 case Chars.Eight:
                 case Chars.Nine:
 
-                    return this.scanNumber(context, first);
+                    return this.scanNumber(context);
 
                     // '\uVar', `\u{N}var`
                 case Chars.Backslash:
@@ -1042,7 +1042,7 @@ export class Parser {
         }
     }
 
-    private scanNumber(context: Context, ch: Chars): Token {
+    private scanNumber(context: Context): Token {
 
         const start = this.index;
 
@@ -1059,12 +1059,7 @@ export class Parser {
         let end = this.index;
 
         switch (this.nextChar()) {
-            case Chars.LowerN:
-                if (this.flags & Flags.OptionsNext) {
-                    if (this.flags & Flags.Float) this.error(Errors.Unexpected);
-                    this.advance();
-                    if (!(this.flags & Flags.BigInt)) this.flags |= Flags.BigInt;
-                }
+            // scan exponent, if any
             case Chars.UpperE:
             case Chars.LowerE:
 
@@ -1072,6 +1067,7 @@ export class Parser {
 
                 if (!(this.flags & Flags.Float)) this.flags |= Flags.Float;
 
+                 // scan exponent
                 switch (this.nextChar()) {
                     case Chars.Plus:
                     case Chars.Hyphen:
@@ -1080,20 +1076,43 @@ export class Parser {
                     default: // ignore
                 }
 
-                const next = this.nextChar();
-
-                if (next >= Chars.Zero && next <= Chars.Nine) {
-                    this.advance();
-                    this.skipDigits();
-                } else {
-                   this.error(Errors.InvalidNumber);
+                switch (this.nextChar()) {
+                    case Chars.Zero:
+                    case Chars.One:
+                    case Chars.Two:
+                    case Chars.Three:
+                    case Chars.Four:
+                    case Chars.Five:
+                    case Chars.Six:
+                    case Chars.Seven:
+                    case Chars.Eight:
+                    case Chars.Nine:
+                        this.advance();
+                        this.skipDigits();
+                        break;
+                    default:
+                        // we must have at least one decimal digit after 'e'/'E'
+                        this.error(Errors.InvalidNumber);
                 }
 
                 end = this.index;
 
+                break;
+
+                // BigInt - Stage 3 proposal
+            case Chars.LowerN:
+                if (this.flags & Flags.OptionsNext) {
+                    if (this.flags & Flags.Float) this.error(Errors.Unexpected);
+                    this.advance();
+                    if (!(this.flags & Flags.BigInt)) this.flags |= Flags.BigInt;
+                    end = this.index;
+                }
+
             default: // ignore
         }
 
+         // The source character immediately following a numeric literal must
+         // not be an identifier start or a decimal digit.
         if (isIdentifierStart(this.nextChar())) this.error(Errors.InvalidNumber);
 
         if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.substring(start, end);

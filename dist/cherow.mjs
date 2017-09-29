@@ -1018,7 +1018,7 @@ Parser.prototype.scanToken = function scanToken (context) {
                     var index = this$1.index + 1;
                     var next$9 = this$1.source.charCodeAt(index);
                     if (next$9 >= 48 /* Zero */ && next$9 <= 57 /* Nine */) {
-                        this$1.scanNumber(context, first);
+                        this$1.scanNumber(context);
                         return 2 /* NumericLiteral */;
                     }
                     else if (next$9 === 46 /* Period */) {
@@ -1066,7 +1066,7 @@ Parser.prototype.scanToken = function scanToken (context) {
             case 55 /* Seven */:
             case 56 /* Eight */:
             case 57 /* Nine */:
-                return this$1.scanNumber(context, first);
+                return this$1.scanNumber(context);
             // '\uVar', `\u{N}var`
             case 92 /* Backslash */:
             // `A`...`Z`
@@ -1408,7 +1408,7 @@ Parser.prototype.skipDigits = function skipDigits () {
         }
     }
 };
-Parser.prototype.scanNumber = function scanNumber (context, ch) {
+Parser.prototype.scanNumber = function scanNumber (context) {
     var start = this.index;
     this.skipDigits();
     if (this.nextChar() === 46 /* Period */) {
@@ -1419,19 +1419,13 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
     }
     var end = this.index;
     switch (this.nextChar()) {
-        case 110 /* LowerN */:
-            if (this.flags & 67108864 /* OptionsNext */) {
-                if (this.flags & 524288 /* Float */)
-                    { this.error(0 /* Unexpected */); }
-                this.advance();
-                if (!(this.flags & 262144 /* BigInt */))
-                    { this.flags |= 262144 /* BigInt */; }
-            }
+        // scan exponent, if any
         case 69 /* UpperE */:
         case 101 /* LowerE */:
             this.advance();
             if (!(this.flags & 524288 /* Float */))
                 { this.flags |= 524288 /* Float */; }
+            // scan exponent
             switch (this.nextChar()) {
                 case 43 /* Plus */:
                 case 45 /* Hyphen */:
@@ -1440,17 +1434,40 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                         { this.error(126 /* InvalidNumber */); }
                 default: // ignore
             }
-            var next = this.nextChar();
-            if (next >= 48 /* Zero */ && next <= 57 /* Nine */) {
-                this.advance();
-                this.skipDigits();
-            }
-            else {
-                this.error(126 /* InvalidNumber */);
+            switch (this.nextChar()) {
+                case 48 /* Zero */:
+                case 49 /* One */:
+                case 50 /* Two */:
+                case 51 /* Three */:
+                case 52 /* Four */:
+                case 53 /* Five */:
+                case 54 /* Six */:
+                case 55 /* Seven */:
+                case 56 /* Eight */:
+                case 57 /* Nine */:
+                    this.advance();
+                    this.skipDigits();
+                    break;
+                default:
+                    // we must have at least one decimal digit after 'e'/'E'
+                    this.error(126 /* InvalidNumber */);
             }
             end = this.index;
+            break;
+        // BigInt - Stage 3 proposal
+        case 110 /* LowerN */:
+            if (this.flags & 67108864 /* OptionsNext */) {
+                if (this.flags & 524288 /* Float */)
+                    { this.error(0 /* Unexpected */); }
+                this.advance();
+                if (!(this.flags & 262144 /* BigInt */))
+                    { this.flags |= 262144 /* BigInt */; }
+                end = this.index;
+            }
         default: // ignore
     }
+    // The source character immediately following a numeric literal must
+    // not be an identifier start or a decimal digit.
     if (isIdentifierStart(this.nextChar()))
         { this.error(126 /* InvalidNumber */); }
     if (this.flags & 33554432 /* OptionsRaw */)
