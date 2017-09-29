@@ -317,15 +317,26 @@ describe('Whitespace', () => {
 
         it('should skip single line comment with space', () => {
             expect(parseScript(`// single line comment `, {
-                ranges: true,
+                locations: true,
+                ranges: true
                 
             })).to.eql({
-                "type": "Program",
-                "end": 23,
-                "body": [],
-                "start": 0,
-                "sourceType": "script"
-            })
+                  "body": [],
+                  "end": 23,
+                  "loc": {
+                    "end": {
+                      "column": 23,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                 "sourceType": "script",
+                  "start": 0,
+                  "type": "Program"
+                })
         });
 
         it('should skip single line comment with horizontal vertical tab', () => {
@@ -369,15 +380,26 @@ describe('Whitespace', () => {
 
         it('should skip multiline comments with nothing', () => {
             expect(parseScript(`  \t /* foo * /* bar */  `, {
-                ranges: true,
+                locations: true,
+                ranges: true
                 
             })).to.eql({
-                "type": "Program",
-                "end": 24,
-                "body": [],
-                "start": 0,
-                "sourceType": "script"
-            })
+                  "body": [],
+                  "end": 24,
+                  "loc": {
+                    "end": {
+                      "column": 24,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                  "sourceType": "script",
+                  "start": 0,
+                  "type": "Program"
+                })
         });
 
 
@@ -789,7 +811,6 @@ describe('Whitespace', () => {
         it('should skip line feeds', () => {
             expect(parseScript(`\n\n\n\n\n\n\n\n`, {
                 ranges: true,
-                
             })).to.eql({
                 "end": 8,
                 "type": "Program",
@@ -803,10 +824,8 @@ describe('Whitespace', () => {
         it('should skip carriage returns', () => {
             expect(parseScript(`\r\r\r\r\r\r\r\r`, {
                 ranges: true,
-                
             })).to.eql({
                 "type": "Program",
-
                 "start": 0,
                 "end": 8,
                 "body": [],
@@ -872,29 +891,25 @@ describe('Whitespace', () => {
 
         it('should skip paragraph separators', () => {
             expect(parseScript(`\u2029\u2029\u2029\u2029\u2029\u2029\u2029\u2029`, {
-                ranges: true,
+                locations: true,
+                ranges: true
             })).to.eql({
-                "type": "Program",
-                "body": [],
-                "end": 8,
-
-                "sourceType": "script",
-                "start": 0
-            })
-        });
-
-        it('should skip paragraph separators', () => {
-            expect(parseScript(`\u2029\u2029\u2029\u2029\u2029\u2029\u2029\u2029`, {
-                ranges: true,
-                
-            })).to.eql({
-                "type": "Program",
-                "body": [],
-                "end": 8,
-
-                "sourceType": "script",
-                "start": 0
-            })
+                  "body": [],
+                  "end": 8,
+                  "loc": {
+                   "end": {
+                      "column": 0,
+                      "line": 9,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    },
+                  },
+                 "sourceType": "script",
+                  "start": 0,
+                  "type": "Program"
+                })
         });
 
         it('should avoid HTML single line comments with \r', () => {
@@ -938,40 +953,82 @@ describe('Whitespace', () => {
             expect(parseScript(`  \t /*\n*/ /**/ /* second optional ""
         SingleLineDelimitedCommentSequence */    ""
         --> the comment extends to these characters\n `, {
+                locations: true,
                 ranges: true,
                 raw: true
             })).to.eql({
                   "body": [
                     {
                       "end": 88,
-                      "expression": {
+                     "expression": {
                         "end": 88,
+                        "loc": {
+                          "end": {
+                            "column": 51,
+                            "line": 3,
+                         },
+                          "start": {
+                            "column": 49,
+                            "line": 3,
+                          }
+                        },
                         "raw": "\"\"",
                         "start": 86,
                         "type": "Literal",
                         "value": "",
-                      },
+                     },
+                      "loc": {
+                        "end": {
+                          "column": 51,
+                          "line": 3,
+                        },
+                        "start": {
+                          "column": 49,
+                          "line": 3,
+                        },
+                     },
                       "start": 86,
                       "type": "ExpressionStatement"
                     }
                   ],
                   "end": 142,
+                  "loc": {
+                    "end": {
+                      "column": 1,
+                      "line": 5,
+                    },
+                   "start": {
+                      "column": 0,
+                     "line": 1,
+                    },
+                  },
                   "sourceType": "script",
                   "start": 0,
-                  "type": "Program"
+                  "type": "Program",
                 })
         });
 
         it('should avoids block HTML close with windows newline + empty line', () => {
             expect(parseScript(`  \t /*\n*/  -->\n `, {
-                ranges: true,
+                locations: true,
+                ranges: true
             })).to.eql({
-                "type": "Program",
-                "start": 0,
-                "end": 16,
-                "body": [],
-                "sourceType": "script"
-            })
+                  "body": [],
+                  "end": 16,
+                  "loc": {
+                    "end": {
+                      "column": 1,
+                      "line": 3,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    },
+                  },
+                  "sourceType": "script",
+                  "start": 0,
+                 "type": "Program"
+                })
         });
 
         it('should avoid block HTML close with line feed + empty line', () => {
@@ -1090,16 +1147,25 @@ describe('Whitespace', () => {
 
         it('should skip HTML single line comments with \n', () => {
             expect(parseScript(`  \t <!-- foo bar\n  `, {
-                ranges: true,
-                
+                locations: true,
+                ranges: true
             })).to.eql({
-                "type": "Program",
-
-                "start": 0,
-                "end": 19,
-                "body": [],
-                "sourceType": "script"
-            })
+                  "body": [],
+                  "end": 19,
+                  "loc": {
+                    "end": {
+                      "column": 2,
+                      "line": 2,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                 "sourceType": "script",
+                  "start": 0,
+                  "type": "Program"
+                })
         });
 
         it('should skip HTML single line comments with \r', () => {
@@ -1118,13 +1184,23 @@ describe('Whitespace', () => {
         it('should skip HTML single line comments with \r', () => {
             expect(parseScript(`  \t \r   --> the comment extends to these characters\r `, {
                 ranges: true,
-                
+                locations: true
             })).to.eql({
-                "type": "Program",
-                "start": 0,
-                "end": 53,
-                "body": [],
-                "sourceType": "script"
-            })
+                  "body": [],
+                  "end": 53,
+                  "loc": {
+                    "end": {
+                      "column": 1,
+                     "line": 3,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                  "sourceType": "script",
+                 "start": 0,
+                  "type": "Program"
+                })
         });
 });

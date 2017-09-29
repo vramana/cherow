@@ -327,7 +327,7 @@ export class Parser {
                     {
                         this.advance();
 
-                        let next = this.nextChar();
+                        const next = this.nextChar();
 
                         if (!(context & Context.Module) && next === Chars.Exclamation) {
                             this.advance();
@@ -338,35 +338,26 @@ export class Parser {
                             continue;
                         }
 
-                        switch (next) {
-
-                            case Chars.LessThan:
-                                {
-                                    this.advance();
-                                    if (this.consume(Chars.EqualSign)) {
-                                        return Token.ShiftLeftAssign;
-                                    } else {
-                                        return Token.ShiftLeft;
-                                    }
-                                }
-
-                            case Chars.EqualSign:
-                                this.advance();
-                                return Token.LessThanOrEqual;
-
-                            case Chars.Slash:
-                                {
-
-                                    if (!(this.flags & Flags.OptionsJSX)) break;
-                                    next = this.source.charCodeAt(this.index + 1);
-                                    if (next === Chars.Asterisk || next === Chars.Slash) break;
-                                    this.advance();
-                                    return Token.JSXClose;
-                                }
-
-                            default:
-                                return Token.LessThan;
+                        if (next === Chars.LessThan) {
+                            this.advance();
+                            if (this.consume(Chars.EqualSign)) {
+                                return Token.ShiftLeftAssign;
+                            }
+                            return Token.ShiftLeft;
                         }
+
+                        if (next === Chars.EqualSign) {
+                            this.advance();
+                            return Token.LessThanOrEqual;
+                        }
+
+                        if (this.flags & Flags.OptionsJSX &&
+                            this.consume(Chars.Slash) &&
+                            !this.consume(Chars.Asterisk)) {
+                            return Token.JSXClose;
+                        }
+
+                        return Token.LessThan;
                     }
 
                     // -, --, -->, -=,
@@ -380,10 +371,7 @@ export class Parser {
                             this.advance();
                             if (this.consume(Chars.GreaterThan)) {
                                 if (!(context & Context.Module) || this.flags & Flags.LineTerminator) {
-                                   this.skipSingleLineComment(3);
-                                } else {
-                                    this.index -= 2;
-                                    this.column -= 2;
+                                    this.skipSingleLineComment(3);
                                 }
                                 continue;
                             }
@@ -630,20 +618,17 @@ export class Parser {
                     {
                         let index = this.index + 1;
 
-                        if (index < this.source.length) {
-                            const next = this.source.charCodeAt(index);
-                            if (next >= Chars.Zero && next <= Chars.Nine) {
-                                // Rewind the initial token.
-                                this.scanNumber(context, first);
-                                return Token.NumericLiteral;
-                            } else if (next === Chars.Period) {
-                                index++;
-                                if (index < this.source.length &&
-                                    this.source.charCodeAt(index) === Chars.Period) {
-                                    this.index = index + 1;
-                                    this.column += 3;
-                                    return Token.Ellipsis;
-                                }
+                        const next = this.source.charCodeAt(index);
+                        if (next >= Chars.Zero && next <= Chars.Nine) {
+                            this.scanNumber(context, first);
+                            return Token.NumericLiteral;
+                        } else if (next === Chars.Period) {
+                            index++;
+                            if (index < this.source.length &&
+                                this.source.charCodeAt(index) === Chars.Period) {
+                                this.index = index + 1;
+                                this.column += 3;
+                                return Token.Ellipsis;
                             }
                         }
 
@@ -672,7 +657,6 @@ export class Parser {
                         }
 
                         const ch = this.source.charCodeAt(index);
-
                         if (index < this.source.length && ch >= Chars.Zero && ch <= Chars.Seven) {
                             return this.scanNumberLiteral(context);
                         }
@@ -924,6 +908,8 @@ export class Parser {
 
         if (context & Context.Strict) this.error(Errors.StrictOctalEscape);
 
+        this.flags |= Flags.Noctals;
+
         this.advance();
 
         const start = this.index;
@@ -962,9 +948,6 @@ export class Parser {
 
         this.advanceTwice();
 
-        // Invalid:  '0o'
-        if (!this.hasNext()) this.error(Errors.InvalidBinaryDigit);
-
         let ch = this.nextChar();
         let code = ch - Chars.Zero;
 
@@ -994,7 +977,6 @@ export class Parser {
 
         this.advanceTwice();
 
-        if (!this.hasNext()) this.error(Errors.ExpectedHexDigits);
         let ch = this.nextChar();
         let code = toHex(ch);
 
@@ -1004,7 +986,9 @@ export class Parser {
 
         while (this.hasNext()) {
             ch = this.nextChar();
+
             const digit = toHex(ch);
+
             if (digit < 0) break;
             code = code << 4 | digit;
             this.advance();
@@ -4919,7 +4903,13 @@ export class Parser {
         const value = this.tokenValue;
         const raw = this.tokenRaw;
 
+        if (context & Context.Strict &&  this.flags & Flags.Noctals) {
+            this.error(Errors.UnexpectedToken, 'Go to hell!');
+        }
+
         this.nextToken(context);
+        
+        
 
         const node = this.finishNode(pos, {
             type: 'Literal',
