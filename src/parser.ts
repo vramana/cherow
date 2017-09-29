@@ -7,7 +7,6 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, CollectComments, ErrorLocation, Location } from './interface';
 
-
 export class Parser {
     private readonly source: string;
     private index: number;
@@ -305,21 +304,22 @@ export class Parser {
                     {
                         this.advance();
 
-                        switch (this.nextChar()) {
-                            case Chars.Slash:
-                                this.advance();
-                                this.skipSingleLineComment(2);
-                                continue;
-                            case Chars.Asterisk:
-                                this.advance();
-                                this.skipMultiLineComment();
-                                continue;
-                            case Chars.EqualSign:
-                                this.advance();
-                                return Token.DivideAssign;
-                            default:
-                                return Token.Divide;
+                        const next = this.nextChar();
+
+                        if (next === Chars.Slash) {
+                            this.advance();
+                            this.skipSingleLineComment(2);
+                            continue;
+                        } else if (next === Chars.Asterisk) {
+                            this.advance();
+                            this.skipMultiLineComment();
+                            continue;
+                        } else if (next === Chars.EqualSign) {
+                            this.advance();
+                            return Token.DivideAssign;
                         }
+
+                        return Token.Divide;
                     }
 
                     // `<`, `<=`, `<<`, `<<=`, `</`,  <!--
@@ -327,45 +327,48 @@ export class Parser {
                     {
                         this.advance();
 
-                        if (!(context & Context.Module) &&
-                            this.consume(Chars.Exclamation) &&
-                            this.consume(Chars.Hyphen) &&
-                            this.consume(Chars.Hyphen)) {
-                            this.skipSingleLineComment(4);
-                            continue;
-                        } else {
+                        let next = this.nextChar();
 
-                            switch (this.nextChar()) {
-
-                                case Chars.LessThan:
-                                    {
-                                        this.advance();
-                                        if (this.consume(Chars.EqualSign)) {
-                                            return Token.ShiftLeftAssign;
-                                        } else {
-                                            return Token.ShiftLeft;
-                                        }
-                                    }
-
-                                case Chars.EqualSign:
-                                    this.advance();
-                                    return Token.LessThanOrEqual;
-
-                                case Chars.Slash:
-                                    {
-
-                                        if (!(this.flags & Flags.OptionsJSX)) break;
-                                        const next = this.source.charCodeAt(this.index + 1);
-                                        if (next === Chars.Asterisk || next === Chars.Slash) break;
-                                        this.advance();
-                                        return Token.JSXClose;
-                                    }
-
-                                default:
-                                    return Token.LessThan;
+                        if (!(context & Context.Module) && next === Chars.Exclamation) {
+                            this.advance();
+                            if (this.consume(Chars.Hyphen) &&
+                                this.consume(Chars.Hyphen)) {
+                                this.skipSingleLineComment(4);
                             }
+                            continue;
+                        }
+
+                        switch (next) {
+
+                            case Chars.LessThan:
+                                {
+                                    this.advance();
+                                    if (this.consume(Chars.EqualSign)) {
+                                        return Token.ShiftLeftAssign;
+                                    } else {
+                                        return Token.ShiftLeft;
+                                    }
+                                }
+
+                            case Chars.EqualSign:
+                                this.advance();
+                                return Token.LessThanOrEqual;
+
+                            case Chars.Slash:
+                                {
+
+                                    if (!(this.flags & Flags.OptionsJSX)) break;
+                                    next = this.source.charCodeAt(this.index + 1);
+                                    if (next === Chars.Asterisk || next === Chars.Slash) break;
+                                    this.advance();
+                                    return Token.JSXClose;
+                                }
+
+                            default:
+                                return Token.LessThan;
                         }
                     }
+
                     // -, --, -->, -=,
                 case Chars.Hyphen:
                     {
@@ -1228,7 +1231,7 @@ export class Parser {
 
         this.endPos = this.index;
         this.index = index;
-        
+
 
         const pattern = this.source.slice(bodyStart, bodyEnd);
         const flags = this.source.slice(flagsStart, this.index);
@@ -3206,9 +3209,8 @@ export class Parser {
             this.nextToken(context);
 
             expression = this.finishNode(pos, {
-                type: (binaryOperator === Token.LogicalAnd || binaryOperator === Token.LogicalOr) ? 
-                'LogicalExpression' : 
-                'BinaryExpression',
+                type: (binaryOperator === Token.LogicalAnd || binaryOperator === Token.LogicalOr) ?
+                    'LogicalExpression' : 'BinaryExpression',
                 left: expression,
                 right: this.parseBinaryExpression(context, binaryPrecedence, pos),
                 operator: tokenDesc(binaryOperator)
@@ -3254,7 +3256,7 @@ export class Parser {
             // Assignment operator(12.15) or of a PostfixExpression or as the UnaryExpression
             // operated upon by a Prefix Increment(12.4.6) or a Prefix Decrement(12.4.7) operator.
             if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
-                this.error(Errors.StrictLHSPostfix);    
+                this.error(Errors.StrictLHSPostfix);
             }
 
             if (!isValidSimpleAssignmentTarget(expr)) this.error(Errors.InvalidLHSInAssignment);
