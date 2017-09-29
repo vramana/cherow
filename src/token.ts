@@ -154,9 +154,7 @@ export const enum Token {
     FromKeyword        = 113 | Contextual,
     OfKeyword          = 114 | Contextual,
 
-    EnumKeyword        = 115 | Reserved,
-
-    BigIntLiteral      = 116,
+    EnumKeyword        = 115 | Reserved
 }
 
 const KeywordDescTable = [
@@ -197,7 +195,7 @@ const KeywordDescTable = [
     /* Contextual keywords */
     'as', 'async', 'await', 'constructor', 'get', 'set', 'from', 'of',
 
-    'enum', 'BigInt'
+    'enum'
 ];
 
 /**

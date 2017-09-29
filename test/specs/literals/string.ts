@@ -973,6 +973,32 @@ describe('TC39 - String literals', () => {
           })
     });
 
+    it('should accept vertial tabs within strings', () => {
+        expect(parseScript('"\\u000Bstr\\u000Bing\\u000B"', {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 26,
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 26,
+                "expression": {
+                  "type": "Literal",
+                  "start": 0,
+                  "end": 26,
+                  "value": "\u000bstr\u000bing\u000b",
+                  "raw": "\"\\u000Bstr\\u000Bing\\u000B\""
+                }
+              }
+            ],
+            "sourceType": "script"
+          })
+    });
+
     it('should parse "\x00"', () => {
         expect(parseScript("\"\"", {
             ranges: true,

@@ -56,22 +56,22 @@ export const enum Flags {
     Arrow                        = 1 << 15, // If node was parsed in the 'arrow' context
     AsyncArrow                   = 1 << 16, // If node was parsed in the 'async' context
 
-    /* Options */
-    OptionsRanges                = 1 << 17,
-    OptionsLoc                   = 1 << 18,
-    OptionsSource                = 1 << 19,
-    OptionsJSX                   = 1 << 20,
-    OptionsRaw                   = 1 << 21,
-    OptionsNext                  = 1 << 22,
-    OptionsOnComment             = 1 << 23,
-    OptionsOnToken               = 1 << 24,
-    OptionsV8                    = 1 << 25
-}
+    /** Numeric */
+    Noctals                      = 1 << 17,
+    BigInt                       = 1 << 18,
+    Float                        = 1 << 19,
+    Decimal                      = 1 << 20,
 
-export const enum NumberState {
-    None    = 0,
-    Float   = 1 << 0,
-    BigInt  = 1 << 1,
+    /* Options */
+    OptionsRanges                = 1 << 21,
+    OptionsLoc                   = 1 << 22,
+    OptionsSource                = 1 << 23,
+    OptionsJSX                   = 1 << 24,
+    OptionsRaw                   = 1 << 25,
+    OptionsNext                  = 1 << 26,
+    OptionsOnComment             = 1 << 27,
+    OptionsOnToken               = 1 << 28,
+    OptionsV8                    = 1 << 29,
 }
 
 export const enum IterationState {
