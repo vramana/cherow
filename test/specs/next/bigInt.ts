@@ -24,7 +24,7 @@ describe('Next - BigInt', () => {
             parseScript('016432n', {
                 next: true
             });
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should parse binary', () => {
