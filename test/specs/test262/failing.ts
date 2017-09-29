@@ -2934,4 +2934,10 @@ is y`);
             parseScript('({(a):0})');
         }).to.throw();
     });
+
+    it('expect "1 + {" to throw', () => {
+        expect(() => {
+            parseScript('1 + {');
+        }).to.throw();
+    });
 });

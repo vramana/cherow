@@ -124,7 +124,8 @@ export const enum Errors {
     InvalidVarDeclInForIn,
     InvalidRestOperatorArg,
     InvalidNoctalInteger,
-    InvalidRadix
+    InvalidRadix,
+    InvalidNumber
 }
 
 export const ErrorMessages: {
@@ -254,6 +255,7 @@ export const ErrorMessages: {
     [Errors.InvalidRestOperatorArg]: 'Invalid rest operator\'s argument',
     [Errors.InvalidNoctalInteger]: 'Unexpected noctal integer literal',
     [Errors.InvalidRadix]: 'Expected number in radix',
+    [Errors.InvalidNumber]: 'InvalidNumber',
 };
 
 function constructError(msg: string, column: number): Error {

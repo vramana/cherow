@@ -53,6 +53,82 @@ describe('Next - BigInt', () => {
         }).to.throw();
     });
 
+    it('should parse negative number', () => {
+        expect(parseScript(`-1n`, {
+            raw: true,
+            next: true,
+            ranges: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "UnaryExpression",
+                        "operator": "-",
+                        "argument": {
+                            "type": "Literal",
+                            "value": 1,
+                            "bigint": "1",
+                            "start": 1,
+                            "end": 4,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 1
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 4
+                                }
+                            },
+                            "raw": "1"
+                        },
+                        "prefix": true,
+                        "start": 0,
+                        "end": 4,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 4
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 4,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 4
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 3,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 4
+                }
+            }
+        });
+    });
+
     it('should parse binary', () => {
         expect(parseScript(`0b101011101n`, {
             raw: true,

@@ -1076,6 +1076,7 @@ export class Parser {
                     case Chars.Plus:
                     case Chars.Hyphen:
                         this.advance();
+                        if (!this.hasNext()) this.error(Errors.InvalidNumber);
                     case Chars.Zero:
                     case Chars.One:
                     case Chars.Two:
@@ -1089,7 +1090,7 @@ export class Parser {
                         this.advance();
                         this.skipDigits();
                         end = this.index;
-                    default: // ignore
+                    default:
                 }
 
             default: // ignore

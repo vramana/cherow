@@ -325,6 +325,7 @@ ErrorMessages[122 /* InvalidVarDeclInForIn */] = 'Invalid variable declaration i
 ErrorMessages[123 /* InvalidRestOperatorArg */] = 'Invalid rest operator\'s argument';
 ErrorMessages[124 /* InvalidNoctalInteger */] = 'Unexpected noctal integer literal';
 ErrorMessages[125 /* InvalidRadix */] = 'Expected number in radix';
+ErrorMessages[126 /* InvalidNumber */] = 'InvalidNumber';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -1441,6 +1442,8 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                 case 43 /* Plus */:
                 case 45 /* Hyphen */:
                     this.advance();
+                    if (!this.hasNext())
+                        { this.error(126 /* InvalidNumber */); }
                 case 48 /* Zero */:
                 case 49 /* One */:
                 case 50 /* Two */:
@@ -1454,7 +1457,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                     this.advance();
                     this.skipDigits();
                     end = this.index;
-                default: // ignore
+                default:
             }
         default: // ignore
     }

@@ -203,7 +203,7 @@ describe('Statements - Try', () => {
         it('expect "3e-', () => {
             expect(() => {
                 parseScript('3e-');
-            }).not.to.throw();
+            }).to.throw();
         });
 
         it('expect "3e-', () => {
