@@ -325,7 +325,9 @@ ErrorMessages[122 /* InvalidVarDeclInForIn */] = 'Invalid variable declaration i
 ErrorMessages[123 /* InvalidRestOperatorArg */] = 'Invalid rest operator\'s argument';
 ErrorMessages[124 /* InvalidNoctalInteger */] = 'Unexpected noctal integer literal';
 ErrorMessages[125 /* InvalidRadix */] = 'Expected number in radix';
-ErrorMessages[126 /* InvalidNumber */] = 'InvalidNumber';
+ErrorMessages[126 /* UnexpectedTokenNumber */] = 'Unexpected number';
+ErrorMessages[127 /* UnexpectedMantissa */] = 'Unexpected mantissa';
+ErrorMessages[128 /* UnexpectedSurrogate */] = 'Unexpected surrogate pair';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -1024,7 +1026,7 @@ Parser.prototype.scanToken = function scanToken (context) {
                     var index = this$1.index + 1;
                     var next$9 = this$1.source.charCodeAt(index);
                     if (next$9 >= 48 /* Zero */ && next$9 <= 57 /* Nine */) {
-                        this$1.scanNumber(context, first);
+                        this$1.scanNumber(context);
                         return 2 /* NumericLiteral */;
                     }
                     else if (next$9 === 46 /* Period */) {
@@ -1072,7 +1074,7 @@ Parser.prototype.scanToken = function scanToken (context) {
             case 55 /* Seven */:
             case 56 /* Eight */:
             case 57 /* Nine */:
-                return this$1.scanNumber(context, first);
+                return this$1.scanNumber(context);
             // '\uVar', `\u{N}var`
             case 92 /* Backslash */:
             // `A`...`Z`
@@ -1241,18 +1243,20 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context) {
 
     var start = this.index;
     var ret = '';
-    while (this.hasNext()) {
+    loop: while (this.hasNext()) {
         var code = this$1.nextChar();
-        if (isIdentifierPart(code)) {
-            this$1.advance();
-        }
-        else if (code === 92 /* Backslash */) {
-            ret += this$1.source.slice(start, this$1.index);
-            ret += fromCodePoint(this$1.peekUnicodeEscape());
-            start = this$1.index;
-        }
-        else {
-            break;
+        switch (code) {
+            case 92 /* Backslash */:
+                ret += this$1.source.slice(start, this$1.index);
+                ret += fromCodePoint(this$1.peekUnicodeEscape());
+                start = this$1.index;
+                break;
+            default:
+                if (code >= 0xd800 && code <= 0xdc00)
+                    { code = this$1.nextUnicodeChar(); }
+                if (!isIdentifierPart(code))
+                    { break loop; }
+                this$1.advance();
         }
     }
     if (start < this.index)
@@ -1282,11 +1286,13 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context) {
  */
 Parser.prototype.peekUnicodeEscape = function peekUnicodeEscape () {
     this.advance();
-    var cookedChar = this.peekExtendedUnicodeEscape();
-    if (!isValidIdentifierStart(cookedChar))
-        { this.error(0 /* Unexpected */); }
+    var code = this.peekExtendedUnicodeEscape();
+    if (code >= 0xd800 && code <= 0xdc00)
+        { this.error(128 /* UnexpectedSurrogate */); }
+    if (!isvalidIdentifierContinue(code))
+        { this.error(6 /* InvalidUnicodeEscapeSequence */); }
     this.advance();
-    return cookedChar;
+    return code;
 };
 Parser.prototype.scanNumberLiteral = function scanNumberLiteral (context) {
         var this$1 = this;
@@ -1414,7 +1420,7 @@ Parser.prototype.skipDigits = function skipDigits () {
         }
     }
 };
-Parser.prototype.scanNumber = function scanNumber (context, ch) {
+Parser.prototype.scanNumber = function scanNumber (context) {
     var start = this.index;
     this.skipDigits();
     if (this.nextChar() === 46 /* Period */) {
@@ -1425,6 +1431,42 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
     }
     var end = this.index;
     switch (this.nextChar()) {
+        // scan exponent, if any
+        case 69 /* UpperE */:
+        case 101 /* LowerE */:
+            this.advance();
+            if (!(this.flags & 1048576 /* Exponent */))
+                { this.flags |= 1048576 /* Exponent */; }
+            // scan exponent
+            switch (this.nextChar()) {
+                case 43 /* Plus */:
+                case 45 /* Hyphen */:
+                    this.advance();
+                    if (!this.hasNext())
+                        { this.error(126 /* UnexpectedTokenNumber */); }
+                default: // ignore
+            }
+            switch (this.nextChar()) {
+                case 48 /* Zero */:
+                case 49 /* One */:
+                case 50 /* Two */:
+                case 51 /* Three */:
+                case 52 /* Four */:
+                case 53 /* Five */:
+                case 54 /* Six */:
+                case 55 /* Seven */:
+                case 56 /* Eight */:
+                case 57 /* Nine */:
+                    this.advance();
+                    this.skipDigits();
+                    break;
+                default:
+                    // we must have at least one decimal digit after 'e'/'E'
+                    this.error(127 /* UnexpectedMantissa */);
+            }
+            end = this.index;
+            break;
+        // BigInt - Stage 3 proposal
         case 110 /* LowerN */:
             if (this.flags & 67108864 /* OptionsNext */) {
                 if (this.flags & 524288 /* Float */)
@@ -1432,36 +1474,18 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                 this.advance();
                 if (!(this.flags & 262144 /* BigInt */))
                     { this.flags |= 262144 /* BigInt */; }
+                end = this.index;
             }
-        case 69 /* UpperE */:
-        case 101 /* LowerE */:
-            this.advance();
-            if (!(this.flags & 524288 /* Float */))
-                { this.flags |= 524288 /* Float */; }
-            switch (this.nextChar()) {
-                case 43 /* Plus */:
-                case 45 /* Hyphen */:
-                    this.advance();
-                    if (!this.hasNext())
-                        { this.error(126 /* InvalidNumber */); }
-                default: // ignore
-            }
-            var next = this.nextChar();
-            if (next >= 48 /* Zero */ && next <= 57 /* Nine */) {
-                this.advance();
-                this.skipDigits();
-            }
-            else {
-                this.error(126 /* InvalidNumber */);
-            }
-            end = this.index;
         default: // ignore
     }
+    // The source character immediately following a numeric literal must
+    // not be an identifier start or a decimal digit.
     if (isIdentifierStart(this.nextChar()))
-        { this.error(126 /* InvalidNumber */); }
+        { this.error(126 /* UnexpectedTokenNumber */); }
+    var raw = this.source.substring(start, end);
     if (this.flags & 33554432 /* OptionsRaw */)
-        { this.tokenRaw = this.source.substring(start, end); }
-    this.tokenValue = parseFloat(this.source.substring(start, end));
+        { this.tokenRaw = raw; }
+    this.tokenValue = this.flags & 1572864 /* FloatOrExponent */ ? parseFloat(raw) : parseInt(raw, 10);
     return 2 /* NumericLiteral */;
 };
 Parser.prototype.scanRegularExpression = function scanRegularExpression () {
@@ -1508,8 +1532,6 @@ Parser.prototype.scanRegularExpression = function scanRegularExpression () {
     var flagsStart = index;
     var mask = 0;
     loop: while (index < this.source.length) {
-        if (!isIdentifierPart(this$1.source.charCodeAt(index)))
-            { break loop; }
         var code = this$1.source.charCodeAt(index);
         switch (code) {
             case 103 /* LowerG */:
