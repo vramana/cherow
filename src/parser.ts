@@ -244,7 +244,7 @@ export class Parser {
      */
     private scanToken(context: Context): Token {
 
-        this.flags &= ~Flags.LineTerminator;
+        this.flags &= ~(Flags.LineTerminator | Flags.HasUnicode);
 
         this.endPos = this.index;
         this.endColumn = this.column;
@@ -859,6 +859,7 @@ export class Parser {
                 let code = this.nextChar();
                 switch (code) {
                     case Chars.Backslash:
+                        this.flags |= Flags.HasUnicode;
                         ret += this.source.slice(start, this.index);
                         ret += fromCodePoint(this.peekUnicodeEscape());
                         start = this.index;
@@ -886,7 +887,6 @@ export class Parser {
             if (ch >= Chars.LowerA && ch <= Chars.LowerZ) {
                 const token = descKeyword(ret);
                 if (token > 0) {
-                    if (hasEscape) this.error(Errors.InvalidEscapedReservedWord);
                     return token;
                 }
             }
@@ -1749,18 +1749,39 @@ export class Parser {
     private isIdentifier(context: Context, t: Token): boolean {
 
         if (context & Context.Module) {
-            if (t === Token.YieldKeyword) this.error(Errors.UnexpectedStrictReserved);
-            if ((t & Token.FutureReserved) === Token.FutureReserved) this.error(Errors.UnexpectedStrictReserved);
-            if (t === Token.AsyncKeyword && context & Context.Await) this.error(Errors.UnexpectedReservedWord);
-            if (t === Token.AwaitKeyword) this.error(Errors.UnexpectedReservedWord);
+            switch (t) {
+                case Token.YieldKeyword:
+                case Token.AwaitKeyword:
+                case Token.AsyncKeyword:
+                    this.error(Errors.UnexpectedReservedWord);
+                default:
+
+                    if ((t & Token.FutureReserved) === Token.FutureReserved) this.error(Errors.UnexpectedStrictReserved);
+            }
+
             return (t & Token.Identifier) === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
-        } else if (context & Context.Strict) {
-            if ((t & Token.FutureReserved) === Token.FutureReserved) this.error(Errors.UnexpectedStrictReserved);
-            return (t & Token.Identifier) === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
-        } else {
-            if (t === Token.AsyncKeyword && context & Context.Await) this.error(Errors.UnexpectedReservedWord);
-            return (t & Token.Identifier) === Token.Identifier || (t & Token.Contextual) === Token.Contextual || (t & Token.FutureReserved) === Token.FutureReserved;
         }
+
+        if (context & Context.Strict) {
+
+            switch (t) {
+                case Token.YieldKeyword:
+                    if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(t));
+                    break;
+                default:
+                    if ((t & Token.FutureReserved) === Token.FutureReserved) this.error(Errors.UnexpectedStrictReserved);
+            }
+            return (t & Token.Identifier) === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
+        }
+
+        switch (t) {
+            case Token.AsyncKeyword:
+                if (context & Context.Await) this.error(Errors.UnexpectedReservedWord);
+                break;
+            default: // ignore
+        }
+
+        return (t & Token.Identifier) === Token.Identifier || (t & Token.Contextual) === Token.Contextual || (t & Token.FutureReserved) === Token.FutureReserved;
     }
 
     private nextTokenIsLeftParen(context: Context): boolean {
@@ -1979,6 +2000,7 @@ export class Parser {
             // be any IdentifierName. But without 'as', it must be a valid
             // BindingIdentifier.
             if (this.token === Token.AsKeyword) {
+                if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
                 if (this.parseOptional(context, Token.AsKeyword)) {
                     local = this.parseBindingPatternOrIdentifier(context | Context.Binding);
                 } else {
@@ -2209,6 +2231,7 @@ export class Parser {
             case Token.FunctionKeyword:
                 this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             case Token.AsyncKeyword:
+                if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
                 if (this.nextTokenIsFunctionKeyword(context)) {
                     // Invalid: `do async function f() {} while (false)`
                     // Invalid: `do async function* g() {} while (false)`
@@ -2563,22 +2586,13 @@ export class Parser {
         const pos = this.getLocations();
         this.expect(context, Token.ContinueKeyword);
 
-        if (this.flags & Flags.LineTerminator || this.parseOptional(context, Token.Semicolon)) {
-            if (!(this.flags & Flags.Continue)) this.error(Errors.Unexpected);
-            return this.finishNode(pos, {
-                type: 'ContinueStatement',
-                label: null
-            });
-        }
-
         let label: ESTree.Identifier | null = null;
-
-        if (this.token === Token.Identifier) {
+        if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
             label = this.parseIdentifier(context);
             if (!hasOwn.call(this.labelSet, '@' + label.name)) this.error(Errors.UnknownLabel, label.name);
         }
 
-        if (!(this.flags & (Flags.Continue | Flags.Switch)) && !label) this.error(Errors.BadContinue);
+        if (!(this.flags & Flags.Continue) && !label) this.error(Errors.BadContinue);
 
         this.consumeSemicolon(context);
 
@@ -2898,6 +2912,9 @@ export class Parser {
     private parseVariableStatement(context: Context) {
         const pos = this.getLocations();
         const token = this.token;
+
+        if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+
         this.nextToken(context);
         // Invalid: 'async() => { var await; }'
         // Invalid: 'function() => { let await; }'
@@ -2927,6 +2944,11 @@ export class Parser {
         const pos = this.getLocations();
         const token = this.token;
         const id = this.parseBindingPatternOrIdentifier(context | Context.Binding);
+
+        // Invalid 'for (var x o\u0066 []) ;';
+        if (context & Context.ForStatement && this.flags & Flags.HasUnicode && this.token === Token.OfKeyword) {
+            this.error(Errors.InvalidEscapedReservedWord);
+        }
 
         // Invalid 'export let foo';
         // Invalid 'export const foo';
@@ -3419,40 +3441,23 @@ export class Parser {
 
     private parseBindingIdentifier(context: Context): ESTree.Identifier {
 
-        // Invalid: '(...[ 5 ]) => {}'
-        // Invalid: 'class A { f(,){} }'
-        // Invalid: 'class A { constructor(,) {} }'
-        // Invalid: 'var'
-        if (context & Context.Binding && !this.isIdentifier(context, this.token)) {
-            this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-        }
-        if (context & Context.Await && this.token === Token.AwaitKeyword) {
-            this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-        }
+        const name = this.tokenValue;
+        const token = this.token;
+
         // Let is disallowed as a lexically bound name
-        if (context & Context.Lexical && this.token === Token.LetKeyword) {
+        if (context & Context.Lexical && token === Token.LetKeyword) {
             this.error(Errors.LetInLexicalBinding);
         }
 
-        const name = this.tokenValue;
+        if (!this.isIdentifier(context, token)) this.error(Errors.Unexpected);
 
-        if (context & Context.Strict) {
-            // Invalid: `"use strict"; function yield() {}`
-            // Invalid: `"use strict"; var [yield] = 0;`
-            if (this.token === Token.YieldKeyword) this.error(Errors.UnexpectedStrictReserved);
-            // Invalid: `"use strict"; let eval`
-            if (this.token === Token.Identifier && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.StrictLHSAssignment);
-            // Invalid: '"use strict"; var protected;'
-            // Invalid: '"use strict"; var private;'
-            if (hasMask(this.token, Token.FutureReserved)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        if (context & Context.Strict && this.isEvalOrArguments(name)) this.error(Errors.StrictLHSAssignment);
+
+        if (context & Context.Await && token === Token.AwaitKeyword) {
+            this.error(Errors.UnexpectedToken, tokenDesc(token));
         }
 
-        // Invalid: 'var if = 42'
-        // Invalid: 'var try = 123;'
-        // Invalid: 'let switch = 123;'
-        // Invalid: 'const extends = 123;'
-        // Invalid: `"use strict"; const const = 1;`
-        if (hasMask(this.token, Token.Reserved)) this.error(Errors.UnexpectedStrictReserved);
+        if (this.flags & Flags.HasUnicode && this.token === Token.YieldKeyword) this.error(Errors.InvalidEscapedReservedWord);
 
         if (!(context & Context.ForStatement)) this.addVarOrBlock(context, name);
 
@@ -3576,8 +3581,11 @@ export class Parser {
         if (isIdentifier) {
 
             const tokenValue = this.tokenValue;
+
             computed = this.token === Token.LeftBracket;
+
             key = this.parseObjectPropertyKey(context);
+
             const init = this.finishNode(pos, {
                 type: 'Identifier',
                 name: tokenValue
@@ -4048,7 +4056,7 @@ export class Parser {
     private parseNewExpression(context: Context): ESTree.MetaProperty | ESTree.NewExpression {
 
         const pos = this.getLocations();
-
+        if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
         const id = this.parseIdentifier(context);
 
         switch (this.token) {
@@ -4329,6 +4337,7 @@ export class Parser {
             case Token.DoKeyword:
                 if (this.flags & Flags.OptionsV8) return this.parseDoExpression(context);
             case Token.AsyncKeyword:
+                if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
                 if (this.nextTokenIsFunctionKeyword(context)) return this.parseFunctionExpression(context);
 
                 if (this.flags & Flags.Arrow) this.flags &= ~Flags.Arrow;
@@ -4689,24 +4698,33 @@ export class Parser {
         let computed = false;
         let shorthand = false;
         let value;
+        const hasUnicode = !!(this.flags & Flags.HasUnicode);
 
-        if (this.parseOptional(context, Token.GetKeyword)) {
+        if (this.token === Token.GetKeyword) {
+            if (hasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+            this.expect(context, Token.GetKeyword);
             flags |= lastFlag = ObjectFlags.Getter;
             count++;
         }
 
-        if (this.parseOptional(context, Token.SetKeyword)) {
+        if (this.token === Token.SetKeyword) {
+            if (hasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+            this.expect(context, Token.SetKeyword);
             flags |= lastFlag = ObjectFlags.Setter;
             count++;
         }
 
-        if (this.parseOptional(context, Token.AsyncKeyword)) {
+        if (this.token === Token.AsyncKeyword) {
+            if (hasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+            this.expect(context, Token.AsyncKeyword);
             flags |= lastFlag = ObjectFlags.Async;
             asyncNewline = !!(this.flags & Flags.LineTerminator);
             count++;
         }
 
-        if (this.parseOptional(context, Token.Multiply)) {
+        if (this.token === Token.Multiply) {
+            if (hasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+            this.expect(context, Token.Multiply);
             // Async generators
             if (flags & ObjectFlags.Async && !(this.flags & Flags.OptionsNext)) this.error(Errors.NotAnAsyncGenerator);
             flags |= lastFlag = ObjectFlags.Generator;
@@ -4923,7 +4941,12 @@ export class Parser {
     private parseIdentifier(context: Context): ESTree.Identifier {
         const name = this.tokenValue;
         const pos = this.getLocations();
-        if (context & Context.Await && this.token === Token.AwaitKeyword) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        if (this.token === Token.AwaitKeyword) {
+            if (context & Context.Await || this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        }
+        if (!(this.flags & Flags.InFunctionBody) && this.token === Token.YieldKeyword) {
+            if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+        }
         this.nextToken(context);
 
         return this.finishNode(pos, {

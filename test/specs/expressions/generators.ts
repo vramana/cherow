@@ -57,7 +57,7 @@ describe('Generators', () => {
     it('should fail if escaped yield is used as a binding identifier inside a function body and may not be used as a label identifier', () => {
         expect(() => {
             parseScript(`var gen = function *() { yi\\u0065ld: ; };`);
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should fail on "(function* yield() {})"', () => {

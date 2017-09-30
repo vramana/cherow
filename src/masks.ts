@@ -55,23 +55,24 @@ export const enum Flags {
     AllowConstructorWithSupoer   = 1 << 14,
     Arrow                        = 1 << 15, // If node was parsed in the 'arrow' context
     AsyncArrow                   = 1 << 16, // If node was parsed in the 'async' context
+    HasUnicode                   = 1 << 17,
 
     /* Numeric */
-    Noctal                       = 1 << 17, // e.g. `0777`
-    BigInt                       = 1 << 18, // e.g. `100n`
-    Float                        = 1 << 19, // e.g. `09.01`
-    Exponent                     = 1 << 20, // e.g. `10e2`
+    Noctal                       = 1 << 18, // e.g. `0777`
+    BigInt                       = 1 << 19, // e.g. `100n`
+    Float                        = 1 << 20, // e.g. `09.01`
+    Exponent                     = 1 << 21, // e.g. `10e2`
 
     /* Options */
-    OptionsRanges                = 1 << 21,
-    OptionsLoc                   = 1 << 22,
-    OptionsSource                = 1 << 23,
-    OptionsJSX                   = 1 << 24,
-    OptionsRaw                   = 1 << 25,
-    OptionsNext                  = 1 << 26,
-    OptionsOnComment             = 1 << 27,
-    OptionsOnToken               = 1 << 28,
-    OptionsV8                    = 1 << 29,
+    OptionsRanges                = 1 << 22,
+    OptionsLoc                   = 1 << 23,
+    OptionsSource                = 1 << 24,
+    OptionsJSX                   = 1 << 25,
+    OptionsRaw                   = 1 << 26,
+    OptionsNext                  = 1 << 27,
+    OptionsOnComment             = 1 << 28,
+    OptionsOnToken               = 1 << 29,
+    OptionsV8                    = 1 << 30,
 
     // BigInt implementation can't handle either float or exponent acc. TC-39
     FloatOrExponent = Float | Exponent
