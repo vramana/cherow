@@ -1256,10 +1256,9 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context) {
     }
     if (start < this.index)
         { ret += this.source.slice(start, this.index); }
-    var hasEscape = this.index - start !== ret.length;
     var len = ret.length;
     // Invalid: 'function f() { new.t\\u0061rget; }'
-    if (hasEscape && ret === 'target')
+    if (this.flags & 131072 /* HasUnicode */ && ret === 'target')
         { this.error(88 /* InvalidEscapedReservedWord */); }
     this.tokenValue = ret;
     // Reserved words are between 2 and 11 characters long and start with a lowercase letter
@@ -2246,9 +2245,9 @@ Parser.prototype.parseModuleSpecifier = function parseModuleSpecifier (context) 
 };
 // import {<foo as bar>} ...;
 Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) {
+    var pos = this.getLocations();
     var imported;
     var local;
-    var pos = this.getLocations();
     if (this.isIdentifier(context, this.token)) {
         imported = this.parseBindingIdentifier(context);
         local = imported;
@@ -2256,10 +2255,12 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
         // be any IdentifierName. But without 'as', it must be a valid
         // BindingIdentifier.
         if (this.token === 65643 /* AsKeyword */) {
+            // 'import {a \\u0061s b} from "./foo.js";'
             if (this.flags & 131072 /* HasUnicode */)
                 { this.error(88 /* InvalidEscapedReservedWord */); }
-            if (this.parseOptional(context, 65643 /* AsKeyword */)) {
-                local = this.parseBindingPatternOrIdentifier(context | 4194304 /* Binding */);
+            if (this.token === 65643 /* AsKeyword */) {
+                this.expect(context, 65643 /* AsKeyword */);
+                local = this.parseBindingPatternOrIdentifier(context);
             }
             else {
                 this.error(42 /* MissingAsImportSpecifier */);
@@ -2269,10 +2270,8 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
     else {
         imported = this.parseIdentifier(context);
         local = imported;
-        if (this.token !== 65643 /* AsKeyword */)
-            { this.error(42 /* MissingAsImportSpecifier */); }
         this.expect(context, 65643 /* AsKeyword */);
-        local = this.parseBindingPatternOrIdentifier(context | 4194304 /* Binding */);
+        local = this.parseBindingPatternOrIdentifier(context);
     }
     return this.finishNode(pos, {
         type: 'ImportSpecifier',
@@ -2288,13 +2287,11 @@ Parser.prototype.parseNamedImports = function parseNamedImports (context, specif
     //  ImportedDefaultBinding, NameSpaceImport
     //  ImportedDefaultBinding, NamedImports
     this.expect(context, 131084 /* LeftBrace */);
-    while (this.token !== 15 /* RightBrace */) {
+    while (!this.parseOptional(context, 15 /* RightBrace */)) {
         // only accepts identifiers or keywords
         specifiers.push(this$1.parseImportSpecifier(context));
-        if (this$1.token !== 15 /* RightBrace */)
-            { this$1.expect(context, 18 /* Comma */); }
+        this$1.parseOptional(context, 18 /* Comma */);
     }
-    this.expect(context, 15 /* RightBrace */);
 };
 // import <* as foo> ...;
 Parser.prototype.parseImportNamespaceSpecifier = function parseImportNamespaceSpecifier (context) {

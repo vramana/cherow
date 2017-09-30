@@ -164,12 +164,17 @@ describe('Import', () => {
         }).to.throw();
     });
 
+    it('should fail on invalid import namespace missing as', () => {
+        expect(() => {
+            parseModule('import * from "foo"');
+        }).to.throw();
+    });
+
     it('should fail on invalid import specifiers', () => {
         expect(() => {
             parseModule('import foo, from "bar";');
         }).to.throw();
     });
-
 
     it("should fail on \"import { for } from \"iteration\"\"", () => {
           expect(() => {
@@ -262,10 +267,60 @@ describe('Import', () => {
   
       it('should fail on escaped "as" keyword', () => {
           expect(() => {
-              parseModule('import {a \\u0061s b} from "./escaped-as-import-specifier.js";');
+              parseModule('import {a \\u0061s b} from "./foo.js";');
           }).to.throw();
       });
+
+      it('should fail on invalid import boolean', () => {
+        expect(() => {
+            parseModule('import { true } from "logic"";');
+        }).to.throw();
+    });
+
+    it('should fail on invalid import default after named default', () => {
+        expect(() => {
+            parseModule('import foo, {bar}, foo from "foo";');
+        }).to.throw();
+    });
       
+    
+    it('should fail on invalid default after named module', () => {
+        expect(() => {
+            parseModule('import {bar}, foo from "foo"');
+        }).to.throw();
+    });
+
+    
+    it('should fail if default missing module specifier', () => {
+        expect(() => {
+            parseModule('import foo');
+        }).to.throw();
+    });
+
+    it('should fail if invalid default module specifier', () => {
+        expect(() => {
+            parseModule('import foo from bar;');
+        }).to.throw();
+    });
+
+    it('should fail if missing module specifier', () => {
+        expect(() => {
+            parseModule('import { foo, bar }');
+        }).to.throw();
+    });
+
+    it('should fail if missing module specifier', () => {
+        expect(() => {
+            parseModule('import { foo, bar }');
+        }).to.throw();
+    });
+
+    it('should fail on invalid import named after named', () => {
+        expect(() => {
+            parseModule('import {bar}, {foo} from "foo";');
+        }).to.throw();
+    });
+
       it('should import named specifiers comma', () => {
         expect(parseModule('import {foo,} from "bar"', {
             ranges: true,

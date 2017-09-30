@@ -185,6 +185,12 @@ describe('Module - Export', () => {
               parseModule(`export *`);
           }).to.throw();
       });
+
+      it('should fail on invalid export batch token', () => {
+        expect(() => {
+            parseModule(`export * +`);
+        }).to.throw();
+    });
   
       it('should fail expression an `export` declaration', () => {
           expect(() => {
@@ -257,6 +263,12 @@ describe('Module - Export', () => {
               parseModule(`export {default} +`);
           }).to.throw();
       });
+
+      it('should fail on invalid export default module', () => {
+        expect(() => {
+            parseModule(`export {default}`);
+        }).to.throw();
+    });
   
       it('should fail on invalid export module', () => {
           expect(() => {

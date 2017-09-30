@@ -873,11 +873,10 @@ export class Parser {
 
         if (start < this.index) ret += this.source.slice(start, this.index);
 
-        const hasEscape = this.index - start !== ret.length;
         const len = ret.length;
 
         // Invalid: 'function f() { new.t\\u0061rget; }'
-        if (hasEscape && ret === 'target') this.error(Errors.InvalidEscapedReservedWord);
+        if (this.flags & Flags.HasUnicode && ret === 'target') this.error(Errors.InvalidEscapedReservedWord);
 
         this.tokenValue = ret;
 
@@ -1989,9 +1988,10 @@ export class Parser {
     // import {<foo as bar>} ...;
     private parseImportSpecifier(context: Context): ESTree.ImportSpecifier {
 
+        const pos = this.getLocations();
+
         let imported;
         let local;
-        const pos = this.getLocations();
 
         if (this.isIdentifier(context, this.token)) {
             imported = this.parseBindingIdentifier(context);
@@ -2000,9 +2000,11 @@ export class Parser {
             // be any IdentifierName. But without 'as', it must be a valid
             // BindingIdentifier.
             if (this.token === Token.AsKeyword) {
+                // 'import {a \\u0061s b} from "./foo.js";'
                 if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
-                if (this.parseOptional(context, Token.AsKeyword)) {
-                    local = this.parseBindingPatternOrIdentifier(context | Context.Binding);
+                if (this.token === Token.AsKeyword) {
+                    this.expect(context, Token.AsKeyword);
+                    local = this.parseBindingPatternOrIdentifier(context);
                 } else {
                     this.error(Errors.MissingAsImportSpecifier);
                 }
@@ -2010,9 +2012,8 @@ export class Parser {
         } else {
             imported = this.parseIdentifier(context);
             local = imported;
-            if (this.token !== Token.AsKeyword) this.error(Errors.MissingAsImportSpecifier);
             this.expect(context, Token.AsKeyword);
-            local = this.parseBindingPatternOrIdentifier(context | Context.Binding);
+            local = this.parseBindingPatternOrIdentifier(context);
         }
 
         return this.finishNode(pos, {
@@ -2028,18 +2029,19 @@ export class Parser {
         //  ImportedDefaultBinding, NameSpaceImport
         //  ImportedDefaultBinding, NamedImports
         this.expect(context, Token.LeftBrace);
-        while (this.token !== Token.RightBrace) {
+
+        while (!this.parseOptional(context, Token.RightBrace)) {
             // only accepts identifiers or keywords
             specifiers.push(this.parseImportSpecifier(context));
-            if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
+            this.parseOptional(context, Token.Comma);
         }
-
-        this.expect(context, Token.RightBrace);
     }
 
     // import <* as foo> ...;
     private parseImportNamespaceSpecifier(context: Context): ESTree.ImportNamespaceSpecifier {
+
         const pos = this.getLocations();
+
         this.expect(context, Token.Multiply);
 
         if (this.token !== Token.AsKeyword) this.error(Errors.NoAsAfterImportNamespace);
@@ -2587,6 +2589,7 @@ export class Parser {
         this.expect(context, Token.ContinueKeyword);
 
         let label: ESTree.Identifier | null = null;
+
         if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
             label = this.parseIdentifier(context);
             if (!hasOwn.call(this.labelSet, '@' + label.name)) this.error(Errors.UnknownLabel, label.name);
