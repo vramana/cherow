@@ -109,10 +109,11 @@ parsers = [
 ];
 
 fixtureList = [
-    // 'jQuery 1.9.1',
+    'jquery-1.9.1',
     'jQuery.Mobile 1.4.2',
-    'Angular 1.2.5',
-    'React 0.13.3'
+    'Angular-1.6',
+    'React 0.13.3',
+    'TypeScript-2.5.3'
 ];
 
 resources =
