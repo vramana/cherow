@@ -1,5 +1,25 @@
 /* There are most likely leftovers to remove from this file... */
 
+a, input {
+    filter: hue-rotate(-45deg);
+}
+
+.top-bar {
+    background: #E6E6E6;
+}
+
+.top-bar * {
+    color: #6f6f6f !important;
+}
+
+.top-bar ul>li:not(.name):hover, .top-bar ul>li:not(.name).active, .top-bar ul>li:not(.name):focus {
+    background: #6f6f6f;
+}
+
+.top-bar ul>li:not(.name):hover a, .top-bar ul>li:not(.name).active a, .top-bar ul>li:not(.name):focus a {
+    color: #E6E6E6 !important;
+}
+
 a:hover, a:active {
     text-decoration: underline;
 }
