@@ -31,58 +31,93 @@
 var setupBenchmarks,
     parsers,
     fixtureList,
+    resources,
     suite;
 
 parsers = [
-    {
-        name: 'Cherow',
-        link: 'https://github.com/cherow/cherow',
-        // TODO: expose version number on Cherow
-        // version: function () {
-        //     return window.cherow.version;
-        // },
-        parse: function (code) {
-            var syntax = window.cherow.parseScript(code, { ranges: true, locations: true });
-            return syntax.body.length;
-        }
-    },
-    {
-        name: 'Esprima',
-        link: 'https://github.com/jquery/esprima',
-        version: function () {
-            return window.esprima.version;
-        },
-        parse: function (code) {
-            var syntax = window.esprima.parse(code, { range: true, loc: true });
-            return syntax.body.length;
-        }
-    },
-    {
-        name: 'Acorn',
-        link: 'https://github.com/marijnh/acorn',
-        version: function () {
-            return window.acorn.version;
-        },
-        parse: function (code) {
-            var syntax = window.acorn.parse(code, { ranges: true, locations: true });
-            return syntax.body.length;
-        }
-    },
-    {
-        name: 'Shift',
-        link: 'https://github.com/shapesecurity/shift-parser-js',
-        parse: function (code) {
-            var syntax = window.parser.parseScriptWithLocation(code);
-            return syntax.tree.statements.length;
-        }
+{
+    name: 'Cherow',
+    src: 'https://unpkg.com/cherow',
+    parse: function (code) {
+        var syntax = window.cherow.parseScript(code, { ranges: true, locations: true });
+        return syntax.body.length;
     }
+},
+{
+    name: 'Esprima',
+    link: 'https://github.com/jquery/esprima',
+    src: 'https://unpkg.com/esprima',
+    version: function () {
+        return window.esprima.version;
+    },
+    parse: function (code) {
+        var syntax = window.esprima.parse(code, { range: true, loc: true });
+        return syntax.body.length;
+    }
+},
+{
+    name: 'Acorn',
+    link: 'https://github.com/marijnh/acorn',
+    src: 'https://unpkg.com/acorn',
+    version: function () {
+        return window.acorn.version;
+    },
+    parse: function (code) {
+        var syntax = window.acorn.parse(code, { ranges: true, locations: true });
+        return syntax.body.length;
+    }
+},
+{
+    name: 'Espree',
+    link: 'https://github.com/eslint/espree',
+    src: 'https://wzrd.in/standalone/espree@latest',
+    version: function () {
+        return window.espree.version;
+    },
+    parse: function (code) {
+        var syntax = window.espree.parse(code, { range: true, loc: true });
+        return syntax.body.length;
+    }
+},
+{
+    name: 'Shift',
+    link: 'https://github.com/shapesecurity/shift-parser-js',
+    src: 'https://wzrd.in/standalone/shift-parser@latest',
+    parse: function (code) {
+        var syntax = window.shiftParser.parseScriptWithLocation(code);
+        return syntax.tree.statements.length;
+    }
+},
+{
+    name: 'Shift (no early errors)',
+    link: 'https://github.com/shapesecurity/shift-parser-js',
+    src: 'https://wzrd.in/standalone/shift-parser@latest',
+    parse: function (code) {
+        var syntax = window.shiftParser.parseScriptWithLocation(code, { earlyErrors: false });
+        return syntax.tree.statements.length;
+    }
+},
+{
+    name: 'Babylon',
+    link: 'https://github.com/babel/babylon',
+    src: 'https://wzrd.in/standalone/babylon@latest',
+    parse: function (code) {
+        var syntax = window.babylon.parse(code, { ranges: true });
+        return syntax.program.body.length;
+    }
+},
 ];
 
 fixtureList = [
+    // 'jQuery 1.9.1',
     'jQuery.Mobile 1.4.2',
     'Angular 1.2.5',
     'React 0.13.3'
 ];
+
+resources =
+    parsers.map(parser => parser.src)
+    .concat(fixtureList.map(fixture => '3rdparty/' + slug(fixture) + '.js'));
 
 function slug(name) {
     'use strict';
@@ -124,11 +159,13 @@ if (typeof window !== 'undefined') {
         }
 
         function enableRunButtons() {
-            id('run').disabled = false;
+            id('runwarm').disabled = false;
+            id('runcold').disabled = false;
         }
 
         function disableRunButtons() {
-            id('run').disabled = true;
+            id('runwarm').disabled = true;
+            id('runcold').disabled = true;
         }
 
         function createTable() {
@@ -170,24 +207,24 @@ if (typeof window !== 'undefined') {
             id('result').innerHTML = str;
         }
 
-        function loadFixtures() {
+        function loadResources() {
 
             var index = 0,
                 totalSize = 0;
 
-            function load(test, callback) {
+            function load(src, callback) {
                 var xhr = new XMLHttpRequest(),
-                    src = '3rdparty/' + test + '.js';
+                    src = src;
 
                 window.data = window.data || {};
-                window.data[test] = '';
+                window.data[src] = '';
 
                 try {
                     xhr.timeout = 30000;
                     xhr.open('GET', src, true);
 
                     xhr.ontimeout = function () {
-                        setText('status', 'Error: time out while loading ' + test);
+                        setText('status', 'Error: time out while loading ' + src);
                         callback.apply();
                     };
 
@@ -197,7 +234,7 @@ if (typeof window !== 'undefined') {
 
                         if (this.readyState === XMLHttpRequest.DONE) {
                             if (this.status === 200) {
-                                window.data[test] = this.responseText;
+                                window.data[src] = this.responseText;
                                 size = this.responseText.length;
                                 totalSize += size;
                                 success = true;
@@ -218,16 +255,16 @@ if (typeof window !== 'undefined') {
                 }
             }
 
-            function loadNextTest() {
-                var test;
+            function loadNextResource() {
+                var src;
 
-                if (index < fixtureList.length) {
-                    test = fixtureList[index];
+                if (index < resources.length) {
+                    src = resources[index];
                     index += 1;
-                    setText('status', 'Please wait. Loading ' + test +
-                        ' (' + index + ' of ' + fixtureList.length + ')');
+                    setText('status', 'Please wait. Loading ' + src +
+                            ' (' + index + ' of ' + resources.length + ')');
                     window.setTimeout(function () {
-                        load(slug(test), loadNextTest);
+                        load(src, loadNextResource);
                     }, 100);
                 } else {
                     setText('status', 'Ready.');
@@ -235,15 +272,13 @@ if (typeof window !== 'undefined') {
                 }
             }
 
-            loadNextTest();
+            loadNextResource();
         }
 
-        function setupParser() {
-            var i, j;
-
+        function setupParsers() {
             suite = [];
-            for (i = 0; i < fixtureList.length; i += 1) {
-                for (j = 0; j < parsers.length; j += 1) {
+            for (let i = 0; i < fixtureList.length; i += 1) {
+                for (let j = 0; j < parsers.length; j += 1) {
                     suite.push({
                         fixture: fixtureList[i],
                         parserInfo: parsers[j]
@@ -254,7 +289,10 @@ if (typeof window !== 'undefined') {
             createTable();
         }
 
-        function runBenchmarks() {
+        function runBenchmarks(warm) {
+            for (let i = 0; i < parsers.length; i += 1) {
+                window.eval(data[parsers[i].src]);
+            }
 
             var index = 0,
                 totalTime = {};
@@ -286,7 +324,7 @@ if (typeof window !== 'undefined') {
                 fixture = suite[index].fixture;
                 pp = suite[index].parserInfo;
 
-                source = window.data[slug(fixture)];
+                source = window.data['3rdparty/' + slug(fixture) + '.js'];
 
                 test = slug(fixture) + '-' + slug(pp.name);
                 setText(test + '-time', 'Running...');
@@ -300,11 +338,41 @@ if (typeof window !== 'undefined') {
                 // Poor man's error reporter for Traceur.
                 console.reportError = console.error;
 
-                fn = function () {
-                    window.tree.push(pp.parse(source));
-                };
+                var worker;
+
+                if (warm) {
+                    fn = function () {
+                        window.tree.push(pp.parse(source));
+                    };
+                } else {
+                    fn = function (deferred) {
+                        worker = new Worker(URL.createObjectURL(new Blob([[
+                            'var window = self;',
+                            'importScripts("data:text/javascript,' + encodeURIComponent(data[pp.src]) + '");',
+                            'addEventListener("message", function (event) {',
+                            '   var startTime = performance.now();',
+                            '   var result = (' + pp.parse + ')(event.data);',
+                            '   postMessage({',
+                            '       result: result,',
+                            '       elapsed: performance.now() - startTime,',
+                            '   });',
+                            '   close();',
+                            '});',
+                            'postMessage({message: "loaded"});'
+                        ].join('\n')], {type: 'text/javascript'})));
+                        worker.onmessage = function (event) {
+                            if (event.data.message === 'loaded') {
+                                worker.postMessage(source);
+                            } else {
+                                deferred.resolve();
+                                deferred.elapsed = event.data.elapsed / 1e3;
+                            }
+                        };
+                    };
+                }
 
                 benchmark = new window.Benchmark(test, fn, {
+                    defer: !warm,
                     'onComplete': function () {
                         var str = '';
                         str += (1000 * this.stats.mean).toFixed(1) + ' \xb1';
@@ -316,13 +384,15 @@ if (typeof window !== 'undefined') {
                         }
                         totalTime[pp.name] += this.stats.mean;
                         setText(slug(pp.name) + '-total', (1000 * totalTime[pp.name]).toFixed(1) + ' ms');
+
+                        index += 1;
+                        if (warm) window.setTimeout(run, 221);
+                        else run();
                     }
                 });
 
                 window.setTimeout(function () {
                     benchmark.run();
-                    index += 1;
-                    window.setTimeout(run, 211);
                 }, 211);
             }
 
@@ -334,17 +404,20 @@ if (typeof window !== 'undefined') {
             run();
         }
 
-        id('run').onclick = function () {
-            runBenchmarks();
+        id('runwarm').onclick = function () {
+            runBenchmarks(true);
+        };
+        id('runcold').onclick = function () {
+            runBenchmarks(false);
         };
 
         setText('benchmarkjs-version', ' version ' + window.Benchmark.version);
 
-        setupParser();
+        setupParsers();
         createTable();
 
         disableRunButtons();
-        loadFixtures();
+        loadResources();
     };
 } else {
     // TODO
