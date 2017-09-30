@@ -19,6 +19,7 @@ It's safe to use in production.
 - Stage 3 proposals (*experimental*)
 - Support for [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), a syntax extension for React
 - Skips shebang comment nodes by default
+- Optimized for handheld devices
 - Optional tracking of syntax node location (index-based and line-column)
 - 5200 unit tests
 
