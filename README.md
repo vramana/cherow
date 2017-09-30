@@ -11,7 +11,7 @@ It's safe to use in production.
 
 **Note!** if you find a bug, open an issue ticket and we will try our best to solve it within 30 - 60 minutes.
 
-An online demo can be found [here](https://cherow.github.io/cherow/).
+## [Demo](https://cherow.github.io/cherow/) and [Benchmark](https://cherow.github.io/cherow/performance/)
 
 ## Features
 
