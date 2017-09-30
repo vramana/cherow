@@ -55,17 +55,18 @@ function isDirective(node) {
 function hasMask(mask, flags) {
     return (mask & flags) === flags;
 }
-function getQualifiedJSXName(object) {
-    switch (object.type) {
+// Fully qualified element name, e.g. <svg:path> returns "svg:path"
+function getQualifiedJSXName(elementName) {
+    switch (elementName.type) {
         case 'JSXIdentifier':
-            return object.name;
+            return elementName.name;
         case 'JSXNamespacedName':
-            return object.namespace.name + ':' + object.name.name;
+            return elementName.namespace + ':' + elementName.name;
         case 'JSXMemberExpression':
-            return (getQualifiedJSXName(object.object) + '.' +
-                getQualifiedJSXName(object.property));
+            return (getQualifiedJSXName(elementName.object) + '.' +
+                getQualifiedJSXName(elementName.property));
+        /* istanbul ignore next */
         default:
-            throw new TypeError('Unexpected JSX object');
     }
 }
 function isStartOfExpression(t, inJSXContext) {
@@ -316,7 +317,6 @@ ErrorMessages[119 /* InvalidStrictLexical */] = 'Lexical declarations must not h
 ErrorMessages[120 /* MissingInitializer */] = 'Missing initializer';
 ErrorMessages[121 /* InvalidLabeledForOf */] = 'The body of a for-of statement must not be a labeled function declaration';
 ErrorMessages[122 /* InvalidVarDeclInForIn */] = 'Invalid variable declaration in for-in statement';
-ErrorMessages[123 /* InvalidRestOperatorArg */] = 'Invalid rest operator\'s argument';
 ErrorMessages[124 /* InvalidNoctalInteger */] = 'Unexpected noctal integer literal';
 ErrorMessages[125 /* InvalidRadix */] = 'Expected number in radix';
 ErrorMessages[126 /* UnexpectedTokenNumber */] = 'Unexpected number';
@@ -3711,7 +3711,7 @@ Parser.prototype.parseRestProperty = function parseRestProperty (context) {
     var pos = this.getLocations();
     this.expect(context, 14 /* Ellipsis */);
     if (this.token !== 131073 /* Identifier */)
-        { this.error(123 /* InvalidRestOperatorArg */); }
+        { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
     var arg = this.parseBindingPatternOrIdentifier(context | 4194304 /* Binding */);
     if (this.token === 524317 /* Assign */)
         { this.error(23 /* DefaultRestProperty */); }
@@ -3878,11 +3878,14 @@ Parser.prototype.parseSuper = function parseSuper (context) {
             // The super property has to be within a class constructor
             if (!hasMask(this.flags, 16384 /* AllowConstructorWithSupoer */))
                 { this.error(76 /* BadSuperCall */); }
+            break;
         case 13 /* Period */:
         case 131091 /* LeftBracket */:
             if (!(this.flags & 512 /* AllowSuper */))
                 { this.error(76 /* BadSuperCall */); }
-        default: // ignore
+            break;
+        default:
+            this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
     }
     return this.finishNode(pos, {
         type: 'Super'
@@ -4995,7 +4998,12 @@ Parser.prototype.parseDoExpression = function parseDoExpression (context) {
     });
 };
 /** JSX */
+Parser.prototype.isValidJSXIdentifier = function isValidJSXIdentifier (t) {
+    return (t & 131073 /* Identifier */) === 131073 /* Identifier */ || (t & 65536 /* Contextual */) === 65536 /* Contextual */ || (t & 4096 /* Keyword */) === 4096 /* Keyword */;
+};
 Parser.prototype.parseJSXIdentifier = function parseJSXIdentifier (context) {
+    if (!(this.isValidJSXIdentifier(this.token)))
+        { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
     var name = this.tokenValue;
     var pos = this.getLocations();
     this.nextToken(context);

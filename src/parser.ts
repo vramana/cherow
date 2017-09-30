@@ -1747,6 +1747,7 @@ export class Parser {
     }
 
     private isIdentifier(context: Context, t: Token): boolean {
+
         if (context & Context.Module) {
             if (t === Token.YieldKeyword) this.error(Errors.UnexpectedStrictReserved);
             if ((t & Token.FutureReserved) === Token.FutureReserved) this.error(Errors.UnexpectedStrictReserved);
@@ -2769,7 +2770,6 @@ export class Parser {
                 if (this.token === Token.AwaitKeyword) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 if (!(context & Context.Await)) context &= ~Context.AsyncFunctionBody;
             }
-
             if (context & Context.Statement && !(context & Context.AnnexB)) {
                 if (!this.initBlockScope() && name in this.blockScope) {
                     if (this.blockScope[name] === ScopeMasks.NonShadowable || this.blockScope !== this.functionScope) {
@@ -3643,7 +3643,7 @@ export class Parser {
     private parseRestProperty(context: Context): ESTree.RestElement {
         const pos = this.getLocations();
         this.expect(context, Token.Ellipsis);
-        if (this.token !== Token.Identifier) this.error(Errors.InvalidRestOperatorArg);
+        if (this.token !== Token.Identifier) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         const arg = this.parseBindingPatternOrIdentifier(context | Context.Binding);
         if (this.token === Token.Assign) this.error(Errors.DefaultRestProperty);
 
@@ -3830,10 +3830,13 @@ export class Parser {
             case Token.LeftParen:
                 // The super property has to be within a class constructor
                 if (!hasMask(this.flags, Flags.AllowConstructorWithSupoer)) this.error(Errors.BadSuperCall);
+                break;
             case Token.Period:
             case Token.LeftBracket:
                 if (!(this.flags & Flags.AllowSuper)) this.error(Errors.BadSuperCall);
-            default: // ignore
+                break;
+            default:
+                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         }
 
         return this.finishNode(pos, {
@@ -5087,7 +5090,12 @@ export class Parser {
 
     /** JSX */
 
+    private isValidJSXIdentifier(t: Token): boolean {
+        return (t & Token.Identifier) === Token.Identifier || (t & Token.Contextual) === Token.Contextual || (t & Token.Keyword) === Token.Keyword;
+    }
+
     private parseJSXIdentifier(context: Context): ESTree.JSXIdentifier {
+        if (!(this.isValidJSXIdentifier(this.token))) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         const name = this.tokenValue;
         const pos = this.getLocations();
         this.nextToken(context);

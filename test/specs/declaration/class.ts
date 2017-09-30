@@ -10,7 +10,7 @@ describe('Declarations - Class', () => {
             parseScript(`class C { async method() { await: ;  }}`);
         }).to.throw();
     });
-
+    
     it('should fail on rest element (array binding pattern) followed by any element', () => {
         expect(() => {
             parseScript(`class C {

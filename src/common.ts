@@ -62,19 +62,21 @@ export function hasMask(mask: number, flags: number) {
     return (mask & flags) === flags;
 }
 
-export function getQualifiedJSXName(object: any): string {
-    switch (object.type) {
+// Fully qualified element name, e.g. <svg:path> returns "svg:path"
+export function getQualifiedJSXName(elementName: any): any{
+    switch (elementName.type) {
         case 'JSXIdentifier':
-            return object.name;
+            return elementName.name;
         case 'JSXNamespacedName':
-            return object.namespace.name + ':' + object.name.name;
+            return elementName.namespace + ':' + elementName.name;
         case 'JSXMemberExpression':
             return (
-                getQualifiedJSXName(object.object) + '.' +
-                getQualifiedJSXName(object.property)
+                getQualifiedJSXName(elementName.object) + '.' +
+                getQualifiedJSXName(elementName.property)
             );
+       /* istanbul ignore next */
         default:
-            throw new TypeError('Unexpected JSX object');
+            // ignore
     }
 }
 

@@ -10,38 +10,43 @@ describe('Espressions - Super', () => {
             parseScript(`class A extends B { *g1() { return super() } }`);
         }).to.not.throw();
     });
+    
     it('should fail on "class A extends B { *g1() { return super() } }}"', () => {
         expect(() => {
             parseScript(`function wrap() { function* foo(a = super(), b = super.foo()) { } }`);
         }).to.throw();
     });
+
     it('should fail on "class A extends B { *g1() { return super() } }}"', () => {
         expect(() => {
             parseScript(`class A static foo() { super() } }`);
         }).to.throw();
     });
+
     it('should fail on "function foo() {super() super.foo()"', () => {
         expect(() => {
             parseScript(`function foo() {super() super.foo()`);
         }).to.throw();
     });
+
     it('should fail on "var foo = function() { super()  super.foo() }"', () => {
         expect(() => {
             parseScript(`var foo = function() { super()  super.foo() }`);
         }).to.throw();
     });
+
     it('should fail on "function wrap() { function foo(a = super(), b = super.foo()) {}}"', () => {
         expect(() => {
             parseScript(`function wrap() { function foo(a = super(), b = super.foo()) {}}`);
         }).to.throw();
     });
 
-    it('should fail on invalid if', () => {
-      expect(() => { parseScript('class A extends B { constructor() { (super).a(); } }') }).to.not.throw()
+    it('should fail on invalid lone super', () => {
+      expect(() => { parseScript('class A extends B { constructor() { (super).a(); } }') }).to.throw()
     });
 
-    it('should fail on invalid if', () => {
-      expect(() => { parseScript('({ a() { (super).b(); } });') }).to.not.throw()
+    it('should fail on invalid super', () => {
+      expect(() => { parseScript('({ a() { (super).b(); } });') }).to.throw()
     });
 
     it('should parse spread operator applied to AssignmentExpression following other elements', () => {

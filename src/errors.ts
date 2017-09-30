@@ -254,7 +254,6 @@ export const ErrorMessages: {
     [Errors.MissingInitializer]: 'Missing initializer',
     [Errors.InvalidLabeledForOf]: 'The body of a for-of statement must not be a labeled function declaration',
     [Errors.InvalidVarDeclInForIn]: 'Invalid variable declaration in for-in statement',
-    [Errors.InvalidRestOperatorArg]: 'Invalid rest operator\'s argument',
     [Errors.InvalidNoctalInteger]: 'Unexpected noctal integer literal',
     [Errors.InvalidRadix]: 'Expected number in radix',
     [Errors.UnexpectedTokenNumber]: 'Unexpected number',

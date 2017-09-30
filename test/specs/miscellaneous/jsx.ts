@@ -4,7 +4,13 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('JSX', () => {
-  
+    
+      it('should fail if tagName contain number', () => {
+        expect(() => {
+            parseScript(`<1/>`)
+        }).to.throw();
+      });
+
       it('should fail on adjacent JSX elements not wrapped in an enclosing tag', () => {
           expect(() => {
               parseScript(`<div>one</div><div>two</div>`)
@@ -239,6 +245,168 @@ describe('JSX', () => {
         expect(() => {
             parseScript('<div> prefix {} suffix </div>');
         }).to.throw();
+    });
+
+    it('should parse JSX node with keyword as name', () => {
+        expect(parseScript(`"use strict"; <async />`, {
+            jsx: true,
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 23,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 23
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 13,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 13
+                  }
+                },
+                "expression": {
+                  "type": "Literal",
+                  "start": 0,
+                  "end": 12,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 12
+                    }
+                  },
+                  "value": "use strict",
+                  "raw": "\"use strict\""
+                }
+              },
+              {
+                "type": "ExpressionStatement",
+                "start": 14,
+                "end": 23,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 14
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 23
+                  }
+                },
+                "expression": {
+                  "type": "JSXElement",
+                  "start": 14,
+                  "end": 23,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 14
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 23
+                    }
+                  },
+                  "openingElement": {
+                    "type": "JSXOpeningElement",
+                    "start": 14,
+                    "end": 23,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 14
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 23
+                      }
+                    },
+                    "attributes": [],
+                    "name": {
+                      "type": "JSXIdentifier",
+                      "start": 15,
+                      "end": 20,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 15
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 20
+                        }
+                      },
+                      "name": "async"
+                    },
+                    "selfClosing": true
+                  },
+                  "closingElement": null,
+                  "children": []
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
+    it('should parse JSX node with keyword as name', () => {
+        expect(parseScript(`<this />`, {
+            jsx: true,
+            ranges: true,
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 8,
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 8,
+                "expression": {
+                  "type": "JSXElement",
+                  "start": 0,
+                  "end": 8,
+                  "openingElement": {
+                    "type": "JSXOpeningElement",
+                    "start": 0,
+                    "end": 8,
+                    "attributes": [],
+                    "name": {
+                      "type": "JSXIdentifier",
+                      "start": 1,
+                      "end": 5,
+                      "name": "this"
+                    },
+                    "selfClosing": true
+                  },
+                  "closingElement": null,
+                  "children": []
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
     });
 
     it('should parse jsx spread children', () => {

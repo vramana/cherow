@@ -186,42 +186,67 @@ describe('Module - Export', () => {
           }).to.throw();
       });
   
-      it('should fail expression contain an `export` declaration', () => {
+      it('should fail expression an `export` declaration', () => {
           expect(() => {
               parseModule(`(class { static *method() { export default null; } });`);
           }).to.throw();
       });
   
-      it('should fail if statement cannot contain an `export` declaration', () => {
+      it('should fail if statement contain an `export` declaration', () => {
           expect(() => {
               parseModule(`{ export default null; }`);
           }).to.throw();
       });
   
-      it('should fail if statement cannot contain an `export` declaration ( do-while)', () => {
+      it('should fail if statement contain an `export` declaration ( do-while)', () => {
           expect(() => {
               parseModule(`do export default null; while (false)`);
           }).to.throw();
       });
+
+      it('should fail if expression contain an `export` declaration', () => {
+        expect(() => {
+            parseModule(`export {foo as bar};`);
+        }).to.not.throw();
+    });
+
+      it('should fail if expression contain an `export` declaration', () => {
+        expect(() => {
+            parseModule(`(class { static method() { export default null; } });`);
+        }).to.throw();
+    });
   
-      it('should fail if statement cannot contain an `export` declaration ( for )', () => {
+      it('should fail if statement contain an `export` declaration ( do-while)', () => {
+        expect(() => {
+            parseModule(`for (let y in [])
+            export default null;`);
+        }).to.throw();
+    });
+
+    it('should fail if expression contain an `export` declaration (arrow)', () => {
+      expect(() => {
+          parseModule(`() => { export default null; };`);
+      }).to.throw();
+  });
+
+      it('should fail if statement contain an `export` declaration ( for )', () => {
           expect(() => {
               parseModule(`for (const x = 0; false;) export default null;`);
           }).to.throw();
       });
   
-      it('should fail if statement cannot contain an `export` declaration ( switch )', () => {
+      it('should fail if statement contain an `export` declaration ( switch )', () => {
           expect(() => {
               parseModule(`switch(0) { case 1: export default null; default: }`);
           }).to.throw();
       });
   
-      it('should fail if statement cannot contain an `export` declaration ( if )', () => {
+      it('should fail if statement contain an `export` declaration ( if )', () => {
           expect(() => {
               parseModule(`if (false) export default null;`);
           }).to.throw();
       });
-      it('should fail if expressen  cannot contain an `export` declaration ( object literal )', () => {
+      it('should fail if expressen  contain an `export` declaration ( object literal )', () => {
           expect(() => {
               parseModule(`({ get m() { export default null; } });`);
           }).to.throw();

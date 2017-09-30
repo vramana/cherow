@@ -152,10 +152,195 @@ describe('Identifiers', () => {
                 parseScript('var switch = 123;');
             }).to.throw();
         });
+
+        it('should fail if reserved words used as Identifier - "this"', () => {
+          expect(() => {
+              parseScript('var this = 123;');
+          }).to.throw();
+        });
+
+        it('should fail if reserved words used as Identifier - "super" (hex)', () => {
+          expect(() => {
+              parseScript('var \\u0073uper = 123;');
+          }).to.throw();
+        });
+
+        it('should fail if reserved words used as Identifier - "throw"', () => {
+          expect(() => {
+              parseScript('var throw = 123;');
+          }).to.throw();
+        });
+
+        it('should fail if reserved words used as Identifier - "throw" (hex)', () => {
+          expect(() => {
+              parseScript('var \\u{74}\\u{72}\\u{79} = 123;');
+          }).to.throw();
+        });
+
+        it('should fail if reserved words used as Identifier - "throw" ( hex 4)', () => {
+          expect(() => {
+              parseScript('var \\u0074\\u0072\\u0079 = 123;');
+          }).to.throw();
+        });
+
+        it('should fail if reserved words used as Identifier - "true"', () => {
+          expect(() => {
+              parseScript('var true = 123;');
+          }).to.throw();
+        });
+
         it('should fail if reserved words used as Identifier - "try"', () => {
             expect(() => {
                 parseScript('var try = 123;');
             }).to.throw();
+        });
+
+        it('should parse parse identifier with starting unicode', () => {
+          expect(parseScript('\\u0073uperHollydayInHell', {
+              raw: true,
+              ranges: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 24,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 24
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 24,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 24
+                  }
+                },
+                "expression": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 24,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 24
+                    }
+                  },
+                  "name": "superHollydayInHell"
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+        });
+
+
+        it('should parse parse variable with underscore', () => {
+          expect(parseScript('var _ = 1;', {
+              raw: true,
+              ranges: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 10,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 10
+              }
+            },
+            "body": [
+              {
+                "type": "VariableDeclaration",
+                "start": 0,
+                "end": 10,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 10
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 4,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "_"
+                    },
+                    "init": {
+                      "type": "Literal",
+                      "start": 8,
+                      "end": 9,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 8
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 9
+                        }
+                      },
+                      "value": 1,
+                      "raw": "1"
+                    }
+                  }
+                ],
+                "kind": "var"
+              }
+            ],
+            "sourceType": "script"
+          });
         });
 
         it('should parse parse russion alpha upper  - Г', () => {

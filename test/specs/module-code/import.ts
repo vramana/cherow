@@ -221,6 +221,13 @@ describe('Import', () => {
               parseModule("import { x as arguments } from './early-import-as-arguments.js';");
           }).to.throw();
       });
+
+      it("should fail if expression contain an import declaration", () => {
+        expect(() => {
+            parseModule('() => { import v from "./decl-pos-import-arrow-function.js"; };');
+        }).to.throw();
+    });
+
       it("should fail on \"import {b,,} from from  bar\"", () => {
           expect(() => {
               parseModule("import { x as eval } from './early-import-as-eval.js';");
@@ -231,7 +238,7 @@ describe('Import', () => {
               parseModule("import { arguments } from './early-import-arguments.js';");
           }).to.throw();
       });
-      it("should fail on \"import {b,,} from from  bar\"", () => {
+      it("should fail if statement contain an import declaration", () => {
           expect(() => {
               parseModule("class C { static method() { import v from './decl-pos-import-class-decl-meth-static.js'; } }");
           }).to.throw();
