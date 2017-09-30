@@ -115,7 +115,7 @@ dependency in other libraries. Poor performance will slow down the main library.
 
 Cherow has been developed from scratch with only one goal - performance.
 
-You can find the benchmarks [here](BENCHMARK.md).
+You can run your own [performance tests](https://cherow.github.io/cherow/performance/).
 
 ## ESTree
 
