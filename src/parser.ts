@@ -849,25 +849,26 @@ export class Parser {
         }
     }
 
-    private scanIdentifier(context: Context) {
+    private scanIdentifier(context: Context): Token {
 
         let start = this.index;
         let ret = '';
 
-        while (this.hasNext()) {
-
-            const code = this.nextChar();
-
-            if (isIdentifierPart(code)) {
-                this.advance();
-            } else if (code === Chars.Backslash) {
-                ret += this.source.slice(start, this.index);
-                ret += fromCodePoint(this.peekUnicodeEscape());
-                start = this.index;
-            } else {
-                break;
+        loop:
+            while (this.hasNext()) {
+                let code = this.nextChar();
+                switch (code) {
+                    case Chars.Backslash:
+                        ret += this.source.slice(start, this.index);
+                        ret += fromCodePoint(this.peekUnicodeEscape());
+                        start = this.index;
+                        break;
+                    default:
+                        if (code >= 0xd800 && code <= 0xdc00) code = this.nextUnicodeChar();
+                        if (!isIdentifierPart(code)) break loop;
+                        this.advance();
+                }
             }
-        }
 
         if (start < this.index) ret += this.source.slice(start, this.index);
 
@@ -896,12 +897,77 @@ export class Parser {
     /**
      * Peek unicode escape
      */
-    private peekUnicodeEscape(): Chars {
+    private peekUnicodeEscape(): any {
         this.advance();
-        const cookedChar = this.peekExtendedUnicodeEscape();
-        if (!isValidIdentifierStart(cookedChar)) this.error(Errors.Unexpected);
-        this.advance();
-        return cookedChar;
+        const code = this.peekExtendedUnicodeEscape();
+        if (code >= 0xd800 && code <= 0xdc00) this.error(Errors.UnexpectedSurrogate);
+        switch (code) {
+                  // `A`...`Z`
+                  case Chars.UpperA:
+                  case Chars.UpperB:
+                  case Chars.UpperC:
+                  case Chars.UpperD:
+                  case Chars.UpperE:
+                  case Chars.UpperF:
+                  case Chars.UpperG:
+                  case Chars.UpperH:
+                  case Chars.UpperI:
+                  case Chars.UpperJ:
+                  case Chars.UpperK:
+                  case Chars.UpperL:
+                  case Chars.UpperM:
+                  case Chars.UpperN:
+                  case Chars.UpperO:
+                  case Chars.UpperP:
+                  case Chars.UpperQ:
+                  case Chars.UpperR:
+                  case Chars.UpperS:
+                  case Chars.UpperT:
+                  case Chars.UpperU:
+                  case Chars.UpperV:
+                  case Chars.UpperW:
+                  case Chars.UpperX:
+                  case Chars.UpperY:
+                  case Chars.UpperZ:
+  
+                      // '$'
+                  case Chars.Dollar:
+  
+                      // '_'
+                  case Chars.Underscore:
+  
+                      //  `a`...`z`
+                  case Chars.LowerA:
+                  case Chars.LowerB:
+                  case Chars.LowerC:
+                  case Chars.LowerD:
+                  case Chars.LowerE:
+                  case Chars.LowerF:
+                  case Chars.LowerG:
+                  case Chars.LowerH:
+                  case Chars.LowerI:
+                  case Chars.LowerJ:
+                  case Chars.LowerK:
+                  case Chars.LowerL:
+                  case Chars.LowerM:
+                  case Chars.LowerN:
+                  case Chars.LowerO:
+                  case Chars.LowerP:
+                  case Chars.LowerQ:
+                  case Chars.LowerR:
+                  case Chars.LowerS:
+                  case Chars.LowerT:
+                  case Chars.LowerU:
+                  case Chars.LowerV:
+                  case Chars.LowerW:
+                  case Chars.LowerX:
+                  case Chars.LowerY:
+                  case Chars.LowerZ:
+                  default:
+                    //  if (!isValidIdentifierStart(code)) this.error(Errors.InvalidUnicodeEscapeSequence);
+                  this.advance();
+                  return code;
+        }
     }
 
     private scanNumberLiteral(context: Context): Token {
@@ -1067,12 +1133,12 @@ export class Parser {
 
                 if (!(this.flags & Flags.Exponent)) this.flags |= Flags.Exponent;
 
-                 // scan exponent
+                // scan exponent
                 switch (this.nextChar()) {
                     case Chars.Plus:
                     case Chars.Hyphen:
                         this.advance();
-                        if (!this.hasNext()) this.error(Errors.InvalidNumber);
+                        if (!this.hasNext()) this.error(Errors.UnexpectedTokenNumber);
                     default: // ignore
                 }
 
@@ -1092,7 +1158,7 @@ export class Parser {
                         break;
                     default:
                         // we must have at least one decimal digit after 'e'/'E'
-                        this.error(Errors.InvalidNumber);
+                        this.error(Errors.UnexpectedMantissa);
                 }
 
                 end = this.index;
@@ -1102,7 +1168,7 @@ export class Parser {
                 // BigInt - Stage 3 proposal
             case Chars.LowerN:
                 if (this.flags & Flags.OptionsNext) {
-                    if (this.flags & Flags.FloatOrExponent) this.error(Errors.Unexpected);
+                    if (this.flags & Flags.Float) this.error(Errors.Unexpected);
                     this.advance();
                     if (!(this.flags & Flags.BigInt)) this.flags |= Flags.BigInt;
                     end = this.index;
@@ -1113,7 +1179,7 @@ export class Parser {
 
         // The source character immediately following a numeric literal must
         // not be an identifier start or a decimal digit.
-        if (isIdentifierStart(this.nextChar())) this.error(Errors.InvalidNumber);
+        if (isIdentifierStart(this.nextChar())) this.error(Errors.UnexpectedTokenNumber);
 
         const raw = this.source.substring(start, end);
 
@@ -1174,7 +1240,6 @@ export class Parser {
 
         loop:
             while (index < this.source.length) {
-                if (!isIdentifierPart(this.source.charCodeAt(index))) break loop;
                 let code = this.source.charCodeAt(index);
                 switch (code) {
                     case Chars.LowerG:

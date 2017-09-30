@@ -3,7 +3,13 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Identifiers', () => {
-    
+
+        it('should fail if escaped reserved words used as Identifier - "class"', () => {
+            expect(() => {
+                parseScript('var cla\\u0073s = 123;');
+            }).to.throw();
+        });
+
         it('should fail if reserved words used as Identifier - "class"', () => {
             expect(() => {
                 parseScript('var class = 123;');
@@ -44,11 +50,37 @@ describe('Identifiers', () => {
                 parseScript('var else = 123;');
             }).to.throw();
         });
+
         it('should fail if reserved words used as Identifier - "enum"', () => {
             expect(() => {
                 parseScript('var enum = 123;');
             }).to.throw();
         });
+
+        it('should fail if reserved words used as Identifier - "yield" (strict)', () => {
+            expect(() => {
+                parseScript('"use strict"; var yield = 13;');
+            }).to.throw();
+        });
+
+        it('should fail if escaped reserved words used as Identifier - "null" (hex)', () => {
+            expect(() => {
+                parseScript('var n\\u{65}w = 123;');
+            }).to.throw();
+        });
+
+        it('should fail if escaped reserved words used as Identifier - "null" (hex 4)', () => {
+            expect(() => {
+                parseScript('var \\u006eull = 123;');
+            }).to.throw();
+        });
+
+        it('should fail if reserved words used as Identifier - "finally"', () => {
+            expect(() => {
+                parseScript('var finally = 123;');
+            }).to.throw();
+        });
+
         it('should fail if reserved words used as Identifier - "export"', () => {
             expect(() => {
                 parseScript('var export = 123;');
@@ -124,6 +156,1025 @@ describe('Identifiers', () => {
             expect(() => {
                 parseScript('var try = 123;');
             }).to.throw();
+        });
+
+        it('should parse parse russion alpha upper  - Г', () => {
+            expect(parseScript('var Г = 1;', {
+                raw: true,
+                ranges: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 10,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 10
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 10,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 10
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 9,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 9
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 5,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 5
+                            }
+                          },
+                          "name": "Г"
+                        },
+                        "init": {
+                          "type": "Literal",
+                          "start": 8,
+                          "end": 9,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 8
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 9
+                            }
+                          },
+                          "value": 1,
+                          "raw": "1"
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+        it('should parse parse russion alpha upper  - Ж', () => {
+            expect(parseScript('var Ж = 1;', {
+                raw: true,
+                ranges: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 10,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 10
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 10,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 10
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 9,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 9
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 5,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 5
+                            }
+                          },
+                          "name": "Ж"
+                        },
+                        "init": {
+                          "type": "Literal",
+                          "start": 8,
+                          "end": 9,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 8
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 9
+                            }
+                          },
+                          "value": 1,
+                          "raw": "1"
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+        it('should parse parse russion alpha upper via hex 4  - \\u0410 ', () => {
+            expect(parseScript('var \\u0410 = 1;', {
+                raw: true,
+                ranges: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 15,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 15
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 15,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 15
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 14,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 14
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 10,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 10
+                            }
+                          },
+                          "name": "А"
+                        },
+                        "init": {
+                          "type": "Literal",
+                          "start": 13,
+                          "end": 14,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 13
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 14
+                            }
+                          },
+                          "value": 1,
+                          "raw": "1"
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+        it('should parse parse russion alpha upper via escape hex - \u{411}', () => {
+            expect(parseScript('var \\u{411} = 1;', {
+                raw: true,
+                ranges: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 16,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 16
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 15,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 15
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 11,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 11
+                            }
+                          },
+                          "name": "Б"
+                        },
+                        "init": {
+                          "type": "Literal",
+                          "start": 14,
+                          "end": 15,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 14
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 15
+                            }
+                          },
+                          "value": 1,
+                          "raw": "1"
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+        
+        it('should parse parse russion alpha upper via escape hex - \\u{41A}', () => {
+            expect(parseScript('var \\u{41A} = 1;', {
+                raw: true,
+                ranges: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 16,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 16
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 15,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 15
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 11,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 11
+                            }
+                          },
+                          "name": "К"
+                        },
+                        "init": {
+                          "type": "Literal",
+                          "start": 14,
+                          "end": 15,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 14
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 15
+                            }
+                          },
+                          "value": 1,
+                          "raw": "1"
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+        it('should parse parse russion alpha upper via escape hex - \u{411}', () => {
+            expect(parseScript('var \\u{424} = 1;', {
+                raw: true,
+                ranges: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 16,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 16
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 15,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 15
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 11,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 11
+                            }
+                          },
+                          "name": "Ф"
+                        },
+                        "init": {
+                          "type": "Literal",
+                          "start": 14,
+                          "end": 15,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 14
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 15
+                            }
+                          },
+                          "value": 1,
+                          "raw": "1"
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+        it('should parse parse russion alpha lower - ю', () => {
+            expect(parseScript('var ю = 1;', {
+                raw: true,
+                ranges: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 10,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 10
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 10,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 10
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 9,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 9
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 5,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 5
+                            }
+                          },
+                          "name": "ю"
+                        },
+                        "init": {
+                          "type": "Literal",
+                          "start": 8,
+                          "end": 9,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 8
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 9
+                            }
+                          },
+                          "value": 1,
+                          "raw": "1"
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+        it('should parse parse russion alpha lower - й', () => {
+            expect(parseScript('var й = 1;', {
+                raw: true,
+                ranges: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 10,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 10
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 10,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 10
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 9,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 9
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 5,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 5
+                            }
+                          },
+                          "name": "й"
+                        },
+                        "init": {
+                          "type": "Literal",
+                          "start": 8,
+                          "end": 9,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 8
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 9
+                            }
+                          },
+                          "value": 1,
+                          "raw": "1"
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+        
+        it('should parse parse russion alpha lower - д', () => {
+            expect(parseScript('var д = 1;', {
+                raw: true,
+                ranges: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 10,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 10
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 10,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 10
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 9,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 9
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 5,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 5
+                            }
+                          },
+                          "name": "д"
+                        },
+                        "init": {
+                          "type": "Literal",
+                          "start": 8,
+                          "end": 9,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 8
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 9
+                            }
+                          },
+                          "value": 1,
+                          "raw": "1"
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+        it('should parse part digits via escape hex', () => {
+            expect(parseScript('var $\\u{37}', {
+                raw: true,
+                ranges: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 11,
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 11,
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 11,
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 11,
+                          "name": "$7"
+                        },
+                        "init": null
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+        it('should parse part digits via escape hex 4', () => {
+            expect(parseScript('var $\\u0030 = 0;', {
+                raw: true,
+                ranges: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 16,
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 16,
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 15,
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 11,
+                          "name": "$0"
+                        },
+                        "init": {
+                          "type": "Literal",
+                          "start": 14,
+                          "end": 15,
+                          "value": 0,
+                          "raw": "0"
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+        it('should parse part digits via escape hex', () => {
+            expect(parseScript('var $\\u0037 = 7;', {
+                raw: true,
+                ranges: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 16,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 16
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 15,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 15
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 11,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 11
+                            }
+                          },
+                          "name": "$7"
+                        },
+                        "init": {
+                          "type": "Literal",
+                          "start": 14,
+                          "end": 15,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 14
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 15
+                            }
+                          },
+                          "value": 7,
+                          "raw": "7"
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+
+        it('should parse part digits via escape hex', () => {
+            expect(parseScript('var $\\u{30}', {
+                raw: true,
+                ranges: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 11,
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 11,
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 11,
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 11,
+                          "name": "$0"
+                        },
+                        "init": null
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
         });
     
         it('should parse yield as reserved word used in identifier in sloppy mode"', () => {

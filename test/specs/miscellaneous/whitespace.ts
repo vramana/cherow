@@ -8,19 +8,19 @@ describe('Whitespace', () => {
     it(`should fail if whitespace are expressed as a Unicode escape sequence consisting of six characters"`, () => {
         expect(() => {
             parseScript(`var\\u0009x;`)
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it(`should fail if vertical tab are expressed as a Unicode escape sequence consisting of six characters"`, () => {
         expect(() => {
             parseScript(`var\\u000Bx;`)
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it(`should fail if form feed are expressed as a Unicode escape sequence consisting of six characters"`, () => {
         expect(() => {
             parseScript(`var\\u000Cx;`)
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it(`should fail on un-closed multi line comments"`, () => {
@@ -51,7 +51,7 @@ describe('Whitespace', () => {
     it(`should fail if no break space are expressed as a Unicode escape sequence consisting of six characters"`, () => {
         expect(() => {
             parseScript(`var\\u00A0x;`)
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should allow space between tokens', () => {

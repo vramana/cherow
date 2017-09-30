@@ -325,7 +325,9 @@ ErrorMessages[122 /* InvalidVarDeclInForIn */] = 'Invalid variable declaration i
 ErrorMessages[123 /* InvalidRestOperatorArg */] = 'Invalid rest operator\'s argument';
 ErrorMessages[124 /* InvalidNoctalInteger */] = 'Unexpected noctal integer literal';
 ErrorMessages[125 /* InvalidRadix */] = 'Expected number in radix';
-ErrorMessages[126 /* InvalidNumber */] = 'InvalidNumber';
+ErrorMessages[126 /* UnexpectedTokenNumber */] = 'Unexpected number';
+ErrorMessages[127 /* UnexpectedMantissa */] = 'Unexpected mantissa';
+ErrorMessages[128 /* UnexpectedSurrogate */] = 'Unexpected surrogate pair';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -480,10 +482,12 @@ function isvalidIdentifierContinue(code) {
 function isValidIdentifierStart(code) {
     return (convert[(code >>> 5) + 34816] >>> code & 31 & 1) !== 0;
 }
-function isIdentifierStart(ch) {
-    return ch >= 65 /* UpperA */ && ch <= 90 /* UpperZ */ || ch >= 97 /* LowerA */ && ch <= 122 /* LowerZ */ ||
-        ch === 36 /* Dollar */ || ch === 95 /* Underscore */ ||
-        ch > 127 /* MaxAsciiCharacter */ && isValidIdentifierStart(ch);
+function isIdentifierStart(c) {
+    return ((c <= 122 /* LowerZ */ && c >= 97 /* LowerA */) ||
+        (c <= 90 /* UpperZ */ && c >= 65 /* UpperA */) ||
+        c === 95 /* Underscore */ ||
+        c === 36 /* Dollar */ ||
+        (convert[(c >>> 5) + 34816] >>> c & 31 & 1) !== 0);
 }
 function isIdentifierPart(ch) {
     return ch >= 65 /* UpperA */ && ch <= 90 /* UpperZ */ || ch >= 97 /* LowerA */ && ch <= 122 /* LowerZ */ ||
@@ -1241,18 +1245,20 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context) {
 
     var start = this.index;
     var ret = '';
-    while (this.hasNext()) {
+    loop: while (this.hasNext()) {
         var code = this$1.nextChar();
-        if (isIdentifierPart(code)) {
-            this$1.advance();
-        }
-        else if (code === 92 /* Backslash */) {
-            ret += this$1.source.slice(start, this$1.index);
-            ret += fromCodePoint(this$1.peekUnicodeEscape());
-            start = this$1.index;
-        }
-        else {
-            break;
+        switch (code) {
+            case 92 /* Backslash */:
+                ret += this$1.source.slice(start, this$1.index);
+                ret += fromCodePoint(this$1.peekUnicodeEscape());
+                start = this$1.index;
+                break;
+            default:
+                if (code >= 0xd800 && code <= 0xdc00)
+                    { code = this$1.nextUnicodeChar(); }
+                if (!isIdentifierPart(code))
+                    { break loop; }
+                this$1.advance();
         }
     }
     if (start < this.index)
@@ -1282,11 +1288,73 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context) {
  */
 Parser.prototype.peekUnicodeEscape = function peekUnicodeEscape () {
     this.advance();
-    var cookedChar = this.peekExtendedUnicodeEscape();
-    if (!isValidIdentifierStart(cookedChar))
-        { this.error(0 /* Unexpected */); }
-    this.advance();
-    return cookedChar;
+    var code = this.peekExtendedUnicodeEscape();
+    if (code >= 0xd800 && code <= 0xdc00)
+        { this.error(128 /* UnexpectedSurrogate */); }
+    switch (code) {
+        // `A`...`Z`
+        case 65 /* UpperA */:
+        case 66 /* UpperB */:
+        case 67 /* UpperC */:
+        case 68 /* UpperD */:
+        case 69 /* UpperE */:
+        case 70 /* UpperF */:
+        case 71 /* UpperG */:
+        case 72 /* UpperH */:
+        case 73 /* UpperI */:
+        case 74 /* UpperJ */:
+        case 75 /* UpperK */:
+        case 76 /* UpperL */:
+        case 77 /* UpperM */:
+        case 78 /* UpperN */:
+        case 79 /* UpperO */:
+        case 80 /* UpperP */:
+        case 81 /* UpperQ */:
+        case 82 /* UpperR */:
+        case 83 /* UpperS */:
+        case 84 /* UpperT */:
+        case 85 /* UpperU */:
+        case 86 /* UpperV */:
+        case 87 /* UpperW */:
+        case 88 /* UpperX */:
+        case 89 /* UpperY */:
+        case 90 /* UpperZ */:
+        // '$'
+        case 36 /* Dollar */:
+        // '_'
+        case 95 /* Underscore */:
+        //  `a`...`z`
+        case 97 /* LowerA */:
+        case 98 /* LowerB */:
+        case 99 /* LowerC */:
+        case 100 /* LowerD */:
+        case 101 /* LowerE */:
+        case 102 /* LowerF */:
+        case 103 /* LowerG */:
+        case 104 /* LowerH */:
+        case 105 /* LowerI */:
+        case 106 /* LowerJ */:
+        case 107 /* LowerK */:
+        case 108 /* LowerL */:
+        case 109 /* LowerM */:
+        case 110 /* LowerN */:
+        case 111 /* LowerO */:
+        case 112 /* LowerP */:
+        case 113 /* LowerQ */:
+        case 114 /* LowerR */:
+        case 115 /* LowerS */:
+        case 116 /* LowerT */:
+        case 117 /* LowerU */:
+        case 118 /* LowerV */:
+        case 119 /* LowerW */:
+        case 120 /* LowerX */:
+        case 121 /* LowerY */:
+        case 122 /* LowerZ */:
+        default:
+            //  if (!isValidIdentifierStart(code)) this.error(Errors.InvalidUnicodeEscapeSequence);
+            this.advance();
+            return code;
+    }
 };
 Parser.prototype.scanNumberLiteral = function scanNumberLiteral (context) {
         var this$1 = this;
@@ -1437,7 +1505,7 @@ Parser.prototype.scanNumber = function scanNumber (context) {
                 case 45 /* Hyphen */:
                     this.advance();
                     if (!this.hasNext())
-                        { this.error(126 /* InvalidNumber */); }
+                        { this.error(126 /* UnexpectedTokenNumber */); }
                 default: // ignore
             }
             switch (this.nextChar()) {
@@ -1456,14 +1524,14 @@ Parser.prototype.scanNumber = function scanNumber (context) {
                     break;
                 default:
                     // we must have at least one decimal digit after 'e'/'E'
-                    this.error(126 /* InvalidNumber */);
+                    this.error(127 /* UnexpectedMantissa */);
             }
             end = this.index;
             break;
         // BigInt - Stage 3 proposal
         case 110 /* LowerN */:
             if (this.flags & 67108864 /* OptionsNext */) {
-                if (this.flags & 1572864 /* FloatOrExponent */)
+                if (this.flags & 524288 /* Float */)
                     { this.error(0 /* Unexpected */); }
                 this.advance();
                 if (!(this.flags & 262144 /* BigInt */))
@@ -1475,7 +1543,7 @@ Parser.prototype.scanNumber = function scanNumber (context) {
     // The source character immediately following a numeric literal must
     // not be an identifier start or a decimal digit.
     if (isIdentifierStart(this.nextChar()))
-        { this.error(126 /* InvalidNumber */); }
+        { this.error(126 /* UnexpectedTokenNumber */); }
     var raw = this.source.substring(start, end);
     if (this.flags & 33554432 /* OptionsRaw */)
         { this.tokenRaw = raw; }
@@ -1526,8 +1594,6 @@ Parser.prototype.scanRegularExpression = function scanRegularExpression () {
     var flagsStart = index;
     var mask = 0;
     loop: while (index < this.source.length) {
-        if (!isIdentifierPart(this$1.source.charCodeAt(index)))
-            { break loop; }
         var code = this$1.source.charCodeAt(index);
         switch (code) {
             case 103 /* LowerG */:

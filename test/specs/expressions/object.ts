@@ -270,13 +270,13 @@ describe('Espressions - Object', () => {
     it('should fail on escaped ""get"', () => {
         expect(() => {
             parseScript(`({ g\\u0065t m() {} })`)
-        }).to.throw(' Keyword must not contain escaped characters');
+        }).to.throw();
     });
 
     it('should fail on escaped ""set"', () => {
         expect(() => {
             parseScript(`({ s\\u0065t m(v) {} })`)
-        }).to.throw(' Keyword must not contain escaped characters');
+        }).to.throw('');
     });
 
     it('should fail if `yield` expressions bind weakly', () => {
