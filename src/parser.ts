@@ -4,7 +4,7 @@ import { isKeyword, hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isValidDes
 import { Flags, Context, ScopeMasks, RegExpState, ObjectFlags, RegExpFlag, ParenthesizedState, IterationState } from './masks';
 import { createError, Errors } from './errors';
 import { Token, tokenDesc, descKeyword } from './token';
-import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
+import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, CollectComments, ErrorLocation, Location } from './interface';
 
 export class Parser {
@@ -901,73 +901,9 @@ export class Parser {
         this.advance();
         const code = this.peekExtendedUnicodeEscape();
         if (code >= 0xd800 && code <= 0xdc00) this.error(Errors.UnexpectedSurrogate);
-        switch (code) {
-                  // `A`...`Z`
-                  case Chars.UpperA:
-                  case Chars.UpperB:
-                  case Chars.UpperC:
-                  case Chars.UpperD:
-                  case Chars.UpperE:
-                  case Chars.UpperF:
-                  case Chars.UpperG:
-                  case Chars.UpperH:
-                  case Chars.UpperI:
-                  case Chars.UpperJ:
-                  case Chars.UpperK:
-                  case Chars.UpperL:
-                  case Chars.UpperM:
-                  case Chars.UpperN:
-                  case Chars.UpperO:
-                  case Chars.UpperP:
-                  case Chars.UpperQ:
-                  case Chars.UpperR:
-                  case Chars.UpperS:
-                  case Chars.UpperT:
-                  case Chars.UpperU:
-                  case Chars.UpperV:
-                  case Chars.UpperW:
-                  case Chars.UpperX:
-                  case Chars.UpperY:
-                  case Chars.UpperZ:
-  
-                      // '$'
-                  case Chars.Dollar:
-  
-                      // '_'
-                  case Chars.Underscore:
-  
-                      //  `a`...`z`
-                  case Chars.LowerA:
-                  case Chars.LowerB:
-                  case Chars.LowerC:
-                  case Chars.LowerD:
-                  case Chars.LowerE:
-                  case Chars.LowerF:
-                  case Chars.LowerG:
-                  case Chars.LowerH:
-                  case Chars.LowerI:
-                  case Chars.LowerJ:
-                  case Chars.LowerK:
-                  case Chars.LowerL:
-                  case Chars.LowerM:
-                  case Chars.LowerN:
-                  case Chars.LowerO:
-                  case Chars.LowerP:
-                  case Chars.LowerQ:
-                  case Chars.LowerR:
-                  case Chars.LowerS:
-                  case Chars.LowerT:
-                  case Chars.LowerU:
-                  case Chars.LowerV:
-                  case Chars.LowerW:
-                  case Chars.LowerX:
-                  case Chars.LowerY:
-                  case Chars.LowerZ:
-                  default:
-                    //  if (!isValidIdentifierStart(code)) this.error(Errors.InvalidUnicodeEscapeSequence);
-                  this.advance();
-                  return code;
-        }
+        if (!isvalidIdentifierContinue(code)) this.error(Errors.InvalidUnicodeEscapeSequence);
+        this.advance();
+        return code;
     }
 
     private scanNumberLiteral(context: Context): Token {

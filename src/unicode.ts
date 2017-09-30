@@ -34,14 +34,10 @@ export function isValidIdentifierStart(code: number): boolean {
     return (convert[(code >>> 5) + 34816] >>> code & 31 & 1) !== 0;
 }
 
-export function isIdentifierStart(c: number): boolean {
-    return (
-        (c <= Chars.LowerZ && c >= Chars.LowerA) ||
-        (c <= Chars.UpperZ && c >= Chars.UpperA) ||
-        c === Chars.Underscore ||
-        c === Chars.Dollar ||
-        (convert[(c >>> 5) + 34816] >>> c & 31 & 1) !== 0
-      );
+export function isIdentifierStart(ch: number): boolean {
+    return ch >= Chars.UpperA && ch <= Chars.UpperZ || ch >= Chars.LowerA && ch <= Chars.LowerZ ||
+        ch === Chars.Dollar || ch === Chars.Underscore ||
+        ch > Chars.MaxAsciiCharacter && isValidIdentifierStart(ch);
 }
 
 export function isIdentifierPart(ch: number): boolean {

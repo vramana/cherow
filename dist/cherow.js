@@ -482,12 +482,10 @@ function isvalidIdentifierContinue(code) {
 function isValidIdentifierStart(code) {
     return (convert[(code >>> 5) + 34816] >>> code & 31 & 1) !== 0;
 }
-function isIdentifierStart(c) {
-    return ((c <= 122 /* LowerZ */ && c >= 97 /* LowerA */) ||
-        (c <= 90 /* UpperZ */ && c >= 65 /* UpperA */) ||
-        c === 95 /* Underscore */ ||
-        c === 36 /* Dollar */ ||
-        (convert[(c >>> 5) + 34816] >>> c & 31 & 1) !== 0);
+function isIdentifierStart(ch) {
+    return ch >= 65 /* UpperA */ && ch <= 90 /* UpperZ */ || ch >= 97 /* LowerA */ && ch <= 122 /* LowerZ */ ||
+        ch === 36 /* Dollar */ || ch === 95 /* Underscore */ ||
+        ch > 127 /* MaxAsciiCharacter */ && isValidIdentifierStart(ch);
 }
 function isIdentifierPart(ch) {
     return ch >= 65 /* UpperA */ && ch <= 90 /* UpperZ */ || ch >= 97 /* LowerA */ && ch <= 122 /* LowerZ */ ||
@@ -1291,70 +1289,10 @@ Parser.prototype.peekUnicodeEscape = function peekUnicodeEscape () {
     var code = this.peekExtendedUnicodeEscape();
     if (code >= 0xd800 && code <= 0xdc00)
         { this.error(128 /* UnexpectedSurrogate */); }
-    switch (code) {
-        // `A`...`Z`
-        case 65 /* UpperA */:
-        case 66 /* UpperB */:
-        case 67 /* UpperC */:
-        case 68 /* UpperD */:
-        case 69 /* UpperE */:
-        case 70 /* UpperF */:
-        case 71 /* UpperG */:
-        case 72 /* UpperH */:
-        case 73 /* UpperI */:
-        case 74 /* UpperJ */:
-        case 75 /* UpperK */:
-        case 76 /* UpperL */:
-        case 77 /* UpperM */:
-        case 78 /* UpperN */:
-        case 79 /* UpperO */:
-        case 80 /* UpperP */:
-        case 81 /* UpperQ */:
-        case 82 /* UpperR */:
-        case 83 /* UpperS */:
-        case 84 /* UpperT */:
-        case 85 /* UpperU */:
-        case 86 /* UpperV */:
-        case 87 /* UpperW */:
-        case 88 /* UpperX */:
-        case 89 /* UpperY */:
-        case 90 /* UpperZ */:
-        // '$'
-        case 36 /* Dollar */:
-        // '_'
-        case 95 /* Underscore */:
-        //  `a`...`z`
-        case 97 /* LowerA */:
-        case 98 /* LowerB */:
-        case 99 /* LowerC */:
-        case 100 /* LowerD */:
-        case 101 /* LowerE */:
-        case 102 /* LowerF */:
-        case 103 /* LowerG */:
-        case 104 /* LowerH */:
-        case 105 /* LowerI */:
-        case 106 /* LowerJ */:
-        case 107 /* LowerK */:
-        case 108 /* LowerL */:
-        case 109 /* LowerM */:
-        case 110 /* LowerN */:
-        case 111 /* LowerO */:
-        case 112 /* LowerP */:
-        case 113 /* LowerQ */:
-        case 114 /* LowerR */:
-        case 115 /* LowerS */:
-        case 116 /* LowerT */:
-        case 117 /* LowerU */:
-        case 118 /* LowerV */:
-        case 119 /* LowerW */:
-        case 120 /* LowerX */:
-        case 121 /* LowerY */:
-        case 122 /* LowerZ */:
-        default:
-            //  if (!isValidIdentifierStart(code)) this.error(Errors.InvalidUnicodeEscapeSequence);
-            this.advance();
-            return code;
-    }
+    if (!isvalidIdentifierContinue(code))
+        { this.error(6 /* InvalidUnicodeEscapeSequence */); }
+    this.advance();
+    return code;
 };
 Parser.prototype.scanNumberLiteral = function scanNumberLiteral (context) {
         var this$1 = this;

@@ -2091,7 +2091,7 @@ is y`);
     it(`should fail on "\\u005c"`, () => {
         expect(() => {
             parseScript(`\\u005c`)
-        }).to.not.throw();
+        }).to.throw();
     });
     it(`should fail on "x: while (true) { (function () { continue x; }); }"`, () => {
         expect(() => {
@@ -2660,7 +2660,7 @@ is y`);
     it('should fail on "x\\u002a"', () => {
         expect(() => {
             parseScript('x\\u002a');
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on "var x = ""', () => {
         expect(() => {
