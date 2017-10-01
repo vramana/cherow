@@ -3661,6 +3661,7 @@ export class Parser {
     private parseRestProperty(context: Context): ESTree.RestElement {
         const pos = this.getLocations();
         this.expect(context, Token.Ellipsis);
+        
         if (this.token !== Token.Identifier) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         const arg = this.parseBindingPatternOrIdentifier(context | Context.Binding);
         if (this.token === Token.Assign) this.error(Errors.DefaultRestProperty);
@@ -4103,8 +4104,8 @@ export class Parser {
 
         // Disallow SpreadElement inside dynamic import
         if (context & Context.DynamicImport) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-
         this.expect(context, Token.Ellipsis);
+        if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
         return this.finishNode(pos, {
             type: 'SpreadElement',
             argument: this.parseAssignmentExpression(context)

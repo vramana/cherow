@@ -4086,6 +4086,8 @@ Parser.prototype.parseSpreadElement = function parseSpreadElement (context) {
     if (context & 524288 /* DynamicImport */)
         { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
     this.expect(context, 14 /* Ellipsis */);
+    if (context & 2 /* Strict */ && this.isEvalOrArguments(this.tokenValue))
+        { this.error(103 /* UnexpectedReservedWord */); }
     return this.finishNode(pos, {
         type: 'SpreadElement',
         argument: this.parseAssignmentExpression(context)

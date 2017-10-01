@@ -2782,9 +2782,9 @@ is y`);
             parseScript('class A;');
         }).to.throw();
     });
-    it('should fail on "({set a([a.b]){}})"', () => {
+    it('should fail on "a\\u113"', () => {
         expect(() => {
-            parseScript('({set a([a.b]){}})');
+            parseScript('a\\u113');
         }).to.throw();
     });
     it('should fail on "for(;;) function a(){}"', () => {
@@ -3523,6 +3523,536 @@ is y`);
     it('should fail on "class a { set foo(...v) {} };"', () => {
         expect(() => {
             parseScript('class a { set foo(...v) {} };');
+        }).to.throw();
+    });
+
+    it('should fail on "0o"', () => {
+        expect(() => {
+            parseScript('0o');
+        }).to.throw();
+    });
+    it('should fail on "0o1a"', () => {
+        expect(() => {
+            parseScript('0o1a');
+        }).to.throw();
+    });
+    it('should fail on "0o9"', () => {
+        expect(() => {
+            parseScript('0o9');
+        }).to.throw();
+    });
+    it('should fail on "0o18"', () => {
+        expect(() => {
+            parseScript('0o18');
+        }).to.throw();
+    });
+    it('should fail on "0O"', () => {
+        expect(() => {
+            parseScript('0O');
+        }).to.throw();
+    });
+    it('should fail on "0b1a"', () => {
+        expect(() => {
+            parseScript('0b1a');
+        }).to.throw();
+    });
+    it('should fail on "0b9"', () => {
+        expect(() => {
+            parseScript('0b9');
+        }).to.throw();
+    });
+    it('should fail on "0b18"', () => {
+        expect(() => {
+            parseScript('0b18');
+        }).to.throw();
+    });
+    it('should fail on "0b12"', () => {
+        expect(() => {
+            parseScript('0b12');
+        }).to.throw();
+    });
+    it('should fail on "0B"', () => {
+        expect(() => {
+            parseScript('0B');
+        }).to.throw();
+    });
+    it('should fail on "0B1a"', () => {
+        expect(() => {
+            parseScript('0B1a');
+        }).to.throw();
+    });
+    it('should fail on "0B9"', () => {
+        expect(() => {
+            parseScript('0B9');
+        }).to.throw();
+    });
+    it('should fail on "0B18"', () => {
+        expect(() => {
+            parseScript('0B18');
+        }).to.throw();
+    });
+    it('should fail on "0B12"', () => {
+        expect(() => {
+            parseScript('0B12');
+        }).to.throw();
+    });
+    it('should fail on "\"\\u{110000}\""', () => {
+        expect(() => {
+            parseScript("\"\\u{110000}\"");
+        }).to.throw();
+    });
+    it('should fail on "[v] += ary"', () => {
+        expect(() => {
+            parseScript('[v] += ary');
+        }).to.throw();
+    });
+    it('should fail on "[2] = 42"', () => {
+        expect(() => {
+            parseScript('[2] = 42');
+        }).to.throw();
+    });
+
+    it('should fail on "[2] = 42"', () => {
+        expect(() => {
+            parseScript('[2] = 42');
+        }).to.throw();
+    });
+
+    it('should fail on "({ obj:20 }) = 42"', () => {
+        expect(() => {
+            parseScript('({ obj:20 }) = 42');
+        }).to.throw();
+    });
+
+    it('should fail on "( { get x() {} } = 0)"', () => {
+        expect(() => {
+            parseScript('( { get x() {} } = 0)');
+        }).to.throw();
+    });
+
+    it('should fail on "function hello() {"use strict"; ({ i: 10, s(eval) { } }); }"', () => {
+        expect(() => {
+            parseScript('function hello() {"use strict"; ({ i: 10, s(eval) { } }); }');
+        }).to.throw();
+    });
+
+    it('should fail on "var default"', () => {
+        expect(() => {
+            parseScript('var default');
+        }).to.throw();
+    });
+
+    it('should fail on "import { foo, bar }"', () => {
+        expect(() => {
+            parseModule('import { foo, bar }');
+        }).to.throw();
+    });
+
+    it('should fail on "(a, a) => 42"', () => {
+        expect(() => {
+            parseScript('(a, a) => 42');
+        }).to.throw();
+    });
+
+
+    it('should fail on "(a, a) => 42"', () => {
+        expect(() => {
+            parseScript('(a, a) => 42');
+        }).to.throw();
+    });
+
+    it('should fail on "void { [1, 2]: 3 };"', () => {
+        expect(() => {
+            parseScript('void { [1, 2]: 3 };');
+        }).to.not.throw();
+    });
+
+    it('should fail on "let [this] = [10]"', () => {
+        expect(() => {
+            parseScript('let [this] = [10]');
+        }).to.throw();
+    });
+
+    it('should fail on "let {this} = x"', () => {
+        expect(() => {
+            parseScript('let {this} = x');
+        }).to.throw();
+    });
+
+    it('should fail on "([function] = [10])"', () => {
+        expect(() => {
+            parseScript('([function] = [10])');
+        }).to.throw();
+    });
+
+    it('should fail on "([this] = [10])"', () => {
+        expect(() => {
+            parseScript('([this] = [10])');
+        }).to.throw();
+    });
+
+    it('should fail on "({this} = x)"', () => {
+        expect(() => {
+            parseScript('({this} = x)');
+        }).to.throw();
+    });
+
+    it('should fail on "var x = {this}"', () => {
+        expect(() => {
+            parseScript('var x = {this}');
+        }).to.throw();
+    });
+
+
+    it('should fail on "(function () { yield 10 })"', () => {
+        expect(() => {
+            parseScript('(function () { yield 10 })');
+        }).to.throw();
+    });
+
+    it('should fail on ""use strict"; let + 1"', () => {
+        expect(() => {
+            parseScript('"use strict"; let + 1');
+        }).to.throw();
+    });
+
+    it('should fail on "class A extends yield B { }"', () => {
+        expect(() => {
+            parseScript('class A extends yield B { }');
+        }).to.throw();
+    });
+
+    it('should fail on "class default"', () => {
+        expect(() => {
+            parseScript('class default');
+        }).to.throw();
+    });
+
+    it('should fail on "`test"', () => {
+        expect(() => {
+            parseScript('`test');
+        }).to.throw();
+    });
+
+    it('should fail on "function f(a, ...b, c)"', () => {
+        expect(() => {
+            parseScript('function f(a, ...b, c)');
+        }).to.throw();
+    });
+
+    it('should fail on "function f(a, ...b = 0)"', () => {
+        expect(() => {
+            parseScript('function f(a, ...b = 0)');
+        }).to.throw();
+    });
+
+    it('should fail on "(...a, b) => {}"', () => {
+        expect(() => {
+            parseScript('(...a, b) => {}');
+        }).to.throw();
+    });
+
+    it('should fail on "({ 5 }) => {}"', () => {
+        expect(() => {
+            parseScript('({ 5 }) => {}');
+        }).to.throw();
+    });
+
+    it('should fail on "(b, ...a)"', () => {
+        expect(() => {
+            parseScript('(b, ...a)');
+        }).to.throw();
+    });
+
+    it('should fail on "({ get test() { } }) => 42"', () => {
+        expect(() => {
+            parseScript('({ get test() { } }) => 42');
+        }).to.throw();
+    });
+
+   it('should fail on "let [x]"', () => {
+        expect(() => {
+            parseScript('let [x]');
+        }).to.throw();
+    });
+
+    it('should fail on "var [x]"', () => {
+        expect(() => {
+            parseScript('var [x]');
+        }).to.throw();
+    });
+
+    it('should fail on "if (1) let x = 10;"', () => {
+        expect(() => {
+            parseScript('if (1) let x = 10;');
+        }).to.throw();
+    });
+
+    it('should fail on "for (;;) const x = 10;"', () => {
+        expect(() => {
+            parseScript('for (;;) const x = 10;');
+        }).to.throw();
+    });
+
+    it('should fail on "while (1) function foo(){}"', () => {
+        expect(() => {
+            parseScript('while (1) function foo(){}');
+        }).to.throw();
+    });
+
+    it('should fail on "[...eval] = arr"', () => {
+        expect(() => {
+            parseModule('[...eval] = arr');
+        }).to.throw();
+    });
+
+    it('should fail on "function f(a, ...b, c)"', () => {
+        expect(() => {
+            parseScript('function f(a, ...b, c)');
+        }).to.throw();
+    });
+
+    it('should fail on "function f(a, ...b, c)"', () => {
+        expect(() => {
+            parseScript('function f(a, ...b, c)');
+        }).to.throw();
+    });
+
+    it('should fail on "new.prop"', () => {
+        expect(() => {
+            parseScript('new.prop');
+        }).to.throw();
+    });
+
+    it('should fail on "new.target"', () => {
+        expect(() => {
+            parseScript('new.target');
+        }).to.throw();
+    });
+
+    it('should fail on "(function* yield() {})"', () => {
+        expect(() => {
+            parseScript('(function* yield() {})');
+        }).to.throw();
+    });
+
+    it('should fail on "function* wrap() {\nfunction* yield() {}\n}"', () => {
+        expect(() => {
+            parseScript('function* wrap() {\nfunction* yield() {}\n}');
+        }).to.throw();
+    });
+
+    it('should fail on "function* foo(a = yield b) {}"', () => {
+        expect(() => {
+            parseScript('function* foo(a = yield b) {}');
+        }).to.throw();
+    });
+
+    it('should fail on "function* foo(a = class extends (yield b) {}) {}"', () => {
+        expect(() => {
+            parseScript('function* foo(a = class extends (yield b) {}) {}');
+        }).to.throw();
+    });
+
+    it('should fail on "function* wrap() {\n(a = yield b) => a\n}"', () => {
+        expect(() => {
+            parseScript('function* wrap() {\n(a = yield b) => a\n}');
+        }).to.throw();
+    });
+
+    it('should fail on "({*foo: 1})"', () => {
+        expect(() => {
+            parseScript('({*foo: 1})');
+        }).to.throw();
+    });
+
+    it('should fail on "foo: class X {}"', () => {
+        expect(() => {
+            parseScript('foo: class X {}');
+        }).to.throw();
+    });
+
+    it('should fail on "var foo = 1; let foo = 1;"', () => {
+        expect(() => {
+            parseScript('var foo = 1; let foo = 1;');
+        }).to.throw();
+    });
+
+    it('should fail on "var foo = 1; let foo = 1;"', () => {
+        expect(() => {
+            parseScript('var foo = 1; let foo = 1;');
+        }).to.throw();
+    });
+
+    it('should fail on "(x) => {} + 2', () => {
+        expect(() => {
+            parseScript(`x 
+            is y`);
+        }).to.throw();
+    });
+
+    it('should fail on "with(true) function a(){}', () => {
+        expect(() => {
+            parseScript('with(true) function a(){}');
+        }).to.throw();
+    });
+
+
+    it('should fail on "for(this of 0);', () => {
+        expect(() => {
+            parseScript('for(this of 0);');
+        }).to.throw();
+    });
+
+    it('should fail on ""\\x1"', () => {
+        expect(() => {
+            parseScript('"\\x1"');
+        }).to.throw();
+    });
+
+    it('should fail on "function hello() { "use strict"; ({ 021: 42 }); }', () => {
+        expect(() => {
+            parseScript('function hello() { "use strict"; ({ 021: 42 }); }');
+        }).to.throw();
+    });
+
+    it('should fail on "[...0,...{a=0}]=0', () => {
+        expect(() => {
+            parseScript('[...0,...{a=0}]=0');
+        }).to.throw();
+    });
+
+    it('should fail on "super', () => {
+        expect(() => {
+            parseScript('super');
+        }).to.throw();
+    });
+    it('should fail on ""', () => {
+        expect(() => {
+            parseScript('"');
+        }).to.throw();
+    });
+
+    it('should fail on "/', () => {
+        expect(() => {
+            parseScript('/');
+        }).to.throw();
+    });
+
+    it('should fail on "var (x)', () => {
+        expect(() => {
+            parseScript('var (x)');
+        }).to.throw();
+    });
+
+    it('should fail on "(x) => {} + 2', () => {
+        expect(() => {
+            parseScript(`throw
+            10;`);
+        }).to.throw();
+    });
+
+    it('should fail on "class A {static static static(){}}', () => {
+        expect(() => {
+            parseScript('class A {static static static(){}}');
+        }).to.throw();
+    });
+
+    it('should fail on "with(true) class a {}"', () => {
+        expect(() => {
+            parseScript('with(true) class a {}');
+        }).to.throw();
+    });
+
+    it('should fail on "function hello() { "use strict"; function inner() { "octal directive\\1"; } }"', () => {
+        expect(() => {
+            parseScript('function hello() { "use strict"; function inner() { "octal directive\\1"; } }');
+        }).to.throw();
+    });
+
+    it('should fail on "(class {a})', () => {
+        expect(() => {
+            parseScript('(class {a})');
+        }).to.throw();
+    });
+
+    it('should fail on "({ get: g(d) { } })', () => {
+        expect(() => {
+            parseScript('({ get: g(d) { } })');
+        }).to.throw();
+    });
+
+    it('should fail on "if (b,...a, );', () => {
+        expect(() => {
+            parseScript('if (b,...a, );');
+        }).to.throw();
+    });
+    it('should fail on "0x', () => {
+        expect(() => {
+            parseScript('0x');
+        }).to.throw();
+    });
+ 
+    it('should fail on "var [(a)] = 0', () => {
+        expect(() => {
+            parseScript('var [(a)] = 0');
+        }).to.throw();
+    });
+    it('should fail on "({ get: g(d) { } })', () => {
+        expect(() => {
+            parseScript('({ get: g(d) { } })');
+        }).to.throw();
+    });
+    it('should fail on ""use strict"; a package', () => {
+        expect(() => {
+            parseScript('"use strict"; a package');
+        }).to.throw();
+    });
+    it('should fail on "(a ...b) => 0', () => {
+        expect(() => {
+            parseScript('(a ...b) => 0');
+        }).to.throw();
+    });
+
+    it('should fail on "(function* ([a.b]) {})"', () => {
+        expect(() => {
+            parseScript('(function* ([a.b]) {})');
+        }).to.throw();
+    });
+
+    it('should fail on "var f = function() { new.unknown_property; }', () => {
+        expect(() => {
+            parseScript('var f = function() { new.unknown_property; }');
+        }).to.throw();
+    });
+
+    it('should fail on ""use strict"; for (let {a: b = let};;) {}"', () => {
+        expect(() => {
+            parseScript('"use strict"; for (let {a: b = let};;) {}');
+        }).to.throw();
+    });
+
+    it('should fail on "(b, ...a) + 1"', () => {
+        expect(() => {
+            parseScript('(b, ...a) + 1');
+        }).to.throw();
+    });
+
+    it('should fail on "() + 1', () => {
+        expect(() => {
+            parseScript('() + 1');
+        }).to.throw();
+    });
+
+    it('should fail on "(b, ...a) + 1"', () => {
+        expect(() => {
+            parseScript('(b, ...a) + 1');
+        }).to.throw();
+    });
+
+    it('should fail on "() + 1', () => {
+        expect(() => {
+            parseScript('() + 1');
         }).to.throw();
     });
 });
