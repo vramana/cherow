@@ -1945,6 +1945,10 @@ export class Parser {
     private parseExportSpecifier(context: Context): ESTree.ExportSpecifier {
         const pos = this.getLocations();
 
+        // Valid: `export {default} from "foo";`
+        // Invalid: '`export {with as a}`'
+        if (this.token !== Token.DefaultKeyword && this.token !== Token.Identifier) this.error(Errors.Unexpected);
+
         const local = this.parseIdentifier(context);
         let exported = local;
 
@@ -2046,6 +2050,10 @@ export class Parser {
         if (this.token !== Token.AsKeyword) this.error(Errors.NoAsAfterImportNamespace);
 
         this.nextToken(context);
+
+        if (this.token !== Token.Identifier) {
+            this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        }
 
         const local = this.parseIdentifier(context);
 
@@ -3653,6 +3661,7 @@ export class Parser {
     private parseRestProperty(context: Context): ESTree.RestElement {
         const pos = this.getLocations();
         this.expect(context, Token.Ellipsis);
+        
         if (this.token !== Token.Identifier) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         const arg = this.parseBindingPatternOrIdentifier(context | Context.Binding);
         if (this.token === Token.Assign) this.error(Errors.DefaultRestProperty);
@@ -3863,7 +3872,7 @@ export class Parser {
         const savedFunction = hasMask(this.flags, Flags.InFunctionBody);
         const savedFlags = this.flags;
 
-        this.flags |= Flags.InFunctionBody;
+        this.flags = this.flags & ~(Flags.Break | Flags.Continue) | Flags.InFunctionBody;
 
         this.expect(context, Token.LeftBrace);
 
@@ -4095,8 +4104,8 @@ export class Parser {
 
         // Disallow SpreadElement inside dynamic import
         if (context & Context.DynamicImport) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-
         this.expect(context, Token.Ellipsis);
+        if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
         return this.finishNode(pos, {
             type: 'SpreadElement',
             argument: this.parseAssignmentExpression(context)

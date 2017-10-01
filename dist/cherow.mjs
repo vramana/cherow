@@ -2207,6 +2207,10 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
 };
 Parser.prototype.parseExportSpecifier = function parseExportSpecifier (context) {
     var pos = this.getLocations();
+    // Valid: `export {default} from "foo";`
+    // Invalid: '`export {with as a}`'
+    if (this.token !== 12368 /* DefaultKeyword */ && this.token !== 131073 /* Identifier */)
+        { this.error(0 /* Unexpected */); }
     var local = this.parseIdentifier(context);
     var exported = local;
     if (this.parseOptional(context, 65643 /* AsKeyword */)) {
@@ -2299,6 +2303,9 @@ Parser.prototype.parseImportNamespaceSpecifier = function parseImportNamespaceSp
     if (this.token !== 65643 /* AsKeyword */)
         { this.error(43 /* NoAsAfterImportNamespace */); }
     this.nextToken(context);
+    if (this.token !== 131073 /* Identifier */) {
+        this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
+    }
     var local = this.parseIdentifier(context);
     return this.finishNode(pos, {
         type: 'ImportNamespaceSpecifier',
@@ -3888,7 +3895,7 @@ Parser.prototype.parseFunctionBody = function parseFunctionBody (context) {
     var body = [];
     var savedFunction = hasMask(this.flags, 4 /* InFunctionBody */);
     var savedFlags = this.flags;
-    this.flags |= 4 /* InFunctionBody */;
+    this.flags = this.flags & ~(2048 /* Break */ | 4096 /* Continue */) | 4 /* InFunctionBody */;
     this.expect(context, 131084 /* LeftBrace */);
     var previousLabelSet = this.labelSet;
     this.labelSet = {};
@@ -4079,6 +4086,8 @@ Parser.prototype.parseSpreadElement = function parseSpreadElement (context) {
     if (context & 524288 /* DynamicImport */)
         { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
     this.expect(context, 14 /* Ellipsis */);
+    if (context & 2 /* Strict */ && this.isEvalOrArguments(this.tokenValue))
+        { this.error(103 /* UnexpectedReservedWord */); }
     return this.finishNode(pos, {
         type: 'SpreadElement',
         argument: this.parseAssignmentExpression(context)
