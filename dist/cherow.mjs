@@ -2461,7 +2461,6 @@ Parser.prototype.parseStatement = function parseStatement (context) {
         case 12384 /* TryKeyword */:
             return this.parseTryStatement(context);
         // Both 'class' and 'function' are forbidden by lookahead restriction.
-        // (unless as child statement of 'if' or 'else'
         case 274509 /* ClassKeyword */:
         case 274519 /* FunctionKeyword */:
             this.error(129 /* ForbiddenAsStatement */, tokenDesc(this.token));
@@ -2630,22 +2629,23 @@ Parser.prototype.parseSwitchStatement = function parseSwitchStatement (context) 
         var this$1 = this;
 
     var pos = this.getLocations();
-    var SavedFlag = this.flags;
     this.expect(context, 274525 /* SwitchKeyword */);
     this.expect(context, 262155 /* LeftParen */);
     var discriminant = this.parseExpression(context);
     this.expect(context, 16 /* RightParen */);
     this.expect(context, 393228 /* LeftBrace */);
     var cases = [];
-    var hasDefault = false;
-    this.flags |= (2048 /* Break */ | 8192 /* Switch */);
+    var seenDefault = false;
+    var SavedFlag = this.flags;
+    if (!(this.flags & 2048 /* Break */))
+        { this.flags |= (2048 /* Break */ | 8192 /* Switch */); }
     while (this.token !== 15 /* RightBrace */) {
         var clause = this$1.parseSwitchCase(context);
         if (clause.test === null) {
             // Error on duplicate 'default' clauses
-            if (hasDefault)
+            if (seenDefault)
                 { this$1.error(18 /* MultipleDefaultsInSwitch */); }
-            hasDefault = true;
+            seenDefault = true;
         }
         cases.push(clause);
     }
@@ -2661,25 +2661,28 @@ Parser.prototype.parseSwitchCase = function parseSwitchCase (context) {
         var this$1 = this;
 
     var pos = this.getLocations();
-    var test;
+    var test = null;
     switch (this.token) {
+        // 'case'
         case 12363 /* CaseKeyword */:
             this.nextToken(context);
-            test = this.parseExpression(context | 8192 /* AllowIn */);
+            test = this.parseExpression(context);
             break;
+        // 'default'
         case 12368 /* DefaultKeyword */:
             this.nextToken(context);
-            test = null;
             break;
-        default:
-            test = null;
+        default: // ignore
     }
     this.expect(context, 21 /* Colon */);
     var consequent = [];
     loop: while (true) {
         switch (this$1.token) {
+            // '}'
             case 15 /* RightBrace */:
+            // 'default'
             case 12368 /* DefaultKeyword */:
+            // 'case'
             case 12363 /* CaseKeyword */:
                 break loop;
             default:
@@ -2697,7 +2700,7 @@ Parser.prototype.parseThrowStatement = function parseThrowStatement (context) {
     this.expect(context, 12383 /* ThrowKeyword */);
     if (this.flags & 1 /* LineTerminator */)
         { this.error(21 /* NewlineAfterThrow */); }
-    var argument = this.parseExpression(context | 8192 /* AllowIn */);
+    var argument = this.parseExpression(context);
     this.consumeSemicolon(context);
     return this.finishNode(pos, {
         type: 'ThrowStatement',
@@ -2711,7 +2714,7 @@ Parser.prototype.parseWithStatement = function parseWithStatement (context) {
         { this.error(22 /* StrictModeWith */); }
     this.expect(context, 12386 /* WithKeyword */);
     this.expect(context, 262155 /* LeftParen */);
-    var object = this.parseExpression(context | 8192 /* AllowIn */);
+    var object = this.parseExpression(context);
     this.expect(context, 16 /* RightParen */);
     var body = this.parseStatement(context);
     return this.finishNode(pos, {
@@ -2724,7 +2727,7 @@ Parser.prototype.parseWhileStatement = function parseWhileStatement (context) {
     var pos = this.getLocations();
     this.expect(context, 12385 /* WhileKeyword */);
     this.expect(context, 262155 /* LeftParen */);
-    var test = this.parseExpression(context | 8192 /* AllowIn */);
+    var test = this.parseExpression(context);
     this.expect(context, 16 /* RightParen */);
     var savedFlag = this.flags;
     if (!(this.flags & 2048 /* Break */))
@@ -2747,7 +2750,7 @@ Parser.prototype.parseDoWhileStatement = function parseDoWhileStatement (context
     this.flags = savedFlag;
     this.expect(context, 12385 /* WhileKeyword */);
     this.expect(context, 262155 /* LeftParen */);
-    var test = this.parseExpression(context | 8192 /* AllowIn */);
+    var test = this.parseExpression(context);
     this.expect(context, 16 /* RightParen */);
     this.parseOptional(context, 17 /* Semicolon */);
     return this.finishNode(pos, {
@@ -2804,8 +2807,7 @@ Parser.prototype.parseLabelledStatement = function parseLabelledStatement (conte
     if (this.token === 21 /* Colon */ && expr.type === 'Identifier') {
         this.expect(context, 21 /* Colon */);
         // Invalid: `for (const x of []) label1: label2: function f() {}`
-        if (context & 16384 /* ForStatement */ && !(this.flags & 8192 /* Switch */)) {
-            // Invalid: 'for (const x in {}) label1: label2: function f() {}'
+        if (!(this.flags & 8192 /* Switch */) && context & 16384 /* ForStatement */ && this.token === 393217 /* Identifier */) {
             this.error(121 /* InvalidLabeledForOf */);
         }
         var key = '@' + expr.name;

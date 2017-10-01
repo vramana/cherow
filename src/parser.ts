@@ -1236,7 +1236,6 @@ export class Parser {
         this.endPos = this.index;
         this.index = index;
 
-
         const pattern = this.source.slice(bodyStart, bodyEnd);
         const flags = this.source.slice(flagsStart, this.index);
 
@@ -2204,13 +2203,13 @@ export class Parser {
             case Token.ClassKeyword:
                 return this.parseClass(context | Context.Declaration);
 
-            // VariableStatement[?Yield]
+                // VariableStatement[?Yield]
             case Token.ConstKeyword:
                 return this.parseVariableStatement(context | (Context.Const));
 
             case Token.FunctionKeyword:
                 return this.parseFunctionDeclaration(context & ~Context.Method);
-                case Token.ExportKeyword:
+            case Token.ExportKeyword:
                 if (!(context & Context.Module)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
 
             case Token.ImportKeyword:
@@ -2219,7 +2218,7 @@ export class Parser {
                 if (this.flags & Flags.OptionsNext && this.nextTokenIsLeftParen(context)) return this.parseStatement(context);
                 if (!(context & Context.Module)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
 
-            // VariableStatement[?Yield]
+                // VariableStatement[?Yield]
             case Token.LetKeyword:
                 // If let follows identifier on the same line, it is an declaration. Parse it as a variable statement
                 if (this.isLexical(context)) return this.parseVariableStatement(context | Context.Let);
@@ -2253,7 +2252,7 @@ export class Parser {
             case Token.IfKeyword:
                 return this.parseIfStatement(context);
 
-            // BreakStatement[?Yield]
+                // BreakStatement[?Yield]
             case Token.BreakKeyword:
                 return this.parseBreakStatement(context);
 
@@ -2295,7 +2294,6 @@ export class Parser {
                 return this.parseTryStatement(context);
 
                 // Both 'class' and 'function' are forbidden by lookahead restriction.
-                // (unless as child statement of 'if' or 'else'
             case Token.ClassKeyword:
             case Token.FunctionKeyword:
                 this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
@@ -2497,8 +2495,8 @@ export class Parser {
     }
 
     private parseSwitchStatement(context: Context): ESTree.SwitchStatement {
-        const pos = this.getLocations();
-        const SavedFlag = this.flags;
+
+        let pos = this.getLocations();
 
         this.expect(context, Token.SwitchKeyword);
         this.expect(context, Token.LeftParen);
@@ -2510,17 +2508,21 @@ export class Parser {
 
         const cases: ESTree.SwitchCase[] = [];
 
-        let hasDefault = false;
+        let seenDefault = false;
 
-        this.flags |= (Flags.Break | Flags.Switch);
+        const SavedFlag = this.flags;
+
+        if (!(this.flags & Flags.Break)) this.flags |= (Flags.Break | Flags.Switch);
 
         while (this.token !== Token.RightBrace) {
+
             const clause = this.parseSwitchCase(context);
+
             if (clause.test === null) {
                 // Error on duplicate 'default' clauses
-                if (hasDefault) this.error(Errors.MultipleDefaultsInSwitch);
+                if (seenDefault) this.error(Errors.MultipleDefaultsInSwitch);
 
-                hasDefault = true;
+                seenDefault = true;
             }
             cases.push(clause);
         }
@@ -2537,20 +2539,25 @@ export class Parser {
     }
 
     private parseSwitchCase(context: Context): ESTree.SwitchCase {
+
         const pos = this.getLocations();
-        let test: any;
+
+        let test: ESTree.Expression | null = null;
 
         switch (this.token) {
+
+            // 'case'
             case Token.CaseKeyword:
                 this.nextToken(context);
-                test = this.parseExpression(context | Context.AllowIn);
+                test = this.parseExpression(context);
                 break;
+
+                // 'default'
             case Token.DefaultKeyword:
                 this.nextToken(context);
-                test = null;
                 break;
-            default:
-                test = null;
+
+            default: // ignore
         }
 
         this.expect(context, Token.Colon);
@@ -2560,8 +2567,14 @@ export class Parser {
         loop:
             while (true) {
                 switch (this.token) {
+
+                    // '}'
                     case Token.RightBrace:
+
+                        // 'default'
                     case Token.DefaultKeyword:
+
+                        // 'case'
                     case Token.CaseKeyword:
                         break loop;
                     default:
@@ -2582,7 +2595,7 @@ export class Parser {
 
         if (this.flags & Flags.LineTerminator) this.error(Errors.NewlineAfterThrow);
 
-        const argument: any = this.parseExpression(context | Context.AllowIn);
+        const argument: any = this.parseExpression(context);
 
         this.consumeSemicolon(context);
 
@@ -2600,7 +2613,7 @@ export class Parser {
 
         this.expect(context, Token.WithKeyword);
         this.expect(context, Token.LeftParen);
-        const object = this.parseExpression(context | Context.AllowIn);
+        const object = this.parseExpression(context);
         this.expect(context, Token.RightParen);
         const body = this.parseStatement(context);
         return this.finishNode(pos, {
@@ -2616,13 +2629,14 @@ export class Parser {
         this.expect(context, Token.WhileKeyword);
         this.expect(context, Token.LeftParen);
 
-        const test = this.parseExpression(context | Context.AllowIn);
+        const test = this.parseExpression(context);
 
         this.expect(context, Token.RightParen);
 
         const savedFlag = this.flags;
 
         if (!(this.flags & Flags.Break)) this.flags |= (Flags.Continue | Flags.Break);
+
         const body = this.parseStatement(context);
         this.flags = savedFlag;
 
@@ -2648,7 +2662,7 @@ export class Parser {
         this.expect(context, Token.WhileKeyword);
         this.expect(context, Token.LeftParen);
 
-        const test = this.parseExpression(context | Context.AllowIn);
+        const test = this.parseExpression(context);
 
         this.expect(context, Token.RightParen);
         this.parseOptional(context, Token.Semicolon);
@@ -2682,11 +2696,15 @@ export class Parser {
     }
 
     private parseBreakStatement(context: Context): ESTree.BreakStatement {
+
         const pos = this.getLocations();
+
         this.expect(context, Token.BreakKeyword);
 
         if (this.parseOptional(context, Token.Semicolon)) {
+
             if (!(this.flags & (Flags.Continue | Flags.Switch))) this.error(Errors.Unexpected);
+
             return this.finishNode(pos, {
                 type: 'BreakStatement',
                 label: null
@@ -2719,15 +2737,12 @@ export class Parser {
         if (this.token === Token.Colon && expr.type === 'Identifier') {
 
             this.expect(context, Token.Colon);
-
             // Invalid: `for (const x of []) label1: label2: function f() {}`
-            if (context & Context.ForStatement && !(this.flags & Flags.Switch)) {
-                // Invalid: 'for (const x in {}) label1: label2: function f() {}'
+            if (!(this.flags & Flags.Switch) && context & Context.ForStatement && this.token === Token.Identifier) {
                 this.error(Errors.InvalidLabeledForOf);
             }
 
             const key = '@' + expr.name;
-
             if (hasOwn.call(this.labelSet, key)) this.error(Errors.Redeclaration, expr.name);
 
             this.labelSet[key] = true;
@@ -2756,7 +2771,6 @@ export class Parser {
         } else {
 
             this.consumeSemicolon(context);
-
             return this.finishNode(pos, {
                 type: 'ExpressionStatement',
                 expression: expr
