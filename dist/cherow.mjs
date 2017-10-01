@@ -4115,10 +4115,10 @@ Parser.prototype.parseArrayExpression = function parseArrayExpression (context) 
     });
 };
 Parser.prototype.parseFunctionExpression = function parseFunctionExpression (context) {
+    var pos = this.getLocations();
     var parentHasYield = !!(context & 4096 /* Yield */);
     if (context & (4096 /* Yield */ | 2048 /* Await */))
         { context &= ~(4096 /* Yield */ | 2048 /* Await */); }
-    var pos = this.getLocations();
     if (this.parseOptional(context, 65644 /* AsyncKeyword */)) {
         if (this.flags & 1 /* LineTerminator */)
             { this.error(87 /* LineBreakAfterAsync */); }
@@ -4132,31 +4132,13 @@ Parser.prototype.parseFunctionExpression = function parseFunctionExpression (con
             { this.error(63 /* NotAnAsyncGenerator */); }
         context |= 4096 /* Yield */;
     }
-    var name = null;
-    if (this.token !== 11 /* LeftParen */) {
-        // Invalid: '"use strict";(async function eval() {  })'
-        // Invalid: '"use strict";(async function arguments () {  })'
-        // Invalid: `"use strict"; (async function* eval() { });`
-        // Invalid: `"use strict"; (async function* arguments() { });`
-        // Invalid: `function hello() {'use strict'; (function eval() { }()) }`
-        if (context & 2 /* Strict */ && this.token === 131073 /* Identifier */ && this.isEvalOrArguments(this.tokenValue))
+    var id = null;
+    if (this.token !== 11 /* LeftParen */ && this.isIdentifier(context, this.token)) {
+        if (context & 2 /* Strict */ && this.isEvalOrArguments(this.tokenValue))
             { this.error(39 /* StrictLHSAssignment */); }
-        // Valid: 'function* fn() { (function yield() {}); }'
-        // Invalid: '(async function* yield() { });'
-        // Invalid: '(function* yield() {})'
-        // Invalid: '+function* yield() {}'
         if ((context & 6144 /* AwaitOrYield */ || (context & 2 /* Strict */ && parentHasYield)) && this.token === 20586 /* YieldKeyword */)
             { this.error(109 /* YieldReservedWord */); }
-        // Invalid `(async function* await() { });`
-        if (context & 6144 /* AwaitOrYield */ && this.token === 2162797 /* AwaitKeyword */)
-            { this.error(0 /* Unexpected */); }
-        // **Module code only**
-        // Invalid: '(function package() {'use strict'; })()'
-        // Invalid: '"use strict"; (function package() {})()'
-        if (context & 1 /* Module */ && hasMask(this.token, 20480 /* FutureReserved */)) {
-            this.error(108 /* UnexpectedStrictReserved */);
-        }
-        name = this.parseIdentifier(context);
+        id = this.parseIdentifier(context);
     }
     var savedScope = this.enterFunctionScope();
     var params = this.parseFormalParameterList(context, 0 /* None */);
@@ -4169,7 +4151,7 @@ Parser.prototype.parseFunctionExpression = function parseFunctionExpression (con
         async: !!(context & 2048 /* Await */),
         generator: !!(context & 4096 /* Yield */),
         expression: false,
-        id: name
+        id: id
     });
 };
 Parser.prototype.parseFormalParameterList = function parseFormalParameterList (context, flags) {

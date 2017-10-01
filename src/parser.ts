@@ -4135,10 +4135,11 @@ export class Parser {
 
     private parseFunctionExpression(context: Context): ESTree.FunctionExpression {
 
-        const parentHasYield = !!(context & Context.Yield);
-        if (context & (Context.Yield | Context.Await)) context &= ~(Context.Yield | Context.Await);
-
         const pos = this.getLocations();
+
+        const parentHasYield = !!(context & Context.Yield);
+
+        if (context & (Context.Yield | Context.Await)) context &= ~(Context.Yield | Context.Await);
 
         if (this.parseOptional(context, Token.AsyncKeyword)) {
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
@@ -4155,30 +4156,12 @@ export class Parser {
             context |= Context.Yield;
         }
 
-        let name: ESTree.Identifier | null = null;
+        let id: ESTree.Identifier | null = null;
 
-        if (this.token !== Token.LeftParen) {
-            // Invalid: '"use strict";(async function eval() {  })'
-            // Invalid: '"use strict";(async function arguments () {  })'
-            // Invalid: `"use strict"; (async function* eval() { });`
-            // Invalid: `"use strict"; (async function* arguments() { });`
-            // Invalid: `function hello() {'use strict'; (function eval() { }()) }`
-            if (context & Context.Strict && this.token === Token.Identifier && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.StrictLHSAssignment);
-            // Valid: 'function* fn() { (function yield() {}); }'
-            // Invalid: '(async function* yield() { });'
-            // Invalid: '(function* yield() {})'
-            // Invalid: '+function* yield() {}'
+        if (this.token !== Token.LeftParen && this.isIdentifier(context, this.token)) {
+            if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.StrictLHSAssignment);
             if ((context & Context.AwaitOrYield || (context & Context.Strict && parentHasYield)) && this.token === Token.YieldKeyword) this.error(Errors.YieldReservedWord);
-            // Invalid `(async function* await() { });`
-            if (context & Context.AwaitOrYield && this.token === Token.AwaitKeyword) this.error(Errors.Unexpected);
-            // **Module code only**
-            // Invalid: '(function package() {'use strict'; })()'
-            // Invalid: '"use strict"; (function package() {})()'
-            if (context & Context.Module && hasMask(this.token, Token.FutureReserved)) {
-                this.error(Errors.UnexpectedStrictReserved);
-            }
-
-            name = this.parseIdentifier(context);
+            id = this.parseIdentifier(context);
         }
 
         const savedFlags = this.flags;
@@ -4195,7 +4178,7 @@ export class Parser {
             async: !!(context & Context.Await),
             generator: !!(context & Context.Yield),
             expression: false,
-            id: name
+            id
         });
     }
 
@@ -4484,7 +4467,6 @@ export class Parser {
                 }
                 this.blockScope[name] = ScopeMasks.Shadowable;
             }
-
             if (context & Context.Declaration) {
                 // Invalid: 'export class a{}  export class a{}'
                 if (context & Context.Export && this.token === Token.Identifier) this.addFunctionArg(this.tokenValue);
