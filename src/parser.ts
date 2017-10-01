@@ -1,6 +1,6 @@
 import { Chars } from './chars';
 import * as ESTree from './estree';
-import { isKeyword, hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isValidDestructuringAssignmentTarget, isDirective, getQualifiedJSXName, isStartOfExpression, isValidSimpleAssignmentTarget } from './common';
+import { isKeyword, hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isValidDestructuringAssignmentTarget, isDirective, getQualifiedJSXName, isValidSimpleAssignmentTarget } from './common';
 import { Flags, Context, ScopeMasks, RegExpState, ObjectFlags, RegExpFlag, ParenthesizedState, IterationState } from './masks';
 import { createError, Errors } from './errors';
 import { Token, tokenDesc, descKeyword } from './token';
@@ -1837,7 +1837,7 @@ export class Parser {
 
                 // export default HoistableDeclaration[Default]
             case Token.AsyncKeyword:
-                if (this.nextTokenIsFunctionKeyword(context)) {
+                if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                     declaration = this.parseFunctionDeclaration(context | Context.Export);
                     break;
                 }
@@ -1939,11 +1939,11 @@ export class Parser {
 
                 // export HoistableDeclaration
             case Token.AsyncKeyword:
-                if (this.nextTokenIsFunctionKeyword(context)) {
+                if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                     declaration = this.parseFunctionDeclaration(context | Context.Export);
                     break;
                 }
-
+                // Falls through
             default:
                 this.error(Errors.MissingMsgDeclarationAfterExport);
         }
@@ -2255,7 +2255,10 @@ export class Parser {
                 this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             case Token.AsyncKeyword:
                 if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
-                if (this.nextTokenIsFunctionKeyword(context)) {
+                if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
+                    // Annex B.3.4 - FunctionDeclaration doesn't include generators or async
+                    // functions.
+                    if (context & Context.Statement) this.error(Errors.Unexpected);
                     // Invalid: `do async function f() {} while (false)`
                     // Invalid: `do async function* g() {} while (false)`
                     // Invalid: `while (false) async function f() {}`
@@ -2655,7 +2658,7 @@ export class Parser {
         });
     }
 
-    private nextTokenIsFunctionKeyword(context: Context): boolean {
+    private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
         const savedState = this.saveState();
         this.nextToken(context);
         const next = this.token;
@@ -2680,7 +2683,9 @@ export class Parser {
             let body: ESTree.Statement;
             if (this.token === Token.FunctionKeyword) {
                 if (context & Context.Strict) this.error(Errors.StrictFunction);
-                body = this.parseFunctionDeclaration(context & ~Context.ForStatement | Context.AnnexB | Context.Method);
+                // AnnexB allows function declaration as labels, but not async func or generator func, so
+                // we need to pass down the AnnexB mask, and throw an decent error msg later
+                body = this.parseFunctionDeclaration(context & ~Context.ForStatement | Context.AnnexB);
             } else {
                 body = this.parseStatement(context & ~Context.ForStatement);
             }
@@ -2711,12 +2716,18 @@ export class Parser {
     }
 
     private parseIfStatementChild(context: Context): ESTree.Statement {
-        // ECMA 262 (Annex B.3.3)
+        // Annex B.3.4 says that unbraced FunctionDeclarations under if/else in
+        // non-strict code act as if they were braced: '(if (x) function f() {})'
+        // parses as '(if (x) { function f() {} })'.
+        //
         if (this.token === Token.FunctionKeyword) {
-            if (context & Context.Strict) this.error(Errors.StrictFunction);
+            if (context & Context.Strict) this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
+
+            // Pass the 'AnnexB' mask
             return this.parseFunctionDeclaration(context | Context.AnnexB);
         }
-        return this.parseStatement(context | Context.AnnexB);
+
+        return this.parseStatement(context | Context.Statement);
     }
 
     private parseIfStatement(context: Context): ESTree.IfStatement {
@@ -2772,8 +2783,14 @@ export class Parser {
 
         if (context & (Context.Await | Context.Yield)) context &= ~(Context.Await | Context.Yield);
 
-        if (this.parseOptional(context, Token.AsyncKeyword)) {
+        if (this.token === Token.AsyncKeyword) {
+            // use 'expect' instead of 'parseOptional' here for perf reasons when it
+            // comes to Annex B.3.4. Avoid extra CPU cycle parsing out the 'async' keyword
+            // in case this is an invalid generator function.
+            this.expect(context, Token.AsyncKeyword);
+
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
+
             context |= (Context.Await | Context.AsyncFunctionBody);
         }
 
@@ -2781,16 +2798,18 @@ export class Parser {
 
         const token = this.token;
 
-        if (this.parseOptional(context, Token.Multiply)) {
-            if (context & Context.AnnexB) this.error(Errors.UnexpectedToken, this.tokenValue);
+        if (this.token === Token.Multiply) {
+            // Annex B.3.4 doesn't allow generators functions
+            if (context & Context.AnnexB) this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
             // If we are in the 'await' context. Check if the 'Next' option are set
             // and allow us of async generators. Throw a decent error message if this isn't the case
             if (context & Context.Await && !(this.flags & Flags.OptionsNext)) {
                 this.error(Errors.NotAnAsyncGenerator);
             }
-            // Async generators not allowed in statement position per the specs just NOW!
+            this.expect(context, Token.Multiply);
             context |= Context.Yield;
         }
+
         // Invalid: 'export function a() {} export function a() {}'
         if (context & Context.Export && this.token === Token.Identifier) this.addFunctionArg(this.tokenValue);
 
@@ -3063,19 +3082,16 @@ export class Parser {
         // Invalid: `function *g(x = yield){}`
         if (this.flags & Flags.ArgumentList) this.error(Errors.GeneratorParameter);
 
-        if (this.flags & Flags.LineTerminator) {
-            return this.finishNode(pos, {
-                type: 'YieldExpression',
-                argument: null,
-                delegate: false
-            });
-        }
-
         let argument: ESTree.Expression | null = null;
-        const delegate = this.parseOptional(context, Token.Multiply);
+        let delegate = false;
 
-        if (delegate || isStartOfExpression(this.token, !!(this.flags && Flags.JSX))) {
-            argument = this.parseAssignmentExpression(context);
+        if (!(this.flags & Flags.LineTerminator)) {
+            delegate = this.parseOptional(context, Token.Multiply);
+            if (delegate) {
+                argument = this.parseAssignmentExpression(context);
+            } else if (hasMask(this.token, Token.ExpressionStart)) {
+                argument = this.parseAssignmentExpression(context);
+            }
         }
 
         return this.finishNode(pos, {
@@ -3915,7 +3931,7 @@ export class Parser {
             }
         }
 
-        if (this.flags & Flags.HasReservedWord) this.flags & ~Flags.HasReservedWord;
+        if (this.flags & Flags.HasReservedWord) this.flags &= ~Flags.HasReservedWord;
 
         while (this.token !== Token.RightBrace) body.push(this.parseStatementListItem(context));
 
@@ -4347,7 +4363,7 @@ export class Parser {
                 if (this.flags & Flags.OptionsV8) return this.parseDoExpression(context);
             case Token.AsyncKeyword:
                 if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
-                if (this.nextTokenIsFunctionKeyword(context)) return this.parseFunctionExpression(context);
+                if (this.nextTokenIsFuncKeywordOnSameLine(context)) return this.parseFunctionExpression(context);
 
                 if (this.flags & Flags.Arrow) this.flags &= ~Flags.Arrow;
 

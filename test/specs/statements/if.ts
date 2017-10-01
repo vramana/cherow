@@ -47,7 +47,7 @@ describe('Statement - If', () => {
             parseScript(`'use strict'; if (true) async function f() {  }`, {
                 next: true
             })
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail if class declaration are in statement position', () => {
@@ -71,7 +71,7 @@ describe('Statement - If', () => {
     it('should fail if AsyncFunctionDeclaration are allowed in statement position', () => {
         expect(() => {
             parseModule(`if (false) ; else async function f() {  }`)
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on \'if (true) function* g() {  } else function* _g() {}', () => {
@@ -257,51 +257,6 @@ describe('Statement - If', () => {
                         "start": 7,
                         "end": 12,
                         "name": "async"
-                    }
-                },
-                "alternate": null
-            }],
-            "sourceType": "script"
-        });
-    });
-
-    it('should parse "if (x) async function f() {}"', () => {
-        expect(parseScript('if (x) async function f() {}', {
-            ranges: true,
-            raw: true
-        })).to.eql({
-            "type": "Program",
-            "start": 0,
-            "end": 28,
-            "body": [{
-                "type": "IfStatement",
-                "start": 0,
-                "end": 28,
-                "test": {
-                    "type": "Identifier",
-                    "start": 4,
-                    "end": 5,
-                    "name": "x"
-                },
-                "consequent": {
-                    "type": "FunctionDeclaration",
-                    "start": 7,
-                    "end": 28,
-                    "id": {
-                        "type": "Identifier",
-                        "start": 22,
-                        "end": 23,
-                        "name": "f"
-                    },
-                    "generator": false,
-                    "expression": false,
-                    "async": true,
-                    "params": [],
-                    "body": {
-                        "type": "BlockStatement",
-                        "start": 26,
-                        "end": 28,
-                        "body": []
                     }
                 },
                 "alternate": null

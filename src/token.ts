@@ -11,39 +11,41 @@ export const enum Token {
     FutureReserved  = 1 << 14 | Keyword,
     Contextual      = 1 << 16,
     BindingPattern  = 1 << 17,
-    UpdateOperator  = 1 << 18,
-    AssignOperator  = 1 << 19,
-    BinaryOperator  = 1 << 20,
-    UnaryOperator   = 1 << 21,
-    VarDeclStart   = 1 << 22,
- 
+    ExpressionStart = 1 << 18,
+    UpdateOperator  = 1 << 19 | ExpressionStart,
+    AssignOperator  = 1 << 20 | ExpressionStart,
+    BinaryOperator  = 1 << 21,
+    UnaryOperator   = 1 << 22 | ExpressionStart,
+    VarDeclStart    = 1 << 23 | ExpressionStart,
+    
+    
     /* Node types */
     EndOfSource = 0, // Pseudo
 
     /* Constants/Bindings */
-    Identifier        = 1 | BindingPattern,
-    NumericLiteral    = 2,
-    StringLiteral     = 3,
-    RegularExpression = 4,
-    FalseKeyword      = 5 | Reserved,
-    TrueKeyword       = 6 | Reserved,
-    NullKeyword       = 7 | Reserved,
+    Identifier        = 1 | ExpressionStart | BindingPattern,
+    NumericLiteral    = 2 | ExpressionStart,
+    StringLiteral     = 3 | ExpressionStart,
+    RegularExpression = 4 | ExpressionStart,
+    FalseKeyword      = 5 | ExpressionStart | Reserved,
+    TrueKeyword       = 6 | ExpressionStart | Reserved,
+    NullKeyword       = 7 | ExpressionStart | Reserved,
 
     /* Template nodes */
-    TemplateCont = 8,
-    TemplateTail = 9,
+    TemplateCont = 8 | ExpressionStart,
+    TemplateTail = 9 | ExpressionStart,
 
     /* Punctuators */
     Arrow        = 10, // =>
-    LeftParen    = 11, // (
-    LeftBrace    = 12 | BindingPattern, // {
+    LeftParen    = 11 | ExpressionStart , // (
+    LeftBrace    = 12 | ExpressionStart | BindingPattern, // {
     Period       = 13, // .
     Ellipsis     = 14, // ...
     RightBrace   = 15, // }
     RightParen   = 16, // )
     Semicolon    = 17, // ;
     Comma        = 18, // ,
-    LeftBracket  = 19 | BindingPattern, // [
+    LeftBracket  = 19 | ExpressionStart | BindingPattern, // [
     RightBracket = 20, // ]
     Colon        = 21, // :
     QuestionMark = 22, // ?
@@ -77,30 +79,30 @@ export const enum Token {
     VoidKeyword        = 44 | UnaryOperator | Reserved,
     Negate             = 45 | UnaryOperator, // !
     Complement         = 46 | UnaryOperator, // ~
-    Add                = 47 | UnaryOperator | BinaryOperator | 9 << PrecStart, // +
-    Subtract           = 48 | UnaryOperator | BinaryOperator | 9 << PrecStart, // -
-    InKeyword          = 49 | BinaryOperator | 7 << PrecStart | Reserved,
-    InstanceofKeyword  = 50 | BinaryOperator | 7 << PrecStart | Reserved,
-    Multiply           = 51 | BinaryOperator | 10 << PrecStart, // *
-    Modulo             = 52 | BinaryOperator | 10 << PrecStart, // %
-    Divide             = 53 | BinaryOperator | 10 << PrecStart, // /
-    Exponentiate       = 54 | BinaryOperator | 11 << PrecStart, // **
-    LogicalAnd         = 55 | BinaryOperator | 2 << PrecStart, // &&
-    LogicalOr          = 56 | BinaryOperator | 1 << PrecStart, // ||
-    StrictEqual        = 57 | BinaryOperator | 6 << PrecStart, // ===
-    StrictNotEqual     = 58 | BinaryOperator | 6 << PrecStart, // !==
-    LooseEqual         = 59 | BinaryOperator | 6 << PrecStart, // ==
-    LooseNotEqual      = 60 | BinaryOperator | 6 << PrecStart, // !=
-    LessThanOrEqual    = 61 | BinaryOperator | 7 << PrecStart, // <=
-    GreaterThanOrEqual = 62 | BinaryOperator | 7 << PrecStart, // >=
-    LessThan           = 63 | BinaryOperator | 7 << PrecStart, // <
-    GreaterThan        = 64 | BinaryOperator | 7 << PrecStart, // >
-    ShiftLeft          = 65 | BinaryOperator | 8 << PrecStart, // <<
-    ShiftRight         = 66 | BinaryOperator | 8 << PrecStart, // >>
-    LogicalShiftRight  = 67 | BinaryOperator | 8 << PrecStart, // >>>
-    BitwiseAnd         = 68 | BinaryOperator | 5 << PrecStart, // &
-    BitwiseOr          = 69 | BinaryOperator | 3 << PrecStart, // |
-    BitwiseXor         = 70 | BinaryOperator | 4 << PrecStart, // ^
+    Add                = 47 | UnaryOperator   | BinaryOperator | 9 << PrecStart, // +
+    Subtract           = 48 | UnaryOperator   | BinaryOperator | 9 << PrecStart, // -
+    InKeyword          = 49 | BinaryOperator  | 7 << PrecStart | Reserved,
+    InstanceofKeyword  = 50 | BinaryOperator  | 7 << PrecStart | Reserved,
+    Multiply           = 51 | BinaryOperator  | 10 << PrecStart, // *
+    Modulo             = 52 | BinaryOperator  | 10 << PrecStart, // %
+    Divide             = 53 | ExpressionStart | BinaryOperator | 10 << PrecStart, // /
+    Exponentiate       = 54 | BinaryOperator  | 11 << PrecStart, // **
+    LogicalAnd         = 55 | BinaryOperator  | 2 << PrecStart, // &&
+    LogicalOr          = 56 | BinaryOperator  | 1 << PrecStart, // ||
+    StrictEqual        = 57 | BinaryOperator  | 6 << PrecStart, // ===
+    StrictNotEqual     = 58 | BinaryOperator  | 6 << PrecStart, // !==
+    LooseEqual         = 59 | BinaryOperator  | 6 << PrecStart, // ==
+    LooseNotEqual      = 60 | BinaryOperator  | 6 << PrecStart, // !=
+    LessThanOrEqual    = 61 | BinaryOperator  | 7 << PrecStart, // <=
+    GreaterThanOrEqual = 62 | BinaryOperator  | 7 << PrecStart, // >=
+    LessThan           = 63 | BinaryOperator  | ExpressionStart | 7 << PrecStart, // <
+    GreaterThan        = 64 | BinaryOperator  | 7 << PrecStart, // >
+    ShiftLeft          = 65 | BinaryOperator  | 8 << PrecStart, // <<
+    ShiftRight         = 66 | BinaryOperator  | 8 << PrecStart, // >>
+    LogicalShiftRight  = 67 | BinaryOperator  | 8 << PrecStart, // >>>
+    BitwiseAnd         = 68 | BinaryOperator  | 5 << PrecStart, // &
+    BitwiseOr          = 69 | BinaryOperator  | 3 << PrecStart, // |
+    BitwiseXor         = 70 | BinaryOperator  | 4 << PrecStart, // ^
 
     /* Variable declaration kinds */
     VarKeyword   = 71 | VarDeclStart | Reserved,
@@ -111,7 +113,7 @@ export const enum Token {
     BreakKeyword    = 74 | Reserved,
     CaseKeyword     = 75 | Reserved,
     CatchKeyword    = 76 | Reserved,
-    ClassKeyword    = 77 | Reserved,
+    ClassKeyword    = 77 | Reserved | ExpressionStart,
     ContinueKeyword = 78 | Reserved,
     DebuggerKeyword = 79 | Reserved,
     DefaultKeyword  = 80 | Reserved,
@@ -121,14 +123,14 @@ export const enum Token {
     ExtendsKeyword  = 84 | Reserved,
     FinallyKeyword  = 85 | Reserved,
     ForKeyword      = 86 | Reserved,
-    FunctionKeyword = 87 | Reserved,
+    FunctionKeyword = 87 | Reserved | ExpressionStart,
     IfKeyword       = 88 | Reserved,
-    ImportKeyword   = 89 | Reserved,
-    NewKeyword      = 90 | Reserved,
+    ImportKeyword   = 89 | Reserved | ExpressionStart,
+    NewKeyword      = 90 | Reserved | ExpressionStart,
     ReturnKeyword   = 91 | Reserved,
-    SuperKeyword    = 92 | Reserved,
-    SwitchKeyword   = 93 | Reserved,
-    ThisKeyword     = 94 | Reserved,
+    SuperKeyword    = 92 | Reserved | ExpressionStart,
+    SwitchKeyword   = 93 | Reserved | ExpressionStart,
+    ThisKeyword     = 94 | Reserved | ExpressionStart,
     ThrowKeyword    = 95 | Reserved,
     TryKeyword      = 96 | Reserved,
     WhileKeyword    = 97 | Reserved,
@@ -142,12 +144,12 @@ export const enum Token {
     ProtectedKeyword  = 103 | FutureReserved,
     PublicKeyword     = 104 | FutureReserved,
     StaticKeyword     = 105 | FutureReserved,
-    YieldKeyword      = 106 | FutureReserved,
+    YieldKeyword      = 106 | FutureReserved | ExpressionStart,
 
     /* Contextual keywords */
     AsKeyword          = 107 | Contextual,
     AsyncKeyword       = 108 | Contextual,
-    AwaitKeyword       = 109 | UnaryOperator | Contextual,
+    AwaitKeyword       = 109 | UnaryOperator | Contextual | ExpressionStart,
     ConstructorKeyword = 110 | Contextual,
     GetKeyword         = 111 | Contextual,
     SetKeyword         = 112 | Contextual,

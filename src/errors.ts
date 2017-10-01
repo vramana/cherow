@@ -128,6 +128,7 @@ export const enum Errors {
     UnexpectedTokenNumber,
     UnexpectedMantissa,
     UnexpectedSurrogate,
+    ForbiddenAsStatement
 }
 
 export const ErrorMessages: {
@@ -259,6 +260,7 @@ export const ErrorMessages: {
     [Errors.UnexpectedTokenNumber]: 'Unexpected number',
     [Errors.UnexpectedMantissa]: 'Unexpected mantissa',
     [Errors.UnexpectedSurrogate]: 'Unexpected surrogate pair',
+    [Errors.ForbiddenAsStatement]: '%0 can \'t appear in single-statement context',
 };
 
 function constructError(msg: string, column: number): Error {
