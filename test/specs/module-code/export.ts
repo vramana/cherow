@@ -135,7 +135,7 @@ describe('Module - Export', () => {
       it('should fail on "export {with as a}"', () => {
         expect(() => {
             parseModule(`export {with as a}`);
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "{export {a};}"', () => {

@@ -1411,9 +1411,9 @@ is y`);
             parseScript(`{`)
         }).to.throw();
     });
-    it(`should fail on "function hello() { 'use strict'; 021; }"`, () => {
+    it(`should fail on "function twiss() { 'use strict'; 021; }"`, () => {
         expect(() => {
-            parseScript(`function hello() { 'use strict'; 021; }`)
+            parseScript(`function twiss() { 'use strict'; 021; }`)
         }).to.throw();
     });
     it(`should fail on "() ? 42"`, () => {
@@ -1733,49 +1733,49 @@ is y`);
             parseScript(`switch (x) { default: continue; }`)
         }).to.throw();
     });
-    it(`should fail on "function hello() {'use strict'; var arguments = 10; }"`, () => {
+    it(`should fail on "function twiss() {'use strict'; var arguments = 10; }"`, () => {
         expect(() => {
-            parseScript(`function hello() {'use strict'; var arguments = 10; }`)
+            parseScript(`function twiss() {'use strict'; var arguments = 10; }`)
         }).to.throw();
     });
-    it(`should fail on "function hello() {'use strict'; try { } catch (eval) { } }"`, () => {
+    it(`should fail on "function twiss() {'use strict'; try { } catch (eval) { } }"`, () => {
         expect(() => {
-            parseScript(`function hello() {'use strict'; try { } catch (eval) { } }`)
+            parseScript(`function twiss() {'use strict'; try { } catch (eval) { } }`)
         }).to.throw();
     });
-    it(`should fail on "function hello() {'use strict'; try { } catch (arguments) { } }"`, () => {
+    it(`should fail on "function twiss() {'use strict'; try { } catch (arguments) { } }"`, () => {
         expect(() => {
-            parseScript(`function hello() {'use strict'; try { } catch (arguments) { } }`)
+            parseScript(`function twiss() {'use strict'; try { } catch (arguments) { } }`)
         }).to.throw();
     });
-    it(`should fail on "function hello() {'use strict'; eval = 10; }"`, () => {
+    it(`should fail on "function twiss() {'use strict'; eval = 10; }"`, () => {
         expect(() => {
-            parseScript(`function hello() {'use strict'; eval = 10; }`)
+            parseScript(`function twiss() {'use strict'; eval = 10; }`)
         }).to.throw();
     });
-    it(`should fail on "function hello() {'use strict'; ++eval; }"`, () => {
+    it(`should fail on "function twiss() {'use strict'; ++eval; }"`, () => {
         expect(() => {
-            parseScript(`function hello() {'use strict'; ++eval; }`)
+            parseScript(`function twiss() {'use strict'; ++eval; }`)
         }).to.throw();
     });
-    it(`should fail on "function hello() {'use strict'; eval++; }"`, () => {
+    it(`should fail on "function twiss() {'use strict'; eval++; }"`, () => {
         expect(() => {
-            parseScript(`function hello() {'use strict'; eval++; }`)
+            parseScript(`function twiss() {'use strict'; eval++; }`)
         }).to.throw();
     });
-    it(`should fail on "function hello() {'use strict'; function eval() { } }"`, () => {
+    it(`should fail on "function twiss() {'use strict'; function eval() { } }"`, () => {
         expect(() => {
-            parseScript(`function hello() {'use strict'; function eval() { } }`)
+            parseScript(`function twiss() {'use strict'; function eval() { } }`)
         }).to.throw();
     });
-    it(`should fail on "function hello() {'use strict'; function arguments() { } }"`, () => {
+    it(`should fail on "function twiss() {'use strict'; function arguments() { } }"`, () => {
         expect(() => {
-            parseScript(`function hello() {'use strict'; function arguments() { } }`)
+            parseScript(`function twiss() {'use strict'; function arguments() { } }`)
         }).to.throw();
     });
-    it(`should fail on "function hello() {'use strict'; (function eval() { }()) }"`, () => {
+    it(`should fail on "function twiss() {'use strict'; (function eval() { }()) }"`, () => {
         expect(() => {
-            parseScript(`function hello() {'use strict'; (function eval() { }()) }`)
+            parseScript(`function twiss() {'use strict'; (function eval() { }()) }`)
         }).to.throw();
     });
     it(`should fail on "(function package() {'use strict'; })()"`, () => {
@@ -1783,21 +1783,21 @@ is y`);
             parseModule(`(function package() {'use strict'; })()`)
         }).to.throw();
     });
-    it(`should fail on "function hello() {'use strict'; ({ s: function s(eval) { } }); }"`, () => {
+    it(`should fail on "function twiss() {'use strict'; ({ s: function s(eval) { } }); }"`, () => {
         expect(() => {
-            parseScript(`function hello() {'use strict'; ({ s: function s(eval) { } }); }`)
+            parseScript(`function twiss() {'use strict'; ({ s: function s(eval) { } }); }`)
         }).to.throw();
     });
 
 
-    it(`should fail on "function hello() { "use strict"; var private; }"`, () => {
+    it(`should fail on "function twiss() { "use strict"; var private; }"`, () => {
         expect(() => {
-            parseScript(`function hello() { "use strict"; var private; }`)
+            parseScript(`function twiss() { "use strict"; var private; }`)
         }).to.throw();
     });
-    it(`should fail on "function hello() { "use strict"; var protected; }"`, () => {
+    it(`should fail on "function twiss() { "use strict"; var protected; }"`, () => {
         expect(() => {
-            parseScript(`function hello() { "use strict"; var protected; }`)
+            parseScript(`function twiss() { "use strict"; var protected; }`)
         }).to.throw();
     });
     it(`should fail on "function eval(a) { "use strict"; }"`, () => {
@@ -2592,9 +2592,9 @@ is y`);
             parseScript(' for(a in b) function c(){}');
         }).to.throw();
     });
-    it('should fail on "function hello() { "use strict"; ({ "\\1": 42 }); }"', () => {
+    it('should fail on "function twiss() { "use strict"; ({ "\\1": 42 }); }"', () => {
         expect(() => {
-            parseScript('function hello() { "use strict"; ({ "\\1": 42 }); }');
+            parseScript('function twiss() { "use strict"; ({ "\\1": 42 }); }');
         }).to.throw();
     });
     it('should fail on "({ *a: 0 })"', () => {
@@ -2727,9 +2727,9 @@ is y`);
             parseModule('import {a as function} from "a";');
         }).to.throw();
     });
-    it('should fail on "function hello() { "use strict"; function inner() { "octal directive\\1"; } }"', () => {
+    it('should fail on "function twiss() { "use strict"; function inner() { "octal directive\\1"; } }"', () => {
         expect(() => {
-            parseScript('function hello() { "use strict"; function inner() { "octal directive\\1"; } }');
+            parseScript('function twiss() { "use strict"; function inner() { "octal directive\\1"; } }');
         }).to.throw();
     });
     it('should fail on "class A {static static static(){}}"', () => {
@@ -3036,6 +3036,482 @@ is y`);
     it('should fail on "({ set s(.) { } })"', () => {
         expect(() => {
             parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+
+
+    it.skip('should fail on "({ set i(x) { }, i: 42 })"', () => {
+        expect(() => {
+            parseScript('({ set i(x) { }, i: 42 })');
+        }).to.throw();
+    });
+
+    it.skip('should fail on "({ i: 42, set i(x) { } })"', () => {
+        expect(() => {
+            parseScript('({ i: 42, set i(x) { } })');
+        }).to.throw();
+    });
+
+    it.skip('should fail on "({ get i() { }, get i() { } })"', () => {
+        expect(() => {
+            parseScript('({ get i() { }, get i() { } })');
+        }).to.throw();
+    });
+
+    it.skip('should fail on "({ set i(x) { }, set i(x) { } })"', () => {
+        expect(() => {
+            parseScript('({ set i(x) { }, set i(x) { } })');
+        }).to.throw();
+    });
+
+    it('should fail on "function t(true) { }"', () => {
+        expect(() => {
+            parseScript('function t(true) { }');
+        }).to.throw();
+    });
+
+    it('should fail on "function null() { }"', () => {
+        expect(() => {
+            parseScript('function null() { }');
+        }).to.throw();
+    });
+
+    it('should fail on "function false() { }"', () => {
+        expect(() => {
+            parseScript('function false() { }');
+        }).to.throw();
+    });
+
+    it('should fail on "throw;"', () => {
+        expect(() => {
+            parseScript('throw;');
+        }).to.throw();
+    });
+
+    it('should fail on "for ((i in {}));"', () => {
+        expect(() => {
+            parseScript('for ((i in {}));');
+        }).to.throw();
+    });
+
+    it('should fail on "for (i + 1 in {});"', () => {
+        expect(() => {
+            parseScript('for (i + 1 in {});');
+        }).to.throw();
+    });
+
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+
+
+
+
+
+
+
+
+
+
+
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
+
+    it('should fail on "\n]"', () => {
+        expect(() => {
+            parseScript('\n]');
+        }).to.throw();
+    });
+    it('should fail on "\r]"', () => {
+        expect(() => {
+            parseScript('\r]');
+        }).to.throw();
+    });
+    it('should fail on "//\n\r]"', () => {
+        expect(() => {
+            parseScript('//\n\r]');
+        }).to.throw();
+    });
+    it('should fail on "\\u005c"', () => {
+        expect(() => {
+            parseScript('\\u005c');
+        }).to.throw();
+    });
+
+    it('should fail on "do { x } *"', () => {
+        expect(() => {
+            parseScript('do { x } *');
+        }).to.throw();
+    });
+
+    it('should fail on "while (true) { break x; }"', () => {
+        expect(() => {
+            parseScript('while (true) { break x; }');
+        }).to.throw();
+    });
+
+    it('should fail on "while (true) { continue x; }"', () => {
+        expect(() => {
+            parseScript('while (true) { continue x; }');
+        }).to.throw();
+    });
+
+    it('should fail on "x: while (true) { (function () { continue x; }); }"', () => {
+        expect(() => {
+            parseScript('x: while (true) { (function () { continue x; }); }');
+        }).to.throw();
+    });
+
+    it('should fail on "x: while (true) { (function () { break; }); }"', () => {
+        expect(() => {
+            parseScript('x: while (true) { (function () { break; }); }');
+        }).to.throw();
+    });
+
+    it('should fail on "x: while (true) { (function () { continue; }); }"', () => {
+        expect(() => {
+            parseScript('x: while (true) { (function () { continue; }); }');
+        }).to.throw();
+    });
+
+    it('should fail on "x: while (true) { x: while (true) { } }"', () => {
+        expect(() => {
+            parseScript('x: while (true) { x: while (true) { } }');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())"', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())"');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "\\12"; "use strict"; }())"', () => {
+        expect(() => {
+            parseScript('(function () { "\\12"; "use strict"; }())"');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss() {"use strict"; var eval = 10;"', () => {
+        expect(() => {
+            parseScript('function twiss() {"use strict"; var eval = 10;');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss() {"use strict"; try { } catch (eval) { } }"', () => {
+        expect(() => {
+            parseScript('function twiss() {"use strict"; try { } catch (eval) { } }');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss() {"use strict"; arguments++; }"', () => {
+        expect(() => {
+            parseScript('function twiss() {"use strict"; arguments++; }');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss() {"use strict"; function eval() { } }"', () => {
+        expect(() => {
+            parseScript('function twiss() {"use strict"; function eval() { } }');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss() {"use strict"; ({ s: function eval() { } }); }"', () => {
+        expect(() => {
+            parseScript('function twiss() {"use strict"; ({ s: function eval() { } }); }');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss() {"use strict"; ({ s: function eval() { } }); }"', () => {
+        expect(() => {
+            parseScript('function twiss() {"use strict"; ({ s: function eval() { } }); }');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss() {"use strict"; ({ i: 10, set s(eval) { } }); }"', () => {
+        expect(() => {
+            parseScript('function twiss() {"use strict"; ({ i: 10, set s(eval) { } }); }');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss() {"use strict"; ({ i: 10, set s(eval) { } }); }"', () => {
+        expect(() => {
+            parseScript('function twiss() {"use strict"; ({ i: 10, set s(eval) { } }); }');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss() {"use strict"; ({ s: function s(eval) { } }); }"', () => {
+        expect(() => {
+            parseScript('function twiss() {"use strict"; ({ s: function s(eval) { } }); }');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss(eval) {"use strict";  }"', () => {
+        expect(() => {
+            parseScript('function twiss(eval) {"use strict";  }');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+        expect(() => {
+            parseScript('function twiss(package) {"use strict";  }');
+        }).to.throw();
+    });
+
+
+
+
+
+
+
+
+    it('should fail on "() => {}()"', () => {
+        expect(() => {
+            parseScript('() => {}()');
+        }).to.throw();
+    });
+
+    it('should fail on "a => {}()"', () => {
+        expect(() => {
+            parseScript('a => {}()');
+        }).to.throw();
+    });
+
+    it('should fail on "export new Foo();"', () => {
+        expect(() => {
+            parseModule('export new Foo();');
+        }).to.throw();
+    });
+
+    it('should fail on "export typeof foo;"', () => {
+        expect(() => {
+            parseModule('export typeof foo;');
+        }).to.throw();
+    });
+
+    it('should fail on "export { default }"', () => {
+        expect(() => {
+            parseModule('export { default }');
+        }).to.throw();
+    });
+
+    it('should fail on "export { if }"', () => {
+        expect(() => {
+            parseModule('export { if }');
+        }).to.throw();
+    });
+
+    it('should fail on "export { if as foo }"', () => {
+        expect(() => {
+            parseModule('export { if as foo }');
+        }).to.throw();
+    });
+
+    it('should fail on "import default from "foo""', () => {
+        expect(() => {
+            parseModule('import default from "foo"');
+        }).to.throw();
+    });
+
+    it('should fail on "import { class } from "foo""', () => {
+        expect(() => {
+            parseModule('import { class } from "foo"');
+        }).to.throw();
+    });
+
+    it('should fail on "import { class, var } from "foo""', () => {
+        expect(() => {
+            parseModule('import { class, var } from  "foo"');
+        }).to.throw();
+    });
+
+    it('should fail on "import { a as class } from  "foo""', () => {
+        expect(() => {
+            parseModule('import { a as class } from "foo"');
+        }).to.throw();
+    });
+
+    it('should fail on "import * as class from  "foo""', () => {
+        expect(() => {
+            parseModule('import * as class from  "foo"');
+        }).to.throw();
+    });
+
+
+
+    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+        expect(() => {
+            parseScript('function twiss(package) {"use strict";  }');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+        expect(() => {
+            parseScript('function twiss(package) {"use strict";  }');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+        expect(() => {
+            parseScript('function twiss(package) {"use strict";  }');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+        expect(() => {
+            parseScript('function twiss(package) {"use strict";  }');
+        }).to.throw();
+    });
+
+    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+        expect(() => {
+            parseScript('function twiss(package) {"use strict";  }');
+        }).to.throw();
+    });
+    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+        expect(() => {
+            parseScript('function twiss(package) {"use strict";  }');
+        }).to.throw();
+    });
+    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+        expect(() => {
+            parseScript('function twiss(package) {"use strict";  }');
+        }).to.throw();
+    });
+    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+        expect(() => {
+            parseScript('function twiss(package) {"use strict";  }');
+        }).to.throw();
+    });
+    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+        expect(() => {
+            parseScript('function twiss(package) {"use strict";  }');
+        }).to.throw();
+    });
+    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+        expect(() => {
+            parseScript('function twiss(package) {"use strict";  }');
         }).to.throw();
     });
 });
