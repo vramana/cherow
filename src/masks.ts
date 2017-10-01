@@ -28,6 +28,7 @@ export const enum Context {
     Const                  = 1 << 26,  // Variable declaration
     Let                    = 1 << 27,  // Variable declaration
     Var                    = 1 << 28,  // Variable declaration
+    Declaration            = 1 << 29,  // Variable declaration
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
@@ -101,6 +102,11 @@ export const enum ObjectFlags {
     Super           = 1 << 8,
     Method          = 1 << 9,
     Private         = 1 << 10,
+    Class           = 1 << 11,
+    Object          = 1 << 12,
+    AllowSuper      = 1 << 13,
+
+    ConstructorWithSuper =  Constructor | AllowSuper,
 
     // Modifier in this case is either 'get or 'set'. 'static' and others are excluded from the community
     Modifier = Getter | Setter,

@@ -1349,7 +1349,6 @@ export class Parser {
             switch (ch) {
                 case Chars.LowerU:
                 case Chars.UpperU:
-                case Chars.UpperU:
                     this.error(Errors.InvalidHexEscapeSequence);
                 default: // ignore
             }
@@ -1819,7 +1818,7 @@ export class Parser {
 
                 // export default ClassDeclaration[Default]
             case Token.ClassKeyword:
-                declaration = this.parseClassDeclaration(context | (Context.OptionalIdentifier | Context.Export));
+                declaration = this.parseClass(context | (Context.OptionalIdentifier | Context.Export | Context.Declaration));
                 break;
 
                 // export default HoistableDeclaration[Default]
@@ -1901,7 +1900,7 @@ export class Parser {
 
                 // export ClassDeclaration
             case Token.ClassKeyword:
-                declaration = this.parseClassDeclaration(context | Context.Export);
+                declaration = this.parseClass(context | Context.Export | Context.Declaration);
                 break;
 
                 // export LexicalDeclaration
@@ -2183,9 +2182,9 @@ export class Parser {
                 if (this.flags & Flags.OptionsNext && this.nextTokenIsLeftParen(context)) return this.parseStatement(context);
                 if (!(context & Context.Module)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             case Token.FunctionKeyword:
-                return this.parseFunctionDeclaration(context);
+                return this.parseFunctionDeclaration(context & ~Context.Method);
             case Token.ClassKeyword:
-                return this.parseClassDeclaration(context);
+                return this.parseClass(context | Context.Declaration);
             case Token.ConstKeyword:
                 return this.parseVariableStatement(context | (Context.Const));
             case Token.LetKeyword:
@@ -2659,7 +2658,7 @@ export class Parser {
             let body: ESTree.Statement;
             if (this.token === Token.FunctionKeyword) {
                 if (context & Context.Strict) this.error(Errors.StrictFunction);
-                body = this.parseFunctionDeclaration(context & ~Context.ForStatement | Context.AnnexB);
+                body = this.parseFunctionDeclaration(context & ~Context.ForStatement | Context.AnnexB | Context.Method);
             } else {
                 body = this.parseStatement(context & ~Context.ForStatement);
             }
@@ -3843,6 +3842,7 @@ export class Parser {
                 if (!hasMask(this.flags, Flags.AllowConstructorWithSupoer)) this.error(Errors.BadSuperCall);
                 break;
             case Token.Period:
+                if (context & Context.Method) this.error(Errors.Unexpected);
             case Token.LeftBracket:
                 if (!(this.flags & Flags.AllowSuper)) this.error(Errors.BadSuperCall);
                 break;
@@ -4330,7 +4330,7 @@ export class Parser {
             case Token.NewKeyword:
                 return this.parseNewExpression(context);
             case Token.ClassKeyword:
-                return this.parseClassExpression(context);
+                return this.parseClass(context);
             case Token.TemplateTail:
                 return this.parseTemplateTail(context, pos);
             case Token.TemplateCont:
@@ -4464,12 +4464,15 @@ export class Parser {
         });
     }
 
-    private parseClassDeclaration(context: Context): ESTree.ClassDeclaration {
+    private parseClass(context: Context): any {
+
         const pos = this.getLocations();
 
         this.expect(context, Token.ClassKeyword);
 
+        let superClass: ESTree.Expression | null = null;
         let id = null;
+        let classBody: any;
 
         if (this.isIdentifier(context, this.token)) {
             const name = this.tokenValue;
@@ -4482,50 +4485,28 @@ export class Parser {
                 this.blockScope[name] = ScopeMasks.Shadowable;
             }
 
-            // Invalid: 'export class a{}  export class a{}'
-            if (context & Context.Export && this.token === Token.Identifier) this.addFunctionArg(this.tokenValue);
+            if (context & Context.Declaration) {
+                // Invalid: 'export class a{}  export class a{}'
+                if (context & Context.Export && this.token === Token.Identifier) this.addFunctionArg(this.tokenValue);
 
-            id = this.parseBindingIdentifier(context | Context.Strict);
+                id = this.parseBindingIdentifier(context | Context.Strict);
+            } else {
+                id = this.isIdentifier(context, this.token) ? this.parseIdentifier(context | Context.Strict) : null;
+            }
             // Valid: `export default class {};`
             // Invalid: `class {};`
-        } else if (!(context & Context.OptionalIdentifier)) {
+        } else if (context & Context.Declaration && !(context & Context.OptionalIdentifier)) {
             this.error(Errors.UnNamedClassStmt);
         }
 
-        let superClass: ESTree.Expression | null = null;
-
         if (this.parseOptional(context, Token.ExtendsKeyword)) {
-            superClass = this.parseLeftHandSideExpression(context |= (Context.Super | Context.Strict), pos);
+            superClass = this.parseLeftHandSideExpression(context & ~Context.Declaration | (Context.Super | Context.Strict), pos);
         }
 
-        const classBody = this.parseClassBody(context | Context.Strict);
+        classBody = this.parseClassBody(context & ~Context.Declaration | Context.Strict);
 
         return this.finishNode(pos, {
-            type: 'ClassDeclaration',
-            id,
-            superClass,
-            body: classBody
-        });
-    }
-
-    private parseClassExpression(context: Context): ESTree.ClassExpression {
-
-        const pos = this.getLocations();
-
-        this.expect(context, Token.ClassKeyword);
-        // In ES6 specification, All parts of a ClassDeclaration or a ClassExpression are strict mode code
-        const id = this.isIdentifier(context, this.token) ? this.parseIdentifier(context | Context.Strict) : null;
-
-        let superClass = null;
-
-        if (this.parseOptional(context, Token.ExtendsKeyword)) {
-            superClass = this.parseLeftHandSideExpression(context |= (Context.Strict | Context.Super), pos);
-        }
-
-        const classBody = this.parseClassBody(context);
-
-        return this.finishNode(pos, {
-            type: 'ClassExpression',
+            type: context & Context.Declaration ? 'ClassDeclaration' : 'ClassExpression',
             id,
             superClass,
             body: classBody
