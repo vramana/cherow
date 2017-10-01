@@ -1211,23 +1211,34 @@ Parser.prototype.skipMultiLineComment = function skipMultiLineComment () {
         this.collectComment('MultiLineComment', this.source.slice(start, this.index - 2), this.startPos, this.index);
     }
 };
-Parser.prototype.collectComment = function collectComment (type, value, start, end, loc) {
-        if ( loc === void 0 ) loc = {};
-
+Parser.prototype.collectComment = function collectComment (type, value, start, end) {
+    var loc;
+    if (this.flags & 8388608 /* OptionsLoc */) {
+        loc = {
+            start: {
+                line: this.startLine,
+                column: this.startColumn,
+            },
+            end: {
+                line: this.endLine,
+                column: this.column
+            }
+        };
+    }
     if (typeof this.comments === 'function') {
-        this.comments(type, value, start, end);
+        this.comments(type, value, start, end, loc);
     }
     else if (Array.isArray(this.comments)) {
         var node = {
             type: type,
-            value: value,
-            start: start,
-            end: end,
-            loc: loc,
+            value: value
         };
         if (this.flags & 4194304 /* OptionsRanges */) {
             node.start = start;
             node.end = end;
+        }
+        if (this.flags & 8388608 /* OptionsLoc */) {
+            node.loc = loc;
         }
         this.comments.push(node);
     }

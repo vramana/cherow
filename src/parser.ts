@@ -826,18 +826,29 @@ export class Parser {
         }
     }
 
-    private collectComment(type: ESTree.CommentType, value: string, start: number, end: number, loc: any = {}): void {
+    private collectComment(type: ESTree.CommentType, value: string, start: number, end: number): void {
+        let loc;
+
+        if (this.flags & Flags.OptionsLoc) {
+            loc = {
+                start: {
+                    line: this.startLine,
+                    column: this.startColumn,
+                },
+                end: {
+                    line: this.endLine,
+                    column: this.column
+                }
+            };
+        }
 
         if (typeof this.comments === 'function') {
-            this.comments(type, value, start, end);
+            this.comments(type, value, start, end, loc);
         } else if (Array.isArray(this.comments)) {
 
             const node: ESTree.Comment = {
                 type,
-                value,
-                start,
-                end,
-                loc,
+                value
             };
 
             if (this.flags & Flags.OptionsRanges) {
@@ -845,6 +856,9 @@ export class Parser {
                 node.end = end;
             }
 
+            if (this.flags & Flags.OptionsLoc) {
+                node.loc = loc;
+            }
             this.comments.push(node);
         }
     }
@@ -3661,7 +3675,7 @@ export class Parser {
     private parseRestProperty(context: Context): ESTree.RestElement {
         const pos = this.getLocations();
         this.expect(context, Token.Ellipsis);
-        
+
         if (this.token !== Token.Identifier) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         const arg = this.parseBindingPatternOrIdentifier(context | Context.Binding);
         if (this.token === Token.Assign) this.error(Errors.DefaultRestProperty);

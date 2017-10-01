@@ -62,34 +62,77 @@ describe('Miscellaneous - onComment', () => {
         expect(parseScript('/* ABC */ function abc() {} /* DEF */', {
             ranges: true,
             raw: true,
-            comments: foo
+            comments: foo,
+            locations: true
         })).to.eql({
             "type": "Program",
             "start": 0,
             "end": 37,
-            "body": [{
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 37
+              }
+            },
+            "body": [
+              {
                 "type": "FunctionDeclaration",
                 "start": 10,
                 "end": 27,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 10
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 27
+                  }
+                },
                 "id": {
-                    "type": "Identifier",
-                    "start": 19,
-                    "end": 22,
-                    "name": "abc"
+                  "type": "Identifier",
+                  "start": 19,
+                  "end": 22,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 19
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 22
+                    }
+                  },
+                  "name": "abc"
                 },
                 "generator": false,
                 "expression": false,
                 "async": false,
                 "params": [],
                 "body": {
-                    "type": "BlockStatement",
-                    "start": 25,
-                    "end": 27,
-                    "body": []
+                  "type": "BlockStatement",
+                  "start": 25,
+                  "end": 27,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 25
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 27
+                    }
+                  },
+                  "body": []
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
 
         expect(foo.length).to.eql(2);
         expect(foo[0].type).to.eql('MultiLineComment');
@@ -98,8 +141,11 @@ describe('Miscellaneous - onComment', () => {
         expect(foo[1].value).to.eql(' DEF ');
         expect(foo[0].start).to.eql(0);
         expect(foo[1].end).to.eql(37);
+        expect(foo[1].loc.start.line).to.eql(1);
+        expect(foo[1].loc.start.column).to.eql(28);
+        expect(foo[1].loc.end.line).to.eql(1);
+        expect(foo[1].loc.end.column).to.eql(37);
     });
-
 
     it('should collect "/* Hello multiline comment, are you colleced yet? */"', () => {
         expect(parseScript('/* Hello multiline comment, are you colleced yet? */', {

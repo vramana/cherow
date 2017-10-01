@@ -121,7 +121,7 @@ describe('Declarations - Functions', () => {
 
     it('should fail on "class A extends yield B { }"', () => {
         expect(() => {
-            parseScript('"use strict"; function _13_0_4_5_fun() { eval = 42; };');
+            parseScript('"use strict"; function foo() { eval = 42; };');
         }).to.throw('');
     });
 
@@ -130,6 +130,12 @@ describe('Declarations - Functions', () => {
             parseScript('function __func(){\\A\\B\\C};');
         }).to.throw('');
     });
+
+    it('should fail on "function __func(){\a\b\c};"', () => {
+      expect(() => {
+          parseScript('function __func(){\\a\\b\\c};');
+      }).to.throw('');
+  });
 
     it('should fail if function name is "eval" in module code only"', () => {
         expect(() => {

@@ -47,5 +47,5 @@ export interface Location {
  * The type of the `onComment` option.
  */
 export type CollectComments = void | Comment[] | (
-    (type: string, value: string, start: number, end: number) => any
+    (type: string, value: string, start: number, end: number, loc: any) => any
 );
