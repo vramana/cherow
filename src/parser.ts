@@ -1758,6 +1758,15 @@ export class Parser {
         if (this.token === Token.Semicolon) this.expect(context, Token.Semicolon);
     }
 
+    private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
+        const savedState = this.saveState();
+        this.nextToken(context);
+        const next = this.token;
+        const line = this.line;
+        this.rewindState(savedState);
+        return this.line === line && next === Token.FunctionKeyword;
+    }
+
     private isIdentifier(context: Context, t: Token): boolean {
 
         if (context & Context.Module) {
@@ -1841,7 +1850,7 @@ export class Parser {
                     declaration = this.parseFunctionDeclaration(context | Context.Export);
                     break;
                 }
-                /* falls through */
+                // falls through
             default:
                 // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
                 declaration = this.parseAssignmentExpression(context);
@@ -1888,11 +1897,6 @@ export class Parser {
                 // and
                 // 'export' ExportClause FromClause ';'
                 //
-                // In the first case, the exported identifiers in ExportClause must
-                // not be reserved words, while in the latter they may be. We
-                // pass in a location that gets filled with the first reserved word
-                // encountered, and then throw a SyntaxError if we are in the
-                // non-FromClause case.
                 this.expect(context, Token.LeftBrace);
 
                 while (!this.parseOptional(context, Token.RightBrace)) {
@@ -2196,22 +2200,30 @@ export class Parser {
     private parseStatementListItem(context: Context): ESTree.Statement {
 
         switch (this.token) {
-            case Token.ExportKeyword:
+
+            case Token.ClassKeyword:
+                return this.parseClass(context | Context.Declaration);
+
+            // VariableStatement[?Yield]
+            case Token.ConstKeyword:
+                return this.parseVariableStatement(context | (Context.Const));
+
+            case Token.FunctionKeyword:
+                return this.parseFunctionDeclaration(context & ~Context.Method);
+                case Token.ExportKeyword:
                 if (!(context & Context.Module)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+
             case Token.ImportKeyword:
                 // We must be careful not to parse a dynamic import
                 // expression as an import declaration.
                 if (this.flags & Flags.OptionsNext && this.nextTokenIsLeftParen(context)) return this.parseStatement(context);
                 if (!(context & Context.Module)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-            case Token.FunctionKeyword:
-                return this.parseFunctionDeclaration(context & ~Context.Method);
-            case Token.ClassKeyword:
-                return this.parseClass(context | Context.Declaration);
-            case Token.ConstKeyword:
-                return this.parseVariableStatement(context | (Context.Const));
+
+            // VariableStatement[?Yield]
             case Token.LetKeyword:
                 // If let follows identifier on the same line, it is an declaration. Parse it as a variable statement
                 if (this.isLexical(context)) return this.parseVariableStatement(context | Context.Let);
+
             default:
                 return this.parseStatement(context | Context.AllowIn);
         }
@@ -2241,6 +2253,13 @@ export class Parser {
             case Token.IfKeyword:
                 return this.parseIfStatement(context);
 
+            // BreakStatement[?Yield]
+            case Token.BreakKeyword:
+                return this.parseBreakStatement(context);
+
+            case Token.ForKeyword:
+                return this.parseForStatement(context);
+
                 // DebuggerStatement
             case Token.DebuggerKeyword:
                 return this.parseDebuggerStatement(context);
@@ -2248,13 +2267,6 @@ export class Parser {
                 // ContinueStatement[?Yield]
             case Token.ContinueKeyword:
                 return this.parseContinueStatement(context);
-
-                // BreakStatement[?Yield]
-            case Token.BreakKeyword:
-                return this.parseBreakStatement(context);
-
-            case Token.ForKeyword:
-                return this.parseForOrForInOrForOfStatement(context);
 
                 // BreakableStatement[?Yield, ?Return]
                 //
@@ -2293,12 +2305,6 @@ export class Parser {
                 // restriction is phrased as
                 //
                 //   [lookahead ∉ { {, function, async [no LineTerminator here] function, class, let [ }]
-                //
-                // meaning that code like this is valid:
-                //
-                //   if (true)
-                //     async       // ASI opportunity
-                //   function clownshoes() {}
                 if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
                 if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                     // Annex B.3.4 - FunctionDeclaration doesn't include generators or async
@@ -2313,11 +2319,11 @@ export class Parser {
                 }
             default:
                 // LabelledStatement[?Yield, ?Return]
-                return this.parseLabelledStatement(context | Context.AllowIn);
+                return this.parseLabelledStatement(context);
         }
     }
 
-    private parseForOrForInOrForOfStatement(context: Context): ESTree.ForInStatement | ESTree.ForOfStatement | ESTree.ForStatement {
+    private parseForStatement(context: Context): ESTree.ForInStatement | ESTree.ForOfStatement | ESTree.ForStatement {
 
         const pos = this.getLocations();
 
@@ -2704,15 +2710,6 @@ export class Parser {
         });
     }
 
-    private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
-        const savedState = this.saveState();
-        this.nextToken(context);
-        const next = this.token;
-        const line = this.line;
-        this.rewindState(savedState);
-        return this.line === line && next === Token.FunctionKeyword;
-    }
-
     private parseLabelledStatement(context: Context): ESTree.LabeledStatement | ESTree.ExpressionStatement {
 
         const pos = this.getLocations();
@@ -2721,7 +2718,10 @@ export class Parser {
 
         if (this.parseOptional(context, Token.Colon) && expr.type === 'Identifier') {
             // Invalid: `for (const x of []) label1: label2: function f() {}`
-            if (!(this.flags & Flags.Switch) && context & Context.ForStatement && this.token === Token.Identifier) this.error(Errors.InvalidLabeledForOf);
+            if (!(this.flags & Flags.Switch) && context & Context.ForStatement && this.token === Token.Identifier) {
+                this.error(Errors.InvalidLabeledForOf);
+            }
+
             const key = '@' + expr.name;
             if (hasOwn.call(this.labelSet, key)) this.error(Errors.Redeclaration, expr.name);
 
@@ -2918,18 +2918,21 @@ export class Parser {
     }
 
     private parseTryStatement(context: Context): ESTree.TryStatement {
+
         const pos = this.getLocations();
 
         this.expect(context, Token.TryKeyword);
 
         const block = this.parseBlockStatement(context);
 
-        const handler = this.token === Token.CatchKeyword ? this.parseCatchClause(context) : null;
+        let handler: ESTree.CatchClause | null = null;
+        let finalizer: ESTree.BlockStatement | null = null;
 
-        let finalizer = null;
+        if (this.token === Token.CatchKeyword) {
+            handler = this.parseCatchClause(context);
+        }
 
-        if (!handler || this.token === Token.FinallyKeyword) {
-            this.expect(context, Token.FinallyKeyword);
+        if (this.parseOptional(context, Token.FinallyKeyword)) {
             finalizer = this.parseBlockStatement(context);
         }
 

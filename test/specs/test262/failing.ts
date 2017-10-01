@@ -4503,14 +4503,12 @@ is y`);
             parseScript('i #= 0');
         }).to.throw();
     });
-
     
     it('should fail on "for ((i in {}));', () => {
         expect(() => {
             parseScript('for ((i in {}));');
         }).to.throw();
     });
-
     
     it('should fail on "for (let x, y, z, let;;;) {}', () => {
         expect(() => {
@@ -4523,7 +4521,6 @@ is y`);
             parseScript('a: let a');
         }).to.throw();
     });
-
     
     it('should fail on "var const', () => {
         expect(() => {
@@ -4531,4 +4528,15 @@ is y`);
         }).to.throw();
     });
 
+    it('expect "3e-', () => {
+            expect(() => {
+                parseScript('3e-');
+            }).to.throw();
+        });
+
+        it('expect "let undefined', () => {
+            expect(() => {
+                parseScript('let undefined');
+            }).to.throw();
+        });
 });

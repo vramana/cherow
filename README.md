@@ -21,7 +21,7 @@ It's safe to use in production.
 - Skips shebang comment nodes by default
 - Optimized for handheld devices
 - Optional tracking of syntax node location (index-based and line-column)
-- 5200 unit tests
+- 5600 unit tests
 
 ## ESNext features
 
