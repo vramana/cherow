@@ -5,402 +5,107 @@ const expect = chai.expect;
 
 describe('Espressions - Super', () => {
 
-  it(`should fail on "!{ a() { !function* (a = super.b()){} } };"`, () => {
-    expect(() => {
-        parseScript(`class a extends b { c() { function* d(c = super.e()){} } }`);
-    }).to.not.throw();
-});
+            it(`should fail on "!{ a() { !function* (a = super.b()){} } };"`, () => {
+                expect(() => {
+                    parseScript(`class a extends b { c() { function* d(c = super.e()){} } }`);
+                }).to.not.throw();
+            });
 
-it(`should fail on "!{ a() { !function* (a = super.b()){} } };"`, () => {
-    expect(() => {
-        parseScript(`!{ a() { !function* (a = super.b()){} } };`);
-    }).to.not.throw();
-});
+            it(`should fail on "!{ a() { !function* (a = super.b()){} } };"`, () => {
+                expect(() => {
+                    parseScript(`!{ a() { !function* (a = super.b()){} } };`);
+                }).to.not.throw();
+            });
 
+            it(`should fail on "class a extends b { c() { !function* (c = super.d()){} } }"`, () => {
+                expect(() => {
+                    parseScript(`class a extends b { c() { !function* (c = super.d()){} } }`);
+                }).to.not.throw();
+            });
 
-it(`should fail on "class a extends b { c() { !function* (c = super.d()){} } }"`, () => {
-    expect(() => {
-        parseScript(`class a extends b { c() { !function* (c = super.d()){} } }`);
-    }).to.not.throw();
-});
+            it(`should fail on "function* a(b){ super.c }"`, () => {
+                expect(() => {
+                    parseScript(`function* a(b){ super.c }`);
+                }).to.throw();
+            });
 
-it(`should fail on "function* a(b){ super.c }"`, () => {
-    expect(() => {
-        parseScript(`function* a(b){ super.c }`);
-    }).to.throw();
-});
+            it(`should fail on "!function* (a){ super.b }"`, () => {
+                expect(() => {
+                    parseScript(`!function* (a){ super.b }`);
+                }).to.throw();
+            });
 
-it(`should fail on "!function* (a){ super.b }"`, () => {
-    expect(() => {
-        parseScript(`!function* (a){ super.b }`);
-    }).to.throw();
-});
+            it(`should fail on "{ a() { function* b(){ super.c(); } } };"`, () => {
+                expect(() => {
+                    parseScript(`{ a() { function* b(){ super.c(); } } };`);
+                }).to.throw();
+            });
 
-it(`should fail on "{ a() { function* b(){ super.c(); } } };"`, () => {
-    expect(() => {
-        parseScript(`{ a() { function* b(){ super.c(); } } };`);
-    }).to.throw();
-});
+            it(`should fail on "!{ a() { !function* (){ super.b(); } } };"`, () => {
+                expect(() => {
+                    parseScript(`!{ a() { !function* (){ super.b(); } } };`);
+                }).to.not.throw();
+            });
 
-it(`should fail on "!{ a() { !function* (){ super.b(); } } };"`, () => {
-    expect(() => {
-        parseScript(`!{ a() { !function* (){ super.b(); } } };`);
-    }).to.not.throw();
-});
+            it(`should fail on "class a extends b { c() { function* d(){ super.e(); } } }"`, () => {
+                expect(() => {
+                    parseScript(`class a extends b { c() { function* d(){ super.e(); } } }`);
+                }).to.not.throw();
+            });
 
-it(`should fail on "class a extends b { c() { function* d(){ super.e(); } } }"`, () => {
-    expect(() => {
-        parseScript(`class a extends b { c() { function* d(){ super.e(); } } }`);
-    }).to.not.throw();
-});
+            it(`should fail on "class a extends b { c() { !function* (){ super.d(); } } }"`, () => {
+                expect(() => {
+                    parseScript(`class a extends b { c() { !function* (){ super.d(); } } }`);
+                }).to.not.throw();
+            });
 
-it(`should fail on "class a extends b { c() { !function* (){ super.d(); } } }"`, () => {
-    expect(() => {
-        parseScript(`class a extends b { c() { !function* (){ super.d(); } } }`);
-    }).to.not.throw();
-});
+            it('should fail on "class A extends B { *g1() { return super() } }}"', () => {
+                expect(() => {
+                    parseScript(`class A extends B { *g1() { return super() } }`);
+                }).to.not.throw();
+            });
 
-    it('should fail on "class A extends B { *g1() { return super() } }}"', () => {
-        expect(() => {
-            parseScript(`class A extends B { *g1() { return super() } }`);
-        }).to.throw();
-    });
-    
-    it('should fail on "class A extends B { *g1() { return super() } }}"', () => {
-        expect(() => {
-            parseScript(`function wrap() { function* foo(a = super(), b = super.foo()) { } }`);
-        }).to.throw();
-    });
+            it('should fail on "class A extends B { *g1() { return super() } }}"', () => {
+                expect(() => {
+                    parseScript(`function wrap() { function* foo(a = super(), b = super.foo()) { } }`);
+                }).to.throw();
+            });
 
-    it('should fail on "class A extends B { *g1() { return super() } }}"', () => {
-        expect(() => {
-            parseScript(`class A static foo() { super() } }`);
-        }).to.throw();
-    });
+            it('should fail on "class A extends B { *g1() { return super() } }}"', () => {
+                expect(() => {
+                    parseScript(`class A static foo() { super() } }`);
+                }).to.throw();
+            });
 
-    it('should fail on "function foo() {super() super.foo()"', () => {
-        expect(() => {
-            parseScript(`function foo() {super() super.foo()`);
-        }).to.throw();
-    });
+            it('should fail on "function foo() {super() super.foo()"', () => {
+                expect(() => {
+                    parseScript(`function foo() {super() super.foo()`);
+                }).to.throw();
+            });
 
-    it('should fail on "var foo = function() { super()  super.foo() }"', () => {
-        expect(() => {
-            parseScript(`var foo = function() { super()  super.foo() }`);
-        }).to.throw();
-    });
+            it('should fail on "var foo = function() { super()  super.foo() }"', () => {
+                expect(() => {
+                    parseScript(`var foo = function() { super()  super.foo() }`);
+                }).to.throw();
+            });
 
-    it('should fail on "function wrap() { function foo(a = super(), b = super.foo()) {}}"', () => {
-        expect(() => {
-            parseScript(`function wrap() { function foo(a = super(), b = super.foo()) {}}`);
-        }).to.throw();
-    });
+            it('should fail on "function wrap() { function foo(a = super(), b = super.foo()) {}}"', () => {
+                expect(() => {
+                    parseScript(`function wrap() { function foo(a = super(), b = super.foo()) {}}`);
+                }).to.throw();
+            });
 
-    it('should fail on invalid lone super', () => {
-      expect(() => { parseScript('class A extends B { constructor() { (super).a(); } }') }).to.throw()
-    });
+            it('should fail on invalid lone super', () => {
+                expect(() => {
+                    parseScript('class A extends B { constructor() { (super).a(); } }')
+                }).to.throw()
+            });
 
-    it('should fail on invalid super', () => {
-      expect(() => { parseScript('({ a() { (super).b(); } });') }).to.throw()
-    });
-
-
-    it.skip('should parse object spread operator following other arguments with undefined', () => {
-        expect(parseScript(`class A {
-        constructor() {
-          super({a: 1, b: 2, ...undefined});
-        }
-    }`, {
-            ranges: true,
-            raw: true,
-            next: true
-        })).to.eql({
-            "type": "Program",
-            "body": [
-                {
-                    "type": "ClassDeclaration",
-                    "id": {
-                        "type": "Identifier",
-                        "name": "A",
-                        "start": 6,
-                        "end": 7
-                    },
-                    "superClass": null,
-                    "body": {
-                        "type": "ClassBody",
-                        "body": [
-                            {
-                                "type": "MethodDefinition",
-                                "computed": false,
-                                "key": {
-                                    "type": "Identifier",
-                                    "name": "constructor",
-                                    "start": 18,
-                                    "end": 29
-                                },
-                                "kind": "constructor",
-                                "static": false,
-                                "value": {
-                                    "type": "FunctionExpression",
-                                    "id": null,
-                                    "params": [],
-                                    "body": {
-                                        "type": "BlockStatement",
-                                        "body": [
-                                            {
-                                                "type": "ExpressionStatement",
-                                                "expression": {
-                                                    "type": "CallExpression",
-                                                    "arguments": [
-                                                        {
-                                                            "type": "ObjectExpression",
-                                                            "properties": [
-                                                                {
-                                                                    "type": "Property",
-                                                                    "computed": false,
-                                                                    "key": {
-                                                                        "type": "Identifier",
-                                                                        "name": "a",
-                                                                        "start": 51,
-                                                                        "end": 52
-                                                                    },
-                                                                    "kind": "init",
-                                                                    "method": false,
-                                                                    "shorthand": false,
-                                                                    "value": {
-                                                                        "type": "Literal",
-                                                                        "value": 1,
-                                                                        "start": 54,
-                                                                        "end": 55,
-                                                                        "raw": "1"
-                                                                    },
-                                                                    "start": 51,
-                                                                    "end": 55
-                                                                },
-                                                                {
-                                                                    "type": "Property",
-                                                                    "computed": false,
-                                                                    "key": {
-                                                                        "type": "Identifier",
-                                                                        "name": "b",
-                                                                        "start": 57,
-                                                                        "end": 58
-                                                                    },
-                                                                    "kind": "init",
-                                                                    "method": false,
-                                                                    "shorthand": false,
-                                                                    "value": {
-                                                                        "type": "Literal",
-                                                                        "value": 2,
-                                                                        "start": 60,
-                                                                        "end": 61,
-                                                                        "raw": "2"
-                                                                    },
-                                                                    "start": 57,
-                                                                    "end": 61
-                                                                },
-                                                                {
-                                                                    "type": "SpreadElement",
-                                                                    "argument": {
-                                                                        "type": "Identifier",
-                                                                        "name": "undefined",
-                                                                        "start": 66,
-                                                                        "end": 75
-                                                                    },
-                                                                    "start": 63,
-                                                                    "end": 75
-                                                                }
-                                                            ],
-                                                            "start": 50,
-                                                            "end": 76
-                                                        }
-                                                    ],
-                                                    "callee": {
-                                                        "type": "Super",
-                                                        "start": 44,
-                                                        "end": 49
-                                                    },
-                                                    "start": 44,
-                                                    "end": 77
-                                                },
-                                                "start": 44,
-                                                "end": 78
-                                            }
-                                        ],
-                                        "start": 32,
-                                        "end": 88
-                                    },
-                                    "generator": false,
-                                    "async": false,
-                                    "expression": false,
-                                    "start": 29,
-                                    "end": 88
-                                },
-                                "start": 18,
-                                "end": 88
-                            }
-                        ],
-                        "start": 8,
-                        "end": 94
-                    },
-                    "start": 0,
-                    "end": 94
-                }
-            ],
-            "sourceType": "script",
-            "start": 0,
-            "end": 94
-        });
-    });
-
-    it.skip('should parse object spread operator following other arguments with null value', () => {
-        expect(parseScript(`class A {
-        constructor() {
-          super({a: 1, b: 2, ...null});
-        }
-    }`, {
-            ranges: true,
-            raw: true,
-            next: true
-        })).to.eql({
-            "type": "Program",
-            "body": [
-                {
-                    "type": "ClassDeclaration",
-                    "id": {
-                        "type": "Identifier",
-                        "name": "A",
-                        "start": 6,
-                        "end": 7
-                    },
-                    "superClass": null,
-                    "body": {
-                        "type": "ClassBody",
-                        "body": [
-                            {
-                                "type": "MethodDefinition",
-                                "computed": false,
-                                "key": {
-                                    "type": "Identifier",
-                                    "name": "constructor",
-                                    "start": 18,
-                                    "end": 29
-                                },
-                                "kind": "constructor",
-                                "static": false,
-                                "value": {
-                                    "type": "FunctionExpression",
-                                    "id": null,
-                                    "params": [],
-                                    "body": {
-                                        "type": "BlockStatement",
-                                        "body": [
-                                            {
-                                                "type": "ExpressionStatement",
-                                                "expression": {
-                                                    "type": "CallExpression",
-                                                    "arguments": [
-                                                        {
-                                                            "type": "ObjectExpression",
-                                                            "properties": [
-                                                                {
-                                                                    "type": "Property",
-                                                                    "computed": false,
-                                                                    "key": {
-                                                                        "type": "Identifier",
-                                                                        "name": "a",
-                                                                        "start": 51,
-                                                                        "end": 52
-                                                                    },
-                                                                    "kind": "init",
-                                                                    "method": false,
-                                                                    "shorthand": false,
-                                                                    "value": {
-                                                                        "type": "Literal",
-                                                                        "value": 1,
-                                                                        "start": 54,
-                                                                        "end": 55,
-                                                                        "raw": "1"
-                                                                    },
-                                                                    "start": 51,
-                                                                    "end": 55
-                                                                },
-                                                                {
-                                                                    "type": "Property",
-                                                                    "computed": false,
-                                                                    "key": {
-                                                                        "type": "Identifier",
-                                                                        "name": "b",
-                                                                        "start": 57,
-                                                                        "end": 58
-                                                                    },
-                                                                    "kind": "init",
-                                                                    "method": false,
-                                                                    "shorthand": false,
-                                                                    "value": {
-                                                                        "type": "Literal",
-                                                                        "value": 2,
-                                                                        "start": 60,
-                                                                        "end": 61,
-                                                                        "raw": "2"
-                                                                    },
-                                                                    "start": 57,
-                                                                    "end": 61
-                                                                },
-                                                                {
-                                                                    "type": "SpreadElement",
-                                                                    "argument": {
-                                                                        "type": "Literal",
-                                                                        "value": null,
-                                                                        "start": 66,
-                                                                        "end": 70,
-                                                                        "raw": "null"
-                                                                    },
-                                                                    "start": 63,
-                                                                    "end": 70
-                                                                }
-                                                            ],
-                                                            "start": 50,
-                                                            "end": 71
-                                                        }
-                                                    ],
-                                                    "callee": {
-                                                        "type": "Super",
-                                                        "start": 44,
-                                                        "end": 49
-                                                    },
-                                                    "start": 44,
-                                                    "end": 72
-                                                },
-                                                "start": 44,
-                                                "end": 73
-                                            }
-                                        ],
-                                        "start": 32,
-                                        "end": 83
-                                    },
-                                    "generator": false,
-                                    "async": false,
-                                    "expression": false,
-                                    "start": 29,
-                                    "end": 83
-                                },
-                                "start": 18,
-                                "end": 83
-                            }
-                        ],
-                        "start": 8,
-                        "end": 89
-                    },
-                    "start": 0,
-                    "end": 89
-                }
-            ],
-            "sourceType": "script",
-            "start": 0,
-            "end": 89
-        });
-    });
+            it('should fail on invalid super', () => {
+                expect(() => {
+                    parseScript('({ a() { (super).b(); } });')
+                }).to.throw()
+            });
 
     it('should parse value of reference returned by SuperProperty', () => {
         expect(parseScript(`class A {

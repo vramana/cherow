@@ -2940,4 +2940,102 @@ is y`);
             parseScript('1 + {');
         }).to.throw();
     });
+
+
+
+
+
+
+    it('should fail on "3ea""', () => {
+        expect(() => {
+            parseScript('3ea"');
+        }).to.throw();
+    });
+    it('should fail on "3in []""', () => {
+        expect(() => {
+            parseScript('3in []"');
+        }).to.throw();
+    });
+    it('should fail on "3e"', () => {
+        expect(() => {
+            parseScript('3e');
+        }).to.throw();
+    });
+    it('should fail on "3e+"', () => {
+        expect(() => {
+            parseScript('3e+');
+        }).to.throw();
+    });
+    it('should fail on "3e-"', () => {
+        expect(() => {
+            parseScript('3e-"');
+        }).to.throw();
+    });
+    it('should fail on "3x"', () => {
+        expect(() => {
+            parseScript('3x"');
+        }).to.throw();
+    });
+    it('should fail on "3x0"', () => {
+        expect(() => {
+            parseScript('3x0');
+        }).to.throw();
+    });
+    it('should fail on "0x"', () => {
+        expect(() => {
+            parseScript('0x"');
+        }).to.throw();
+    });
+    it('should fail on "01a"', () => {
+        expect(() => {
+            parseScript('01a"');
+        }).to.throw();
+    });
+    it('should fail on "0x3in[]"', () => {
+        expect(() => {
+            parseScript('0x3in[]"');
+        }).to.throw();
+    });
+    it('should fail on "x\\"', () => {
+        expect(() => {
+            parseScript('x\\');
+        }).to.throw();
+    });
+    it('should fail on "x\\u005c"', () => {
+        expect(() => {
+            parseScript('x\\u005c');
+        }).to.throw();
+    });
+    it('should fail on "x\\u002a"', () => {
+        expect(() => {
+            parseScript('x\\u002a');
+        }).to.throw();
+    });
+    it('should fail on "/"', () => {
+        expect(() => {
+            parseScript('/');
+        }).to.throw();
+    }); 
+    
+    it('should fail on "var x = /[a-z]/\\ux"', () => {
+        expect(() => {
+            parseScript('var x = /[a-z]/\\ux');
+        }).to.throw();
+    });
+
+    it('should fail on "{ set 1 }"', () => {
+        expect(() => {
+            parseScript('{ set 1 }');
+        }).to.throw();
+    });
+    it('should fail on "{ get 2 }"', () => {
+        expect(() => {
+            parseScript('{ get 2 }');
+        }).to.throw();
+    });
+    it('should fail on "({ set s(.) { } })"', () => {
+        expect(() => {
+            parseScript('({ set s(.) { } })');
+        }).to.throw();
+    });
 });
