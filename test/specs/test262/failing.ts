@@ -3458,60 +3458,71 @@ is y`);
         }).to.throw();
     });
 
-
-
-    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+    it('should fail on "import { enum } from  "foo""', () => {
         expect(() => {
-            parseScript('function twiss(package) {"use strict";  }');
+            parseModule('import { enum } from "foo"');
         }).to.throw();
     });
 
-    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+    it('should fail on "import { a as enum } from "foo""', () => {
         expect(() => {
-            parseScript('function twiss(package) {"use strict";  }');
+            parseModule('import { a as enum } from "foo"');
         }).to.throw();
     });
 
-    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+    it('should fail on "import * as enum from "foo""', () => {
         expect(() => {
-            parseScript('function twiss(package) {"use strict";  }');
+            parseModule('import * as enum from "foo"');
         }).to.throw();
     });
 
-    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+    it('should fail on "function *g() { (x = yield) => {} }"', () => {
         expect(() => {
-            parseScript('function twiss(package) {"use strict";  }');
+            parseScript('function *g() { (x = yield) => {} }');
         }).to.throw();
     });
 
-    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+    it('should fail on "function *g() { ({x = yield}) => {} }"', () => {
         expect(() => {
-            parseScript('function twiss(package) {"use strict";  }');
+            parseScript('function *g() { ({x = yield}) => {} }');
         }).to.throw();
     });
-    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+
+    it('should fail on "class A { get constructor() {} }"', () => {
         expect(() => {
-            parseScript('function twiss(package) {"use strict";  }');
+            parseScript('class A { get constructor() {} }');
         }).to.throw();
     });
-    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+
+    it('should fail on "function x(...[ a, b ]){}"', () => {
         expect(() => {
-            parseScript('function twiss(package) {"use strict";  }');
+            parseScript('function x(...[ a, b ]){}');
+        }).to.not.throw();
+    });
+
+    it('should fail on "function x({ a: { w, x }, b: [y, z] }, ...[a, b, c]){}"', () => {
+        expect(() => {
+            parseScript('function x({ a: { w, x }, b: [y, z] }, ...[a, b, c]){}');
+        }).to.not.throw();
+    });
+    it('should fail on "(function x(...[ a, b ]){})"', () => {
+        expect(() => {
+            parseScript('(function x(...[ a, b ]){})');
+        }).to.not.throw();
+    });
+    it('should fail on "class a { set foo(...v) {} };"', () => {
+        expect(() => {
+            parseScript('class a { set foo(...v) {} };');
         }).to.throw();
     });
-    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+    it('should fail on "var a = { set foo(...v) {} };"', () => {
         expect(() => {
-            parseScript('function twiss(package) {"use strict";  }');
+            parseScript('fvar a = { set foo(...v) {} };');
         }).to.throw();
     });
-    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+    it('should fail on "class a { set foo(...v) {} };"', () => {
         expect(() => {
-            parseScript('function twiss(package) {"use strict";  }');
-        }).to.throw();
-    });
-    it('should fail on "function twiss(package) {"use strict";  }"', () => {
-        expect(() => {
-            parseScript('function twiss(package) {"use strict";  }');
+            parseScript('class a { set foo(...v) {} };');
         }).to.throw();
     });
 });
