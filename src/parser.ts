@@ -2716,13 +2716,18 @@ export class Parser {
         const token = this.token;
         const expr = this.parseExpression(context | Context.AllowIn);
 
-        if (this.parseOptional(context, Token.Colon) && expr.type === 'Identifier') {
+        if (this.token === Token.Colon && expr.type === 'Identifier') {
+
+            this.expect(context, Token.Colon);
+
             // Invalid: `for (const x of []) label1: label2: function f() {}`
-            if (!(this.flags & Flags.Switch) && context & Context.ForStatement && this.token === Token.Identifier) {
+            if (context & Context.ForStatement && !(this.flags & Flags.Switch)) {
+                // Invalid: 'for (const x in {}) label1: label2: function f() {}'
                 this.error(Errors.InvalidLabeledForOf);
             }
 
             const key = '@' + expr.name;
+
             if (hasOwn.call(this.labelSet, key)) this.error(Errors.Redeclaration, expr.name);
 
             this.labelSet[key] = true;
@@ -2751,6 +2756,7 @@ export class Parser {
         } else {
 
             this.consumeSemicolon(context);
+
             return this.finishNode(pos, {
                 type: 'ExpressionStatement',
                 expression: expr
@@ -3125,12 +3131,6 @@ export class Parser {
         //      yield [no LineTerminator here] [Lexical goal InputElementRegExp]AssignmentExpression[?In, Yield]
         //      yield [no LineTerminator here] * [Lexical goal InputElementRegExp]AssignmentExpression[?In, Yield]
         this.expect(context, Token.YieldKeyword);
-
-        // While`yield` is a valid statement within async generator function bodies,
-        // 'yield' as labelled statement isn't.
-        if (context & Context.AsyncFunctionBody) {
-            if (this.token === Token.Colon) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-        }
 
         // Invalid: `function *g(x = yield){}`
         if (this.flags & Flags.ArgumentList) this.error(Errors.GeneratorParameter);

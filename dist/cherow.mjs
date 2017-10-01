@@ -2801,9 +2801,11 @@ Parser.prototype.parseBreakStatement = function parseBreakStatement (context) {
 Parser.prototype.parseLabelledStatement = function parseLabelledStatement (context) {
     var pos = this.getLocations();
     var expr = this.parseExpression(context | 8192 /* AllowIn */);
-    if (this.parseOptional(context, 21 /* Colon */) && expr.type === 'Identifier') {
+    if (this.token === 21 /* Colon */ && expr.type === 'Identifier') {
+        this.expect(context, 21 /* Colon */);
         // Invalid: `for (const x of []) label1: label2: function f() {}`
-        if (!(this.flags & 8192 /* Switch */) && context & 16384 /* ForStatement */ && this.token === 393217 /* Identifier */) {
+        if (context & 16384 /* ForStatement */ && !(this.flags & 8192 /* Switch */)) {
+            // Invalid: 'for (const x in {}) label1: label2: function f() {}'
             this.error(121 /* InvalidLabeledForOf */);
         }
         var key = '@' + expr.name;
@@ -3154,12 +3156,6 @@ Parser.prototype.parseYieldExpression = function parseYieldExpression (context, 
     //  yield [no LineTerminator here] [Lexical goal InputElementRegExp]AssignmentExpression[?In, Yield]
     //  yield [no LineTerminator here] * [Lexical goal InputElementRegExp]AssignmentExpression[?In, Yield]
     this.expect(context, 282730 /* YieldKeyword */);
-    // While`yield` is a valid statement within async generator function bodies,
-    // 'yield' as labelled statement isn't.
-    if (context & 256 /* AsyncFunctionBody */) {
-        if (this.token === 21 /* Colon */)
-            { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
-    }
     // Invalid: `function *g(x = yield){}`
     if (this.flags & 1024 /* ArgumentList */)
         { this.error(111 /* GeneratorParameter */); }
