@@ -2409,40 +2409,68 @@ Parser.prototype.parseStatementListItem = function parseStatementListItem (conte
 };
 Parser.prototype.parseStatement = function parseStatement (context) {
     switch (this.token) {
+        // EmptyStatement
         case 17 /* Semicolon */:
             return this.parseEmptyStatement(context);
+        // VariableStatement[?Yield]
         case 8663111 /* VarKeyword */:
             return this.parseVariableStatement(context);
+        // BlockStatement[?Yield, ?Return]
         case 393228 /* LeftBrace */:
             return this.parseBlockStatement(context);
-        case 12384 /* TryKeyword */:
-            return this.parseTryStatement(context);
+        // [+Return] ReturnStatement[?Yield]
         case 12379 /* ReturnKeyword */:
             return this.parseReturnStatement(context);
+        // IfStatement[?Yield, ?Return]
         case 12376 /* IfKeyword */:
             return this.parseIfStatement(context);
+        // DebuggerStatement
         case 12367 /* DebuggerKeyword */:
             return this.parseDebuggerStatement(context);
+        // ContinueStatement[?Yield]
         case 12366 /* ContinueKeyword */:
             return this.parseContinueStatement(context);
+        // BreakStatement[?Yield]
         case 12362 /* BreakKeyword */:
             return this.parseBreakStatement(context);
+        case 12374 /* ForKeyword */:
+            return this.parseForOrForInOrForOfStatement(context);
+        // BreakableStatement[?Yield, ?Return]
+        //
+        // BreakableStatement[Yield, Return]:
+        //   IterationStatement[?Yield, ?Return]
+        //   SwitchStatement[?Yield, ?Return]
         case 12369 /* DoKeyword */:
             return this.parseDoWhileStatement(context);
         case 12385 /* WhileKeyword */:
             return this.parseWhileStatement(context);
+        // WithStatement[?Yield, ?Return]
         case 12386 /* WithKeyword */:
             return this.parseWithStatement(context);
         case 274525 /* SwitchKeyword */:
             return this.parseSwitchStatement(context | 8 /* Statement */);
+        // ThrowStatement[?Yield]
         case 12383 /* ThrowKeyword */:
             return this.parseThrowStatement(context);
-        case 12374 /* ForKeyword */:
-            return this.parseForOrForInOrForOfStatement(context);
+        // TryStatement[?Yield, ?Return]
+        case 12384 /* TryKeyword */:
+            return this.parseTryStatement(context);
+        // Both 'class' and 'function' are forbidden by lookahead restriction.
+        // (unless as child statement of 'if' or 'else'
         case 274509 /* ClassKeyword */:
         case 274519 /* FunctionKeyword */:
-            this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
+            this.error(129 /* ForbiddenAsStatement */, tokenDesc(this.token));
         case 65644 /* AsyncKeyword */:
+            // Peek only on the same line: ExpressionStatement's lookahead
+            // restriction is phrased as
+            //
+            //   [lookahead ∉ { {, function, async [no LineTerminator here] function, class, let [ }]
+            //
+            // meaning that code like this is valid:
+            //
+            //   if (true)
+            // async   // ASI opportunity
+            //   function clownshoes() {}
             if (this.flags & 131072 /* HasUnicode */)
                 { this.error(88 /* InvalidEscapedReservedWord */); }
             if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
@@ -2459,6 +2487,7 @@ Parser.prototype.parseStatement = function parseStatement (context) {
                 return this.parseFunctionDeclaration(context);
             }
         default:
+            // LabelledStatement[?Yield, ?Return]
             return this.parseLabelledStatement(context | 8192 /* AllowIn */);
     }
 };
@@ -2791,10 +2820,14 @@ Parser.prototype.parseLabelledStatement = function parseLabelledStatement (conte
         this.labelSet[key] = true;
         var body;
         if (this.token === 274519 /* FunctionKeyword */) {
+            // '13.1.1 - Static Semantics: ContainsDuplicateLabels', says it's a syntax error if
+            // LabelledItem: FunctionDeclaration is ever matched. Annex B.3.2 changes this behaviour.
             if (context & 2 /* Strict */)
                 { this.error(15 /* StrictFunction */); }
-            // AnnexB allows function declaration as labels, but not async func or generator func, so
-            // we need to pass down the AnnexB mask, and throw an decent error msg later
+            // AnnexB allows function declaration as labels, but not async func or generator func because the
+            // generator declaration is only matched by a hoistable declaration in StatementListItem.
+            // To fix this we need to pass the 'AnnexB' mask, and let it throw in 'parseFunctionDeclaration'
+            // We also unset the 'ForStatement' mask because we are no longer inside a 'ForStatement'.
             body = this.parseFunctionDeclaration(context & ~16384 /* ForStatement */ | 32768 /* AnnexB */);
         }
         else {
@@ -2872,7 +2905,7 @@ Parser.prototype.parseReturnStatement = function parseReturnStatement (context) 
 };
 Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (context) {
     var pos = this.getLocations();
-    var savedFlags = this.flags;
+    // Grab the 'yield' mask before unsetting it in case the "parent" has one
     var parentHasYield = !!(context & 4096 /* Yield */);
     if (context & (2048 /* Await */ | 4096 /* Yield */))
         { context &= ~(2048 /* Await */ | 4096 /* Yield */); }
@@ -2886,12 +2919,13 @@ Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (c
         context |= (2048 /* Await */ | 256 /* AsyncFunctionBody */);
     }
     this.expect(context, 274519 /* FunctionKeyword */);
+    var savedFlags = this.flags;
     if (this.token === 2099763 /* Multiply */) {
         // Annex B.3.4 doesn't allow generators functions
         if (context & 32768 /* AnnexB */)
             { this.error(129 /* ForbiddenAsStatement */, tokenDesc(this.token)); }
         // If we are in the 'await' context. Check if the 'Next' option are set
-        // and allow us of async generators. Throw a decent error message if this isn't the case
+        // and allow use of async generators. Throw a decent error message if this isn't the case
         if (context & 2048 /* Await */ && !(this.flags & 134217728 /* OptionsNext */)) {
             this.error(63 /* NotAnAsyncGenerator */);
         }
@@ -2904,8 +2938,9 @@ Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (c
     var id = null;
     if (this.token !== 262155 /* LeftParen */) {
         var name = this.tokenValue;
+        // If the parent has the 'yield' mask, and the func decl name is 'yield' we have to throw an decent error message
         if (parentHasYield && this.token === 282730 /* YieldKeyword */)
-            { this.error(113 /* DisallowedInContext */, 'yield'); }
+            { this.error(113 /* DisallowedInContext */, tokenDesc(this.token)); }
         // Invalid: 'async function wrap() { async function await() { } };'
         if (context & 256 /* AsyncFunctionBody */ && this.flags & 4 /* InFunctionBody */) {
             // await is not allowed as an identifier in functions nested in async functions
@@ -2923,13 +2958,6 @@ Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (c
             this.blockScope[name] = 1 /* Shadowable */;
         }
         id = this.parseBindingIdentifier(context &= ~8 /* Statement */);
-        // Valid: `export default function() {};`
-        // Invalid: `async function() { }`
-        // Invalid: `async function *() {}`
-        // Invalid: `async function*() { yield 1; };`
-        // Invalid  `async function*() { yield; }`
-        // Invalid: `function *() {}`
-        // Invalid: `function() {};`
     }
     else if (!(context & 65536 /* OptionalIdentifier */)) {
         this.error(117 /* UnNamedFunctionStmt */);
@@ -2938,6 +2966,7 @@ Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (c
     var params = this.parseFormalParameterList(context & ~(8 /* Statement */ | 65536 /* OptionalIdentifier */), 0 /* None */);
     var body = this.parseFunctionBody(context & ~(8 /* Statement */ | 65536 /* OptionalIdentifier */));
     this.exitFunctionScope(savedScope);
+    // Only restore flags to original state for func decl avoid polluting 'global'
     this.flags = savedFlags;
     return this.finishNode(pos, {
         type: 'FunctionDeclaration',
@@ -2971,6 +3000,7 @@ Parser.prototype.parseTryStatement = function parseTryStatement (context) {
 Parser.prototype.parseCatchClause = function parseCatchClause (context) {
     var pos = this.getLocations();
     this.expect(context, 12364 /* CatchKeyword */);
+    // Create a lexical scope node around the whole catch clause
     var blockScope = this.blockScope;
     var parentScope = this.parentScope;
     if (blockScope !== undefined)

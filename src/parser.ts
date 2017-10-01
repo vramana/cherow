@@ -2220,40 +2220,85 @@ export class Parser {
     private parseStatement(context: Context): ESTree.Statement {
 
         switch (this.token) {
+
+            // EmptyStatement
             case Token.Semicolon:
                 return this.parseEmptyStatement(context);
+
+                // VariableStatement[?Yield]
             case Token.VarKeyword:
                 return this.parseVariableStatement(context);
+
+                // BlockStatement[?Yield, ?Return]
             case Token.LeftBrace:
                 return this.parseBlockStatement(context);
-            case Token.TryKeyword:
-                return this.parseTryStatement(context);
+
+                // [+Return] ReturnStatement[?Yield]
             case Token.ReturnKeyword:
                 return this.parseReturnStatement(context);
+
+                // IfStatement[?Yield, ?Return]
             case Token.IfKeyword:
                 return this.parseIfStatement(context);
+
+                // DebuggerStatement
             case Token.DebuggerKeyword:
                 return this.parseDebuggerStatement(context);
+
+                // ContinueStatement[?Yield]
             case Token.ContinueKeyword:
                 return this.parseContinueStatement(context);
+
+                // BreakStatement[?Yield]
             case Token.BreakKeyword:
                 return this.parseBreakStatement(context);
-            case Token.DoKeyword:
-                return this.parseDoWhileStatement(context);
-            case Token.WhileKeyword:
-                return this.parseWhileStatement(context);
-            case Token.WithKeyword:
-                return this.parseWithStatement(context);
-            case Token.SwitchKeyword:
-                return this.parseSwitchStatement(context | Context.Statement);
-            case Token.ThrowKeyword:
-                return this.parseThrowStatement(context);
+
             case Token.ForKeyword:
                 return this.parseForOrForInOrForOfStatement(context);
+
+                // BreakableStatement[?Yield, ?Return]
+                //
+                // BreakableStatement[Yield, Return]:
+                //   IterationStatement[?Yield, ?Return]
+                //   SwitchStatement[?Yield, ?Return]
+            case Token.DoKeyword:
+                return this.parseDoWhileStatement(context);
+
+            case Token.WhileKeyword:
+                return this.parseWhileStatement(context);
+
+                // WithStatement[?Yield, ?Return]
+            case Token.WithKeyword:
+                return this.parseWithStatement(context);
+
+            case Token.SwitchKeyword:
+                return this.parseSwitchStatement(context | Context.Statement);
+
+                // ThrowStatement[?Yield]
+            case Token.ThrowKeyword:
+                return this.parseThrowStatement(context);
+
+                // TryStatement[?Yield, ?Return]
+            case Token.TryKeyword:
+                return this.parseTryStatement(context);
+
+                // Both 'class' and 'function' are forbidden by lookahead restriction.
+                // (unless as child statement of 'if' or 'else'
             case Token.ClassKeyword:
             case Token.FunctionKeyword:
-                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
+
             case Token.AsyncKeyword:
+                // Peek only on the same line: ExpressionStatement's lookahead
+                // restriction is phrased as
+                //
+                //   [lookahead ∉ { {, function, async [no LineTerminator here] function, class, let [ }]
+                //
+                // meaning that code like this is valid:
+                //
+                //   if (true)
+                //     async       // ASI opportunity
+                //   function clownshoes() {}
                 if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
                 if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                     // Annex B.3.4 - FunctionDeclaration doesn't include generators or async
@@ -2267,6 +2312,7 @@ export class Parser {
                     return this.parseFunctionDeclaration(context);
                 }
             default:
+                // LabelledStatement[?Yield, ?Return]
                 return this.parseLabelledStatement(context | Context.AllowIn);
         }
     }
@@ -2681,10 +2727,15 @@ export class Parser {
 
             this.labelSet[key] = true;
             let body: ESTree.Statement;
+
             if (this.token === Token.FunctionKeyword) {
+                // '13.1.1 - Static Semantics: ContainsDuplicateLabels', says it's a syntax error if
+                // LabelledItem: FunctionDeclaration is ever matched. Annex B.3.2 changes this behaviour.
                 if (context & Context.Strict) this.error(Errors.StrictFunction);
-                // AnnexB allows function declaration as labels, but not async func or generator func, so
-                // we need to pass down the AnnexB mask, and throw an decent error msg later
+                // AnnexB allows function declaration as labels, but not async func or generator func because the
+                // generator declaration is only matched by a hoistable declaration in StatementListItem.
+                // To fix this we need to pass the 'AnnexB' mask, and let it throw in 'parseFunctionDeclaration'
+                // We also unset the 'ForStatement' mask because we are no longer inside a 'ForStatement'.
                 body = this.parseFunctionDeclaration(context & ~Context.ForStatement | Context.AnnexB);
             } else {
                 body = this.parseStatement(context & ~Context.ForStatement);
@@ -2778,7 +2829,8 @@ export class Parser {
     private parseFunctionDeclaration(context: Context): ESTree.FunctionDeclaration {
 
         const pos = this.getLocations();
-        const savedFlags = this.flags;
+
+        // Grab the 'yield' mask before unsetting it in case the "parent" has one
         const parentHasYield = !!(context & Context.Yield);
 
         if (context & (Context.Await | Context.Yield)) context &= ~(Context.Await | Context.Yield);
@@ -2796,13 +2848,14 @@ export class Parser {
 
         this.expect(context, Token.FunctionKeyword);
 
+        const savedFlags = this.flags;
         const token = this.token;
 
         if (this.token === Token.Multiply) {
             // Annex B.3.4 doesn't allow generators functions
             if (context & Context.AnnexB) this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
             // If we are in the 'await' context. Check if the 'Next' option are set
-            // and allow us of async generators. Throw a decent error message if this isn't the case
+            // and allow use of async generators. Throw a decent error message if this isn't the case
             if (context & Context.Await && !(this.flags & Flags.OptionsNext)) {
                 this.error(Errors.NotAnAsyncGenerator);
             }
@@ -2818,8 +2871,8 @@ export class Parser {
         if (this.token !== Token.LeftParen) {
 
             const name = this.tokenValue;
-
-            if (parentHasYield && this.token === Token.YieldKeyword) this.error(Errors.DisallowedInContext, 'yield');
+            // If the parent has the 'yield' mask, and the func decl name is 'yield' we have to throw an decent error message
+            if (parentHasYield && this.token === Token.YieldKeyword) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
 
             // Invalid: 'async function wrap() { async function await() { } };'
             if (context & Context.AsyncFunctionBody && this.flags & Flags.InFunctionBody) {
@@ -2827,6 +2880,7 @@ export class Parser {
                 if (this.token === Token.AwaitKeyword) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 if (!(context & Context.Await)) context &= ~Context.AsyncFunctionBody;
             }
+
             if (context & Context.Statement && !(context & Context.AnnexB)) {
                 if (!this.initBlockScope() && name in this.blockScope) {
                     if (this.blockScope[name] === ScopeMasks.NonShadowable || this.blockScope !== this.functionScope) {
@@ -2837,13 +2891,7 @@ export class Parser {
             }
 
             id = this.parseBindingIdentifier(context &= ~Context.Statement);
-            // Valid: `export default function() {};`
-            // Invalid: `async function() { }`
-            // Invalid: `async function *() {}`
-            // Invalid: `async function*() { yield 1; };`
-            // Invalid  `async function*() { yield; }`
-            // Invalid: `function *() {}`
-            // Invalid: `function() {};`
+
         } else if (!(context & Context.OptionalIdentifier)) {
             this.error(Errors.UnNamedFunctionStmt);
         }
@@ -2855,6 +2903,7 @@ export class Parser {
 
         this.exitFunctionScope(savedScope);
 
+        // Only restore flags to original state for func decl avoid polluting 'global'
         this.flags = savedFlags;
 
         return this.finishNode(pos, {
@@ -2898,6 +2947,7 @@ export class Parser {
         const pos = this.getLocations();
         this.expect(context, Token.CatchKeyword);
 
+        // Create a lexical scope node around the whole catch clause
         const blockScope = this.blockScope;
         const parentScope = this.parentScope;
 
