@@ -71,7 +71,7 @@ describe('Espressions - Await', () => {
         it('should fail on "async function wrap() {\n({async await() { }})\n}"', () => {
             expect(() => {
                 parseScript(`async function wrap() {\n({async await() { }})\n}`)
-            }).to.not.throw();
+            }).to.throw();
         });
 
 

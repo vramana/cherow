@@ -11,7 +11,7 @@ describe('ASI', () => {
   1;
 } catch(e) {  
 }  `)
-        }).to.throw('Illegal newline after throw');
+        }).to.throw('No line break is allowed between \'throw\' and its expression');
     });
 
 

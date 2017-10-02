@@ -1,6 +1,6 @@
 import { Chars } from './chars';
 import * as ESTree from './estree';
-import { isKeyword, hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isValidDestructuringAssignmentTarget, isDirective, getQualifiedJSXName, isValidSimpleAssignmentTarget } from './common';
+import { hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isValidDestructuringAssignmentTarget, isDirective, getQualifiedJSXName, isValidSimpleAssignmentTarget } from './common';
 import { Flags, Context, ScopeMasks, RegExpState, ObjectFlags, RegExpFlag, ParenthesizedState, IterationState } from './masks';
 import { createError, Errors } from './errors';
 import { Token, tokenDesc, descKeyword } from './token';
@@ -2496,7 +2496,7 @@ export class Parser {
 
     private parseSwitchStatement(context: Context): ESTree.SwitchStatement {
 
-        let pos = this.getLocations();
+        const pos = this.getLocations();
 
         this.expect(context, Token.SwitchKeyword);
         this.expect(context, Token.LeftParen);
@@ -2590,12 +2590,14 @@ export class Parser {
     }
 
     private parseThrowStatement(context: Context): ESTree.ThrowStatement {
+
         const pos = this.getLocations();
+
         this.expect(context, Token.ThrowKeyword);
 
-        if (this.flags & Flags.LineTerminator) this.error(Errors.NewlineAfterThrow);
+        if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterThrow);
 
-        const argument: any = this.parseExpression(context);
+        const argument: ESTree.Expression = this.parseExpression(context);
 
         this.consumeSemicolon(context);
 
@@ -2648,7 +2650,9 @@ export class Parser {
     }
 
     private parseDoWhileStatement(context: Context): ESTree.DoWhileStatement {
+
         const pos = this.getLocations();
+
         this.expect(context, Token.DoKeyword);
 
         const savedFlag = this.flags;
@@ -4728,8 +4732,8 @@ export class Parser {
     }
 
     private parseObjectExpression(context: Context): ESTree.ObjectExpression {
+
         const pos = this.getLocations();
-        this.flags &= ~Flags.HasPrototype;
 
         if (this.flags & Flags.ArgumentList) this.flags |= Flags.NonSimpleParameter;
 
@@ -4737,12 +4741,10 @@ export class Parser {
 
         const properties: (ESTree.Property | ESTree.SpreadElement)[] = [];
 
-        while (this.token !== Token.RightBrace) {
+        while (!this.parseOptional(context, Token.RightBrace)) {
             properties.push(this.parseObjectElement(context));
             if (this.token !== Token.RightBrace) this.parseOptional(context, Token.Comma);
         }
-
-        this.expect(context, Token.RightBrace);
 
         return this.finishNode(pos, {
             type: 'ObjectExpression',
@@ -4752,7 +4754,7 @@ export class Parser {
 
     private parseObjectElement(context: Context): ESTree.Property | ESTree.SpreadElement {
 
-        // Stage 3 proposal - Object rest spread
+        // Object rest spread - Stage 3 proposal
         if (this.token === Token.Ellipsis) {
             if (!(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             return this.parseSpreadElement(context);
@@ -4765,68 +4767,97 @@ export class Parser {
         let flags = ObjectFlags.None;
         let lastFlag = ObjectFlags.None;
         let count = 0;
-        let asyncNewline;
+        let hasNewLine;
         let key;
         let computed = false;
-        let shorthand = false;
+        let method = false;
         let value;
+
         const hasUnicode = !!(this.flags & Flags.HasUnicode);
 
-        if (this.token === Token.GetKeyword) {
-            if (hasUnicode) this.error(Errors.InvalidEscapedReservedWord);
-            this.expect(context, Token.GetKeyword);
-            flags |= lastFlag = ObjectFlags.Getter;
-            count++;
+        switch (this.token) {
+
+            // 'get'
+            case Token.GetKeyword:
+                if (hasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+                if (!(flags & ObjectFlags.Getter)) flags |= lastFlag = ObjectFlags.Getter;
+                this.expect(context, Token.GetKeyword);
+                count++;
+                break;
+
+                // 'set'
+            case Token.SetKeyword:
+                if (hasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+                if (!(flags & ObjectFlags.Setter)) flags |= lastFlag = ObjectFlags.Setter;
+                this.expect(context, Token.SetKeyword);
+                count++;
+                break;
+
+                // 'async'
+            case Token.AsyncKeyword:
+                if (hasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+                if (!(flags & ObjectFlags.Async)) flags |= lastFlag = ObjectFlags.Async;
+                this.expect(context, Token.AsyncKeyword);
+                flags |= lastFlag = ObjectFlags.Async;
+                hasNewLine = !!(this.flags & Flags.LineTerminator);
+                count++;
+                break;
+
+                // '*'
+            case Token.Multiply:
+                if (hasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+                this.expect(context, Token.Multiply);
+                if (flags & ObjectFlags.Async && !(this.flags & Flags.OptionsNext)) this.error(Errors.NotAnAsyncGenerator);
+                if (!(flags & ObjectFlags.Generator)) flags |= lastFlag = ObjectFlags.Generator;
+                count++;
+                break;
         }
 
-        if (this.token === Token.SetKeyword) {
-            if (hasUnicode) this.error(Errors.InvalidEscapedReservedWord);
-            this.expect(context, Token.SetKeyword);
-            flags |= lastFlag = ObjectFlags.Setter;
-            count++;
-        }
-
-        if (this.token === Token.AsyncKeyword) {
-            if (hasUnicode) this.error(Errors.InvalidEscapedReservedWord);
-            this.expect(context, Token.AsyncKeyword);
-            flags |= lastFlag = ObjectFlags.Async;
-            asyncNewline = !!(this.flags & Flags.LineTerminator);
-            count++;
-        }
-
-        if (this.token === Token.Multiply) {
+        // Asynchronous Iteration - Stage 3 proposal
+        if (flags & ObjectFlags.Async && this.token === Token.Multiply) {
             if (hasUnicode) this.error(Errors.InvalidEscapedReservedWord);
             this.expect(context, Token.Multiply);
             // Async generators
             if (flags & ObjectFlags.Async && !(this.flags & Flags.OptionsNext)) this.error(Errors.NotAnAsyncGenerator);
-            flags |= lastFlag = ObjectFlags.Generator;
+            if (!(flags & ObjectFlags.Generator)) flags |= lastFlag = ObjectFlags.Generator;
             count++;
         }
 
         switch (this.token) {
+
             case Token.Identifier:
-                if (asyncNewline) this.error(Errors.LineBreakAfterAsync);
+                if (hasNewLine) this.error(Errors.LineBreakAfterAsync);
                 key = this.parseIdentifier(context);
                 break;
-            case Token.AwaitKeyword:
-            case Token.YieldKeyword:
-                key = this.parseIdentifier(context);
-                break;
+
+                // '123'
             case Token.NumericLiteral:
+
+                // '"foo"'
             case Token.StringLiteral:
-                if (asyncNewline) this.error(Errors.LineBreakAfterAsync);
+                if (hasNewLine) this.error(Errors.LineBreakAfterAsync);
                 key = this.parseLiteral(context);
                 break;
+
+                // '['
             case Token.LeftBracket:
                 computed = true;
                 key = this.parseComputedPropertyName(context);
                 break;
+
+                // 'await'
+            case Token.AwaitKeyword:
+                // Invalid: '(({async await() { }}))'
+                if (flags & ObjectFlags.Async) this.error(Errors.Unexpected);
+                key = this.parseIdentifier(context);
+                break;
+
             default:
 
-                if (isKeyword(context, this.token)) {
+                // Keywords
+                if (hasMask(this.token, Token.Keyword)) {
                     key = this.parseIdentifier(context);
-                } else
-                if (count && lastFlag !== ObjectFlags.Generator) {
+                } else if (count && lastFlag !== ObjectFlags.Generator) {
                     key = this.finishNode(pos, {
                         type: 'Identifier',
                         name: tokenValue
@@ -4838,85 +4869,82 @@ export class Parser {
                 }
         }
 
-        if (!key && flags & ObjectFlags.Generator) this.error(Errors.Unexpected);
-
+        // Mmethod definition
         if (this.token === Token.LeftParen) {
-            return this.finishNode(pos, {
-                type: 'Property',
-                computed,
-                key,
-                kind: !(flags & ObjectFlags.Modifier) ? 'init' : (flags & ObjectFlags.Setter) ? 'set' : 'get',
-                method: (flags & ObjectFlags.Modifier) === 0,
-                shorthand: false,
-                value: this.parseFunctionMethod(context, flags)
-            });
-        }
+            method = (flags & ObjectFlags.Modifier) === 0;
+            value = this.parseFunctionMethod(context, flags);
+        } else {
 
-        switch (this.token) {
+            switch (this.token) {
 
-            // ':'
-            case Token.Colon:
+                // ':'
+                case Token.Colon:
 
-                if (flags & ObjectFlags.Generator) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                    if (flags & ObjectFlags.Generator) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
 
-                if (tokenValue === '__proto__') {
-                    if (this.flags & Flags.HasPrototype) this.error(Errors.DuplicateProtoProperty);
-                    this.flags |= Flags.HasPrototype;
-                }
+                    if (tokenValue === '__proto__') {
+                        if (this.flags & Flags.HasPrototype) this.error(Errors.DuplicateProtoProperty);
+                        this.flags |= Flags.HasPrototype;
+                    }
 
-                this.expect(context, Token.Colon);
+                    this.expect(context, Token.Colon);
 
-                // Invalid: '"use strict"; ({ a: eval }) = obj'
-                if (context & Context.Strict) {
-                    if (this.token === Token.Identifier && (this.isEvalOrArguments(this.tokenValue))) this.error(Errors.UnexpectedStrictReserved);
-                }
-                // Invalid: `async ({a: await}) =>  1`
-                if (this.flags & Flags.AsyncArrow && this.token === Token.AwaitKeyword) this.error(Errors.UnexpectedStrictReserved);
+                    // Invalid: '"use strict"; ({ a: eval }) = obj'
+                    if (context & Context.Strict) {
+                        if (this.token === Token.Identifier && (this.isEvalOrArguments(this.tokenValue))) {
+                            this.error(Errors.UnexpectedStrictReserved);
+                        }
+                    }
+                    // Invalid: `async ({a: await}) =>  1`
+                    if (this.flags & Flags.AsyncArrow && this.token === Token.AwaitKeyword) {
+                        this.error(Errors.UnexpectedStrictReserved);
+                    }
 
-                value = this.parseAssignmentExpression(context | Context.AllowIn);
+                    value = this.parseAssignmentExpression(context | Context.AllowIn);
 
-                break;
+                    break;
 
-                // '='
-            case Token.Assign:
-                shorthand = true;
-                this.expect(context, Token.Assign);
+                    // '='
+                case Token.Assign:
+                    if (!(flags & ObjectFlags.Shorthand)) flags |= ObjectFlags.Shorthand;
+                    this.expect(context, Token.Assign);
 
-                // Invalid: 'function*g() { ({yield = 0} = 0); }'
-                if (context & Context.Yield &&
-                    this.flags & Flags.InFunctionBody &&
-                    token === Token.YieldKeyword) this.error(Errors.DisallowedInContext, tokenValue);
-                value = this.parseAssignmentPattern(context | Context.AllowIn, key, pos);
-                break;
+                    // Invalid: 'function*g() { ({yield = 0} = 0); }'
+                    if (context & Context.Yield &&
+                        this.flags & Flags.InFunctionBody &&
+                        token === Token.YieldKeyword) this.error(Errors.DisallowedInContext, tokenValue);
+                    value = this.parseAssignmentPattern(context | Context.AllowIn, key, pos);
+                    break;
 
-            default:
+                default:
 
-                // Invalid: `class A extends yield B { }`
-                // Invalid: '({[x]})'
-                // Invalid: '({await})'
-                if (computed ||
-                    !this.isIdentifier(context, token) ||
-                    token === Token.AwaitKeyword) this.error(Errors.UnexpectedToken, tokenDesc(token));
+                    // Invalid: `class A extends yield B { }`
+                    // Invalid: '({[x]})'
+                    // Invalid: '({await})'
+                    if (computed ||
+                        !this.isIdentifier(context, token) ||
+                        token === Token.AwaitKeyword) this.error(Errors.UnexpectedToken, tokenDesc(token));
 
-                // Invalid: `"use strict"; for ({ eval } of [{}]) ;`
-                if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
+                    // Invalid: `"use strict"; for ({ eval } of [{}]) ;`
+                    if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
 
-                // Invalid: 'function*g() { ({yield}); }'
-                if (context & Context.Yield &&
-                    this.flags & Flags.InFunctionBody &&
-                    context & Context.Parenthesis &&
-                    token === Token.YieldKeyword) this.error(Errors.DisallowedInContext, tokenValue);
+                    // Invalid: 'function*g() { ({yield}); }'
+                    if (context & Context.Yield &&
+                        this.flags & Flags.InFunctionBody &&
+                        context & Context.Parenthesis &&
+                        token === Token.YieldKeyword) this.error(Errors.DisallowedInContext, tokenValue);
 
-                shorthand = true;
-                value = key;
+                    if (!(flags & ObjectFlags.Shorthand)) flags |= ObjectFlags.Shorthand;
+                    value = key;
+            }
         }
         return this.finishNode(pos, {
             type: 'Property',
             computed,
             key,
-            kind: 'init',
-            method: false,
-            shorthand,
+            kind: !(flags & ObjectFlags.Modifier) ? 'init' : (flags & ObjectFlags.Setter) ? 'set' : 'get',
+            method,
+            shorthand: !!(flags & ObjectFlags.Shorthand),
             value
         });
     }

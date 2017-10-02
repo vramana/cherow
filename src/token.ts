@@ -9,7 +9,7 @@ export const enum Token {
     Keyword         = 1 << 12,
     Reserved        = 1 << 13 | Keyword,
     FutureReserved  = 1 << 14 | Keyword,
-    Contextual      = 1 << 16,
+    Contextual      = 1 << 16 | Keyword,
     BindingPattern  = 1 << 17,
     ExpressionStart = 1 << 18,
     UpdateOperator  = 1 << 19 | ExpressionStart,
