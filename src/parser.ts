@@ -4735,6 +4735,8 @@ export class Parser {
 
         const pos = this.getLocations();
 
+        let flags = ObjectFlags.Object;
+
         if (this.flags & Flags.ArgumentList) this.flags |= Flags.NonSimpleParameter;
 
         this.expect(context, Token.LeftBrace);
@@ -4742,7 +4744,7 @@ export class Parser {
         const properties: (ESTree.Property | ESTree.SpreadElement)[] = [];
 
         while (!this.parseOptional(context, Token.RightBrace)) {
-            properties.push(this.parseObjectElement(context));
+            properties.push(this.parseObjectElement(context, flags));
             if (this.token !== Token.RightBrace) this.parseOptional(context, Token.Comma);
         }
 
@@ -4752,19 +4754,10 @@ export class Parser {
         });
     }
 
-    private parseObjectElement(context: Context): ESTree.Property | ESTree.SpreadElement {
-
-        // Object rest spread - Stage 3 proposal
-        if (this.token === Token.Ellipsis) {
-            if (!(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-            return this.parseSpreadElement(context);
-        }
+    private parseObjectElement(context: Context, flags: ObjectFlags): ESTree.Property | ESTree.SpreadElement {
 
         const pos = this.getLocations();
-        const tokenValue = this.tokenValue;
-        const token = this.token;
 
-        let flags = ObjectFlags.None;
         let lastFlag = ObjectFlags.None;
         let count = 0;
         let hasNewLine;
@@ -4773,9 +4766,17 @@ export class Parser {
         let method = false;
         let value;
 
+        const tokenValue = this.tokenValue;
+        const token = this.token;
         const hasUnicode = !!(this.flags & Flags.HasUnicode);
 
         switch (this.token) {
+
+            // '...'
+            case Token.Ellipsis:
+                // Object rest spread - Stage 3 proposal
+                if (!(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                return this.parseSpreadElement(context);
 
             // 'get'
             case Token.GetKeyword:
@@ -4880,7 +4881,9 @@ export class Parser {
                 // ':'
                 case Token.Colon:
 
-                    if (flags & ObjectFlags.Generator) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                    if (flags & ObjectFlags.Generator) {
+                        this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                    }
 
                     if (tokenValue === '__proto__') {
                         if (this.flags & Flags.HasPrototype) this.error(Errors.DuplicateProtoProperty);
@@ -4895,6 +4898,7 @@ export class Parser {
                             this.error(Errors.UnexpectedStrictReserved);
                         }
                     }
+                    
                     // Invalid: `async ({a: await}) =>  1`
                     if (this.flags & Flags.AsyncArrow && this.token === Token.AwaitKeyword) {
                         this.error(Errors.UnexpectedStrictReserved);
@@ -4916,6 +4920,7 @@ export class Parser {
                     value = this.parseAssignmentPattern(context | Context.AllowIn, key, pos);
                     break;
 
+                // shorthand
                 default:
 
                     // Invalid: `class A extends yield B { }`

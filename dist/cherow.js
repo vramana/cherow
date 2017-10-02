@@ -4543,12 +4543,13 @@ Parser.prototype.parseObjectExpression = function parseObjectExpression (context
         var this$1 = this;
 
     var pos = this.getLocations();
+    var flags = 8192;
     if (this.flags & 1024 /* ArgumentList */)
         { this.flags |= 256 /* NonSimpleParameter */; }
     this.expect(context, 393228 /* LeftBrace */);
     var properties = [];
     while (!this.parseOptional(context, 15 /* RightBrace */)) {
-        properties.push(this$1.parseObjectElement(context));
+        properties.push(this$1.parseObjectElement(context, flags));
         if (this$1.token !== 15 /* RightBrace */)
             { this$1.parseOptional(context, 18 /* Comma */); }
     }
@@ -4557,17 +4558,8 @@ Parser.prototype.parseObjectExpression = function parseObjectExpression (context
         properties: properties
     });
 };
-Parser.prototype.parseObjectElement = function parseObjectElement (context) {
-    // Object rest spread - Stage 3 proposal
-    if (this.token === 14 /* Ellipsis */) {
-        if (!(this.flags & 134217728 /* OptionsNext */))
-            { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
-        return this.parseSpreadElement(context);
-    }
+Parser.prototype.parseObjectElement = function parseObjectElement (context, flags) {
     var pos = this.getLocations();
-    var tokenValue = this.tokenValue;
-    var token = this.token;
-    var flags = 0;
     var lastFlag = 0;
     var count = 0;
     var hasNewLine;
@@ -4575,8 +4567,16 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
     var computed = false;
     var method = false;
     var value;
+    var tokenValue = this.tokenValue;
+    var token = this.token;
     var hasUnicode = !!(this.flags & 131072 /* HasUnicode */);
     switch (this.token) {
+        // '...'
+        case 14 /* Ellipsis */:
+            // Object rest spread - Stage 3 proposal
+            if (!(this.flags & 134217728 /* OptionsNext */))
+                { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
+            return this.parseSpreadElement(context);
         // 'get'
         case 69743 /* GetKeyword */:
             if (hasUnicode)
@@ -4682,8 +4682,9 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
         switch (this.token) {
             // ':'
             case 21 /* Colon */:
-                if (flags & 64 /* Generator */)
-                    { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
+                if (flags & 64 /* Generator */) {
+                    this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
+                }
                 if (tokenValue === '__proto__') {
                     if (this.flags & 16 /* HasPrototype */)
                         { this.error(70 /* DuplicateProtoProperty */); }
@@ -4714,6 +4715,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
                     { this.error(113 /* DisallowedInContext */, tokenValue); }
                 value = this.parseAssignmentPattern(context | 8192 /* AllowIn */, key, pos);
                 break;
+            // shorthand
             default:
                 // Invalid: `class A extends yield B { }`
                 // Invalid: '({[x]})'
