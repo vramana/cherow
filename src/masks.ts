@@ -16,20 +16,18 @@ export const enum Context {
     AnnexB                 = 1 << 13,  // If node was parsed in the 'if statement' with the AnnexB semtantic
     OptionalIdentifier     = 1 << 14,  // Optional identifier for export of either anonymous class or function declaration
     IfClause               = 1 << 15,  // If node was parsed in a if statement (early error related)
-    Super                  = 1 << 16,  // If super are required
-    DynamicImport          = 1 << 17,  // If node was parsed in dynamic import context (ESNext feature)
-    NewExpression          = 1 << 18,  // If node was parsed in the 'New' expression
-    Method                 = 1 << 19,  // If node was parsed in a object method context
-    Binding                = 1 << 20,  // If node was parsed in a binding context
-    Constructor            = 1 << 21,  // Class declaration / expression
-    HasConstructor         = 1 << 22,  // If node was parsed inside Class and allow super
-    IfStatement            = 1 << 23,  // If node was parsed in a binding context
-    RequireInitializer     = 1 << 24,  // If node was parsed in a context where a variable declaration initializer are required (export)
-    Export                 = 1 << 25,  // Variable declaration
-    Const                  = 1 << 26,  // Variable declaration
-    Let                    = 1 << 27,  // Variable declaration
-    Var                    = 1 << 28,  // Variable declaration
-    Declaration            = 1 << 29,  // Variable declaration
+    DynamicImport          = 1 << 16,  // If node was parsed in dynamic import context (ESNext feature)
+    NewExpression          = 1 << 17,  // If node was parsed in the 'New' expression
+    Method                 = 1 << 18,  // If node was parsed in a object method context
+    Binding                = 1 << 19,  // If node was parsed in a binding context
+    Constructor            = 1 << 20,  // Class declaration / expression
+    HasConstructor         = 1 << 21,  // If node was parsed inside Class and allow super
+    IfStatement            = 1 << 22,  // If node was parsed in a binding context
+    RequireInitializer     = 1 << 23,  // If node was parsed in a context where a variable declaration initializer are required (export)
+    Export                 = 1 << 24,  // Variable declaration
+    Const                  = 1 << 25,  // Variable declaration
+    Let                    = 1 << 26,  // Variable declaration
+    Var                    = 1 << 27,  // Variable declaration
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,

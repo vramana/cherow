@@ -1306,7 +1306,7 @@ export class Parser {
 
         this.advance(); // 'u'
 
-        if (!this.hasNext()) this.error(Errors.InvalidHexEscapeSequence);
+        if (!this.hasNext()) this.error(Errors.Unexpected);
 
         let ch = this.nextChar();
 
@@ -1865,7 +1865,7 @@ export class Parser {
 
                 // export default ClassDeclaration[Default]
             case Token.ClassKeyword:
-                declaration = this.parseClass(context | (Context.OptionalIdentifier | Context.Export | Context.Declaration));
+                declaration = this.parseClassDeclaration(context | (Context.OptionalIdentifier | Context.Export));
                 break;
 
                 // export default HoistableDeclaration[Default]
@@ -1942,7 +1942,7 @@ export class Parser {
 
                 // export ClassDeclaration
             case Token.ClassKeyword:
-                declaration = this.parseClass(context | Context.Export | Context.Declaration);
+                declaration = this.parseClassDeclaration(context | Context.Export);
                 break;
 
                 // export LexicalDeclaration
@@ -2226,7 +2226,7 @@ export class Parser {
         switch (this.token) {
 
             case Token.ClassKeyword:
-                return this.parseClass(context & ~Context.Constructor | Context.Declaration);
+                return this.parseClassDeclaration(context & ~Context.Constructor);
 
                 // VariableStatement[?Yield]
             case Token.ConstKeyword:
@@ -2906,7 +2906,7 @@ export class Parser {
             // If we are in the 'await' context. Check if the 'Next' option are set
             // and allow use of async generators. Throw a decent error message if this isn't the case
             if (context & Context.Await && !(this.flags & Flags.OptionsNext)) {
-                this.error(Errors.NotAnAsyncGenerator);
+                this.error(Errors.InvalidAsyncGenerator);
             }
             this.expect(context, Token.Multiply);
             context |= Context.Yield;
@@ -4285,7 +4285,7 @@ export class Parser {
 
             // If we are in the 'await' context. Check if the 'Next' option are set
             // and allow us to use async generators. If not, throw a decent error message if this isn't the case
-            if (context & Context.Await && !(this.flags & Flags.OptionsNext)) this.error(Errors.NotAnAsyncGenerator);
+            if (context & Context.Await && !(this.flags & Flags.OptionsNext)) this.error(Errors.InvalidAsyncGenerator);
             context |= Context.Yield;
         }
 
@@ -4293,7 +4293,9 @@ export class Parser {
 
         if (this.token !== Token.LeftParen && this.isIdentifier(context, this.token)) {
             if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.StrictLHSAssignment);
-            if ((context & Context.AwaitOrYield || (context & Context.Strict && parentHasYield)) && this.token === Token.YieldKeyword) this.error(Errors.YieldReservedWord);
+            if ((context & Context.AwaitOrYield || (context & Context.Strict && parentHasYield)) && this.token === Token.YieldKeyword) {
+                this.error(Errors.YieldReservedWord);
+            }
             id = this.parseIdentifier(context);
         }
 
@@ -4445,7 +4447,7 @@ export class Parser {
             case Token.NewKeyword:
                 return this.parseNewExpression(context);
             case Token.ClassKeyword:
-                return this.parseClass(context);
+                return this.parseClassExpression(context);
             case Token.TemplateTail:
                 return this.parseTemplateTail(context, pos);
             case Token.TemplateCont:
@@ -4579,7 +4581,8 @@ export class Parser {
         });
     }
 
-    private parseClass(context: Context): any {
+
+    private parseClassDeclaration(context: Context): ESTree.ClassDeclaration {
 
         const pos = this.getLocations();
 
@@ -4587,7 +4590,7 @@ export class Parser {
 
         let superClass: ESTree.Expression | null = null;
         let id = null;
-        let classBody: any;
+        let classBody;
         let flags = ObjectState.None;
         const savedFlags = this.flags;
 
@@ -4601,29 +4604,70 @@ export class Parser {
                 }
                 this.blockScope[name] = ScopeMasks.Shadowable;
             }
-            if (context & Context.Declaration) {
-                // Invalid: 'export class a{}  export class a{}'
-                if (context & Context.Export && this.token === Token.Identifier) this.addFunctionArg(this.tokenValue);
 
-                id = this.parseBindingIdentifier(context | Context.Strict);
-            } else {
-                id = this.isIdentifier(context, this.token) ? this.parseIdentifier(context | Context.Strict) : null;
-            }
+            // Invalid: 'export class a{}  export class a{}'
+            if (context & Context.Export && this.token === Token.Identifier) this.addFunctionArg(this.tokenValue);
+
+            id = this.parseBindingIdentifier(context | Context.Strict);
             // Valid: `export default class {};`
             // Invalid: `class {};`
-        } else if (context & Context.Declaration && !(context & Context.OptionalIdentifier)) {
+        } else if (!(context & Context.OptionalIdentifier)) {
             this.error(Errors.UnNamedClassStmt);
         }
 
         if (this.parseOptional(context, Token.ExtendsKeyword)) {
-            superClass = this.parseLeftHandSideExpression(context & ~(Context.Declaration | Context.OptionalIdentifier) | Context.Strict, pos);
+            superClass = this.parseLeftHandSideExpression(context & ~Context.OptionalIdentifier | Context.Strict, pos);
             flags |= ObjectState.Heritage;
         }
 
-        classBody = this.parseClassBody(context & ~Context.Declaration | Context.Strict, flags);
+        classBody = this.parseClassBody(context | Context.Strict, flags);
         this.flags = savedFlags;
         return this.finishNode(pos, {
-            type: context & Context.Declaration ? 'ClassDeclaration' : 'ClassExpression',
+            type: 'ClassDeclaration',
+            id,
+            superClass,
+            body: classBody
+        });
+    }
+
+    private parseClassExpression(context: Context): ESTree.ClassExpression {
+
+        const pos = this.getLocations();
+
+        this.expect(context, Token.ClassKeyword);
+
+        let superClass: ESTree.Expression | null = null;
+        let id = null;
+        let classBody;
+        let flags = ObjectState.None;
+        const savedFlags = this.flags;
+
+        if (this.isIdentifier(context, this.token)) {
+            const name = this.tokenValue;
+            if (context & Context.Statement) {
+                if (!this.initBlockScope() && name in this.blockScope) {
+                    if (this.blockScope !== this.functionScope || this.blockScope[name] === ScopeMasks.NonShadowable) {
+                        this.error(Errors.DuplicateIdentifier, name);
+                    }
+                }
+                this.blockScope[name] = ScopeMasks.Shadowable;
+            }
+
+            id = this.isIdentifier(context, this.token) ? this.parseIdentifier(context | Context.Strict) : null;
+
+            // Valid: `export default class {};`
+            // Invalid: `class {};`
+        }
+
+        if (this.parseOptional(context, Token.ExtendsKeyword)) {
+            superClass = this.parseLeftHandSideExpression(context | Context.Strict, pos);
+            flags |= ObjectState.Heritage;
+        }
+
+        classBody = this.parseClassBody(context | Context.Strict, flags);
+        this.flags = savedFlags;
+        return this.finishNode(pos, {
+            type: 'ClassExpression',
             id,
             superClass,
             body: classBody
@@ -4852,8 +4896,8 @@ export class Parser {
 
         const pos = this.getLocations();
 
-        let key: any = null;
-        let value: any = null;
+        let key: ESTree.Expression | null = null;
+        let value: ESTree.Expression | null = null;
         const token = this.token;
         const tokenValue = this.tokenValue;
 
@@ -4953,7 +4997,7 @@ export class Parser {
 
                     value = this.parseAssignmentExpression(context);
 
-                    if (context & Context.Strict && this.isEvalOrArguments(value.name)) {
+                    if (context & Context.Strict && this.isEvalOrArguments((value as ESTree.Identifier).name)) {
                         this.error(Errors.UnexpectedStrictReserved);
                     }
                     break;
@@ -5147,7 +5191,7 @@ export class Parser {
      */
 
     // Fast path for catch arguments
-    private addCatchArg(name: string, type: any = ScopeMasks.Shadowable) {
+    private addCatchArg(name: string, type: ScopeMasks = ScopeMasks.Shadowable) {
         this.initBlockScope();
         this.blockScope[name] = type;
     }
