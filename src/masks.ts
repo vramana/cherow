@@ -103,7 +103,9 @@ export const enum ObjectState {
     Heritage    = 1 << 9,
     Shorthand   = 1 << 10,
     Special    = 1 << 11,
-    Accessors   = Get | Set
+    HasConstructor    = 1 << 12,
+    Accessors   = Get | Set,
+    Modifiers = Accessors | Method | Yield
 }
 
 export const enum ParenthesizedState {

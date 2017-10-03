@@ -1734,6 +1734,31 @@ export class Parser {
         return value === 'eval' || value === 'arguments';
     }
 
+    private isAsync(t: Token): boolean {
+
+        switch (t) {
+            case Token.Colon:
+            case Token.Assign:
+            case Token.LeftParen:
+            case Token.Comma:
+                return false;
+            default:
+                return true;
+        }
+    }
+    private qualifiedPropertyName() {
+        switch (this.token) {
+            case Token.StringLiteral:
+            case Token.NumericLiteral:
+            case Token.Multiply:
+            case Token.LeftBracket:
+            case Token.Identifier:
+                return true;
+            default:
+                return hasMask(this.token, Token.Keyword);
+        }
+    }
+
     private canConsumeSemicolon(): boolean {
 
         // Bail out quickly if we have seen a LineTerminator
@@ -4615,6 +4640,7 @@ export class Parser {
         const body: ESTree.MethodDefinition[] = [];
 
         while (this.token !== Token.RightBrace) {
+
             if (!this.parseOptional(context, Token.Semicolon)) {
                 const node: ESTree.MethodDefinition | ESTree.Property = this.parseClassElement(context, flags);
                 body.push(node);
@@ -4630,33 +4656,19 @@ export class Parser {
         });
     }
 
-    private qualifiedPropertyName() {
-        switch (this.token) {
-            case Token.StringLiteral:
-            case Token.NumericLiteral:
-            case Token.Multiply:
-            case Token.LeftBracket:
-            case Token.Identifier:
-                return true;
-            default:
-                return hasMask(this.token, Token.Keyword);
-        }
-    }
-
     private parseClassElement(context: Context, state: ObjectState): ESTree.MethodDefinition {
         const pos = this.getLocations();
-        let key: any = null;
+        let key = null;
         let value = null;
         let token = this.token;
         let tokenValue = this.tokenValue;
-        let hasConstructor;
 
         if (this.parseOptional(context, Token.Multiply)) state |= ObjectState.Yield;
 
         if (!(state & ObjectState.Yield)) {
 
             if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
-            if (this.tokenValue === 'constructor') hasConstructor = true;
+            if (this.tokenValue === 'constructor') state |= ObjectState.HasConstructor;
 
             key = this.parsePropertyName(context & ~Context.Strict);
 
@@ -4687,6 +4699,7 @@ export class Parser {
             }
         }
 
+        // MethodDeclaration
         if (this.qualifiedPropertyName()) {
 
             switch (token) {
@@ -4701,18 +4714,31 @@ export class Parser {
                     break;
             }
 
-            if (state & ObjectState.Async && state & ObjectState.Accessors) this.error(Errors.UnexpectedToken, tokenDesc(token));
+            if (state & ObjectState.Async && state & ObjectState.Accessors) {
+                this.error(Errors.UnexpectedToken, tokenDesc(token));
+            }
 
-            if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
-            if (this.token === Token.ConstructorKeyword) hasConstructor = true;
+            switch (this.token) {
+
+                // '['
+                case Token.LeftBracket:
+                    state |= ObjectState.Computed;
+                    break;
+
+                    // 'constructor'
+                case Token.ConstructorKeyword:
+                    state |= ObjectState.HasConstructor;
+                    break;
+                default: // ignore
+            }
 
             key = this.parsePropertyName(context);
             value = this.parseMethodDefinition(context | Context.Method, state);
         }
 
-        if (!(state & (ObjectState.Accessors | ObjectState.Yield | ObjectState.Method)) || (key && this.token === Token.LeftParen)) {
+        if (!(state & ObjectState.Modifiers) || (key && this.token === Token.LeftParen)) {
             if (!(state & ObjectState.Yield)) {
-                if (state & ObjectState.Heritage && hasConstructor) {
+                if (state & ObjectState.Heritage && state & ObjectState.HasConstructor) {
                     context |= Context.Constructor;
                 }
             }
@@ -4724,14 +4750,14 @@ export class Parser {
         // Invalid: `class Foo { * }`
         if (state & ObjectState.Yield && !key) this.error(Errors.Unexpected);
 
-        if (hasConstructor) state |= ObjectState.Special;
+        if (state & ObjectState.HasConstructor) state |= ObjectState.Special;
 
         if (!(state & ObjectState.Computed)) {
             if (state & ObjectState.Static && this.tokenValue === 'prototype') {
                 this.error(Errors.StaticPrototype);
             }
 
-            if (!(state & ObjectState.Static) && hasConstructor) {
+            if (!(state & ObjectState.Static) && state & ObjectState.HasConstructor) {
                 if (!(state & ObjectState.Special) || !(state & ObjectState.Method) || (value && value.generator)) this.error(Errors.ConstructorSpecialMethod);
 
                 if (context & Context.HasConstructor) this.error(Errors.DuplicateConstructor);
@@ -4807,20 +4833,7 @@ export class Parser {
         });
     }
 
-    private isAsync(t: Token): boolean {
-
-        switch (t) {
-            case Token.Colon:
-            case Token.Assign:
-            case Token.LeftParen:
-            case Token.Comma:
-                return false;
-            default:
-                return true;
-        }
-    }
-
-    private parseObjectElement(context: Context, state: ObjectState): ESTree.Property | ESTree.SpreadElement {
+    private parseObjectElement(context: Context, state: ObjectState): ESTree.Property {
 
         const pos = this.getLocations();
 
@@ -4830,8 +4843,6 @@ export class Parser {
         const tokenValue = this.tokenValue;
 
         if (this.isIdentifier(context & ~Context.Strict, token)) {
-            this.nextToken(context);
-            if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
 
             // AsyncMethod[Yield, Await]:
             //   async [no LineTerminator here] PropertyName[?Yield, ?Await] ...
@@ -4850,6 +4861,10 @@ export class Parser {
             //
             // ComputedPropertyName[Yield, Await]:
             //   [ ...
+            this.nextToken(context);
+
+            if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
+
             if (!(this.flags & Flags.LineTerminator) && (token === Token.AsyncKeyword) && this.isAsync(this.token)) {
 
                 state |= ObjectState.Async;
