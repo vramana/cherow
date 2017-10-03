@@ -253,13 +253,13 @@ describe('Espressions - Object', () => {
 }).to.not.throw();
     });
 
-    it.skip('should fail on escaped ""get"', () => {
+    it('should fail on escaped ""get"', () => {
         expect(() => {
             parseScript(`({ g\\u0065t m() {} })`)
         }).to.throw();
     });
 
-    it.skip('should fail on escaped ""set"', () => {
+    it('should fail on escaped ""set"', () => {
         expect(() => {
             parseScript(`({ s\\u0065t m(v) {} })`)
         }).to.throw('');
@@ -365,10 +365,10 @@ describe('Espressions - Object', () => {
         }).to.throw();
     });
 
-    it.skip('expect "({get +:3})" to fail', () => {
+    it('expect "({get +:3})" to fail', () => {
         expect(() => {
             parseScript(`({get +:3})`);
-}).to.throw();
+}).to.not.throw();
     });
 
     it("should fail on pattern shorthand props with reserved words", () => {

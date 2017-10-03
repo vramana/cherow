@@ -3961,12 +3961,10 @@ export class Parser {
             default:
                 this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         }
-
     }
 
     private parseSuper(context: Context): ESTree.Expression {
         const pos = this.getLocations();
-        const a = context & Context.Method;
 
         this.expect(context, Token.SuperKeyword);
 
@@ -3976,7 +3974,7 @@ export class Parser {
                 if (!(context & Context.Constructor)) this.error(Errors.BadSuperCall);
                 break;
             case Token.Period:
-                if (!(context & Context.Method)) this.error(Errors.Unexpected);
+                if (!(context & Context.Method)) this.error(Errors.BadSuperCall);
                 break;
             case Token.LeftBracket:
                 if (!(context & Context.Method)) this.error(Errors.BadSuperCall);
@@ -4842,6 +4840,8 @@ export class Parser {
         const token = this.token;
         const tokenValue = this.tokenValue;
 
+        if (this.flags & Flags.HasUnicode) state |= ObjectState.HasConstructor;
+
         if (this.isIdentifier(context & ~Context.Strict, token)) {
 
             // AsyncMethod[Yield, Await]:
@@ -4880,6 +4880,7 @@ export class Parser {
                     name: tokenValue
                 });
             }
+
         } else if (this.parseOptional(context, Token.Multiply)) {
             state |= ObjectState.Yield;
         } else {
@@ -4891,9 +4892,13 @@ export class Parser {
 
             switch (token) {
                 case Token.GetKeyword:
+                    // `({ g\\u0065t m() {} })`
+                    if (state & ObjectState.HasConstructor) this.error(Errors.InvalidEscapedReservedWord);
                     state |= ObjectState.Get;
                     break;
                 case Token.SetKeyword:
+                    // `({ s\\u0065t m(v) {} })`
+                    if (state & ObjectState.HasConstructor) this.error(Errors.InvalidEscapedReservedWord);
                     state |= ObjectState.Set;
                     break;
                 case Token.Multiply:
@@ -4979,6 +4984,7 @@ export class Parser {
 
                             // shorthand
                         } else {
+
                             state |= ObjectState.Shorthand;
                             value = id;
                         }

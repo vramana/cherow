@@ -3855,7 +3855,7 @@ Parser.prototype.parseSuper = function parseSuper (context) {
             break;
         case 13 /* Period */:
             if (!(context & 524288 /* Method */))
-                { this.error(0 /* Unexpected */); }
+                { this.error(76 /* BadSuperCall */); }
             break;
         case 393235 /* LeftBracket */:
             if (!(context & 524288 /* Method */))
@@ -4474,7 +4474,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
         if (this.token === 393235 /* LeftBracket */)
             { state |= 64 /* Computed */; }
         if (this.tokenValue === 'constructor')
-            { state |= 4096 /* HasConstructor */; }
+            { state |= 8192 /* HasConstructor */; }
         key = this.parsePropertyName(context & ~2 /* Strict */);
         if (token === 20585 /* StaticKeyword */ && (this.qualifiedPropertyName() || this.token === 2099763 /* Multiply */)) {
             token = this.token;
@@ -4529,7 +4529,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                 break;
             // 'constructor'
             case 69742 /* ConstructorKeyword */:
-                state |= 4096 /* HasConstructor */;
+                state |= 8192 /* HasConstructor */;
                 break;
             default: // ignore
         }
@@ -4538,7 +4538,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     }
     if (!(state & 57 /* Modifiers */) || (key && this.token === 262155 /* LeftParen */)) {
         if (!(state & 32 /* Yield */)) {
-            if (state & 512 /* Heritage */ && state & 4096 /* HasConstructor */) {
+            if (state & 512 /* Heritage */ && state & 8192 /* HasConstructor */) {
                 context |= 2097152 /* Constructor */;
             }
         }
@@ -4548,13 +4548,13 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     // Invalid: `class Foo { * }`
     if (state & 32 /* Yield */ && !key)
         { this.error(0 /* Unexpected */); }
-    if (state & 4096 /* HasConstructor */)
+    if (state & 8192 /* HasConstructor */)
         { state |= 2048 /* Special */; }
     if (!(state & 64 /* Computed */)) {
         if (state & 2 /* Static */ && this.tokenValue === 'prototype') {
             this.error(78 /* StaticPrototype */);
         }
-        if (!(state & 2 /* Static */) && state & 4096 /* HasConstructor */) {
+        if (!(state & 2 /* Static */) && state & 8192 /* HasConstructor */) {
             if (!(state & 2048 /* Special */) || !(state & 1 /* Method */) || (value && value.generator))
                 { this.error(75 /* ConstructorSpecialMethod */); }
             if (context & 4194304 /* HasConstructor */)
@@ -4628,6 +4628,8 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context, stat
     var value = null;
     var token = this.token;
     var tokenValue = this.tokenValue;
+    if (this.flags & 65536 /* HasUnicode */)
+        { state |= 8192 /* HasConstructor */; }
     if (this.isIdentifier(context & ~2 /* Strict */, token)) {
         // AsyncMethod[Yield, Await]:
         //   async [no LineTerminator here] PropertyName[?Yield, ?Await] ...
@@ -4676,9 +4678,15 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context, stat
     if (this.qualifiedPropertyName()) {
         switch (token) {
             case 69743 /* GetKeyword */:
+                // `({ g\\u0065t m() {} })`
+                if (state & 8192 /* HasConstructor */)
+                    { this.error(88 /* InvalidEscapedReservedWord */); }
                 state |= 8 /* Get */;
                 break;
             case 69744 /* SetKeyword */:
+                // `({ s\\u0065t m(v) {} })`
+                if (state & 8192 /* HasConstructor */)
+                    { this.error(88 /* InvalidEscapedReservedWord */); }
                 state |= 16 /* Set */;
                 break;
             case 2099763 /* Multiply */:

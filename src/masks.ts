@@ -30,7 +30,6 @@ export const enum Context {
     Let                    = 1 << 27,  // Variable declaration
     Var                    = 1 << 28,  // Variable declaration
     Declaration            = 1 << 29,  // Variable declaration
-    
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
@@ -103,7 +102,8 @@ export const enum ObjectState {
     Heritage    = 1 << 9,
     Shorthand   = 1 << 10,
     Special    = 1 << 11,
-    HasConstructor    = 1 << 12,
+    HasUnicode  = 1 << 12,
+    HasConstructor    = 1 << 13,
     Accessors   = Get | Set,
     Modifiers = Accessors | Method | Yield
 }
