@@ -4671,12 +4671,17 @@ export class Parser {
             key = this.parsePropertyName(context & ~Context.Strict);
 
             if (token === Token.StaticKeyword && (this.qualifiedPropertyName() || this.token === Token.Multiply)) {
+
                 token = this.token;
-                tokenValue = this.tokenValue;
+
                 state |= ObjectState.Static;
-                if (token === Token.LeftBracket) state |= ObjectState.Computed;
-                if (this.parseOptional(context, Token.Multiply)) state |= ObjectState.Yield;
-                if (!(state & ObjectState.Yield)) key = this.parsePropertyName(context);
+
+                if (this.parseOptional(context, Token.Multiply)) {
+                    state |= ObjectState.Yield;
+                } else {
+                    if (token === Token.LeftBracket) state |= ObjectState.Computed;
+                    key = this.parsePropertyName(context);
+                }
             }
 
             if (!(this.flags & Flags.LineTerminator) && (token === Token.AsyncKeyword)) {
@@ -4684,12 +4689,24 @@ export class Parser {
                     state |= ObjectState.Async;
                     token = this.token;
                     tokenValue = this.tokenValue;
-                    if (!(this.flags & Flags.OptionsNext) && this.token === Token.Multiply) this.error(Errors.InvalidAsyncGenerator);
+
+                    // Asynchronous Iteration - Stage 3 proposal
+                    if (!(this.flags & Flags.OptionsNext) && this.token === Token.Multiply) {
+                        this.error(Errors.InvalidAsyncGenerator);
+                    }
                     // Async generator
                     if (this.parseOptional(context, Token.Multiply)) state |= ObjectState.Yield;
-                    // Invalid: `class X { async static f() {} }`
-                    if (this.token === Token.StaticKeyword) this.error(Errors.InvalidAsyncGenerator);
-                    if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
+
+                    switch (this.token) {
+                        case Token.LeftBracket:
+                            state |= ObjectState.Computed;
+                            break;
+                            // Invalid: `class X { async static f() {} }`
+                        case Token.StaticKeyword:
+                            this.error(Errors.InvalidMethod);
+                        default: // ignore
+                    }
+
                     key = this.parsePropertyName(context);
 
                     if (token === Token.ConstructorKeyword) this.error(Errors.ConstructorIsAsync);

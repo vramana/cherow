@@ -233,6 +233,7 @@ ErrorMessages[128 /* UnexpectedSurrogate */] = 'Unexpected surrogate pair';
 ErrorMessages[129 /* ForbiddenAsStatement */] = '%0 can\'t appear in single-statement context';
 ErrorMessages[130 /* InvalidAsyncGenerator */] = 'Generator function or method can\'t be async';
 ErrorMessages[131 /* BadPropertyId */] = 'Invalid property id';
+ErrorMessages[132 /* InvalidMethod */] = 'Only methods are allowed in classes';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -4479,27 +4480,34 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
         if (token === 20585 /* StaticKeyword */ && (this.qualifiedPropertyName() || this.token === 2099763 /* Multiply */)) {
             token = this.token;
             state |= 2 /* Static */;
-            if (token === 393235 /* LeftBracket */)
-                { state |= 64 /* Computed */; }
-            if (this.parseOptional(context, 2099763 /* Multiply */))
-                { state |= 32 /* Yield */; }
-            if (!(state & 32 /* Yield */))
-                { key = this.parsePropertyName(context); }
+            if (this.parseOptional(context, 2099763 /* Multiply */)) {
+                state |= 32 /* Yield */;
+            }
+            else {
+                if (token === 393235 /* LeftBracket */)
+                    { state |= 64 /* Computed */; }
+                key = this.parsePropertyName(context);
+            }
         }
         if (!(this.flags & 1 /* LineTerminator */) && (token === 69740 /* AsyncKeyword */)) {
             if (this.token !== 21 /* Colon */ && this.token !== 262155 /* LeftParen */) {
                 state |= 4 /* Async */;
                 token = this.token;
-                if (!(this.flags & 67108864 /* OptionsNext */) && this.token === 2099763 /* Multiply */)
-                    { this.error(130 /* InvalidAsyncGenerator */); }
+                if (!(this.flags & 67108864 /* OptionsNext */) && this.token === 2099763 /* Multiply */) {
+                    this.error(130 /* InvalidAsyncGenerator */);
+                }
                 // Async generator
                 if (this.parseOptional(context, 2099763 /* Multiply */))
                     { state |= 32 /* Yield */; }
-                // Invalid: `class X { async static f() {} }`
-                if (this.token === 20585 /* StaticKeyword */)
-                    { this.error(130 /* InvalidAsyncGenerator */); }
-                if (this.token === 393235 /* LeftBracket */)
-                    { state |= 64 /* Computed */; }
+                switch (this.token) {
+                    case 393235 /* LeftBracket */:
+                        state |= 64 /* Computed */;
+                        break;
+                    // Invalid: `class X { async static f() {} }`
+                    case 20585 /* StaticKeyword */:
+                        this.error(132 /* InvalidMethod */);
+                    default: // ignore
+                }
                 key = this.parsePropertyName(context);
                 if (token === 69742 /* ConstructorKeyword */)
                     { this.error(79 /* ConstructorIsAsync */); }

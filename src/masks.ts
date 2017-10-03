@@ -89,23 +89,23 @@ export const enum IterationState {
 }
 
 export const enum ObjectState {
-    None        = 0,
-    Method      = 1 << 0,
-    Static      = 1 << 1,
-    Async       = 1 << 2,
-    Get         = 1 << 3,
-    Set         = 1 << 4,
-    Yield       = 1 << 5,
-    Computed    = 1 << 6,
-    Constructor = 1 << 7,
-    Super       = 1 << 8,
-    Heritage    = 1 << 9,
-    Shorthand   = 1 << 10,
-    Special    = 1 << 11,
-    HasUnicode  = 1 << 12,
-    HasConstructor    = 1 << 13,
-    Accessors   = Get | Set,
-    Modifiers = Accessors | Method | Yield
+    None                = 0,
+    Method          = 1 << 0, // Methoddefinition kind
+    Static          = 1 << 1,
+    Async           = 1 << 2,
+    Get             = 1 << 3,
+    Set             = 1 << 4,
+    Yield           = 1 << 5,
+    Computed        = 1 << 6,
+    Constructor     = 1 << 7,
+    Super           = 1 << 8,
+    Heritage        = 1 << 9,
+    Shorthand       = 1 << 10,
+    Special         = 1 << 11,
+    HasUnicode      = 1 << 12, // If node contains extended unicodeEscape
+    HasConstructor  = 1 << 13, // Class declaration / class
+    Accessors       = Get | Set,
+    Modifiers       = Accessors | Method | Yield
 }
 
 export const enum ParenthesizedState {

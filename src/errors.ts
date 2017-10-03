@@ -130,7 +130,8 @@ export const enum Errors {
     UnexpectedSurrogate,
     ForbiddenAsStatement,
     InvalidAsyncGenerator,
-    BadPropertyId
+    BadPropertyId,
+    InvalidMethod
 }
 
 export const ErrorMessages: {
@@ -265,6 +266,7 @@ export const ErrorMessages: {
     [Errors.ForbiddenAsStatement]: '%0 can\'t appear in single-statement context',
     [Errors.InvalidAsyncGenerator]: 'Generator function or method can\'t be async',
     [Errors.BadPropertyId]: 'Invalid property id',
+    [Errors.InvalidMethod]: 'Only methods are allowed in classes',
 };
 
 function constructError(msg: string, column: number): Error {
