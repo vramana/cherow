@@ -26,7 +26,7 @@ describe('Statements - For in', () => {
     it('should fail on invalid use of eval in assignment target', () => {
         expect(() => {
             parseScript('"use strict"; for ({ eval = 0 } in [{}]) ;');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail "for ([...x, ...y] in [[]]) ;"', () => {

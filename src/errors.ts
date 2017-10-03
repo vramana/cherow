@@ -128,7 +128,9 @@ export const enum Errors {
     UnexpectedTokenNumber,
     UnexpectedMantissa,
     UnexpectedSurrogate,
-    ForbiddenAsStatement
+    ForbiddenAsStatement,
+    InvalidAsyncGenerator,
+    BadPropertyId
 }
 
 export const ErrorMessages: {
@@ -260,7 +262,9 @@ export const ErrorMessages: {
     [Errors.UnexpectedTokenNumber]: 'Unexpected number',
     [Errors.UnexpectedMantissa]: 'Unexpected mantissa',
     [Errors.UnexpectedSurrogate]: 'Unexpected surrogate pair',
-    [Errors.ForbiddenAsStatement]: '%0 can \'t appear in single-statement context',
+    [Errors.ForbiddenAsStatement]: '%0 can\'t appear in single-statement context',
+    [Errors.InvalidAsyncGenerator]: 'Generator function or method can\'t be async',
+    [Errors.BadPropertyId]: 'Invalid property id',
 };
 
 function constructError(msg: string, column: number): Error {

@@ -270,8 +270,7 @@ describe('Test262 - Early error', () => {
                 parseScript('let a = 1, a = 2;');
             }).to.throw();
         });
-    
-    
+
         it('should fail on ""use strict"; arguments = 0;"', () => {
             expect(() => {
                 parseScript('"use strict"; arguments = 0;')

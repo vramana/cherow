@@ -8,7 +8,7 @@ describe('Espressions - Super', () => {
             it(`should fail on "!{ a() { !function* (a = super.b()){} } };"`, () => {
                 expect(() => {
                     parseScript(`class a extends b { c() { function* d(c = super.e()){} } }`);
-                }).to.not.throw();
+                }).to.throw();
             });
 
             it(`should fail on "!{ a() { !function* (a = super.b()){} } };"`, () => {
@@ -50,7 +50,7 @@ describe('Espressions - Super', () => {
             it(`should fail on "class a extends b { c() { function* d(){ super.e(); } } }"`, () => {
                 expect(() => {
                     parseScript(`class a extends b { c() { function* d(){ super.e(); } } }`);
-                }).to.not.throw();
+                }).to.throw();
             });
 
             it(`should fail on "class a extends b { c() { !function* (){ super.d(); } } }"`, () => {
@@ -62,7 +62,7 @@ describe('Espressions - Super', () => {
             it('should fail on "class A extends B { *g1() { return super() } }}"', () => {
                 expect(() => {
                     parseScript(`class A extends B { *g1() { return super() } }`);
-                }).to.not.throw();
+                }).to.throw();
             });
 
             it('should fail on "class A extends B { *g1() { return super() } }}"', () => {
@@ -101,12 +101,79 @@ describe('Espressions - Super', () => {
                 }).to.throw()
             });
 
+            it('should fail on invalid lone super', () => {
+                expect(() => {
+                    parseScript('function f() { (super)() }')
+                }).to.throw()
+            });
+
+            it('should fail on "class A extends B { constructor() { super; } }"', () => {
+                expect(() => {
+                    parseScript('class A extends B { constructor() { super; } }')
+                }).to.throw()
+            });
+
+            it('should fail on "class A extends B { constructor() { (super)(); } }"', () => {
+                expect(() => {
+                    parseScript('class A extends B { constructor() { (super)(); } }')
+                }).to.throw()
+            });
+
+            it('should fail on "class A extends B { constructor() { new super(); } }"', () => {
+                expect(() => {
+                    parseScript('class A extends B { constructor() { new super(); } }')
+                }).to.not.throw()
+            });
+
             it('should fail on invalid super', () => {
                 expect(() => {
                     parseScript('({ a() { (super).b(); } });')
                 }).to.throw()
             });
 
+            
+            it('should fail on invalid super', () => {
+                expect(() => {
+                    parseScript('({ a() { (super).b(); } });')
+                }).to.throw()
+            });
+
+            
+            it('should fail on "class C { m() { new super(); }  }"', () => {
+                expect(() => {
+                    parseScript('class C { m() { new super(); }  }')
+                }).to.throw()
+            });
+
+            
+            it('should fail on invalid super', () => {
+                expect(() => {
+                    parseScript('({ a() { (super).b(); } });')
+                }).to.throw()
+            });
+
+            it('should fail on nested function super', () => {
+                expect(() => {
+                    parseScript(`class C {
+                        superM() {
+                          return (function() {
+                            return super.m();
+                          })();
+                        }
+                        superX2() {
+                          return (function() {
+                            return (function() {
+                              return super.x;
+                            })();
+                          })();
+                        }
+                        constructor() {
+                          (function() { super(); })();
+                        }
+                      }`)
+                }).to.throw()
+            });
+            
     it('should parse value of reference returned by SuperProperty', () => {
         expect(parseScript(`class A {
         constructor() {
@@ -1516,7 +1583,7 @@ describe('Espressions - Super', () => {
           });
     });
 
-    it.skip('should parse "class A extends B { constructor() { ({a: super()}); } }"', () => {
+    it('should parse "class A extends B { constructor() { ({a: super()}); } }"', () => {
         expect(parseScript(`class A extends B { constructor() { ({a: super()}); } }`, {
             ranges: true,
             raw: true,
@@ -2914,6 +2981,213 @@ describe('Espressions - Super', () => {
           });
     });
 
+    it('should parse "(class { constructor() { super.x } });"', () => {
+        expect(parseScript(`(class { constructor() { super.x } });`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 38,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 38
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 38,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 38
+                  }
+                },
+                "expression": {
+                  "type": "ClassExpression",
+                  "start": 1,
+                  "end": 36,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 36
+                    }
+                  },
+                  "id": null,
+                  "superClass": null,
+                  "body": {
+                    "type": "ClassBody",
+                    "start": 7,
+                    "end": 36,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 7
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 36
+                      }
+                    },
+                    "body": [
+                      {
+                        "type": "MethodDefinition",
+                        "start": 9,
+                        "end": 34,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 9
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 34
+                          }
+                        },
+                        "computed": false,
+                        "key": {
+                          "type": "Identifier",
+                          "start": 9,
+                          "end": 20,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 9
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 20
+                            }
+                          },
+                          "name": "constructor"
+                        },
+                        "static": false,
+                        "kind": "constructor",
+                        "value": {
+                          "type": "FunctionExpression",
+                          "start": 20,
+                          "end": 34,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 20
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 34
+                            }
+                          },
+                          "id": null,
+                          "generator": false,
+                          "expression": false,
+                          "async": false,
+                          "params": [],
+                          "body": {
+                            "type": "BlockStatement",
+                            "start": 23,
+                            "end": 34,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 23
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 34
+                              }
+                            },
+                            "body": [
+                              {
+                                "type": "ExpressionStatement",
+                                "start": 25,
+                                "end": 32,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 25
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 32
+                                  }
+                                },
+                                "expression": {
+                                  "type": "MemberExpression",
+                                  "start": 25,
+                                  "end": 32,
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 25
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 32
+                                    }
+                                  },
+                                  "object": {
+                                    "type": "Super",
+                                    "start": 25,
+                                    "end": 30,
+                                    "loc": {
+                                      "start": {
+                                        "line": 1,
+                                        "column": 25
+                                      },
+                                      "end": {
+                                        "line": 1,
+                                        "column": 30
+                                      }
+                                    }
+                                  },
+                                  "property": {
+                                    "type": "Identifier",
+                                    "start": 31,
+                                    "end": 32,
+                                    "loc": {
+                                      "start": {
+                                        "line": 1,
+                                        "column": 31
+                                      },
+                                      "end": {
+                                        "line": 1,
+                                        "column": 32
+                                      }
+                                    },
+                                    "name": "x"
+                                  },
+                                  "computed": false
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
     it('should parse "({ set a(x) { super.b[0] = 1; } });"', () => {
         expect(parseScript(`({ set a(x) { super.b[0] = 1; } });`, {
             ranges: true,
@@ -4251,7 +4525,213 @@ describe('Espressions - Super', () => {
         });
     });
 
-    it.skip('should parse "(class extends B { constructor() { super() } });"', () => {
+    it('should parse "class A extends B { constructor() { super() } }"', () => {
+        expect(parseScript(`class A extends B { constructor() { super() } }`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 47,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 47
+              }
+            },
+            "body": [
+              {
+                "type": "ClassDeclaration",
+                "start": 0,
+                "end": 47,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 47
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 6,
+                  "end": 7,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 6
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 7
+                    }
+                  },
+                  "name": "A"
+                },
+                "superClass": {
+                  "type": "Identifier",
+                  "start": 16,
+                  "end": 17,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 16
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 17
+                    }
+                  },
+                  "name": "B"
+                },
+                "body": {
+                  "type": "ClassBody",
+                  "start": 18,
+                  "end": 47,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 18
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 47
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "MethodDefinition",
+                      "start": 20,
+                      "end": 45,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 20
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 45
+                        }
+                      },
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 20,
+                        "end": 31,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 20
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 31
+                          }
+                        },
+                        "name": "constructor"
+                      },
+                      "static": false,
+                      "kind": "constructor",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 31,
+                        "end": 45,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 31
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 45
+                          }
+                        },
+                        "id": null,
+                        "generator": false,
+                        "expression": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 34,
+                          "end": 45,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 34
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 45
+                            }
+                          },
+                          "body": [
+                            {
+                              "type": "ExpressionStatement",
+                              "start": 36,
+                              "end": 43,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 36
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 43
+                                }
+                              },
+                              "expression": {
+                                "type": "CallExpression",
+                                "start": 36,
+                                "end": 43,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 36
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 43
+                                  }
+                                },
+                                "callee": {
+                                  "type": "Super",
+                                  "start": 36,
+                                  "end": 41,
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 36
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 41
+                                    }
+                                  }
+                                },
+                                "arguments": []
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
+    it('should parse "(class extends B { constructor() { super() } });"', () => {
         expect(parseScript(`(class extends B { constructor() { super() } });`, {
             ranges: true,
             raw: true,

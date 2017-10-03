@@ -17,8 +17,7 @@ export const enum Token {
     BinaryOperator  = 1 << 21,
     UnaryOperator   = 1 << 22 | ExpressionStart,
     VarDeclStart    = 1 << 23 | ExpressionStart,
-    
-    
+
     /* Node types */
     EndOfSource = 0, // Pseudo
 

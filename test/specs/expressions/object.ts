@@ -211,20 +211,6 @@ describe('Espressions - Object', () => {
         }).to.throw();
     });
 
-    it('should fail on "class a { set foo(...v) {} };"', () => {
-        expect(() => {
-            parseScript(`class a { set foo(...v) {} };`);
-        }).to.throw();
-    });
-
-    it('expect "class X { async static f(a) { await a } }', () => {
-        expect(function() {
-            parseScript(`x = {
-    set foo(...rest){}  
-}`);
-        }).to.throw();
-    });
-
     it('should fail on `yield` expressions used as an LogicalOrExpressions', () => {
         expect(() => {
             parseScript(`obj = { *g() {
@@ -267,13 +253,13 @@ describe('Espressions - Object', () => {
 }).to.not.throw();
     });
 
-    it('should fail on escaped ""get"', () => {
+    it.skip('should fail on escaped ""get"', () => {
         expect(() => {
             parseScript(`({ g\\u0065t m() {} })`)
         }).to.throw();
     });
 
-    it('should fail on escaped ""set"', () => {
+    it.skip('should fail on escaped ""set"', () => {
         expect(() => {
             parseScript(`({ s\\u0065t m(v) {} })`)
         }).to.throw('');
@@ -379,7 +365,7 @@ describe('Espressions - Object', () => {
         }).to.throw();
     });
 
-    it('expect "({get +:3})" to fail', () => {
+    it.skip('expect "({get +:3})" to fail', () => {
         expect(() => {
             parseScript(`({get +:3})`);
 }).to.throw();
@@ -2043,7 +2029,7 @@ describe('Espressions - Object', () => {
     it('should parse computed and identifier', () => {
         expect(parseScript('({[x]: 10, y: 20});', {
             raw: true,
-            ranges: true
+            ranges: true,
         })).to.eql({
             "body": [{
                 "end": 19,
@@ -2356,6 +2342,7 @@ describe('Espressions - Object', () => {
             "sourceType": "script"
         });
     });
+
     it('should parse standalone expression', () => {
         expect(parseScript('({[x]: 10});', {
             raw: true,
@@ -3729,57 +3716,7 @@ describe('Espressions - Object', () => {
             "sourceType": "script"
         });
     });
-    it('should parse property value shorthand', () => {
-        expect(parseScript('x = { y, z }')).to.eql({
-            "type": "Program",
-            "body": [{
-                "type": "ExpressionStatement",
-                "expression": {
-                    "type": "AssignmentExpression",
-                    "operator": "=",
-                    "left": {
-                        "type": "Identifier",
-                        "name": "x"
-                    },
-                    "right": {
-                        "type": "ObjectExpression",
-                        "properties": [{
-                                "type": "Property",
-                                "key": {
-                                    "type": "Identifier",
-                                    "name": "y"
-                                },
-                                "computed": false,
-                                "value": {
-                                    "type": "Identifier",
-                                    "name": "y"
-                                },
-                                "kind": "init",
-                                "method": false,
-                                "shorthand": true
-                            },
-                            {
-                                "type": "Property",
-                                "key": {
-                                    "type": "Identifier",
-                                    "name": "z"
-                                },
-                                "computed": false,
-                                "value": {
-                                    "type": "Identifier",
-                                    "name": "z"
-                                },
-                                "kind": "init",
-                                "method": false,
-                                "shorthand": true
-                            }
-                        ]
-                    }
-                }
-            }],
-            "sourceType": "script"
-        });
-    });
+
 
     it('should parse "x = { method(test) { } }"', () => {
         expect(parseScript('x = { method(test) { } }')).to.eql({

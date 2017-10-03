@@ -18,7 +18,7 @@ describe('Espressions - Async', () => {
     });
 
     it('should fail on duplicates"', () => {
-        expect(() => {
+        expect(() => {  
             parseScript(`(async function foo (bar) { let bar; });`)
         }).to.throw();
     });
@@ -60,7 +60,7 @@ describe('Espressions - Async', () => {
     it('should fail on "({async\nfoo() { }})"', () => {
         expect(() => {
             parseScript(`({async\nfoo() { }})`);
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should fail on "({async set foo(value) { }})"', () => {
@@ -78,7 +78,7 @@ describe('Espressions - Async', () => {
     it('should fail on "({async foo: 1})"', () => {
         expect(() => {
             parseScript(`({async foo: 1})`);
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "async ({a = b})"', () => {
@@ -90,7 +90,7 @@ describe('Espressions - Async', () => {
     it('should fail on "({async\nfoo() { }})"', () => {
         expect(() => {
             parseScript(`({async\nfoo() { }})`);
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should fail on "({async set foo(value) { }})"', () => {
@@ -119,17 +119,18 @@ describe('Espressions - Async', () => {
             }).to.not.throw();
         });
 
-        it('should fail on invalid line break after async', () => {
-            expect(() => {
-                parseScript(`({ async\nf(){} })`, {});
-            }).to.throw();
-        });
+
         it('should fail on invalid method', () => {
             expect(() => {
                 parseScript(`x = { async f: function() {} }`, {});
-            }).to.not.throw();
+            }).to.throw();
         });
 
+        it('should fail on invalid method', () => {
+            expect(() => {
+                parseScript(`x = { async f = function() {} }`, {});
+            }).to.throw();
+        });
         it('should parse async as an identifier in blockstatement', () => {
             expect(parseScript('{ async, foo }', {
                 raw: true,
@@ -898,12 +899,6 @@ describe('Espressions - Async', () => {
             }).to.throw();
         });
 
-        it('should fail on "class A {static async\nfoo() { }}"', () => {
-            expect(() => {
-                parseScript(`class A {static async\nfoo() { }}`, {});
-            }).to.throw();
-        });
-
         it('should fail on "class A {async constructor() { }}"', () => {
             expect(() => {
                 parseScript(`class A {async constructor() { }}`, {});
@@ -992,12 +987,6 @@ describe('Espressions - Async', () => {
         it('should fail on "class A {static async get foo() { }}"', () => {
             expect(() => {
                 parseScript(`class A {static async get foo() { }}`, {});
-            }).to.throw();
-        });
-
-        it('should fail on invalid async static', () => {
-            expect(() => {
-                parseScript(`class X { async static f() {} }`, {});
             }).to.throw();
         });
 

@@ -4,7 +4,13 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Espressions - Class', () => {
-    
+
+    it('should fail on "class a { set foo(...v) {} };"', () => {
+        expect(() => {
+            parseScript(`class a { set foo(...v) {} };`);
+        }).to.throw();
+    });
+
         it('should fail if rest parameter has an initializer', () => {
             expect(() => {
                 parseScript(`var C = class { static async method(...x = []) {});`);
@@ -2698,4 +2704,5 @@ describe('Espressions - Class', () => {
                 "type": "Program",
             });
         });
+        
     });
