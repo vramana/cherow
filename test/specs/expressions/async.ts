@@ -57,18 +57,6 @@ describe('Espressions - Async', () => {
         }).to.throw();
     });
 
-    it('should fail on "({async\nfoo() { }})"', () => {
-        expect(() => {
-            parseScript(`({async\nfoo() { }})`);
-        }).to.not.throw();
-    });
-
-    it('should fail on "({async set foo(value) { }})"', () => {
-        expect(() => {
-            parseScript(`({async set foo(value) { }})`);
-        }).to.not.throw();
-    });
-
     it('should fail on "({async foo() { return {await} }})"', () => {
         expect(() => {
             parseScript(`({async foo() { return {await} }})`);
@@ -1836,124 +1824,6 @@ describe('Espressions - Async', () => {
           });
     });
 
-    it.skip('should parse ternary expression', () => {
-        expect(parseScript(`async function test() {
-            var test = a() ? await b() : c();
-            return d() ? (await e()).ok : await f();
-          }`, {
-            raw: true,
-            ranges: false
-        })).to.eql({
-            "type": "Program",
-            "body": [
-                {
-                    "type": "FunctionDeclaration",
-                    "id": {
-                        "type": "Identifier",
-                        "name": "test"
-                    },
-                    "params": [],
-                    "body": {
-                        "type": "BlockStatement",
-                        "body": [
-                            {
-                                "type": "VariableDeclaration",
-                                "declarations": [
-                                    {
-                                        "type": "VariableDeclarator",
-                                        "id": {
-                                            "type": "Identifier",
-                                            "name": "test"
-                                        },
-                                        "init": {
-                                            "type": "ConditionalExpression",
-                                            "test": {
-                                                "type": "CallExpression",
-                                                "callee": {
-                                                    "type": "Identifier",
-                                                    "name": "a"
-                                                },
-                                                "arguments": []
-                                            },
-                                            "consequent": {
-                                                "type": "AwaitExpression",
-                                                "argument": {
-                                                    "type": "CallExpression",
-                                                    "callee": {
-                                                        "type": "Identifier",
-                                                        "name": "b"
-                                                    },
-                                                    "arguments": []
-                                                }
-                                            },
-                                            "alternate": {
-                                                "type": "CallExpression",
-                                                "callee": {
-                                                    "type": "Identifier",
-                                                    "name": "c"
-                                                },
-                                                "arguments": []
-                                            }
-                                        }
-                                    }
-                                ],
-                                "kind": "var"
-                            },
-                            {
-                                "type": "ReturnStatement",
-                                "argument": {
-                                    "type": "ConditionalExpression",
-                                    "test": {
-                                        "type": "CallExpression",
-                                        "callee": {
-                                            "type": "Identifier",
-                                            "name": "d"
-                                        },
-                                        "arguments": []
-                                    },
-                                    "consequent": {
-                                        "type": "MemberExpression",
-                                        "computed": false,
-                                        "object": {
-                                            "type": "AwaitExpression",
-                                            "argument": {
-                                                "type": "CallExpression",
-                                                "callee": {
-                                                    "type": "Identifier",
-                                                    "name": "e"
-                                                },
-                                                "arguments": []
-                                            }
-                                        },
-                                        "property": {
-                                            "type": "Identifier",
-                                            "name": "ok"
-                                        }
-                                    },
-                                    "alternate": {
-                                        "type": "AwaitExpression",
-                                        "argument": {
-                                            "type": "CallExpression",
-                                            "callee": {
-                                                "type": "Identifier",
-                                                "name": "f"
-                                            },
-                                            "arguments": []
-                                        }
-                                    }
-                                }
-                            }
-                        ]
-                    },
-                    "generator": false,
-                    "expression": false,
-                    "async": true
-                }
-            ],
-            "sourceType": "script"
-        });
-    });
-
     it('should parse return in loop', () => {
         expect(parseScript(`async function test() {
             while (true) {
@@ -2544,95 +2414,6 @@ describe('Espressions - Async', () => {
         });
     });
 
-    
-    it.skip('should parse call expression', () => {
-        expect(parseScript(`async function test() {
-            return test2(a(), await b(), c(), (await d()).ok);
-          }`, {
-            raw: true,
-            ranges: false
-        })).to.eql({
-            "type": "Program",
-            "body": [
-                {
-                    "type": "FunctionDeclaration",
-                    "id": {
-                        "type": "Identifier",
-                        "name": "test"
-                    },
-                    "params": [],
-                    "body": {
-                        "type": "BlockStatement",
-                        "body": [
-                            {
-                                "type": "ReturnStatement",
-                                "argument": {
-                                    "type": "CallExpression",
-                                    "callee": {
-                                        "type": "Identifier",
-                                        "name": "test2"
-                                    },
-                                    "arguments": [
-                                        {
-                                            "type": "CallExpression",
-                                            "callee": {
-                                                "type": "Identifier",
-                                                "name": "a"
-                                            },
-                                            "arguments": []
-                                        },
-                                        {
-                                            "type": "AwaitExpression",
-                                            "argument": {
-                                                "type": "CallExpression",
-                                                "callee": {
-                                                    "type": "Identifier",
-                                                    "name": "b"
-                                                },
-                                                "arguments": []
-                                            }
-                                        },
-                                        {
-                                            "type": "CallExpression",
-                                            "callee": {
-                                                "type": "Identifier",
-                                                "name": "c"
-                                            },
-                                            "arguments": []
-                                        },
-                                        {
-                                            "type": "MemberExpression",
-                                            "computed": false,
-                                            "object": {
-                                                "type": "AwaitExpression",
-                                                "argument": {
-                                                    "type": "CallExpression",
-                                                    "callee": {
-                                                        "type": "Identifier",
-                                                        "name": "d"
-                                                    },
-                                                    "arguments": []
-                                                }
-                                            },
-                                            "property": {
-                                                "type": "Identifier",
-                                                "name": "ok"
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    "generator": false,
-                    "expression": false,
-                    "async": true
-                }
-            ],
-            "sourceType": "script"
-        });
-    });
-
     it('should parse await function call', () => {
         expect(parseScript(`async function test() {
             await db.destroy();
@@ -3057,4 +2838,1444 @@ describe('Espressions - Async', () => {
           });
     });
 
+    it('should parse async expression', () => {
+        expect(parseScript(`(async function foo() { });`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 27,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 27
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 27,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 27
+                  }
+                },
+                "expression": {
+                  "type": "FunctionExpression",
+                  "start": 1,
+                  "end": 25,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 25
+                    }
+                  },
+                  "id": {
+                    "type": "Identifier",
+                    "start": 16,
+                    "end": 19,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 16
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 19
+                      }
+                    },
+                    "name": "foo"
+                  },
+                  "generator": false,
+                  "expression": false,
+                  "async": true,
+                  "params": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "start": 22,
+                    "end": 25,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 22
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 25
+                      }
+                    },
+                    "body": []
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+      });
+  
+      it('should parse async function', () => {
+        expect(parseScript(`async (await);`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 14,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 14
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 14,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 14
+                  }
+                },
+                "expression": {
+                  "type": "CallExpression",
+                  "start": 0,
+                  "end": 13,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 13
+                    }
+                  },
+                  "callee": {
+                    "type": "Identifier",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "name": "async"
+                  },
+                  "arguments": [
+                    {
+                      "type": "Identifier",
+                      "start": 7,
+                      "end": 12,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 7
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 12
+                        }
+                      },
+                      "name": "await"
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+      });
+  
+      it('should parse async named class method', () => {
+        expect(parseScript(`class A {async() { }};`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 22,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 22
+              }
+            },
+            "body": [
+              {
+                "type": "ClassDeclaration",
+                "start": 0,
+                "end": 21,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 21
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 6,
+                  "end": 7,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 6
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 7
+                    }
+                  },
+                  "name": "A"
+                },
+                "superClass": null,
+                "body": {
+                  "type": "ClassBody",
+                  "start": 8,
+                  "end": 21,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 8
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 21
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "MethodDefinition",
+                      "start": 9,
+                      "end": 20,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 9
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 20
+                        }
+                      },
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 9,
+                        "end": 14,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 9
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 14
+                          }
+                        },
+                        "name": "async"
+                      },
+                      "static": false,
+                      "kind": "method",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 14,
+                        "end": 20,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 14
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 20
+                          }
+                        },
+                        "id": null,
+                        "generator": false,
+                        "expression": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 17,
+                          "end": 20,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 17
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 20
+                            }
+                          },
+                          "body": []
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "EmptyStatement",
+                "start": 21,
+                "end": 22,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 21
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 22
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+      });
+  
+      it('should parse async object method', () => {
+        expect(parseScript(`({async foo() { }});`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 20,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 20
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 20,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 20
+                  }
+                },
+                "expression": {
+                  "type": "ObjectExpression",
+                  "start": 1,
+                  "end": 18,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 18
+                    }
+                  },
+                  "properties": [
+                    {
+                      "type": "Property",
+                      "start": 2,
+                      "end": 17,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 2
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 17
+                        }
+                      },
+                      "method": true,
+                      "shorthand": false,
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 8,
+                        "end": 11,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 8
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 11
+                          }
+                        },
+                        "name": "foo"
+                      },
+                      "kind": "init",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 11,
+                        "end": 17,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 11
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 17
+                          }
+                        },
+                        "id": null,
+                        "generator": false,
+                        "expression": false,
+                        "async": true,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 14,
+                          "end": 17,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 14
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 17
+                            }
+                          },
+                          "body": []
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+      });
+  
+      it('should parse async property shorthand', () => {
+        expect(parseScript(`({async})`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
+                "expression": {
+                  "type": "ObjectExpression",
+                  "start": 1,
+                  "end": 8,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 8
+                    }
+                  },
+                  "properties": [
+                    {
+                      "type": "Property",
+                      "start": 2,
+                      "end": 7,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 2
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 7
+                        }
+                      },
+                      "method": false,
+                      "shorthand": true,
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 2,
+                        "end": 7,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 2
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 7
+                          }
+                        },
+                        "name": "async"
+                      },
+                      "kind": "init",
+                      "value": {
+                        "type": "Identifier",
+                        "start": 2,
+                        "end": 7,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 2
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 7
+                          }
+                        },
+                        "name": "async"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+      });
+  
+      it('should parse async property with dangle', () => {
+        expect(parseScript(`({async, foo})`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "ObjectExpression",
+                        "properties": [
+                            {
+                                "type": "Property",
+                                "key": {
+                                    "type": "Identifier",
+                                    "name": "async",
+                                    "start": 2,
+                                    "end": 7,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 2
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 7
+                                        }
+                                    }
+                                },
+                                "value": {
+                                    "type": "Identifier",
+                                    "name": "async",
+                                    "start": 2,
+                                    "end": 7,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 2
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 7
+                                        }
+                                    }
+                                },
+                                "kind": "init",
+                                "computed": false,
+                                "method": false,
+                                "shorthand": true,
+                                "start": 2,
+                                "end": 7,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 2
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 7
+                                    }
+                                }
+                            },
+                            {
+                                "type": "Property",
+                                "key": {
+                                    "type": "Identifier",
+                                    "name": "foo",
+                                    "start": 9,
+                                    "end": 12,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 9
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 12
+                                        }
+                                    }
+                                },
+                                "value": {
+                                    "type": "Identifier",
+                                    "name": "foo",
+                                    "start": 9,
+                                    "end": 12,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 9
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 12
+                                        }
+                                    }
+                                },
+                                "kind": "init",
+                                "computed": false,
+                                "method": false,
+                                "shorthand": true,
+                                "start": 9,
+                                "end": 12,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 9
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 12
+                                    }
+                                }
+                            }
+                        ],
+                        "start": 1,
+                        "end": 13,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 1
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 13
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 14,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 14
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 14,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 14
+                }
+            }
+        });
+      });
+  
+      it('should parse async object property shorthand', () => {
+        expect(parseScript(`({async = 0} = {})`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "AssignmentExpression",
+                        "left": {
+                            "type": "ObjectPattern",
+                            "properties": [
+                                {
+                                    "type": "Property",
+                                    "key": {
+                                        "type": "Identifier",
+                                        "name": "async",
+                                        "start": 2,
+                                        "end": 7,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 2
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 7
+                                            }
+                                        }
+                                    },
+                                    "value": {
+                                        "type": "AssignmentPattern",
+                                        "left": {
+                                            "type": "Identifier",
+                                            "name": "async",
+                                            "start": 2,
+                                            "end": 7,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 2
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 7
+                                                }
+                                            }
+                                        },
+                                        "right": {
+                                            "type": "Literal",
+                                            "value": 0,
+                                            "start": 10,
+                                            "end": 11,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 10
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 11
+                                                }
+                                            },
+                                            "raw": "0"
+                                        },
+                                        "start": 2,
+                                        "end": 11,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 2
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 11
+                                            }
+                                        }
+                                    },
+                                    "kind": "init",
+                                    "computed": false,
+                                    "method": false,
+                                    "shorthand": true,
+                                    "start": 2,
+                                    "end": 11,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 2
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 11
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 1,
+                            "end": 12,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 1
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 12
+                                }
+                            }
+                        },
+                        "operator": "=",
+                        "right": {
+                            "type": "ObjectExpression",
+                            "properties": [],
+                            "start": 15,
+                            "end": 17,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 17
+                                }
+                            }
+                        },
+                        "start": 1,
+                        "end": 17,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 1
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 17
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 18,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 18
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 18,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 18
+                }
+            }
+        });
+      });
+  
+      it('should parse static class method named await', () => {
+        expect(parseScript(`class A {static async await() { }};`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 35,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 35
+              }
+            },
+            "body": [
+              {
+                "type": "ClassDeclaration",
+                "start": 0,
+                "end": 34,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 34
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 6,
+                  "end": 7,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 6
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 7
+                    }
+                  },
+                  "name": "A"
+                },
+                "superClass": null,
+                "body": {
+                  "type": "ClassBody",
+                  "start": 8,
+                  "end": 34,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 8
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 34
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "MethodDefinition",
+                      "start": 9,
+                      "end": 33,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 9
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 33
+                        }
+                      },
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 22,
+                        "end": 27,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 22
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 27
+                          }
+                        },
+                        "name": "await"
+                      },
+                      "static": true,
+                      "kind": "method",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 27,
+                        "end": 33,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 27
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 33
+                          }
+                        },
+                        "id": null,
+                        "generator": false,
+                        "expression": false,
+                        "async": true,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 30,
+                          "end": 33,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 30
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 33
+                            }
+                          },
+                          "body": []
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "EmptyStatement",
+                "start": 34,
+                "end": 35,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 34
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 35
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+      });
+  
+      it('should parse async static class method', () => {
+        expect(parseScript(`class A {static async foo() { }};`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 33,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 33
+              }
+            },
+            "body": [
+              {
+                "type": "ClassDeclaration",
+                "start": 0,
+                "end": 32,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 32
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 6,
+                  "end": 7,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 6
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 7
+                    }
+                  },
+                  "name": "A"
+                },
+                "superClass": null,
+                "body": {
+                  "type": "ClassBody",
+                  "start": 8,
+                  "end": 32,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 8
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 32
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "MethodDefinition",
+                      "start": 9,
+                      "end": 31,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 9
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 31
+                        }
+                      },
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 22,
+                        "end": 25,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 22
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 25
+                          }
+                        },
+                        "name": "foo"
+                      },
+                      "static": true,
+                      "kind": "method",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 25,
+                        "end": 31,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 25
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 31
+                          }
+                        },
+                        "id": null,
+                        "generator": false,
+                        "expression": false,
+                        "async": true,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 28,
+                          "end": 31,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 28
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 31
+                            }
+                          },
+                          "body": []
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "EmptyStatement",
+                "start": 32,
+                "end": 33,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 32
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 33
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+      });
+
+      it.skip('should parse async wrapped class await', () => {
+        expect(parseScript(`async function wrap() {
+            class A {async await() { }}
+          };`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({});
+      });
+  
+   
+      it('should parse generator async function', () => {
+        expect(parseScript(`function* wrap() {
+          async(a = yield b)
+      };`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 56,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 3,
+              "column": 8
+            }
+          },
+          "body": [
+            {
+              "type": "FunctionDeclaration",
+              "start": 0,
+              "end": 55,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 3,
+                  "column": 7
+                }
+              },
+              "id": {
+                "type": "Identifier",
+                "start": 10,
+                "end": 14,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 10
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 14
+                  }
+                },
+                "name": "wrap"
+              },
+              "generator": true,
+              "expression": false,
+              "async": false,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 17,
+                "end": 55,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 17
+                  },
+                  "end": {
+                    "line": 3,
+                    "column": 7
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 29,
+                    "end": 47,
+                    "loc": {
+                      "start": {
+                        "line": 2,
+                        "column": 10
+                      },
+                      "end": {
+                        "line": 2,
+                        "column": 28
+                      }
+                    },
+                    "expression": {
+                      "type": "CallExpression",
+                      "start": 29,
+                      "end": 47,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 10
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 28
+                        }
+                      },
+                      "callee": {
+                        "type": "Identifier",
+                        "start": 29,
+                        "end": 34,
+                        "loc": {
+                          "start": {
+                            "line": 2,
+                            "column": 10
+                          },
+                          "end": {
+                            "line": 2,
+                            "column": 15
+                          }
+                        },
+                        "name": "async"
+                      },
+                      "arguments": [
+                        {
+                          "type": "AssignmentExpression",
+                          "start": 35,
+                          "end": 46,
+                          "loc": {
+                            "start": {
+                              "line": 2,
+                              "column": 16
+                            },
+                            "end": {
+                              "line": 2,
+                              "column": 27
+                            }
+                          },
+                          "operator": "=",
+                          "left": {
+                            "type": "Identifier",
+                            "start": 35,
+                            "end": 36,
+                            "loc": {
+                              "start": {
+                                "line": 2,
+                                "column": 16
+                              },
+                              "end": {
+                                "line": 2,
+                                "column": 17
+                              }
+                            },
+                            "name": "a"
+                          },
+                          "right": {
+                            "type": "YieldExpression",
+                            "start": 39,
+                            "end": 46,
+                            "loc": {
+                              "start": {
+                                "line": 2,
+                                "column": 20
+                              },
+                              "end": {
+                                "line": 2,
+                                "column": 27
+                              }
+                            },
+                            "delegate": false,
+                            "argument": {
+                              "type": "Identifier",
+                              "start": 45,
+                              "end": 46,
+                              "loc": {
+                                "start": {
+                                  "line": 2,
+                                  "column": 26
+                                },
+                                "end": {
+                                  "line": 2,
+                                  "column": 27
+                                }
+                              },
+                              "name": "b"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "EmptyStatement",
+              "start": 55,
+              "end": 56,
+              "loc": {
+                "start": {
+                  "line": 3,
+                  "column": 7
+                },
+                "end": {
+                  "line": 3,
+                  "column": 8
+                }
+              }
+            }
+          ],
+          "sourceType": "script"
+        });
+      });
 });

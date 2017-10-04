@@ -33,7 +33,10 @@ export class Parser {
         flags: string;
     };
 
-    constructor(source: string, options: Options) {
+    constructor(
+        source: string,
+        options: Options
+    ) {
         this.flags = Flags.None;
         this.source = source;
         this.index = 0;
@@ -1804,7 +1807,7 @@ export class Parser {
                     if ((t & Token.FutureReserved) === Token.FutureReserved) this.error(Errors.UnexpectedStrictReserved);
             }
 
-            return (t & Token.Identifier) === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
+            return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
         }
 
         if (context & Context.Strict) {
@@ -1814,16 +1817,9 @@ export class Parser {
                     if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(t));
                     break;
                 default:
-                    if ((t & Token.FutureReserved) === Token.FutureReserved) this.error(Errors.UnexpectedStrictReserved);
+                    if ((t & Token.Reserved) === Token.Reserved) this.error(Errors.UnexpectedStrictReserved);
             }
-            return (t & Token.Identifier) === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
-        }
-
-        switch (t) {
-            case Token.AsyncKeyword:
-                if (context & Context.Await) this.error(Errors.UnexpectedReservedWord);
-                break;
-            default: // ignore
+            return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
         }
 
         return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual || (t & Token.FutureReserved) === Token.FutureReserved;
@@ -1871,7 +1867,7 @@ export class Parser {
                 // export default HoistableDeclaration[Default]
             case Token.AsyncKeyword:
                 if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                    declaration = this.parseFunctionDeclaration(context | Context.Export);
+                    declaration = this.parseFunctionDeclaration(context | (Context.OptionalIdentifier | Context.Export));
                     break;
                 }
                 // falls through
@@ -4893,7 +4889,7 @@ export class Parser {
     }
 
     private parseObjectElement(context: Context, state: ObjectState): ESTree.Property {
-
+      
         const pos = this.getLocations();
 
         let key: ESTree.Expression | null = null;
@@ -5011,7 +5007,7 @@ export class Parser {
 
                 default:
 
-                    if (this.isIdentifier(context, token)) {
+                    if (this.isIdentifier(context , token)) {
 
                         // Invalid: `"use strict"; for ({ eval } of [{}]) ;`
                         if (context & Context.Strict && this.isEvalOrArguments(tokenValue)) this.error(Errors.UnexpectedReservedWord);

@@ -1970,7 +1970,7 @@ Parser.prototype.isIdentifier = function isIdentifier (context, t) {
                 if ((t & 20480 /* FutureReserved */) === 20480 /* FutureReserved */)
                     { this.error(86 /* UnexpectedStrictReserved */); }
         }
-        return (t & 393217 /* Identifier */) === 393217 /* Identifier */ || (t & 69632 /* Contextual */) === 69632 /* Contextual */;
+        return t === 393217 /* Identifier */ || (t & 69632 /* Contextual */) === 69632 /* Contextual */;
     }
     if (context & 2 /* Strict */) {
         switch (t) {
@@ -1979,17 +1979,10 @@ Parser.prototype.isIdentifier = function isIdentifier (context, t) {
                     { this.error(91 /* DisallowedInContext */, tokenDesc(t)); }
                 break;
             default:
-                if ((t & 20480 /* FutureReserved */) === 20480 /* FutureReserved */)
+                if ((t & 12288 /* Reserved */) === 12288 /* Reserved */)
                     { this.error(86 /* UnexpectedStrictReserved */); }
         }
-        return (t & 393217 /* Identifier */) === 393217 /* Identifier */ || (t & 69632 /* Contextual */) === 69632 /* Contextual */;
-    }
-    switch (t) {
-        case 69740 /* AsyncKeyword */:
-            if (context & 512 /* Await */)
-                { this.error(83 /* UnexpectedReservedWord */); }
-            break;
-        default: // ignore
+        return t === 393217 /* Identifier */ || (t & 69632 /* Contextual */) === 69632 /* Contextual */;
     }
     return t === 393217 /* Identifier */ || (t & 69632 /* Contextual */) === 69632 /* Contextual */ || (t & 20480 /* FutureReserved */) === 20480 /* FutureReserved */;
 };
@@ -2028,7 +2021,7 @@ Parser.prototype.parseExportDefault = function parseExportDefault (context, pos)
         // export default HoistableDeclaration[Default]
         case 69740 /* AsyncKeyword */:
             if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                declaration = this.parseFunctionDeclaration(context | 16777216 /* Export */);
+                declaration = this.parseFunctionDeclaration(context | (16384 /* OptionalIdentifier */ | 16777216 /* Export */));
                 break;
             }
         // falls through

@@ -112,13 +112,13 @@ describe('Espressions - Class', () => {
         it('should fail on duplicate constructor literal', () => {
             expect(() => {
                 parseScript(`obj = (class A { constructor() {} "constructor"() {} })`)
-            }).to.throw('A class may only have one constructor')
+            }).to.throw()
         });
     
         it('should fail on duplicate constructor literal', () => {
             expect(() => {
                 parseScript(`obj = (class A { "constructor"() {} constructor() {} })`)
-            }).to.throw('A class may only have one constructor')
+            }).to.throw()
         });
     
         it('should fail on getter accessor with constructor', () => {

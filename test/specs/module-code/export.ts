@@ -4219,4 +4219,95 @@ describe('Module - Export', () => {
         });
       });
 
+      it('should parse async await object method', () => {
+        expect(parseModule(`export default async function() { };`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 36,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 36
+            }
+          },
+          "body": [
+            {
+              "type": "ExportDefaultDeclaration",
+              "start": 0,
+              "end": 35,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 35
+                }
+              },
+              "declaration": {
+                "type": "FunctionDeclaration",
+                "start": 15,
+                "end": 35,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 15
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 35
+                  }
+                },
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 32,
+                  "end": 35,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 32
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 35
+                    }
+                  },
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "EmptyStatement",
+              "start": 35,
+              "end": 36,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 35
+                },
+                "end": {
+                  "line": 1,
+                  "column": 36
+                }
+              }
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+ 
   });
