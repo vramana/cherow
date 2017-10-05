@@ -34,6 +34,7 @@ It's safe to use in production.
 - Optional catch binding
 - BigInt
 - Regular Expression's new `DotAll` flag
+- Import.meta
 
 ## V8 experimental features
 
