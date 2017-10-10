@@ -6,17 +6,18 @@
 
 Cherow is a very fast, standards-compliant [ECMAScript](http://www.ecma-international.org/publications/standards/Ecma-262.htm) parser written in ECMAScript.
 
-It strictly follows the ECMAScript® 2018 Language Specification and should parse according to these specifications.
+It strictly follows the ECMAScript® 2017 Language Specification and should parse according to these specifications.
 
 It's safe to use in production.
 
-**Note!** if you find a bug, open an issue ticket and we will try our best to solve it within 30 - 60 minutes.
+**Note!** If you find a bug, we will try our best to reply to you within 30 - 60 minutes, but our focus now are on
+the refactoring so the bug will be solved soon as the refactoring have been completed.
 
 ## [Demo](https://cherow.github.io/cherow/) and [Benchmark](https://cherow.github.io/cherow/performance/)
 
 ## Features
 
-- Full support for ECMAScript® 2018 [(ECMA-262 8th Edition)](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
+- Full support for ECMAScript® 2017 [(ECMA-262 8th Edition)](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
 - Stage 3 proposals (*experimental*)
 - Support for [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), a syntax extension for React
 - Skips shebang comment nodes by default
