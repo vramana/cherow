@@ -22,8 +22,8 @@
     "BENCHMARK.md"
   ],
   "scripts": {
-    "build": "rollup -c rollup.config.js",
-    "minify": "rollup -c rollup.config.min.js",
+    "build": "NODE_ENV=umd rollup -c",
+    "minify": " NODE_ENV=minify rollup -c",
     "test": "mocha test/specs/**/*.ts -R spec --bail",
     "coverage": "npm run clean:build && npm run pretest && nyc mocha ./build/test/**/*.js",
     "post_coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
