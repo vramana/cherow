@@ -22,8 +22,8 @@
     "BENCHMARK.md"
   ],
   "scripts": {
-    "build": "NODE_ENV=umd rollup -c",
-    "minify": " NODE_ENV=minify rollup -c",
+    "build": "cross-env NODE_ENV=umd rollup -c",
+    "minify": "cross-env NODE_ENV=minify rollup -c",
     "test": "mocha test/specs/**/*.ts -R spec --bail",
     "coverage": "npm run clean:build && npm run pretest && nyc mocha ./build/test/**/*.js",
     "post_coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
@@ -47,6 +47,7 @@
     "@types/node": "^8.0.32",
     "chai": "^4.1.2",
     "coveralls": "^3.0.0",
+    "cross-env": "^5.0.5",
     "istanbul": "github:gotwarlost/istanbul#v1",
     "mocha": "^4.0.0",
     "npm-check-updates": "2.13.0",
