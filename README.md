@@ -10,8 +10,8 @@ It strictly follows the ECMAScript® 2017 Language Specification and should pars
 
 It's safe to use in production.
 
-**Note!** If you find a bug, we will try our best to reply to you within 30 - 60 minutes, but our focus now are on
-the refactoring so the bug will be solved soon as the refactoring have been completed.
+**Note!** If you find a bug, we will try our best to reply to you within 30 - 60 minutes, but our main focus now are on
+the refactoring so try to use the `next branch`.
 
 ## [Demo](https://cherow.github.io/cherow/) and [Benchmark](https://cherow.github.io/cherow/performance/)
 
