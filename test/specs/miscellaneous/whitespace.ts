@@ -3,7 +3,7 @@ import * as chai from 'chai';
 
 const expect = chai.expect;
 
-describe('Whitespace', () => {
+describe('Miscellaneous - Whitespace', () => {
 
     it(`should fail on Mongolian vowel separator`, () => {
         expect(() => {

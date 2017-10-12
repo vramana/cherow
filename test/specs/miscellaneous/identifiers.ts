@@ -2,7 +2,7 @@ import { parseScript, parseModule } from '../../../src/cherow';
 import * as chai from 'chai';
 const expect = chai.expect;
 
-describe('Identifiers', () => {
+describe('Miscellaneous - Identifiers', () => {
 
         it('should fail if escaped reserved words used as Identifier - "class"', () => {
             expect(() => {

@@ -2,7 +2,7 @@ import { parseScript, parseModule } from '../../../src/cherow';
 import * as chai from 'chai';
 const expect = chai.expect;
 
-describe('AnnexB semantics', () => {
+describe('Miscellaneous - AnnexB semantics', () => {
 
   describe('B.3.3.1 Labelled Function Declarations', () => {
 

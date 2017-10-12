@@ -3,7 +3,7 @@ import * as chai from 'chai';
 
 const expect = chai.expect;
 
-describe('Block scope', () => {
+describe('Miscellaneous - Block scope', () => {
 
         it('should fail on redeclaration with async function declaration (async function declaration in BlockStatement)', () => {
             expect(() => {

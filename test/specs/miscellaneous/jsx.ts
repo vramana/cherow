@@ -3,7 +3,7 @@ import * as chai from 'chai';
 
 const expect = chai.expect;
 
-describe('JSX', () => {
+describe('Miscellaneous - JSX', () => {
 
     it('should fail if tagName contain number', () => {
         expect(() => {

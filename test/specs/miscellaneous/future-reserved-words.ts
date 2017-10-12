@@ -3,7 +3,7 @@ import * as chai from 'chai';
 
 const expect = chai.expect;
 
-describe('Future reserved words', () => {
+describe('Miscellaneous - Future reserved words', () => {
 
         it('should fail on execution of "var export = 1;"', () => {
             expect(() => {

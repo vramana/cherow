@@ -3,7 +3,7 @@ import * as chai from 'chai';
 
 const expect = chai.expect;
 
-describe('Keyword', () => {
+describe('Miscellaneous - Keyword', () => {
 
     it('should fail on invalid use of if in binding context', () => {
         expect(() => {

@@ -199,7 +199,7 @@ export const ErrorMessages: {
     [Errors.InvalidLHSInArrow]: ' Invalid left-hand side in arrow function parameters',
     [Errors.InvalidNewTargetContext]: 'new.target expression is not allowed here',
     [Errors.UnexpectedReservedWord]: 'Unexpected reserved word',
-    [Errors.InvalidShorthandProperty]: '\'%0\' can not be used as shorthand property',
+    [Errors.InvalidShorthandProperty]: 'Invalid shorthand property',
 
     [Errors.UnterminatedTemplate]: 'Unterminated template literal',
 

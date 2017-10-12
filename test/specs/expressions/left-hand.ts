@@ -8,13 +8,13 @@ describe('Espressions - Left-hand side', () => {
     it('should fail on "arguments" in strict mode - postfix', () => {
       expect(() => {
           expect(parseScript('({a: b += 0} = {})'))
-      }).to.not.throw('');
+      }).to.throw('');
     });
 
     it('should fail on "arguments" in strict mode - postfix', () => {
       expect(() => {
           expect(parseScript('[a += b] = []'))
-        }).to.not.throw('');
+        }).to.throw('');
     });
 
     it('should parse "a.b(b, c)"', () => {

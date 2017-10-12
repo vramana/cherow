@@ -28,6 +28,35 @@ describe('Miscellaneous - Directives', () => {
     });
 
     it('should parse "use asm" + semi + "use strict"', () => {
+        expect(parseModule('"use strict"; 1', {
+            raw: true,
+            directives: true
+        })).to.eql({
+            "type": "Program",
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "Literal",
+                  "value": "use strict",
+                  "raw": "\"use strict\"",
+                },
+                "directive": "use strict",
+              },
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "Literal",
+                  "value": 1,
+                  "raw": "1",
+                },
+              }
+            ],
+            "sourceType": "module",
+          });
+    });
+
+    it('should parse "use asm" + semi + "use strict"', () => {
         expect(parseScript('"use asm"; "use strict"', {
             locations: true,
             raw: true,

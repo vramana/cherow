@@ -3085,7 +3085,6 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
     if (context & 16 /* Yield */ && this.token === 282730 /* YieldKeyword */)
         { return this.parseYieldExpression(context, pos); }
     var token = this.token;
-    var tokenValue = this.tokenValue;
     var expr = this.parseConditionalExpression(context, pos);
     // If that's the case - parse out a arrow function with a single un-parenthesized parameter.
     // An async one, will be parsed out in 'parsePrimaryExpression'
@@ -3098,8 +3097,7 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
             // 1.) Checks reserved words
             // 2.) Eval and arguments
             // 3.) Invalid non-Identifier productions
-            //
-            if (context & 2 /* Strict */ && this.isEvalOrArguments(tokenValue))
+            if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name))
                 { this.error(86 /* UnexpectedStrictReserved */); }
             if (expr.type !== 'Identifier')
                 { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }

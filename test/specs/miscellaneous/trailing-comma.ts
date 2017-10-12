@@ -3,7 +3,7 @@ import * as chai from 'chai';
 
 const expect = chai.expect;
 
-describe('Trailing comma', () => {
+describe('Miscellaneous - Trailing comma', () => {
 
 
     it('should throw on unexpected Class identifier', () => {

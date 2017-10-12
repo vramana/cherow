@@ -72,7 +72,6 @@ export class Parser {
         if (options.raw) this.flags |= Flags.OptionsRaw;
         if (options.directives) this.flags |= Flags.OptionsDirectives;
         if (options.v8) this.flags |= Flags.OptionsV8;
-        if (options.flow) this.flags |= Flags.OptionsFlow;
 
         if (this.flags & Flags.OptionsOnComment) this.comments = options.comments;
     }
@@ -909,8 +908,15 @@ export class Parser {
     private peekUnicodeEscape(): any {
         this.advance();
         const code = this.peekExtendedUnicodeEscape();
-        if (code >= 0xd800 && code <= 0xdc00) this.error(Errors.UnexpectedSurrogate);
-        if (!isvalidIdentifierContinue(code)) this.error(Errors.InvalidUnicodeEscapeSequence);
+
+        if (code >= 0xd800 && code <= 0xdc00) {
+            this.error(Errors.UnexpectedSurrogate);
+        }
+
+        if (!isvalidIdentifierContinue(code)) {
+            this.error(Errors.InvalidUnicodeEscapeSequence);
+        }
+
         this.advance();
         return code;
     }
@@ -1630,6 +1636,12 @@ export class Parser {
         const statements: ESTree.Statement[] = [];
 
         while (this.token !== Token.EndOfSource) {
+            if (this.token !== Token.StringLiteral) break;
+            const item: ESTree.Statement = this.parseDirective(context);
+            statements.push(item);
+        }
+
+        while (this.token !== Token.EndOfSource) {
             statements.push(this.parseModuleItem(context));
         }
 
@@ -1638,7 +1650,10 @@ export class Parser {
 
     private parseDirective(context: Context): ESTree.ExpressionStatement {
         const pos = this.getLocations();
-        if (!(this.flags & Flags.OptionsDirectives)) return this.parseStatementListItem(context);
+        if (!(this.flags & Flags.OptionsDirectives)) {
+            if (context & Context.Module) return this.parseModuleItem(context);
+            return this.parseStatementListItem(context);
+        }
         const expr = this.parseExpression(context, pos);
         const directive = (expr.type === 'Literal') ? this.tokenRaw.slice(1, -1) : null;
         this.consumeSemicolon(context);
@@ -3105,8 +3120,7 @@ export class Parser {
                 // 1.) Checks reserved words
                 // 2.) Eval and arguments
                 // 3.) Invalid non-Identifier productions
-                //
-                if (context & Context.Strict && this.isEvalOrArguments(tokenValue)) this.error(Errors.UnexpectedStrictReserved);
+                if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) this.error(Errors.UnexpectedStrictReserved);
                 if (expr.type !== 'Identifier') this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 // Invalid: 'package => { "use strict"}"'
                 if (hasMask(token, Token.FutureReserved)) {
@@ -3176,6 +3190,7 @@ export class Parser {
             case 'ArrayExpression':
                 params.type = 'ArrayPattern';
                 // Fall through
+
             case 'ArrayPattern':
                 for (let i = 0; i < params.elements.length; ++i) {
                     // skip holes in pattern
@@ -3184,9 +3199,11 @@ export class Parser {
                 return;
 
             case 'AssignmentExpression':
+                if (params.operator !== '=') this.error(Errors.UnexpectedToken, params.type);
                 params.type = 'AssignmentPattern';
                 delete params.operator;
                 // Fall through
+
             case 'AssignmentPattern':
                 this.reinterpretAsPattern(context, params.left);
                 return;
@@ -5027,6 +5044,7 @@ export class Parser {
         if (this.isIdentifier(context, this.token)) {
 
             pos = this.getLocations();
+            const token = this.token;
             const tokenValue = this.tokenValue;
             if (context & Context.Strict && this.isEvalOrArguments(tokenValue)) {
                 this.error(Errors.UnexpectedReservedWord);
