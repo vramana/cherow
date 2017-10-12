@@ -308,7 +308,7 @@ ErrorMessages[80 /* UnknownLabel */] = 'Undefined label \'%0\'';
 ErrorMessages[81 /* InvalidLHSInArrow */] = ' Invalid left-hand side in arrow function parameters';
 ErrorMessages[82 /* InvalidNewTargetContext */] = 'new.target expression is not allowed here';
 ErrorMessages[83 /* UnexpectedReservedWord */] = 'Unexpected reserved word';
-ErrorMessages[84 /* InvalidShorthandProperty */] = '\'%0\' can not be used as shorthand property';
+ErrorMessages[84 /* InvalidShorthandProperty */] = 'Invalid shorthand property';
 ErrorMessages[85 /* UnterminatedTemplate */] = 'Unterminated template literal';
 ErrorMessages[86 /* UnexpectedStrictReserved */] = 'Unexpected strict mode reserved word';
 ErrorMessages[87 /* YieldReservedWord */] = 'yield is a reserved word inside generator functions';
@@ -394,14 +394,74 @@ function isValidIdentifierStart(code) {
     return (convert[(code >>> 5) + 34816] >>> code & 31 & 1) !== 0;
 }
 function isIdentifierStart(ch) {
-    return ch >= 65 /* UpperA */ && ch <= 90 /* UpperZ */ || ch >= 97 /* LowerA */ && ch <= 122 /* LowerZ */ ||
-        ch === 36 /* Dollar */ || ch === 95 /* Underscore */ ||
-        ch > 127 /* MaxAsciiCharacter */ && isValidIdentifierStart(ch);
+    switch (ch) {
+        // `A`...`Z`
+        case 65 /* UpperA */:
+        case 66 /* UpperB */:
+        case 67 /* UpperC */:
+        case 68 /* UpperD */:
+        case 69 /* UpperE */:
+        case 70 /* UpperF */:
+        case 71 /* UpperG */:
+        case 72 /* UpperH */:
+        case 73 /* UpperI */:
+        case 74 /* UpperJ */:
+        case 75 /* UpperK */:
+        case 76 /* UpperL */:
+        case 77 /* UpperM */:
+        case 78 /* UpperN */:
+        case 79 /* UpperO */:
+        case 80 /* UpperP */:
+        case 81 /* UpperQ */:
+        case 82 /* UpperR */:
+        case 83 /* UpperS */:
+        case 84 /* UpperT */:
+        case 85 /* UpperU */:
+        case 86 /* UpperV */:
+        case 87 /* UpperW */:
+        case 88 /* UpperX */:
+        case 89 /* UpperY */:
+        case 90 /* UpperZ */:
+        // '$'
+        case 36 /* Dollar */:
+        // '_'
+        case 95 /* Underscore */:
+        //  `a`...`z`
+        case 97 /* LowerA */:
+        case 98 /* LowerB */:
+        case 99 /* LowerC */:
+        case 100 /* LowerD */:
+        case 101 /* LowerE */:
+        case 102 /* LowerF */:
+        case 103 /* LowerG */:
+        case 104 /* LowerH */:
+        case 105 /* LowerI */:
+        case 106 /* LowerJ */:
+        case 107 /* LowerK */:
+        case 108 /* LowerL */:
+        case 109 /* LowerM */:
+        case 110 /* LowerN */:
+        case 111 /* LowerO */:
+        case 112 /* LowerP */:
+        case 113 /* LowerQ */:
+        case 114 /* LowerR */:
+        case 115 /* LowerS */:
+        case 116 /* LowerT */:
+        case 117 /* LowerU */:
+        case 118 /* LowerV */:
+        case 119 /* LowerW */:
+        case 120 /* LowerX */:
+        case 121 /* LowerY */:
+        case 122 /* LowerZ */:
+            return true;
+        default:
+            return isValidIdentifierStart(ch);
+    }
 }
-function isIdentifierPart(ch) {
-    return ch >= 65 /* UpperA */ && ch <= 90 /* UpperZ */ || ch >= 97 /* LowerA */ && ch <= 122 /* LowerZ */ ||
-        ch >= 48 /* Zero */ && ch <= 57 /* Nine */ || ch === 36 /* Dollar */ || ch === 95 /* Underscore */ ||
-        ch > 127 /* MaxAsciiCharacter */ && isvalidIdentifierContinue(ch);
+function isIdentifierPart(code) {
+    return code >= 65 /* UpperA */ && code <= 90 /* UpperZ */ || code >= 97 /* LowerA */ && code <= 122 /* LowerZ */ ||
+        code >= 48 /* Zero */ && code <= 57 /* Nine */ || code === 36 /* Dollar */ || code === 95 /* Underscore */ ||
+        isvalidIdentifierContinue(code);
 }
 
 var Parser = function Parser(source, options) {
@@ -444,8 +504,6 @@ var Parser = function Parser(source, options) {
         { this.flags |= 1048576 /* OptionsDirectives */; }
     if (options.v8)
         { this.flags |= 8388608 /* OptionsV8 */; }
-    if (options.flow)
-        { this.flags |= 16777216 /* OptionsFlow */; }
     if (this.flags & 2097152 /* OptionsOnComment */)
         { this.comments = options.comments; }
 };
@@ -1199,10 +1257,12 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context) {
 Parser.prototype.peekUnicodeEscape = function peekUnicodeEscape () {
     this.advance();
     var code = this.peekExtendedUnicodeEscape();
-    if (code >= 0xd800 && code <= 0xdc00)
-        { this.error(106 /* UnexpectedSurrogate */); }
-    if (!isvalidIdentifierContinue(code))
-        { this.error(6 /* InvalidUnicodeEscapeSequence */); }
+    if (code >= 0xd800 && code <= 0xdc00) {
+        this.error(106 /* UnexpectedSurrogate */);
+    }
+    if (!isvalidIdentifierContinue(code)) {
+        this.error(6 /* InvalidUnicodeEscapeSequence */);
+    }
     this.advance();
     return code;
 };
@@ -1846,14 +1906,23 @@ Parser.prototype.parseModuleItemList = function parseModuleItemList (context) {
     this.nextToken(context);
     var statements = [];
     while (this.token !== 0 /* EndOfSource */) {
+        if (this$1.token !== 262147 /* StringLiteral */)
+            { break; }
+        var item = this$1.parseDirective(context);
+        statements.push(item);
+    }
+    while (this.token !== 0 /* EndOfSource */) {
         statements.push(this$1.parseModuleItem(context));
     }
     return statements;
 };
 Parser.prototype.parseDirective = function parseDirective (context) {
     var pos = this.getLocations();
-    if (!(this.flags & 1048576 /* OptionsDirectives */))
-        { return this.parseStatementListItem(context); }
+    if (!(this.flags & 1048576 /* OptionsDirectives */)) {
+        if (context & 1 /* Module */)
+            { return this.parseModuleItem(context); }
+        return this.parseStatementListItem(context);
+    }
     var expr = this.parseExpression(context, pos);
     var directive = (expr.type === 'Literal') ? this.tokenRaw.slice(1, -1) : null;
     this.consumeSemicolon(context);
@@ -3183,6 +3252,8 @@ Parser.prototype.reinterpretAsPattern = function reinterpretAsPattern (context, 
             }
             return;
         case 'AssignmentExpression':
+            if (params.operator !== '=')
+                { this.error(1 /* UnexpectedToken */, params.type); }
             params.type = 'AssignmentPattern';
             delete params.operator;
         // Fall through
