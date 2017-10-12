@@ -3,7 +3,13 @@ import * as chai from 'chai';
 
 const expect = chai.expect;
 
-describe('Espressions - Member', () => {
+describe('Espressions - New', () => {
+    
+    it("should fail on \"new Type[]\"", () => {
+        expect(() => {
+            parseScript("new Type[]");
+        }).to.throw();
+    });
 
     it('should parse "function a() { return () => new.target }"', () => {
           expect(parseScript('function a() { return () => new.target }', {

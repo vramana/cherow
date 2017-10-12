@@ -14,7 +14,7 @@ describe('Destructuring - Destructuring', () => {
     it('should fail on "[x] += 0"', () => {
         expect(() => {
             parseScript('[x] += 0');
-        }).to.not.throw();
+        }).to.throw();
     });
 
 

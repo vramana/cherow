@@ -103,7 +103,7 @@ describe('Declarations - Lexical', () => {
         expect(() => {
             parseScript(`let 
     let;`)
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on const declarations mixed: with, without initialiser', () => {

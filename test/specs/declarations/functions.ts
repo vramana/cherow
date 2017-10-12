@@ -140,7 +140,7 @@ it('should fail on ""use strict" function eval() {"use strict"; }"', () => {
     it('should fail on "class A extends yield B { }"', () => {
         expect(() => {
             parseScript('"use strict"; function foo() { eval = 42; };');
-          }).to.not.throw();
+          }).to.throw();
     });
 
     it('should fail on "function __func(){\A\B\C};"', () => {

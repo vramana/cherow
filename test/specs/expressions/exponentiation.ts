@@ -20,7 +20,7 @@ describe('Espressions - Exponentiation', () => {
     it('should fail on assignment operator', () => {
         expect(() => {
             parseScript(`3 **= 3`)
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on invalid "!1 ** 2" operator', () => {

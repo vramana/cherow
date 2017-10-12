@@ -1755,7 +1755,7 @@ is y`);
     it(`should fail on "function twiss() {'use strict'; eval = 10; }"`, () => {
         expect(() => {
             parseScript(`function twiss() {'use strict'; eval = 10; }`)
-        }).to.not.throw();
+        }).to.throw();
     });
     it(`should fail on "function twiss() {'use strict'; ++eval; }"`, () => {
         expect(() => {
@@ -1827,7 +1827,7 @@ is y`);
     it(`should fail on "(function a(package) { "use strict"; })"`, () => {
         expect(() => {
             parseScript(`(function a(package) { "use strict"; })`)
-        }).to.not.throw();
+        }).to.not.throw('');
     });
     it(`should fail on "{ ;  ;  "`, () => {
         expect(() => {
@@ -2009,7 +2009,7 @@ is y`);
     it(`should fail on "function foo() { 'use strict'; var {arguments} = {} }"`, () => {
         expect(() => {
             parseScript(`function foo() { 'use strict'; var {arguments} = {} }`)
-        }).to.not.throw();
+        }).to.throw();
     });
     it(`should fail on "(function* yield() {})"`, () => {
         expect(() => {
@@ -3369,7 +3369,7 @@ is y`);
     it('should fail on "function twiss(package) {"use strict";  }"', () => {
         expect(() => {
             parseScript('function twiss(package) {"use strict";  }');
-        }).to.not.throw();
+        }).to.not.throw('');
     });
 
     it('should fail on "() => {}()"', () => {
@@ -3575,7 +3575,7 @@ is y`);
     it('should fail on "[v] += ary"', () => {
         expect(() => {
             parseScript('[v] += ary');
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on "[2] = 42"', () => {
         expect(() => {
@@ -3774,7 +3774,7 @@ is y`);
     it('should fail on "[...eval] = arr"', () => {
         expect(() => {
             parseModule('[...eval] = arr');
-        }).to.not.throw();
+        }).to.not.throw('');
     });
 
     it('should fail on "function f(a, ...b, c)"', () => {
@@ -4204,7 +4204,7 @@ is y`);
     it('should fail on "[x] += 0', () => {
         expect(() => {
             parseScript('[x] += 0');
-        }).to.not.throw();
+        }).to.throw('');
     });
     it('should fail on "({e: a.b}) => 0', () => {
         expect(() => {
@@ -4488,29 +4488,191 @@ is y`);
         expect(() => {
             parseScript('for (let x, y, z, let;;;) {}');
         }).to.throw();
-    });
-    
-    it('should fail on "a: let a', () => {
+    }); 
+
+    it('should fail on "function a(eval) { "use strict"; }', () => {
         expect(() => {
-            parseScript('a: let a');
+            parseScript('function a(eval) { "use strict"; }');
         }).to.throw();
     });
-    
-    it('should fail on "var const', () => {
+   
+    it('should fail on "function a(package) { "use strict"; }', () => {
         expect(() => {
-            parseScript('var const');
+            parseScript('function a(package) { "use strict"; }');
+        }).to.not.throw('');
+    });
+   
+    it('should fail on "const a;', () => {
+        expect(() => {
+            parseScript('const a;');
         }).to.throw();
     });
 
-    it('expect "3e-', () => {
-            expect(() => {
-                parseScript('3e-');
-            }).to.throw();
-        });
+    it('should fail on ""use strict"; const a = 07;', () => {
+        expect(() => {
+            parseScript('"use strict"; const a = 07;');
+        }).to.throw();
+    });
 
-        it('expect "let undefined', () => {
-            expect(() => {
-                parseScript('let undefined');
-            }).to.throw();
-        });
+    it('should fail on ""use strict"; const { arguments } = foo();', () => {
+        expect(() => {
+            parseScript('"use strict"; const { arguments } = foo();');
+        }).to.throw();
+    });
+
+    it('should fail on "function hello() {"use strict"; arguments--; }', () => {
+        expect(() => {
+            parseScript('function hello() {"use strict"; arguments--; }');
+        }).to.throw();
+    });
+   
+    it('should fail on "function hello() { "use strict"; --eval; }', () => {
+        expect(() => {
+            parseScript('function hello() { "use strict"; --eval; }');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; with (i); }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; with (i); }())');
+        }).to.throw();
+    });
+   
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "function hello() { "use strict"; try { } catch (eval) { } }', () => {
+        expect(() => {
+            parseScript('function hello() { "use strict"; try { } catch (eval) { } }');
+        }).to.throw();
+    });
+
+    it('should fail on "function hello() {"use strict"; try { } catch (arguments) { } }', () => {
+        expect(() => {
+            parseScript('function hello() {"use strict"; try { } catch (arguments) { } }');
+        }).to.throw();
+    });
+
+    it('should fail on "function hello() {"use strict"; arguments = 10; }', () => {
+        expect(() => {
+            parseScript('function hello() {"use strict"; arguments = 10; }');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
+
+    it('should fail on "(function () { "use strict"; delete i; }())', () => {
+        expect(() => {
+            parseScript('(function () { "use strict"; delete i; }())');
+        }).to.throw();
+    });
 });

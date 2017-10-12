@@ -3124,9 +3124,12 @@ export class Parser {
 
         if (hasMask(this.token, Token.AssignOperator)) {
             const operator = this.token;
-
-            if (!(context & Context.InParameter) && this.token === Token.Assign) {
+            if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
+                this.error(Errors.StrictLHSAssignment);
+            } else if (!(context & Context.InParameter) && this.token === Token.Assign) {
                 this.reinterpretAsPattern(context, expr);
+            } else if (!isValidSimpleAssignmentTarget(expr)) {
+                this.error(Errors.InvalidLHSInAssignment);
             }
 
             this.nextToken(context);
@@ -3529,10 +3532,8 @@ export class Parser {
                     {
                         this.expect(context, Token.LeftBracket);
                         const start = this.getLocations();
-                        if (this.token && Token.YieldKeyword) this.flags |= Flags.HaveSeenYield;
                         const property = this.parseExpression(context | Context.AllowIn, start);
                         this.expect(context, Token.RightBracket);
-
                         expr = this.finishNode(pos, {
                             type: 'MemberExpression',
                             object: expr,
@@ -3948,6 +3949,11 @@ export class Parser {
                 if (this.flags & Flags.OptionsV8) return this.parseDoExpression(context);
             case Token.ThrowKeyword:
                 if (this.flags & Flags.OptionsNext) return this.parseThrowExpression(context);
+            case Token.LetKeyword:
+                if (this.flags & Flags.LineTerminator) {
+                    return this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                }
+                // fall through
             default:
                 if (!this.isIdentifier(context, this.token)) {
                     return this.error(Errors.UnexpectedToken, tokenDesc(this.token));
@@ -5021,8 +5027,10 @@ export class Parser {
         if (this.isIdentifier(context, this.token)) {
 
             pos = this.getLocations();
-            const keyToken = this.token;
             const tokenValue = this.tokenValue;
+            if (context & Context.Strict && this.isEvalOrArguments(tokenValue)) {
+                this.error(Errors.UnexpectedReservedWord);
+            }
             key = this.parsePropertyName(context);
             const init = this.finishNode(pos, {
                 type: 'Identifier',

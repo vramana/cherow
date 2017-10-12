@@ -15,7 +15,7 @@ describe('Declarations - Let', () => {
 
     it('should fail on let let| split across two lines', () => {
         expect(() => { parseScript(`let  // start of a LexicalDeclaration, *not* an ASI opportunity
-        let = "irrelevant initializer";`); }).to.not.throw();
+        let = "irrelevant initializer";`); }).to.throw();
     });
 
     it('should fail let newline', () => {
