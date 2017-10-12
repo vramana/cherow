@@ -1593,8 +1593,8 @@ Parser.prototype.scanString = function scanString (context, quote) {
     this.advance(); // skip the quote
     this.tokenValue = ret;
     // raw
-    // if (this.flags & Flags.OptionsRaw) 
-    this.tokenRaw = this.source.slice(rawStart, this.index);
+    if (this.flags & (262144 /* OptionsRaw */ | 1048576 /* OptionsDirectives */))
+        { this.tokenRaw = this.source.slice(rawStart, this.index); }
     return 262147 /* StringLiteral */;
 };
 Parser.prototype.peekExtendedUnicodeEscape = function peekExtendedUnicodeEscape () {
@@ -1946,7 +1946,6 @@ Parser.prototype.parseStatementList = function parseStatementList (context, endT
             if (this$1.flags & 512 /* BindingPosition */)
                 { this$1.error(86 /* UnexpectedStrictReserved */); }
             context |= 2 /* Strict */;
-            break;
         }
     }
     while (this.token !== endToken) {
@@ -4279,7 +4278,6 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
                     }
                     else {
                         if (state & 4 /* Computed */ ||
-                            //this.token !== Token.AsyncKeyword && hasMask(token, Token.Contextual) ||
                             !this.isIdentifier(context, token))
                             { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }
                         // Invalid: `"use strict"; for ({ eval } of [{}]) ;`

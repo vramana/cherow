@@ -1299,8 +1299,7 @@ export class Parser {
         this.tokenValue = ret;
 
         // raw
-        // if (this.flags & Flags.OptionsRaw) 
-        this.tokenRaw = this.source.slice(rawStart, this.index);
+        if (this.flags & (Flags.OptionsRaw | Flags.OptionsDirectives)) this.tokenRaw = this.source.slice(rawStart, this.index);
 
         return Token.StringLiteral;
     }
@@ -1681,7 +1680,6 @@ export class Parser {
                 if (context & Context.SimpleParameterList) this.error(Errors.Unexpected);
                 if (this.flags & Flags.BindingPosition) this.error(Errors.UnexpectedStrictReserved);
                 context |= Context.Strict;
-                break;
             }
         }
 
@@ -4380,7 +4378,6 @@ export class Parser {
                             // shorthand
                         } else {
                             if (state & ObjectState.Computed ||
-                                //this.token !== Token.AsyncKeyword && hasMask(token, Token.Contextual) ||
                                 !this.isIdentifier(context, token)) this.error(Errors.UnexpectedToken, tokenDesc(token));
                             // Invalid: `"use strict"; for ({ eval } of [{}]) ;`
                             if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
