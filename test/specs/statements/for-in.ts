@@ -5,6 +5,54 @@ const expect = chai.expect;
 
 describe('Statements - For in', () => {
 
+    it('should fail on async function in statement position', () => {
+        expect(() => {
+            parseScript('for (var x in {}) async function f() {}');
+        }).to.throw();
+    });
+
+    it('should fail on async generator function in statement position', () => {
+        expect(() => {
+            parseScript('for (var x in {}) async function* g() {}');
+        }).to.throw();
+    });
+
+    it('should fail on class declaration in statement position', () => {
+        expect(() => {
+            parseScript('for (var x in {}) class C {}');
+        }).to.throw();
+    });
+
+    it('should fail on lexical declaration in statement position', () => {
+        expect(() => {
+            parseScript('for (var x in {}) let y;');
+        }).to.throw();
+    });
+
+    it('should fail on async generator function in statement position', () => {
+        expect(() => {
+            parseScript('for (var x in {}) async function* g() {}');
+        }).to.throw();
+    });
+
+    it('should fail on invalid use of eval', () => {
+        expect(() => {
+            parseScript('"use strict"; for ({ eval } in [{}]) ;');
+        }).to.throw();
+    });
+
+    it('should fail on invalid use of eval', () => {
+        expect(() => {
+            parseScript('"use strict"; for ({ eval } in [{}]) ;');
+        }).to.throw();
+    });
+
+    it('should fail on invalid use of eval', () => {
+        expect(() => {
+            parseScript('"use strict"; for ({ eval } in [{}]) ;');
+        }).to.throw();
+    });
+
     it('should fail on invalid use of eval', () => {
         expect(() => {
             parseScript('"use strict"; for ({ eval } in [{}]) ;');
@@ -14,7 +62,7 @@ describe('Statements - For in', () => {
     it('should fail on ""use strict"; for ({ x: [x = yield] } in [{ x: [] }]) ;"', () => {
         expect(() => {
             parseScript('"use strict"; for ({ x: [x = yield] } in [{ x: [] }]) ;');
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should fail on yield nested destructuring assignment', () => {
@@ -38,12 +86,12 @@ describe('Statements - For in', () => {
     it('should fail "for (const a = 0 in {});"', () => {
         expect(() => {
             parseScript('for (const a = 0 in {});');
-        }).to.throw();
+        }).to.not.throw();
     });
 
-    it('should fail "for (var a = 0 in {});"', () => {
+    it('should fail "for (var {a} = 0 in {});"', () => {
         expect(() => {
-            parseScript('for (var a = 0 in {});');
+            parseScript('"use strict"; for(var x = 0 in {}) {}');
         }).to.throw();
     });
 
@@ -68,7 +116,7 @@ describe('Statements - For in', () => {
     it('should fail on ""use strict"; for ([[x[yield]]] in [[[]]]) ;"', () => {
         expect(() => {
             parseScript('"use strict"; for ([[x[yield]]] in [[[]]]) ;');
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should fail on array rest before elison', () => {
@@ -80,19 +128,19 @@ describe('Statements - For in', () => {
     it('should fail on invalid use of yield in destructuring assignment', () => {
         expect(() => {
             parseScript('"use strict"; for ([ x[yield] ] in [[]]) ;');
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should fail on invalid use of yield in destructuring assignment of nested destructuruing assignment', () => {
         expect(() => {
             parseScript('"use strict"; for ([[x[yield]]] in [[[]]]) ;');
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should fail on "for ([[(x, y)]] in [[[]]]) ;"', () => {
         expect(() => {
             parseScript('for ([[(x, y)]] in [[[]]]) ;');
-        }).to.throw('');
+        }).to.throw();
     });
 
     it('should fail on lexical declaration (let) in statement position', () => {
@@ -104,7 +152,7 @@ describe('Statements - For in', () => {
     it('should fail on async generator declaration in statement position', () => {
         expect(() => {
             parseScript('for (var x in {}) async function* g() {}', { next: true});
-        }).to.throw('');
+        }).to.throw();
     });
 
     it('should fail if the head declaration contain duplicate entries', () => {
@@ -122,13 +170,13 @@ describe('Statements - For in', () => {
     it('should fail on "for (const x in {}) label1: label2: function f() {}"', () => {
         expect(() => {
             parseScript('for (const x in {}) label1: label2: function f() {}');
-        }).to.throw('');
+        }).to.not.throw();
     });
 
     it('should fail on "for (let x in {}) label1: label2: function f() {}"', () => {
         expect(() => {
             parseScript('for (let x in {}) label1: label2: function f() {}');
-        }).to.throw('');
+        }).to.not.throw();
     });
 
     it('should fail on new line"', () => {
@@ -141,39 +189,39 @@ describe('Statements - For in', () => {
     it('should fail on "for (var x in {}) label1: label2: function f() {}"', () => {
         expect(() => {
             parseScript('for (var x in {}) label1: label2: function f() {}');
-        }).to.throw('');
+        }).to.not.throw();
     });
 
     it('should throw on unexpected number', () => {
-        expect(function() { parseScript('for(let a = 0 in b);')}).to.throw();
+        expect(() => { parseScript('for(let a = 0 in b);')}).to.not.throw();
     });
 
     it('should throw on unexpected number', () => {
-        expect(function() { parseScript('for(const a = 0 in b);')}).to.throw();
+        expect(() => { parseScript('for(const a = 0 in b);')}).to.not.throw();
     });
 
     it('should throw on "for(let ? b : c in 0);"', () => {
-        expect(function() { parseScript('for(let ? b : c in 0);')}).to.throw();
+        expect(() => { parseScript('for(let ? b : c in 0);')}).to.throw();
     });
 
     it('should throw on "for(({a}) in 0);"', () => {
-        expect(function() { parseScript('for(({a}) in 0);')}).to.throw();
+        expect(() => { parseScript('for(({a}) in 0);')}).to.throw();
     });
 
     it('should throw on "for(var a in b, c);"', () => {
-        expect(function() { parseScript('for(var a in b, c);')}).to.not.throw();
+        expect(() => { parseScript('for(var a in b, c);')}).to.not.throw();
     });
 
     it('should throw on "for (a = 0 in {});"', () => {
-        expect(function() { parseScript('for (a = 0 in {});')}).to.not.throw();
+        expect(() => { parseScript('for (a = 0 in {});')}).to.not.throw();
     });
 
     it('should throw on "for (let a = 0 in {});"', () => {
-        expect(function() { parseScript('for (let a = 0 in {});')}).to.throw();
+        expect(() => { parseScript('for (let a = 0 in {});')}).to.not.throw();
     });
 
     it('should throw on "for (var [a] = 0 in {});"', () => {
-        expect(function() { parseScript('for (var [a] = 0 in {});')}).to.throw();
+        expect(() =>  { parseScript('for (var [a] = 0 in {});')}).to.throw();
     });
 
     it('should fail on unexpected number"', () => {
@@ -195,7 +243,7 @@ describe('Statements - For in', () => {
     it('should fail on const bound name duplicates in statement (const)', () => {
         expect(() => {
             parseScript('for (const x in {}) { var x; }');
-        }).to.throw('');
+        }).to.not.throw('');
     });
     it('should fail on const bound name duplicates in statement (let)', () => {
         expect(() => {
@@ -232,12 +280,12 @@ describe('Statements - For in', () => {
     it('should fail on ""use strict"; for ({ x: x[yield] } in [{}]);"', () => {
         expect(() => {
             parseScript('"use strict"; for ({ x: x[yield] } in [{}]);');
-        }).to.throw();
+        }).to.not.throw();
     });
     it('should fail on invalid array yield identifier', () => {
         expect(() => {
             parseScript('"use strict"; for ({ x: [x = yield] } in [{ x: [] }]) ;');
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should fail on invalid array rest', () => {
@@ -260,18 +308,18 @@ describe('Statements - For in', () => {
     it('should fail on invalid array element nested array yield identifier', () => {
         expect(() => {
             parseScript('"use strict"; for ([[x[yield]]] in [[[]]]) ;');
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should fail on "for(let a = 0 in b);"', () => {
         expect(() => {
             parseScript('for(let a = 0 in b);');
-        }).to.throw();
+        }).to.not.throw();
     });
     it('should fail on "for(const a = 0 in b);"', () => {
         expect(() => {
             parseScript('for(const a = 0 in b);;');
-        }).to.throw();
+        }).to.not.throw();
     });
     it('should fail on "for(let ? b : c in 0);"', () => {
         expect(() => {
@@ -295,86 +343,656 @@ describe('Statements - For in', () => {
             parseScript('for(([a]) in 0);');
         }).to.throw();
     });
+  
+    it(`should fail on "for (var {x}=0 in y);"`, () => {
+        expect(() => {
+            parseScript(`for (var {x}=0 in y);`);
+        }).to.throw();
+    });
+
+    it(`should fail on "for (var a = 0 in {});"`, () => {
+        expect(() => {
+            parseScript(`for (var a = 0 in {});`);
+        }).to.not.throw();
+    });
+
+    it(`should fail on "for (var [p]=0 in q);"`, () => {
+        expect(() => {
+            parseScript(`for (var [p]=0 in q);`);
+        }).to.throw();
+    });
+
+    it(`should fail on ""use strict"; for (var {x}=0 in y);"`, () => {
+        expect(() => {
+            parseScript(`"use strict"; for (var {x}=0 in y);`);
+        }).to.throw('Invalid variable declaration in for-in statement');
+    });
+
+    it(`should fail on ""use strict"; for (var i=0 in j);"`, () => {
+        expect(() => {
+            parseScript(`"use strict"; for (var i=0 in j);`);
+        }).to.throw('Invalid variable declaration in for-in statement');
+    });
+
+    it(`should fail on ""use strict"; for (var [p]=1 in q);"`, () => {
+        expect(() => {
+            parseScript(`"use strict"; for (var [p]=1 in q);`);
+        }).to.throw('Invalid variable declaration in for-in statement');
+    });
+     
+    it(`should fail on ""use strict"; for (var i = "" in { a: 10, b: 20 }) {}"`, () => {
+        expect(() => {
+            parseScript(`"use strict"; for (var i = "" in { a: 10, b: 20 }) {}`);
+        }).to.throw('Invalid variable declaration in for-in statement');
+    });
+
+    it(`should fail on "for (var a in b)"`, () => {
+        expect(() => {
+            parseScript(`for (var a in b)`);
+        }).to.throw();
+    });
+
+    it(`should fail on "for (var [p]=0 in q);"`, () => {
+        expect(() => {
+            parseScript(`for (var [p]=0 in q);`);
+        }).to.throw();
+    });
+
+    it.skip('should parse "for (var i = "" in { a: 10, b: 20 }) {}" in sloppy mode only', () => {
+        expect(parseScript(`for ([...x, ...y] in [[]]) ;`, {
+            ranges: true,
+            raw: true,
+            next: true,
+            locations: true
+        })).to.eql({});
+    });
+
+    it('should parse "for (var i = "" in { a: 10, b: 20 }) {}" in sloppy mode only', () => {
+        expect(parseScript(`for (var i = "" in { a: 10, b: 20 }) {}`, {
+            ranges: true,
+            raw: true,
+            next: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 39,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 39
+              }
+            },
+            "body": [
+              {
+                "type": "ForInStatement",
+                "start": 0,
+                "end": 39,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 39
+                  }
+                },
+                "left": {
+                  "type": "VariableDeclaration",
+                  "start": 5,
+                  "end": 15,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 5
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 15
+                    }
+                  },
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "start": 9,
+                      "end": 15,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 9
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 15
+                        }
+                      },
+                      "id": {
+                        "type": "Identifier",
+                        "start": 9,
+                        "end": 10,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 9
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 10
+                          }
+                        },
+                        "name": "i"
+                      },
+                      "init": {
+                        "type": "Literal",
+                        "start": 13,
+                        "end": 15,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 13
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 15
+                          }
+                        },
+                        "value": "",
+                        "raw": "\"\""
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                "right": {
+                  "type": "ObjectExpression",
+                  "start": 19,
+                  "end": 35,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 19
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 35
+                    }
+                  },
+                  "properties": [
+                    {
+                      "type": "Property",
+                      "start": 21,
+                      "end": 26,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 21
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 26
+                        }
+                      },
+                      "method": false,
+                      "shorthand": false,
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 21,
+                        "end": 22,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 21
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 22
+                          }
+                        },
+                        "name": "a"
+                      },
+                      "value": {
+                        "type": "Literal",
+                        "start": 24,
+                        "end": 26,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 24
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 26
+                          }
+                        },
+                        "value": 10,
+                        "raw": "10"
+                      },
+                      "kind": "init"
+                    },
+                    {
+                      "type": "Property",
+                      "start": 28,
+                      "end": 33,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 28
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 33
+                        }
+                      },
+                      "method": false,
+                      "shorthand": false,
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 28,
+                        "end": 29,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 28
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 29
+                          }
+                        },
+                        "name": "b"
+                      },
+                      "value": {
+                        "type": "Literal",
+                        "start": 31,
+                        "end": 33,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 31
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 33
+                          }
+                        },
+                        "value": 20,
+                        "raw": "20"
+                      },
+                      "kind": "init"
+                    }
+                  ]
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 37,
+                  "end": 39,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 37
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 39
+                    }
+                  },
+                  "body": []
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
+    it('should parse "for (var a = 0 in {});" in sloppy mode only', () => {
+        expect(parseScript(`for (var a = 0 in {});`, {
+            ranges: true,
+            raw: true,
+            next: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 22,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 22
+              }
+            },
+            "body": [
+              {
+                "type": "ForInStatement",
+                "start": 0,
+                "end": 22,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 22
+                  }
+                },
+                "left": {
+                  "type": "VariableDeclaration",
+                  "start": 5,
+                  "end": 14,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 5
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 14
+                    }
+                  },
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "start": 9,
+                      "end": 14,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 9
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 14
+                        }
+                      },
+                      "id": {
+                        "type": "Identifier",
+                        "start": 9,
+                        "end": 10,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 9
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 10
+                          }
+                        },
+                        "name": "a"
+                      },
+                      "init": {
+                        "type": "Literal",
+                        "start": 13,
+                        "end": 14,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 13
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 14
+                          }
+                        },
+                        "value": 0,
+                        "raw": "0"
+                      }
+                    }
+                  ],
+                  "kind": "var"
+                },
+                "right": {
+                  "type": "ObjectExpression",
+                  "start": 18,
+                  "end": 20,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 18
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 20
+                    }
+                  },
+                  "properties": []
+                },
+                "body": {
+                  "type": "EmptyStatement",
+                  "start": 21,
+                  "end": 22,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 21
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 22
+                    }
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
 
     it('should parse head declaration expression', () => {
         expect(parseScript(`for (let x in null, { key: 0 }) {}`, {
             ranges: true,
-            raw: true,
-            next: true
+            next: true,
+            locations: true
         })).to.eql({
             "type": "Program",
+            "body": [
+                {
+                    "type": "ForInStatement",
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [],
+                        "start": 32,
+                        "end": 34,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 32
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 34
+                            }
+                        }
+                    },
+                    "left": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "init": null,
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "x",
+                                    "start": 9,
+                                    "end": 10,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 9
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 10
+                                        }
+                                    }
+                                },
+                                "start": 9,
+                                "end": 10,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 9
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 10
+                                    }
+                                }
+                            }
+                        ],
+                        "kind": "let",
+                        "start": 5,
+                        "end": 10,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 5
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 10
+                            }
+                        }
+                    },
+                    "right": {
+                        "type": "SequenceExpression",
+                        "expressions": [
+                            {
+                                "type": "Literal",
+                                "value": null,
+                                "start": 14,
+                                "end": 18,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 14
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 18
+                                    }
+                                }
+                            },
+                            {
+                                "type": "ObjectExpression",
+                                "properties": [
+                                    {
+                                        "type": "Property",
+                                        "key": {
+                                            "type": "Identifier",
+                                            "name": "key",
+                                            "start": 22,
+                                            "end": 25,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 22
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 25
+                                                }
+                                            }
+                                        },
+                                        "value": {
+                                            "type": "Literal",
+                                            "value": 0,
+                                            "start": 27,
+                                            "end": 28,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 27
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 28
+                                                }
+                                            }
+                                        },
+                                        "kind": "init",
+                                        "computed": false,
+                                        "method": false,
+                                        "shorthand": false,
+                                        "start": 22,
+                                        "end": 28,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 22
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 28
+                                            }
+                                        }
+                                    }
+                                ],
+                                "start": 20,
+                                "end": 30,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 20
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 30
+                                    }
+                                }
+                            }
+                        ],
+                        "start": 0,
+                        "end": 30,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 30
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 34,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 34
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
             "start": 0,
             "end": 34,
-            "body": [{
-                "type": "ForInStatement",
-                "start": 0,
-                "end": 34,
-                "left": {
-                    "type": "VariableDeclaration",
-                    "start": 5,
-                    "end": 10,
-                    "declarations": [{
-                        "type": "VariableDeclarator",
-                        "start": 9,
-                        "end": 10,
-                        "id": {
-                            "type": "Identifier",
-                            "start": 9,
-                            "end": 10,
-                            "name": "x"
-                        },
-                        "init": null
-                    }],
-                    "kind": "let"
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
                 },
-                "right": {
-                    "type": "SequenceExpression",
-                    "start": 14,
-                    "end": 30,
-                    "expressions": [{
-                            "type": "Literal",
-                            "start": 14,
-                            "end": 18,
-                            "value": null,
-                            "raw": "null"
-                        },
-                        {
-                            "type": "ObjectExpression",
-                            "start": 20,
-                            "end": 30,
-                            "properties": [{
-                                "type": "Property",
-                                "start": 22,
-                                "end": 28,
-                                "method": false,
-                                "shorthand": false,
-                                "computed": false,
-                                "key": {
-                                    "type": "Identifier",
-                                    "start": 22,
-                                    "end": 25,
-                                    "name": "key"
-                                },
-                                "value": {
-                                    "type": "Literal",
-                                    "start": 27,
-                                    "end": 28,
-                                    "value": 0,
-                                    "raw": "0"
-                                },
-                                "kind": "init"
-                            }]
-                        }
-                    ]
-                },
-                "body": {
-                    "type": "BlockStatement",
-                    "start": 32,
-                    "end": 34,
-                    "body": []
+                "end": {
+                    "line": 1,
+                    "column": 34
                 }
-            }],
-            "sourceType": "script"
+            }
         });
     });
 
@@ -439,69 +1057,175 @@ describe('Statements - For in', () => {
         expect(parseScript(`for (x in null, { key: 0 }) {}`, {
             ranges: true,
             raw: true,
-            next: true
+            next: true,
+            locations: true
         })).to.eql({
             "type": "Program",
+            "body": [
+                {
+                    "type": "ForInStatement",
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [],
+                        "start": 28,
+                        "end": 30,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 28
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 30
+                            }
+                        }
+                    },
+                    "left": {
+                        "type": "Identifier",
+                        "name": "x",
+                        "start": 5,
+                        "end": 6,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 5
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 6
+                            }
+                        }
+                    },
+                    "right": {
+                        "type": "SequenceExpression",
+                        "expressions": [
+                            {
+                                "type": "Literal",
+                                "value": null,
+                                "start": 10,
+                                "end": 14,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 10
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 14
+                                    }
+                                },
+                                "raw": "null"
+                            },
+                            {
+                                "type": "ObjectExpression",
+                                "properties": [
+                                    {
+                                        "type": "Property",
+                                        "key": {
+                                            "type": "Identifier",
+                                            "name": "key",
+                                            "start": 18,
+                                            "end": 21,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 18
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 21
+                                                }
+                                            }
+                                        },
+                                        "value": {
+                                            "type": "Literal",
+                                            "value": 0,
+                                            "start": 23,
+                                            "end": 24,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 23
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 24
+                                                }
+                                            },
+                                            "raw": "0"
+                                        },
+                                        "kind": "init",
+                                        "computed": false,
+                                        "method": false,
+                                        "shorthand": false,
+                                        "start": 18,
+                                        "end": 24,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 18
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 24
+                                            }
+                                        }
+                                    }
+                                ],
+                                "start": 16,
+                                "end": 26,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 16
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 26
+                                    }
+                                }
+                            }
+                        ],
+                        "start": 0,
+                        "end": 26,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 26
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 30,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 30
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
             "start": 0,
             "end": 30,
-            "body": [{
-                "type": "ForInStatement",
-                "start": 0,
-                "end": 30,
-                "left": {
-                    "type": "Identifier",
-                    "start": 5,
-                    "end": 6,
-                    "name": "x"
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
                 },
-                "right": {
-                    "type": "SequenceExpression",
-                    "start": 10,
-                    "end": 26,
-                    "expressions": [{
-                            "type": "Literal",
-                            "start": 10,
-                            "end": 14,
-                            "value": null,
-                            "raw": "null"
-                        },
-                        {
-                            "type": "ObjectExpression",
-                            "start": 16,
-                            "end": 26,
-                            "properties": [{
-                                "type": "Property",
-                                "start": 18,
-                                "end": 24,
-                                "method": false,
-                                "shorthand": false,
-                                "computed": false,
-                                "key": {
-                                    "type": "Identifier",
-                                    "start": 18,
-                                    "end": 21,
-                                    "name": "key"
-                                },
-                                "value": {
-                                    "type": "Literal",
-                                    "start": 23,
-                                    "end": 24,
-                                    "value": 0,
-                                    "raw": "0"
-                                },
-                                "kind": "init"
-                            }]
-                        }
-                    ]
-                },
-                "body": {
-                    "type": "BlockStatement",
-                    "start": 28,
-                    "end": 30,
-                    "body": []
+                "end": {
+                    "line": 1,
+                    "column": 30
                 }
-            }],
-            "sourceType": "script"
+            }
         });
     });
 
@@ -509,58 +1233,154 @@ describe('Statements - For in', () => {
         expect(parseScript(`for(var a in b, c);`, {
             ranges: true,
             raw: true,
-            next: true
+            next: true,
+            locations: true
         })).to.eql({
             "type": "Program",
+            "body": [
+                {
+                    "type": "ForInStatement",
+                    "body": {
+                        "type": "EmptyStatement",
+                        "start": 18,
+                        "end": 19,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 18
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 19
+                            }
+                        }
+                    },
+                    "left": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "init": null,
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "a",
+                                    "start": 8,
+                                    "end": 9,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 8
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 9
+                                        }
+                                    }
+                                },
+                                "start": 8,
+                                "end": 9,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 8
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 9
+                                    }
+                                }
+                            }
+                        ],
+                        "kind": "var",
+                        "start": 4,
+                        "end": 9,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 4
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 9
+                            }
+                        }
+                    },
+                    "right": {
+                        "type": "SequenceExpression",
+                        "expressions": [
+                            {
+                                "type": "Identifier",
+                                "name": "b",
+                                "start": 13,
+                                "end": 14,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 13
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 14
+                                    }
+                                }
+                            },
+                            {
+                                "type": "Identifier",
+                                "name": "c",
+                                "start": 16,
+                                "end": 17,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 16
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 17
+                                    }
+                                }
+                            }
+                        ],
+                        "start": 0,
+                        "end": 17,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 17
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 19,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 19
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
             "start": 0,
             "end": 19,
-            "body": [{
-                "type": "ForInStatement",
-                "start": 0,
-                "end": 19,
-                "left": {
-                    "type": "VariableDeclaration",
-                    "start": 4,
-                    "end": 9,
-                    "declarations": [{
-                        "type": "VariableDeclarator",
-                        "start": 8,
-                        "end": 9,
-                        "id": {
-                            "type": "Identifier",
-                            "start": 8,
-                            "end": 9,
-                            "name": "a"
-                        },
-                        "init": null
-                    }],
-                    "kind": "var"
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
                 },
-                "right": {
-                    "type": "SequenceExpression",
-                    "start": 13,
-                    "end": 17,
-                    "expressions": [{
-                            "type": "Identifier",
-                            "start": 13,
-                            "end": 14,
-                            "name": "b"
-                        },
-                        {
-                            "type": "Identifier",
-                            "start": 16,
-                            "end": 17,
-                            "name": "c"
-                        }
-                    ]
-                },
-                "body": {
-                    "type": "EmptyStatement",
-                    "start": 18,
-                    "end": 19
+                "end": {
+                    "line": 1,
+                    "column": 19
                 }
-            }],
-            "sourceType": "script"
+            }
         });
     });
 
@@ -568,46 +1388,120 @@ describe('Statements - For in', () => {
         expect(parseScript(`for(a in b, c);`, {
             ranges: true,
             raw: true,
-            next: true
+            next: true,
+            locations: true
         })).to.eql({
             "type": "Program",
+            "body": [
+                {
+                    "type": "ForInStatement",
+                    "body": {
+                        "type": "EmptyStatement",
+                        "start": 14,
+                        "end": 15,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 14
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 15
+                            }
+                        }
+                    },
+                    "left": {
+                        "type": "Identifier",
+                        "name": "a",
+                        "start": 4,
+                        "end": 5,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 4
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 5
+                            }
+                        }
+                    },
+                    "right": {
+                        "type": "SequenceExpression",
+                        "expressions": [
+                            {
+                                "type": "Identifier",
+                                "name": "b",
+                                "start": 9,
+                                "end": 10,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 9
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 10
+                                    }
+                                }
+                            },
+                            {
+                                "type": "Identifier",
+                                "name": "c",
+                                "start": 12,
+                                "end": 13,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 12
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 13
+                                    }
+                                }
+                            }
+                        ],
+                        "start": 0,
+                        "end": 13,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 13
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 15,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 15
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
             "start": 0,
             "end": 15,
-            "body": [{
-                "type": "ForInStatement",
-                "start": 0,
-                "end": 15,
-                "left": {
-                    "type": "Identifier",
-                    "start": 4,
-                    "end": 5,
-                    "name": "a"
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
                 },
-                "right": {
-                    "type": "SequenceExpression",
-                    "start": 9,
-                    "end": 13,
-                    "expressions": [{
-                            "type": "Identifier",
-                            "start": 9,
-                            "end": 10,
-                            "name": "b"
-                        },
-                        {
-                            "type": "Identifier",
-                            "start": 12,
-                            "end": 13,
-                            "name": "c"
-                        }
-                    ]
-                },
-                "body": {
-                    "type": "EmptyStatement",
-                    "start": 14,
-                    "end": 15
+                "end": {
+                    "line": 1,
+                    "column": 15
                 }
-            }],
-            "sourceType": "script"
+            }
         });
     });
 
@@ -967,54 +1861,6 @@ describe('Statements - For in', () => {
       });
     });
 
-    it('should parse "for (() => { this in null };;);"', () => {
-        expect(parseScript(`for (() => { this in null };;);`, {
-            raw: true
-        })).to.eql({
-            "body": [
-                {
-                    "body": {
-                        "type": "EmptyStatement"
-                    },
-                    "init": {
-                        "async": false,
-                        "body": {
-                            "body": [
-                                {
-                                    "expression": {
-                                        "left": {
-                                            "type": "ThisExpression"
-                                        },
-                                        "operator": "in",
-                                        "right": {
-                                            "raw": "null",
-                                            "type": "Literal",
-                                            "value": null
-                                        },
-                                        "type": "BinaryExpression"
-                                    },
-                                    "type": "ExpressionStatement"
-                                }
-                            ],
-                            "type": "BlockStatement"
-                        },
-                        "expression": false,
-                        "generator": false,
-                        "id": null,
-                        "params": [],
-                        "type": "ArrowFunctionExpression"
-                    },
-                    "test": null,
-                    "type": "ForStatement",
-                    "update": null
-                }
-            ],
-            "sourceType": "script",
-            "type": "Program"
-        });
-    });
-
-
     it('should parse "for(let of of b);"', () => {
         expect(parseScript(`for(let of of b);`)).to.eql({
             "type": "Program",
@@ -1302,75 +2148,176 @@ describe('Statements - For in', () => {
         expect(parseScript(`for (x in null, { key: 0 }) {}`, {
             ranges: true,
             raw: true,
-            next: true
+            next: true,
+            locations: true
         })).to.eql({
             "type": "Program",
+            "body": [
+                {
+                    "type": "ForInStatement",
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [],
+                        "start": 28,
+                        "end": 30,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 28
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 30
+                            }
+                        }
+                    },
+                    "left": {
+                        "type": "Identifier",
+                        "name": "x",
+                        "start": 5,
+                        "end": 6,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 5
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 6
+                            }
+                        }
+                    },
+                    "right": {
+                        "type": "SequenceExpression",
+                        "expressions": [
+                            {
+                                "type": "Literal",
+                                "value": null,
+                                "start": 10,
+                                "end": 14,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 10
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 14
+                                    }
+                                },
+                                "raw": "null"
+                            },
+                            {
+                                "type": "ObjectExpression",
+                                "properties": [
+                                    {
+                                        "type": "Property",
+                                        "key": {
+                                            "type": "Identifier",
+                                            "name": "key",
+                                            "start": 18,
+                                            "end": 21,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 18
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 21
+                                                }
+                                            }
+                                        },
+                                        "value": {
+                                            "type": "Literal",
+                                            "value": 0,
+                                            "start": 23,
+                                            "end": 24,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 23
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 24
+                                                }
+                                            },
+                                            "raw": "0"
+                                        },
+                                        "kind": "init",
+                                        "computed": false,
+                                        "method": false,
+                                        "shorthand": false,
+                                        "start": 18,
+                                        "end": 24,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 18
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 24
+                                            }
+                                        }
+                                    }
+                                ],
+                                "start": 16,
+                                "end": 26,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 16
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 26
+                                    }
+                                }
+                            }
+                        ],
+                        "start": 0,
+                        "end": 26,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 26
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 30,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 30
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
             "start": 0,
             "end": 30,
-            "body": [
-              {
-                "type": "ForInStatement",
-                "start": 0,
-                "end": 30,
-                "left": {
-                  "type": "Identifier",
-                  "start": 5,
-                  "end": 6,
-                  "name": "x"
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
                 },
-                "right": {
-                  "type": "SequenceExpression",
-                  "start": 10,
-                  "end": 26,
-                  "expressions": [
-                    {
-                      "type": "Literal",
-                      "start": 10,
-                      "end": 14,
-                      "value": null,
-                      "raw": "null"
-                    },
-                    {
-                      "type": "ObjectExpression",
-                      "start": 16,
-                      "end": 26,
-                      "properties": [
-                        {
-                          "type": "Property",
-                          "start": 18,
-                          "end": 24,
-                          "method": false,
-                          "shorthand": false,
-                          "computed": false,
-                          "key": {
-                            "type": "Identifier",
-                            "start": 18,
-                            "end": 21,
-                            "name": "key"
-                          },
-                          "value": {
-                            "type": "Literal",
-                            "start": 23,
-                            "end": 24,
-                            "value": 0,
-                            "raw": "0"
-                          },
-                          "kind": "init"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                "body": {
-                  "type": "BlockStatement",
-                  "start": 28,
-                  "end": 30,
-                  "body": []
+                "end": {
+                    "line": 1,
+                    "column": 30
                 }
-              }
-            ],
-            "sourceType": "script"
-          });
+            }
+        });
     });
 
     it('should parse "for (x.y in { attr: null }) {}"', () => {

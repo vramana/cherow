@@ -15,6 +15,37 @@ describe('Identifiers', () => {
                 parseScript('var class = 123;');
             }).to.throw();
         });
+
+        it('should fail on plain await as identifier in module code', () => {
+          expect(() => {
+              parseModule('await;');
+          }).to.throw();
+      });
+
+        it('should fail on invalid escaped surrogate pair', () => {
+          expect(() => {
+              parseScript('var \\uD83B\\uDE00');
+          }).to.throw();
+        });
+
+        it('should fail on invalid id smp', () => {
+          expect(() => {
+              parseScript('var 🀒');
+          }).to.throw();
+        });
+
+        it('should fail on invalid function await module', () => {
+          expect(() => {
+              parseModule('function await() {}');
+          }).to.throw();
+        });
+
+        it('should fail on invalid hex escape sequence', () => {
+          expect(() => {
+              parseModule('"\\x{0}"');
+          }).to.throw();
+        });
+
         it('should fail if reserved words used as Identifier - "const"', () => {
             expect(() => {
                 parseScript('var const = 123;');
@@ -136,17 +167,13 @@ describe('Identifiers', () => {
                 parseScript('var in = try;');
             }).to.throw();
         });
-    
+
         it('should fail if reserved words used as Identifier - "void"', () => {
             expect(() => {
                 parseScript('var void = 123;');
             }).to.throw();
         });
-        it('should fail if reserved words used as Identifier - "yield "', () => {
-            expect(() => {
-                parseScript('"use strict"; var yield  = 123;');
-            }).to.throw();
-        });
+
         it('should fail if reserved words used as Identifier - "switch"', () => {
             expect(() => {
                 parseScript('var switch = 123;');
@@ -193,6 +220,680 @@ describe('Identifiers', () => {
             expect(() => {
                 parseScript('var try = 123;');
             }).to.throw();
+        });
+
+        it('should parse parse "var \\u{41}\\u{42}\\u{43};"', () => {
+          expect(parseScript('var \\u{41}\\u{42}\\u{43};', {
+              raw: true,
+              ranges: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 23,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 23
+              }
+            },
+            "body": [
+              {
+                "type": "VariableDeclaration",
+                "start": 0,
+                "end": 23,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 23
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 4,
+                    "end": 22,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 22
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 22,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 22
+                        }
+                      },
+                      "name": "ABC"
+                    },
+                    "init": null
+                  }
+                ],
+                "kind": "var"
+              }
+            ],
+            "sourceType": "script"
+          });
+        });
+
+        it('should parse escaped math dal part', () => {
+          expect(parseScript('var _\\u{1EE03}', {
+              raw: true,
+              ranges: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 14,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 14
+              }
+            },
+            "body": [
+              {
+                "type": "VariableDeclaration",
+                "start": 0,
+                "end": 14,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 14
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 4,
+                    "end": 14,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 14
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 14,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 14
+                        }
+                      },
+                      "name": "_𞸃"
+                    },
+                    "init": null
+                  }
+                ],
+                "kind": "var"
+              }
+            ],
+            "sourceType": "script"
+          });
+        });
+
+        it('should parse escaped math kaf lam', () => {
+          expect(parseScript('var \\u{1EE0A}\\u{1EE0B}', {
+              raw: true,
+              ranges: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 22,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 22
+              }
+            },
+            "body": [
+              {
+                "type": "VariableDeclaration",
+                "start": 0,
+                "end": 22,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 22
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 4,
+                    "end": 22,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 22
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 22,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 22
+                        }
+                      },
+                      "name": "𞸊𞸋"
+                    },
+                    "init": null
+                  }
+                ],
+                "kind": "var"
+              }
+            ],
+            "sourceType": "script"
+          });
+        });
+
+        it('should parse escaped part', () => {
+          expect(parseScript('var A\\u{42}C;', {
+              raw: true,
+              ranges: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 13,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 13
+              }
+            },
+            "body": [
+              {
+                "type": "VariableDeclaration",
+                "start": 0,
+                "end": 13,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 13
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 4,
+                    "end": 12,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 12
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 12,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 12
+                        }
+                      },
+                      "name": "ABC"
+                    },
+                    "init": null
+                  }
+                ],
+                "kind": "var"
+              }
+            ],
+            "sourceType": "script"
+          });
+        });
+
+        it('should parse escaped start', () => {
+          expect(parseScript('var \\u{41}BC;', {
+              raw: true,
+              ranges: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 13,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 13
+              }
+            },
+            "body": [
+              {
+                "type": "VariableDeclaration",
+                "start": 0,
+                "end": 13,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 13
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 4,
+                    "end": 12,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 12
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 12,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 12
+                        }
+                      },
+                      "name": "ABC"
+                    },
+                    "init": null
+                  }
+                ],
+                "kind": "var"
+              }
+            ],
+            "sourceType": "script"
+          });
+        });
+
+        it('should parse estimated', () => {
+          expect(parseScript('let ℮', {
+              raw: true,
+              ranges: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 5,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 5
+              }
+            },
+            "body": [
+              {
+                "type": "VariableDeclaration",
+                "start": 0,
+                "end": 5,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 5
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 4,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "℮"
+                    },
+                    "init": null
+                  }
+                ],
+                "kind": "let"
+              }
+            ],
+            "sourceType": "script"
+          });
+        });
+
+        it.skip('should parse math alef', () => {
+          expect(parseScript('var 𞸀', {
+              raw: true,
+              ranges: true,
+              locations: true
+          })).to.eql({});
+        });
+
+        it.skip('should parse math kaf lam', () => {
+          expect(parseScript('var 𞸊𞸋', {
+              raw: true,
+              ranges: true,
+              locations: true
+          })).to.eql({});
+        });
+
+        it('should parse valid await', () => {
+          expect(parseScript('var await; (await);', {
+              raw: true,
+              ranges: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 19,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 19
+              }
+            },
+            "body": [
+              {
+                "type": "VariableDeclaration",
+                "start": 0,
+                "end": 10,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 10
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 4,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 9,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 9
+                        }
+                      },
+                      "name": "await"
+                    },
+                    "init": null
+                  }
+                ],
+                "kind": "var"
+              },
+              {
+                "type": "ExpressionStatement",
+                "start": 11,
+                "end": 19,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 11
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 19
+                  }
+                },
+                "expression": {
+                  "type": "Identifier",
+                  "start": 12,
+                  "end": 17,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 12
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 17
+                    }
+                  },
+                  "name": "await"
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+        });
+
+        it('should parse weierstrass', () => {
+          expect(parseScript('var ℘;', {
+              raw: true,
+              ranges: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 6,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 6
+              }
+            },
+            "body": [
+              {
+                "type": "VariableDeclaration",
+                "start": 0,
+                "end": 6,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 6
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 4,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "name": "℘"
+                    },
+                    "init": null
+                  }
+                ],
+                "kind": "var"
+              }
+            ],
+            "sourceType": "script"
+          });
+        });
+
+        it('should parse "await = 0;"', () => {
+          expect(parseModule('await = 0;', {
+              raw: true,
+          })).to.eql({
+              "body": [
+                {
+                  "expression": {
+                    "left": {
+                      "name": "await",
+                      "type": "Identifier"
+                    },
+                    "operator": "=",
+                    "right": {
+                      "raw": "0",
+                      "type": "Literal",
+                      "value": 0,
+                    },
+                    "type": "AssignmentExpression"
+                 },
+                  "type": "ExpressionStatement"
+               },
+              ],
+              "sourceType": "module",
+              "type": "Program"
+            });
         });
 
         it('should parse parse identifier with starting unicode', () => {

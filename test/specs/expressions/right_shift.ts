@@ -1,80 +1,275 @@
 import { parseScript, parseModule } from '../../../src/cherow';
 import * as chai from 'chai';
-
-const expect = chai.expect; 
+const expect = chai.expect;
 
 describe('Espressions - Right shift', () => {
 
     it('should parse right shift between boolean and null', () => {
-        expect(parseScript('true >> null', {})).to.eql({
+        expect(parseScript('true >> null', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 12,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 12
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 12,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 12
+                  }
+                },
                 "expression": {
-                    "type": "BinaryExpression",
-                    "operator": ">>",
-                    "left": {
-                        "type": "Literal",
-                        "value": true
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 12,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "right": {
-                        "type": "Literal",
-                        "value": null
+                    "end": {
+                      "line": 1,
+                      "column": 12
                     }
+                  },
+                  "left": {
+                    "type": "Literal",
+                    "start": 0,
+                    "end": 4,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 4
+                      }
+                    },
+                    "value": true,
+                    "raw": "true"
+                  },
+                  "operator": ">>",
+                  "right": {
+                    "type": "Literal",
+                    "start": 8,
+                    "end": 12,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 12
+                      }
+                    },
+                    "value": null,
+                    "raw": "null"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse right shift between boolean and undefined', () => {
         expect(parseScript('true >> undefined', {
-            raw: true
+            locations: true,
+            raw: true,
+            ranges: true
         })).to.eql({
-            "body": [{
-                "expression": {
-                    "left": {
-                        "type": "Literal",
-                        "value": true,
-                        "raw": "true"
-                    },
-                    "operator": ">>",
-                    "right": {
-                        "name": "undefined",
-                        "type": "Identifier"
-                    },
-                    "type": "BinaryExpression"
+            "type": "Program",
+            "start": 0,
+            "end": 17,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 17
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 17,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 17
+                  }
                 },
-                "type": "ExpressionStatement"
-            }],
-            "sourceType": "script",
-            "type": "Program"
-        });
+                "expression": {
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 17,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 17
+                    }
+                  },
+                  "left": {
+                    "type": "Literal",
+                    "start": 0,
+                    "end": 4,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 4
+                      }
+                    },
+                    "value": true,
+                    "raw": "true"
+                  },
+                  "operator": ">>",
+                  "right": {
+                    "type": "Identifier",
+                    "start": 8,
+                    "end": 17,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 17
+                      }
+                    },
+                    "name": "undefined"
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
     });
 
     it('should parse "2147483648.1 >> 0"', () => {
-    expect(parseScript('2147483648.1 >> 0', {
-        raw: true
-    })).to.eql({
-        "type": "Program",
-        "body": [{
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "BinaryExpression",
-                "operator": ">>",
-                "left": {
+        expect(parseScript('2147483648.1 >> 0', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 17,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 17
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 17,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 17
+                  }
+                },
+                "expression": {
+                  "type": "BinaryExpression",
+                  "start": 0,
+                  "end": 17,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 17
+                    }
+                  },
+                  "left": {
                     "type": "Literal",
+                    "start": 0,
+                    "end": 12,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 12
+                      }
+                    },
                     "value": 2147483648.1,
                     "raw": "2147483648.1"
-                },
-                "right": {
+                  },
+                  "operator": ">>",
+                  "right": {
                     "type": "Literal",
+                    "start": 16,
+                    "end": 17,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 16
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 17
+                      }
+                    },
                     "value": 0,
                     "raw": "0"
+                  }
                 }
-            }
-        }],
-        "sourceType": "script"
+              }
+            ],
+            "sourceType": "script"
+          });
     });
-    });
-    });
+});

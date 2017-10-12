@@ -16,6 +16,12 @@ describe('Statement - If', () => {
         }).to.throw();
     });
 
+    it('should fail on async generator declaration in statement position', () => {
+        expect(() => {
+            parseScript(`if (false) L: async function l() {}`)
+        }).to.throw();
+    });
+
     it('should not allow to create class in single-statements', () => {
         expect(() => {
             parseScript('if(1)class A{}')

@@ -194,44 +194,148 @@ describe('Espressions - Postfix', () => {
     });
 
     it('should parse "arguments++"', () => {
-        expect(parseScript('arguments++')).to.eql({
-            "type": "Program",
-            "body": [
-                {
-                    "type": "ExpressionStatement",
-                    "expression": {
-                        "type": "UpdateExpression",
-                        "operator": "++",
-                        "argument": {
-                            "type": "Identifier",
-                            "name": "arguments"
-                        },
-                        "prefix": false
-                    }
+        expect(parseScript('arguments++', {
+          locations: true,
+          raw: true,
+          ranges: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 11,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 11
+          }
+        },
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 11,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 11
+              }
+            },
+            "expression": {
+              "type": "UpdateExpression",
+              "start": 0,
+              "end": 11,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 11
                 }
-            ],
-            "sourceType": "script"
-        });
+              },
+              "operator": "++",
+              "prefix": false,
+              "argument": {
+                "type": "Identifier",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
+                "name": "arguments"
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
     });
 
     it('should parse "arguments--"', () => {
-        expect(parseScript('arguments--')).to.eql({
-            "type": "Program",
-            "body": [
-                {
-                    "type": "ExpressionStatement",
-                    "expression": {
-                        "type": "UpdateExpression",
-                        "operator": "--",
-                        "argument": {
-                            "type": "Identifier",
-                            "name": "arguments"
-                        },
-                        "prefix": false
-                    }
+        expect(parseScript('arguments--', {
+          locations: true,
+          raw: true,
+          ranges: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 11,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 11
+          }
+        },
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 11,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 11
+              }
+            },
+            "expression": {
+              "type": "UpdateExpression",
+              "start": 0,
+              "end": 11,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 11
                 }
-            ],
-            "sourceType": "script"
-        });
+              },
+              "operator": "--",
+              "prefix": false,
+              "argument": {
+                "type": "Identifier",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
+                "name": "arguments"
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
     });
 });

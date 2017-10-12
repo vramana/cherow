@@ -109,7 +109,8 @@ export const enum Errors {
     ForbiddenAsStatement,
     InvalidAsyncGenerator,
     BadPropertyId,
-    InvalidMethod
+    InvalidMethod,
+    InvalidArrowYieldParam
 }
 
 export const ErrorMessages: {
@@ -226,6 +227,8 @@ export const ErrorMessages: {
     [Errors.InvalidAsyncGenerator]: 'Generator function or method can\'t be async',
     [Errors.BadPropertyId]: 'Invalid property id',
     [Errors.InvalidMethod]: 'Only methods are allowed in classes',
+    [Errors.InvalidArrowYieldParam]: 'Arrow parameters must not contain yield expressions',
+    ForInOfLoopInitializer: '%0 loop variable declaration may not have an initializer',
 };
 
 function constructError(msg: string, column: number): Error {

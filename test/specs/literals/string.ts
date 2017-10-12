@@ -337,7 +337,7 @@ describe('TC39 - String literals', () => {
         }).to.throw('Unterminated string literal');
     });
 
-    it('should fail  on "\08" in strict mode', () => {
+    it('should fail  on "\\08" in strict mode', () => {
         expect(() => {
             parseModule(`"\\08"`)
         }).to.not.throw();

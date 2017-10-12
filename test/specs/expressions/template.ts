@@ -613,7 +613,7 @@ describe('Espressions - Template', () => {
     it('should parse new expression', () => {
         expect(parseScript('new raw`42`', {
             locations: false,
-            raw: true
+            raw: true,
         })).to.eql({
             "type": "Program",
             "body": [

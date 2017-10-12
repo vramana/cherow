@@ -78,7 +78,7 @@ describe('Espressions - Class', () => {
         }`);
             }).to.throw();
         });
-    
+
         it('expect "(class {[3]:0}" to throw', () => {
             expect(function() {
                 parseScript(`(class {[3]:0}`);
@@ -250,7 +250,7 @@ describe('Espressions - Class', () => {
                 "sourceType": "script"
             })
         })
-    
+        
         it('should parse "(class extends 0{})"', () => {
             expect(parseScript(`(class extends 0{})`)).to.eql({
                 "type": "Program",
@@ -1817,73 +1817,6 @@ describe('Espressions - Class', () => {
         });
     
     
-        it('should parse destructuring initializer with a "hole"', () => {
-            expect(parseScript(`var C = class {
-                    async *method([x = 23]) {
-                    }
-                  };`, {
-                raw: true,
-                next: true
-            })).to.eql({
-                "body": [{
-                    "declarations": [{
-                        "id": {
-                            "name": "C",
-                            "type": "Identifier"
-                        },
-                        "init": {
-                            "body": {
-                                "body": [{
-                                    "computed": false,
-                                    "key": {
-                                        "name": "method",
-                                        "type": "Identifier"
-                                    },
-                                    "kind": "method",
-                                    "static": false,
-                                    "type": "MethodDefinition",
-                                    "value": {
-                                        "async": true,
-                                        "body": {
-                                            "body": [],
-                                            "type": "BlockStatement"
-                                        },
-                                        "expression": false,
-                                        "generator": true,
-                                        "id": null,
-                                        "params": [{
-                                            "elements": [{
-                                                "left": {
-                                                    "name": "x",
-                                                    "type": "Identifier"
-                                                },
-                                                "right": {
-                                                    "raw": "23",
-                                                    "type": "Literal",
-                                                    "value": 23
-                                                },
-                                                "type": "AssignmentPattern"
-                                            }],
-                                            "type": "ArrayPattern"
-                                        }],
-                                        "type": "FunctionExpression"
-                                    }
-                                }],
-                                "type": "ClassBody"
-                            },
-                            "id": null,
-                            "superClass": null,
-                            "type": "ClassExpression"
-                        },
-                        "type": "VariableDeclarator"
-                    }],
-                    "kind": "var",
-                    "type": "VariableDeclaration"
-                }, ],
-                "sourceType": "script",
-                "type": "Program"
-            });
-        });
         it('should parse BindingElement with object binding pattern', () => {
             expect(parseScript(`var C = class {
                     async *method([{ x, y, z } = { x: 44, y: 55, z: 66 }]) {
@@ -2043,6 +1976,7 @@ describe('Espressions - Class', () => {
                 "type": "Program"
             });
         });
+
         it('should parse nested object destructuring with a null value', () => {
             expect(parseScript(`var C = class {
                     async *method([{ x }]) {
@@ -2117,6 +2051,7 @@ describe('Espressions - Class', () => {
                 "type": "Program"
             });
         });
+
         it('should parse lone rest element ', () => {
             expect(parseScript(`var C = class {
                     async *method([...x]) {
@@ -2254,6 +2189,7 @@ describe('Espressions - Class', () => {
                 "type": "Program"
             });
         });
+
         it('should parse destructuring initializer with a "hole"', () => {
             expect(parseScript(`var C = class {
                     async *method([x = 23] = [,]) {
@@ -2399,6 +2335,7 @@ describe('Espressions - Class', () => {
                 "type": "Program"
             });
         });
+
         it('should parse object binding pattern with "nested" array binding pattern', () => {
             expect(parseScript(`var C = class {
                     async *method({ w: [x, y, z] = [4, 5, 6] } = { w: [7, undefined, ] }) {
@@ -2533,6 +2470,8 @@ describe('Espressions - Class', () => {
                 "type": "Program"
             });
         });
+
+       
         it('should parse object binding pattern with "nested" array binding pattern using initializer', () => {
             expect(parseScript(`var C = class {
                     async *method({ w: [x, y, z] = [4, 5, 6] }) {
@@ -2637,6 +2576,7 @@ describe('Espressions - Class', () => {
                 "type": "Program",
             });
         });
+        
         it('should parse destructuring initializer with an undefined value ', () => {
             expect(parseScript(`var C = class {
                     static method([x = 23]) {
@@ -2983,5 +2923,4 @@ describe('Espressions - Class', () => {
                 "sourceType": "script"
               });
         });
-
     });

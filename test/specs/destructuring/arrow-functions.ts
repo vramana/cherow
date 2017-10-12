@@ -236,118 +236,339 @@ describe('destructuring - Arrow functions', () => {
 
     it('should parse param with default array', () => {
         expect(parseScript('([x = 10]) => x', {
-            ranges: false,
+            ranges: true,
+            locations: true,
             raw: true
         })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 15,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 15
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 15,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 15
+                  }
+                },
                 "expression": {
-                    "type": "ArrowFunctionExpression",
-                    "id": null,
-                    "params": [{
-                        "type": "ArrayPattern",
-                        "elements": [{
-                            "type": "AssignmentPattern",
-                            "left": {
-                                "type": "Identifier",
-                                "name": "x"
-                            },
-                            "right": {
-                                "type": "Literal",
-                                "value": 10,
-                                "raw": "10"
-                            }
-                        }]
-                    }],
-                    "body": {
-                        "type": "Identifier",
-                        "name": "x"
+                  "type": "ArrowFunctionExpression",
+                  "start": 0,
+                  "end": 15,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "generator": false,
-                    "expression": true,
-                    "async": false
+                    "end": {
+                      "line": 1,
+                      "column": 15
+                    }
+                  },
+                  "id": null,
+                  "generator": false,
+                  "expression": true,
+                  "async": false,
+                  "params": [
+                    {
+                      "type": "ArrayPattern",
+                      "start": 1,
+                      "end": 9,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 1
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 9
+                        }
+                      },
+                      "elements": [
+                        {
+                          "type": "AssignmentPattern",
+                          "start": 2,
+                          "end": 8,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 2
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 8
+                            }
+                          },
+                          "left": {
+                            "type": "Identifier",
+                            "start": 2,
+                            "end": 3,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 2
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 3
+                              }
+                            },
+                            "name": "x"
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "start": 6,
+                            "end": 8,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 6
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 8
+                              }
+                            },
+                            "value": 10,
+                            "raw": "10"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "body": {
+                    "type": "Identifier",
+                    "start": 14,
+                    "end": 15,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 14
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 15
+                      }
+                    },
+                    "name": "x"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse arrow param object', () => {
         expect(parseScript('({y}) => x;', {
             ranges: true,
-            raw: true
+            raw: true,
+            locations: true
         })).to.eql({
-            "body": [{
-                "end": 11,
-                "expression": {
-                    "body": {
-                        "end": 10,
-                        "name": "x",
-                        "start": 9,
-                        "type": "Identifier"
-                    },
-                    "end": 10,
-                    "expression": true,
-                    "generator": false,
-                    "async": false,
-                    "id": null,
-                    "params": [{
-                        "end": 4,
-                        "properties": [{
-                            "computed": false,
-                            "end": 3,
-                            "key": {
-                                "end": 3,
-                                "name": "y",
-                                "start": 2,
-                                "type": "Identifier"
-                            },
-                            "kind": "init",
-                            "method": false,
-                            "shorthand": true,
-                            "start": 2,
-                            "type": "Property",
-                            "value": {
-                                "end": 3,
-                                "name": "y",
-                                "start": 2,
-                                "type": "Identifier"
-                            }
-                        }],
-                        "start": 1,
-                        "type": "ObjectPattern"
-                    }],
-                    "start": 0,
-                    "type": "ArrowFunctionExpression"
-                },
-                "start": 0,
-                "type": "ExpressionStatement"
-            }],
-            "end": 11,
-            "sourceType": "script",
+            "type": "Program",
             "start": 0,
-            "type": "Program"
-        });
+            "end": 11,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 11
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 11,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 11
+                  }
+                },
+                "expression": {
+                  "type": "ArrowFunctionExpression",
+                  "start": 0,
+                  "end": 10,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 10
+                    }
+                  },
+                  "id": null,
+                  "generator": false,
+                  "expression": true,
+                  "async": false,
+                  "params": [
+                    {
+                      "type": "ObjectPattern",
+                      "start": 1,
+                      "end": 4,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 1
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 4
+                        }
+                      },
+                      "properties": [
+                        {
+                          "type": "Property",
+                          "start": 2,
+                          "end": 3,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 2
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 3
+                            }
+                          },
+                          "method": false,
+                          "shorthand": true,
+                          "computed": false,
+                          "key": {
+                            "type": "Identifier",
+                            "start": 2,
+                            "end": 3,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 2
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 3
+                              }
+                            },
+                            "name": "y"
+                          },
+                          "kind": "init",
+                          "value": {
+                            "type": "Identifier",
+                            "start": 2,
+                            "end": 3,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 2
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 3
+                              }
+                            },
+                            "name": "y"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "body": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 10,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 10
+                      }
+                    },
+                    "name": "x"
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
     });
 
     it('should parse param with nested object', () => {
         expect(parseScript('({x = 10, y: { z = 10 }}) => [x, z]', {
             ranges: true,
-            raw: true
+            raw: true,
+            locations: true
         })).to.eql({
             "type": "Program",
             "start": 0,
             "end": 35,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 35
+              }
+            },
             "body": [
               {
                 "type": "ExpressionStatement",
                 "start": 0,
                 "end": 35,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 35
+                  }
+                },
                 "expression": {
                   "type": "ArrowFunctionExpression",
                   "start": 0,
                   "end": 35,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 35
+                    }
+                  },
                   "id": null,
                   "generator": false,
                   "expression": true,
@@ -357,11 +578,31 @@ describe('destructuring - Arrow functions', () => {
                       "type": "ObjectPattern",
                       "start": 1,
                       "end": 24,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 1
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 24
+                        }
+                      },
                       "properties": [
                         {
                           "type": "Property",
                           "start": 2,
                           "end": 8,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 2
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 8
+                            }
+                          },
                           "method": false,
                           "shorthand": true,
                           "computed": false,
@@ -369,6 +610,16 @@ describe('destructuring - Arrow functions', () => {
                             "type": "Identifier",
                             "start": 2,
                             "end": 3,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 2
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 3
+                              }
+                            },
                             "name": "x"
                           },
                           "kind": "init",
@@ -376,16 +627,46 @@ describe('destructuring - Arrow functions', () => {
                             "type": "AssignmentPattern",
                             "start": 2,
                             "end": 8,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 2
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 8
+                              }
+                            },
                             "left": {
                               "type": "Identifier",
                               "start": 2,
                               "end": 3,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 2
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 3
+                                }
+                              },
                               "name": "x"
                             },
                             "right": {
                               "type": "Literal",
                               "start": 6,
                               "end": 8,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 6
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 8
+                                }
+                              },
                               "value": 10,
                               "raw": "10"
                             }
@@ -395,6 +676,16 @@ describe('destructuring - Arrow functions', () => {
                           "type": "Property",
                           "start": 10,
                           "end": 23,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 10
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 23
+                            }
+                          },
                           "method": false,
                           "shorthand": false,
                           "computed": false,
@@ -402,17 +693,47 @@ describe('destructuring - Arrow functions', () => {
                             "type": "Identifier",
                             "start": 10,
                             "end": 11,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 10
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 11
+                              }
+                            },
                             "name": "y"
                           },
                           "value": {
                             "type": "ObjectPattern",
                             "start": 13,
                             "end": 23,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 13
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 23
+                              }
+                            },
                             "properties": [
                               {
                                 "type": "Property",
                                 "start": 15,
                                 "end": 21,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 15
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 21
+                                  }
+                                },
                                 "method": false,
                                 "shorthand": true,
                                 "computed": false,
@@ -420,6 +741,16 @@ describe('destructuring - Arrow functions', () => {
                                   "type": "Identifier",
                                   "start": 15,
                                   "end": 16,
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 15
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 16
+                                    }
+                                  },
                                   "name": "z"
                                 },
                                 "kind": "init",
@@ -427,16 +758,46 @@ describe('destructuring - Arrow functions', () => {
                                   "type": "AssignmentPattern",
                                   "start": 15,
                                   "end": 21,
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 15
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 21
+                                    }
+                                  },
                                   "left": {
                                     "type": "Identifier",
                                     "start": 15,
                                     "end": 16,
+                                    "loc": {
+                                      "start": {
+                                        "line": 1,
+                                        "column": 15
+                                      },
+                                      "end": {
+                                        "line": 1,
+                                        "column": 16
+                                      }
+                                    },
                                     "name": "z"
                                   },
                                   "right": {
                                     "type": "Literal",
                                     "start": 19,
                                     "end": 21,
+                                    "loc": {
+                                      "start": {
+                                        "line": 1,
+                                        "column": 19
+                                      },
+                                      "end": {
+                                        "line": 1,
+                                        "column": 21
+                                      }
+                                    },
                                     "value": 10,
                                     "raw": "10"
                                   }
@@ -453,17 +814,47 @@ describe('destructuring - Arrow functions', () => {
                     "type": "ArrayExpression",
                     "start": 29,
                     "end": 35,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 29
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 35
+                      }
+                    },
                     "elements": [
                       {
                         "type": "Identifier",
                         "start": 30,
                         "end": 31,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 30
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 31
+                          }
+                        },
                         "name": "x"
                       },
                       {
                         "type": "Identifier",
                         "start": 33,
                         "end": 34,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 33
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 34
+                          }
+                        },
                         "name": "z"
                       }
                     ]

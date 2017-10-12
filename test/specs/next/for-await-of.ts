@@ -722,6 +722,7 @@ describe('Next - For await of', () => {
             }
           }`, {
             ranges: true,
+            locations: true,
             raw: true,
             next: true
         })).to.eql({
@@ -739,56 +740,136 @@ describe('Next - For await of', () => {
                                     "type": "BlockStatement",
                                     "body": [],
                                     "start": 75,
-                                    "end": 90
+                                    "end": 90,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 53
+                                        },
+                                        "end": {
+                                            "line": 3,
+                                            "column": 13
+                                        }
+                                    }
                                 },
                                 "left": {
                                     "type": "ObjectPattern",
                                     "properties": [
                                         {
                                             "type": "Property",
-                                            "computed": false,
                                             "key": {
                                                 "type": "Identifier",
                                                 "name": "arrow",
                                                 "start": 47,
-                                                "end": 52
+                                                "end": 52,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 2,
+                                                        "column": 25
+                                                    },
+                                                    "end": {
+                                                        "line": 2,
+                                                        "column": 30
+                                                    }
+                                                }
                                             },
-                                            "kind": "init",
-                                            "method": false,
-                                            "shorthand": true,
                                             "value": {
                                                 "type": "AssignmentPattern",
                                                 "left": {
                                                     "type": "Identifier",
                                                     "name": "arrow",
                                                     "start": 47,
-                                                    "end": 52
+                                                    "end": 52,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 2,
+                                                            "column": 25
+                                                        },
+                                                        "end": {
+                                                            "line": 2,
+                                                            "column": 30
+                                                        }
+                                                    }
                                                 },
                                                 "right": {
                                                     "type": "ArrowFunctionExpression",
-                                                    "id": null,
-                                                    "params": [],
                                                     "body": {
                                                         "type": "BlockStatement",
                                                         "body": [],
                                                         "start": 61,
-                                                        "end": 63
+                                                        "end": 63,
+                                                        "loc": {
+                                                            "start": {
+                                                                "line": 2,
+                                                                "column": 39
+                                                            },
+                                                            "end": {
+                                                                "line": 2,
+                                                                "column": 41
+                                                            }
+                                                        }
                                                     },
+                                                    "params": [],
+                                                    "id": null,
+                                                    "async": false,
                                                     "generator": false,
                                                     "expression": false,
-                                                    "async": false,
                                                     "start": 55,
-                                                    "end": 63
+                                                    "end": 63,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 2,
+                                                            "column": 33
+                                                        },
+                                                        "end": {
+                                                            "line": 2,
+                                                            "column": 41
+                                                        }
+                                                    }
                                                 },
                                                 "start": 47,
-                                                "end": 63
+                                                "end": 63,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 2,
+                                                        "column": 25
+                                                    },
+                                                    "end": {
+                                                        "line": 2,
+                                                        "column": 41
+                                                    }
+                                                }
                                             },
+                                            "kind": "init",
+                                            "computed": false,
+                                            "method": false,
+                                            "shorthand": true,
                                             "start": 47,
-                                            "end": 63
+                                            "end": 63,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 25
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 41
+                                                }
+                                            }
                                         }
                                     ],
                                     "start": 45,
-                                    "end": 65
+                                    "end": 65,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 23
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 43
+                                        }
+                                    }
                                 },
                                 "right": {
                                     "type": "ArrayExpression",
@@ -797,19 +878,59 @@ describe('Next - For await of', () => {
                                             "type": "ObjectExpression",
                                             "properties": [],
                                             "start": 70,
-                                            "end": 72
+                                            "end": 72,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 48
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 50
+                                                }
+                                            }
                                         }
                                     ],
                                     "start": 69,
-                                    "end": 73
+                                    "end": 73,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 47
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 51
+                                        }
+                                    }
                                 },
                                 "await": true,
                                 "start": 34,
-                                "end": 90
+                                "end": 90,
+                                "loc": {
+                                    "start": {
+                                        "line": 2,
+                                        "column": 12
+                                    },
+                                    "end": {
+                                        "line": 3,
+                                        "column": 13
+                                    }
+                                }
                             }
                         ],
                         "start": 20,
-                        "end": 102
+                        "end": 102,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 20
+                            },
+                            "end": {
+                                "line": 4,
+                                "column": 11
+                            }
+                        }
                     },
                     "async": true,
                     "generator": false,
@@ -818,15 +939,45 @@ describe('Next - For await of', () => {
                         "type": "Identifier",
                         "name": "fn",
                         "start": 15,
-                        "end": 17
+                        "end": 17,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 15
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 17
+                            }
+                        }
                     },
                     "start": 0,
-                    "end": 102
+                    "end": 102,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 4,
+                            "column": 11
+                        }
+                    }
                 }
             ],
             "sourceType": "script",
             "start": 0,
-            "end": 102
+            "end": 102,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 4,
+                    "column": 11
+                }
+            }
         });
     });
 
@@ -2104,8 +2255,6 @@ describe('Next - For await of', () => {
                                                         },
                                                         "right": {
                                                             "type": "ArrowFunctionExpression",
-                                                            "id": null,
-                                                            "params": [],
                                                             "body": {
                                                                 "type": "BlockStatement",
                                                                 "body": [],
@@ -2122,9 +2271,11 @@ describe('Next - For await of', () => {
                                                                     }
                                                                 }
                                                             },
+                                                            "params": [],
+                                                            "id": null,
+                                                            "async": false,
                                                             "generator": false,
                                                             "expression": false,
-                                                            "async": false,
                                                             "start": 59,
                                                             "end": 67,
                                                             "loc": {
@@ -2824,12 +2975,12 @@ describe('Next - For await of', () => {
                                                                     }
                                                                 }
                                                             ],
-                                                            "start": 54,
+                                                            "start": 51,
                                                             "end": 91,
                                                             "loc": {
                                                                 "start": {
                                                                     "line": 2,
-                                                                    "column": 31
+                                                                    "column": 28
                                                                 },
                                                                 "end": {
                                                                     "line": 2,
@@ -5063,7 +5214,8 @@ describe('Next - For await of', () => {
           }`, {
             ranges: true,
             raw: true,
-            next: true
+            next: true,
+            locations: true
         })).to.eql({
             "type": "Program",
             "body": [
@@ -5079,7 +5231,17 @@ describe('Next - For await of', () => {
                                     "type": "BlockStatement",
                                     "body": [],
                                     "start": 82,
-                                    "end": 97
+                                    "end": 97,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 59
+                                        },
+                                        "end": {
+                                            "line": 3,
+                                            "column": 13
+                                        }
+                                    }
                                 },
                                 "left": {
                                     "type": "VariableDeclaration",
@@ -5102,38 +5264,118 @@ describe('Next - For await of', () => {
                                                                         "type": "Identifier",
                                                                         "name": "length",
                                                                         "start": 56,
-                                                                        "end": 62
+                                                                        "end": 62,
+                                                                        "loc": {
+                                                                            "start": {
+                                                                                "line": 2,
+                                                                                "column": 33
+                                                                            },
+                                                                            "end": {
+                                                                                "line": 2,
+                                                                                "column": 39
+                                                                            }
+                                                                        }
                                                                     },
                                                                     "computed": false,
                                                                     "value": {
                                                                         "type": "Identifier",
                                                                         "name": "length",
                                                                         "start": 56,
-                                                                        "end": 62
+                                                                        "end": 62,
+                                                                        "loc": {
+                                                                            "start": {
+                                                                                "line": 2,
+                                                                                "column": 33
+                                                                            },
+                                                                            "end": {
+                                                                                "line": 2,
+                                                                                "column": 39
+                                                                            }
+                                                                        }
                                                                     },
                                                                     "method": false,
                                                                     "shorthand": true,
                                                                     "start": 56,
-                                                                    "end": 62
+                                                                    "end": 62,
+                                                                    "loc": {
+                                                                        "start": {
+                                                                            "line": 2,
+                                                                            "column": 33
+                                                                        },
+                                                                        "end": {
+                                                                            "line": 2,
+                                                                            "column": 39
+                                                                        }
+                                                                    }
                                                                 }
                                                             ],
-                                                            "start": 54,
-                                                            "end": 64
+                                                            "start": 51,
+                                                            "end": 64,
+                                                            "loc": {
+                                                                "start": {
+                                                                    "line": 2,
+                                                                    "column": 28
+                                                                },
+                                                                "end": {
+                                                                    "line": 2,
+                                                                    "column": 41
+                                                                }
+                                                            }
                                                         },
                                                         "start": 51,
-                                                        "end": 64
+                                                        "end": 64,
+                                                        "loc": {
+                                                            "start": {
+                                                                "line": 2,
+                                                                "column": 28
+                                                            },
+                                                            "end": {
+                                                                "line": 2,
+                                                                "column": 41
+                                                            }
+                                                        }
                                                     }
                                                 ],
                                                 "start": 50,
-                                                "end": 65
+                                                "end": 65,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 2,
+                                                        "column": 27
+                                                    },
+                                                    "end": {
+                                                        "line": 2,
+                                                        "column": 42
+                                                    }
+                                                }
                                             },
                                             "start": 50,
-                                            "end": 65
+                                            "end": 65,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 27
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 42
+                                                }
+                                            }
                                         }
                                     ],
                                     "kind": "let",
                                     "start": 46,
-                                    "end": 65
+                                    "end": 65,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 23
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 42
+                                        }
+                                    }
                                 },
                                 "right": {
                                     "type": "ArrayExpression",
@@ -5146,6 +5388,16 @@ describe('Next - For await of', () => {
                                                     "value": 1,
                                                     "start": 71,
                                                     "end": 72,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 2,
+                                                            "column": 48
+                                                        },
+                                                        "end": {
+                                                            "line": 2,
+                                                            "column": 49
+                                                        }
+                                                    },
                                                     "raw": "1"
                                                 },
                                                 {
@@ -5153,6 +5405,16 @@ describe('Next - For await of', () => {
                                                     "value": 2,
                                                     "start": 74,
                                                     "end": 75,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 2,
+                                                            "column": 51
+                                                        },
+                                                        "end": {
+                                                            "line": 2,
+                                                            "column": 52
+                                                        }
+                                                    },
                                                     "raw": "2"
                                                 },
                                                 {
@@ -5160,23 +5422,73 @@ describe('Next - For await of', () => {
                                                     "value": 3,
                                                     "start": 77,
                                                     "end": 78,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 2,
+                                                            "column": 54
+                                                        },
+                                                        "end": {
+                                                            "line": 2,
+                                                            "column": 55
+                                                        }
+                                                    },
                                                     "raw": "3"
                                                 }
                                             ],
                                             "start": 70,
-                                            "end": 79
+                                            "end": 79,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 47
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 56
+                                                }
+                                            }
                                         }
                                     ],
                                     "start": 69,
-                                    "end": 80
+                                    "end": 80,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 46
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 57
+                                        }
+                                    }
                                 },
                                 "await": true,
                                 "start": 35,
-                                "end": 97
+                                "end": 97,
+                                "loc": {
+                                    "start": {
+                                        "line": 2,
+                                        "column": 12
+                                    },
+                                    "end": {
+                                        "line": 3,
+                                        "column": 13
+                                    }
+                                }
                             }
                         ],
                         "start": 21,
-                        "end": 109
+                        "end": 109,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 21
+                            },
+                            "end": {
+                                "line": 4,
+                                "column": 11
+                            }
+                        }
                     },
                     "async": true,
                     "generator": true,
@@ -5185,15 +5497,45 @@ describe('Next - For await of', () => {
                         "type": "Identifier",
                         "name": "fn",
                         "start": 16,
-                        "end": 18
+                        "end": 18,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 16
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 18
+                            }
+                        }
                     },
                     "start": 0,
-                    "end": 109
+                    "end": 109,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 4,
+                            "column": 11
+                        }
+                    }
                 }
             ],
             "sourceType": "script",
             "start": 0,
-            "end": 109
+            "end": 109,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 4,
+                    "column": 11
+                }
+            }
         });
     });
 
@@ -5204,7 +5546,8 @@ describe('Next - For await of', () => {
           }`, {
             ranges: true,
             raw: true,
-            next: true
+            next: true,
+            locations: true
         })).to.eql({
             "type": "Program",
             "body": [
@@ -5220,7 +5563,17 @@ describe('Next - For await of', () => {
                                     "type": "BlockStatement",
                                     "body": [],
                                     "start": 93,
-                                    "end": 108
+                                    "end": 108,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 70
+                                        },
+                                        "end": {
+                                            "line": 3,
+                                            "column": 13
+                                        }
+                                    }
                                 },
                                 "left": {
                                     "type": "VariableDeclaration",
@@ -5242,18 +5595,47 @@ describe('Next - For await of', () => {
                                                                         "type": "Identifier",
                                                                         "name": "x",
                                                                         "start": 55,
-                                                                        "end": 56
+                                                                        "end": 56,
+                                                                        "loc": {
+                                                                            "start": {
+                                                                                "line": 2,
+                                                                                "column": 32
+                                                                            },
+                                                                            "end": {
+                                                                                "line": 2,
+                                                                                "column": 33
+                                                                            }
+                                                                        }
                                                                     },
                                                                     "start": 52,
-                                                                    "end": 56
+                                                                    "end": 56,
+                                                                    "loc": {
+                                                                        "start": {
+                                                                            "line": 2,
+                                                                            "column": 29
+                                                                        },
+                                                                        "end": {
+                                                                            "line": 2,
+                                                                            "column": 33
+                                                                        }
+                                                                    }
                                                                 }
                                                             ],
                                                             "start": 51,
-                                                            "end": 57
+                                                            "end": 57,
+                                                            "loc": {
+                                                                "start": {
+                                                                    "line": 2,
+                                                                    "column": 28
+                                                                },
+                                                                "end": {
+                                                                    "line": 2,
+                                                                    "column": 34
+                                                                }
+                                                            }
                                                         },
                                                         "right": {
                                                             "type": "CallExpression",
-                                                            "arguments": [],
                                                             "callee": {
                                                                 "type": "FunctionExpression",
                                                                 "params": [],
@@ -5261,32 +5643,103 @@ describe('Next - For await of', () => {
                                                                     "type": "BlockStatement",
                                                                     "body": [],
                                                                     "start": 71,
-                                                                    "end": 74
+                                                                    "end": 74,
+                                                                    "loc": {
+                                                                        "start": {
+                                                                            "line": 2,
+                                                                            "column": 48
+                                                                        },
+                                                                        "end": {
+                                                                            "line": 2,
+                                                                            "column": 51
+                                                                        }
+                                                                    }
                                                                 },
-                                                                "async": false,
+                                                                "async": true,
                                                                 "generator": false,
                                                                 "expression": false,
                                                                 "id": null,
                                                                 "start": 60,
-                                                                "end": 74
+                                                                "end": 74,
+                                                                "loc": {
+                                                                    "start": {
+                                                                        "line": 2,
+                                                                        "column": 37
+                                                                    },
+                                                                    "end": {
+                                                                        "line": 2,
+                                                                        "column": 51
+                                                                    }
+                                                                }
                                                             },
+                                                            "arguments": [],
                                                             "start": 60,
-                                                            "end": 76
+                                                            "end": 76,
+                                                            "loc": {
+                                                                "start": {
+                                                                    "line": 2,
+                                                                    "column": 37
+                                                                },
+                                                                "end": {
+                                                                    "line": 2,
+                                                                    "column": 53
+                                                                }
+                                                            }
                                                         },
                                                         "start": 51,
-                                                        "end": 76
+                                                        "end": 76,
+                                                        "loc": {
+                                                            "start": {
+                                                                "line": 2,
+                                                                "column": 28
+                                                            },
+                                                            "end": {
+                                                                "line": 2,
+                                                                "column": 53
+                                                            }
+                                                        }
                                                     }
                                                 ],
                                                 "start": 50,
-                                                "end": 77
+                                                "end": 77,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 2,
+                                                        "column": 27
+                                                    },
+                                                    "end": {
+                                                        "line": 2,
+                                                        "column": 54
+                                                    }
+                                                }
                                             },
                                             "start": 50,
-                                            "end": 77
+                                            "end": 77,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 27
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 54
+                                                }
+                                            }
                                         }
                                     ],
                                     "kind": "let",
                                     "start": 46,
-                                    "end": 77
+                                    "end": 77,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 23
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 54
+                                        }
+                                    }
                                 },
                                 "right": {
                                     "type": "ArrayExpression",
@@ -5298,23 +5751,73 @@ describe('Next - For await of', () => {
                                                     "type": "Identifier",
                                                     "name": "values",
                                                     "start": 83,
-                                                    "end": 89
+                                                    "end": 89,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 2,
+                                                            "column": 60
+                                                        },
+                                                        "end": {
+                                                            "line": 2,
+                                                            "column": 66
+                                                        }
+                                                    }
                                                 }
                                             ],
                                             "start": 82,
-                                            "end": 90
+                                            "end": 90,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 59
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 67
+                                                }
+                                            }
                                         }
                                     ],
                                     "start": 81,
-                                    "end": 91
+                                    "end": 91,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 58
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 68
+                                        }
+                                    }
                                 },
                                 "await": true,
                                 "start": 35,
-                                "end": 108
+                                "end": 108,
+                                "loc": {
+                                    "start": {
+                                        "line": 2,
+                                        "column": 12
+                                    },
+                                    "end": {
+                                        "line": 3,
+                                        "column": 13
+                                    }
+                                }
                             }
                         ],
                         "start": 21,
-                        "end": 120
+                        "end": 120,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 21
+                            },
+                            "end": {
+                                "line": 4,
+                                "column": 11
+                            }
+                        }
                     },
                     "async": true,
                     "generator": true,
@@ -5323,15 +5826,45 @@ describe('Next - For await of', () => {
                         "type": "Identifier",
                         "name": "fn",
                         "start": 16,
-                        "end": 18
+                        "end": 18,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 16
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 18
+                            }
+                        }
                     },
                     "start": 0,
-                    "end": 120
+                    "end": 120,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 4,
+                            "column": 11
+                        }
+                    }
                 }
             ],
             "sourceType": "script",
             "start": 0,
-            "end": 120
+            "end": 120,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 4,
+                    "column": 11
+                }
+            }
         });
     });
 
@@ -5342,7 +5875,8 @@ describe('Next - For await of', () => {
           }`, {
             ranges: true,
             raw: true,
-            next: true
+            next: true,
+            locations: true
         })).to.eql({
             "type": "Program",
             "body": [
@@ -5358,7 +5892,17 @@ describe('Next - For await of', () => {
                                     "type": "BlockStatement",
                                     "body": [],
                                     "start": 130,
-                                    "end": 145
+                                    "end": 145,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 107
+                                        },
+                                        "end": {
+                                            "line": 3,
+                                            "column": 13
+                                        }
+                                    }
                                 },
                                 "left": {
                                     "type": "VariableDeclaration",
@@ -5376,7 +5920,17 @@ describe('Next - For await of', () => {
                                                             "type": "Identifier",
                                                             "name": "w",
                                                             "start": 54,
-                                                            "end": 55
+                                                            "end": 55,
+                                                            "loc": {
+                                                                "start": {
+                                                                    "line": 2,
+                                                                    "column": 31
+                                                                },
+                                                                "end": {
+                                                                    "line": 2,
+                                                                    "column": 32
+                                                                }
+                                                            }
                                                         },
                                                         "computed": false,
                                                         "value": {
@@ -5391,19 +5945,49 @@ describe('Next - For await of', () => {
                                                                             "type": "Identifier",
                                                                             "name": "x",
                                                                             "start": 59,
-                                                                            "end": 60
+                                                                            "end": 60,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 2,
+                                                                                    "column": 36
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 2,
+                                                                                    "column": 37
+                                                                                }
+                                                                            }
                                                                         },
                                                                         "computed": false,
                                                                         "value": {
                                                                             "type": "Identifier",
                                                                             "name": "x",
                                                                             "start": 59,
-                                                                            "end": 60
+                                                                            "end": 60,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 2,
+                                                                                    "column": 36
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 2,
+                                                                                    "column": 37
+                                                                                }
+                                                                            }
                                                                         },
                                                                         "method": false,
                                                                         "shorthand": true,
                                                                         "start": 59,
-                                                                        "end": 60
+                                                                        "end": 60,
+                                                                        "loc": {
+                                                                            "start": {
+                                                                                "line": 2,
+                                                                                "column": 36
+                                                                            },
+                                                                            "end": {
+                                                                                "line": 2,
+                                                                                "column": 37
+                                                                            }
+                                                                        }
                                                                     },
                                                                     {
                                                                         "type": "Property",
@@ -5412,19 +5996,49 @@ describe('Next - For await of', () => {
                                                                             "type": "Identifier",
                                                                             "name": "y",
                                                                             "start": 62,
-                                                                            "end": 63
+                                                                            "end": 63,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 2,
+                                                                                    "column": 39
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 2,
+                                                                                    "column": 40
+                                                                                }
+                                                                            }
                                                                         },
                                                                         "computed": false,
                                                                         "value": {
                                                                             "type": "Identifier",
                                                                             "name": "y",
                                                                             "start": 62,
-                                                                            "end": 63
+                                                                            "end": 63,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 2,
+                                                                                    "column": 39
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 2,
+                                                                                    "column": 40
+                                                                                }
+                                                                            }
                                                                         },
                                                                         "method": false,
                                                                         "shorthand": true,
                                                                         "start": 62,
-                                                                        "end": 63
+                                                                        "end": 63,
+                                                                        "loc": {
+                                                                            "start": {
+                                                                                "line": 2,
+                                                                                "column": 39
+                                                                            },
+                                                                            "end": {
+                                                                                "line": 2,
+                                                                                "column": 40
+                                                                            }
+                                                                        }
                                                                     },
                                                                     {
                                                                         "type": "Property",
@@ -5433,116 +6047,306 @@ describe('Next - For await of', () => {
                                                                             "type": "Identifier",
                                                                             "name": "z",
                                                                             "start": 65,
-                                                                            "end": 66
+                                                                            "end": 66,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 2,
+                                                                                    "column": 42
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 2,
+                                                                                    "column": 43
+                                                                                }
+                                                                            }
                                                                         },
                                                                         "computed": false,
                                                                         "value": {
                                                                             "type": "Identifier",
                                                                             "name": "z",
                                                                             "start": 65,
-                                                                            "end": 66
+                                                                            "end": 66,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 2,
+                                                                                    "column": 42
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 2,
+                                                                                    "column": 43
+                                                                                }
+                                                                            }
                                                                         },
                                                                         "method": false,
                                                                         "shorthand": true,
                                                                         "start": 65,
-                                                                        "end": 66
+                                                                        "end": 66,
+                                                                        "loc": {
+                                                                            "start": {
+                                                                                "line": 2,
+                                                                                "column": 42
+                                                                            },
+                                                                            "end": {
+                                                                                "line": 2,
+                                                                                "column": 43
+                                                                            }
+                                                                        }
                                                                     }
                                                                 ],
                                                                 "start": 57,
-                                                                "end": 68
+                                                                "end": 68,
+                                                                "loc": {
+                                                                    "start": {
+                                                                        "line": 2,
+                                                                        "column": 34
+                                                                    },
+                                                                    "end": {
+                                                                        "line": 2,
+                                                                        "column": 45
+                                                                    }
+                                                                }
                                                             },
                                                             "right": {
                                                                 "type": "ObjectExpression",
                                                                 "properties": [
                                                                     {
                                                                         "type": "Property",
-                                                                        "computed": false,
                                                                         "key": {
                                                                             "type": "Identifier",
                                                                             "name": "x",
                                                                             "start": 73,
-                                                                            "end": 74
+                                                                            "end": 74,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 2,
+                                                                                    "column": 50
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 2,
+                                                                                    "column": 51
+                                                                                }
+                                                                            }
                                                                         },
-                                                                        "kind": "init",
-                                                                        "method": false,
-                                                                        "shorthand": false,
                                                                         "value": {
                                                                             "type": "Literal",
                                                                             "value": 4,
                                                                             "start": 76,
                                                                             "end": 77,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 2,
+                                                                                    "column": 53
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 2,
+                                                                                    "column": 54
+                                                                                }
+                                                                            },
                                                                             "raw": "4"
                                                                         },
+                                                                        "kind": "init",
+                                                                        "computed": false,
+                                                                        "method": false,
+                                                                        "shorthand": false,
                                                                         "start": 73,
-                                                                        "end": 77
+                                                                        "end": 77,
+                                                                        "loc": {
+                                                                            "start": {
+                                                                                "line": 2,
+                                                                                "column": 50
+                                                                            },
+                                                                            "end": {
+                                                                                "line": 2,
+                                                                                "column": 54
+                                                                            }
+                                                                        }
                                                                     },
                                                                     {
                                                                         "type": "Property",
-                                                                        "computed": false,
                                                                         "key": {
                                                                             "type": "Identifier",
                                                                             "name": "y",
                                                                             "start": 79,
-                                                                            "end": 80
+                                                                            "end": 80,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 2,
+                                                                                    "column": 56
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 2,
+                                                                                    "column": 57
+                                                                                }
+                                                                            }
                                                                         },
-                                                                        "kind": "init",
-                                                                        "method": false,
-                                                                        "shorthand": false,
                                                                         "value": {
                                                                             "type": "Literal",
                                                                             "value": 5,
                                                                             "start": 82,
                                                                             "end": 83,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 2,
+                                                                                    "column": 59
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 2,
+                                                                                    "column": 60
+                                                                                }
+                                                                            },
                                                                             "raw": "5"
                                                                         },
+                                                                        "kind": "init",
+                                                                        "computed": false,
+                                                                        "method": false,
+                                                                        "shorthand": false,
                                                                         "start": 79,
-                                                                        "end": 83
+                                                                        "end": 83,
+                                                                        "loc": {
+                                                                            "start": {
+                                                                                "line": 2,
+                                                                                "column": 56
+                                                                            },
+                                                                            "end": {
+                                                                                "line": 2,
+                                                                                "column": 60
+                                                                            }
+                                                                        }
                                                                     },
                                                                     {
                                                                         "type": "Property",
-                                                                        "computed": false,
                                                                         "key": {
                                                                             "type": "Identifier",
                                                                             "name": "z",
                                                                             "start": 85,
-                                                                            "end": 86
+                                                                            "end": 86,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 2,
+                                                                                    "column": 62
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 2,
+                                                                                    "column": 63
+                                                                                }
+                                                                            }
                                                                         },
-                                                                        "kind": "init",
-                                                                        "method": false,
-                                                                        "shorthand": false,
                                                                         "value": {
                                                                             "type": "Literal",
                                                                             "value": 6,
                                                                             "start": 88,
                                                                             "end": 89,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 2,
+                                                                                    "column": 65
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 2,
+                                                                                    "column": 66
+                                                                                }
+                                                                            },
                                                                             "raw": "6"
                                                                         },
+                                                                        "kind": "init",
+                                                                        "computed": false,
+                                                                        "method": false,
+                                                                        "shorthand": false,
                                                                         "start": 85,
-                                                                        "end": 89
+                                                                        "end": 89,
+                                                                        "loc": {
+                                                                            "start": {
+                                                                                "line": 2,
+                                                                                "column": 62
+                                                                            },
+                                                                            "end": {
+                                                                                "line": 2,
+                                                                                "column": 66
+                                                                            }
+                                                                        }
                                                                     }
                                                                 ],
                                                                 "start": 71,
-                                                                "end": 91
+                                                                "end": 91,
+                                                                "loc": {
+                                                                    "start": {
+                                                                        "line": 2,
+                                                                        "column": 48
+                                                                    },
+                                                                    "end": {
+                                                                        "line": 2,
+                                                                        "column": 68
+                                                                    }
+                                                                }
                                                             },
-                                                            "start": 54,
-                                                            "end": 91
+                                                            "start": 57,
+                                                            "end": 91,
+                                                            "loc": {
+                                                                "start": {
+                                                                    "line": 2,
+                                                                    "column": 34
+                                                                },
+                                                                "end": {
+                                                                    "line": 2,
+                                                                    "column": 68
+                                                                }
+                                                            }
                                                         },
                                                         "method": false,
                                                         "shorthand": false,
                                                         "start": 54,
-                                                        "end": 91
+                                                        "end": 91,
+                                                        "loc": {
+                                                            "start": {
+                                                                "line": 2,
+                                                                "column": 31
+                                                            },
+                                                            "end": {
+                                                                "line": 2,
+                                                                "column": 68
+                                                            }
+                                                        }
                                                     }
                                                 ],
                                                 "start": 52,
-                                                "end": 93
+                                                "end": 93,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 2,
+                                                        "column": 29
+                                                    },
+                                                    "end": {
+                                                        "line": 2,
+                                                        "column": 70
+                                                    }
+                                                }
                                             },
                                             "start": 52,
-                                            "end": 93
+                                            "end": 93,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 29
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 70
+                                                }
+                                            }
                                         }
                                     ],
                                     "kind": "const",
                                     "start": 46,
-                                    "end": 93
+                                    "end": 93,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 23
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 70
+                                        }
+                                    }
                                 },
                                 "right": {
                                     "type": "ArrayExpression",
@@ -5552,84 +6356,214 @@ describe('Next - For await of', () => {
                                             "properties": [
                                                 {
                                                     "type": "Property",
-                                                    "computed": false,
                                                     "key": {
                                                         "type": "Identifier",
                                                         "name": "w",
                                                         "start": 100,
-                                                        "end": 101
+                                                        "end": 101,
+                                                        "loc": {
+                                                            "start": {
+                                                                "line": 2,
+                                                                "column": 77
+                                                            },
+                                                            "end": {
+                                                                "line": 2,
+                                                                "column": 78
+                                                            }
+                                                        }
                                                     },
-                                                    "kind": "init",
-                                                    "method": false,
-                                                    "shorthand": false,
                                                     "value": {
                                                         "type": "ObjectExpression",
                                                         "properties": [
                                                             {
                                                                 "type": "Property",
-                                                                "computed": false,
                                                                 "key": {
                                                                     "type": "Identifier",
                                                                     "name": "x",
                                                                     "start": 105,
-                                                                    "end": 106
+                                                                    "end": 106,
+                                                                    "loc": {
+                                                                        "start": {
+                                                                            "line": 2,
+                                                                            "column": 82
+                                                                        },
+                                                                        "end": {
+                                                                            "line": 2,
+                                                                            "column": 83
+                                                                        }
+                                                                    }
                                                                 },
-                                                                "kind": "init",
-                                                                "method": false,
-                                                                "shorthand": false,
                                                                 "value": {
                                                                     "type": "Identifier",
                                                                     "name": "undefined",
                                                                     "start": 108,
-                                                                    "end": 117
+                                                                    "end": 117,
+                                                                    "loc": {
+                                                                        "start": {
+                                                                            "line": 2,
+                                                                            "column": 85
+                                                                        },
+                                                                        "end": {
+                                                                            "line": 2,
+                                                                            "column": 94
+                                                                        }
+                                                                    }
                                                                 },
+                                                                "kind": "init",
+                                                                "computed": false,
+                                                                "method": false,
+                                                                "shorthand": false,
                                                                 "start": 105,
-                                                                "end": 117
+                                                                "end": 117,
+                                                                "loc": {
+                                                                    "start": {
+                                                                        "line": 2,
+                                                                        "column": 82
+                                                                    },
+                                                                    "end": {
+                                                                        "line": 2,
+                                                                        "column": 94
+                                                                    }
+                                                                }
                                                             },
                                                             {
                                                                 "type": "Property",
-                                                                "computed": false,
                                                                 "key": {
                                                                     "type": "Identifier",
                                                                     "name": "z",
                                                                     "start": 119,
-                                                                    "end": 120
+                                                                    "end": 120,
+                                                                    "loc": {
+                                                                        "start": {
+                                                                            "line": 2,
+                                                                            "column": 96
+                                                                        },
+                                                                        "end": {
+                                                                            "line": 2,
+                                                                            "column": 97
+                                                                        }
+                                                                    }
                                                                 },
-                                                                "kind": "init",
-                                                                "method": false,
-                                                                "shorthand": false,
                                                                 "value": {
                                                                     "type": "Literal",
                                                                     "value": 7,
                                                                     "start": 122,
                                                                     "end": 123,
+                                                                    "loc": {
+                                                                        "start": {
+                                                                            "line": 2,
+                                                                            "column": 99
+                                                                        },
+                                                                        "end": {
+                                                                            "line": 2,
+                                                                            "column": 100
+                                                                        }
+                                                                    },
                                                                     "raw": "7"
                                                                 },
+                                                                "kind": "init",
+                                                                "computed": false,
+                                                                "method": false,
+                                                                "shorthand": false,
                                                                 "start": 119,
-                                                                "end": 123
+                                                                "end": 123,
+                                                                "loc": {
+                                                                    "start": {
+                                                                        "line": 2,
+                                                                        "column": 96
+                                                                    },
+                                                                    "end": {
+                                                                        "line": 2,
+                                                                        "column": 100
+                                                                    }
+                                                                }
                                                             }
                                                         ],
                                                         "start": 103,
-                                                        "end": 125
+                                                        "end": 125,
+                                                        "loc": {
+                                                            "start": {
+                                                                "line": 2,
+                                                                "column": 80
+                                                            },
+                                                            "end": {
+                                                                "line": 2,
+                                                                "column": 102
+                                                            }
+                                                        }
                                                     },
+                                                    "kind": "init",
+                                                    "computed": false,
+                                                    "method": false,
+                                                    "shorthand": false,
                                                     "start": 100,
-                                                    "end": 125
+                                                    "end": 125,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 2,
+                                                            "column": 77
+                                                        },
+                                                        "end": {
+                                                            "line": 2,
+                                                            "column": 102
+                                                        }
+                                                    }
                                                 }
                                             ],
                                             "start": 98,
-                                            "end": 127
+                                            "end": 127,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 75
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 104
+                                                }
+                                            }
                                         }
                                     ],
                                     "start": 97,
-                                    "end": 128
+                                    "end": 128,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 74
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 105
+                                        }
+                                    }
                                 },
                                 "await": true,
                                 "start": 35,
-                                "end": 145
+                                "end": 145,
+                                "loc": {
+                                    "start": {
+                                        "line": 2,
+                                        "column": 12
+                                    },
+                                    "end": {
+                                        "line": 3,
+                                        "column": 13
+                                    }
+                                }
                             }
                         ],
                         "start": 21,
-                        "end": 157
+                        "end": 157,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 21
+                            },
+                            "end": {
+                                "line": 4,
+                                "column": 11
+                            }
+                        }
                     },
                     "async": true,
                     "generator": true,
@@ -5638,15 +6572,45 @@ describe('Next - For await of', () => {
                         "type": "Identifier",
                         "name": "fn",
                         "start": 16,
-                        "end": 18
+                        "end": 18,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 16
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 18
+                            }
+                        }
                     },
                     "start": 0,
-                    "end": 157
+                    "end": 157,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 4,
+                            "column": 11
+                        }
+                    }
                 }
             ],
             "sourceType": "script",
             "start": 0,
-            "end": 157
+            "end": 157,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 4,
+                    "column": 11
+                }
+            }
         });
     });
 
@@ -5657,7 +6621,8 @@ describe('Next - For await of', () => {
           }`, {
             ranges: true,
             raw: true,
-            next: true
+            next: true,
+            locations: true
         })).to.eql({
             "type": "Program",
             "body": [
@@ -5673,7 +6638,17 @@ describe('Next - For await of', () => {
                                     "type": "BlockStatement",
                                     "body": [],
                                     "start": 65,
-                                    "end": 80
+                                    "end": 80,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 42
+                                        },
+                                        "end": {
+                                            "line": 3,
+                                            "column": 13
+                                        }
+                                    }
                                 },
                                 "left": {
                                     "type": "VariableDeclaration",
@@ -5685,15 +6660,45 @@ describe('Next - For await of', () => {
                                                 "type": "ObjectPattern",
                                                 "properties": [],
                                                 "start": 52,
-                                                "end": 54
+                                                "end": 54,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 2,
+                                                        "column": 29
+                                                    },
+                                                    "end": {
+                                                        "line": 2,
+                                                        "column": 31
+                                                    }
+                                                }
                                             },
                                             "start": 52,
-                                            "end": 54
+                                            "end": 54,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 29
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 31
+                                                }
+                                            }
                                         }
                                     ],
                                     "kind": "const",
                                     "start": 46,
-                                    "end": 54
+                                    "end": 54,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 23
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 31
+                                        }
+                                    }
                                 },
                                 "right": {
                                     "type": "ArrayExpression",
@@ -5702,19 +6707,59 @@ describe('Next - For await of', () => {
                                             "type": "Identifier",
                                             "name": "obj",
                                             "start": 59,
-                                            "end": 62
+                                            "end": 62,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 36
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 39
+                                                }
+                                            }
                                         }
                                     ],
                                     "start": 58,
-                                    "end": 63
+                                    "end": 63,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 35
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 40
+                                        }
+                                    }
                                 },
                                 "await": true,
                                 "start": 35,
-                                "end": 80
+                                "end": 80,
+                                "loc": {
+                                    "start": {
+                                        "line": 2,
+                                        "column": 12
+                                    },
+                                    "end": {
+                                        "line": 3,
+                                        "column": 13
+                                    }
+                                }
                             }
                         ],
                         "start": 21,
-                        "end": 92
+                        "end": 92,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 21
+                            },
+                            "end": {
+                                "line": 4,
+                                "column": 11
+                            }
+                        }
                     },
                     "async": true,
                     "generator": true,
@@ -5723,15 +6768,45 @@ describe('Next - For await of', () => {
                         "type": "Identifier",
                         "name": "fn",
                         "start": 16,
-                        "end": 18
+                        "end": 18,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 16
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 18
+                            }
+                        }
                     },
                     "start": 0,
-                    "end": 92
+                    "end": 92,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 4,
+                            "column": 11
+                        }
+                    }
                 }
             ],
             "sourceType": "script",
             "start": 0,
-            "end": 92
+            "end": 92,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 4,
+                    "column": 11
+                }
+            }
         });
     });
 
@@ -5742,7 +6817,8 @@ describe('Next - For await of', () => {
           }`, {
             ranges: true,
             raw: true,
-            next: true
+            next: true,
+            locations: true
         })).to.eql({
             "type": "Program",
             "body": [
@@ -5758,56 +6834,136 @@ describe('Next - For await of', () => {
                                     "type": "BlockStatement",
                                     "body": [],
                                     "start": 75,
-                                    "end": 90
+                                    "end": 90,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 53
+                                        },
+                                        "end": {
+                                            "line": 3,
+                                            "column": 13
+                                        }
+                                    }
                                 },
                                 "left": {
                                     "type": "ObjectPattern",
                                     "properties": [
                                         {
                                             "type": "Property",
-                                            "computed": false,
                                             "key": {
                                                 "type": "Identifier",
                                                 "name": "arrow",
                                                 "start": 47,
-                                                "end": 52
+                                                "end": 52,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 2,
+                                                        "column": 25
+                                                    },
+                                                    "end": {
+                                                        "line": 2,
+                                                        "column": 30
+                                                    }
+                                                }
                                             },
-                                            "kind": "init",
-                                            "method": false,
-                                            "shorthand": true,
                                             "value": {
                                                 "type": "AssignmentPattern",
                                                 "left": {
                                                     "type": "Identifier",
                                                     "name": "arrow",
                                                     "start": 47,
-                                                    "end": 52
+                                                    "end": 52,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 2,
+                                                            "column": 25
+                                                        },
+                                                        "end": {
+                                                            "line": 2,
+                                                            "column": 30
+                                                        }
+                                                    }
                                                 },
                                                 "right": {
                                                     "type": "ArrowFunctionExpression",
-                                                    "id": null,
-                                                    "params": [],
                                                     "body": {
                                                         "type": "BlockStatement",
                                                         "body": [],
                                                         "start": 61,
-                                                        "end": 63
+                                                        "end": 63,
+                                                        "loc": {
+                                                            "start": {
+                                                                "line": 2,
+                                                                "column": 39
+                                                            },
+                                                            "end": {
+                                                                "line": 2,
+                                                                "column": 41
+                                                            }
+                                                        }
                                                     },
+                                                    "params": [],
+                                                    "id": null,
+                                                    "async": false,
                                                     "generator": false,
                                                     "expression": false,
-                                                    "async": false,
                                                     "start": 55,
-                                                    "end": 63
+                                                    "end": 63,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 2,
+                                                            "column": 33
+                                                        },
+                                                        "end": {
+                                                            "line": 2,
+                                                            "column": 41
+                                                        }
+                                                    }
                                                 },
                                                 "start": 47,
-                                                "end": 63
+                                                "end": 63,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 2,
+                                                        "column": 25
+                                                    },
+                                                    "end": {
+                                                        "line": 2,
+                                                        "column": 41
+                                                    }
+                                                }
                                             },
+                                            "kind": "init",
+                                            "computed": false,
+                                            "method": false,
+                                            "shorthand": true,
                                             "start": 47,
-                                            "end": 63
+                                            "end": 63,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 25
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 41
+                                                }
+                                            }
                                         }
                                     ],
                                     "start": 45,
-                                    "end": 65
+                                    "end": 65,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 23
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 43
+                                        }
+                                    }
                                 },
                                 "right": {
                                     "type": "ArrayExpression",
@@ -5816,19 +6972,59 @@ describe('Next - For await of', () => {
                                             "type": "ObjectExpression",
                                             "properties": [],
                                             "start": 70,
-                                            "end": 72
+                                            "end": 72,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 48
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 50
+                                                }
+                                            }
                                         }
                                     ],
                                     "start": 69,
-                                    "end": 73
+                                    "end": 73,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 47
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 51
+                                        }
+                                    }
                                 },
                                 "await": true,
                                 "start": 34,
-                                "end": 90
+                                "end": 90,
+                                "loc": {
+                                    "start": {
+                                        "line": 2,
+                                        "column": 12
+                                    },
+                                    "end": {
+                                        "line": 3,
+                                        "column": 13
+                                    }
+                                }
                             }
                         ],
                         "start": 20,
-                        "end": 102
+                        "end": 102,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 20
+                            },
+                            "end": {
+                                "line": 4,
+                                "column": 11
+                            }
+                        }
                     },
                     "async": true,
                     "generator": false,
@@ -5837,15 +7033,45 @@ describe('Next - For await of', () => {
                         "type": "Identifier",
                         "name": "fn",
                         "start": 15,
-                        "end": 17
+                        "end": 17,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 15
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 17
+                            }
+                        }
                     },
                     "start": 0,
-                    "end": 102
+                    "end": 102,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 4,
+                            "column": 11
+                        }
+                    }
                 }
             ],
             "sourceType": "script",
             "start": 0,
-            "end": 102
+            "end": 102,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 4,
+                    "column": 11
+                }
+            }
         });
     });
 });

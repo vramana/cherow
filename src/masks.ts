@@ -2,120 +2,123 @@ export const enum Context {
     None                   = 0,
     Module                 = 1 << 0,   // If node was parsed in module code
     Strict                 = 1 << 1,   // If node was parsed in strict mode
-    Statement              = 1 << 2,   // If node was parsed in a statement context
-    JSXChild               = 1 << 3,   // If node was parsed in a JSX context and has JSX children
-    SimpleArrow            = 1 << 4,   // If node was parsed in a arrow context as plain identifier
-    Arrow                  = 1 << 5,   // If node was parsed in a arrow context
-    AsyncFunctionBody      = 1 << 6,   // If node was parsed in a async arrow body context
-    ConciseBody            = 1 << 7,   // If node was parsed in a arrow body context with concise body
-    Parenthesis            = 1 << 8,   // If node was parsed in a parenthesized expression context
-    Await                  = 1 << 9,   // If node was parsed in the 'await' context created when parsing an async function
-    Yield                  = 1 << 10,  // If node was parsed in the 'yield' context created when parsing a generator
-    AllowIn                = 1 << 11,  // If node was parsed in a context where 'in-expressions' are allowed
-    ForStatement           = 1 << 12,  // If node was parsed in a for / for - in / for -of context
-    AnnexB                 = 1 << 13,  // If node was parsed in the 'if statement' with the AnnexB semtantic
-    OptionalIdentifier     = 1 << 14,  // Optional identifier for export of either anonymous class or function declaration
-    IfClause               = 1 << 15,  // If node was parsed in a if statement (early error related)
-    DynamicImport          = 1 << 16,  // If node was parsed in dynamic import context (ESNext feature)
-    NewExpression          = 1 << 17,  // If node was parsed in the 'New' expression
-    Method                 = 1 << 18,  // If node was parsed in a object method context
-    Binding                = 1 << 19,  // If node was parsed in a binding context
-    Constructor            = 1 << 20,  // Class declaration / expression
-    HasConstructor         = 1 << 21,  // If node was parsed inside Class and allow super
-    IfStatement            = 1 << 22,  // If node was parsed in a binding context
-    RequireInitializer     = 1 << 23,  // If node was parsed in a context where a variable declaration initializer are required (export)
-    Export                 = 1 << 24,  // Variable declaration
-    Const                  = 1 << 25,  // Variable declaration
-    Let                    = 1 << 26,  // Variable declaration
-    Var                    = 1 << 27,  // Variable declaration
+    AllowIn                = 1 << 2,   // If node was parsed in a context where 'in-expressions' are allowed
+    SimpleArrow            = 1 << 3,   // If node was parsed in a arrow context as plain identifier
+    Yield                  = 1 << 4,   // If node was parsed in the 'yield' context created when parsing a generator
+    Await                  = 1 << 5,   // If node was parsed in the 'await' context created when parsing an async function
+    InParenthesis          = 1 << 6,   // If node was parsed in a parenthesized expression context
+    InParameter            = 1 << 7,   // If node was parsed in the formal list of an function
+    ArrowParameterList     = 1 << 8,   // If node was parsed in the formal list of an arrow function
+    Statement              = 1 << 9,   // If node was parsed in a statement context
+    SimpleParameterList    = 1 << 10,  // If node contains any "simple" paramaters
+    IfClause               = 1 << 11,  // If node was parsed in a if statement (early error related)
+    AnnexB                 = 1 << 12,  // If node was parsed in the 'if statement' with the AnnexB semtantic
+    JSXChild               = 1 << 13,  // If node was parsed in a JSX context and has JSX children
+    Export                 = 1 << 14,  // Module
+    Import                 = 1 << 15,  // Module ( strict and non-strict)
+    OptionalIdentifier     = 1 << 16,  // Optional identifier for export of either anonymous class or function declaration
+    Method                 = 1 << 17,  // If node was parsed in a object / class method definition context
+    HasConstructor         = 1 << 18,  // If node was parsed inside Class and allow super
+    Constructor            = 1 << 19,  // Class declaration / expression
+    AsyncFunctionBody      = 1 << 20,  // If node was parsed in an async body of an function declaration
+    RequireInitializer     = 1 << 21,  // If node was parsed in a context where a variable declaration initializer are required (export)
+    ForStatement           = 1 << 22,  // If node was parsed in a for / for - in / for -of context
+
+    Let                    = 1 << 23,  // Variable declaration
+    Const                  = 1 << 24,  // Variable declaration
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
-
-    // Error tracker related
-    AwaitOrYield = Await | Yield
 }
 
 export const enum Flags {
     None                         = 0,
     LineTerminator               = 1 << 0,
-    JSX                          = 1 << 1,  // Allows JSX extension
-    InFunctionBody               = 1 << 2,  // If node was parsed in a function body
-    HasRest                      = 1 << 3,
-    HasPrototype                 = 1 << 4,
-    HasMemberExpression          = 1 << 5,  // If the program contain a member expression - '([a.a]) => 42'
-    HasReservedWord              = 1 << 6,  // If the program contains a reserved word
-    HasEvalArgInParam            = 1 << 7,  // If the source contain either 'eval' or 'arguments'
-    NonSimpleParameter           = 1 << 8,
-    ArgumentList                 = 1 << 9,
-    Break                        = 1 << 10,
-    Continue                     = 1 << 11,
-    Switch                       = 1 << 12,
-    AllowConstructorWithSupoer   = 1 << 13,
-    Arrow                        = 1 << 14, // If node was parsed in the 'arrow' context
-    AsyncArrow                   = 1 << 15, // If node was parsed in the 'async' context
-    HasUnicode                   = 1 << 16,
+    HasUnicode                   = 1 << 1, // If node was parsed in the 'async' context
+    InFunctionBody               = 1 << 2, // If node was parsed in a function body
+    AllowCall                    = 1 << 3,
+    Break                        = 1 << 4,
+    Continue                     = 1 << 5,
+    Switch                       = 1 << 6,
+    HasPrototype                 = 1 << 7,
+    HaveSeenYield                = 1 << 8,  // Used if we have seen a 'yield' token. E.g. in arrow formal param list
+    BindingPosition              = 1 << 9,  // Used if an "identifier" are used in binding position in strict mode
 
     /* Numeric */
-    Noctal                       = 1 << 17, // e.g. `0777`
-    BigInt                       = 1 << 18, // e.g. `100n`
-    Float                        = 1 << 19, // e.g. `09.01`
-    Exponent                     = 1 << 20, // e.g. `10e2`
+    Noctal                       = 1 << 10, // e.g. `0777`
+    BigInt                       = 1 << 11, // e.g. `100n`
+    Float                        = 1 << 12, // e.g. `09.01`
+    Exponent                     = 1 << 13, // e.g. `10e2`
 
     /* Options */
-    OptionsRanges                = 1 << 21,
-    OptionsLoc                   = 1 << 22,
-    OptionsSource                = 1 << 23,
-    OptionsJSX                   = 1 << 24,
-    OptionsRaw                   = 1 << 25,
-    OptionsNext                  = 1 << 26,
-    OptionsOnComment             = 1 << 27,
-    OptionsOnToken               = 1 << 28,
-    OptionsV8                    = 1 << 29,
+    OptionsRanges                = 1 << 14,
+    OptionsLoc                   = 1 << 15,
+    OptionsSource                = 1 << 16,
+    OptionsJSX                   = 1 << 17,
+    OptionsRaw                   = 1 << 18,
+    OptionsNext                  = 1 << 19,
+    OptionsDirectives            = 1 << 20,
+    OptionsOnComment             = 1 << 21,
+    OptionsOnToken               = 1 << 22,
+    OptionsV8                    = 1 << 23,
+    OptionsFlow                  = 1 << 24,
 
     // BigInt implementation can't handle either float or exponent acc. TC-39
     FloatOrExponent = Float | Exponent
 }
 
 export const enum IterationState {
-    None                = 0,
-    Var                 = 1 << 0,  // Variable declaration
-    Let                 = 1 << 1,  // Variable declaration
-    Const               = 1 << 2,  // Variable declaration
-    Await               = 1 << 3,  // If node was parsed in the 'await' context (Asynchronous Iteration)
-    Variable = Var | Let | Const
-}
-
-export const enum ObjectState {
-    None                = 0,
-    Method          = 1 << 0, // Methoddefinition kind
-    Static          = 1 << 1,
-    Async           = 1 << 2,
-    Get             = 1 << 3,
-    Set             = 1 << 4,
-    Yield           = 1 << 5,
-    Computed        = 1 << 6,
-    Constructor     = 1 << 7,
-    Super           = 1 << 8,
-    Heritage        = 1 << 9,
-    Shorthand       = 1 << 10,
-    Special         = 1 << 11,
-    HasUnicode      = 1 << 12, // If node contains extended unicodeEscape
-    HasConstructor  = 1 << 13, // Class declaration / class
-    Accessors       = Get | Set,
-    Modifiers       = Accessors | Method | Yield
+    None = 0,
+    Var = 1 << 0,
+    Const = 1 << 1,
+    Let = 1 << 2,
+    Await = 1 << 3,
+    Lexical = Const | Let,
+    Variable = Var | Const | Let,
 }
 
 export const enum ParenthesizedState {
-    None           = 0,
-    Reserved       = 1 << 1,
-    WrappedInParen = 1 << 2,
-    TrailingComma  = 1 << 3,
+    None            = 0,
+    EvalOrArg       = 1 << 0, // If (async) arrow contains eval or agruments
+    Yield           = 1 << 1, // If (async) arrow contains eval or agruments
+    Await           = 1 << 2, // If async arrow contains 'await'
+    Parenthesized   = 1 << 3, // Tracks invalid parenthesized pattern
 }
 
-export const enum ScopeMasks {
-    Shadowable = 0x1,
-    NonShadowable = 0x2,
+export const enum AsyncState {
+    None,
+    Function,
+    Identifier
+}
+
+export const enum ObjectState {
+    None            = 0,
+    Yield           = 1 << 0,
+    Async           = 1 << 1,
+    Computed        = 1 << 2,
+    Shorthand       = 1 << 3,
+    Get             = 1 << 4,
+    Set             = 1 << 5,
+    Method          = 1 << 6,
+    HasConstructor  = 1 << 7,
+    Heritage        = 1 << 8,
+    Static          = 1 << 9,
+    Special         = 1 << 10,
+    Constructor     = 1 << 11,
+    Accessors = Get | Set,
+    Modifiers = Accessors | Method | Yield
+}
+
+export const enum ScannerState {
+    None = 0,
+    LastIsCR        = 1 << 0,
+    LineTerminator  = 1 << 1,
+    MultiLine       = 1 << 2,
+    SingleLine      = 1 << 3,
+    Closed          = 1 << 4,
+
+    // Collectable comments - single and multiline
+    Collectable = SingleLine | MultiLine
 }
 
 // Regular expression scanning
@@ -134,4 +137,9 @@ export const enum RegExpFlag {
     Multiline = 0x08,
     IgnoreCase = 0x10,
     DotAll = 0x20,
+}
+
+export const enum ScopeMasks {
+    Shadowable = 0x1,
+    NonShadowable = 0x2,
 }

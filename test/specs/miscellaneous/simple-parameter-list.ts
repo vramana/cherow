@@ -7,18 +7,18 @@ describe('Simple parameter list', () => {
     it('should fail on array pattern default', () => {
         expect(() => {
             parseScript('function a([ option1, option2 ] = []) {  "use strict"; }');
-        }).to.throw('');
+        }).to.not.throw();
     });
       
     it('should fail on array pattern default', () => {  expect(() => { parseScript('function foo(a=2) { "use strict"; }'); }).to.not.throw(''); });
     it('should fail on array pattern default', () => {  expect(() => { parseScript('(a=2) => { "use strict"; }'); }).to.not.throw(''); });
-    it('should fail on array pattern default', () => {  expect(() => { parseScript('function foo({a}) { "use strict"; }'); }).to.throw(''); });
+    it('should fail on array pattern default', () => {  expect(() => { parseScript('function foo({a}) { "use strict"; }'); }).to.not.throw(''); });
     it('should fail on array pattern default', () => {  expect(() => { parseScript('({a}) => { "use strict"; }'); }).to.not.throw(''); });
 
       it('should fail on array pattern', () => {
           expect(() => {
               parseScript('function a([ option1, option2 ]) { "use strict"; }');
-          }).to.throw('');
+            }).to.not.throw();
       });
       it('should fail on arrow function', () => {
           expect(() => {
@@ -28,7 +28,7 @@ describe('Simple parameter list', () => {
       it('should fail on default', () => {
           expect(() => {
               parseScript('function a(options = {}) { "use strict"; }');
-          }).to.throw('');
+            }).to.not.throw();
       });
       it('should fail on method', () => {
           expect(() => {
@@ -37,38 +37,38 @@ describe('Simple parameter list', () => {
             "use strict";
           }
         };`);
-          }).to.throw();
+    }).to.not.throw();
       });
       it('should fail on object pattern default', () => {
           expect(() => {
               parseScript('function a({ option1, option2 } = {}) { "use strict"; }');
-          }).to.throw();
+            }).to.not.throw();
       });
       it('should fail on object pattern', () => {
           expect(() => {
               parseScript('function a({ option1, option2 }) { "use strict"; }');
-          }).to.throw();
+            }).to.not.throw();
       });
       it('should fail on rest', () => {
           expect(() => {
               parseScript('function a(...options) { "use strict"; }');
-          }).to.throw();
+            }).to.not.throw();
       });
       it('should fail on async arrow function', () => {
           expect(() => {
               parseScript('var a = async (options = {}) => { "use strict"; }');
-          }).to.not.throw();
+          }).to.throw();
       });
       it('should fail on async function', () => {
           expect(() => {
               parseScript('async function a(options = {}) { "use strict"; }');
-          }).to.throw();
+            }).to.not.throw();
       });
   
       it('should fail on array pattern', () => {
           expect(() => {
               parseScript('function a([ option1, option2 ]) { "use strict"; }');
-          }).to.throw('');
+            }).to.not.throw();
       });
   
       it('should parse async arrow function concise body', () => {

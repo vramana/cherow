@@ -133,46 +133,167 @@ describe('Espressions - bitwise not', () => {
     });
 
     it('should parse "~-5.4321"', () => {
-        expect(parseScript('~-5.4321')).to.eql({
+        expect(parseScript('~-5.4321', {
+            locations: true,
+            ranges: true,
+            raw: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 8,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 8
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 8,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 8
+                  }
+                },
                 "expression": {
-                    "type": "UnaryExpression",
-                    "operator": "~",
-                    "argument": {
-                        "type": "UnaryExpression",
-                        "operator": "-",
-                        "argument": {
-                            "type": "Literal",
-                            "value": 5.4321
-                        },
-                        "prefix": true
+                  "type": "UnaryExpression",
+                  "start": 0,
+                  "end": 8,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "prefix": true
+                    "end": {
+                      "line": 1,
+                      "column": 8
+                    }
+                  },
+                  "operator": "~",
+                  "prefix": true,
+                  "argument": {
+                    "type": "UnaryExpression",
+                    "start": 1,
+                    "end": 8,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 1
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 8
+                      }
+                    },
+                    "operator": "-",
+                    "prefix": true,
+                    "argument": {
+                      "type": "Literal",
+                      "start": 2,
+                      "end": 8,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 2
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 8
+                        }
+                      },
+                      "value": 5.4321,
+                      "raw": "5.4321"
+                    }
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "~({})"', () => {
-        expect(parseScript('~({})')).to.eql({
+        expect(parseScript('~({})', {
+            locations: true,
+            ranges: true,
+            raw: true
+        })).to.eql({
             "type": "Program",
-            "body": [{
+            "start": 0,
+            "end": 5,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 5
+              }
+            },
+            "body": [
+              {
                 "type": "ExpressionStatement",
+                "start": 0,
+                "end": 5,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 5
+                  }
+                },
                 "expression": {
-                    "type": "UnaryExpression",
-                    "operator": "~",
-                    "argument": {
-                        "type": "ObjectExpression",
-                        "properties": []
+                  "type": "UnaryExpression",
+                  "start": 0,
+                  "end": 5,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "prefix": true
+                    "end": {
+                      "line": 1,
+                      "column": 5
+                    }
+                  },
+                  "operator": "~",
+                  "prefix": true,
+                  "argument": {
+                    "type": "ObjectExpression",
+                    "start": 2,
+                    "end": 4,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 2
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 4
+                      }
+                    },
+                    "properties": []
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
 });

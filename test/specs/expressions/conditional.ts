@@ -18,107 +18,109 @@ describe('Espressions - Conditional', () => {
     });
 
     it('should parse with booleans', () => {
-        expect(parseScript('(true ? false : true)', {
+        expect(parseScript('true ? false : true', {
             ranges: true,
             raw: true,
             locations: true
         })).to.eql({
             "type": "Program",
             "start": 0,
-            "end": 21,
+            "end": 19,
             "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 0
-                },
-                "end": {
-                    "line": 1,
-                    "column": 21
-                }
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 19
+              }
             },
-            "body": [{
+            "body": [
+              {
                 "type": "ExpressionStatement",
                 "start": 0,
-                "end": 21,
+                "end": 19,
                 "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
-                    },
-                    "end": {
-                        "line": 1,
-                        "column": 21
-                    }
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 19
+                  }
                 },
                 "expression": {
-                    "type": "ConditionalExpression",
-                    "start": 1,
-                    "end": 20,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 1
-                        },
-                        "end": {
-                            "line": 1,
-                            "column": 20
-                        }
+                  "type": "ConditionalExpression",
+                  "start": 0,
+                  "end": 19,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "test": {
-                        "type": "Literal",
-                        "start": 1,
-                        "end": 5,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 1
-                            },
-                            "end": {
-                                "line": 1,
-                                "column": 5
-                            }
-                        },
-                        "value": true,
-                        "raw": "true"
-                    },
-                    "consequent": {
-                        "type": "Literal",
-                        "start": 8,
-                        "end": 13,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 8
-                            },
-                            "end": {
-                                "line": 1,
-                                "column": 13
-                            }
-                        },
-                        "value": false,
-                        "raw": "false"
-                    },
-                    "alternate": {
-                        "type": "Literal",
-                        "start": 16,
-                        "end": 20,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 16
-                            },
-                            "end": {
-                                "line": 1,
-                                "column": 20
-                            }
-                        },
-                        "value": true,
-                        "raw": "true"
+                    "end": {
+                      "line": 1,
+                      "column": 19
                     }
+                  },
+                  "test": {
+                    "type": "Literal",
+                    "start": 0,
+                    "end": 4,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 4
+                      }
+                    },
+                    "value": true,
+                    "raw": "true"
+                  },
+                  "consequent": {
+                    "type": "Literal",
+                    "start": 7,
+                    "end": 12,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 7
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 12
+                      }
+                    },
+                    "value": false,
+                    "raw": "false"
+                  },
+                  "alternate": {
+                    "type": "Literal",
+                    "start": 15,
+                    "end": 19,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 15
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 19
+                      }
+                    },
+                    "value": true,
+                    "raw": "true"
+                  }
                 }
-            }],
+              }
+            ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse with in keyword', () => {

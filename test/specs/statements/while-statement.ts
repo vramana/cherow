@@ -205,7 +205,52 @@ describe('Statements - While statement', () => {
             }).to.throw();
         });
     
-        it('should parse "while (x < 10) { x++; y--; }"', () => {
+        
+      it('should parse "while (!a) { if (b) { continue }  }"', () => {
+        expect(parseScript('while (!a) { if (b) { continue }  }', {
+        })).to.eql({
+          "type": "Program",
+          "body": [
+              {
+                  "type": "WhileStatement",
+                  "test": {
+                      "type": "UnaryExpression",
+                      "operator": "!",
+                      "argument": {
+                          "type": "Identifier",
+                          "name": "a"
+                      },
+                      "prefix": true
+                  },
+                  "body": {
+                      "type": "BlockStatement",
+                      "body": [
+                          {
+                              "type": "IfStatement",
+                              "test": {
+                                  "type": "Identifier",
+                                  "name": "b"
+                              },
+                              "alternate": null,
+                              "consequent": {
+                                  "type": "BlockStatement",
+                                  "body": [
+                                      {
+                                          "type": "ContinueStatement",
+                                          "label": null
+                                      }
+                                  ]
+                              }
+                          }
+                      ]
+                  }
+              }
+          ],
+          "sourceType": "script"
+      });
+      });
+    
+      it('should parse "while (x < 10) { x++; y--; }"', () => {
             expect(parseScript('while (x < 10) { x++; y--; }', {
                 ranges: true,
                 raw: true,

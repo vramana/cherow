@@ -682,10 +682,10 @@ describe('Literals - RegExp', () => {
         }).to.throw('Duplicate flags supplied to RegExp constructor g');
     });
 
-    it.skip('should fail on invalid braced quantifier exact', () => {
+    it('should fail on invalid braced quantifier exact', () => {
         expect(() => {
             parseScript(`/{2}/;`)
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should parse unicode decimal escape"', () => {

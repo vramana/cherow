@@ -23,14 +23,14 @@ describe('Block scope', () => {
             }).to.not.throw();
         });
 
-        it('should fail on redeclaration with Async generator declaration (async function declaration in BlockStatement)', () => {
+        it('should fail on redeclaration with async generator declaration (async function declaration in BlockStatement)', () => {
             expect(() => {
                 parseScript('{ async function f() {} async function* f() {} }', {
                     next: true
                 });
             }).to.throw();
         });
-        it('should fail on "redeclaration with ClassDeclaration (async function declaration in BlockStatement)"', () => {
+        it('should fail on "redeclaration with class declaration (async function declaration in BlockStatement)"', () => {
             expect(() => {
                 parseScript('{ async function f() {} class f {}; }');
             }).to.throw();
@@ -109,7 +109,7 @@ describe('Block scope', () => {
         it('should disallow initialization assignment', () => {
             expect(() => {
                 parseScript('for (let x = 3 in {}) { }');
-            }).to.throw();
+            }).to.not.throw();
         });
 
         it('should  disallow multiple lexical bindings', () => {

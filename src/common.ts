@@ -5,6 +5,16 @@ import { Flags, Context } from './masks';
 
 export const hasOwn = Object.prototype.hasOwnProperty;
 
+/**
+ * Returns true if match
+ *
+ * @param mask number
+ * @param flags number
+ */
+export function hasMask(mask: number, flags: number) {
+    return (mask & flags) === flags;
+}
+
 export function tryCreate(pattern: string, flags: string) {
     try {
         return new RegExp(pattern, flags);
@@ -50,61 +60,4 @@ export function isDirective(node: Statement): node is ExpressionStatement & {
     return node.type === 'ExpressionStatement' &&
         node.expression.type === 'Literal' &&
         typeof node.expression.value === 'string';
-}
-
-/**
- * Returns true if match
- *
- * @param mask number
- * @param flags number
- */
-export function hasMask(mask: number, flags: number) {
-    return (mask & flags) === flags;
-}
-
-// Fully qualified element name, e.g. <svg:path> returns "svg:path"
-export function getQualifiedJSXName(elementName: any): any{
-    switch (elementName.type) {
-        case 'JSXIdentifier':
-            return elementName.name;
-        case 'JSXNamespacedName':
-            return elementName.namespace + ':' + elementName.name;
-        case 'JSXMemberExpression':
-            return (
-                getQualifiedJSXName(elementName.object) + '.' +
-                getQualifiedJSXName(elementName.property)
-            );
-       /* istanbul ignore next */
-        default:
-            // ignore
-    }
-}
-
-export function isValidDestructuringAssignmentTarget(expr: Expression | Pattern): boolean {
-    switch (expr.type) {
-        case 'Identifier':
-        case 'ArrayExpression':
-        case 'ArrayPattern':
-        case 'ObjectExpression':
-        case 'ObjectPattern':
-        case 'MemberExpression':
-        case 'ClassExpression':
-        case 'CallExpression':
-        case 'TemplateLiteral':
-        case 'AssignmentExpression':
-        case 'NewExpression':
-            return true;
-        default:
-            return false;
-    }
-}
-
-export function isValidSimpleAssignmentTarget(expr: Expression | Pattern): boolean {
-    switch (expr.type) {
-        case 'Identifier':
-        case 'MemberExpression':
-            return true;
-        default:
-            return false;
-    }
 }

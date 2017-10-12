@@ -22,7 +22,7 @@ export const enum Token {
     EndOfSource = 0, // Pseudo
 
     /* Constants/Bindings */
-    Identifier        = 1 | ExpressionStart | BindingPattern,
+    Identifier        = 1 | ExpressionStart,
     NumericLiteral    = 2 | ExpressionStart,
     StringLiteral     = 3 | ExpressionStart,
     RegularExpression = 4 | ExpressionStart,
@@ -148,7 +148,7 @@ export const enum Token {
     /* Contextual keywords */
     AsKeyword          = 107 | Contextual,
     AsyncKeyword       = 108 | Contextual,
-    AwaitKeyword       = 109 | UnaryOperator | Contextual | ExpressionStart,
+    AwaitKeyword       = 109 | Contextual | ExpressionStart,
     ConstructorKeyword = 110 | Contextual,
     GetKeyword         = 111 | Contextual,
     SetKeyword         = 112 | Contextual,

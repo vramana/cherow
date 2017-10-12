@@ -26,30 +26,110 @@ describe('Expressions - Rest parameters', () => {
     describe('Object pattern', () => {
 
         it('should parse empty', () => {
-            expect(parseScript('function empty(...{}) {}')).to.eql({
+            expect(parseScript('function empty(...{}) {}', {
+                locations: true,
+                raw: true,
+                ranges: true
+            })).to.eql({
                 "type": "Program",
-                "body": [{
-                    "type": "FunctionDeclaration",
-                    "id": {
-                        "type": "Identifier",
-                        "name": "empty"
-                    },
-                    "params": [{
-                        "type": "RestElement",
-                        "argument": {
-                            "type": "ObjectPattern",
-                            "properties": []
+                "body": [
+                    {
+                        "type": "FunctionDeclaration",
+                        "params": [
+                            {
+                                "type": "RestElement",
+                                "argument": {
+                                    "type": "ObjectPattern",
+                                    "properties": [],
+                                    "start": 15,
+                                    "end": 20,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 15
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 20
+                                        }
+                                    }
+                                },
+                                "start": 15,
+                                "end": 20,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 15
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 20
+                                    }
+                                }
+                            }
+                        ],
+                        "body": {
+                            "type": "BlockStatement",
+                            "body": [],
+                            "start": 22,
+                            "end": 24,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 22
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 24
+                                }
+                            }
+                        },
+                        "async": false,
+                        "generator": false,
+                        "expression": false,
+                        "id": {
+                            "type": "Identifier",
+                            "name": "empty",
+                            "start": 9,
+                            "end": 14,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 9
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 14
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 24,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 24
+                            }
                         }
-                    }],
-                    "body": {
-                        "type": "BlockStatement",
-                        "body": []
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 24,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
                     },
-                    "generator": false,
-                    "expression": false,
-                    "async": false
-                }],
-                "sourceType": "script"
+                    "end": {
+                        "line": 1,
+                        "column": 24
+                    }
+                }
             });
         });
 

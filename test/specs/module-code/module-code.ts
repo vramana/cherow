@@ -49,7 +49,7 @@ describe('TC39 - Module code', () => {
         it('should fail on yield', () => {
             expect(() => {
                 parseModule('yield;');
-            }).to.throw();
+            }).to.not.throw();
         });
 
         it('should fail on return', () => {

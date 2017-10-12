@@ -9,7 +9,9 @@ export interface Options {
     comments?: CollectComments;
     loc?: boolean;
     raw?: boolean;
+    directives?: boolean;
     jsx?: boolean;
+    flow?: boolean;
     source?: string;
     v8?: boolean;
 }
@@ -31,13 +33,8 @@ export interface SavedState {
     tokenRaw: any;
 }
 
-export interface ErrorLocation {
-    index: number;
-    line: number;
-    column: number;
-}
-
 export interface Location {
+    index: number;
     start: number;
     line: number;
     column: number;

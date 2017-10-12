@@ -7,137 +7,404 @@ describe('Destructuring - Arrow rest', () => {
 
     it('should parse "let xs = [0, "", true];"', () => {
         expect(parseScript('let xs = [0, "", true];', {
-            ranges: true
+            ranges: true,
+            locations: true,
+            raw: true
         })).to.eql({
-              "body": [
-                {
-                  "declarations": [
-                    {
-                      "end": 22,
-                      "id": {
-                        "end": 6,
-                        "name": "xs",
-                        "start": 4,
-                        "type": "Identifier"
-                     },
-                     "init": {
-                        "elements": [
-                          {
-                            "end": 11,
-                            "start": 10,
-                            "type": "Literal",
-                            "value": 0
-                          },
-                          {
-                            "end": 15,
-                            "start": 13,
-                            "type": "Literal",
-                            "value": "",
-                          },
-                          {
-                            "end": 21,
-                            "start": 17,
-                            "type": "Literal",
-                            "value": true
-                          },
-                        ],
-                        "end": 22,
-                        "start": 9,
-                        "type": "ArrayExpression"
+            "type": "Program",
+            "start": 0,
+            "end": 23,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 23
+              }
+            },
+            "body": [
+              {
+                "type": "VariableDeclaration",
+                "start": 0,
+                "end": 23,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 23
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 4,
+                    "end": 22,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
                       },
+                      "end": {
+                        "line": 1,
+                        "column": 22
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
                       "start": 4,
-                      "type": "VariableDeclarator"
+                      "end": 6,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 6
+                        }
+                      },
+                      "name": "xs"
+                    },
+                    "init": {
+                      "type": "ArrayExpression",
+                      "start": 9,
+                      "end": 22,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 9
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 22
+                        }
+                      },
+                      "elements": [
+                        {
+                          "type": "Literal",
+                          "start": 10,
+                          "end": 11,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 10
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 11
+                            }
+                          },
+                          "value": 0,
+                          "raw": "0"
+                        },
+                        {
+                          "type": "Literal",
+                          "start": 13,
+                          "end": 15,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 13
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 15
+                            }
+                          },
+                          "value": "",
+                          "raw": "\"\""
+                        },
+                        {
+                          "type": "Literal",
+                          "start": 17,
+                          "end": 21,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 17
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 21
+                            }
+                          },
+                          "value": true,
+                          "raw": "true"
+                        }
+                      ]
                     }
-                 ],
-                  "end": 23,
-                  "kind": "let",
-                  "start": 0,
-                  "type": "VariableDeclaration"
-                }
-              ],
-              "end": 23,
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
-            });
+                  }
+                ],
+                "kind": "let"
+              }
+            ],
+            "sourceType": "script"
+          });
     });
 
     it('should parse "let [a, ...ys] = xs;"', () => {
         expect(parseScript('let [a, ...ys] = xs;', {
-            ranges: false,
-            raw: true,
+            ranges: true,
+            locations: true,
+            raw: true
         })).to.eql({
             "type": "Program",
+            "start": 0,
+            "end": 20,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 20
+              }
+            },
             "body": [
-                {
-                    "type": "VariableDeclaration",
-                    "declarations": [
-                        {
-                            "type": "VariableDeclarator",
-                            "id": {
-                                "type": "ArrayPattern",
-                                "elements": [
-                                    {
-                                        "type": "Identifier",
-                                        "name": "a"
-                                    },
-                                    {
-                                        "type": "RestElement",
-                                        "argument": {
-                                            "type": "Identifier",
-                                            "name": "ys"
-                                        }
-                                    }
-                                ]
-                            },
-                            "init": {
-                                "type": "Identifier",
-                                "name": "xs"
-                            }
+              {
+                "type": "VariableDeclaration",
+                "start": 0,
+                "end": 20,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 20
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 4,
+                    "end": 19,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 19
+                      }
+                    },
+                    "id": {
+                      "type": "ArrayPattern",
+                      "start": 4,
+                      "end": 14,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 14
                         }
-                    ],
-                    "kind": "let"
-                }
+                      },
+                      "elements": [
+                        {
+                          "type": "Identifier",
+                          "start": 5,
+                          "end": 6,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 5
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 6
+                            }
+                          },
+                          "name": "a"
+                        },
+                        {
+                          "type": "RestElement",
+                          "start": 8,
+                          "end": 13,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 8
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 13
+                            }
+                          },
+                          "argument": {
+                            "type": "Identifier",
+                            "start": 11,
+                            "end": 13,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 11
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 13
+                              }
+                            },
+                            "name": "ys"
+                          }
+                        }
+                      ]
+                    },
+                    "init": {
+                      "type": "Identifier",
+                      "start": 17,
+                      "end": 19,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 17
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 19
+                        }
+                      },
+                      "name": "xs"
+                    }
+                  }
+                ],
+                "kind": "let"
+              }
             ],
             "sourceType": "script"
-        });
+          });
     });
 
     it('should parse "let [...e] = 0;"', () => {
         expect(parseScript('let [...e] = 0;', {
-            ranges: false,
+            ranges: true,
+            locations: true,
             raw: true
         })).to.eql({
             "type": "Program",
+            "start": 0,
+            "end": 15,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 15
+              }
+            },
             "body": [
-                {
-                    "type": "VariableDeclaration",
-                    "declarations": [
-                        {
-                            "type": "VariableDeclarator",
-                            "id": {
-                                "type": "ArrayPattern",
-                                "elements": [
-                                    {
-                                        "type": "RestElement",
-                                        "argument": {
-                                            "type": "Identifier",
-                                            "name": "e"
-                                        }
-                                    }
-                                ]
-                            },
-                            "init": {
-                                "type": "Literal",
-                                "value": 0,
-                                "raw": "0"
-                            }
+              {
+                "type": "VariableDeclaration",
+                "start": 0,
+                "end": 15,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 15
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 4,
+                    "end": 14,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 14
+                      }
+                    },
+                    "id": {
+                      "type": "ArrayPattern",
+                      "start": 4,
+                      "end": 10,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 10
                         }
-                    ],
-                    "kind": "let"
-                }
+                      },
+                      "elements": [
+                        {
+                          "type": "RestElement",
+                          "start": 5,
+                          "end": 9,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 5
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 9
+                            }
+                          },
+                          "argument": {
+                            "type": "Identifier",
+                            "start": 8,
+                            "end": 9,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 8
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 9
+                              }
+                            },
+                            "name": "e"
+                          }
+                        }
+                      ]
+                    },
+                    "init": {
+                      "type": "Literal",
+                      "start": 13,
+                      "end": 14,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 13
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 14
+                        }
+                      },
+                      "value": 0,
+                      "raw": "0"
+                    }
+                  }
+                ],
+                "kind": "let"
+              }
             ],
             "sourceType": "script"
-        });
+          });
     });
 });

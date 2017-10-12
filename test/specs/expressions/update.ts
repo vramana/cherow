@@ -5,6 +5,30 @@ const expect = chai.expect;
 
 describe('Espressions - Update', () => {
 
+    it('should fail on "eval" in strict mode - prefix', () => {
+        expect(() => {
+            expect(parseModule('--eval'))
+        }).to.throw('');
+    });
+
+    it('should fail on "arguments" in strict mode - prefix', () => {
+        expect(() => {
+            expect(parseModule('--arguments'))
+        }).to.throw('');
+    });
+
+    it('should fail on "eval" in strict mode - postfix', () => {
+        expect(() => {
+            expect(parseModule('eval--'))
+        }).to.throw('');
+    });
+
+    it('should fail on "arguments" in strict mode - postfix', () => {
+        expect(() => {
+            expect(parseModule('arguments--'))
+        }).to.throw('');
+    });
+
     it('should parse "++a"', () => {
         expect(parseScript('++a')).to.eql({
             "type": "Program",
@@ -98,33 +122,5 @@ describe('Espressions - Update', () => {
             }],
             "sourceType": "script"
         });
-    });
-
-    it('should fail on "eval" in strict mode - prefix', () => {
-        expect(() => {
-            expect(parseModule('--eval'))
-        }).to.throw('');
-
-    });
-
-    it('should fail on "arguments" in strict mode - prefix', () => {
-        expect(() => {
-            expect(parseModule('--arguments'))
-        }).to.throw('');
-
-    });
-
-    it('should fail on "eval" in strict mode - postfix', () => {
-        expect(() => {
-            expect(parseModule('eval--'))
-        }).to.throw('');
-
-    });
-
-    it('should fail on "arguments" in strict mode - postfix', () => {
-        expect(() => {
-            expect(parseModule('arguments--'))
-        }).to.throw('');
-
     });
 });

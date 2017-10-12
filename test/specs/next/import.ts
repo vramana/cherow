@@ -26,6 +26,7 @@ describe('Next - Dynamic Import', () => {
             });
         }).to.throw();
     });
+
     it('should fail on invalid non callee', () => {
         expect(() => {
             parseScript('import.then(doLoad);', {
@@ -60,7 +61,8 @@ describe('Next - Dynamic Import', () => {
         expect(parseScript('"use strict"; import("test.js");', {
             raw: true,
             ranges: true,
-            next: true
+            next: true,
+            locations: true
         })).to.eql({
             "type": "Program",
             "body": [
@@ -71,39 +73,109 @@ describe('Next - Dynamic Import', () => {
                         "value": "use strict",
                         "start": 0,
                         "end": 12,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 12
+                            }
+                        },
                         "raw": "\"use strict\""
                     },
                     "start": 0,
-                    "end": 13
+                    "end": 13,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 13
+                        }
+                    }
                 },
                 {
                     "type": "ExpressionStatement",
                     "expression": {
                         "type": "CallExpression",
+                        "callee": {
+                            "type": "Import",
+                            "start": 14,
+                            "end": 20,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 14
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 20
+                                }
+                            }
+                        },
                         "arguments": [
                             {
                                 "type": "Literal",
                                 "value": "test.js",
                                 "start": 21,
                                 "end": 30,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 21
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 30
+                                    }
+                                },
                                 "raw": "\"test.js\""
                             }
                         ],
-                        "callee": {
-                            "type": "Import",
-                            "start": 14,
-                            "end": 20
-                        },
                         "start": 14,
-                        "end": 31
+                        "end": 31,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 14
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 31
+                            }
+                        }
                     },
                     "start": 14,
-                    "end": 32
+                    "end": 32,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 14
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 32
+                        }
+                    }
                 }
             ],
             "sourceType": "script",
             "start": 0,
-            "end": 32
+            "end": 32,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 32
+                }
+            }
         });
     });
 
@@ -114,46 +186,40 @@ describe('Next - Dynamic Import', () => {
             next: true
         })).to.eql({
             "type": "Program",
-            "body": [
-                {
-                    "type": "VariableDeclaration",
-                    "declarations": [
-                        {
-                            "type": "VariableDeclarator",
-                            "init": {
-                                "type": "CallExpression",
-                                "arguments": [
-                                    {
-                                        "type": "Literal",
-                                        "value": "test.js",
-                                        "start": 28,
-                                        "end": 37,
-                                        "raw": "\"test.js\""
-                                    }
-                                ],
-                                "callee": {
-                                    "type": "Import",
-                                    "start": 21,
-                                    "end": 27
-                                },
-                                "start": 21,
-                                "end": 38
-                            },
-                            "id": {
-                                "type": "Identifier",
-                                "name": "importResult",
-                                "start": 6,
-                                "end": 18
-                            },
-                            "start": 6,
-                            "end": 38
-                        }
-                    ],
-                    "kind": "const",
-                    "start": 0,
-                    "end": 39
-                }
-            ],
+            "body": [{
+                "type": "VariableDeclaration",
+                "declarations": [{
+                    "type": "VariableDeclarator",
+                    "init": {
+                        "type": "CallExpression",
+                        "arguments": [{
+                            "type": "Literal",
+                            "value": "test.js",
+                            "start": 28,
+                            "end": 37,
+                            "raw": "\"test.js\""
+                        }],
+                        "callee": {
+                            "type": "Import",
+                            "start": 21,
+                            "end": 27
+                        },
+                        "start": 21,
+                        "end": 38
+                    },
+                    "id": {
+                        "type": "Identifier",
+                        "name": "importResult",
+                        "start": 6,
+                        "end": 18
+                    },
+                    "start": 6,
+                    "end": 38
+                }],
+                "kind": "const",
+                "start": 0,
+                "end": 39
+            }],
             "sourceType": "script",
             "start": 0,
             "end": 39
@@ -334,60 +400,54 @@ describe('Next - Dynamic Import', () => {
             next: true
         })).to.eql({
             "type": "Program",
-            "body": [
-                {
-                    "type": "FunctionDeclaration",
-                    "params": [],
-                    "body": {
-                        "type": "BlockStatement",
-                        "body": [
-                            {
-                                "type": "ExpressionStatement",
-                                "expression": {
-                                    "type": "YieldExpression",
-                                    "argument": {
-                                        "type": "CallExpression",
-                                        "arguments": [
-                                            {
-                                                "type": "Literal",
-                                                "value": "http",
-                                                "start": 29,
-                                                "end": 35,
-                                                "raw": "\"http\""
-                                            }
-                                        ],
-                                        "callee": {
-                                            "type": "Import",
-                                            "start": 22,
-                                            "end": 28
-                                        },
-                                        "start": 22,
-                                        "end": 36
-                                    },
-                                    "delegate": false,
-                                    "start": 16,
-                                    "end": 36
+            "body": [{
+                "type": "FunctionDeclaration",
+                "params": [],
+                "body": {
+                    "type": "BlockStatement",
+                    "body": [{
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "YieldExpression",
+                            "argument": {
+                                "type": "CallExpression",
+                                "arguments": [{
+                                    "type": "Literal",
+                                    "value": "http",
+                                    "start": 29,
+                                    "end": 35,
+                                    "raw": "\"http\""
+                                }],
+                                "callee": {
+                                    "type": "Import",
+                                    "start": 22,
+                                    "end": 28
                                 },
-                                "start": 16,
-                                "end": 37
-                            }
-                        ],
-                        "start": 14,
-                        "end": 39
-                    },
-                    "async": false,
-                    "generator": true,
-                    "expression": false,
-                    "id": {
-                        "type": "Identifier",
-                        "name": "a",
-                        "start": 10,
-                        "end": 11
-                    },
-                    "start": 0,
+                                "start": 22,
+                                "end": 36
+                            },
+                            "delegate": false,
+                            "start": 16,
+                            "end": 36
+                        },
+                        "start": 16,
+                        "end": 37
+                    }],
+                    "start": 14,
                     "end": 39
-                }
-            ],
+                },
+                "async": false,
+                "generator": true,
+                "expression": false,
+                "id": {
+                    "type": "Identifier",
+                    "name": "a",
+                    "start": 10,
+                    "end": 11
+                },
+                "start": 0,
+                "end": 39
+            }],
             "sourceType": "script",
             "start": 0,
             "end": 39
@@ -401,89 +461,78 @@ describe('Next - Dynamic Import', () => {
             next: true
         })).to.eql({
             "type": "Program",
-            "body": [
-                {
-                    "type": "FunctionDeclaration",
-                    "params": [
-                        {
-                            "type": "Identifier",
-                            "name": "file",
-                            "start": 20,
-                            "end": 24
-                        }
-                    ],
-                    "body": {
-                        "type": "BlockStatement",
-                        "body": [
-                            {
-                                "type": "ReturnStatement",
-                                "argument": {
-                                    "type": "CallExpression",
-                                    "arguments": [
-                                        {
-                                            "type": "TemplateLiteral",
-                                            "expressions": [
-                                                {
-                                                    "type": "Identifier",
-                                                    "name": "file",
-                                                    "start": 50,
-                                                    "end": 54
-                                                }
-                                            ],
-                                            "quasis": [
-                                                {
-                                                    "type": "TemplateElement",
-                                                    "value": {
-                                                        "cooked": "test/",
-                                                        "raw": "test/"
-                                                    },
-                                                    "tail": false,
-                                                    "start": 54,
-                                                    "end": 54
-                                                },
-                                                {
-                                                    "type": "TemplateElement",
-                                                    "value": {
-                                                        "cooked": ".js",
-                                                        "raw": ".js"
-                                                    },
-                                                    "tail": true,
-                                                    "start": 42,
-                                                    "end": 59
-                                                }
-                                            ],
-                                            "start": 42,
-                                            "end": 59
-                                        }
-                                    ],
-                                    "callee": {
-                                        "type": "Import",
-                                        "start": 35,
-                                        "end": 41
+            "body": [{
+                "type": "FunctionDeclaration",
+                "params": [{
+                    "type": "Identifier",
+                    "name": "file",
+                    "start": 20,
+                    "end": 24
+                }],
+                "body": {
+                    "type": "BlockStatement",
+                    "body": [{
+                        "type": "ReturnStatement",
+                        "argument": {
+                            "type": "CallExpression",
+                            "arguments": [{
+                                "type": "TemplateLiteral",
+                                "expressions": [{
+                                    "type": "Identifier",
+                                    "name": "file",
+                                    "start": 50,
+                                    "end": 54
+                                }],
+                                "quasis": [{
+                                        "type": "TemplateElement",
+                                        "value": {
+                                            "cooked": "test/",
+                                            "raw": "test/"
+                                        },
+                                        "tail": false,
+                                        "start": 54,
+                                        "end": 54
                                     },
-                                    "start": 35,
-                                    "end": 60
-                                },
-                                "start": 28,
-                                "end": 61
-                            }
-                        ],
-                        "start": 26,
-                        "end": 63
-                    },
-                    "async": false,
-                    "generator": false,
-                    "expression": false,
-                    "id": {
-                        "type": "Identifier",
-                        "name": "loadImport",
-                        "start": 9,
-                        "end": 19
-                    },
-                    "start": 0,
+                                    {
+                                        "type": "TemplateElement",
+                                        "value": {
+                                            "cooked": ".js",
+                                            "raw": ".js"
+                                        },
+                                        "tail": true,
+                                        "start": 42,
+                                        "end": 59
+                                    }
+                                ],
+                                "start": 42,
+                                "end": 59
+                            }],
+                            "callee": {
+                                "type": "Import",
+                                "start": 35,
+                                "end": 41
+                            },
+                            "start": 35,
+                            "end": 60
+                        },
+                        "start": 28,
+                        "end": 61
+                    }],
+                    "start": 26,
                     "end": 63
-                }
-            ],
+                },
+                "async": false,
+                "generator": false,
+                "expression": false,
+                "id": {
+                    "type": "Identifier",
+                    "name": "loadImport",
+                    "start": 9,
+                    "end": 19
+                },
+                "start": 0,
+                "end": 63
+            }],
             "sourceType": "script",
             "start": 0,
             "end": 63
@@ -718,5 +767,4 @@ describe('Next - Dynamic Import', () => {
             "type": "Program"
         });
     });
-
 });

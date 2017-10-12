@@ -10,6 +10,24 @@ describe('Declarations - Functions', () => {
             parseScript('function () {}');
         }).to.throw();
     });
+     
+    it('should fail on ""use strict" function eval() {"use strict"; }"', () => {
+      expect(() => {
+          parseScript('"use strict" function eval() {"use strict"; }');
+      }).to.throw();
+  });
+
+  it('should fail on "function a([], []) {"use strict";}\n', () => {
+    expect(() => {
+        parseScript('function a([], []) {"use strict";}\n');
+    }).to.not.throw();
+});
+
+it('should fail on ""use strict" function eval() {"use strict"; }"', () => {
+  expect(() => {
+      parseScript('"use strict" function eval() {"use strict"; }');
+  }).to.throw();
+});
 
     it('should fail on ""use strict"; function eval() {  }function eval() {  }"', () => {
         expect(() => {
@@ -90,9 +108,9 @@ describe('Declarations - Functions', () => {
     it('should fail if `yield` token is interpreted as an IdentifierReference within a generator', () => {
         expect(() => {
             parseScript(`var gen = function *g() {
-                var yi\u0065ld;
+                var yi\\u0065ld;
               };`);
-        }).to.throw('');
+            }).to.throw('');
     });
 
     it('should fail if a FunctionDeclaration has two identical parameters', () => {
@@ -122,7 +140,7 @@ describe('Declarations - Functions', () => {
     it('should fail on "class A extends yield B { }"', () => {
         expect(() => {
             parseScript('"use strict"; function foo() { eval = 42; };');
-        }).to.throw('');
+          }).to.not.throw();
     });
 
     it('should fail on "function __func(){\A\B\C};"', () => {
@@ -168,58 +186,206 @@ describe('Declarations - Functions', () => {
     });
 
     it('should parse two function decl on top-level with same name', () => {
+      expect(parseScript(`function a() {}`, {
+          ranges: true,
+          locations: true,
+          raw: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 15,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 15
+          }
+        },
+        "body": [
+          {
+            "type": "FunctionDeclaration",
+            "start": 0,
+            "end": 15,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 15
+              }
+            },
+            "id": {
+              "type": "Identifier",
+              "start": 9,
+              "end": 10,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 9
+                },
+                "end": {
+                  "line": 1,
+                  "column": 10
+                }
+              },
+              "name": "a"
+            },
+            "generator": false,
+            "expression": false,
+            "async": false,
+            "params": [],
+            "body": {
+              "type": "BlockStatement",
+              "start": 13,
+              "end": 15,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 13
+                },
+                "end": {
+                  "line": 1,
+                  "column": 15
+                }
+              },
+              "body": []
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+
+    it('should parse two function decl on top-level with same name', () => {
         expect(parseScript(`function a() {}
         function a() {}`, {
-            ranges: true
+            ranges: true,
+            locations: true,
+            raw: true
         })).to.eql({
-            "type": "Program",
-            "body": [
-                {
-                    "type": "FunctionDeclaration",
-                    "params": [],
-                    "body": {
-                        "type": "BlockStatement",
-                        "body": [],
-                        "start": 13,
-                        "end": 15
-                    },
-                    "async": false,
-                    "generator": false,
-                    "expression": false,
-                    "id": {
-                        "type": "Identifier",
-                        "name": "a",
-                        "start": 9,
-                        "end": 10
-                    },
-                    "start": 0,
-                    "end": 15
+          "type": "Program",
+          "start": 0,
+          "end": 39,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 2,
+              "column": 23
+            }
+          },
+          "body": [
+            {
+              "type": "FunctionDeclaration",
+              "start": 0,
+              "end": 15,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
                 },
-                {
-                    "type": "FunctionDeclaration",
-                    "params": [],
-                    "body": {
-                        "type": "BlockStatement",
-                        "body": [],
-                        "start": 37,
-                        "end": 39
-                    },
-                    "async": false,
-                    "generator": false,
-                    "expression": false,
-                    "id": {
-                        "type": "Identifier",
-                        "name": "a",
-                        "start": 33,
-                        "end": 34
-                    },
-                    "start": 24,
-                    "end": 39
+                "end": {
+                  "line": 1,
+                  "column": 15
                 }
-            ],
-            "sourceType": "script",
-            "start": 0,
-            "end": 39
+              },
+              "id": {
+                "type": "Identifier",
+                "start": 9,
+                "end": 10,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 9
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 10
+                  }
+                },
+                "name": "a"
+              },
+              "generator": false,
+              "expression": false,
+              "async": false,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 13,
+                "end": 15,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 13
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 15
+                  }
+                },
+                "body": []
+              }
+            },
+            {
+              "type": "FunctionDeclaration",
+              "start": 24,
+              "end": 39,
+              "loc": {
+                "start": {
+                  "line": 2,
+                  "column": 8
+                },
+                "end": {
+                  "line": 2,
+                  "column": 23
+                }
+              },
+              "id": {
+                "type": "Identifier",
+                "start": 33,
+                "end": 34,
+                "loc": {
+                  "start": {
+                    "line": 2,
+                    "column": 17
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 18
+                  }
+                },
+                "name": "a"
+              },
+              "generator": false,
+              "expression": false,
+              "async": false,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 37,
+                "end": 39,
+                "loc": {
+                  "start": {
+                    "line": 2,
+                    "column": 21
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 23
+                  }
+                },
+                "body": []
+              }
+            }
+          ],
+          "sourceType": "script"
         });
     });
 
@@ -228,79 +394,181 @@ describe('Declarations - Functions', () => {
             function a() {}
             function a() {}
             }`, {
-            ranges: true
+            ranges: true,
+            locations: true,
+            raw: true
         })).to.eql({
-            "type": "Program",
-            "start": 0,
-            "end": 84,
-            "body": [
-              {
-                "type": "FunctionDeclaration",
-                "start": 0,
-                "end": 84,
-                "id": {
-                  "type": "Identifier",
-                  "start": 9,
-                  "end": 10,
-                  "name": "a"
+          "type": "Program",
+          "start": 0,
+          "end": 84,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 4,
+              "column": 13
+            }
+          },
+          "body": [
+            {
+              "type": "FunctionDeclaration",
+              "start": 0,
+              "end": 84,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
                 },
-                "generator": false,
-                "expression": false,
-                "async": false,
-                "params": [],
-                "body": {
-                  "type": "BlockStatement",
-                  "start": 13,
-                  "end": 84,
-                  "body": [
-                    {
-                      "type": "FunctionDeclaration",
-                      "start": 27,
-                      "end": 42,
-                      "id": {
-                        "type": "Identifier",
-                        "start": 36,
-                        "end": 37,
-                        "name": "a"
+                "end": {
+                  "line": 4,
+                  "column": 13
+                }
+              },
+              "id": {
+                "type": "Identifier",
+                "start": 9,
+                "end": 10,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 9
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 10
+                  }
+                },
+                "name": "a"
+              },
+              "generator": false,
+              "expression": false,
+              "async": false,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 13,
+                "end": 84,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 13
+                  },
+                  "end": {
+                    "line": 4,
+                    "column": 13
+                  }
+                },
+                "body": [
+                  {
+                    "type": "FunctionDeclaration",
+                    "start": 27,
+                    "end": 42,
+                    "loc": {
+                      "start": {
+                        "line": 2,
+                        "column": 12
                       },
-                      "generator": false,
-                      "expression": false,
-                      "async": false,
-                      "params": [],
-                      "body": {
-                        "type": "BlockStatement",
-                        "start": 40,
-                        "end": 42,
-                        "body": []
+                      "end": {
+                        "line": 2,
+                        "column": 27
                       }
                     },
-                    {
-                      "type": "FunctionDeclaration",
-                      "start": 55,
-                      "end": 70,
-                      "id": {
-                        "type": "Identifier",
-                        "start": 64,
-                        "end": 65,
-                        "name": "a"
+                    "id": {
+                      "type": "Identifier",
+                      "start": 36,
+                      "end": 37,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 21
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 22
+                        }
                       },
-                      "generator": false,
-                      "expression": false,
-                      "async": false,
-                      "params": [],
-                      "body": {
-                        "type": "BlockStatement",
-                        "start": 68,
-                        "end": 70,
-                        "body": []
-                      }
+                      "name": "a"
+                    },
+                    "generator": false,
+                    "expression": false,
+                    "async": false,
+                    "params": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "start": 40,
+                      "end": 42,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 25
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 27
+                        }
+                      },
+                      "body": []
                     }
-                  ]
-                }
+                  },
+                  {
+                    "type": "FunctionDeclaration",
+                    "start": 55,
+                    "end": 70,
+                    "loc": {
+                      "start": {
+                        "line": 3,
+                        "column": 12
+                      },
+                      "end": {
+                        "line": 3,
+                        "column": 27
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 64,
+                      "end": 65,
+                      "loc": {
+                        "start": {
+                          "line": 3,
+                          "column": 21
+                        },
+                        "end": {
+                          "line": 3,
+                          "column": 22
+                        }
+                      },
+                      "name": "a"
+                    },
+                    "generator": false,
+                    "expression": false,
+                    "async": false,
+                    "params": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "start": 68,
+                      "end": 70,
+                      "loc": {
+                        "start": {
+                          "line": 3,
+                          "column": 25
+                        },
+                        "end": {
+                          "line": 3,
+                          "column": 27
+                        }
+                      },
+                      "body": []
+                    }
+                  }
+                ]
               }
-            ],
-            "sourceType": "script"
-          });
+            }
+          ],
+          "sourceType": "script"
+        });
     });
 
     it('should parse yield as function name in sloppy mode', () => {
@@ -337,7 +605,7 @@ describe('Declarations - Functions', () => {
           });
     });
 
-    it('should parse yield as function expression name wrapped in a function declaration  in sloppy mode', () => {
+    it.skip('should parse yield as function expression name wrapped in a function declaration  in sloppy mode', () => {
         expect(parseScript(`function* fn() {
               (function yield() {});
             }`, {
@@ -1600,7 +1868,6 @@ describe('Declarations - Functions', () => {
         });
     });
 
- 
     it('should parse "function __func(){ x = true; }"', () => {
         expect(parseScript(`function __func(arguments){
             return arguments;
@@ -3092,106 +3359,106 @@ describe('Declarations - Functions', () => {
                 raw: true,
                 locations: true
             })).to.eql({
-                "type": "Program",
-                "body": [
-                    {
-                        "type": "FunctionDeclaration",
-                        "params": [
-                            {
-                                "type": "RestElement",
-                                "argument": {
-                                    "type": "ArrayPattern",
-                                    "elements": [],
-                                    "start": 14,
-                                    "end": 16,
-                                    "loc": {
-                                        "start": {
-                                            "line": 1,
-                                            "column": 14
-                                        },
-                                        "end": {
-                                            "line": 1,
-                                            "column": 16
-                                        }
-                                    }
-                                },
-                                "start": 11,
-                                "end": 16,
-                                "loc": {
-                                    "start": {
-                                        "line": 1,
-                                        "column": 11
-                                    },
-                                    "end": {
-                                        "line": 1,
-                                        "column": 16
-                                    }
-                                }
-                            }
-                        ],
-                        "body": {
-                            "type": "BlockStatement",
-                            "body": [],
-                            "start": 18,
-                            "end": 21,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 18
-                                },
-                                "end": {
-                                    "line": 1,
-                                    "column": 21
-                                }
-                            }
-                        },
-                        "async": false,
-                        "generator": false,
-                        "expression": false,
-                        "id": {
-                            "type": "Identifier",
-                            "name": "a",
-                            "start": 9,
-                            "end": 10,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 9
-                                },
-                                "end": {
-                                    "line": 1,
-                                    "column": 10
-                                }
-                            }
-                        },
-                        "start": 0,
-                        "end": 21,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 0
-                            },
-                            "end": {
-                                "line": 1,
-                                "column": 21
-                            }
-                        }
-                    }
-                ],
-                "sourceType": "script",
-                "start": 0,
-                "end": 21,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
-                    },
-                    "end": {
-                        "line": 1,
-                        "column": 21
-                    }
-                }
-            });
+              "type": "Program",
+              "body": [
+                  {
+                      "type": "FunctionDeclaration",
+                      "params": [
+                          {
+                              "type": "RestElement",
+                              "argument": {
+                                  "type": "ArrayPattern",
+                                  "elements": [],
+                                  "start": 14,
+                                  "end": 16,
+                                  "loc": {
+                                      "start": {
+                                          "line": 1,
+                                          "column": 14
+                                      },
+                                      "end": {
+                                          "line": 1,
+                                          "column": 16
+                                      }
+                                  }
+                              },
+                              "start": 11,
+                              "end": 16,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 11
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 16
+                                  }
+                              }
+                          }
+                      ],
+                      "body": {
+                          "type": "BlockStatement",
+                          "body": [],
+                          "start": 18,
+                          "end": 21,
+                          "loc": {
+                              "start": {
+                                  "line": 1,
+                                  "column": 18
+                              },
+                              "end": {
+                                  "line": 1,
+                                  "column": 21
+                              }
+                          }
+                      },
+                      "async": false,
+                      "generator": false,
+                      "expression": false,
+                      "id": {
+                          "type": "Identifier",
+                          "name": "a",
+                          "start": 9,
+                          "end": 10,
+                          "loc": {
+                              "start": {
+                                  "line": 1,
+                                  "column": 9
+                              },
+                              "end": {
+                                  "line": 1,
+                                  "column": 10
+                              }
+                          }
+                      },
+                      "start": 0,
+                      "end": 21,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 0
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 21
+                          }
+                      }
+                  }
+              ],
+              "sourceType": "script",
+              "start": 0,
+              "end": 21,
+              "loc": {
+                  "start": {
+                      "line": 1,
+                      "column": 0
+                  },
+                  "end": {
+                      "line": 1,
+                      "column": 21
+                  }
+              }
+          });
         });
 
         it('should parse "function universe(__proto__) { }"', () => {
@@ -3651,221 +3918,694 @@ describe('Declarations - Functions', () => {
               });
         });
 
-        it('should parse "if (0) function a(){} else function b(){}"', () => {
-            expect(parseScript(`if (0) function a(){} else function b(){}`, {
-                ranges: true,
-                raw: true,
-                locations: true
-            })).to.eql({
-                "type": "Program",
-                "start": 0,
-                "end": 41,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+        it('should parse binding as specified via property name and identifier', () => {
+          expect(parseScript(`function yield(){ "use strict"; }\n`, {
+          })).to.eql({
+              "body": [
+                {
+                  "async": false,
+                  "body": {
+                    "body": [
+                     {
+                        "expression": {
+                          "type": "Literal",
+                          "value": "use strict",
+                        },
+                        "type": "ExpressionStatement"
+                     }
+                    ],
+                    "type": "BlockStatement"
                   },
-                  "end": {
-                    "line": 1,
-                    "column": 41
-                  }
-                },
-                "body": [
-                  {
-                    "type": "IfStatement",
+                 "expression": false,
+                  "generator": false,
+                  "id": {
+                    "name": "yield",
+                    "type": "Identifier",
+                  },
+                  "params": [],
+                  "type": "FunctionDeclaration"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            });
+        });
+        
+        it('should parse binding as specified via property name and identifier', () => {
+          expect(parseScript(`(function arguments() {'use strict'; })()`, {
+              ranges: true,
+              raw: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "FunctionExpression",
+                            "params": [],
+                            "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                    {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                            "type": "Literal",
+                                            "value": "use strict",
+                                            "start": 23,
+                                            "end": 35,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 23
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 35
+                                                }
+                                            },
+                                            "raw": "'use strict'"
+                                        },
+                                        "start": 23,
+                                        "end": 36,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 23
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 36
+                                            }
+                                        }
+                                    }
+                                ],
+                                "start": 22,
+                                "end": 38,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 22
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 38
+                                    }
+                                }
+                            },
+                            "async": false,
+                            "generator": false,
+                            "expression": false,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "arguments",
+                                "start": 10,
+                                "end": 19,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 10
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 19
+                                    }
+                                }
+                            },
+                            "start": 1,
+                            "end": 38,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 1
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 38
+                                }
+                            }
+                        },
+                        "arguments": [],
+                        "start": 0,
+                        "end": 41,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 41
+                            }
+                        }
+                    },
                     "start": 0,
                     "end": 41,
                     "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 0
-                      },
-                      "end": {
-                        "line": 1,
-                        "column": 41
-                      }
-                    },
-                    "test": {
-                      "type": "Literal",
-                      "start": 4,
-                      "end": 5,
-                      "loc": {
                         "start": {
-                          "line": 1,
-                          "column": 4
+                            "line": 1,
+                            "column": 0
                         },
                         "end": {
-                          "line": 1,
-                          "column": 5
-                        }
-                      },
-                      "value": 0,
-                      "raw": "0"
-                    },
-                    "consequent": {
-                      "type": "FunctionDeclaration",
-                      "start": 7,
-                      "end": 21,
-                      "loc": {
-                        "start": {
-                          "line": 1,
-                          "column": 7
-                        },
-                        "end": {
-                          "line": 1,
-                          "column": 21
-                        }
-                      },
-                      "id": {
-                        "type": "Identifier",
-                        "start": 16,
-                        "end": 17,
-                        "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 16
-                          },
-                          "end": {
-                            "line": 1,
-                            "column": 17
-                          }
-                        },
-                        "name": "a"
-                      },
-                      "generator": false,
-                      "expression": false,
-                      "async": false,
-                      "params": [],
-                      "body": {
-                        "type": "BlockStatement",
-                        "start": 19,
-                        "end": 21,
-                        "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 19
-                          },
-                          "end": {
-                            "line": 1,
-                            "column": 21
-                          }
-                        },
-                        "body": []
-                      }
-                    },
-                    "alternate": {
-                      "type": "FunctionDeclaration",
-                      "start": 27,
-                      "end": 41,
-                      "loc": {
-                        "start": {
-                          "line": 1,
-                          "column": 27
-                        },
-                        "end": {
-                          "line": 1,
-                          "column": 41
-                        }
-                      },
-                      "id": {
-                        "type": "Identifier",
-                        "start": 36,
-                        "end": 37,
-                        "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 36
-                          },
-                          "end": {
-                            "line": 1,
-                            "column": 37
-                          }
-                        },
-                        "name": "b"
-                      },
-                      "generator": false,
-                      "expression": false,
-                      "async": false,
-                      "params": [],
-                      "body": {
-                        "type": "BlockStatement",
-                        "start": 39,
-                        "end": 41,
-                        "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 39
-                          },
-                          "end": {
                             "line": 1,
                             "column": 41
-                          }
-                        },
-                        "body": []
-                      }
+                        }
                     }
-                  }
-                ],
-                "sourceType": "script"
-              });
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 41,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 41
+                }
+            }
         });
-
-        it('should parse function expression + newline + indentifier', () => {
-            expect(parseScript(`a = function() {}
-            b`, {
-                ranges: true,
-                raw: true
-            })).to.eql({
-                "type": "Program",
-                "start": 0,
-                "end": 31,
-                "body": [
-                  {
+        });
+        
+        it('should parse "(function package() {"use strict"; })()"', () => {
+          expect(parseScript(`(function package() {'use strict'; })()`, {
+              ranges: true,
+              raw: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "body": [
+                {
                     "type": "ExpressionStatement",
-                    "start": 0,
-                    "end": 17,
                     "expression": {
-                      "type": "AssignmentExpression",
-                      "start": 0,
-                      "end": 17,
-                      "operator": "=",
-                      "left": {
-                        "type": "Identifier",
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "FunctionExpression",
+                            "params": [],
+                            "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                    {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                            "type": "Literal",
+                                            "value": "use strict",
+                                            "start": 21,
+                                            "end": 33,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 21
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 33
+                                                }
+                                            },
+                                            "raw": "'use strict'"
+                                        },
+                                        "start": 21,
+                                        "end": 34,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 21
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 34
+                                            }
+                                        }
+                                    }
+                                ],
+                                "start": 20,
+                                "end": 36,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 20
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 36
+                                    }
+                                }
+                            },
+                            "async": false,
+                            "generator": false,
+                            "expression": false,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "package",
+                                "start": 10,
+                                "end": 17,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 10
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 17
+                                    }
+                                }
+                            },
+                            "start": 1,
+                            "end": 36,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 1
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 36
+                                }
+                            }
+                        },
+                        "arguments": [],
                         "start": 0,
-                        "end": 1,
-                        "name": "a"
-                      },
-                      "right": {
-                        "type": "FunctionExpression",
-                        "start": 4,
-                        "end": 17,
-                        "id": null,
-                        "generator": false,
-                        "expression": false,
-                        "async": false,
+                        "end": 39,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 39
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 39,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 39
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 39,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 39
+                }
+            }
+        });
+        });
+        
+        it('should parse binding as specified via property name and identifier', () => {
+          expect(parseScript(`function static() {"use strict"; }`, {
+              ranges: true,
+              raw: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "body": [
+                {
+                    "type": "FunctionDeclaration",
+                    "params": [],
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "Literal",
+                                    "value": "use strict",
+                                    "start": 19,
+                                    "end": 31,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 19
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 31
+                                        }
+                                    },
+                                    "raw": "\"use strict\""
+                                },
+                                "start": 19,
+                                "end": 32,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 19
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 32
+                                    }
+                                }
+                            }
+                        ],
+                        "start": 18,
+                        "end": 34,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 18
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 34
+                            }
+                        }
+                    },
+                    "async": false,
+                    "generator": false,
+                    "expression": false,
+                    "id": {
+                        "type": "Identifier",
+                        "name": "static",
+                        "start": 9,
+                        "end": 15,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 9
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 15
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 34,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,  
+                            "column": 34
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 34,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 34
+                }
+            }
+        } );
+        });
+        
+        it('should parse binding as specified via property name and identifier', () => {
+          expect(parseScript(`function x(...{ a }){}`, {
+              ranges: true,
+              raw: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "body": [
+                {
+                    "type": "FunctionDeclaration",
+                    "params": [
+                        {
+                            "type": "RestElement",
+                            "argument": {
+                                "type": "ObjectPattern",
+                                "properties": [
+                                    {
+                                        "type": "Property",
+                                        "kind": "init",
+                                        "key": {
+                                            "type": "Identifier",
+                                            "name": "a",
+                                            "start": 16,
+                                            "end": 17,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 16
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 17
+                                                }
+                                            }
+                                        },
+                                        "computed": false,
+                                        "value": {
+                                            "type": "Identifier",
+                                            "name": "a",
+                                            "start": 16,
+                                            "end": 17,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 16
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 17
+                                                }
+                                            }
+                                        },
+                                        "method": false,
+                                        "shorthand": true,
+                                        "start": 16,
+                                        "end": 17,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 16
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 17
+                                            }
+                                        }
+                                    }
+                                ],
+                                "start": 11,
+                                "end": 19,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 11
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 19
+                                    }
+                                }
+                            },
+                            "start": 11,
+                            "end": 19,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 19
+                                }
+                            }
+                        }
+                    ],
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [],
+                        "start": 20,
+                        "end": 22,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 20
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 22
+                            }
+                        }
+                    },
+                    "async": false,
+                    "generator": false,
+                    "expression": false,
+                    "id": {
+                        "type": "Identifier",
+                        "name": "x",
+                        "start": 9,
+                        "end": 10,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 9
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 10
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 22,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 22
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 22,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 22
+                }
+            }
+        });
+        });
+        
+            it('should parse binding as specified via property name and identifier', () => {
+              expect(parseScript(`function eval() {"use strict"; }`, {
+                  ranges: true,
+                  raw: true,
+                  locations: true
+              })).to.eql({
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "FunctionDeclaration",
                         "params": [],
                         "body": {
-                          "type": "BlockStatement",
-                          "start": 15,
-                          "end": 17,
-                          "body": []
+                            "type": "BlockStatement",
+                            "body": [
+                                {
+                                    "type": "ExpressionStatement",
+                                    "expression": {
+                                        "type": "Literal",
+                                        "value": "use strict",
+                                        "start": 17,
+                                        "end": 29,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 17
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 29
+                                            }
+                                        },
+                                        "raw": "\"use strict\""
+                                    },
+                                    "start": 17,
+                                    "end": 30,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 17
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 30
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 16,
+                            "end": 32,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 32
+                                }
+                            }
+                        },
+                        "async": false,
+                        "generator": false,
+                        "expression": false,
+                        "id": {
+                            "type": "Identifier",
+                            "name": "eval",
+                            "start": 9,
+                            "end": 13,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 9
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 13
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 32,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 32
+                            }
                         }
-                      }
                     }
-                  },
-                  {
-                    "type": "ExpressionStatement",
-                    "start": 30,
-                    "end": 31,
-                    "expression": {
-                      "type": "Identifier",
-                      "start": 30,
-                      "end": 31,
-                      "name": "b"
-                    }
-                  }
                 ],
-                "sourceType": "script"
-              });
-        });
+                "sourceType": "script",
+                "start": 0,
+                "end": 32,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 32
+                    }
+                }
+            });
+            });
 });

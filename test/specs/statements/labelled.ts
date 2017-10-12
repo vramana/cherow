@@ -147,7 +147,7 @@ describe('Statement - Labelled', () => {
     it('should fail on invalid generator label"', () => {
         expect(() => {
             parseScript(`a: function *g() {}`)
-        }).to.throw('');
+        }).to.throw();
     });
     it('should fail on invalid function label in strict mode', () => {
         expect(() => {

@@ -17,6 +17,18 @@ describe('Keyword', () => {
         }).to.throw();
     });
 
+    it('should fail on invalid escaped null', () => {
+        expect(() => {
+            parseScript(`nul\\u{6c}`);
+        }).to.throw();
+    });
+
+    it('should fail on invalid escaped true', () => {
+        expect(() => {
+            parseScript(`\\u0074rue`);
+        }).to.throw();
+    });
+
     it('should fail on invalid use of in in binding context', () => {
         expect(() => {
             parseScript(`in = 1;`);
@@ -74,7 +86,7 @@ describe('Keyword', () => {
     it('should fail on invalid use of continue in binding context', () => {
         expect(() => {
             parseScript(`continue = 1;`);
-        }).to.throw();
+        }).to.throw('');
     });
 
     it('should fail on invalid use of delete in binding context', () => {

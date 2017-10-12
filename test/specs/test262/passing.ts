@@ -5,6 +5,177 @@ const expect = chai.expect;
 
 describe('TC262 - passing', () => {
 
+  it('should parse "0b10"', () => {
+    expect(parseScript('0b10', {
+        ranges: true,
+        raw: true,
+        locations: true
+    })).to.eql({
+      "type": "Program",
+      "start": 0,
+      "end": 4,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 0
+        },
+        "end": {
+          "line": 1,
+          "column": 4
+        }
+      },
+      "body": [
+        {
+          "type": "ExpressionStatement",
+          "start": 0,
+          "end": 4,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 4
+            }
+          },
+          "expression": {
+            "type": "Literal",
+            "start": 0,
+            "end": 4,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 4
+              }
+            },
+            "value": 2,
+            "raw": "0b10"
+          }
+        }
+      ],
+      "sourceType": "script"
+    });
+  });
+
+  it('should parse "0b1"', () => {
+    expect(parseScript('0b1', {
+        ranges: true,
+        raw: true,
+        locations: true
+    })).to.eql({
+      "type": "Program",
+      "start": 0,
+      "end": 3,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 0
+        },
+        "end": {
+          "line": 1,
+          "column": 3
+        }
+      },
+      "body": [
+        {
+          "type": "ExpressionStatement",
+          "start": 0,
+          "end": 3,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 3
+            }
+          },
+          "expression": {
+            "type": "Literal",
+            "start": 0,
+            "end": 3,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 3
+              }
+            },
+            "value": 1,
+            "raw": "0b1"
+          }
+        }
+      ],
+      "sourceType": "script"
+    });
+  });
+
+  it('should parse "0B10"', () => {
+    expect(parseScript('0B10', {
+        ranges: true,
+        raw: true,
+        locations: true
+    })).to.eql({
+      "type": "Program",
+      "start": 0,
+      "end": 4,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 0
+        },
+        "end": {
+          "line": 1,
+          "column": 4
+        }
+      },
+      "body": [
+        {
+          "type": "ExpressionStatement",
+          "start": 0,
+          "end": 4,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 4
+            }
+          },
+          "expression": {
+            "type": "Literal",
+            "start": 0,
+            "end": 4,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 4
+              }
+            },
+            "value": 2,
+            "raw": "0B10"
+          }
+        }
+      ],
+      "sourceType": "script"
+    });
+  });
+
     it('should parse "var _፩፪፫፬፭፮፯፰፱;"', () => {
         expect(parseScript('var _፩፪፫፬፭፮፯፰፱;', {
             ranges: true,
@@ -5716,78 +5887,189 @@ describe('TC262 - passing', () => {
     it('should parse "try {} catch ({a = 1}) {}""', () => {
         expect(parseScript('try {} catch ({a = 1}) {}', {
             ranges: true,
+            locations: true,
             raw: true
         })).to.eql({
-            "type": "Program",
-            "start": 0,
-            "end": 25,
-            "body": [
+          "type": "Program",
+          "body": [
               {
-                "type": "TryStatement",
-                "start": 0,
-                "end": 25,
-                "block": {
-                  "type": "BlockStatement",
-                  "start": 4,
-                  "end": 6,
-                  "body": []
-                },
-                "handler": {
-                  "type": "CatchClause",
-                  "start": 7,
-                  "end": 25,
-                  "param": {
-                    "type": "ObjectPattern",
-                    "start": 14,
-                    "end": 21,
-                    "properties": [
-                      {
-                        "type": "Property",
-                        "start": 15,
-                        "end": 20,
-                        "method": false,
-                        "shorthand": true,
-                        "computed": false,
-                        "key": {
-                          "type": "Identifier",
-                          "start": 15,
-                          "end": 16,
-                          "name": "a"
-                        },
-                        "kind": "init",
-                        "value": {
-                          "type": "AssignmentPattern",
-                          "start": 15,
-                          "end": 20,
-                          "left": {
-                            "type": "Identifier",
-                            "start": 15,
-                            "end": 16,
-                            "name": "a"
+                  "type": "TryStatement",
+                  "block": {
+                      "type": "BlockStatement",
+                      "body": [],
+                      "start": 4,
+                      "end": 6,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 4
                           },
-                          "right": {
-                            "type": "Literal",
-                            "start": 19,
-                            "end": 20,
-                            "value": 1,
-                            "raw": "1"
+                          "end": {
+                              "line": 1,
+                              "column": 6
                           }
-                        }
                       }
-                    ]
                   },
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 23,
-                    "end": 25,
-                    "body": []
+                  "handler": {
+                      "type": "CatchClause",
+                      "param": {
+                          "type": "ObjectPattern",
+                          "properties": [
+                              {
+                                  "type": "Property",
+                                  "kind": "init",
+                                  "key": {
+                                      "type": "Identifier",
+                                      "name": "a",
+                                      "start": 15,
+                                      "end": 16,
+                                      "loc": {
+                                          "start": {
+                                              "line": 1,
+                                              "column": 15
+                                          },
+                                          "end": {
+                                              "line": 1,
+                                              "column": 16
+                                          }
+                                      }
+                                  },
+                                  "computed": false,
+                                  "value": {
+                                      "type": "AssignmentPattern",
+                                      "left": {
+                                          "type": "Identifier",
+                                          "name": "a",
+                                          "start": 15,
+                                          "end": 16,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 1,
+                                                  "column": 15
+                                              },
+                                              "end": {
+                                                  "line": 1,
+                                                  "column": 16
+                                              }
+                                          }
+                                      },
+                                      "right": {
+                                          "type": "Literal",
+                                          "value": 1,
+                                          "start": 19,
+                                          "end": 20,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 1,
+                                                  "column": 19
+                                              },
+                                              "end": {
+                                                  "line": 1,
+                                                  "column": 20
+                                              }
+                                          },
+                                          "raw": "1"
+                                      },
+                                      "start": 15,
+                                      "end": 20,
+                                      "loc": {
+                                          "start": {
+                                              "line": 1,
+                                              "column": 15
+                                          },
+                                          "end": {
+                                              "line": 1,
+                                              "column": 20
+                                          }
+                                      }
+                                  },
+                                  "method": false,
+                                  "shorthand": true,
+                                  "start": 15,
+                                  "end": 20,
+                                  "loc": {
+                                      "start": {
+                                          "line": 1,
+                                          "column": 15
+                                      },
+                                      "end": {
+                                          "line": 1,
+                                          "column": 20
+                                      }
+                                  }
+                              }
+                          ],
+                          "start": 7,
+                          "end": 21,
+                          "loc": {
+                              "start": {
+                                  "line": 1,
+                                  "column": 7
+                              },
+                              "end": {
+                                  "line": 1,
+                                  "column": 21
+                              }
+                          }
+                      },
+                      "body": {
+                          "type": "BlockStatement",
+                          "body": [],
+                          "start": 23,
+                          "end": 25,
+                          "loc": {
+                              "start": {
+                                  "line": 1,
+                                  "column": 23
+                              },
+                              "end": {
+                                  "line": 1,
+                                  "column": 25
+                              }
+                          }
+                      },
+                      "start": 7,
+                      "end": 25,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 7
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 25
+                          }
+                      }
+                  },
+                  "finalizer": null,
+                  "start": 0,
+                  "end": 25,
+                  "loc": {
+                      "start": {
+                          "line": 1,
+                          "column": 0
+                      },
+                      "end": {
+                          "line": 1,
+                          "column": 25
+                      }
                   }
-                },
-                "finalizer": null
               }
-            ],
-            "sourceType": "script"
-          });
+          ],
+          "sourceType": "script",
+          "start": 0,
+          "end": 25,
+          "loc": {
+              "start": {
+                  "line": 1,
+                  "column": 0
+              },
+              "end": {
+                  "line": 1,
+                  "column": 25
+              }
+          }
+      });
     });
 
     it('should parse "function a([a=1]) {}"', () => {
@@ -5902,86 +6184,229 @@ describe('TC262 - passing', () => {
    
     it('should parse array rest spread with object', () => {
             expect(parseScript('var [...{length}] = [ 1, 2, 3];', {
-                ranges: true
+                ranges: true,
+                locations: true,
+                raw: true
             })).to.eql({
-                "body": [{
-                    "declarations": [{
-                        "end": 30,
-                        "id": {
-                            "elements": [{
-                                "argument": {
-                                    "end": 16,
-                                    "properties": [{
-                                        "computed": false,
-                                        "end": 15,
-                                        "key": {
-                                            "end": 15,
-                                            "name": "length",
-                                            "start": 9,
-                                            "type": "Identifier"
-                                        },
-                                        "kind": "init",
-                                        "method": false,
-                                        "shorthand": true,
-                                        "start": 9,
-                                        "type": "Property",
-                                        "value": {
-                                            "end": 15,
-                                            "name": "length",
-                                            "start": 9,
-                                            "type": "Identifier",
-                                        }
-                                    }],
-                                    "start": 8,
-                                    "type": "ObjectPattern"
-                                },
-                                "end": 16,
-                                "start": 5,
-                                "type": "RestElement"
-                            }],
-                            "end": 17,
-                            "start": 4,
-                            "type": "ArrayPattern"
-                        },
-                        "init": {
-                            "elements": [{
-                                    "end": 23,
-                                    "start": 22,
-                                    "type": "Literal",
-                                    "value": 1
-                                },
-                                {
-                                    "end": 26,
-                                    "start": 25,
-                                    "type": "Literal",
-                                    "value": 2,
-                                },
-                                {
-                                    "end": 29,
-                                    "start": 28,
-                                    "type": "Literal",
-                                    "value": 3
-                                },
-                            ],
-                            "end": 30,
-                            "start": 20,
-                            "type": "ArrayExpression"
-                        },
-                        "start": 4,
-                        "type": "VariableDeclarator"
-                    }],
-                    "end": 31,
-                    "kind": "var",
-                    "start": 0,
-                    "type": "VariableDeclaration"
-                }],
-                "end": 31,
-                "sourceType": "script",
-                "start": 0,
-                "type": "Program",
-            });
+              "type": "Program",
+              "body": [
+                  {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                          {
+                              "type": "VariableDeclarator",
+                              "init": {
+                                  "type": "ArrayExpression",
+                                  "elements": [
+                                      {
+                                          "type": "Literal",
+                                          "value": 1,
+                                          "start": 22,
+                                          "end": 23,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 1,
+                                                  "column": 22
+                                              },
+                                              "end": {
+                                                  "line": 1,
+                                                  "column": 23
+                                              }
+                                          },
+                                          "raw": "1"
+                                      },
+                                      {
+                                          "type": "Literal",
+                                          "value": 2,
+                                          "start": 25,
+                                          "end": 26,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 1,
+                                                  "column": 25
+                                              },
+                                              "end": {
+                                                  "line": 1,
+                                                  "column": 26
+                                              }
+                                          },
+                                          "raw": "2"
+                                      },
+                                      {
+                                          "type": "Literal",
+                                          "value": 3,
+                                          "start": 28,
+                                          "end": 29,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 1,
+                                                  "column": 28
+                                              },
+                                              "end": {
+                                                  "line": 1,
+                                                  "column": 29
+                                              }
+                                          },
+                                          "raw": "3"
+                                      }
+                                  ],
+                                  "start": 20,
+                                  "end": 30,
+                                  "loc": {
+                                      "start": {
+                                          "line": 1,
+                                          "column": 20
+                                      },
+                                      "end": {
+                                          "line": 1,
+                                          "column": 30
+                                      }
+                                  }
+                              },
+                              "id": {
+                                  "type": "ArrayPattern",
+                                  "elements": [
+                                      {
+                                          "type": "RestElement",
+                                          "argument": {
+                                              "type": "ObjectPattern",
+                                              "properties": [
+                                                  {
+                                                      "type": "Property",
+                                                      "kind": "init",
+                                                      "key": {
+                                                          "type": "Identifier",
+                                                          "name": "length",
+                                                          "start": 9,
+                                                          "end": 15,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 1,
+                                                                  "column": 9
+                                                              },
+                                                              "end": {
+                                                                  "line": 1,
+                                                                  "column": 15
+                                                              }
+                                                          }
+                                                      },
+                                                      "computed": false,
+                                                      "value": {
+                                                          "type": "Identifier",
+                                                          "name": "length",
+                                                          "start": 9,
+                                                          "end": 15,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 1,
+                                                                  "column": 9
+                                                              },
+                                                              "end": {
+                                                                  "line": 1,
+                                                                  "column": 15
+                                                              }
+                                                          }
+                                                      },
+                                                      "method": false,
+                                                      "shorthand": true,
+                                                      "start": 9,
+                                                      "end": 15,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 1,
+                                                              "column": 9
+                                                          },
+                                                          "end": {
+                                                              "line": 1,
+                                                              "column": 15
+                                                          }
+                                                      }
+                                                  }
+                                              ],
+                                              "start": 5,
+                                              "end": 16,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 1,
+                                                      "column": 5
+                                                  },
+                                                  "end": {
+                                                      "line": 1,
+                                                      "column": 16
+                                                  }
+                                              }
+                                          },
+                                          "start": 5,
+                                          "end": 16,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 1,
+                                                  "column": 5
+                                              },
+                                              "end": {
+                                                  "line": 1,
+                                                  "column": 16
+                                              }
+                                          }
+                                      }
+                                  ],
+                                  "start": 4,
+                                  "end": 17,
+                                  "loc": {
+                                      "start": {
+                                          "line": 1,
+                                          "column": 4
+                                      },
+                                      "end": {
+                                          "line": 1,
+                                          "column": 17
+                                      }
+                                  }
+                              },
+                              "start": 4,
+                              "end": 30,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 4
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 30
+                                  }
+                              }
+                          }
+                      ],
+                      "kind": "var",
+                      "start": 0,
+                      "end": 31,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 0
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 31
+                          }
+                      }
+                  }
+              ],
+              "sourceType": "script",
+              "start": 0,
+              "end": 31,
+              "loc": {
+                  "start": {
+                      "line": 1,
+                      "column": 0
+                  },
+                  "end": {
+                      "line": 1,
+                      "column": 31
+                  }
+              }
+          });
         });
-    
     
     
     
@@ -7067,99 +7492,339 @@ describe('TC262 - passing', () => {
     
         it('should parse "(function () { }(1,2,3))"', () => {
             expect(parseScript('(function () { }(1,2,3))', {
-                ranges: false,
-                raw: true
-            })).to.eql({
-                "type": "Program",
-                "body": [{
-                    "type": "ExpressionStatement",
-                    "expression": {
-                        "type": "CallExpression",
-                        "callee": {
-                            "type": "FunctionExpression",
-                            "id": null,
-                            "params": [],
-                            "body": {
-                                "type": "BlockStatement",
-                                "body": []
-                            },
-                            "generator": false,
-                            "expression": false,
-                            "async": false
-                        },
-                        "arguments": [{
-                                "type": "Literal",
-                                "value": 1,
-                                "raw": "1"
-                            },
-                            {
-                                "type": "Literal",
-                                "value": 2,
-                                "raw": "2"
-                            },
-                            {
-                                "type": "Literal",
-                                "value": 3,
-                                "raw": "3"
-                            }
-                        ]
+              ranges: true,
+              raw: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 24,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 24
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 24,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 24
+                  }
+                },
+                "expression": {
+                  "type": "CallExpression",
+                  "start": 1,
+                  "end": 23,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 23
                     }
-                }],
-                "sourceType": "script"
-            });
+                  },
+                  "callee": {
+                    "type": "FunctionExpression",
+                    "start": 1,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 1
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "id": null,
+                    "generator": false,
+                    "expression": false,
+                    "async": false,
+                    "params": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "start": 13,
+                      "end": 16,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 13
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 16
+                        }
+                      },
+                      "body": []
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "type": "Literal",
+                      "start": 17,
+                      "end": 18,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 17
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 18
+                        }
+                      },
+                      "value": 1,
+                      "raw": "1"
+                    },
+                    {
+                      "type": "Literal",
+                      "start": 19,
+                      "end": 20,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 19
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 20
+                        }
+                      },
+                      "value": 2,
+                      "raw": "2"
+                    },
+                    {
+                      "type": "Literal",
+                      "start": 21,
+                      "end": 22,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 21
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 22
+                        }
+                      },
+                      "value": 3,
+                      "raw": "3"
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
         });
         it('should parse "a: while (true) { break a }"', () => {
             expect(parseScript('a: while (true) { break a }', {
-                ranges: false,
-                raw: true
-            })).to.eql({
-                "type": "Program",
-                "body": [{
-                    "type": "LabeledStatement",
-                    "label": {
-                        "type": "Identifier",
-                        "name": "a"
+              ranges: true,
+              raw: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 27,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 27
+              }
+            },
+            "body": [
+              {
+                "type": "LabeledStatement",
+                "start": 0,
+                "end": 27,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 27
+                  }
+                },
+                "body": {
+                  "type": "WhileStatement",
+                  "start": 3,
+                  "end": 27,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 3
                     },
-                    "body": {
-                        "type": "WhileStatement",
-                        "test": {
-                            "type": "Literal",
-                            "value": true,
-                            "raw": "true"
-                        },
-                        "body": {
-                            "type": "BlockStatement",
-                            "body": [{
-                                "type": "BreakStatement",
-                                "label": {
-                                    "type": "Identifier",
-                                    "name": "a"
-                                }
-                            }]
-                        }
+                    "end": {
+                      "line": 1,
+                      "column": 27
                     }
-                }],
-                "sourceType": "script"
-            });
+                  },
+                  "test": {
+                    "type": "Literal",
+                    "start": 10,
+                    "end": 14,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 10
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 14
+                      }
+                    },
+                    "value": true,
+                    "raw": "true"
+                  },
+                  "body": {
+                    "type": "BlockStatement",
+                    "start": 16,
+                    "end": 27,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 16
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 27
+                      }
+                    },
+                    "body": [
+                      {
+                        "type": "BreakStatement",
+                        "start": 18,
+                        "end": 25,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 18
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 25
+                          }
+                        },
+                        "label": {
+                          "type": "Identifier",
+                          "start": 24,
+                          "end": 25,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 24
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 25
+                            }
+                          },
+                          "name": "a"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "label": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 1,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1
+                    }
+                  },
+                  "name": "a"
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
         });
     
         it('should parse ""', () => {
             expect(parseScript(`/*a
                   b*/ 1`, {
-                ranges: false,
-                raw: true
-            })).to.eql({
-                "type": "Program",
-                "body": [{
-                    "type": "ExpressionStatement",
-                    "expression": {
+                    ranges: true,
+                    raw: true,
+                    locations: true
+                })).to.eql({
+                  "type": "Program",
+                  "start": 0,
+                  "end": 27,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 2,
+                      "column": 23
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "ExpressionStatement",
+                      "start": 26,
+                      "end": 27,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 22
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 23
+                        }
+                      },
+                      "expression": {
                         "type": "Literal",
+                        "start": 26,
+                        "end": 27,
+                        "loc": {
+                          "start": {
+                            "line": 2,
+                            "column": 22
+                          },
+                          "end": {
+                            "line": 2,
+                            "column": 23
+                          }
+                        },
                         "value": 1,
                         "raw": "1"
+                      }
                     }
-                }],
-                "sourceType": "script"
-            });
+                  ],
+                  "sourceType": "script"
+                });
         });
     
         it('should parse ""', () => {
@@ -7226,71 +7891,287 @@ describe('TC262 - passing', () => {
                   } else {
                       a(2);
                   }`, {
-                ranges: false,
-                raw: true
+                ranges: true,
+                raw: true,
+                locations: true
             })).to.eql({
-                "type": "Program",
-                "body": [{
-                        "type": "VariableDeclaration",
-                        "declarations": [{
-                            "type": "VariableDeclarator",
-                            "id": {
-                                "type": "Identifier",
-                                "name": "a"
-                            },
-                            "init": null
-                        }],
-                        "kind": "var"
+              "type": "Program",
+              "start": 0,
+              "end": 142,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 6,
+                  "column": 19
+                }
+              },
+              "body": [
+                {
+                  "type": "VariableDeclaration",
+                  "start": 0,
+                  "end": 6,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    {
-                        "type": "IfStatement",
-                        "test": {
-                            "type": "CallExpression",
-                            "callee": {
-                                "type": "Identifier",
-                                "name": "b"
-                            },
-                            "arguments": []
-                        },
-                        "consequent": {
-                            "type": "BlockStatement",
-                            "body": [{
-                                "type": "ExpressionStatement",
-                                "expression": {
-                                    "type": "NewExpression",
-                                    "callee": {
-                                        "type": "Identifier",
-                                        "name": "a"
-                                    },
-                                    "arguments": [{
-                                        "type": "Literal",
-                                        "value": 1,
-                                        "raw": "1"
-                                    }]
-                                }
-                            }]
-                        },
-                        "alternate": {
-                            "type": "BlockStatement",
-                            "body": [{
-                                "type": "ExpressionStatement",
-                                "expression": {
-                                    "type": "CallExpression",
-                                    "callee": {
-                                        "type": "Identifier",
-                                        "name": "a"
-                                    },
-                                    "arguments": [{
-                                        "type": "Literal",
-                                        "value": 2,
-                                        "raw": "2"
-                                    }]
-                                }
-                            }]
-                        }
+                    "end": {
+                      "line": 1,
+                      "column": 6
                     }
-                ],
-                "sourceType": "script"
+                  },
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "start": 4,
+                      "end": 5,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 5
+                        }
+                      },
+                      "id": {
+                        "type": "Identifier",
+                        "start": 4,
+                        "end": 5,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 5
+                          }
+                        },
+                        "name": "a"
+                      },
+                      "init": null
+                    }
+                  ],
+                  "kind": "var"
+                },
+                {
+                  "type": "IfStatement",
+                  "start": 25,
+                  "end": 142,
+                  "loc": {
+                    "start": {
+                      "line": 2,
+                      "column": 18
+                    },
+                    "end": {
+                      "line": 6,
+                      "column": 19
+                    }
+                  },
+                  "test": {
+                    "type": "CallExpression",
+                    "start": 29,
+                    "end": 32,
+                    "loc": {
+                      "start": {
+                        "line": 2,
+                        "column": 22
+                      },
+                      "end": {
+                        "line": 2,
+                        "column": 25
+                      }
+                    },
+                    "callee": {
+                      "type": "Identifier",
+                      "start": 29,
+                      "end": 30,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 22
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 23
+                        }
+                      },
+                      "name": "b"
+                    },
+                    "arguments": []
+                  },
+                  "consequent": {
+                    "type": "BlockStatement",
+                    "start": 34,
+                    "end": 87,
+                    "loc": {
+                      "start": {
+                        "line": 2,
+                        "column": 27
+                      },
+                      "end": {
+                        "line": 4,
+                        "column": 19
+                      }
+                    },
+                    "body": [
+                      {
+                        "type": "ExpressionStatement",
+                        "start": 58,
+                        "end": 67,
+                        "loc": {
+                          "start": {
+                            "line": 3,
+                            "column": 22
+                          },
+                          "end": {
+                            "line": 3,
+                            "column": 31
+                          }
+                        },
+                        "expression": {
+                          "type": "NewExpression",
+                          "start": 58,
+                          "end": 66,
+                          "loc": {
+                            "start": {
+                              "line": 3,
+                              "column": 22
+                            },
+                            "end": {
+                              "line": 3,
+                              "column": 30
+                            }
+                          },
+                          "callee": {
+                            "type": "Identifier",
+                            "start": 62,
+                            "end": 63,
+                            "loc": {
+                              "start": {
+                                "line": 3,
+                                "column": 26
+                              },
+                              "end": {
+                                "line": 3,
+                                "column": 27
+                              }
+                            },
+                            "name": "a"
+                          },
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "start": 64,
+                              "end": 65,
+                              "loc": {
+                                "start": {
+                                  "line": 3,
+                                  "column": 28
+                                },
+                                "end": {
+                                  "line": 3,
+                                  "column": 29
+                                }
+                              },
+                              "value": 1,
+                              "raw": "1"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "alternate": {
+                    "type": "BlockStatement",
+                    "start": 93,
+                    "end": 142,
+                    "loc": {
+                      "start": {
+                        "line": 4,
+                        "column": 25
+                      },
+                      "end": {
+                        "line": 6,
+                        "column": 19
+                      }
+                    },
+                    "body": [
+                      {
+                        "type": "ExpressionStatement",
+                        "start": 117,
+                        "end": 122,
+                        "loc": {
+                          "start": {
+                            "line": 5,
+                            "column": 22
+                          },
+                          "end": {
+                            "line": 5,
+                            "column": 27
+                          }
+                        },
+                        "expression": {
+                          "type": "CallExpression",
+                          "start": 117,
+                          "end": 121,
+                          "loc": {
+                            "start": {
+                              "line": 5,
+                              "column": 22
+                            },
+                            "end": {
+                              "line": 5,
+                              "column": 26
+                            }
+                          },
+                          "callee": {
+                            "type": "Identifier",
+                            "start": 117,
+                            "end": 118,
+                            "loc": {
+                              "start": {
+                                "line": 5,
+                                "column": 22
+                              },
+                              "end": {
+                                "line": 5,
+                                "column": 23
+                              }
+                            },
+                            "name": "a"
+                          },
+                          "arguments": [
+                            {
+                              "type": "Literal",
+                              "start": 119,
+                              "end": 120,
+                              "loc": {
+                                "start": {
+                                  "line": 5,
+                                  "column": 24
+                                },
+                                "end": {
+                                  "line": 5,
+                                  "column": 25
+                                }
+                              },
+                              "value": 2,
+                              "raw": "2"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "sourceType": "script"
             });
         });
     
@@ -14641,60 +15522,213 @@ describe('TC262 - passing', () => {
     
         it('should parse "var [{__proto__:a, __proto__:b}] = 1;"', () => {
             expect(parseScript('var [{__proto__:a, __proto__:b}] = 1;', {
-                raw: true
+                raw: true,
+                locations: true,
+                ranges: true
             })).to.eql({
-                "type": "Program",
-                "body": [{
-                    "type": "VariableDeclaration",
-                    "declarations": [{
-                        "type": "VariableDeclarator",
-                        "id": {
-                            "type": "ArrayPattern",
-                            "elements": [{
-                                "type": "ObjectPattern",
-                                "properties": [{
-                                        "type": "Property",
-                                        "key": {
-                                            "type": "Identifier",
-                                            "name": "__proto__"
-                                        },
-                                        "computed": false,
-                                        "value": {
-                                            "type": "Identifier",
-                                            "name": "a"
-                                        },
-                                        "kind": "init",
-                                        "method": false,
-                                        "shorthand": false
-                                    },
-                                    {
-                                        "type": "Property",
-                                        "key": {
-                                            "type": "Identifier",
-                                            "name": "__proto__"
-                                        },
-                                        "computed": false,
-                                        "value": {
-                                            "type": "Identifier",
-                                            "name": "b"
-                                        },
-                                        "kind": "init",
-                                        "method": false,
-                                        "shorthand": false
-                                    }
-                                ]
-                            }]
-                        },
-                        "init": {
-                            "type": "Literal",
-                            "value": 1,
-                            "raw": "1"
-                        }
-                    }],
-                    "kind": "var"
-                }],
-                "sourceType": "script"
-            });
+              "type": "Program",
+              "body": [
+                  {
+                      "type": "VariableDeclaration",
+                      "declarations": [
+                          {
+                              "type": "VariableDeclarator",
+                              "init": {
+                                  "type": "Literal",
+                                  "value": 1,
+                                  "start": 35,
+                                  "end": 36,
+                                  "loc": {
+                                      "start": {
+                                          "line": 1,
+                                          "column": 35
+                                      },
+                                      "end": {
+                                          "line": 1,
+                                          "column": 36
+                                      }
+                                  },
+                                  "raw": "1"
+                              },
+                              "id": {
+                                  "type": "ArrayPattern",
+                                  "elements": [
+                                      {
+                                          "type": "ObjectPattern",
+                                          "properties": [
+                                              {
+                                                  "type": "Property",
+                                                  "kind": "init",
+                                                  "key": {
+                                                      "type": "Identifier",
+                                                      "name": "__proto__",
+                                                      "start": 6,
+                                                      "end": 15,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 1,
+                                                              "column": 6
+                                                          },
+                                                          "end": {
+                                                              "line": 1,
+                                                              "column": 15
+                                                          }
+                                                      }
+                                                  },
+                                                  "computed": false,
+                                                  "value": {
+                                                      "type": "Identifier",
+                                                      "name": "a",
+                                                      "start": 16,
+                                                      "end": 17,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 1,
+                                                              "column": 16
+                                                          },
+                                                          "end": {
+                                                              "line": 1,
+                                                              "column": 17
+                                                          }
+                                                      }
+                                                  },
+                                                  "method": false,
+                                                  "shorthand": false,
+                                                  "start": 6,
+                                                  "end": 17,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 1,
+                                                          "column": 6
+                                                      },
+                                                      "end": {
+                                                          "line": 1,
+                                                          "column": 17
+                                                      }
+                                                  }
+                                              },
+                                              {
+                                                  "type": "Property",
+                                                  "kind": "init",
+                                                  "key": {
+                                                      "type": "Identifier",
+                                                      "name": "__proto__",
+                                                      "start": 19,
+                                                      "end": 28,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 1,
+                                                              "column": 19
+                                                          },
+                                                          "end": {
+                                                              "line": 1,
+                                                              "column": 28
+                                                          }
+                                                      }
+                                                  },
+                                                  "computed": false,
+                                                  "value": {
+                                                      "type": "Identifier",
+                                                      "name": "b",
+                                                      "start": 29,
+                                                      "end": 30,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 1,
+                                                              "column": 29
+                                                          },
+                                                          "end": {
+                                                              "line": 1,
+                                                              "column": 30
+                                                          }
+                                                      }
+                                                  },
+                                                  "method": false,
+                                                  "shorthand": false,
+                                                  "start": 19,
+                                                  "end": 30,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 1,
+                                                          "column": 19
+                                                      },
+                                                      "end": {
+                                                          "line": 1,
+                                                          "column": 30
+                                                      }
+                                                  }
+                                              }
+                                          ],
+                                          "start": 5,
+                                          "end": 31,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 1,
+                                                  "column": 5
+                                              },
+                                              "end": {
+                                                  "line": 1,
+                                                  "column": 31
+                                              }
+                                          }
+                                      }
+                                  ],
+                                  "start": 4,
+                                  "end": 32,
+                                  "loc": {
+                                      "start": {
+                                          "line": 1,
+                                          "column": 4
+                                      },
+                                      "end": {
+                                          "line": 1,
+                                          "column": 32
+                                      }
+                                  }
+                              },
+                              "start": 4,
+                              "end": 36,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 4
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 36
+                                  }
+                              }
+                          }
+                      ],
+                      "kind": "var",
+                      "start": 0,
+                      "end": 37,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 0
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 37
+                          }
+                      }
+                  }
+              ],
+              "sourceType": "script",
+              "start": 0,
+              "end": 37,
+              "loc": {
+                  "start": {
+                      "line": 1,
+                      "column": 0
+                  },
+                  "end": {
+                      "line": 1,
+                      "column": 37
+                  }
+              }
+          });
         });
     
         it('should parse "var {a, b: {c: a}} = 1;"', () => {
@@ -14896,78 +15930,189 @@ describe('TC262 - passing', () => {
         it('should parse "try {} catch ({a = 1}) {}"', () => {
             expect(parseScript('try {} catch ({a = 1}) {}', {
                 raw: true,
-                ranges: true
+                ranges: true,
+                locations: true
             })).to.eql({
-                "type": "Program",
-                "start": 0,
-                "end": 25,
-                "body": [
+              "type": "Program",
+              "body": [
                   {
-                    "type": "TryStatement",
-                    "start": 0,
-                    "end": 25,
-                    "block": {
-                      "type": "BlockStatement",
-                      "start": 4,
-                      "end": 6,
-                      "body": []
-                    },
-                    "handler": {
-                      "type": "CatchClause",
-                      "start": 7,
-                      "end": 25,
-                      "param": {
-                        "type": "ObjectPattern",
-                        "start": 14,
-                        "end": 21,
-                        "properties": [
-                          {
-                            "type": "Property",
-                            "start": 15,
-                            "end": 20,
-                            "method": false,
-                            "shorthand": true,
-                            "computed": false,
-                            "key": {
-                              "type": "Identifier",
-                              "start": 15,
-                              "end": 16,
-                              "name": "a"
-                            },
-                            "kind": "init",
-                            "value": {
-                              "type": "AssignmentPattern",
-                              "start": 15,
-                              "end": 20,
-                              "left": {
-                                "type": "Identifier",
-                                "start": 15,
-                                "end": 16,
-                                "name": "a"
+                      "type": "TryStatement",
+                      "block": {
+                          "type": "BlockStatement",
+                          "body": [],
+                          "start": 4,
+                          "end": 6,
+                          "loc": {
+                              "start": {
+                                  "line": 1,
+                                  "column": 4
                               },
-                              "right": {
-                                "type": "Literal",
-                                "start": 19,
-                                "end": 20,
-                                "value": 1,
-                                "raw": "1"
+                              "end": {
+                                  "line": 1,
+                                  "column": 6
                               }
-                            }
                           }
-                        ]
                       },
-                      "body": {
-                        "type": "BlockStatement",
-                        "start": 23,
-                        "end": 25,
-                        "body": []
+                      "handler": {
+                          "type": "CatchClause",
+                          "param": {
+                              "type": "ObjectPattern",
+                              "properties": [
+                                  {
+                                      "type": "Property",
+                                      "kind": "init",
+                                      "key": {
+                                          "type": "Identifier",
+                                          "name": "a",
+                                          "start": 15,
+                                          "end": 16,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 1,
+                                                  "column": 15
+                                              },
+                                              "end": {
+                                                  "line": 1,
+                                                  "column": 16
+                                              }
+                                          }
+                                      },
+                                      "computed": false,
+                                      "value": {
+                                          "type": "AssignmentPattern",
+                                          "left": {
+                                              "type": "Identifier",
+                                              "name": "a",
+                                              "start": 15,
+                                              "end": 16,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 1,
+                                                      "column": 15
+                                                  },
+                                                  "end": {
+                                                      "line": 1,
+                                                      "column": 16
+                                                  }
+                                              }
+                                          },
+                                          "right": {
+                                              "type": "Literal",
+                                              "value": 1,
+                                              "start": 19,
+                                              "end": 20,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 1,
+                                                      "column": 19
+                                                  },
+                                                  "end": {
+                                                      "line": 1,
+                                                      "column": 20
+                                                  }
+                                              },
+                                              "raw": "1"
+                                          },
+                                          "start": 15,
+                                          "end": 20,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 1,
+                                                  "column": 15
+                                              },
+                                              "end": {
+                                                  "line": 1,
+                                                  "column": 20
+                                              }
+                                          }
+                                      },
+                                      "method": false,
+                                      "shorthand": true,
+                                      "start": 15,
+                                      "end": 20,
+                                      "loc": {
+                                          "start": {
+                                              "line": 1,
+                                              "column": 15
+                                          },
+                                          "end": {
+                                              "line": 1,
+                                              "column": 20
+                                          }
+                                      }
+                                  }
+                              ],
+                              "start": 7,
+                              "end": 21,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 7
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 21
+                                  }
+                              }
+                          },
+                          "body": {
+                              "type": "BlockStatement",
+                              "body": [],
+                              "start": 23,
+                              "end": 25,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 23
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 25
+                                  }
+                              }
+                          },
+                          "start": 7,
+                          "end": 25,
+                          "loc": {
+                              "start": {
+                                  "line": 1,
+                                  "column": 7
+                              },
+                              "end": {
+                                  "line": 1,
+                                  "column": 25
+                              }
+                          }
+                      },
+                      "finalizer": null,
+                      "start": 0,
+                      "end": 25,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 0
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 25
+                          }
                       }
-                    },
-                    "finalizer": null
                   }
-                ],
-                "sourceType": "script"
-              });
+              ],
+              "sourceType": "script",
+              "start": 0,
+              "end": 25,
+              "loc": {
+                  "start": {
+                      "line": 1,
+                      "column": 0
+                  },
+                  "end": {
+                      "line": 1,
+                      "column": 25
+                  }
+              }
+          });
         });
     
     
@@ -19214,45 +20359,160 @@ describe('TC262 - passing', () => {
                       break;
                     default:
                   }`, {
-                raw: true
-            })).to.eql({
-                "type": "Program",
-                "body": [{
-                    "type": "SwitchStatement",
-                    "discriminant": {
-                        "type": "Identifier",
-                        "name": "a"
+                    ranges: true,
+                    raw: true,
+                    locations: true
+                })).to.eql({
+                  "type": "Program",
+                  "start": 0,
+                  "end": 146,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
                     },
-                    "cases": [{
-                            "type": "SwitchCase",
-                            "test": {
-                                "type": "Literal",
-                                "value": 1,
-                                "raw": "1"
-                            },
-                            "consequent": []
+                    "end": {
+                      "line": 6,
+                      "column": 19
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "SwitchStatement",
+                      "start": 0,
+                      "end": 146,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
                         },
-                        {
-                            "type": "SwitchCase",
-                            "test": {
-                                "type": "Literal",
-                                "value": 2,
-                                "raw": "2"
-                            },
-                            "consequent": [{
-                                "type": "BreakStatement",
-                                "label": null
-                            }]
-                        },
-                        {
-                            "type": "SwitchCase",
-                            "test": null,
-                            "consequent": []
+                        "end": {
+                          "line": 6,
+                          "column": 19
                         }
-                    ]
-                }],
-                "sourceType": "script"
-            });
+                      },
+                      "discriminant": {
+                        "type": "Identifier",
+                        "start": 8,
+                        "end": 9,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 8
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 9
+                          }
+                        },
+                        "name": "a"
+                      },
+                      "cases": [
+                        {
+                          "type": "SwitchCase",
+                          "start": 33,
+                          "end": 40,
+                          "loc": {
+                            "start": {
+                              "line": 2,
+                              "column": 20
+                            },
+                            "end": {
+                              "line": 2,
+                              "column": 27
+                            }
+                          },
+                          "consequent": [],
+                          "test": {
+                            "type": "Literal",
+                            "start": 38,
+                            "end": 39,
+                            "loc": {
+                              "start": {
+                                "line": 2,
+                                "column": 25
+                              },
+                              "end": {
+                                "line": 2,
+                                "column": 26
+                              }
+                            },
+                            "value": 1,
+                            "raw": "1"
+                          }
+                        },
+                        {
+                          "type": "SwitchCase",
+                          "start": 61,
+                          "end": 97,
+                          "loc": {
+                            "start": {
+                              "line": 3,
+                              "column": 20
+                            },
+                            "end": {
+                              "line": 4,
+                              "column": 28
+                            }
+                          },
+                          "consequent": [
+                            {
+                              "type": "BreakStatement",
+                              "start": 91,
+                              "end": 97,
+                              "loc": {
+                                "start": {
+                                  "line": 4,
+                                  "column": 22
+                                },
+                                "end": {
+                                  "line": 4,
+                                  "column": 28
+                                }
+                              },
+                              "label": null
+                            }
+                          ],
+                          "test": {
+                            "type": "Literal",
+                            "start": 66,
+                            "end": 67,
+                            "loc": {
+                              "start": {
+                                "line": 3,
+                                "column": 25
+                              },
+                              "end": {
+                                "line": 3,
+                                "column": 26
+                              }
+                            },
+                            "value": 2,
+                            "raw": "2"
+                          }
+                        },
+                        {
+                          "type": "SwitchCase",
+                          "start": 118,
+                          "end": 126,
+                          "loc": {
+                            "start": {
+                              "line": 5,
+                              "column": 20
+                            },
+                            "end": {
+                              "line": 5,
+                              "column": 28
+                            }
+                          },
+                          "consequent": [],
+                          "test": null
+                        }
+                      ]
+                    }
+                  ],
+                  "sourceType": "script"
+                });
         });
     
         it('should parse ""', () => {
@@ -19261,188 +20521,675 @@ describe('TC262 - passing', () => {
                       b++;
                       break;
                   }`, {
-                raw: true
-            })).to.eql({
-                "type": "Program",
-                "body": [{
-                    "type": "SwitchStatement",
-                    "discriminant": {
-                        "type": "Identifier",
-                        "name": "a"
-                    },
-                    "cases": [{
-                        "type": "SwitchCase",
-                        "test": null,
-                        "consequent": [{
-                                "type": "ExpressionStatement",
-                                "expression": {
-                                    "type": "UpdateExpression",
-                                    "operator": "++",
-                                    "argument": {
-                                        "type": "Identifier",
-                                        "name": "b"
-                                    },
-                                    "prefix": false
-                                }
-                            },
-                            {
-                                "type": "BreakStatement",
-                                "label": null
-                            }
-                        ]
-                    }]
-                }],
-                "sourceType": "script"
-            });
+                    ranges: true,
+                    raw: true,
+                    locations: true
+                })).to.eql({
+                  "type": "Program",
+                  "body": [
+                      {
+                          "type": "SwitchStatement",
+                          "discriminant": {
+                              "type": "Identifier",
+                              "name": "a",
+                              "start": 8,
+                              "end": 9,
+                              "loc": {
+                                  "start": {
+                                      "line": 1,
+                                      "column": 8
+                                  },
+                                  "end": {
+                                      "line": 1,
+                                      "column": 9
+                                  }
+                              }
+                          },
+                          "cases": [
+                              {
+                                  "type": "SwitchCase",
+                                  "test": null,
+                                  "consequent": [
+                                      {
+                                          "type": "ExpressionStatement",
+                                          "expression": {
+                                              "type": "UpdateExpression",
+                                              "argument": {
+                                                  "type": "Identifier",
+                                                  "name": "b",
+                                                  "start": 64,
+                                                  "end": 65,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 3,
+                                                          "column": 22
+                                                      },
+                                                      "end": {
+                                                          "line": 3,
+                                                          "column": 23
+                                                      }
+                                                  }
+                                              },
+                                              "operator": "++",
+                                              "prefix": false,
+                                              "start": 64,
+                                              "end": 67,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 3,
+                                                      "column": 22
+                                                  },
+                                                  "end": {
+                                                      "line": 3,
+                                                      "column": 25
+                                                  }
+                                              }
+                                          },
+                                          "start": 64,
+                                          "end": 68,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 3,
+                                                  "column": 22
+                                              },
+                                              "end": {
+                                                  "line": 3,
+                                                  "column": 26
+                                              }
+                                          }
+                                      },
+                                      {
+                                          "type": "BreakStatement",
+                                          "label": null,
+                                          "start": 91,
+                                          "end": 97,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 4,
+                                                  "column": 22
+                                              },
+                                              "end": {
+                                                  "line": 4,
+                                                  "column": 28
+                                              }
+                                          }
+                                      }
+                                  ],
+                                  "start": 33,
+                                  "end": 97,
+                                  "loc": {
+                                      "start": {
+                                          "line": 2,
+                                          "column": 20
+                                      },
+                                      "end": {
+                                          "line": 4,
+                                          "column": 28
+                                      }
+                                  }
+                              }
+                          ],
+                          "start": 0,
+                          "end": 117,
+                          "loc": {
+                              "start": {
+                                  "line": 1,
+                                  "column": 0
+                              },
+                              "end": {
+                                  "line": 5,
+                                  "column": 19
+                              }
+                          }
+                      }
+                  ],
+                  "sourceType": "script",
+                  "start": 0,
+                  "end": 117,
+                  "loc": {
+                      "start": {
+                          "line": 1,
+                          "column": 0
+                      },
+                      "end": {
+                          "line": 5,
+                          "column": 19
+                      }
+                  }
+              });
         });
     
         it('should parse "function a({ a: A = 1 + 1, b: { c: { d: D = 1 + 1, e: { f } } } }) {}"', () => {
             expect(parseScript(`function a({ a: A = 1 + 1, b: { c: { d: D = 1 + 1, e: { f } } } }) {}`, {
-                raw: true
-            })).to.eql({
-                "type": "Program",
-                "body": [{
+              ranges: true,
+              raw: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "body": [
+                {
                     "type": "FunctionDeclaration",
-                    "id": {
-                        "type": "Identifier",
-                        "name": "a"
-                    },
-                    "params": [{
-                        "type": "ObjectPattern",
-                        "properties": [{
-                                "type": "Property",
-                                "key": {
-                                    "type": "Identifier",
-                                    "name": "a"
-                                },
-                                "computed": false,
-                                "value": {
-                                    "type": "AssignmentPattern",
-                                    "left": {
+                    "params": [
+                        {
+                            "type": "ObjectPattern",
+                            "properties": [
+                                {
+                                    "type": "Property",
+                                    "kind": "init",
+                                    "key": {
                                         "type": "Identifier",
-                                        "name": "A"
+                                        "name": "a",
+                                        "start": 13,
+                                        "end": 14,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 13
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 14
+                                            }
+                                        }
                                     },
-                                    "right": {
-                                        "type": "BinaryExpression",
-                                        "operator": "+",
+                                    "computed": false,
+                                    "value": {
+                                        "type": "AssignmentPattern",
                                         "left": {
-                                            "type": "Literal",
-                                            "value": 1,
-                                            "raw": "1"
+                                            "type": "Identifier",
+                                            "name": "A",
+                                            "start": 16,
+                                            "end": 17,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 16
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 17
+                                                }
+                                            }
                                         },
                                         "right": {
-                                            "type": "Literal",
-                                            "value": 1,
-                                            "raw": "1"
+                                            "type": "BinaryExpression",
+                                            "left": {
+                                                "type": "Literal",
+                                                "value": 1,
+                                                "start": 20,
+                                                "end": 21,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 20
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 21
+                                                    }
+                                                },
+                                                "raw": "1"
+                                            },
+                                            "right": {
+                                                "type": "Literal",
+                                                "value": 1,
+                                                "start": 24,
+                                                "end": 25,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 24
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 25
+                                                    }
+                                                },
+                                                "raw": "1"
+                                            },
+                                            "operator": "+",
+                                            "start": 20,
+                                            "end": 25,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 20
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 25
+                                                }
+                                            }
+                                        },
+                                        "start": 16,
+                                        "end": 25,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 16
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 25
+                                            }
+                                        }
+                                    },
+                                    "method": false,
+                                    "shorthand": false,
+                                    "start": 13,
+                                    "end": 25,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 13
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 25
                                         }
                                     }
                                 },
-                                "kind": "init",
-                                "method": false,
-                                "shorthand": false
-                            },
-                            {
-                                "type": "Property",
-                                "key": {
-                                    "type": "Identifier",
-                                    "name": "b"
-                                },
-                                "computed": false,
-                                "value": {
-                                    "type": "ObjectPattern",
-                                    "properties": [{
-                                        "type": "Property",
-                                        "key": {
-                                            "type": "Identifier",
-                                            "name": "c"
-                                        },
-                                        "computed": false,
-                                        "value": {
-                                            "type": "ObjectPattern",
-                                            "properties": [{
-                                                    "type": "Property",
-                                                    "key": {
-                                                        "type": "Identifier",
-                                                        "name": "d"
-                                                    },
-                                                    "computed": false,
-                                                    "value": {
-                                                        "type": "AssignmentPattern",
-                                                        "left": {
-                                                            "type": "Identifier",
-                                                            "name": "D"
+                                {
+                                    "type": "Property",
+                                    "kind": "init",
+                                    "key": {
+                                        "type": "Identifier",
+                                        "name": "b",
+                                        "start": 27,
+                                        "end": 28,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 27
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 28
+                                            }
+                                        }
+                                    },
+                                    "computed": false,
+                                    "value": {
+                                        "type": "ObjectPattern",
+                                        "properties": [
+                                            {
+                                                "type": "Property",
+                                                "kind": "init",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "c",
+                                                    "start": 32,
+                                                    "end": 33,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 1,
+                                                            "column": 32
                                                         },
-                                                        "right": {
-                                                            "type": "BinaryExpression",
-                                                            "operator": "+",
-                                                            "left": {
-                                                                "type": "Literal",
-                                                                "value": 1,
-                                                                "raw": "1"
-                                                            },
-                                                            "right": {
-                                                                "type": "Literal",
-                                                                "value": 1,
-                                                                "raw": "1"
-                                                            }
+                                                        "end": {
+                                                            "line": 1,
+                                                            "column": 33
                                                         }
-                                                    },
-                                                    "kind": "init",
-                                                    "method": false,
-                                                    "shorthand": false
+                                                    }
                                                 },
-                                                {
-                                                    "type": "Property",
-                                                    "key": {
-                                                        "type": "Identifier",
-                                                        "name": "e"
-                                                    },
-                                                    "computed": false,
-                                                    "value": {
-                                                        "type": "ObjectPattern",
-                                                        "properties": [{
+                                                "computed": false,
+                                                "value": {
+                                                    "type": "ObjectPattern",
+                                                    "properties": [
+                                                        {
                                                             "type": "Property",
+                                                            "kind": "init",
                                                             "key": {
                                                                 "type": "Identifier",
-                                                                "name": "f"
+                                                                "name": "d",
+                                                                "start": 37,
+                                                                "end": 38,
+                                                                "loc": {
+                                                                    "start": {
+                                                                        "line": 1,
+                                                                        "column": 37
+                                                                    },
+                                                                    "end": {
+                                                                        "line": 1,
+                                                                        "column": 38
+                                                                    }
+                                                                }
                                                             },
                                                             "computed": false,
                                                             "value": {
-                                                                "type": "Identifier",
-                                                                "name": "f"
+                                                                "type": "AssignmentPattern",
+                                                                "left": {
+                                                                    "type": "Identifier",
+                                                                    "name": "D",
+                                                                    "start": 40,
+                                                                    "end": 41,
+                                                                    "loc": {
+                                                                        "start": {
+                                                                            "line": 1,
+                                                                            "column": 40
+                                                                        },
+                                                                        "end": {
+                                                                            "line": 1,
+                                                                            "column": 41
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "right": {
+                                                                    "type": "BinaryExpression",
+                                                                    "left": {
+                                                                        "type": "Literal",
+                                                                        "value": 1,
+                                                                        "start": 44,
+                                                                        "end": 45,
+                                                                        "loc": {
+                                                                            "start": {
+                                                                                "line": 1,
+                                                                                "column": 44
+                                                                            },
+                                                                            "end": {
+                                                                                "line": 1,
+                                                                                "column": 45
+                                                                            }
+                                                                        },
+                                                                        "raw": "1"
+                                                                    },
+                                                                    "right": {
+                                                                        "type": "Literal",
+                                                                        "value": 1,
+                                                                        "start": 48,
+                                                                        "end": 49,
+                                                                        "loc": {
+                                                                            "start": {
+                                                                                "line": 1,
+                                                                                "column": 48
+                                                                            },
+                                                                            "end": {
+                                                                                "line": 1,
+                                                                                "column": 49
+                                                                            }
+                                                                        },
+                                                                        "raw": "1"
+                                                                    },
+                                                                    "operator": "+",
+                                                                    "start": 44,
+                                                                    "end": 49,
+                                                                    "loc": {
+                                                                        "start": {
+                                                                            "line": 1,
+                                                                            "column": 44
+                                                                        },
+                                                                        "end": {
+                                                                            "line": 1,
+                                                                            "column": 49
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "start": 40,
+                                                                "end": 49,
+                                                                "loc": {
+                                                                    "start": {
+                                                                        "line": 1,
+                                                                        "column": 40
+                                                                    },
+                                                                    "end": {
+                                                                        "line": 1,
+                                                                        "column": 49
+                                                                    }
+                                                                }
                                                             },
-                                                            "kind": "init",
                                                             "method": false,
-                                                            "shorthand": true
-                                                        }]
+                                                            "shorthand": false,
+                                                            "start": 37,
+                                                            "end": 49,
+                                                            "loc": {
+                                                                "start": {
+                                                                    "line": 1,
+                                                                    "column": 37
+                                                                },
+                                                                "end": {
+                                                                    "line": 1,
+                                                                    "column": 49
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "Property",
+                                                            "kind": "init",
+                                                            "key": {
+                                                                "type": "Identifier",
+                                                                "name": "e",
+                                                                "start": 51,
+                                                                "end": 52,
+                                                                "loc": {
+                                                                    "start": {
+                                                                        "line": 1,
+                                                                        "column": 51
+                                                                    },
+                                                                    "end": {
+                                                                        "line": 1,
+                                                                        "column": 52
+                                                                    }
+                                                                }
+                                                            },
+                                                            "computed": false,
+                                                            "value": {
+                                                                "type": "ObjectPattern",
+                                                                "properties": [
+                                                                    {
+                                                                        "type": "Property",
+                                                                        "kind": "init",
+                                                                        "key": {
+                                                                            "type": "Identifier",
+                                                                            "name": "f",
+                                                                            "start": 56,
+                                                                            "end": 57,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 1,
+                                                                                    "column": 56
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 1,
+                                                                                    "column": 57
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "computed": false,
+                                                                        "value": {
+                                                                            "type": "Identifier",
+                                                                            "name": "f",
+                                                                            "start": 56,
+                                                                            "end": 57,
+                                                                            "loc": {
+                                                                                "start": {
+                                                                                    "line": 1,
+                                                                                    "column": 56
+                                                                                },
+                                                                                "end": {
+                                                                                    "line": 1,
+                                                                                    "column": 57
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "method": false,
+                                                                        "shorthand": true,
+                                                                        "start": 56,
+                                                                        "end": 57,
+                                                                        "loc": {
+                                                                            "start": {
+                                                                                "line": 1,
+                                                                                "column": 56
+                                                                            },
+                                                                            "end": {
+                                                                                "line": 1,
+                                                                                "column": 57
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                ],
+                                                                "start": 54,
+                                                                "end": 59,
+                                                                "loc": {
+                                                                    "start": {
+                                                                        "line": 1,
+                                                                        "column": 54
+                                                                    },
+                                                                    "end": {
+                                                                        "line": 1,
+                                                                        "column": 59
+                                                                    }
+                                                                }
+                                                            },
+                                                            "method": false,
+                                                            "shorthand": false,
+                                                            "start": 51,
+                                                            "end": 59,
+                                                            "loc": {
+                                                                "start": {
+                                                                    "line": 1,
+                                                                    "column": 51
+                                                                },
+                                                                "end": {
+                                                                    "line": 1,
+                                                                    "column": 59
+                                                                }
+                                                            }
+                                                        }
+                                                    ],
+                                                    "start": 35,
+                                                    "end": 61,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 1,
+                                                            "column": 35
+                                                        },
+                                                        "end": {
+                                                            "line": 1,
+                                                            "column": 61
+                                                        }
+                                                    }
+                                                },
+                                                "method": false,
+                                                "shorthand": false,
+                                                "start": 32,
+                                                "end": 61,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 32
                                                     },
-                                                    "kind": "init",
-                                                    "method": false,
-                                                    "shorthand": false
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 61
+                                                    }
                                                 }
-                                            ]
+                                            }
+                                        ],
+                                        "start": 30,
+                                        "end": 63,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 30
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 63
+                                            }
+                                        }
+                                    },
+                                    "method": false,
+                                    "shorthand": false,
+                                    "start": 27,
+                                    "end": 63,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 27
                                         },
-                                        "kind": "init",
-                                        "method": false,
-                                        "shorthand": false
-                                    }]
+                                        "end": {
+                                            "line": 1,
+                                            "column": 63
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 11,
+                            "end": 65,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 11
                                 },
-                                "kind": "init",
-                                "method": false,
-                                "shorthand": false
+                                "end": {
+                                    "line": 1,
+                                    "column": 65
+                                }
                             }
-                        ]
-                    }],
+                        }
+                    ],
                     "body": {
                         "type": "BlockStatement",
-                        "body": []
+                        "body": [],
+                        "start": 67,
+                        "end": 69,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 67
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 69
+                            }
+                        }
                     },
+                    "async": false,
                     "generator": false,
                     "expression": false,
-                    "async": false
-                }],
-                "sourceType": "script"
-            });
+                    "id": {
+                        "type": "Identifier",
+                        "name": "a",
+                        "start": 9,
+                        "end": 10,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 9
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 10
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 69,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 69
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 69,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 69
+                }
+            }
+        });
         });
     
         it('should parse "function a(a = 1, b) {}"', () => {
@@ -23628,115 +25375,267 @@ describe('TC262 - passing', () => {
 
       it('should parse "class a extends b { constructor() { () => { super(); } } }"', () => {
         expect(parseScript('class a extends b { constructor() { () => { super(); } } }', {
-            ranges: true,
-            raw: true
-        })).to.eql({
-          "type": "Program",
-          "start": 0,
-          "end": 58,
-          "body": [
-            {
-              "type": "ClassDeclaration",
-              "start": 0,
+          ranges: true,
+          raw: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 58,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 58
+          }
+        },
+        "body": [
+          {
+            "type": "ClassDeclaration",
+            "start": 0,
+            "end": 58,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 58
+              }
+            },
+            "id": {
+              "type": "Identifier",
+              "start": 6,
+              "end": 7,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 6
+                },
+                "end": {
+                  "line": 1,
+                  "column": 7
+                }
+              },
+              "name": "a"
+            },
+            "superClass": {
+              "type": "Identifier",
+              "start": 16,
+              "end": 17,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 16
+                },
+                "end": {
+                  "line": 1,
+                  "column": 17
+                }
+              },
+              "name": "b"
+            },
+            "body": {
+              "type": "ClassBody",
+              "start": 18,
               "end": 58,
-              "id": {
-                "type": "Identifier",
-                "start": 6,
-                "end": 7,
-                "name": "a"
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 18
+                },
+                "end": {
+                  "line": 1,
+                  "column": 58
+                }
               },
-              "superClass": {
-                "type": "Identifier",
-                "start": 16,
-                "end": 17,
-                "name": "b"
-              },
-              "body": {
-                "type": "ClassBody",
-                "start": 18,
-                "end": 58,
-                "body": [
-                  {
-                    "type": "MethodDefinition",
-                    "start": 20,
-                    "end": 56,
-                    "computed": false,
-                    "key": {
-                      "type": "Identifier",
-                      "start": 20,
-                      "end": 31,
-                      "name": "constructor"
+              "body": [
+                {
+                  "type": "MethodDefinition",
+                  "start": 20,
+                  "end": 56,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 20
                     },
-                    "static": false,
-                    "kind": "constructor",
-                    "value": {
-                      "type": "FunctionExpression",
-                      "start": 31,
+                    "end": {
+                      "line": 1,
+                      "column": 56
+                    }
+                  },
+                  "computed": false,
+                  "key": {
+                    "type": "Identifier",
+                    "start": 20,
+                    "end": 31,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 20
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 31
+                      }
+                    },
+                    "name": "constructor"
+                  },
+                  "static": false,
+                  "kind": "constructor",
+                  "value": {
+                    "type": "FunctionExpression",
+                    "start": 31,
+                    "end": 56,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 31
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 56
+                      }
+                    },
+                    "id": null,
+                    "generator": false,
+                    "expression": false,
+                    "async": false,
+                    "params": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "start": 34,
                       "end": 56,
-                      "id": null,
-                      "generator": false,
-                      "expression": false,
-                      "async": false,
-                      "params": [],
-                      "body": {
-                        "type": "BlockStatement",
-                        "start": 34,
-                        "end": 56,
-                        "body": [
-                          {
-                            "type": "ExpressionStatement",
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 34
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 56
+                        }
+                      },
+                      "body": [
+                        {
+                          "type": "ExpressionStatement",
+                          "start": 36,
+                          "end": 54,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 36
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 54
+                            }
+                          },
+                          "expression": {
+                            "type": "ArrowFunctionExpression",
                             "start": 36,
                             "end": 54,
-                            "expression": {
-                              "type": "ArrowFunctionExpression",
-                              "start": 36,
-                              "end": 54,
-                              "id": null,
-                              "generator": false,
-                              "expression": false,
-                              "async": false,
-                              "params": [],
-                              "body": {
-                                "type": "BlockStatement",
-                                "start": 42,
-                                "end": 54,
-                                "body": [
-                                  {
-                                    "type": "ExpressionStatement",
-                                    "start": 44,
-                                    "end": 52,
-                                    "expression": {
-                                      "type": "CallExpression",
-                                      "start": 44,
-                                      "end": 51,
-                                      "callee": {
-                                        "type": "Super",
-                                        "start": 44,
-                                        "end": 49
-                                      },
-                                      "arguments": []
-                                    }
-                                  }
-                                ]
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 36
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 54
                               }
+                            },
+                            "id": null,
+                            "generator": false,
+                            "expression": false,
+                            "async": false,
+                            "params": [],
+                            "body": {
+                              "type": "BlockStatement",
+                              "start": 42,
+                              "end": 54,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 42
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 54
+                                }
+                              },
+                              "body": [
+                                {
+                                  "type": "ExpressionStatement",
+                                  "start": 44,
+                                  "end": 52,
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 44
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 52
+                                    }
+                                  },
+                                  "expression": {
+                                    "type": "CallExpression",
+                                    "start": 44,
+                                    "end": 51,
+                                    "loc": {
+                                      "start": {
+                                        "line": 1,
+                                        "column": 44
+                                      },
+                                      "end": {
+                                        "line": 1,
+                                        "column": 51
+                                      }
+                                    },
+                                    "callee": {
+                                      "type": "Super",
+                                      "start": 44,
+                                      "end": 49,
+                                      "loc": {
+                                        "start": {
+                                          "line": 1,
+                                          "column": 44
+                                        },
+                                        "end": {
+                                          "line": 1,
+                                          "column": 49
+                                        }
+                                      }
+                                    },
+                                    "arguments": []
+                                  }
+                                }
+                              ]
                             }
                           }
-                        ]
-                      }
+                        }
+                      ]
                     }
                   }
-                ]
-              }
+                }
+              ]
             }
-          ],
-          "sourceType": "script"
-        });
+          }
+        ],
+        "sourceType": "script"
+      });
       });
 
       it('should parse "0008"', () => {
         expect(parseScript('0008', {
             ranges: true,
-            raw: true
+            raw: true,
+            locations: true
         })).to.eql({
           "type": "Program",
           "body": [
@@ -23747,15 +25646,45 @@ describe('TC262 - passing', () => {
                       "value": 8,
                       "start": 0,
                       "end": 4,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 0
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 4
+                          }
+                      },
                       "raw": "0008"
                   },
                   "start": 0,
-                  "end": 4
+                  "end": 4,
+                  "loc": {
+                      "start": {
+                          "line": 1,
+                          "column": 0
+                      },
+                      "end": {
+                          "line": 1,
+                          "column": 4
+                      }
+                  }
               }
           ],
           "sourceType": "script",
           "start": 0,
-          "end": 4
+          "end": 4,
+          "loc": {
+              "start": {
+                  "line": 1,
+                  "column": 0
+              },
+              "end": {
+                  "line": 1,
+                  "column": 4
+              }
+          }
       });
       });
       
@@ -24722,7 +26651,8 @@ describe('TC262 - passing', () => {
           return { p: p };
         }`, {
             ranges: true,
-            raw: true
+            raw: true,
+            locations: true
         })).to.eql({
           "type": "Program",
           "body": [
@@ -24733,19 +26663,49 @@ describe('TC262 - passing', () => {
                           "type": "Identifier",
                           "name": "b",
                           "start": 65,
-                          "end": 66
+                          "end": 66,
+                          "loc": {
+                              "start": {
+                                  "line": 2,
+                                  "column": 19
+                              },
+                              "end": {
+                                  "line": 2,
+                                  "column": 20
+                              }
+                          }
                       },
                       {
                           "type": "Identifier",
                           "name": "c",
                           "start": 68,
-                          "end": 69
+                          "end": 69,
+                          "loc": {
+                              "start": {
+                                  "line": 2,
+                                  "column": 22
+                              },
+                              "end": {
+                                  "line": 2,
+                                  "column": 23
+                              }
+                          }
                       },
                       {
                           "type": "Identifier",
                           "name": "d",
                           "start": 71,
-                          "end": 72
+                          "end": 72,
+                          "loc": {
+                              "start": {
+                                  "line": 2,
+                                  "column": 25
+                              },
+                              "end": {
+                                  "line": 2,
+                                  "column": 26
+                              }
+                          }
                       }
                   ],
                   "body": {
@@ -24758,10 +26718,30 @@ describe('TC262 - passing', () => {
                                   "value": "use asm",
                                   "start": 86,
                                   "end": 95,
+                                  "loc": {
+                                      "start": {
+                                          "line": 3,
+                                          "column": 10
+                                      },
+                                      "end": {
+                                          "line": 3,
+                                          "column": 19
+                                      }
+                                  },
                                   "raw": "\"use asm\""
                               },
                               "start": 86,
-                              "end": 96
+                              "end": 96,
+                              "loc": {
+                                  "start": {
+                                      "line": 3,
+                                      "column": 10
+                                  },
+                                  "end": {
+                                      "line": 3,
+                                      "column": 20
+                                  }
+                              }
                           },
                           {
                               "type": "VariableDeclaration",
@@ -24776,41 +26756,121 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "b",
                                                   "start": 115,
-                                                  "end": 116
+                                                  "end": 116,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 4,
+                                                          "column": 18
+                                                      },
+                                                      "end": {
+                                                          "line": 4,
+                                                          "column": 19
+                                                      }
+                                                  }
                                               },
                                               "computed": false,
                                               "property": {
                                                   "type": "Identifier",
                                                   "name": "f",
                                                   "start": 117,
-                                                  "end": 118
+                                                  "end": 118,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 4,
+                                                          "column": 20
+                                                      },
+                                                      "end": {
+                                                          "line": 4,
+                                                          "column": 21
+                                                      }
+                                                  }
                                               },
                                               "start": 115,
-                                              "end": 118
+                                              "end": 118,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 4,
+                                                      "column": 18
+                                                  },
+                                                  "end": {
+                                                      "line": 4,
+                                                      "column": 21
+                                                  }
+                                              }
                                           },
                                           "computed": false,
                                           "property": {
                                               "type": "Identifier",
                                               "name": "e",
                                               "start": 119,
-                                              "end": 120
+                                              "end": 120,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 4,
+                                                      "column": 22
+                                                  },
+                                                  "end": {
+                                                      "line": 4,
+                                                      "column": 23
+                                                  }
+                                              }
                                           },
                                           "start": 115,
-                                          "end": 120
+                                          "end": 120,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 4,
+                                                  "column": 18
+                                              },
+                                              "end": {
+                                                  "line": 4,
+                                                  "column": 23
+                                              }
+                                          }
                                       },
                                       "id": {
                                           "type": "Identifier",
                                           "name": "e",
                                           "start": 111,
-                                          "end": 112
+                                          "end": 112,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 4,
+                                                  "column": 14
+                                              },
+                                              "end": {
+                                                  "line": 4,
+                                                  "column": 15
+                                              }
+                                          }
                                       },
                                       "start": 111,
-                                      "end": 120
+                                      "end": 120,
+                                      "loc": {
+                                          "start": {
+                                              "line": 4,
+                                              "column": 14
+                                          },
+                                          "end": {
+                                              "line": 4,
+                                              "column": 23
+                                          }
+                                      }
                                   }
                               ],
                               "kind": "var",
                               "start": 107,
-                              "end": 121
+                              "end": 121,
+                              "loc": {
+                                  "start": {
+                                      "line": 4,
+                                      "column": 10
+                                  },
+                                  "end": {
+                                      "line": 4,
+                                      "column": 24
+                                  }
+                              }
                           },
                           {
                               "type": "VariableDeclaration",
@@ -24825,41 +26885,121 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "b",
                                                   "start": 140,
-                                                  "end": 141
+                                                  "end": 141,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 5,
+                                                          "column": 18
+                                                      },
+                                                      "end": {
+                                                          "line": 5,
+                                                          "column": 19
+                                                      }
+                                                  }
                                               },
                                               "computed": false,
                                               "property": {
                                                   "type": "Identifier",
                                                   "name": "f",
                                                   "start": 142,
-                                                  "end": 143
+                                                  "end": 143,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 5,
+                                                          "column": 20
+                                                      },
+                                                      "end": {
+                                                          "line": 5,
+                                                          "column": 21
+                                                      }
+                                                  }
                                               },
                                               "start": 140,
-                                              "end": 143
+                                              "end": 143,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 5,
+                                                      "column": 18
+                                                  },
+                                                  "end": {
+                                                      "line": 5,
+                                                      "column": 21
+                                                  }
+                                              }
                                           },
                                           "computed": false,
                                           "property": {
                                               "type": "Identifier",
                                               "name": "g",
                                               "start": 144,
-                                              "end": 145
+                                              "end": 145,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 5,
+                                                      "column": 22
+                                                  },
+                                                  "end": {
+                                                      "line": 5,
+                                                      "column": 23
+                                                  }
+                                              }
                                           },
                                           "start": 140,
-                                          "end": 145
+                                          "end": 145,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 5,
+                                                  "column": 18
+                                              },
+                                              "end": {
+                                                  "line": 5,
+                                                  "column": 23
+                                              }
+                                          }
                                       },
                                       "id": {
                                           "type": "Identifier",
                                           "name": "g",
                                           "start": 136,
-                                          "end": 137
+                                          "end": 137,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 5,
+                                                  "column": 14
+                                              },
+                                              "end": {
+                                                  "line": 5,
+                                                  "column": 15
+                                              }
+                                          }
                                       },
                                       "start": 136,
-                                      "end": 145
+                                      "end": 145,
+                                      "loc": {
+                                          "start": {
+                                              "line": 5,
+                                              "column": 14
+                                          },
+                                          "end": {
+                                              "line": 5,
+                                              "column": 23
+                                          }
+                                      }
                                   }
                               ],
                               "kind": "var",
                               "start": 132,
-                              "end": 146
+                              "end": 146,
+                              "loc": {
+                                  "start": {
+                                      "line": 5,
+                                      "column": 10
+                                  },
+                                  "end": {
+                                      "line": 5,
+                                      "column": 24
+                                  }
+                              }
                           },
                           {
                               "type": "VariableDeclaration",
@@ -24874,42 +27014,122 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "b",
                                                   "start": 169,
-                                                  "end": 170
+                                                  "end": 170,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 6,
+                                                          "column": 22
+                                                      },
+                                                      "end": {
+                                                          "line": 6,
+                                                          "column": 23
+                                                      }
+                                                  }
                                               },
                                               "computed": false,
                                               "property": {
                                                   "type": "Identifier",
                                                   "name": "i",
                                                   "start": 171,
-                                                  "end": 172
+                                                  "end": 172,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 6,
+                                                          "column": 24
+                                                      },
+                                                      "end": {
+                                                          "line": 6,
+                                                          "column": 25
+                                                      }
+                                                  }
                                               },
                                               "start": 165,
-                                              "end": 172
+                                              "end": 172,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 6,
+                                                      "column": 18
+                                                  },
+                                                  "end": {
+                                                      "line": 6,
+                                                      "column": 25
+                                                  }
+                                              }
                                           },
                                           "arguments": [
                                               {
                                                   "type": "Identifier",
                                                   "name": "d",
                                                   "start": 173,
-                                                  "end": 174
+                                                  "end": 174,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 6,
+                                                          "column": 26
+                                                      },
+                                                      "end": {
+                                                          "line": 6,
+                                                          "column": 27
+                                                      }
+                                                  }
                                               }
                                           ],
                                           "start": 165,
-                                          "end": 175
+                                          "end": 175,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 6,
+                                                  "column": 18
+                                              },
+                                              "end": {
+                                                  "line": 6,
+                                                  "column": 28
+                                              }
+                                          }
                                       },
                                       "id": {
                                           "type": "Identifier",
                                           "name": "h",
                                           "start": 161,
-                                          "end": 162
+                                          "end": 162,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 6,
+                                                  "column": 14
+                                              },
+                                              "end": {
+                                                  "line": 6,
+                                                  "column": 15
+                                              }
+                                          }
                                       },
                                       "start": 161,
-                                      "end": 175
+                                      "end": 175,
+                                      "loc": {
+                                          "start": {
+                                              "line": 6,
+                                              "column": 14
+                                          },
+                                          "end": {
+                                              "line": 6,
+                                              "column": 28
+                                          }
+                                      }
                                   }
                               ],
                               "kind": "var",
                               "start": 157,
-                              "end": 176
+                              "end": 176,
+                              "loc": {
+                                  "start": {
+                                      "line": 6,
+                                      "column": 10
+                                  },
+                                  "end": {
+                                      "line": 6,
+                                      "column": 29
+                                  }
+                              }
                           },
                           {
                               "type": "FunctionDeclaration",
@@ -24918,13 +27138,33 @@ describe('TC262 - passing', () => {
                                       "type": "Identifier",
                                       "name": "k",
                                       "start": 198,
-                                      "end": 199
+                                      "end": 199,
+                                      "loc": {
+                                          "start": {
+                                              "line": 7,
+                                              "column": 21
+                                          },
+                                          "end": {
+                                              "line": 7,
+                                              "column": 22
+                                          }
+                                      }
                                   },
                                   {
                                       "type": "Identifier",
                                       "name": "l",
                                       "start": 201,
-                                      "end": 202
+                                      "end": 202,
+                                      "loc": {
+                                          "start": {
+                                              "line": 7,
+                                              "column": 24
+                                          },
+                                          "end": {
+                                              "line": 7,
+                                              "column": 25
+                                          }
+                                      }
                                   }
                               ],
                               "body": {
@@ -24938,7 +27178,17 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "k",
                                                   "start": 218,
-                                                  "end": 219
+                                                  "end": 219,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 8,
+                                                          "column": 12
+                                                      },
+                                                      "end": {
+                                                          "line": 8,
+                                                          "column": 13
+                                                      }
+                                                  }
                                               },
                                               "operator": "=",
                                               "right": {
@@ -24947,24 +27197,74 @@ describe('TC262 - passing', () => {
                                                       "type": "Identifier",
                                                       "name": "k",
                                                       "start": 222,
-                                                      "end": 223
+                                                      "end": 223,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 8,
+                                                              "column": 16
+                                                          },
+                                                          "end": {
+                                                              "line": 8,
+                                                              "column": 17
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 1,
                                                       "start": 224,
                                                       "end": 225,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 8,
+                                                              "column": 18
+                                                          },
+                                                          "end": {
+                                                              "line": 8,
+                                                              "column": 19
+                                                          }
+                                                      },
                                                       "raw": "1"
                                                   },
                                                   "operator": "|",
                                                   "start": 222,
-                                                  "end": 225
+                                                  "end": 225,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 8,
+                                                          "column": 16
+                                                      },
+                                                      "end": {
+                                                          "line": 8,
+                                                          "column": 19
+                                                      }
+                                                  }
                                               },
                                               "start": 218,
-                                              "end": 225
+                                              "end": 225,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 8,
+                                                      "column": 12
+                                                  },
+                                                  "end": {
+                                                      "line": 8,
+                                                      "column": 19
+                                                  }
+                                              }
                                           },
                                           "start": 218,
-                                          "end": 226
+                                          "end": 226,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 8,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 8,
+                                                  "column": 20
+                                              }
+                                          }
                                       },
                                       {
                                           "type": "ExpressionStatement",
@@ -24974,7 +27274,17 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "l",
                                                   "start": 239,
-                                                  "end": 240
+                                                  "end": 240,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 9,
+                                                          "column": 12
+                                                      },
+                                                      "end": {
+                                                          "line": 9,
+                                                          "column": 13
+                                                      }
+                                                  }
                                               },
                                               "operator": "=",
                                               "right": {
@@ -24983,24 +27293,74 @@ describe('TC262 - passing', () => {
                                                       "type": "Identifier",
                                                       "name": "l",
                                                       "start": 243,
-                                                      "end": 244
+                                                      "end": 244,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 9,
+                                                              "column": 16
+                                                          },
+                                                          "end": {
+                                                              "line": 9,
+                                                              "column": 17
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 2,
                                                       "start": 245,
                                                       "end": 246,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 9,
+                                                              "column": 18
+                                                          },
+                                                          "end": {
+                                                              "line": 9,
+                                                              "column": 19
+                                                          }
+                                                      },
                                                       "raw": "2"
                                                   },
                                                   "operator": "|",
                                                   "start": 243,
-                                                  "end": 246
+                                                  "end": 246,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 9,
+                                                          "column": 16
+                                                      },
+                                                      "end": {
+                                                          "line": 9,
+                                                          "column": 19
+                                                      }
+                                                  }
                                               },
                                               "start": 239,
-                                              "end": 246
+                                              "end": 246,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 9,
+                                                      "column": 12
+                                                  },
+                                                  "end": {
+                                                      "line": 9,
+                                                      "column": 19
+                                                  }
+                                              }
                                           },
                                           "start": 239,
-                                          "end": 247
+                                          "end": 247,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 9,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 9,
+                                                  "column": 20
+                                              }
+                                          }
                                       },
                                       {
                                           "type": "VariableDeclaration",
@@ -25012,16 +27372,46 @@ describe('TC262 - passing', () => {
                                                       "value": 0,
                                                       "start": 268,
                                                       "end": 271,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 10,
+                                                              "column": 20
+                                                          },
+                                                          "end": {
+                                                              "line": 10,
+                                                              "column": 23
+                                                          }
+                                                      },
                                                       "raw": "0.0"
                                                   },
                                                   "id": {
                                                       "type": "Identifier",
                                                       "name": "m",
                                                       "start": 264,
-                                                      "end": 265
+                                                      "end": 265,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 10,
+                                                              "column": 16
+                                                          },
+                                                          "end": {
+                                                              "line": 10,
+                                                              "column": 17
+                                                          }
+                                                      }
                                                   },
                                                   "start": 264,
-                                                  "end": 271
+                                                  "end": 271,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 10,
+                                                          "column": 16
+                                                      },
+                                                      "end": {
+                                                          "line": 10,
+                                                          "column": 23
+                                                      }
+                                                  }
                                               },
                                               {
                                                   "type": "VariableDeclarator",
@@ -25030,16 +27420,46 @@ describe('TC262 - passing', () => {
                                                       "value": 3,
                                                       "start": 277,
                                                       "end": 278,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 10,
+                                                              "column": 29
+                                                          },
+                                                          "end": {
+                                                              "line": 10,
+                                                              "column": 30
+                                                          }
+                                                      },
                                                       "raw": "3"
                                                   },
                                                   "id": {
                                                       "type": "Identifier",
                                                       "name": "n",
                                                       "start": 273,
-                                                      "end": 274
+                                                      "end": 274,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 10,
+                                                              "column": 25
+                                                          },
+                                                          "end": {
+                                                              "line": 10,
+                                                              "column": 26
+                                                          }
+                                                      }
                                                   },
                                                   "start": 273,
-                                                  "end": 278
+                                                  "end": 278,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 10,
+                                                          "column": 25
+                                                      },
+                                                      "end": {
+                                                          "line": 10,
+                                                          "column": 30
+                                                      }
+                                                  }
                                               },
                                               {
                                                   "type": "VariableDeclarator",
@@ -25048,21 +27468,61 @@ describe('TC262 - passing', () => {
                                                       "value": 4,
                                                       "start": 284,
                                                       "end": 285,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 10,
+                                                              "column": 36
+                                                          },
+                                                          "end": {
+                                                              "line": 10,
+                                                              "column": 37
+                                                          }
+                                                      },
                                                       "raw": "4"
                                                   },
                                                   "id": {
                                                       "type": "Identifier",
                                                       "name": "o",
                                                       "start": 280,
-                                                      "end": 281
+                                                      "end": 281,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 10,
+                                                              "column": 32
+                                                          },
+                                                          "end": {
+                                                              "line": 10,
+                                                              "column": 33
+                                                          }
+                                                      }
                                                   },
                                                   "start": 280,
-                                                  "end": 285
+                                                  "end": 285,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 10,
+                                                          "column": 32
+                                                      },
+                                                      "end": {
+                                                          "line": 10,
+                                                          "column": 37
+                                                      }
+                                                  }
                                               }
                                           ],
                                           "kind": "var",
                                           "start": 260,
-                                          "end": 286
+                                          "end": 286,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 10,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 10,
+                                                  "column": 38
+                                              }
+                                          }
                                       },
                                       {
                                           "type": "ForStatement",
@@ -25077,7 +27537,17 @@ describe('TC262 - passing', () => {
                                                               "type": "Identifier",
                                                               "name": "m",
                                                               "start": 459,
-                                                              "end": 460
+                                                              "end": 460,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 13,
+                                                                      "column": 14
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 13,
+                                                                      "column": 15
+                                                                  }
+                                                              }
                                                           },
                                                           "operator": "=",
                                                           "right": {
@@ -25086,13 +27556,39 @@ describe('TC262 - passing', () => {
                                                                   "type": "Identifier",
                                                                   "name": "m",
                                                                   "start": 463,
-                                                                  "end": 464
+                                                                  "end": 464,
+                                                                  "loc": {
+                                                                      "start": {
+                                                                          "line": 13,
+                                                                          "column": 18
+                                                                      },
+                                                                      "end": {
+                                                                          "line": 13,
+                                                                          "column": 19
+                                                                      }
+                                                                  }
                                                               },
                                                               "right": {
                                                                   "type": "UnaryExpression",
                                                                   "operator": "+",
                                                                   "argument": {
                                                                       "type": "CallExpression",
+                                                                      "callee": {
+                                                                          "type": "Identifier",
+                                                                          "name": "g",
+                                                                          "start": 468,
+                                                                          "end": 469,
+                                                                          "loc": {
+                                                                              "start": {
+                                                                                  "line": 13,
+                                                                                  "column": 23
+                                                                              },
+                                                                              "end": {
+                                                                                  "line": 13,
+                                                                                  "column": 24
+                                                                              }
+                                                                          }
+                                                                      },
                                                                       "arguments": [
                                                                           {
                                                                               "type": "MemberExpression",
@@ -25100,7 +27596,17 @@ describe('TC262 - passing', () => {
                                                                                   "type": "Identifier",
                                                                                   "name": "h",
                                                                                   "start": 470,
-                                                                                  "end": 471
+                                                                                  "end": 471,
+                                                                                  "loc": {
+                                                                                      "start": {
+                                                                                          "line": 13,
+                                                                                          "column": 25
+                                                                                      },
+                                                                                      "end": {
+                                                                                          "line": 13,
+                                                                                          "column": 26
+                                                                                      }
+                                                                                  }
                                                                               },
                                                                               "computed": true,
                                                                               "property": {
@@ -25109,49 +27615,143 @@ describe('TC262 - passing', () => {
                                                                                       "type": "Identifier",
                                                                                       "name": "n",
                                                                                       "start": 472,
-                                                                                      "end": 473
+                                                                                      "end": 473,
+                                                                                      "loc": {
+                                                                                          "start": {
+                                                                                              "line": 13,
+                                                                                              "column": 27
+                                                                                          },
+                                                                                          "end": {
+                                                                                              "line": 13,
+                                                                                              "column": 28
+                                                                                          }
+                                                                                      }
                                                                                   },
                                                                                   "right": {
                                                                                       "type": "Literal",
                                                                                       "value": 11,
                                                                                       "start": 475,
                                                                                       "end": 477,
+                                                                                      "loc": {
+                                                                                          "start": {
+                                                                                              "line": 13,
+                                                                                              "column": 30
+                                                                                          },
+                                                                                          "end": {
+                                                                                              "line": 13,
+                                                                                              "column": 32
+                                                                                          }
+                                                                                      },
                                                                                       "raw": "11"
                                                                                   },
                                                                                   "operator": ">>",
                                                                                   "start": 472,
-                                                                                  "end": 477
+                                                                                  "end": 477,
+                                                                                  "loc": {
+                                                                                      "start": {
+                                                                                          "line": 13,
+                                                                                          "column": 27
+                                                                                      },
+                                                                                      "end": {
+                                                                                          "line": 13,
+                                                                                          "column": 32
+                                                                                      }
+                                                                                  }
                                                                               },
                                                                               "start": 470,
-                                                                              "end": 478
+                                                                              "end": 478,
+                                                                              "loc": {
+                                                                                  "start": {
+                                                                                      "line": 13,
+                                                                                      "column": 25
+                                                                                  },
+                                                                                  "end": {
+                                                                                      "line": 13,
+                                                                                      "column": 33
+                                                                                  }
+                                                                              }
                                                                           }
                                                                       ],
-                                                                      "callee": {
-                                                                          "type": "Identifier",
-                                                                          "name": "g",
-                                                                          "start": 468,
-                                                                          "end": 469
-                                                                      },
                                                                       "start": 468,
-                                                                      "end": 479
+                                                                      "end": 479,
+                                                                      "loc": {
+                                                                          "start": {
+                                                                              "line": 13,
+                                                                              "column": 23
+                                                                          },
+                                                                          "end": {
+                                                                              "line": 13,
+                                                                              "column": 34
+                                                                          }
+                                                                      }
                                                                   },
                                                                   "prefix": true,
                                                                   "start": 467,
-                                                                  "end": 479
+                                                                  "end": 479,
+                                                                  "loc": {
+                                                                      "start": {
+                                                                          "line": 13,
+                                                                          "column": 22
+                                                                      },
+                                                                      "end": {
+                                                                          "line": 13,
+                                                                          "column": 34
+                                                                      }
+                                                                  }
                                                               },
                                                               "operator": "+",
                                                               "start": 463,
-                                                              "end": 479
+                                                              "end": 479,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 13,
+                                                                      "column": 18
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 13,
+                                                                      "column": 34
+                                                                  }
+                                                              }
                                                           },
                                                           "start": 459,
-                                                          "end": 479
+                                                          "end": 479,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 13,
+                                                                  "column": 14
+                                                              },
+                                                              "end": {
+                                                                  "line": 13,
+                                                                  "column": 34
+                                                              }
+                                                          }
                                                       },
                                                       "start": 459,
-                                                      "end": 480
+                                                      "end": 480,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 13,
+                                                              "column": 14
+                                                          },
+                                                          "end": {
+                                                              "line": 13,
+                                                              "column": 35
+                                                          }
+                                                      }
                                                   }
                                               ],
                                               "start": 443,
-                                              "end": 494
+                                              "end": 494,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 12,
+                                                      "column": 72
+                                                  },
+                                                  "end": {
+                                                      "line": 14,
+                                                      "column": 13
+                                                  }
+                                              }
                                           },
                                           "init": {
                                               "type": "SequenceExpression",
@@ -25162,7 +27762,17 @@ describe('TC262 - passing', () => {
                                                           "type": "Identifier",
                                                           "name": "n",
                                                           "start": 388,
-                                                          "end": 389
+                                                          "end": 389,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 12,
+                                                                  "column": 17
+                                                              },
+                                                              "end": {
+                                                                  "line": 12,
+                                                                  "column": 18
+                                                              }
+                                                          }
                                                       },
                                                       "operator": "=",
                                                       "right": {
@@ -25171,21 +27781,61 @@ describe('TC262 - passing', () => {
                                                               "type": "Identifier",
                                                               "name": "k",
                                                               "start": 392,
-                                                              "end": 393
+                                                              "end": 393,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 12,
+                                                                      "column": 21
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 12,
+                                                                      "column": 22
+                                                                  }
+                                                              }
                                                           },
                                                           "right": {
                                                               "type": "Literal",
                                                               "value": 5,
                                                               "start": 397,
                                                               "end": 398,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 12,
+                                                                      "column": 26
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 12,
+                                                                      "column": 27
+                                                                  }
+                                                              },
                                                               "raw": "5"
                                                           },
                                                           "operator": "<<",
                                                           "start": 392,
-                                                          "end": 398
+                                                          "end": 398,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 12,
+                                                                  "column": 21
+                                                              },
+                                                              "end": {
+                                                                  "line": 12,
+                                                                  "column": 27
+                                                              }
+                                                          }
                                                       },
                                                       "start": 388,
-                                                      "end": 398
+                                                      "end": 398,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 12,
+                                                              "column": 17
+                                                          },
+                                                          "end": {
+                                                              "line": 12,
+                                                              "column": 27
+                                                          }
+                                                      }
                                                   },
                                                   {
                                                       "type": "AssignmentExpression",
@@ -25193,7 +27843,17 @@ describe('TC262 - passing', () => {
                                                           "type": "Identifier",
                                                           "name": "o",
                                                           "start": 400,
-                                                          "end": 401
+                                                          "end": 401,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 12,
+                                                                  "column": 29
+                                                              },
+                                                              "end": {
+                                                                  "line": 12,
+                                                                  "column": 30
+                                                              }
+                                                          }
                                                       },
                                                       "operator": "=",
                                                       "right": {
@@ -25202,25 +27862,75 @@ describe('TC262 - passing', () => {
                                                               "type": "Identifier",
                                                               "name": "l",
                                                               "start": 404,
-                                                              "end": 405
+                                                              "end": 405,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 12,
+                                                                      "column": 33
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 12,
+                                                                      "column": 34
+                                                                  }
+                                                              }
                                                           },
                                                           "right": {
                                                               "type": "Literal",
                                                               "value": 6,
                                                               "start": 409,
                                                               "end": 410,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 12,
+                                                                      "column": 38
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 12,
+                                                                      "column": 39
+                                                                  }
+                                                              },
                                                               "raw": "6"
                                                           },
                                                           "operator": "<<",
                                                           "start": 404,
-                                                          "end": 410
+                                                          "end": 410,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 12,
+                                                                  "column": 33
+                                                              },
+                                                              "end": {
+                                                                  "line": 12,
+                                                                  "column": 39
+                                                              }
+                                                          }
                                                       },
                                                       "start": 400,
-                                                      "end": 410
+                                                      "end": 410,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 12,
+                                                              "column": 29
+                                                          },
+                                                          "end": {
+                                                              "line": 12,
+                                                              "column": 39
+                                                          }
+                                                      }
                                                   }
                                               ],
-                                              "start": 388,
-                                              "end": 410
+                                              "start": 383,
+                                              "end": 410,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 12,
+                                                      "column": 12
+                                                  },
+                                                  "end": {
+                                                      "line": 12,
+                                                      "column": 39
+                                                  }
+                                              }
                                           },
                                           "test": {
                                               "type": "BinaryExpression",
@@ -25230,18 +27940,48 @@ describe('TC262 - passing', () => {
                                                       "type": "Identifier",
                                                       "name": "n",
                                                       "start": 413,
-                                                      "end": 414
+                                                      "end": 414,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 12,
+                                                              "column": 42
+                                                          },
+                                                          "end": {
+                                                              "line": 12,
+                                                              "column": 43
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 7,
                                                       "start": 415,
                                                       "end": 416,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 12,
+                                                              "column": 44
+                                                          },
+                                                          "end": {
+                                                              "line": 12,
+                                                              "column": 45
+                                                          }
+                                                      },
                                                       "raw": "7"
                                                   },
                                                   "operator": "|",
                                                   "start": 413,
-                                                  "end": 416
+                                                  "end": 416,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 12,
+                                                          "column": 42
+                                                      },
+                                                      "end": {
+                                                          "line": 12,
+                                                          "column": 45
+                                                      }
+                                                  }
                                               },
                                               "right": {
                                                   "type": "BinaryExpression",
@@ -25249,22 +27989,62 @@ describe('TC262 - passing', () => {
                                                       "type": "Identifier",
                                                       "name": "o",
                                                       "start": 421,
-                                                      "end": 422
+                                                      "end": 422,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 12,
+                                                              "column": 50
+                                                          },
+                                                          "end": {
+                                                              "line": 12,
+                                                              "column": 51
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 8,
                                                       "start": 423,
                                                       "end": 424,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 12,
+                                                              "column": 52
+                                                          },
+                                                          "end": {
+                                                              "line": 12,
+                                                              "column": 53
+                                                          }
+                                                      },
                                                       "raw": "8"
                                                   },
                                                   "operator": "|",
                                                   "start": 421,
-                                                  "end": 424
+                                                  "end": 424,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 12,
+                                                          "column": 50
+                                                      },
+                                                      "end": {
+                                                          "line": 12,
+                                                          "column": 53
+                                                      }
+                                                  }
                                               },
                                               "operator": "<",
                                               "start": 412,
-                                              "end": 425
+                                              "end": 425,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 12,
+                                                      "column": 41
+                                                  },
+                                                  "end": {
+                                                      "line": 12,
+                                                      "column": 54
+                                                  }
+                                              }
                                           },
                                           "update": {
                                               "type": "AssignmentExpression",
@@ -25272,7 +28052,17 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "n",
                                                   "start": 427,
-                                                  "end": 428
+                                                  "end": 428,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 12,
+                                                          "column": 56
+                                                      },
+                                                      "end": {
+                                                          "line": 12,
+                                                          "column": 57
+                                                      }
+                                                  }
                                               },
                                               "operator": "=",
                                               "right": {
@@ -25283,35 +28073,105 @@ describe('TC262 - passing', () => {
                                                           "type": "Identifier",
                                                           "name": "n",
                                                           "start": 432,
-                                                          "end": 433
+                                                          "end": 433,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 12,
+                                                                  "column": 61
+                                                              },
+                                                              "end": {
+                                                                  "line": 12,
+                                                                  "column": 62
+                                                              }
+                                                          }
                                                       },
                                                       "right": {
                                                           "type": "Literal",
                                                           "value": 9,
                                                           "start": 436,
                                                           "end": 437,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 12,
+                                                                  "column": 65
+                                                              },
+                                                              "end": {
+                                                                  "line": 12,
+                                                                  "column": 66
+                                                              }
+                                                          },
                                                           "raw": "9"
                                                       },
                                                       "operator": "+",
                                                       "start": 432,
-                                                      "end": 437
+                                                      "end": 437,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 12,
+                                                              "column": 61
+                                                          },
+                                                          "end": {
+                                                              "line": 12,
+                                                              "column": 66
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 10,
                                                       "start": 439,
                                                       "end": 441,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 12,
+                                                              "column": 68
+                                                          },
+                                                          "end": {
+                                                              "line": 12,
+                                                              "column": 70
+                                                          }
+                                                      },
                                                       "raw": "10"
                                                   },
                                                   "operator": "|",
                                                   "start": 431,
-                                                  "end": 441
+                                                  "end": 441,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 12,
+                                                          "column": 60
+                                                      },
+                                                      "end": {
+                                                          "line": 12,
+                                                          "column": 70
+                                                      }
+                                                  }
                                               },
                                               "start": 427,
-                                              "end": 441
+                                              "end": 441,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 12,
+                                                      "column": 56
+                                                  },
+                                                  "end": {
+                                                      "line": 12,
+                                                      "column": 70
+                                                  }
+                                              }
                                           },
                                           "start": 383,
-                                          "end": 494
+                                          "end": 494,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 12,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 14,
+                                                  "column": 13
+                                              }
+                                          }
                                       },
                                       {
                                           "type": "ReturnStatement",
@@ -25322,18 +28182,58 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "m",
                                                   "start": 515,
-                                                  "end": 516
+                                                  "end": 516,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 15,
+                                                          "column": 20
+                                                      },
+                                                      "end": {
+                                                          "line": 15,
+                                                          "column": 21
+                                                      }
+                                                  }
                                               },
                                               "prefix": true,
                                               "start": 514,
-                                              "end": 516
+                                              "end": 516,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 15,
+                                                      "column": 19
+                                                  },
+                                                  "end": {
+                                                      "line": 15,
+                                                      "column": 21
+                                                  }
+                                              }
                                           },
                                           "start": 507,
-                                          "end": 517
+                                          "end": 517,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 15,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 15,
+                                                  "column": 22
+                                              }
+                                          }
                                       }
                                   ],
                                   "start": 204,
-                                  "end": 529
+                                  "end": 529,
+                                  "loc": {
+                                      "start": {
+                                          "line": 7,
+                                          "column": 27
+                                      },
+                                      "end": {
+                                          "line": 16,
+                                          "column": 11
+                                      }
+                                  }
                               },
                               "async": false,
                               "generator": false,
@@ -25342,10 +28242,30 @@ describe('TC262 - passing', () => {
                                   "type": "Identifier",
                                   "name": "j",
                                   "start": 196,
-                                  "end": 197
+                                  "end": 197,
+                                  "loc": {
+                                      "start": {
+                                          "line": 7,
+                                          "column": 19
+                                      },
+                                      "end": {
+                                          "line": 7,
+                                          "column": 20
+                                      }
+                                  }
                               },
                               "start": 187,
-                              "end": 529
+                              "end": 529,
+                              "loc": {
+                                  "start": {
+                                      "line": 7,
+                                      "column": 10
+                                  },
+                                  "end": {
+                                      "line": 16,
+                                      "column": 11
+                                  }
+                              }
                           },
                           {
                               "type": "FunctionDeclaration",
@@ -25354,13 +28274,33 @@ describe('TC262 - passing', () => {
                                       "type": "Identifier",
                                       "name": "k",
                                       "start": 551,
-                                      "end": 552
+                                      "end": 552,
+                                      "loc": {
+                                          "start": {
+                                              "line": 17,
+                                              "column": 21
+                                          },
+                                          "end": {
+                                              "line": 17,
+                                              "column": 22
+                                          }
+                                      }
                                   },
                                   {
                                       "type": "Identifier",
                                       "name": "l",
                                       "start": 554,
-                                      "end": 555
+                                      "end": 555,
+                                      "loc": {
+                                          "start": {
+                                              "line": 17,
+                                              "column": 24
+                                          },
+                                          "end": {
+                                              "line": 17,
+                                              "column": 25
+                                          }
+                                      }
                                   }
                               ],
                               "body": {
@@ -25374,7 +28314,17 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "k",
                                                   "start": 571,
-                                                  "end": 572
+                                                  "end": 572,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 18,
+                                                          "column": 12
+                                                      },
+                                                      "end": {
+                                                          "line": 18,
+                                                          "column": 13
+                                                      }
+                                                  }
                                               },
                                               "operator": "=",
                                               "right": {
@@ -25383,24 +28333,74 @@ describe('TC262 - passing', () => {
                                                       "type": "Identifier",
                                                       "name": "k",
                                                       "start": 575,
-                                                      "end": 576
+                                                      "end": 576,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 18,
+                                                              "column": 16
+                                                          },
+                                                          "end": {
+                                                              "line": 18,
+                                                              "column": 17
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 12,
                                                       "start": 577,
                                                       "end": 579,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 18,
+                                                              "column": 18
+                                                          },
+                                                          "end": {
+                                                              "line": 18,
+                                                              "column": 20
+                                                          }
+                                                      },
                                                       "raw": "12"
                                                   },
                                                   "operator": "|",
                                                   "start": 575,
-                                                  "end": 579
+                                                  "end": 579,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 18,
+                                                          "column": 16
+                                                      },
+                                                      "end": {
+                                                          "line": 18,
+                                                          "column": 20
+                                                      }
+                                                  }
                                               },
                                               "start": 571,
-                                              "end": 579
+                                              "end": 579,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 18,
+                                                      "column": 12
+                                                  },
+                                                  "end": {
+                                                      "line": 18,
+                                                      "column": 20
+                                                  }
+                                              }
                                           },
                                           "start": 571,
-                                          "end": 580
+                                          "end": 580,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 18,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 18,
+                                                  "column": 21
+                                              }
+                                          }
                                       },
                                       {
                                           "type": "ExpressionStatement",
@@ -25410,7 +28410,17 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "l",
                                                   "start": 593,
-                                                  "end": 594
+                                                  "end": 594,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 19,
+                                                          "column": 12
+                                                      },
+                                                      "end": {
+                                                          "line": 19,
+                                                          "column": 13
+                                                      }
+                                                  }
                                               },
                                               "operator": "=",
                                               "right": {
@@ -25419,24 +28429,74 @@ describe('TC262 - passing', () => {
                                                       "type": "Identifier",
                                                       "name": "l",
                                                       "start": 597,
-                                                      "end": 598
+                                                      "end": 598,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 19,
+                                                              "column": 16
+                                                          },
+                                                          "end": {
+                                                              "line": 19,
+                                                              "column": 17
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 13,
                                                       "start": 599,
                                                       "end": 601,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 19,
+                                                              "column": 18
+                                                          },
+                                                          "end": {
+                                                              "line": 19,
+                                                              "column": 20
+                                                          }
+                                                      },
                                                       "raw": "13"
                                                   },
                                                   "operator": "|",
                                                   "start": 597,
-                                                  "end": 601
+                                                  "end": 601,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 19,
+                                                          "column": 16
+                                                      },
+                                                      "end": {
+                                                          "line": 19,
+                                                          "column": 20
+                                                      }
+                                                  }
                                               },
                                               "start": 593,
-                                              "end": 601
+                                              "end": 601,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 19,
+                                                      "column": 12
+                                                  },
+                                                  "end": {
+                                                      "line": 19,
+                                                      "column": 20
+                                                  }
+                                              }
                                           },
                                           "start": 593,
-                                          "end": 602
+                                          "end": 602,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 19,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 19,
+                                                  "column": 21
+                                              }
+                                          }
                                       },
                                       {
                                           "type": "ReturnStatement",
@@ -25445,6 +28505,22 @@ describe('TC262 - passing', () => {
                                               "operator": "+",
                                               "argument": {
                                                   "type": "CallExpression",
+                                                  "callee": {
+                                                      "type": "Identifier",
+                                                      "name": "e",
+                                                      "start": 623,
+                                                      "end": 624,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 20,
+                                                              "column": 20
+                                                          },
+                                                          "end": {
+                                                              "line": 20,
+                                                              "column": 21
+                                                          }
+                                                      }
+                                                  },
                                                   "arguments": [
                                                       {
                                                           "type": "BinaryExpression",
@@ -25453,32 +28529,82 @@ describe('TC262 - passing', () => {
                                                               "operator": "+",
                                                               "argument": {
                                                                   "type": "CallExpression",
+                                                                  "callee": {
+                                                                      "type": "Identifier",
+                                                                      "name": "j",
+                                                                      "start": 626,
+                                                                      "end": 627,
+                                                                      "loc": {
+                                                                          "start": {
+                                                                              "line": 20,
+                                                                              "column": 23
+                                                                          },
+                                                                          "end": {
+                                                                              "line": 20,
+                                                                              "column": 24
+                                                                          }
+                                                                      }
+                                                                  },
                                                                   "arguments": [
                                                                       {
                                                                           "type": "Identifier",
                                                                           "name": "k",
                                                                           "start": 628,
-                                                                          "end": 629
+                                                                          "end": 629,
+                                                                          "loc": {
+                                                                              "start": {
+                                                                                  "line": 20,
+                                                                                  "column": 25
+                                                                              },
+                                                                              "end": {
+                                                                                  "line": 20,
+                                                                                  "column": 26
+                                                                              }
+                                                                          }
                                                                       },
                                                                       {
                                                                           "type": "Identifier",
                                                                           "name": "l",
                                                                           "start": 631,
-                                                                          "end": 632
+                                                                          "end": 632,
+                                                                          "loc": {
+                                                                              "start": {
+                                                                                  "line": 20,
+                                                                                  "column": 28
+                                                                              },
+                                                                              "end": {
+                                                                                  "line": 20,
+                                                                                  "column": 29
+                                                                              }
+                                                                          }
                                                                       }
                                                                   ],
-                                                                  "callee": {
-                                                                      "type": "Identifier",
-                                                                      "name": "j",
-                                                                      "start": 626,
-                                                                      "end": 627
-                                                                  },
                                                                   "start": 626,
-                                                                  "end": 633
+                                                                  "end": 633,
+                                                                  "loc": {
+                                                                      "start": {
+                                                                          "line": 20,
+                                                                          "column": 23
+                                                                      },
+                                                                      "end": {
+                                                                          "line": 20,
+                                                                          "column": 30
+                                                                      }
+                                                                  }
                                                               },
                                                               "prefix": true,
                                                               "start": 625,
-                                                              "end": 633
+                                                              "end": 633,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 20,
+                                                                      "column": 22
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 20,
+                                                                      "column": 30
+                                                                  }
+                                                              }
                                                           },
                                                           "right": {
                                                               "type": "UnaryExpression",
@@ -25491,57 +28617,161 @@ describe('TC262 - passing', () => {
                                                                           "type": "Identifier",
                                                                           "name": "l",
                                                                           "start": 639,
-                                                                          "end": 640
+                                                                          "end": 640,
+                                                                          "loc": {
+                                                                              "start": {
+                                                                                  "line": 20,
+                                                                                  "column": 36
+                                                                              },
+                                                                              "end": {
+                                                                                  "line": 20,
+                                                                                  "column": 37
+                                                                              }
+                                                                          }
                                                                       },
                                                                       "right": {
                                                                           "type": "Identifier",
                                                                           "name": "k",
                                                                           "start": 643,
-                                                                          "end": 644
+                                                                          "end": 644,
+                                                                          "loc": {
+                                                                              "start": {
+                                                                                  "line": 20,
+                                                                                  "column": 40
+                                                                              },
+                                                                              "end": {
+                                                                                  "line": 20,
+                                                                                  "column": 41
+                                                                              }
+                                                                          }
                                                                       },
                                                                       "operator": "-",
                                                                       "start": 639,
-                                                                      "end": 644
+                                                                      "end": 644,
+                                                                      "loc": {
+                                                                          "start": {
+                                                                              "line": 20,
+                                                                              "column": 36
+                                                                          },
+                                                                          "end": {
+                                                                              "line": 20,
+                                                                              "column": 41
+                                                                          }
+                                                                      }
                                                                   },
                                                                   "right": {
                                                                       "type": "Literal",
                                                                       "value": 14,
                                                                       "start": 646,
                                                                       "end": 648,
+                                                                      "loc": {
+                                                                          "start": {
+                                                                              "line": 20,
+                                                                              "column": 43
+                                                                          },
+                                                                          "end": {
+                                                                              "line": 20,
+                                                                              "column": 45
+                                                                          }
+                                                                      },
                                                                       "raw": "14"
                                                                   },
                                                                   "operator": "|",
                                                                   "start": 638,
-                                                                  "end": 648
+                                                                  "end": 648,
+                                                                  "loc": {
+                                                                      "start": {
+                                                                          "line": 20,
+                                                                          "column": 35
+                                                                      },
+                                                                      "end": {
+                                                                          "line": 20,
+                                                                          "column": 45
+                                                                      }
+                                                                  }
                                                               },
                                                               "prefix": true,
                                                               "start": 636,
-                                                              "end": 649
+                                                              "end": 649,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 20,
+                                                                      "column": 33
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 20,
+                                                                      "column": 46
+                                                                  }
+                                                              }
                                                           },
                                                           "operator": "/",
                                                           "start": 625,
-                                                          "end": 649
+                                                          "end": 649,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 20,
+                                                                  "column": 22
+                                                              },
+                                                              "end": {
+                                                                  "line": 20,
+                                                                  "column": 46
+                                                              }
+                                                          }
                                                       }
                                                   ],
-                                                  "callee": {
-                                                      "type": "Identifier",
-                                                      "name": "e",
-                                                      "start": 623,
-                                                      "end": 624
-                                                  },
                                                   "start": 623,
-                                                  "end": 650
+                                                  "end": 650,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 20,
+                                                          "column": 20
+                                                      },
+                                                      "end": {
+                                                          "line": 20,
+                                                          "column": 47
+                                                      }
+                                                  }
                                               },
                                               "prefix": true,
                                               "start": 622,
-                                              "end": 650
+                                              "end": 650,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 20,
+                                                      "column": 19
+                                                  },
+                                                  "end": {
+                                                      "line": 20,
+                                                      "column": 47
+                                                  }
+                                              }
                                           },
                                           "start": 615,
-                                          "end": 651
+                                          "end": 651,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 20,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 20,
+                                                  "column": 48
+                                              }
+                                          }
                                       }
                                   ],
                                   "start": 557,
-                                  "end": 663
+                                  "end": 663,
+                                  "loc": {
+                                      "start": {
+                                          "line": 17,
+                                          "column": 27
+                                      },
+                                      "end": {
+                                          "line": 21,
+                                          "column": 11
+                                      }
+                                  }
                               },
                               "async": false,
                               "generator": false,
@@ -25550,10 +28780,30 @@ describe('TC262 - passing', () => {
                                   "type": "Identifier",
                                   "name": "p",
                                   "start": 549,
-                                  "end": 550
+                                  "end": 550,
+                                  "loc": {
+                                      "start": {
+                                          "line": 17,
+                                          "column": 19
+                                      },
+                                      "end": {
+                                          "line": 17,
+                                          "column": 20
+                                      }
+                                  }
                               },
                               "start": 540,
-                              "end": 663
+                              "end": 663,
+                              "loc": {
+                                  "start": {
+                                      "line": 17,
+                                      "column": 10
+                                  },
+                                  "end": {
+                                      "line": 21,
+                                      "column": 11
+                                  }
+                              }
                           },
                           {
                               "type": "ReturnStatement",
@@ -25562,35 +28812,95 @@ describe('TC262 - passing', () => {
                                   "properties": [
                                       {
                                           "type": "Property",
-                                          "computed": false,
                                           "key": {
                                               "type": "Identifier",
                                               "name": "p",
                                               "start": 683,
-                                              "end": 684
+                                              "end": 684,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 22,
+                                                      "column": 19
+                                                  },
+                                                  "end": {
+                                                      "line": 22,
+                                                      "column": 20
+                                                  }
+                                              }
                                           },
-                                          "kind": "init",
-                                          "method": false,
-                                          "shorthand": false,
                                           "value": {
                                               "type": "Identifier",
                                               "name": "p",
                                               "start": 686,
-                                              "end": 687
+                                              "end": 687,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 22,
+                                                      "column": 22
+                                                  },
+                                                  "end": {
+                                                      "line": 22,
+                                                      "column": 23
+                                                  }
+                                              }
                                           },
+                                          "kind": "init",
+                                          "computed": false,
+                                          "method": false,
+                                          "shorthand": false,
                                           "start": 683,
-                                          "end": 687
+                                          "end": 687,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 22,
+                                                  "column": 19
+                                              },
+                                              "end": {
+                                                  "line": 22,
+                                                  "column": 23
+                                              }
+                                          }
                                       }
                                   ],
                                   "start": 681,
-                                  "end": 689
+                                  "end": 689,
+                                  "loc": {
+                                      "start": {
+                                          "line": 22,
+                                          "column": 17
+                                      },
+                                      "end": {
+                                          "line": 22,
+                                          "column": 25
+                                      }
+                                  }
                               },
                               "start": 674,
-                              "end": 690
+                              "end": 690,
+                              "loc": {
+                                  "start": {
+                                      "line": 22,
+                                      "column": 10
+                                  },
+                                  "end": {
+                                      "line": 22,
+                                      "column": 26
+                                  }
+                              }
                           }
                       ],
                       "start": 74,
-                      "end": 700
+                      "end": 700,
+                      "loc": {
+                          "start": {
+                              "line": 2,
+                              "column": 28
+                          },
+                          "end": {
+                              "line": 23,
+                              "column": 9
+                          }
+                      }
                   },
                   "async": false,
                   "generator": false,
@@ -25599,10 +28909,30 @@ describe('TC262 - passing', () => {
                       "type": "Identifier",
                       "name": "a",
                       "start": 63,
-                      "end": 64
+                      "end": 64,
+                      "loc": {
+                          "start": {
+                              "line": 2,
+                              "column": 17
+                          },
+                          "end": {
+                              "line": 2,
+                              "column": 18
+                          }
+                      }
                   },
                   "start": 54,
-                  "end": 700
+                  "end": 700,
+                  "loc": {
+                      "start": {
+                          "line": 2,
+                          "column": 8
+                      },
+                      "end": {
+                          "line": 23,
+                          "column": 9
+                      }
+                  }
               },
               {
                   "type": "FunctionDeclaration",
@@ -25611,19 +28941,49 @@ describe('TC262 - passing', () => {
                           "type": "Identifier",
                           "name": "b",
                           "start": 720,
-                          "end": 721
+                          "end": 721,
+                          "loc": {
+                              "start": {
+                                  "line": 24,
+                                  "column": 19
+                              },
+                              "end": {
+                                  "line": 24,
+                                  "column": 20
+                              }
+                          }
                       },
                       {
                           "type": "Identifier",
                           "name": "c",
                           "start": 723,
-                          "end": 724
+                          "end": 724,
+                          "loc": {
+                              "start": {
+                                  "line": 24,
+                                  "column": 22
+                              },
+                              "end": {
+                                  "line": 24,
+                                  "column": 23
+                              }
+                          }
                       },
                       {
                           "type": "Identifier",
                           "name": "d",
                           "start": 726,
-                          "end": 727
+                          "end": 727,
+                          "loc": {
+                              "start": {
+                                  "line": 24,
+                                  "column": 25
+                              },
+                              "end": {
+                                  "line": 24,
+                                  "column": 26
+                              }
+                          }
                       }
                   ],
                   "body": {
@@ -25642,41 +29002,121 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "b",
                                                   "start": 749,
-                                                  "end": 750
+                                                  "end": 750,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 25,
+                                                          "column": 18
+                                                      },
+                                                      "end": {
+                                                          "line": 25,
+                                                          "column": 19
+                                                      }
+                                                  }
                                               },
                                               "computed": false,
                                               "property": {
                                                   "type": "Identifier",
                                                   "name": "f",
                                                   "start": 751,
-                                                  "end": 752
+                                                  "end": 752,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 25,
+                                                          "column": 20
+                                                      },
+                                                      "end": {
+                                                          "line": 25,
+                                                          "column": 21
+                                                      }
+                                                  }
                                               },
                                               "start": 749,
-                                              "end": 752
+                                              "end": 752,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 25,
+                                                      "column": 18
+                                                  },
+                                                  "end": {
+                                                      "line": 25,
+                                                      "column": 21
+                                                  }
+                                              }
                                           },
                                           "computed": false,
                                           "property": {
                                               "type": "Identifier",
                                               "name": "e",
                                               "start": 753,
-                                              "end": 754
+                                              "end": 754,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 25,
+                                                      "column": 22
+                                                  },
+                                                  "end": {
+                                                      "line": 25,
+                                                      "column": 23
+                                                  }
+                                              }
                                           },
                                           "start": 749,
-                                          "end": 754
+                                          "end": 754,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 25,
+                                                  "column": 18
+                                              },
+                                              "end": {
+                                                  "line": 25,
+                                                  "column": 23
+                                              }
+                                          }
                                       },
                                       "id": {
                                           "type": "Identifier",
                                           "name": "e",
                                           "start": 745,
-                                          "end": 746
+                                          "end": 746,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 25,
+                                                  "column": 14
+                                              },
+                                              "end": {
+                                                  "line": 25,
+                                                  "column": 15
+                                              }
+                                          }
                                       },
                                       "start": 745,
-                                      "end": 754
+                                      "end": 754,
+                                      "loc": {
+                                          "start": {
+                                              "line": 25,
+                                              "column": 14
+                                          },
+                                          "end": {
+                                              "line": 25,
+                                              "column": 23
+                                          }
+                                      }
                                   }
                               ],
                               "kind": "var",
                               "start": 741,
-                              "end": 755
+                              "end": 755,
+                              "loc": {
+                                  "start": {
+                                      "line": 25,
+                                      "column": 10
+                                  },
+                                  "end": {
+                                      "line": 25,
+                                      "column": 24
+                                  }
+                              }
                           },
                           {
                               "type": "VariableDeclaration",
@@ -25691,41 +29131,121 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "b",
                                                   "start": 774,
-                                                  "end": 775
+                                                  "end": 775,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 26,
+                                                          "column": 18
+                                                      },
+                                                      "end": {
+                                                          "line": 26,
+                                                          "column": 19
+                                                      }
+                                                  }
                                               },
                                               "computed": false,
                                               "property": {
                                                   "type": "Identifier",
                                                   "name": "f",
                                                   "start": 776,
-                                                  "end": 777
+                                                  "end": 777,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 26,
+                                                          "column": 20
+                                                      },
+                                                      "end": {
+                                                          "line": 26,
+                                                          "column": 21
+                                                      }
+                                                  }
                                               },
                                               "start": 774,
-                                              "end": 777
+                                              "end": 777,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 26,
+                                                      "column": 18
+                                                  },
+                                                  "end": {
+                                                      "line": 26,
+                                                      "column": 21
+                                                  }
+                                              }
                                           },
                                           "computed": false,
                                           "property": {
                                               "type": "Identifier",
                                               "name": "g",
                                               "start": 778,
-                                              "end": 779
+                                              "end": 779,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 26,
+                                                      "column": 22
+                                                  },
+                                                  "end": {
+                                                      "line": 26,
+                                                      "column": 23
+                                                  }
+                                              }
                                           },
                                           "start": 774,
-                                          "end": 779
+                                          "end": 779,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 26,
+                                                  "column": 18
+                                              },
+                                              "end": {
+                                                  "line": 26,
+                                                  "column": 23
+                                              }
+                                          }
                                       },
                                       "id": {
                                           "type": "Identifier",
                                           "name": "g",
                                           "start": 770,
-                                          "end": 771
+                                          "end": 771,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 26,
+                                                  "column": 14
+                                              },
+                                              "end": {
+                                                  "line": 26,
+                                                  "column": 15
+                                              }
+                                          }
                                       },
                                       "start": 770,
-                                      "end": 779
+                                      "end": 779,
+                                      "loc": {
+                                          "start": {
+                                              "line": 26,
+                                              "column": 14
+                                          },
+                                          "end": {
+                                              "line": 26,
+                                              "column": 23
+                                          }
+                                      }
                                   }
                               ],
                               "kind": "var",
                               "start": 766,
-                              "end": 780
+                              "end": 780,
+                              "loc": {
+                                  "start": {
+                                      "line": 26,
+                                      "column": 10
+                                  },
+                                  "end": {
+                                      "line": 26,
+                                      "column": 24
+                                  }
+                              }
                           },
                           {
                               "type": "VariableDeclaration",
@@ -25740,42 +29260,122 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "b",
                                                   "start": 803,
-                                                  "end": 804
+                                                  "end": 804,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 27,
+                                                          "column": 22
+                                                      },
+                                                      "end": {
+                                                          "line": 27,
+                                                          "column": 23
+                                                      }
+                                                  }
                                               },
                                               "computed": false,
                                               "property": {
                                                   "type": "Identifier",
                                                   "name": "i",
                                                   "start": 805,
-                                                  "end": 806
+                                                  "end": 806,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 27,
+                                                          "column": 24
+                                                      },
+                                                      "end": {
+                                                          "line": 27,
+                                                          "column": 25
+                                                      }
+                                                  }
                                               },
                                               "start": 799,
-                                              "end": 806
+                                              "end": 806,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 27,
+                                                      "column": 18
+                                                  },
+                                                  "end": {
+                                                      "line": 27,
+                                                      "column": 25
+                                                  }
+                                              }
                                           },
                                           "arguments": [
                                               {
                                                   "type": "Identifier",
                                                   "name": "d",
                                                   "start": 807,
-                                                  "end": 808
+                                                  "end": 808,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 27,
+                                                          "column": 26
+                                                      },
+                                                      "end": {
+                                                          "line": 27,
+                                                          "column": 27
+                                                      }
+                                                  }
                                               }
                                           ],
                                           "start": 799,
-                                          "end": 809
+                                          "end": 809,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 27,
+                                                  "column": 18
+                                              },
+                                              "end": {
+                                                  "line": 27,
+                                                  "column": 28
+                                              }
+                                          }
                                       },
                                       "id": {
                                           "type": "Identifier",
                                           "name": "h",
                                           "start": 795,
-                                          "end": 796
+                                          "end": 796,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 27,
+                                                  "column": 14
+                                              },
+                                              "end": {
+                                                  "line": 27,
+                                                  "column": 15
+                                              }
+                                          }
                                       },
                                       "start": 795,
-                                      "end": 809
+                                      "end": 809,
+                                      "loc": {
+                                          "start": {
+                                              "line": 27,
+                                              "column": 14
+                                          },
+                                          "end": {
+                                              "line": 27,
+                                              "column": 28
+                                          }
+                                      }
                                   }
                               ],
                               "kind": "var",
                               "start": 791,
-                              "end": 810
+                              "end": 810,
+                              "loc": {
+                                  "start": {
+                                      "line": 27,
+                                      "column": 10
+                                  },
+                                  "end": {
+                                      "line": 27,
+                                      "column": 29
+                                  }
+                              }
                           },
                           {
                               "type": "FunctionDeclaration",
@@ -25784,13 +29384,33 @@ describe('TC262 - passing', () => {
                                       "type": "Identifier",
                                       "name": "k",
                                       "start": 832,
-                                      "end": 833
+                                      "end": 833,
+                                      "loc": {
+                                          "start": {
+                                              "line": 28,
+                                              "column": 21
+                                          },
+                                          "end": {
+                                              "line": 28,
+                                              "column": 22
+                                          }
+                                      }
                                   },
                                   {
                                       "type": "Identifier",
                                       "name": "l",
                                       "start": 835,
-                                      "end": 836
+                                      "end": 836,
+                                      "loc": {
+                                          "start": {
+                                              "line": 28,
+                                              "column": 24
+                                          },
+                                          "end": {
+                                              "line": 28,
+                                              "column": 25
+                                          }
+                                      }
                                   }
                               ],
                               "body": {
@@ -25804,7 +29424,17 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "k",
                                                   "start": 852,
-                                                  "end": 853
+                                                  "end": 853,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 29,
+                                                          "column": 12
+                                                      },
+                                                      "end": {
+                                                          "line": 29,
+                                                          "column": 13
+                                                      }
+                                                  }
                                               },
                                               "operator": "=",
                                               "right": {
@@ -25813,24 +29443,74 @@ describe('TC262 - passing', () => {
                                                       "type": "Identifier",
                                                       "name": "k",
                                                       "start": 856,
-                                                      "end": 857
+                                                      "end": 857,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 29,
+                                                              "column": 16
+                                                          },
+                                                          "end": {
+                                                              "line": 29,
+                                                              "column": 17
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 15,
                                                       "start": 858,
                                                       "end": 860,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 29,
+                                                              "column": 18
+                                                          },
+                                                          "end": {
+                                                              "line": 29,
+                                                              "column": 20
+                                                          }
+                                                      },
                                                       "raw": "15"
                                                   },
                                                   "operator": "|",
                                                   "start": 856,
-                                                  "end": 860
+                                                  "end": 860,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 29,
+                                                          "column": 16
+                                                      },
+                                                      "end": {
+                                                          "line": 29,
+                                                          "column": 20
+                                                      }
+                                                  }
                                               },
                                               "start": 852,
-                                              "end": 860
+                                              "end": 860,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 29,
+                                                      "column": 12
+                                                  },
+                                                  "end": {
+                                                      "line": 29,
+                                                      "column": 20
+                                                  }
+                                              }
                                           },
                                           "start": 852,
-                                          "end": 861
+                                          "end": 861,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 29,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 29,
+                                                  "column": 21
+                                              }
+                                          }
                                       },
                                       {
                                           "type": "ExpressionStatement",
@@ -25840,7 +29520,17 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "l",
                                                   "start": 874,
-                                                  "end": 875
+                                                  "end": 875,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 30,
+                                                          "column": 12
+                                                      },
+                                                      "end": {
+                                                          "line": 30,
+                                                          "column": 13
+                                                      }
+                                                  }
                                               },
                                               "operator": "=",
                                               "right": {
@@ -25849,24 +29539,74 @@ describe('TC262 - passing', () => {
                                                       "type": "Identifier",
                                                       "name": "l",
                                                       "start": 878,
-                                                      "end": 879
+                                                      "end": 879,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 30,
+                                                              "column": 16
+                                                          },
+                                                          "end": {
+                                                              "line": 30,
+                                                              "column": 17
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 16,
                                                       "start": 880,
                                                       "end": 882,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 30,
+                                                              "column": 18
+                                                          },
+                                                          "end": {
+                                                              "line": 30,
+                                                              "column": 20
+                                                          }
+                                                      },
                                                       "raw": "16"
                                                   },
                                                   "operator": "|",
                                                   "start": 878,
-                                                  "end": 882
+                                                  "end": 882,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 30,
+                                                          "column": 16
+                                                      },
+                                                      "end": {
+                                                          "line": 30,
+                                                          "column": 20
+                                                      }
+                                                  }
                                               },
                                               "start": 874,
-                                              "end": 882
+                                              "end": 882,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 30,
+                                                      "column": 12
+                                                  },
+                                                  "end": {
+                                                      "line": 30,
+                                                      "column": 20
+                                                  }
+                                              }
                                           },
                                           "start": 874,
-                                          "end": 883
+                                          "end": 883,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 30,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 30,
+                                                  "column": 21
+                                              }
+                                          }
                                       },
                                       {
                                           "type": "VariableDeclaration",
@@ -25878,16 +29618,46 @@ describe('TC262 - passing', () => {
                                                       "value": 0,
                                                       "start": 904,
                                                       "end": 907,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 31,
+                                                              "column": 20
+                                                          },
+                                                          "end": {
+                                                              "line": 31,
+                                                              "column": 23
+                                                          }
+                                                      },
                                                       "raw": "0.0"
                                                   },
                                                   "id": {
                                                       "type": "Identifier",
                                                       "name": "m",
                                                       "start": 900,
-                                                      "end": 901
+                                                      "end": 901,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 31,
+                                                              "column": 16
+                                                          },
+                                                          "end": {
+                                                              "line": 31,
+                                                              "column": 17
+                                                          }
+                                                      }
                                                   },
                                                   "start": 900,
-                                                  "end": 907
+                                                  "end": 907,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 31,
+                                                          "column": 16
+                                                      },
+                                                      "end": {
+                                                          "line": 31,
+                                                          "column": 23
+                                                      }
+                                                  }
                                               },
                                               {
                                                   "type": "VariableDeclarator",
@@ -25896,16 +29666,46 @@ describe('TC262 - passing', () => {
                                                       "value": 17,
                                                       "start": 913,
                                                       "end": 915,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 31,
+                                                              "column": 29
+                                                          },
+                                                          "end": {
+                                                              "line": 31,
+                                                              "column": 31
+                                                          }
+                                                      },
                                                       "raw": "17"
                                                   },
                                                   "id": {
                                                       "type": "Identifier",
                                                       "name": "n",
                                                       "start": 909,
-                                                      "end": 910
+                                                      "end": 910,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 31,
+                                                              "column": 25
+                                                          },
+                                                          "end": {
+                                                              "line": 31,
+                                                              "column": 26
+                                                          }
+                                                      }
                                                   },
                                                   "start": 909,
-                                                  "end": 915
+                                                  "end": 915,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 31,
+                                                          "column": 25
+                                                      },
+                                                      "end": {
+                                                          "line": 31,
+                                                          "column": 31
+                                                      }
+                                                  }
                                               },
                                               {
                                                   "type": "VariableDeclarator",
@@ -25914,21 +29714,61 @@ describe('TC262 - passing', () => {
                                                       "value": 18,
                                                       "start": 921,
                                                       "end": 923,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 31,
+                                                              "column": 37
+                                                          },
+                                                          "end": {
+                                                              "line": 31,
+                                                              "column": 39
+                                                          }
+                                                      },
                                                       "raw": "18"
                                                   },
                                                   "id": {
                                                       "type": "Identifier",
                                                       "name": "o",
                                                       "start": 917,
-                                                      "end": 918
+                                                      "end": 918,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 31,
+                                                              "column": 33
+                                                          },
+                                                          "end": {
+                                                              "line": 31,
+                                                              "column": 34
+                                                          }
+                                                      }
                                                   },
                                                   "start": 917,
-                                                  "end": 923
+                                                  "end": 923,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 31,
+                                                          "column": 33
+                                                      },
+                                                      "end": {
+                                                          "line": 31,
+                                                          "column": 39
+                                                      }
+                                                  }
                                               }
                                           ],
                                           "kind": "var",
                                           "start": 896,
-                                          "end": 924
+                                          "end": 924,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 31,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 31,
+                                                  "column": 40
+                                              }
+                                          }
                                       },
                                       {
                                           "type": "ForStatement",
@@ -25943,7 +29783,17 @@ describe('TC262 - passing', () => {
                                                               "type": "Identifier",
                                                               "name": "m",
                                                               "start": 1102,
-                                                              "end": 1103
+                                                              "end": 1103,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 34,
+                                                                      "column": 14
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 34,
+                                                                      "column": 15
+                                                                  }
+                                                              }
                                                           },
                                                           "operator": "=",
                                                           "right": {
@@ -25952,13 +29802,39 @@ describe('TC262 - passing', () => {
                                                                   "type": "Identifier",
                                                                   "name": "m",
                                                                   "start": 1106,
-                                                                  "end": 1107
+                                                                  "end": 1107,
+                                                                  "loc": {
+                                                                      "start": {
+                                                                          "line": 34,
+                                                                          "column": 18
+                                                                      },
+                                                                      "end": {
+                                                                          "line": 34,
+                                                                          "column": 19
+                                                                      }
+                                                                  }
                                                               },
                                                               "right": {
                                                                   "type": "UnaryExpression",
                                                                   "operator": "+",
                                                                   "argument": {
                                                                       "type": "CallExpression",
+                                                                      "callee": {
+                                                                          "type": "Identifier",
+                                                                          "name": "g",
+                                                                          "start": 1111,
+                                                                          "end": 1112,
+                                                                          "loc": {
+                                                                              "start": {
+                                                                                  "line": 34,
+                                                                                  "column": 23
+                                                                              },
+                                                                              "end": {
+                                                                                  "line": 34,
+                                                                                  "column": 24
+                                                                              }
+                                                                          }
+                                                                      },
                                                                       "arguments": [
                                                                           {
                                                                               "type": "MemberExpression",
@@ -25966,7 +29842,17 @@ describe('TC262 - passing', () => {
                                                                                   "type": "Identifier",
                                                                                   "name": "h",
                                                                                   "start": 1113,
-                                                                                  "end": 1114
+                                                                                  "end": 1114,
+                                                                                  "loc": {
+                                                                                      "start": {
+                                                                                          "line": 34,
+                                                                                          "column": 25
+                                                                                      },
+                                                                                      "end": {
+                                                                                          "line": 34,
+                                                                                          "column": 26
+                                                                                      }
+                                                                                  }
                                                                               },
                                                                               "computed": true,
                                                                               "property": {
@@ -25975,49 +29861,143 @@ describe('TC262 - passing', () => {
                                                                                       "type": "Identifier",
                                                                                       "name": "n",
                                                                                       "start": 1115,
-                                                                                      "end": 1116
+                                                                                      "end": 1116,
+                                                                                      "loc": {
+                                                                                          "start": {
+                                                                                              "line": 34,
+                                                                                              "column": 27
+                                                                                          },
+                                                                                          "end": {
+                                                                                              "line": 34,
+                                                                                              "column": 28
+                                                                                          }
+                                                                                      }
                                                                                   },
                                                                                   "right": {
                                                                                       "type": "Literal",
                                                                                       "value": 25,
                                                                                       "start": 1118,
                                                                                       "end": 1120,
+                                                                                      "loc": {
+                                                                                          "start": {
+                                                                                              "line": 34,
+                                                                                              "column": 30
+                                                                                          },
+                                                                                          "end": {
+                                                                                              "line": 34,
+                                                                                              "column": 32
+                                                                                          }
+                                                                                      },
                                                                                       "raw": "25"
                                                                                   },
                                                                                   "operator": ">>",
                                                                                   "start": 1115,
-                                                                                  "end": 1120
+                                                                                  "end": 1120,
+                                                                                  "loc": {
+                                                                                      "start": {
+                                                                                          "line": 34,
+                                                                                          "column": 27
+                                                                                      },
+                                                                                      "end": {
+                                                                                          "line": 34,
+                                                                                          "column": 32
+                                                                                      }
+                                                                                  }
                                                                               },
                                                                               "start": 1113,
-                                                                              "end": 1121
+                                                                              "end": 1121,
+                                                                              "loc": {
+                                                                                  "start": {
+                                                                                      "line": 34,
+                                                                                      "column": 25
+                                                                                  },
+                                                                                  "end": {
+                                                                                      "line": 34,
+                                                                                      "column": 33
+                                                                                  }
+                                                                              }
                                                                           }
                                                                       ],
-                                                                      "callee": {
-                                                                          "type": "Identifier",
-                                                                          "name": "g",
-                                                                          "start": 1111,
-                                                                          "end": 1112
-                                                                      },
                                                                       "start": 1111,
-                                                                      "end": 1122
+                                                                      "end": 1122,
+                                                                      "loc": {
+                                                                          "start": {
+                                                                              "line": 34,
+                                                                              "column": 23
+                                                                          },
+                                                                          "end": {
+                                                                              "line": 34,
+                                                                              "column": 34
+                                                                          }
+                                                                      }
                                                                   },
                                                                   "prefix": true,
                                                                   "start": 1110,
-                                                                  "end": 1122
+                                                                  "end": 1122,
+                                                                  "loc": {
+                                                                      "start": {
+                                                                          "line": 34,
+                                                                          "column": 22
+                                                                      },
+                                                                      "end": {
+                                                                          "line": 34,
+                                                                          "column": 34
+                                                                      }
+                                                                  }
                                                               },
                                                               "operator": "+",
                                                               "start": 1106,
-                                                              "end": 1122
+                                                              "end": 1122,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 34,
+                                                                      "column": 18
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 34,
+                                                                      "column": 34
+                                                                  }
+                                                              }
                                                           },
                                                           "start": 1102,
-                                                          "end": 1122
+                                                          "end": 1122,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 34,
+                                                                  "column": 14
+                                                              },
+                                                              "end": {
+                                                                  "line": 34,
+                                                                  "column": 34
+                                                              }
+                                                          }
                                                       },
                                                       "start": 1102,
-                                                      "end": 1123
+                                                      "end": 1123,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 34,
+                                                              "column": 14
+                                                          },
+                                                          "end": {
+                                                              "line": 34,
+                                                              "column": 35
+                                                          }
+                                                      }
                                                   }
                                               ],
                                               "start": 1086,
-                                              "end": 1137
+                                              "end": 1137,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 33,
+                                                      "column": 77
+                                                  },
+                                                  "end": {
+                                                      "line": 35,
+                                                      "column": 13
+                                                  }
+                                              }
                                           },
                                           "init": {
                                               "type": "SequenceExpression",
@@ -26028,7 +30008,17 @@ describe('TC262 - passing', () => {
                                                           "type": "Identifier",
                                                           "name": "n",
                                                           "start": 1026,
-                                                          "end": 1027
+                                                          "end": 1027,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 33,
+                                                                  "column": 17
+                                                              },
+                                                              "end": {
+                                                                  "line": 33,
+                                                                  "column": 18
+                                                              }
+                                                          }
                                                       },
                                                       "operator": "=",
                                                       "right": {
@@ -26037,21 +30027,61 @@ describe('TC262 - passing', () => {
                                                               "type": "Identifier",
                                                               "name": "k",
                                                               "start": 1030,
-                                                              "end": 1031
+                                                              "end": 1031,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 33,
+                                                                      "column": 21
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 33,
+                                                                      "column": 22
+                                                                  }
+                                                              }
                                                           },
                                                           "right": {
                                                               "type": "Literal",
                                                               "value": 19,
                                                               "start": 1035,
                                                               "end": 1037,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 33,
+                                                                      "column": 26
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 33,
+                                                                      "column": 28
+                                                                  }
+                                                              },
                                                               "raw": "19"
                                                           },
                                                           "operator": "<<",
                                                           "start": 1030,
-                                                          "end": 1037
+                                                          "end": 1037,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 33,
+                                                                  "column": 21
+                                                              },
+                                                              "end": {
+                                                                  "line": 33,
+                                                                  "column": 28
+                                                              }
+                                                          }
                                                       },
                                                       "start": 1026,
-                                                      "end": 1037
+                                                      "end": 1037,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 33,
+                                                              "column": 17
+                                                          },
+                                                          "end": {
+                                                              "line": 33,
+                                                              "column": 28
+                                                          }
+                                                      }
                                                   },
                                                   {
                                                       "type": "AssignmentExpression",
@@ -26059,7 +30089,17 @@ describe('TC262 - passing', () => {
                                                           "type": "Identifier",
                                                           "name": "o",
                                                           "start": 1039,
-                                                          "end": 1040
+                                                          "end": 1040,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 33,
+                                                                  "column": 30
+                                                              },
+                                                              "end": {
+                                                                  "line": 33,
+                                                                  "column": 31
+                                                              }
+                                                          }
                                                       },
                                                       "operator": "=",
                                                       "right": {
@@ -26068,25 +30108,75 @@ describe('TC262 - passing', () => {
                                                               "type": "Identifier",
                                                               "name": "l",
                                                               "start": 1043,
-                                                              "end": 1044
+                                                              "end": 1044,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 33,
+                                                                      "column": 34
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 33,
+                                                                      "column": 35
+                                                                  }
+                                                              }
                                                           },
                                                           "right": {
                                                               "type": "Literal",
                                                               "value": 20,
                                                               "start": 1048,
                                                               "end": 1050,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 33,
+                                                                      "column": 39
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 33,
+                                                                      "column": 41
+                                                                  }
+                                                              },
                                                               "raw": "20"
                                                           },
                                                           "operator": "<<",
                                                           "start": 1043,
-                                                          "end": 1050
+                                                          "end": 1050,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 33,
+                                                                  "column": 34
+                                                              },
+                                                              "end": {
+                                                                  "line": 33,
+                                                                  "column": 41
+                                                              }
+                                                          }
                                                       },
                                                       "start": 1039,
-                                                      "end": 1050
+                                                      "end": 1050,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 33,
+                                                              "column": 30
+                                                          },
+                                                          "end": {
+                                                              "line": 33,
+                                                              "column": 41
+                                                          }
+                                                      }
                                                   }
                                               ],
-                                              "start": 1026,
-                                              "end": 1050
+                                              "start": 1021,
+                                              "end": 1050,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 33,
+                                                      "column": 12
+                                                  },
+                                                  "end": {
+                                                      "line": 33,
+                                                      "column": 41
+                                                  }
+                                              }
                                           },
                                           "test": {
                                               "type": "BinaryExpression",
@@ -26096,18 +30186,48 @@ describe('TC262 - passing', () => {
                                                       "type": "Identifier",
                                                       "name": "n",
                                                       "start": 1053,
-                                                      "end": 1054
+                                                      "end": 1054,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 33,
+                                                              "column": 44
+                                                          },
+                                                          "end": {
+                                                              "line": 33,
+                                                              "column": 45
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 21,
                                                       "start": 1055,
                                                       "end": 1057,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 33,
+                                                              "column": 46
+                                                          },
+                                                          "end": {
+                                                              "line": 33,
+                                                              "column": 48
+                                                          }
+                                                      },
                                                       "raw": "21"
                                                   },
                                                   "operator": "|",
                                                   "start": 1053,
-                                                  "end": 1057
+                                                  "end": 1057,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 33,
+                                                          "column": 44
+                                                      },
+                                                      "end": {
+                                                          "line": 33,
+                                                          "column": 48
+                                                      }
+                                                  }
                                               },
                                               "right": {
                                                   "type": "BinaryExpression",
@@ -26115,22 +30235,62 @@ describe('TC262 - passing', () => {
                                                       "type": "Identifier",
                                                       "name": "o",
                                                       "start": 1062,
-                                                      "end": 1063
+                                                      "end": 1063,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 33,
+                                                              "column": 53
+                                                          },
+                                                          "end": {
+                                                              "line": 33,
+                                                              "column": 54
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 22,
                                                       "start": 1064,
                                                       "end": 1066,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 33,
+                                                              "column": 55
+                                                          },
+                                                          "end": {
+                                                              "line": 33,
+                                                              "column": 57
+                                                          }
+                                                      },
                                                       "raw": "22"
                                                   },
                                                   "operator": "|",
                                                   "start": 1062,
-                                                  "end": 1066
+                                                  "end": 1066,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 33,
+                                                          "column": 53
+                                                      },
+                                                      "end": {
+                                                          "line": 33,
+                                                          "column": 57
+                                                      }
+                                                  }
                                               },
                                               "operator": "<",
                                               "start": 1052,
-                                              "end": 1067
+                                              "end": 1067,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 33,
+                                                      "column": 43
+                                                  },
+                                                  "end": {
+                                                      "line": 33,
+                                                      "column": 58
+                                                  }
+                                              }
                                           },
                                           "update": {
                                               "type": "AssignmentExpression",
@@ -26138,7 +30298,17 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "n",
                                                   "start": 1069,
-                                                  "end": 1070
+                                                  "end": 1070,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 33,
+                                                          "column": 60
+                                                      },
+                                                      "end": {
+                                                          "line": 33,
+                                                          "column": 61
+                                                      }
+                                                  }
                                               },
                                               "operator": "=",
                                               "right": {
@@ -26149,35 +30319,105 @@ describe('TC262 - passing', () => {
                                                           "type": "Identifier",
                                                           "name": "n",
                                                           "start": 1074,
-                                                          "end": 1075
+                                                          "end": 1075,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 33,
+                                                                  "column": 65
+                                                              },
+                                                              "end": {
+                                                                  "line": 33,
+                                                                  "column": 66
+                                                              }
+                                                          }
                                                       },
                                                       "right": {
                                                           "type": "Literal",
                                                           "value": 23,
                                                           "start": 1078,
                                                           "end": 1080,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 33,
+                                                                  "column": 69
+                                                              },
+                                                              "end": {
+                                                                  "line": 33,
+                                                                  "column": 71
+                                                              }
+                                                          },
                                                           "raw": "23"
                                                       },
                                                       "operator": "+",
                                                       "start": 1074,
-                                                      "end": 1080
+                                                      "end": 1080,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 33,
+                                                              "column": 65
+                                                          },
+                                                          "end": {
+                                                              "line": 33,
+                                                              "column": 71
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 24,
                                                       "start": 1082,
                                                       "end": 1084,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 33,
+                                                              "column": 73
+                                                          },
+                                                          "end": {
+                                                              "line": 33,
+                                                              "column": 75
+                                                          }
+                                                      },
                                                       "raw": "24"
                                                   },
                                                   "operator": "|",
                                                   "start": 1073,
-                                                  "end": 1084
+                                                  "end": 1084,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 33,
+                                                          "column": 64
+                                                      },
+                                                      "end": {
+                                                          "line": 33,
+                                                          "column": 75
+                                                      }
+                                                  }
                                               },
                                               "start": 1069,
-                                              "end": 1084
+                                              "end": 1084,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 33,
+                                                      "column": 60
+                                                  },
+                                                  "end": {
+                                                      "line": 33,
+                                                      "column": 75
+                                                  }
+                                              }
                                           },
                                           "start": 1021,
-                                          "end": 1137
+                                          "end": 1137,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 33,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 35,
+                                                  "column": 13
+                                              }
+                                          }
                                       },
                                       {
                                           "type": "ReturnStatement",
@@ -26188,18 +30428,58 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "m",
                                                   "start": 1158,
-                                                  "end": 1159
+                                                  "end": 1159,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 36,
+                                                          "column": 20
+                                                      },
+                                                      "end": {
+                                                          "line": 36,
+                                                          "column": 21
+                                                      }
+                                                  }
                                               },
                                               "prefix": true,
                                               "start": 1157,
-                                              "end": 1159
+                                              "end": 1159,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 36,
+                                                      "column": 19
+                                                  },
+                                                  "end": {
+                                                      "line": 36,
+                                                      "column": 21
+                                                  }
+                                              }
                                           },
                                           "start": 1150,
-                                          "end": 1160
+                                          "end": 1160,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 36,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 36,
+                                                  "column": 22
+                                              }
+                                          }
                                       }
                                   ],
                                   "start": 838,
-                                  "end": 1172
+                                  "end": 1172,
+                                  "loc": {
+                                      "start": {
+                                          "line": 28,
+                                          "column": 27
+                                      },
+                                      "end": {
+                                          "line": 37,
+                                          "column": 11
+                                      }
+                                  }
                               },
                               "async": false,
                               "generator": false,
@@ -26208,10 +30488,30 @@ describe('TC262 - passing', () => {
                                   "type": "Identifier",
                                   "name": "j",
                                   "start": 830,
-                                  "end": 831
+                                  "end": 831,
+                                  "loc": {
+                                      "start": {
+                                          "line": 28,
+                                          "column": 19
+                                      },
+                                      "end": {
+                                          "line": 28,
+                                          "column": 20
+                                      }
+                                  }
                               },
                               "start": 821,
-                              "end": 1172
+                              "end": 1172,
+                              "loc": {
+                                  "start": {
+                                      "line": 28,
+                                      "column": 10
+                                  },
+                                  "end": {
+                                      "line": 37,
+                                      "column": 11
+                                  }
+                              }
                           },
                           {
                               "type": "FunctionDeclaration",
@@ -26220,13 +30520,33 @@ describe('TC262 - passing', () => {
                                       "type": "Identifier",
                                       "name": "k",
                                       "start": 1194,
-                                      "end": 1195
+                                      "end": 1195,
+                                      "loc": {
+                                          "start": {
+                                              "line": 38,
+                                              "column": 21
+                                          },
+                                          "end": {
+                                              "line": 38,
+                                              "column": 22
+                                          }
+                                      }
                                   },
                                   {
                                       "type": "Identifier",
                                       "name": "l",
                                       "start": 1197,
-                                      "end": 1198
+                                      "end": 1198,
+                                      "loc": {
+                                          "start": {
+                                              "line": 38,
+                                              "column": 24
+                                          },
+                                          "end": {
+                                              "line": 38,
+                                              "column": 25
+                                          }
+                                      }
                                   }
                               ],
                               "body": {
@@ -26240,7 +30560,17 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "k",
                                                   "start": 1214,
-                                                  "end": 1215
+                                                  "end": 1215,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 39,
+                                                          "column": 12
+                                                      },
+                                                      "end": {
+                                                          "line": 39,
+                                                          "column": 13
+                                                      }
+                                                  }
                                               },
                                               "operator": "=",
                                               "right": {
@@ -26249,24 +30579,74 @@ describe('TC262 - passing', () => {
                                                       "type": "Identifier",
                                                       "name": "k",
                                                       "start": 1218,
-                                                      "end": 1219
+                                                      "end": 1219,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 39,
+                                                              "column": 16
+                                                          },
+                                                          "end": {
+                                                              "line": 39,
+                                                              "column": 17
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 26,
                                                       "start": 1220,
                                                       "end": 1222,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 39,
+                                                              "column": 18
+                                                          },
+                                                          "end": {
+                                                              "line": 39,
+                                                              "column": 20
+                                                          }
+                                                      },
                                                       "raw": "26"
                                                   },
                                                   "operator": "|",
                                                   "start": 1218,
-                                                  "end": 1222
+                                                  "end": 1222,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 39,
+                                                          "column": 16
+                                                      },
+                                                      "end": {
+                                                          "line": 39,
+                                                          "column": 20
+                                                      }
+                                                  }
                                               },
                                               "start": 1214,
-                                              "end": 1222
+                                              "end": 1222,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 39,
+                                                      "column": 12
+                                                  },
+                                                  "end": {
+                                                      "line": 39,
+                                                      "column": 20
+                                                  }
+                                              }
                                           },
                                           "start": 1214,
-                                          "end": 1223
+                                          "end": 1223,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 39,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 39,
+                                                  "column": 21
+                                              }
+                                          }
                                       },
                                       {
                                           "type": "ExpressionStatement",
@@ -26276,7 +30656,17 @@ describe('TC262 - passing', () => {
                                                   "type": "Identifier",
                                                   "name": "l",
                                                   "start": 1236,
-                                                  "end": 1237
+                                                  "end": 1237,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 40,
+                                                          "column": 12
+                                                      },
+                                                      "end": {
+                                                          "line": 40,
+                                                          "column": 13
+                                                      }
+                                                  }
                                               },
                                               "operator": "=",
                                               "right": {
@@ -26285,24 +30675,74 @@ describe('TC262 - passing', () => {
                                                       "type": "Identifier",
                                                       "name": "l",
                                                       "start": 1240,
-                                                      "end": 1241
+                                                      "end": 1241,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 40,
+                                                              "column": 16
+                                                          },
+                                                          "end": {
+                                                              "line": 40,
+                                                              "column": 17
+                                                          }
+                                                      }
                                                   },
                                                   "right": {
                                                       "type": "Literal",
                                                       "value": 27,
                                                       "start": 1242,
                                                       "end": 1244,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 40,
+                                                              "column": 18
+                                                          },
+                                                          "end": {
+                                                              "line": 40,
+                                                              "column": 20
+                                                          }
+                                                      },
                                                       "raw": "27"
                                                   },
                                                   "operator": "|",
                                                   "start": 1240,
-                                                  "end": 1244
+                                                  "end": 1244,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 40,
+                                                          "column": 16
+                                                      },
+                                                      "end": {
+                                                          "line": 40,
+                                                          "column": 20
+                                                      }
+                                                  }
                                               },
                                               "start": 1236,
-                                              "end": 1244
+                                              "end": 1244,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 40,
+                                                      "column": 12
+                                                  },
+                                                  "end": {
+                                                      "line": 40,
+                                                      "column": 20
+                                                  }
+                                              }
                                           },
                                           "start": 1236,
-                                          "end": 1245
+                                          "end": 1245,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 40,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 40,
+                                                  "column": 21
+                                              }
+                                          }
                                       },
                                       {
                                           "type": "ReturnStatement",
@@ -26311,6 +30751,22 @@ describe('TC262 - passing', () => {
                                               "operator": "+",
                                               "argument": {
                                                   "type": "CallExpression",
+                                                  "callee": {
+                                                      "type": "Identifier",
+                                                      "name": "e",
+                                                      "start": 1266,
+                                                      "end": 1267,
+                                                      "loc": {
+                                                          "start": {
+                                                              "line": 41,
+                                                              "column": 20
+                                                          },
+                                                          "end": {
+                                                              "line": 41,
+                                                              "column": 21
+                                                          }
+                                                      }
+                                                  },
                                                   "arguments": [
                                                       {
                                                           "type": "BinaryExpression",
@@ -26319,32 +30775,82 @@ describe('TC262 - passing', () => {
                                                               "operator": "+",
                                                               "argument": {
                                                                   "type": "CallExpression",
+                                                                  "callee": {
+                                                                      "type": "Identifier",
+                                                                      "name": "j",
+                                                                      "start": 1269,
+                                                                      "end": 1270,
+                                                                      "loc": {
+                                                                          "start": {
+                                                                              "line": 41,
+                                                                              "column": 23
+                                                                          },
+                                                                          "end": {
+                                                                              "line": 41,
+                                                                              "column": 24
+                                                                          }
+                                                                      }
+                                                                  },
                                                                   "arguments": [
                                                                       {
                                                                           "type": "Identifier",
                                                                           "name": "k",
                                                                           "start": 1271,
-                                                                          "end": 1272
+                                                                          "end": 1272,
+                                                                          "loc": {
+                                                                              "start": {
+                                                                                  "line": 41,
+                                                                                  "column": 25
+                                                                              },
+                                                                              "end": {
+                                                                                  "line": 41,
+                                                                                  "column": 26
+                                                                              }
+                                                                          }
                                                                       },
                                                                       {
                                                                           "type": "Identifier",
                                                                           "name": "l",
                                                                           "start": 1274,
-                                                                          "end": 1275
+                                                                          "end": 1275,
+                                                                          "loc": {
+                                                                              "start": {
+                                                                                  "line": 41,
+                                                                                  "column": 28
+                                                                              },
+                                                                              "end": {
+                                                                                  "line": 41,
+                                                                                  "column": 29
+                                                                              }
+                                                                          }
                                                                       }
                                                                   ],
-                                                                  "callee": {
-                                                                      "type": "Identifier",
-                                                                      "name": "j",
-                                                                      "start": 1269,
-                                                                      "end": 1270
-                                                                  },
                                                                   "start": 1269,
-                                                                  "end": 1276
+                                                                  "end": 1276,
+                                                                  "loc": {
+                                                                      "start": {
+                                                                          "line": 41,
+                                                                          "column": 23
+                                                                      },
+                                                                      "end": {
+                                                                          "line": 41,
+                                                                          "column": 30
+                                                                      }
+                                                                  }
                                                               },
                                                               "prefix": true,
                                                               "start": 1268,
-                                                              "end": 1276
+                                                              "end": 1276,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 41,
+                                                                      "column": 22
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 41,
+                                                                      "column": 30
+                                                                  }
+                                                              }
                                                           },
                                                           "right": {
                                                               "type": "UnaryExpression",
@@ -26357,57 +30863,161 @@ describe('TC262 - passing', () => {
                                                                           "type": "Identifier",
                                                                           "name": "l",
                                                                           "start": 1282,
-                                                                          "end": 1283
+                                                                          "end": 1283,
+                                                                          "loc": {
+                                                                              "start": {
+                                                                                  "line": 41,
+                                                                                  "column": 36
+                                                                              },
+                                                                              "end": {
+                                                                                  "line": 41,
+                                                                                  "column": 37
+                                                                              }
+                                                                          }
                                                                       },
                                                                       "right": {
                                                                           "type": "Identifier",
                                                                           "name": "k",
                                                                           "start": 1286,
-                                                                          "end": 1287
+                                                                          "end": 1287,
+                                                                          "loc": {
+                                                                              "start": {
+                                                                                  "line": 41,
+                                                                                  "column": 40
+                                                                              },
+                                                                              "end": {
+                                                                                  "line": 41,
+                                                                                  "column": 41
+                                                                              }
+                                                                          }
                                                                       },
                                                                       "operator": "-",
                                                                       "start": 1282,
-                                                                      "end": 1287
+                                                                      "end": 1287,
+                                                                      "loc": {
+                                                                          "start": {
+                                                                              "line": 41,
+                                                                              "column": 36
+                                                                          },
+                                                                          "end": {
+                                                                              "line": 41,
+                                                                              "column": 41
+                                                                          }
+                                                                      }
                                                                   },
                                                                   "right": {
                                                                       "type": "Literal",
                                                                       "value": 28,
                                                                       "start": 1289,
                                                                       "end": 1291,
+                                                                      "loc": {
+                                                                          "start": {
+                                                                              "line": 41,
+                                                                              "column": 43
+                                                                          },
+                                                                          "end": {
+                                                                              "line": 41,
+                                                                              "column": 45
+                                                                          }
+                                                                      },
                                                                       "raw": "28"
                                                                   },
                                                                   "operator": "|",
                                                                   "start": 1281,
-                                                                  "end": 1291
+                                                                  "end": 1291,
+                                                                  "loc": {
+                                                                      "start": {
+                                                                          "line": 41,
+                                                                          "column": 35
+                                                                      },
+                                                                      "end": {
+                                                                          "line": 41,
+                                                                          "column": 45
+                                                                      }
+                                                                  }
                                                               },
                                                               "prefix": true,
                                                               "start": 1279,
-                                                              "end": 1292
+                                                              "end": 1292,
+                                                              "loc": {
+                                                                  "start": {
+                                                                      "line": 41,
+                                                                      "column": 33
+                                                                  },
+                                                                  "end": {
+                                                                      "line": 41,
+                                                                      "column": 46
+                                                                  }
+                                                              }
                                                           },
                                                           "operator": "/",
                                                           "start": 1268,
-                                                          "end": 1292
+                                                          "end": 1292,
+                                                          "loc": {
+                                                              "start": {
+                                                                  "line": 41,
+                                                                  "column": 22
+                                                              },
+                                                              "end": {
+                                                                  "line": 41,
+                                                                  "column": 46
+                                                              }
+                                                          }
                                                       }
                                                   ],
-                                                  "callee": {
-                                                      "type": "Identifier",
-                                                      "name": "e",
-                                                      "start": 1266,
-                                                      "end": 1267
-                                                  },
                                                   "start": 1266,
-                                                  "end": 1293
+                                                  "end": 1293,
+                                                  "loc": {
+                                                      "start": {
+                                                          "line": 41,
+                                                          "column": 20
+                                                      },
+                                                      "end": {
+                                                          "line": 41,
+                                                          "column": 47
+                                                      }
+                                                  }
                                               },
                                               "prefix": true,
                                               "start": 1265,
-                                              "end": 1293
+                                              "end": 1293,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 41,
+                                                      "column": 19
+                                                  },
+                                                  "end": {
+                                                      "line": 41,
+                                                      "column": 47
+                                                  }
+                                              }
                                           },
                                           "start": 1258,
-                                          "end": 1294
+                                          "end": 1294,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 41,
+                                                  "column": 12
+                                              },
+                                              "end": {
+                                                  "line": 41,
+                                                  "column": 48
+                                              }
+                                          }
                                       }
                                   ],
                                   "start": 1200,
-                                  "end": 1306
+                                  "end": 1306,
+                                  "loc": {
+                                      "start": {
+                                          "line": 38,
+                                          "column": 27
+                                      },
+                                      "end": {
+                                          "line": 42,
+                                          "column": 11
+                                      }
+                                  }
                               },
                               "async": false,
                               "generator": false,
@@ -26416,10 +31026,30 @@ describe('TC262 - passing', () => {
                                   "type": "Identifier",
                                   "name": "p",
                                   "start": 1192,
-                                  "end": 1193
+                                  "end": 1193,
+                                  "loc": {
+                                      "start": {
+                                          "line": 38,
+                                          "column": 19
+                                      },
+                                      "end": {
+                                          "line": 38,
+                                          "column": 20
+                                      }
+                                  }
                               },
                               "start": 1183,
-                              "end": 1306
+                              "end": 1306,
+                              "loc": {
+                                  "start": {
+                                      "line": 38,
+                                      "column": 10
+                                  },
+                                  "end": {
+                                      "line": 42,
+                                      "column": 11
+                                  }
+                              }
                           },
                           {
                               "type": "ReturnStatement",
@@ -26428,35 +31058,95 @@ describe('TC262 - passing', () => {
                                   "properties": [
                                       {
                                           "type": "Property",
-                                          "computed": false,
                                           "key": {
                                               "type": "Identifier",
                                               "name": "p",
                                               "start": 1326,
-                                              "end": 1327
+                                              "end": 1327,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 43,
+                                                      "column": 19
+                                                  },
+                                                  "end": {
+                                                      "line": 43,
+                                                      "column": 20
+                                                  }
+                                              }
                                           },
-                                          "kind": "init",
-                                          "method": false,
-                                          "shorthand": false,
                                           "value": {
                                               "type": "Identifier",
                                               "name": "p",
                                               "start": 1329,
-                                              "end": 1330
+                                              "end": 1330,
+                                              "loc": {
+                                                  "start": {
+                                                      "line": 43,
+                                                      "column": 22
+                                                  },
+                                                  "end": {
+                                                      "line": 43,
+                                                      "column": 23
+                                                  }
+                                              }
                                           },
+                                          "kind": "init",
+                                          "computed": false,
+                                          "method": false,
+                                          "shorthand": false,
                                           "start": 1326,
-                                          "end": 1330
+                                          "end": 1330,
+                                          "loc": {
+                                              "start": {
+                                                  "line": 43,
+                                                  "column": 19
+                                              },
+                                              "end": {
+                                                  "line": 43,
+                                                  "column": 23
+                                              }
+                                          }
                                       }
                                   ],
                                   "start": 1324,
-                                  "end": 1332
+                                  "end": 1332,
+                                  "loc": {
+                                      "start": {
+                                          "line": 43,
+                                          "column": 17
+                                      },
+                                      "end": {
+                                          "line": 43,
+                                          "column": 25
+                                      }
+                                  }
                               },
                               "start": 1317,
-                              "end": 1333
+                              "end": 1333,
+                              "loc": {
+                                  "start": {
+                                      "line": 43,
+                                      "column": 10
+                                  },
+                                  "end": {
+                                      "line": 43,
+                                      "column": 26
+                                  }
+                              }
                           }
                       ],
                       "start": 729,
-                      "end": 1343
+                      "end": 1343,
+                      "loc": {
+                          "start": {
+                              "line": 24,
+                              "column": 28
+                          },
+                          "end": {
+                              "line": 44,
+                              "column": 9
+                          }
+                      }
                   },
                   "async": false,
                   "generator": false,
@@ -26465,15 +31155,45 @@ describe('TC262 - passing', () => {
                       "type": "Identifier",
                       "name": "q",
                       "start": 718,
-                      "end": 719
+                      "end": 719,
+                      "loc": {
+                          "start": {
+                              "line": 24,
+                              "column": 17
+                          },
+                          "end": {
+                              "line": 24,
+                              "column": 18
+                          }
+                      }
                   },
                   "start": 709,
-                  "end": 1343
+                  "end": 1343,
+                  "loc": {
+                      "start": {
+                          "line": 24,
+                          "column": 8
+                      },
+                      "end": {
+                          "line": 44,
+                          "column": 9
+                      }
+                  }
               }
           ],
           "sourceType": "script",
           "start": 0,
-          "end": 1343
+          "end": 1343,
+          "loc": {
+              "start": {
+                  "line": 1,
+                  "column": 0
+              },
+              "end": {
+                  "line": 44,
+                  "column": 9
+              }
+          }
       });
       });
 

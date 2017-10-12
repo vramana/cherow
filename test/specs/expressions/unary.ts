@@ -19,35 +19,76 @@ describe('Espressions - Unary', () => {
 
       it('should parse "-null"', () => {
         expect(parseScript('-null', {
-            ranges: true,
-            raw: true
+            locations: true,
+            raw: true,
+            ranges: true
         })).to.eql({
-              "body": [
-                {
-                  "end": 5,
-                  "expression": {
-                    "argument": {
-                      "end": 5,
-                      "raw": "null",
-                      "start": 1,
-                      "type": "Literal",
-                      "value": null,
-                   },
-                    "end": 5,
-                    "operator": "-",
-                    "prefix": true,
-                    "start": 0,
-                    "type": "UnaryExpression"
+            "type": "Program",
+            "start": 0,
+            "end": 5,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 5
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 5,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
                   },
+                  "end": {
+                    "line": 1,
+                    "column": 5
+                  }
+                },
+                "expression": {
+                  "type": "UnaryExpression",
                   "start": 0,
-                  "type": "ExpressionStatement"
+                  "end": 5,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 5
+                    }
+                  },
+                  "operator": "-",
+                  "prefix": true,
+                  "argument": {
+                    "type": "Literal",
+                    "start": 1,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 1
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "value": null,
+                    "raw": "null"
+                  }
                 }
-              ],
-              "end": 5,
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
-            });
+              }
+            ],
+            "sourceType": "script"
+          });
     });
 
        it('should parse "-false"', () => {
