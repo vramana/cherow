@@ -10,9 +10,6 @@ It strictly follows the ECMAScript® 2017 Language Specification and should pars
 
 It's safe to use in production.
 
-**Note!** If you find a bug, we will try our best to reply to you within 30 - 60 minutes, but our main focus now are on
-the refactoring so try to use the `next branch`.
-
 ## [Demo](https://cherow.github.io/cherow/) and [Benchmark](https://cherow.github.io/cherow/performance/)
 
 ## Features
@@ -36,6 +33,7 @@ the refactoring so try to use the `next branch`.
 - BigInt
 - Regular Expression's new `DotAll` flag
 - Import.meta
+- Throw expressions (*Stage 2 proposal*)
 
 ## V8 experimental features
 
@@ -45,9 +43,10 @@ These need to be enabled with the `v8` option.
 
 ## Options
 
-* `next` - Enables `ECMAScript Next` support and let you use proposals at `stage 3` or higher such as `Dynamic Import`
+* `next` - Enables `ECMAScript Next` support and let you use proposals at `stage 3` or higher such as `Import()`
 * `raw` - Enables the raw property on literal nodes (*Esprima and Acorn feature*)
 * `comments` - Enables option to collect comments. Optional; Either array or function. Works like [Acorn](https://github.com/ternjs/acorn) onComment
+* `directives` - Enables the `ESTree` directive node. This is off by default, and only for script code
 * `ranges` - Enables the start and characters offsets on the AST node
 * `locations` - Enables location tracking
 * `jsx` - Enables JSX
