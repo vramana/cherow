@@ -47,6 +47,13 @@ describe('Espressions - Exponentiation', () => {
         }).to.throw();
     });
 
+
+    it('should fail on invalid logical not unary expression', () => {
+      expect(() => {
+          parseScript(`!1 ** 2;`)
+      }).to.throw();
+    });
+
     it('should fail on invalid unary expression', () => {
         expect(() => {
             parseScript(`~3 ** 2;`)

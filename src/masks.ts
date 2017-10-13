@@ -11,22 +11,21 @@ export const enum Context {
     InParameter            = 1 << 7,   // If node was parsed in the formal list of an function
     ArrowParameterList     = 1 << 8,   // If node was parsed in the formal list of an arrow function
     Statement              = 1 << 9,   // If node was parsed in a statement context
-    SimpleParameterList    = 1 << 10,  // If node contains any "simple" paramaters
-    IfClause               = 1 << 11,  // If node was parsed in a if statement (early error related)
-    AnnexB                 = 1 << 12,  // If node was parsed in the 'if statement' with the AnnexB semtantic
-    JSXChild               = 1 << 13,  // If node was parsed in a JSX context and has JSX children
-    Export                 = 1 << 14,  // Module
-    Import                 = 1 << 15,  // Module ( strict and non-strict)
-    OptionalIdentifier     = 1 << 16,  // Optional identifier for export of either anonymous class or function declaration
-    Method                 = 1 << 17,  // If node was parsed in a object / class method definition context
-    HasConstructor         = 1 << 18,  // If node was parsed inside Class and allow super
-    Constructor            = 1 << 19,  // Class declaration / expression
-    AsyncFunctionBody      = 1 << 20,  // If node was parsed in an async body of an function declaration
-    RequireInitializer     = 1 << 21,  // If node was parsed in a context where a variable declaration initializer are required (export)
-    ForStatement           = 1 << 22,  // If node was parsed in a for / for - in / for -of context
+    IfClause               = 1 << 10,  // If node was parsed in a if statement (early error related)
+    AnnexB                 = 1 << 11,  // If node was parsed in the 'if statement' with the AnnexB semtantic
+    JSXChild               = 1 << 12,  // If node was parsed in a JSX context and has JSX children
+    Export                 = 1 << 13,  // Module
+    Import                 = 1 << 14,  // Module ( strict and non-strict)
+    OptionalIdentifier     = 1 << 15,  // Optional identifier for export of either anonymous class or function declaration
+    Method                 = 1 << 16,  // If node was parsed in a object / class method definition context
+    HasConstructor         = 1 << 17,  // If node was parsed inside Class and allow super
+    Constructor            = 1 << 18,  // Class declaration / expression
+    AsyncFunctionBody      = 1 << 19,  // If node was parsed in an async body of an function declaration
+    RequireInitializer     = 1 << 20,  // If node was parsed in a context where a variable declaration initializer are required (export)
+    ForStatement           = 1 << 21,  // If node was parsed in a for / for - in / for -of context
 
-    Let                    = 1 << 23,  // Variable declaration
-    Const                  = 1 << 24,  // Variable declaration
+    Let                    = 1 << 22,  // Variable declaration
+    Const                  = 1 << 23,  // Variable declaration
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
@@ -48,18 +47,20 @@ export const enum Flags {
     HasStrictDirective           = 1 << 10, // Only used if we have seen a "use strict"; directive
     Noctal                       = 1 << 11, // e.g. `0777`
     BigInt                       = 1 << 12, // e.g. `0777`
+    SimpleParameterList          = 1 << 13, 
+
     /* Options */
-    OptionsRanges                = 1 << 13, // Enable / disable "ranges"
-    OptionsLoc                   = 1 << 14, // Enable / disable location tracking on the node
-    OptionsSource                = 1 << 15,
-    OptionsJSX                   = 1 << 16, // Enable / disable JSX extension
-    OptionsRaw                   = 1 << 17, // Enable / disable "raw" property on the node
-    OptionsNext                  = 1 << 18, // Enable / disable Stage 3 proposals
-    OptionsDirectives            = 1 << 19, // Enable / disable directives on the node
-    OptionsOnComment             = 1 << 20, // Enable / disable comment collecting
-    OptionsOnToken               = 1 << 21, // ** on hold **
-    OptionsV8                    = 1 << 22, // Enable / disable V8 experimental features
-    OptionsFlow                  = 1 << 23, // ** on hold **
+    OptionsRanges                = 1 << 14, // Enable / disable "ranges"
+    OptionsLoc                   = 1 << 15, // Enable / disable location tracking on the node
+    OptionsSource                = 1 << 16,
+    OptionsJSX                   = 1 << 17, // Enable / disable JSX extension
+    OptionsRaw                   = 1 << 18, // Enable / disable "raw" property on the node
+    OptionsNext                  = 1 << 19, // Enable / disable Stage 3 proposals
+    OptionsDirectives            = 1 << 20, // Enable / disable directives on the node
+    OptionsOnComment             = 1 << 21, // Enable / disable comment collecting
+    OptionsOnToken               = 1 << 22, // ** on hold **
+    OptionsV8                    = 1 << 23, // Enable / disable V8 experimental features
+    OptionsFlow                  = 1 << 24, // ** on hold **
 
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc
@@ -93,12 +94,6 @@ export const enum ParenthesizedState {
     Yield           = 1 << 1, // If (async) arrow contains eval or agruments
     Await           = 1 << 2, // If async arrow contains 'await'
     Parenthesized   = 1 << 3, // Tracks invalid parenthesized pattern
-}
-
-export const enum AsyncState {
-    None,
-    Function,
-    Identifier
 }
 
 // Flags used by both object expression and class decl / expr

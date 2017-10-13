@@ -3,7 +3,325 @@ import * as chai from 'chai';
 
 const expect = chai.expect;
 
-describe('Miscellaneous - Directives', () => {
+describe('Miscellaneous - Directive prologue', () => {
+
+    it('should fail if Use Strict Directive Prologue is "use strict";', () => {
+        expect(() => {
+            parseScript(`"use strict"; var public = 1;`);
+        }).to.throw();
+    });
+
+    it('should fail on a Use Strict Directive followed by a strict mode', () => {
+        expect(() => {
+            parseScript(`"use strict"; eval = 42;`);
+        }).to.throw();
+    });
+
+    it('should fail on a Use Strict Directive followed by a strict mode wrapped in parenthesis', () => {
+        expect(() => {
+            parseScript(`("use strict";) eval = 42;`);
+        }).to.throw();
+    });
+
+    it('should parse if Use Strict Directive Prologue contain a EscapeSequence', () => {
+        expect(parseScript('"use\\u0020strict"; eval = 42;', {
+            locations: true,
+            raw: true,
+            ranges: true,
+            directives: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 29,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 29
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 18,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 18
+                  }
+                },
+                "directive": "use\\u0020strict",
+                "expression": {
+                  "type": "Literal",
+                  "start": 0,
+                  "end": 17,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 17
+                    }
+                  },
+                  "value": "use strict",
+                  "raw": "\"use\\u0020strict\""
+                }
+              },
+              {
+                "type": "ExpressionStatement",
+                "start": 19,
+                "end": 29,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 19
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 29
+                  }
+                },
+                "expression": {
+                  "type": "AssignmentExpression",
+                  "start": 19,
+                  "end": 28,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 19
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 28
+                    }
+                  },
+                  "operator": "=",
+                  "left": {
+                    "type": "Identifier",
+                    "start": 19,
+                    "end": 23,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 19
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 23
+                      }
+                    },
+                    "name": "eval"
+                  },
+                  "right": {
+                    "type": "Literal",
+                    "start": 26,
+                    "end": 28,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 26
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 28
+                      }
+                    },
+                    "value": 42,
+                    "raw": "42"
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
+    it('should parse if Use Strict Directive Prologue is wrapped inside parenthesis', () => {
+        expect(parseScript('("use strict"); eval = 42;', {
+            locations: true,
+            raw: true,
+            ranges: true,
+            directives: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 26,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 26
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 15,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 15
+                  }
+                },
+                "expression": {
+                  "type": "Literal",
+                  "start": 1,
+                  "end": 13,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 13
+                    }
+                  },
+                  "value": "use strict",
+                  "raw": "\"use strict\""
+                }
+              },
+              {
+                "type": "ExpressionStatement",
+                "start": 16,
+                "end": 26,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 16
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 26
+                  }
+                },
+                "expression": {
+                  "type": "AssignmentExpression",
+                  "start": 16,
+                  "end": 25,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 16
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 25
+                    }
+                  },
+                  "operator": "=",
+                  "left": {
+                    "type": "Identifier",
+                    "start": 16,
+                    "end": 20,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 16
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 20
+                      }
+                    },
+                    "name": "eval"
+                  },
+                  "right": {
+                    "type": "Literal",
+                    "start": 23,
+                    "end": 25,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 23
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 25
+                      }
+                    },
+                    "value": 42,
+                    "raw": "42"
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
+    it('should parse if Use Strict Directive Prologue is "USE STRICT"', () => {
+        expect(parseScript('"USE STRICT";  var public = 1;', {
+            locations: false,
+            raw: true,
+            ranges: true,
+            directives: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 30,
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 13,
+                "directive": "USE STRICT",
+                "expression": {
+                  "type": "Literal",
+                  "start": 0,
+                  "end": 12,
+                  "value": "USE STRICT",
+                  "raw": "\"USE STRICT\""
+                }
+              },
+              {
+                "type": "VariableDeclaration",
+                "start": 15,
+                "end": 30,
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 19,
+                    "end": 29,
+                    "id": {
+                      "type": "Identifier",
+                      "start": 19,
+                      "end": 25,
+                      "name": "public"
+                    },
+                    "init": {
+                      "type": "Literal",
+                      "start": 28,
+                      "end": 29,
+                      "value": 1,
+                      "raw": "1"
+                    }
+                  }
+                ],
+                "kind": "var"
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
 
     it('should parse "scans a single "use\\x20strict"""', () => {
         expect(parseScript('"use\\x20strict"', {

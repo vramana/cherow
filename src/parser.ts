@@ -2,7 +2,7 @@ import { Chars } from './chars';
 import * as ESTree from './estree';
 import { hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isDirective } from './common';
 import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget, qualifiedPropertyName, isAsync } from './validate';
-import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, AsyncState, ScannerState, ParenthesizedState, IterationState, NumberState } from './masks';
+import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, ScannerState, ParenthesizedState, IterationState, NumberState } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
@@ -13,7 +13,7 @@ export class Parser {
         // Holds the program to be parser
         private readonly source: string;
     
-        // Current position (end position of source of current token)
+        // Current position (end position of text of current token)
         private index: number;
     
         // Current position (end position of column of current token)
@@ -31,22 +31,22 @@ export class Parser {
         // Start position of whitespace before current line
         private startLine: number;
     
-        // End position of source
+        // End position of source of current index
         private endPos: number;
     
-        // End position of column
+        // End position of column of current column
         private endColumn: number;
     
-        // End position of line
+        // End position of line of current line
         private endLine: number;
     
-        // Start position of line of current token
+        // Contains the current value of parsed source
         private tokenValue: any;
     
-        // Holds current token
+        // Hold current token
         private token: Token;
     
-        // Holds the next token ahead
+        // Hold the next token ahead
         private peekedToken: Token;
     
         // Contain scanner state info after a lookahead
@@ -1151,7 +1151,7 @@ export class Parser {
                                 this.readNext(Errors.UnexpectedTokenNumber);
                             default: // ignore
                         }
-
+    
                         cp = this.nextChar();
                         // we must have at least one decimal digit after 'e'/'E'
                         if (!(cp >= Chars.Zero && cp <= Chars.Nine)) this.error(Errors.UnexpectedMantissa);
@@ -1325,6 +1325,7 @@ export class Parser {
                         ret += this.source.slice(start, this.index);
                         ret += this.scanStringEscape(context);
                         this.advance();
+                        if (!(this.flags & Flags.HasUnicode)) this.flags |= Flags.HasUnicode;
                         start = this.index;
                         continue;
                     default: // ignore
@@ -1698,7 +1699,7 @@ export class Parser {
                     statements.push(item);
                     if (!isDirective(item)) break;
                     if (this.flags & Flags.HasStrictDirective) {
-                        if (context & Context.SimpleParameterList) this.error(Errors.Unexpected);
+                        if (this.flags & Flags.SimpleParameterList) this.error(Errors.IllegalUseStrict);
                         if (this.flags & Flags.BindingPosition) this.error(Errors.UnexpectedStrictReserved);
                         if (!(context & Context.Strict)) context |= Context.Strict;
                     }
@@ -3266,7 +3267,6 @@ export class Parser {
             // ArrowFunction[In, Yield]:
             // ArrowParameters[?Yield][no LineTerminator here]=>ConciseBody[?In]
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
-    
             if (context & Context.Yield) context &= ~Context.Yield;
     
             this.expect(context, Token.Arrow);
@@ -3696,9 +3696,10 @@ export class Parser {
             //      BindingIdentifier[?Yield,?Await]Initializer [In, ?Yield,?Await] opt
             this.expect(context, Token.LeftParen);
             const result = [];
-    
+            this.flags &= ~Flags.SimpleParameterList;
             while (this.token !== Token.RightParen) {
                 if (this.token === Token.Ellipsis) {
+                    this.flags |= Flags.SimpleParameterList;
                     result.push(this.parseRestElement(context));
                     this.parseOptional(context, Token.Comma);
                     break;
@@ -3759,7 +3760,7 @@ export class Parser {
             const isEscaped = !!(this.flags & Flags.HasUnicode);
             const id = this.parseIdentifier(context);
             const flags = this.flags;
-    
+            this.flags |= Flags.SimpleParameterList;
             switch (this.token) {
     
                 // 'parseAsyncFunctionExpression'
@@ -3783,7 +3784,7 @@ export class Parser {
                     // CoverCallExpressionAndAsyncArrowHead[Yield, Await]:
                 case Token.LeftParen:
                     // This could be either a CallExpression or the head of an async arrow function
-                    return this.parseAsyncArguments(context | Context.SimpleParameterList, pos, id, flags, isEscaped);
+                    return this.parseAsyncArguments(context, pos, id, flags, isEscaped);
                 default:
                     // Async as Identifier
                     return id;
@@ -3844,7 +3845,7 @@ export class Parser {
                 if (state & ParenthesizedState.Await) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 // Invalid: 'async[LineTerminator here] () => {}'
                 if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
-                return this.parseArrowFunction(context | (Context.Await | Context.SimpleParameterList), pos, args);
+                return this.parseArrowFunction(context | Context.Await, pos, args);
             }
     
             return this.finishNode(pos, {
@@ -4276,7 +4277,7 @@ export class Parser {
             const pos = this.startNode();
     
             this.expect(context, Token.LeftBrace);
-    
+            this.flags |= Flags.SimpleParameterList;
             const properties: (ESTree.Property | ESTree.SpreadElement)[] = [];
     
             while (!this.parseOptional(context, Token.RightBrace)) {
@@ -4503,7 +4504,7 @@ export class Parser {
         private parseArrayInitializer(context: Context): ESTree.ArrayExpression {
             const pos = this.startNode();
             this.expect(context, Token.LeftBracket);
-    
+            this.flags |= Flags.SimpleParameterList;
             const elements = [];
     
             while (this.token !== Token.RightBracket) {
@@ -4613,6 +4614,7 @@ export class Parser {
             this.expect(context, Token.RightParen);
     
             if (this.token === Token.Arrow) {
+
                 if (this.flags & Flags.HaveSeenYield) this.error(Errors.InvalidArrowYieldParam);
                 if (state & ParenthesizedState.EvalOrArg) this.error(Errors.StrictParamName);
                 if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
@@ -4734,10 +4736,12 @@ export class Parser {
             const pos = this.startNode();
             const value = this.tokenValue;
             const raw = this.tokenRaw;
-            if (value === 'use strict') this.flags |= Flags.HasStrictDirective;
-            if (context & Context.Strict && this.flags & Flags.Noctal) {
-                this.error(Errors.Unexpected);
+    
+            if (value === 'use strict' && !(this.flags & (Flags.HasUnicode | Flags.HasStrictDirective))) {
+                this.flags |= Flags.HasStrictDirective;
             }
+    
+            if (context & Context.Strict && this.flags & Flags.Noctal) this.error(Errors.Unexpected);
     
             this.nextToken(context);
     
