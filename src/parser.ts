@@ -200,6 +200,17 @@ export class Parser {
     }
 
     /**
+     * Advance to next position, and throw error if no next char
+     * in the stream
+     */
+
+    private readNext(err: number = Errors.UnterminatedString) {
+        this.advance();
+        if (!this.hasNext()) this.error(err);
+        return this.nextChar();
+    }
+
+    /**
      * Advance to next position
      */
     private advance(): void {
@@ -671,8 +682,9 @@ export class Parser {
                             }
                         }
 
-                        const ch = this.source.charCodeAt(index);
-                        if (index < this.source.length && ch >= Chars.Zero && ch <= Chars.Seven) {
+                        const nextChar = this.source.charCodeAt(index);
+
+                        if (index < this.source.length && nextChar >= Chars.Zero && nextChar <= Chars.Seven) {
                             return this.scanNumberLiteral(context);
                         }
                     }
@@ -1075,59 +1087,62 @@ export class Parser {
 
         let end = this.index;
 
-        switch (this.nextChar()) {
-            // scan exponent, if any
-            case Chars.UpperE:
-            case Chars.LowerE:
+        const cp = this.nextChar();
 
-                this.advance();
+        if (!(cp >= Chars.Zero && cp <= Chars.Nine)) {
 
-                if (!(this.flags & Flags.Exponent)) this.flags |= Flags.Exponent;
+            switch (cp) {
+                // scan exponent, if any
+                case Chars.UpperE:
+                case Chars.LowerE:
 
-                // scan exponent
-                switch (this.nextChar()) {
-                    case Chars.Plus:
-                    case Chars.Hyphen:
-                        this.advance();
-                        if (!this.hasNext()) this.error(Errors.UnexpectedTokenNumber);
-                    default: // ignore
-                }
-
-                switch (this.nextChar()) {
-                    case Chars.Zero:
-                    case Chars.One:
-                    case Chars.Two:
-                    case Chars.Three:
-                    case Chars.Four:
-                    case Chars.Five:
-                    case Chars.Six:
-                    case Chars.Seven:
-                    case Chars.Eight:
-                    case Chars.Nine:
-                        this.advance();
-                        this.skipDigits();
-                        break;
-                    default:
-                        // we must have at least one decimal digit after 'e'/'E'
-                        this.error(Errors.UnexpectedMantissa);
-                }
-
-                end = this.index;
-
-                break;
-
-                // BigInt - Stage 3 proposal
-            case Chars.LowerN:
-                if (this.flags & Flags.OptionsNext) {
-                    if (this.flags & Flags.Float) this.error(Errors.Unexpected);
                     this.advance();
-                    if (!(this.flags & Flags.BigInt)) this.flags |= Flags.BigInt;
+
+                    if (!(this.flags & Flags.Exponent)) this.flags |= Flags.Exponent;
+
+                    // scan exponent
+                    switch (this.nextChar()) {
+                        case Chars.Plus:
+                        case Chars.Hyphen:
+                            this.readNext(Errors.UnexpectedTokenNumber);
+                        default: // ignore
+                    }
+
+                    switch (this.nextChar()) {
+                        case Chars.Zero:
+                        case Chars.One:
+                        case Chars.Two:
+                        case Chars.Three:
+                        case Chars.Four:
+                        case Chars.Five:
+                        case Chars.Six:
+                        case Chars.Seven:
+                        case Chars.Eight:
+                        case Chars.Nine:
+                            this.advance();
+                            this.skipDigits();
+                            break;
+                        default:
+                            // we must have at least one decimal digit after 'e'/'E'
+                            this.error(Errors.UnexpectedMantissa);
+                    }
+
                     end = this.index;
-                }
 
-            default: // ignore
+                    break;
+
+                    // BigInt - Stage 3 proposal
+                case Chars.LowerN:
+                    if (this.flags & Flags.OptionsNext) {
+                        if (this.flags & Flags.Float) this.error(Errors.Unexpected);
+                        this.advance();
+                        if (!(this.flags & Flags.BigInt)) this.flags |= Flags.BigInt;
+                        end = this.index;
+                    }
+
+                default: // ignore
+            }
         }
-
         // The source character immediately following a numeric literal must
         // not be an identifier start or a decimal digit.
         if (isIdentifierStart(this.nextChar())) this.error(Errors.UnexpectedTokenNumber);
@@ -1253,16 +1268,16 @@ export class Parser {
         return Token.RegularExpression;
     }
 
-    private scanString(context: Context, quote: number): Token {
+    private scanString(
+        context: Context,
+        quote: Chars // Either double or single quote
+    ): Token {
 
         const rawStart = this.index;
 
-        this.advance();
-
-        if (!this.hasNext()) this.error(Errors.UnterminatedString);
+        this.readNext();
 
         let ret = '';
-
         let start = this.index;
         let ch;
 
@@ -1273,21 +1288,21 @@ export class Parser {
             if (ch === quote) break;
 
             switch (ch) {
+                case Chars.CarriageReturn:
+                case Chars.LineFeed:
+                case Chars.LineSeparator:
+                case Chars.ParagraphSeparator:
+                    this.error(Errors.UnterminatedString);
                 case Chars.Backslash:
                     ret += this.source.slice(start, this.index);
                     ret += this.scanStringEscape(context);
                     this.advance();
                     start = this.index;
                     continue;
-                case Chars.CarriageReturn:
-                case Chars.LineFeed:
-                case Chars.LineSeparator:
-                case Chars.ParagraphSeparator:
-                    this.error(Errors.UnterminatedString);
                 default: // ignore
             }
 
-            this.advance();
+            this.readNext();
         }
 
         if (start !== this.index) ret += this.source.slice(start, this.index);
@@ -1306,22 +1321,14 @@ export class Parser {
 
     private peekExtendedUnicodeEscape(): any {
 
-        this.advance(); // 'u'
-
-        if (!this.hasNext()) this.error(Errors.Unexpected);
-
-        let ch = this.nextChar();
+        let ch = this.readNext(Errors.Unexpected);
 
         // '\u{DDDDDDDD}'
         if (ch === Chars.LeftBrace) { // {
 
             let code = 0;
 
-            this.advance();
-
-            if (!this.hasNext()) this.error(Errors.InvalidHexEscapeSequence);
-
-            ch = this.nextChar();
+            ch = this.readNext(Errors.InvalidHexEscapeSequence);
 
             // At least, one hex digit is required.
             if (ch === Chars.RightBrace) this.error(Errors.InvalidHexEscapeSequence);
@@ -1333,12 +1340,8 @@ export class Parser {
 
                 if (code > Chars.LastUnicodeChar) this.error(Errors.UnicodeOutOfRange);
 
-                this.advance();
-
                 // At least one digit is expected
-                if (!this.hasNext()) this.error(Errors.InvalidHexEscapeSequence);
-
-                ch = this.nextChar();
+                ch = this.readNext(Errors.InvalidHexEscapeSequence);
             }
 
             if (ch !== Chars.RightBrace) this.error(Errors.InvalidHexEscapeSequence);
@@ -1376,11 +1379,7 @@ export class Parser {
 
     private scanStringEscape(context: Context): string {
 
-        this.advance();
-
-        if (!this.hasNext) this.error(Errors.InvalidUnicodeEscapeSequence);
-
-        const cp = this.nextChar();
+        const cp = this.readNext(Errors.InvalidHexEscapeSequence);
 
         switch (cp) {
             case Chars.LowerB:
@@ -1408,9 +1407,7 @@ export class Parser {
                 // Hexadecimal character specification.
             case Chars.LowerX:
                 {
-                    this.advance();
-                    const ch = this.nextChar();
-                    if (!this.hasNext()) this.error(Errors.UnterminatedString);
+                    const ch = this.readNext(Errors.UnterminatedString);
                     const ch1 = this.nextChar();
                     const hi = toHex(ch1);
                     if (hi < 0) this.error(Errors.InvalidHexEscapeSequence);
@@ -1550,11 +1547,7 @@ export class Parser {
         let tail = true;
         let ret: string | void = '';
 
-        this.advance();
-
-        if (!this.hasNext()) this.error(Errors.UnterminatedTemplate);
-
-        let ch = this.nextChar();
+        let ch = this.readNext(Errors.UnterminatedTemplate);
 
         loop:
             while (ch !== Chars.Backtick) {
@@ -1679,7 +1672,7 @@ export class Parser {
             if (item.expression.value === 'use strict') {
                 if (context & Context.SimpleParameterList) this.error(Errors.Unexpected);
                 if (this.flags & Flags.BindingPosition) this.error(Errors.UnexpectedStrictReserved);
-                context |= Context.Strict;
+                if (!(context & Context.Strict)) context |= Context.Strict;
             }
         }
 

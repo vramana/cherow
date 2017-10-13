@@ -37,7 +37,7 @@ export const enum Flags {
     HasUnicode                   = 1 << 1, // If node has any escaped unicode sequences (escaped characters in keywords).
     InFunctionBody               = 1 << 2, // If node was parsed in a function body
     AllowCall                    = 1 << 3, // If node was parsed in a context where call should be allowed
-    Break                        = 1 << 4, 
+    Break                        = 1 << 4,
     Continue                     = 1 << 5,
     Switch                       = 1 << 6,
     HasPrototype                 = 1 << 7,
@@ -53,7 +53,7 @@ export const enum Flags {
     /* Options */
     OptionsRanges                = 1 << 14, // Enable / disable "ranges"
     OptionsLoc                   = 1 << 15, // Enable / disable location tracking on the node
-    OptionsSource                = 1 << 16, 
+    OptionsSource                = 1 << 16,
     OptionsJSX                   = 1 << 17, // Enable / disable JSX extension
     OptionsRaw                   = 1 << 18, // Enable / disable "raw" property on the node
     OptionsNext                  = 1 << 19, // Enable / disable Stage 3 proposals
