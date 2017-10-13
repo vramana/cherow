@@ -1642,37 +1642,38 @@ export class Parser {
 
     private parseDirective(context: Context): ESTree.ExpressionStatement {
         const pos = this.getLocations();
-        if (!(this.flags & Flags.OptionsDirectives)) {
-            if (context & Context.Module) return this.parseModuleItem(context);
-            return this.parseStatementListItem(context);
+        if (this.flags & Flags.OptionsDirectives) {
+            const expr = this.parseExpression(context, pos);
+            const directive = (expr.type === 'Literal') ? this.tokenRaw.slice(1, -1) : null;
+            this.consumeSemicolon(context);
+            const node = this.finishNode(pos, {
+                type: 'ExpressionStatement',
+                expression: expr,
+            });
+
+            if (directive != null) node.directive = directive;
+
+            return node;
         }
-        const expr = this.parseExpression(context, pos);
-        const directive = (expr.type === 'Literal') ? this.tokenRaw.slice(1, -1) : null;
-        this.consumeSemicolon(context);
-        const node = this.finishNode(pos, {
-            type: 'ExpressionStatement',
-            expression: expr,
-            directive: directive
-        });
 
-        if (directive != null) node.directive = directive;
-
-        return node;
+        return context & Context.Module ? this.parseModuleItem(context) : this.parseStatementListItem(context);
     }
 
     private parseStatementList(context: Context, endToken: Token): ESTree.Statement[] {
 
         const statements: ESTree.Statement[] = [];
 
-        while (this.token !== endToken) {
-            if (this.token !== Token.StringLiteral) break;
-            const item: ESTree.Statement = this.parseDirective(context);
-            statements.push(item);
-            if (!isDirective(item)) break;
-            if (item.expression.value === 'use strict') {
-                if (context & Context.SimpleParameterList) this.error(Errors.Unexpected);
-                if (this.flags & Flags.BindingPosition) this.error(Errors.UnexpectedStrictReserved);
-                if (!(context & Context.Strict)) context |= Context.Strict;
+        if (!(context & Context.Strict)) {
+            while (this.token !== endToken) {
+                if (this.token !== Token.StringLiteral) break;
+                const item: ESTree.Statement = this.parseDirective(context);
+                statements.push(item);
+                if (!isDirective(item)) break;
+                if (this.flags & Flags.HasStrictDirective) {
+                    if (context & Context.SimpleParameterList) this.error(Errors.Unexpected);
+                    if (this.flags & Flags.BindingPosition) this.error(Errors.UnexpectedStrictReserved);
+                    if (!(context & Context.Strict)) context |= Context.Strict;
+                }
             }
         }
 
@@ -4688,9 +4689,8 @@ export class Parser {
         const pos = this.getLocations();
         const value = this.tokenValue;
         const raw = this.tokenRaw;
-
+        if (value === 'use strict') this.flags |= Flags.HasStrictDirective;
         if (context & Context.Strict && this.flags & Flags.Noctal) {
-
             this.error(Errors.Unexpected);
         }
 

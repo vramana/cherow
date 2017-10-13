@@ -58,6 +58,5 @@ export function isDirective(node: Statement): node is ExpressionStatement & {
     };
 } {
     return node.type === 'ExpressionStatement' &&
-        node.expression.type === 'Literal' &&
-        typeof node.expression.value === 'string';
+        node.expression.type === 'Literal';
 }
