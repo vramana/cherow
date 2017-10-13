@@ -766,9 +766,9 @@ export class Parser {
                 case Chars.LowerX:
                 case Chars.LowerY:
                 case Chars.LowerZ:
-                    return this.scanIdentifier(context);
+                    return this.scanIdentifierOrKeyword(context);
                 default:
-                    if (isValidIdentifierStart(first)) return this.scanIdentifier(context);
+                    if (isValidIdentifierStart(first)) return this.scanUnicodeIdentifier(context);
                     this.error(Errors.Unexpected);
             }
         }
@@ -870,7 +870,33 @@ export class Parser {
         }
     }
 
-    private scanIdentifier(context: Context): Token {
+    private scanIdentifierOrKeyword(context: Context): Token {
+        const ret = this.scanIdentifier(context);
+
+        if (this.flags & Flags.HasUnicode && ret === 'target') {
+            this.error(Errors.InvalidEscapedReservedWord);
+        }
+
+        const len = ret.length;
+        this.tokenValue = ret;
+
+        // Reserved words are between 2 and 11 characters long and start with a lowercase letter
+        if (len >= 2 && len <= 11) {
+            const token = descKeyword(ret);
+            if (token > 0) {
+                return token;
+            }
+        }
+        return Token.Identifier;
+    }
+
+    private scanUnicodeIdentifier(context: Context): Token {
+        const ret = this.scanIdentifier(context);
+        this.tokenValue = ret;
+        return Token.Identifier;
+    }
+
+    private scanIdentifier(context: Context): string {
 
         let start = this.index;
         let ret = '';
@@ -893,25 +919,7 @@ export class Parser {
             }
 
         if (start < this.index) ret += this.source.slice(start, this.index);
-
-        const len = ret.length;
-
-        // Invalid: 'function f() { new.t\\u0061rget; }'
-        if (this.flags & Flags.HasUnicode && ret === 'target') this.error(Errors.InvalidEscapedReservedWord);
-
-        this.tokenValue = ret;
-
-        // Reserved words are between 2 and 11 characters long and start with a lowercase letter
-        if (len >= 2 && len <= 11) {
-            const ch = ret.charCodeAt(0);
-            if (ch >= Chars.LowerA && ch <= Chars.LowerZ) {
-                const token = descKeyword(ret);
-                if (token > 0) {
-                    return token;
-                }
-            }
-        }
-        return Token.Identifier;
+        return ret;
     }
 
     /**
@@ -3826,7 +3834,7 @@ export class Parser {
         if (this.token !== Token.RightBrace) {
             const previousLabelSet = this.labelSet;
             this.labelSet = undefined;
-            this.flags |= Flags.InFunctionBody;
+            if (!(this.flags & Flags.InFunctionBody)) this.flags |= Flags.InFunctionBody;
             body = this.parseStatementList(context, Token.RightBrace);
             this.labelSet = previousLabelSet;
         }

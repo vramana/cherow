@@ -1063,10 +1063,10 @@ Parser.prototype.scanToken = function scanToken (context) {
             case 120 /* LowerX */:
             case 121 /* LowerY */:
             case 122 /* LowerZ */:
-                return this$1.scanIdentifier(context);
+                return this$1.scanIdentifierOrKeyword(context);
             default:
                 if (isValidIdentifierStart(first))
-                    { return this$1.scanIdentifier(context); }
+                    { return this$1.scanUnicodeIdentifier(context); }
                 this$1.error(0 /* Unexpected */);
         }
     }
@@ -1156,6 +1156,27 @@ Parser.prototype.collectComment = function collectComment (type, value, start, e
         this.comments.push(node);
     }
 };
+Parser.prototype.scanIdentifierOrKeyword = function scanIdentifierOrKeyword (context) {
+    var ret = this.scanIdentifier(context);
+    if (this.flags & 2 /* HasUnicode */ && ret === 'target') {
+        this.error(74 /* InvalidEscapedReservedWord */);
+    }
+    var len = ret.length;
+    this.tokenValue = ret;
+    // Reserved words are between 2 and 11 characters long and start with a lowercase letter
+    if (len >= 2 && len <= 11) {
+        var token = descKeyword(ret);
+        if (token > 0) {
+            return token;
+        }
+    }
+    return 262145 /* Identifier */;
+};
+Parser.prototype.scanUnicodeIdentifier = function scanUnicodeIdentifier (context) {
+    var ret = this.scanIdentifier(context);
+    this.tokenValue = ret;
+    return 262145 /* Identifier */;
+};
 Parser.prototype.scanIdentifier = function scanIdentifier (context) {
         var this$1 = this;
 
@@ -1180,22 +1201,7 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context) {
     }
     if (start < this.index)
         { ret += this.source.slice(start, this.index); }
-    var len = ret.length;
-    // Invalid: 'function f() { new.t\\u0061rget; }'
-    if (this.flags & 2 /* HasUnicode */ && ret === 'target')
-        { this.error(74 /* InvalidEscapedReservedWord */); }
-    this.tokenValue = ret;
-    // Reserved words are between 2 and 11 characters long and start with a lowercase letter
-    if (len >= 2 && len <= 11) {
-        var ch = ret.charCodeAt(0);
-        if (ch >= 97 /* LowerA */ && ch <= 122 /* LowerZ */) {
-            var token = descKeyword(ret);
-            if (token > 0) {
-                return token;
-            }
-        }
-    }
-    return 262145 /* Identifier */;
+    return ret;
 };
 /**
  * Peek unicode escape
@@ -3727,7 +3733,8 @@ Parser.prototype.parseFunctionBody = function parseFunctionBody (context) {
     if (this.token !== 15 /* RightBrace */) {
         var previousLabelSet = this.labelSet;
         this.labelSet = undefined;
-        this.flags |= 4 /* InFunctionBody */;
+        if (!(this.flags & 4 /* InFunctionBody */))
+            { this.flags |= 4 /* InFunctionBody */; }
         body = this.parseStatementList(context, 15 /* RightBrace */);
         this.labelSet = previousLabelSet;
     }
