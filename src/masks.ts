@@ -33,11 +33,11 @@ export const enum Context {
 
 export const enum Flags {
     None                         = 0,
-    LineTerminator               = 1 << 0,
-    HasUnicode                   = 1 << 1, // If node was parsed in the 'async' context
+    LineTerminator               = 1 << 0, // If node has a LT
+    HasUnicode                   = 1 << 1, // If node has any escaped unicode sequences (escaped characters in keywords).
     InFunctionBody               = 1 << 2, // If node was parsed in a function body
-    AllowCall                    = 1 << 3,
-    Break                        = 1 << 4,
+    AllowCall                    = 1 << 3, // If node was parsed in a context where call should be allowed
+    Break                        = 1 << 4, 
     Continue                     = 1 << 5,
     Switch                       = 1 << 6,
     HasPrototype                 = 1 << 7,
@@ -51,22 +51,23 @@ export const enum Flags {
     Exponent                     = 1 << 13, // e.g. `10e2`
 
     /* Options */
-    OptionsRanges                = 1 << 14,
-    OptionsLoc                   = 1 << 15,
-    OptionsSource                = 1 << 16,
-    OptionsJSX                   = 1 << 17,
-    OptionsRaw                   = 1 << 18,
-    OptionsNext                  = 1 << 19,
-    OptionsDirectives            = 1 << 20,
-    OptionsOnComment             = 1 << 21,
-    OptionsOnToken               = 1 << 22,
-    OptionsV8                    = 1 << 23,
-    OptionsFlow                  = 1 << 24,
+    OptionsRanges                = 1 << 14, // Enable / disable "ranges"
+    OptionsLoc                   = 1 << 15, // Enable / disable location tracking on the node
+    OptionsSource                = 1 << 16, 
+    OptionsJSX                   = 1 << 17, // Enable / disable JSX extension
+    OptionsRaw                   = 1 << 18, // Enable / disable "raw" property on the node
+    OptionsNext                  = 1 << 19, // Enable / disable Stage 3 proposals
+    OptionsDirectives            = 1 << 20, // Enable / disable directives on the node
+    OptionsOnComment             = 1 << 21, // Enable / disable comment collecting
+    OptionsOnToken               = 1 << 22, // ** on hold **
+    OptionsV8                    = 1 << 23, // Enable / disable V8 experimental features
+    OptionsFlow                  = 1 << 24, // ** on hold **
 
     // BigInt implementation can't handle either float or exponent acc. TC-39
     FloatOrExponent = Float | Exponent
 }
 
+// Flags used in 'ForStatement'
 export const enum IterationState {
     None = 0,
     Var = 1 << 0,
@@ -77,6 +78,7 @@ export const enum IterationState {
     Variable = Var | Const | Let,
 }
 
+// Flags used in parenthesized to validate arrow formal list
 export const enum ParenthesizedState {
     None            = 0,
     EvalOrArg       = 1 << 0, // If (async) arrow contains eval or agruments
@@ -91,6 +93,7 @@ export const enum AsyncState {
     Identifier
 }
 
+// Flags used by both object expression and class decl / expr
 export const enum ObjectState {
     None            = 0,
     Yield           = 1 << 0,
@@ -109,15 +112,14 @@ export const enum ObjectState {
     Modifiers = Accessors | Method | Yield
 }
 
+// Flags to deal with the comments in the scanner
 export const enum ScannerState {
     None = 0,
-    LastIsCR        = 1 << 0,
-    LineTerminator  = 1 << 1,
-    MultiLine       = 1 << 2,
-    SingleLine      = 1 << 3,
-    Closed          = 1 << 4,
+    MultiLine       = 1 << 1, // MultiLine comment
+    SingleLine      = 1 << 2, // SingleLine comment (HTML, Shebang or plain)
+    Closed          = 1 << 3, // If the node was closed or not
 
-    // Collectable comments - single and multiline
+    // Collectable comments - single and multiline (shebang excluded)
     Collectable = SingleLine | MultiLine
 }
 
