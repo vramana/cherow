@@ -2414,17 +2414,18 @@ Parser.prototype.parseBlockStatement = function parseBlockStatement (context) {
 
     var pos = this.getLocations();
     var body = [];
-    var flag = this.flags;
+    this.expect(context, 393228 /* LeftBrace */);
     var blockScope = this.blockScope;
     var parentScope = this.parentScope;
     if (blockScope != null)
         { this.parentScope = blockScope; }
     this.blockScope = context & 2048 /* IfClause */ ? blockScope : undefined;
-    this.expect(context, 393228 /* LeftBrace */);
-    while (this.token !== 15 /* RightBrace */)
-        { body.push(this$1.parseStatementListItem(context | 512 /* Statement */)); }
-    this.expect(context, 15 /* RightBrace */);
+    var flag = this.flags;
+    while (this.token !== 15 /* RightBrace */) {
+        body.push(this$1.parseStatementListItem(context | 512 /* Statement */));
+    }
     this.flags = flag;
+    this.expect(context, 15 /* RightBrace */);
     this.blockScope = blockScope;
     if (parentScope != null)
         { this.parentScope = parentScope; }
@@ -3722,12 +3723,15 @@ Parser.prototype.parseAsyncArguments = function parseAsyncArguments (context, po
 Parser.prototype.parseFunctionBody = function parseFunctionBody (context) {
     var pos = this.getLocations();
     this.expect(context, 393228 /* LeftBrace */);
-    var previousLabelSet = this.labelSet;
-    this.labelSet = undefined;
-    this.flags |= 4 /* InFunctionBody */;
-    var body = this.parseStatementList(context, 15 /* RightBrace */);
+    var body = [];
+    if (this.token !== 15 /* RightBrace */) {
+        var previousLabelSet = this.labelSet;
+        this.labelSet = undefined;
+        this.flags |= 4 /* InFunctionBody */;
+        body = this.parseStatementList(context, 15 /* RightBrace */);
+        this.labelSet = previousLabelSet;
+    }
     this.expect(context, 15 /* RightBrace */);
-    this.labelSet = previousLabelSet;
     return this.finishNode(pos, {
         type: 'BlockStatement',
         body: body

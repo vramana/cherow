@@ -2278,18 +2278,19 @@ export class Parser {
     private parseBlockStatement(context: Context): ESTree.BlockStatement {
         const pos = this.getLocations();
         const body: ESTree.Statement[] = [];
-        const flag = this.flags;
+        this.expect(context, Token.LeftBrace);
         const blockScope = this.blockScope;
         const parentScope = this.parentScope;
         if (blockScope != null) this.parentScope = blockScope;
         this.blockScope = context & Context.IfClause ? blockScope : undefined;
+        const flag = this.flags;
 
-        this.expect(context, Token.LeftBrace);
-
-        while (this.token !== Token.RightBrace) body.push(this.parseStatementListItem(context | Context.Statement));
-
-        this.expect(context, Token.RightBrace);
+        while (this.token !== Token.RightBrace) {
+            body.push(this.parseStatementListItem(context | Context.Statement));
+        }
         this.flags = flag;
+        this.expect(context, Token.RightBrace);
+
 
         this.blockScope = blockScope;
         if (parentScope != null) this.parentScope = parentScope;
@@ -3820,12 +3821,17 @@ export class Parser {
     private parseFunctionBody(context: Context): ESTree.BlockStatement {
         const pos = this.getLocations();
         this.expect(context, Token.LeftBrace);
-        const previousLabelSet = this.labelSet;
-        this.labelSet = undefined;
-        this.flags |= Flags.InFunctionBody;
-        const body = this.parseStatementList(context, Token.RightBrace);
+        let body: ESTree.Statement[] = [];
+
+        if (this.token !== Token.RightBrace) {
+            const previousLabelSet = this.labelSet;
+            this.labelSet = undefined;
+            this.flags |= Flags.InFunctionBody;
+            body = this.parseStatementList(context, Token.RightBrace);
+            this.labelSet = previousLabelSet;
+        }
+
         this.expect(context, Token.RightBrace);
-        this.labelSet = previousLabelSet;
         return this.finishNode(pos, {
             type: 'BlockStatement',
             body
