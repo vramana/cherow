@@ -46,28 +46,20 @@ export const enum Flags {
     HaveSeenYield                = 1 << 8,  // Used if we have seen a 'yield' token. E.g. in arrow formal param list
     BindingPosition              = 1 << 9,  // Used if an "identifier" are used in binding position in strict mode
     HasStrictDirective           = 1 << 10, // Only used if we have seen a "use strict"; directive
-
-    /* Numeric */
     Noctal                       = 1 << 11, // e.g. `0777`
-    BigInt                       = 1 << 12, // e.g. `100n`
-    Float                        = 1 << 13, // e.g. `09.01`
-    Exponent                     = 1 << 14, // e.g. `10e2`
-
+    BigInt                       = 1 << 12, // e.g. `0777`
     /* Options */
-    OptionsRanges                = 1 << 15, // Enable / disable "ranges"
-    OptionsLoc                   = 1 << 16, // Enable / disable location tracking on the node
-    OptionsSource                = 1 << 17,
-    OptionsJSX                   = 1 << 18, // Enable / disable JSX extension
-    OptionsRaw                   = 1 << 19, // Enable / disable "raw" property on the node
-    OptionsNext                  = 1 << 20, // Enable / disable Stage 3 proposals
-    OptionsDirectives            = 1 << 21, // Enable / disable directives on the node
-    OptionsOnComment             = 1 << 22, // Enable / disable comment collecting
-    OptionsOnToken               = 1 << 23, // ** on hold **
-    OptionsV8                    = 1 << 24, // Enable / disable V8 experimental features
-    OptionsFlow                  = 1 << 25, // ** on hold **
-
-    // BigInt implementation can't handle either float or exponent acc. TC-39
-    FloatOrExponent = Float | Exponent,
+    OptionsRanges                = 1 << 13, // Enable / disable "ranges"
+    OptionsLoc                   = 1 << 14, // Enable / disable location tracking on the node
+    OptionsSource                = 1 << 15,
+    OptionsJSX                   = 1 << 16, // Enable / disable JSX extension
+    OptionsRaw                   = 1 << 17, // Enable / disable "raw" property on the node
+    OptionsNext                  = 1 << 18, // Enable / disable Stage 3 proposals
+    OptionsDirectives            = 1 << 19, // Enable / disable directives on the node
+    OptionsOnComment             = 1 << 20, // Enable / disable comment collecting
+    OptionsOnToken               = 1 << 21, // ** on hold **
+    OptionsV8                    = 1 << 22, // Enable / disable V8 experimental features
+    OptionsFlow                  = 1 << 23, // ** on hold **
 
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc
@@ -75,13 +67,23 @@ export const enum Flags {
 
 // Flags used in 'ForStatement'
 export const enum IterationState {
-    None = 0,
-    Var = 1 << 0,
-    Const = 1 << 1,
-    Let = 1 << 2,
-    Await = 1 << 3,
-    Lexical = Const | Let,
-    Variable = Var | Const | Let,
+    None        = 0,
+    Var         = 1 << 0,
+    Const       = 1 << 1,
+    Let         = 1 << 2,
+    Await       = 1 << 3,
+    Lexical     = Const | Let,
+    Variable    = Var | Const | Let,
+}
+
+export const enum NumberState {
+    None        = 0,
+    Float       = 1 << 1, // e.g. `09.01`
+    Exponent    = 1 << 2, // e.g. `10e2`
+    BigInt      = 1 << 3, // e.g. `100n`
+
+    // BigInt implementation can't handle either float or exponent acc. TC-39
+    FloatOrExponent = Float | Exponent,
 }
 
 // Flags used in parenthesized to validate arrow formal list

@@ -2,7 +2,7 @@ import { Chars } from './chars';
 import * as ESTree from './estree';
 import { hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isDirective } from './common';
 import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget, qualifiedPropertyName, isAsync } from './validate';
-import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, AsyncState, ScannerState, ParenthesizedState, IterationState } from './masks';
+import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, AsyncState, ScannerState, ParenthesizedState, IterationState, NumberState } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
@@ -166,7 +166,7 @@ export class Parser {
             }
             return node;
         }
-
+    
         private error(type: Errors, ...params: string[]): void {
             if (this.errorLocation) throw createError(type, this.errorLocation, ...params);
             throw createError(type, this.getLocations(), ...params);
@@ -1091,6 +1091,11 @@ export class Parser {
             return Token.NumericLiteral;
         }
     
+        private advanceAndSkipDigits() {
+            this.advance();
+            this.skipDigits();
+        }
+    
         private skipDigits() {
             scan: while (this.hasNext()) {
                 switch (this.nextChar()) {
@@ -1115,31 +1120,29 @@ export class Parser {
         private scanNumber(context: Context): Token {
     
             const start = this.index;
+            let state = NumberState.None;
     
             this.skipDigits();
     
             if (this.nextChar() === Chars.Period) {
-    
-                if (!(this.flags & Flags.Float)) this.flags |= Flags.Float;
-    
-                this.advance();
-                this.skipDigits();
+                state |= NumberState.Float;
+                this.advanceAndSkipDigits();
             }
     
             let end = this.index;
     
-            const cp = this.nextChar();
+            let cp = this.nextChar();
     
             if (!(cp >= Chars.Zero && cp <= Chars.Nine)) {
     
                 switch (cp) {
+    
                     // scan exponent, if any
                     case Chars.UpperE:
                     case Chars.LowerE:
     
                         this.advance();
-    
-                        if (!(this.flags & Flags.Exponent)) this.flags |= Flags.Exponent;
+                        state |= NumberState.Exponent;
     
                         // scan exponent
                         switch (this.nextChar()) {
@@ -1148,25 +1151,11 @@ export class Parser {
                                 this.readNext(Errors.UnexpectedTokenNumber);
                             default: // ignore
                         }
-    
-                        switch (this.nextChar()) {
-                            case Chars.Zero:
-                            case Chars.One:
-                            case Chars.Two:
-                            case Chars.Three:
-                            case Chars.Four:
-                            case Chars.Five:
-                            case Chars.Six:
-                            case Chars.Seven:
-                            case Chars.Eight:
-                            case Chars.Nine:
-                                this.advance();
-                                this.skipDigits();
-                                break;
-                            default:
-                                // we must have at least one decimal digit after 'e'/'E'
-                                this.error(Errors.UnexpectedMantissa);
-                        }
+
+                        cp = this.nextChar();
+                        // we must have at least one decimal digit after 'e'/'E'
+                        if (!(cp >= Chars.Zero && cp <= Chars.Nine)) this.error(Errors.UnexpectedMantissa);
+                        this.advanceAndSkipDigits();
     
                         end = this.index;
     
@@ -1175,24 +1164,27 @@ export class Parser {
                         // BigInt - Stage 3 proposal
                     case Chars.LowerN:
                         if (this.flags & Flags.OptionsNext) {
-                            if (this.flags & Flags.Float) this.error(Errors.Unexpected);
+                            if (state & NumberState.Float) this.error(Errors.Unexpected);
                             this.advance();
-                            if (!(this.flags & Flags.BigInt)) this.flags |= Flags.BigInt;
+                            state |= NumberState.BigInt;
                             end = this.index;
                         }
     
                     default: // ignore
                 }
             }
-            // The source character immediately following a numeric literal must
-            // not be an identifier start or a decimal digit.
+            // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
+            // The SourceCharacter immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
+            // For example : 3in is an error and not the two input elements 3 and in
             if (isIdentifierStart(this.nextChar())) this.error(Errors.UnexpectedTokenNumber);
     
             const raw = this.source.substring(start, end);
     
             if (this.flags & Flags.OptionsRaw) this.tokenRaw = raw;
     
-            this.tokenValue = this.flags & Flags.FloatOrExponent ? parseFloat(raw) : parseInt(raw, 10);
+            if (state & NumberState.BigInt) this.flags |= Flags.BigInt
+    
+            this.tokenValue = state & NumberState.FloatOrExponent ? parseFloat(raw) : parseInt(raw, 10);
     
             return Token.NumericLiteral;
         }
@@ -1736,7 +1728,7 @@ export class Parser {
         }
     
         private finishNode(loc: Location | undefined, node: any) {
-
+    
             if (loc) {
                 if (this.flags & Flags.OptionsRanges) {
                     node.start = loc.start;
@@ -1757,7 +1749,7 @@ export class Parser {
                     };
                 }
             }
-            
+    
             return node;
         }
     
