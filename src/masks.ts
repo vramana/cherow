@@ -1,3 +1,4 @@
+// Simple immutable bit set passed around as arguments
 export const enum Context {
     None                   = 0,
     Module                 = 1 << 0,   // If node was parsed in module code
@@ -31,6 +32,7 @@ export const enum Context {
     Lexical = Let | Const,
 }
 
+// Mutable parser flags
 export const enum Flags {
     None                         = 0,
     LineTerminator               = 1 << 0, // If node has a LT
@@ -65,7 +67,10 @@ export const enum Flags {
     OptionsFlow                  = 1 << 25, // ** on hold **
 
     // BigInt implementation can't handle either float or exponent acc. TC-39
-    FloatOrExponent = Float | Exponent
+    FloatOrExponent = Float | Exponent,
+
+    // Common mask used to verify if either ranges or locations are enabled
+    LocationTracking = OptionsRanges | OptionsLoc
 }
 
 // Flags used in 'ForStatement'

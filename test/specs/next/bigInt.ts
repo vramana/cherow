@@ -321,4 +321,342 @@ describe('Next - BigInt', () => {
               "type": "Program"
             });
     });
+
+
+    it('should parse negative number wrapped in paren', () => {
+        expect(parseScript(`-(-1n)`, {
+            raw: true,
+            next: true,
+            ranges: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "UnaryExpression",
+                        "operator": "-",
+                        "argument": {
+                            "type": "UnaryExpression",
+                            "operator": "-",
+                            "argument": {
+                                "type": "Literal",
+                                "value": 1,
+                                "bigint": "1n",
+                                "start": 3,
+                                "end": 5,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 3
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 5
+                                    }
+                                },
+                                "raw": "1n"
+                            },
+                            "prefix": true,
+                            "start": 2,
+                            "end": 5,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 2
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 5
+                                }
+                            }
+                        },
+                        "prefix": true,
+                        "start": 0,
+                        "end": 6,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 6
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 6,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 6
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 6,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 6
+                }
+            }
+        });
+    });
+    it('should parse negative number wrapped in paren', () => {
+        expect(parseScript(`-(1n)`, {
+            raw: true,
+            next: true,
+            ranges: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "UnaryExpression",
+                        "operator": "-",
+                        "argument": {
+                            "type": "Literal",
+                            "value": 1,
+                            "bigint": "1n",
+                            "start": 2,
+                            "end": 4,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 2
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 4
+                                }
+                            },
+                            "raw": "1n"
+                        },
+                        "prefix": true,
+                        "start": 0,
+                        "end": 5,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 5
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 5
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 5,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 5
+                }
+            }
+        });
+    });
+
+    it('should work with unary expression', () => {
+        expect(parseScript(`- - 1n`, {
+            raw: true,
+            next: true,
+            ranges: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "UnaryExpression",
+                        "operator": "-",
+                        "argument": {
+                            "type": "UnaryExpression",
+                            "operator": "-",
+                            "argument": {
+                                "type": "Literal",
+                                "value": 1,
+                                "bigint": "1n",
+                                "start": 4,
+                                "end": 6,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 6
+                                    }
+                                },
+                                "raw": "1n"
+                            },
+                            "prefix": true,
+                            "start": 2,
+                            "end": 6,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 2
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 6
+                                }
+                            }
+                        },
+                        "prefix": true,
+                        "start": 0,
+                        "end": 6,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 6
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 6,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 6
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 6,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 6
+                }
+            }
+        });
+    });
+
+    it('should work with unary expression', () => {
+        expect(parseScript(`-1n`, {
+            raw: true,
+            next: true,
+            ranges: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "UnaryExpression",
+                        "operator": "-",
+                        "argument": {
+                            "type": "Literal",
+                            "value": 1,
+                            "bigint": "1n",
+                            "start": 1,
+                            "end": 3,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 1
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 3
+                                }
+                            },
+                            "raw": "1n"
+                        },
+                        "prefix": true,
+                        "start": 0,
+                        "end": 3,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 3
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 3,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 3
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 3,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 3
+                }
+            }
+        });
+    });
 });

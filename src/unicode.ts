@@ -1,5 +1,6 @@
 import { Chars } from './chars';
 
+// Unicode v. 10 support
 const convert = ((compressed, dict) => {
     const result = new Uint32Array(104448);
 

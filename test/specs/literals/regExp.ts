@@ -688,24 +688,6 @@ describe('Literals - RegExp', () => {
         }).to.not.throw();
     });
 
-    it('should parse unicode decimal escape"', () => {
-        expect(parseScript(`/\\1/u`)).to.eql({
-            "body": [{
-                "expression": {
-                    "regex": {
-                        "flags": "u",
-                        "pattern": "\\1"
-                    },
-                    "type": "Literal",
-                    "value": null
-                },
-                "type": "ExpressionStatement"
-            }],
-            "sourceType": "script",
-            "type": "Program"
-        });
-    });
-
     it('should parse unicode astral', () => {
         expect(parseScript(`/𝌆{2}/u`)).to.eql({
             "type": "Program",
