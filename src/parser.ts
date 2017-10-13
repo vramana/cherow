@@ -13,7 +13,7 @@ export class Parser {
         // Holds the program to be parser
         private readonly source: string;
     
-        // Current position (end position of text of current token)
+        // Current position (end position of source of current token)
         private index: number;
     
         // Current position (end position of column of current token)
@@ -31,22 +31,22 @@ export class Parser {
         // Start position of whitespace before current line
         private startLine: number;
     
-        // Start position of source of current token
+        // End position of source
         private endPos: number;
     
-        // Start position of column of current token
+        // End position of column
         private endColumn: number;
     
-        // Start position of line of current token
+        // End position of line
         private endLine: number;
     
         // Start position of line of current token
         private tokenValue: any;
     
-        // Hold current token
+        // Holds current token
         private token: Token;
     
-        // Hold the next token ahead
+        // Holds the next token ahead
         private peekedToken: Token;
     
         // Contain scanner state info after a lookahead
