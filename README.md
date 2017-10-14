@@ -60,8 +60,6 @@ Cherow can be used to perform syntactic analysis of JavaScript programs.
 
 **Note!** The ECMAScript specs mentioned strictly that you should use either `parseScript` or `parseModule` for parsing in sloppy mode or module code.
 
-`parseScript` or `parseModule`.
-
 ```js
 
 // Parsing script
