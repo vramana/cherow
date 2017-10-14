@@ -463,6 +463,7 @@ export class Parser {
                         // `}`
                     case Chars.RightBrace:
                         this.advance();
+                        this.flags |= Flags.LineTerminator;
                         return Token.RightBrace;
     
                         // `~`
