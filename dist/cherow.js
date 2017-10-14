@@ -435,6 +435,8 @@ var Parser = function Parser(source, options) {
         { this.flags |= 16384 /* OptionsRanges */; }
     if (options.raw)
         { this.flags |= 262144 /* OptionsRaw */; }
+    if (options.globalReturn)
+        { this.flags |= 33554432 /* OptionsGlobalReturn */; }
     if (options.directives)
         { this.flags |= 1048576 /* OptionsDirectives */; }
     if (options.v8)
@@ -2909,7 +2911,7 @@ Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (c
 };
 Parser.prototype.parseReturnStatement = function parseReturnStatement (context) {
     var pos = this.startNode();
-    if (!(this.flags & 4 /* InFunctionBody */))
+    if (!(this.flags & (4 /* InFunctionBody */ | 33554432 /* OptionsGlobalReturn */)))
         { this.error(19 /* IllegalReturn */); }
     this.expect(context, 12379 /* ReturnKeyword */);
     var argument = null;
@@ -3587,7 +3589,8 @@ Parser.prototype.parseParameterList = function parseParameterList (context, stat
     this.flags &= ~8192 /* SimpleParameterList */;
     while (this.token !== 16 /* RightParen */) {
         if (this$1.token === 14 /* Ellipsis */) {
-            this$1.flags |= 8192 /* SimpleParameterList */;
+            if (!(this$1.flags & 8192 /* SimpleParameterList */))
+                { this$1.flags |= 8192 /* SimpleParameterList */; }
             result.push(this$1.parseRestElement(context));
             this$1.parseOptional(context, 18 /* Comma */);
             break;
@@ -3638,7 +3641,8 @@ Parser.prototype.parseAsyncFunctionExpression = function parseAsyncFunctionExpre
     var isEscaped = !!(this.flags & 2 /* HasUnicode */);
     var id = this.parseIdentifier(context);
     var flags = this.flags;
-    this.flags |= 8192 /* SimpleParameterList */;
+    if (!(this.flags & 8192 /* SimpleParameterList */))
+        { this.flags |= 8192 /* SimpleParameterList */; }
     switch (this.token) {
         // 'parseAsyncFunctionExpression'
         case 274519 /* FunctionKeyword */:
@@ -4095,7 +4099,8 @@ Parser.prototype.parseObjectExpression = function parseObjectExpression (context
 
     var pos = this.startNode();
     this.expect(context, 393228 /* LeftBrace */);
-    this.flags |= 8192 /* SimpleParameterList */;
+    if (!(this.flags & 8192 /* SimpleParameterList */))
+        { this.flags |= 8192 /* SimpleParameterList */; }
     var properties = [];
     while (!this.parseOptional(context, 15 /* RightBrace */)) {
         if (this$1.token === 14 /* Ellipsis */) {
@@ -4303,7 +4308,8 @@ Parser.prototype.parseArrayInitializer = function parseArrayInitializer (context
 
     var pos = this.startNode();
     this.expect(context, 393235 /* LeftBracket */);
-    this.flags |= 8192 /* SimpleParameterList */;
+    if (!(this.flags & 8192 /* SimpleParameterList */))
+        { this.flags |= 8192 /* SimpleParameterList */; }
     var elements = [];
     while (this.token !== 20 /* RightBracket */) {
         if (this$1.parseOptional(context, 18 /* Comma */)) {

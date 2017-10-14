@@ -47,6 +47,7 @@ These need to be enabled with the `v8` option.
 * `raw` - Enables the raw property on literal nodes (*Esprima and Acorn feature*)
 * `comments` - Enables option to collect comments. Optional; Either array or function. Works like [Acorn](https://github.com/ternjs/acorn) onComment
 * `directives` - Enables the [`ESTree`](https://github.com/estree/estree/blob/1da8e603237144f44710360f8feb7a9977e905e0/es5.md#directive) directive node.
+* `globalReturn` - Allow return statement in global scope
 * `ranges` - Enables the start and characters offsets on the AST node
 * `locations` - Enables location tracking
 * `jsx` - Enables JSX
@@ -133,8 +134,4 @@ This because of the `Asynchronous Iteration` implementation.
  You are welcome to contribute. As a golden rule - always run benchmarks to verify that you haven't created any
  bottlenecks or did something that you shouldn't.
 
-*Terms of contribution:*
-
-- Think twice before you try to implement anything
-- Avoid duplicating the source code
-- Create tests that cover what you have implemented
+Read our guidelines [here](CONTRIBUTING.md)

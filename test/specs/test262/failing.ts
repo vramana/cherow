@@ -1823,7 +1823,7 @@ is y`);
     it(`should fail on "(function a(package) { "use strict"; })"`, () => {
         expect(() => {
             parseScript(`(function a(package) { "use strict"; })`)
-        }).to.not.throw('');
+        }).to.not.throw();
     });
     it(`should fail on "{ ;  ;  "`, () => {
         expect(() => {
@@ -3365,7 +3365,7 @@ is y`);
     it('should fail on "function twiss(package) {"use strict";  }"', () => {
         expect(() => {
             parseScript('function twiss(package) {"use strict";  }');
-        }).to.not.throw('');
+        }).to.not.throw();
     });
 
     it('should fail on "() => {}()"', () => {
@@ -4495,7 +4495,7 @@ is y`);
     it('should fail on "function a(package) { "use strict"; }', () => {
         expect(() => {
             parseScript('function a(package) { "use strict"; }');
-        }).to.not.throw('');
+        }).to.not.throw();
     });
    
     it('should fail on "const a;', () => {

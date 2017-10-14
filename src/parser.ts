@@ -103,6 +103,8 @@ export class Parser {
             if (options.locations) this.flags |= Flags.OptionsLoc;
             if (options.ranges) this.flags |= Flags.OptionsRanges;
             if (options.raw) this.flags |= Flags.OptionsRaw;
+            if (options.globalReturn) this.flags |= Flags.OptionsGlobalReturn;
+            
             if (options.directives) this.flags |= Flags.OptionsDirectives;
             if (options.v8) this.flags |= Flags.OptionsV8;
     
@@ -2850,7 +2852,7 @@ export class Parser {
             const savedContext = context;
     
             if (context & (Context.Await | Context.Yield)) context &= ~(Context.Await | Context.Yield);
-    
+
             if (this.token === Token.AsyncKeyword) {
                 if (context & Context.AnnexB) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 this.expect(context, Token.AsyncKeyword);
@@ -2938,7 +2940,7 @@ export class Parser {
         private parseReturnStatement(context: Context): ESTree.ReturnStatement {
             const pos = this.startNode();
     
-            if (!(this.flags & Flags.InFunctionBody)) this.error(Errors.IllegalReturn);
+            if (!(this.flags & (Flags.InFunctionBody | Flags.OptionsGlobalReturn))) this.error(Errors.IllegalReturn);
     
             this.expect(context, Token.ReturnKeyword);
     
@@ -3699,7 +3701,7 @@ export class Parser {
             this.flags &= ~Flags.SimpleParameterList;
             while (this.token !== Token.RightParen) {
                 if (this.token === Token.Ellipsis) {
-                    this.flags |= Flags.SimpleParameterList;
+                    if (!(this.flags & Flags.SimpleParameterList)) this.flags |= Flags.SimpleParameterList;
                     result.push(this.parseRestElement(context));
                     this.parseOptional(context, Token.Comma);
                     break;
@@ -3760,7 +3762,7 @@ export class Parser {
             const isEscaped = !!(this.flags & Flags.HasUnicode);
             const id = this.parseIdentifier(context);
             const flags = this.flags;
-            this.flags |= Flags.SimpleParameterList;
+            if (!(this.flags & Flags.SimpleParameterList)) this.flags |= Flags.SimpleParameterList;
             switch (this.token) {
     
                 // 'parseAsyncFunctionExpression'
@@ -4277,7 +4279,7 @@ export class Parser {
             const pos = this.startNode();
     
             this.expect(context, Token.LeftBrace);
-            this.flags |= Flags.SimpleParameterList;
+            if (!(this.flags & Flags.SimpleParameterList)) this.flags |= Flags.SimpleParameterList;
             const properties: (ESTree.Property | ESTree.SpreadElement)[] = [];
     
             while (!this.parseOptional(context, Token.RightBrace)) {
@@ -4504,7 +4506,7 @@ export class Parser {
         private parseArrayInitializer(context: Context): ESTree.ArrayExpression {
             const pos = this.startNode();
             this.expect(context, Token.LeftBracket);
-            this.flags |= Flags.SimpleParameterList;
+            if (!(this.flags & Flags.SimpleParameterList)) this.flags |= Flags.SimpleParameterList;
             const elements = [];
     
             while (this.token !== Token.RightBracket) {

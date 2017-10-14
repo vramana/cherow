@@ -13,6 +13,7 @@ export interface Options {
     jsx?: boolean;
     flow?: boolean;
     source?: string;
+    globalReturn?: boolean;
     v8?: boolean;
 }
 

@@ -41,41 +41,169 @@ describe('Statements - Return', () => {
     }`)
             }).to.throw();
         });
-    
+
+        it('should fail on invalid use of retyrn in global scope', () => {
+            expect(() => {
+                parseScript(`return 123`)
+            }).to.throw();
+        });
+
+        it('should parse return in global scope', () => {
+            expect(parseScript('return 123', {
+                globalReturn: true
+            })).to.eql({
+                  "body": [
+                    {
+                      "argument": {
+                        "type": "Literal",
+                        "value": 123,
+                      },
+                      "type": "ReturnStatement",
+                    },
+                  ],
+                  "sourceType": "script",
+                  "type": "Program"
+                });
+        });
+
         it('should parse "(function(){ return x * y })"', () => {
-            expect(parseScript('(function(){ return x * y })')).to.eql({
+            expect(parseScript('(function(){ return x * y })', {
+                ranges: true,
+                locations: true,
+                raw: true
+            })).to.eql({
                 "type": "Program",
-                "body": [{
+                "start": 0,
+                "end": 28,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 28
+                  }
+                },
+                "body": [
+                  {
                     "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 28,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 28
+                      }
+                    },
                     "expression": {
-                        "type": "FunctionExpression",
-                        "id": null,
-                        "params": [],
-                        "body": {
-                            "type": "BlockStatement",
-                            "body": [{
-                                "type": "ReturnStatement",
-                                "argument": {
-                                    "type": "BinaryExpression",
-                                    "operator": "*",
-                                    "left": {
-                                        "type": "Identifier",
-                                        "name": "x"
-                                    },
-                                    "right": {
-                                        "type": "Identifier",
-                                        "name": "y"
-                                    }
-                                }
-                            }]
+                      "type": "FunctionExpression",
+                      "start": 1,
+                      "end": 27,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 1
                         },
-                        "generator": false,
-                        "expression": false,
-                        "async": false
+                        "end": {
+                          "line": 1,
+                          "column": 27
+                        }
+                      },
+                      "id": null,
+                      "generator": false,
+                      "expression": false,
+                      "async": false,
+                      "params": [],
+                      "body": {
+                        "type": "BlockStatement",
+                        "start": 11,
+                        "end": 27,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 11
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 27
+                          }
+                        },
+                        "body": [
+                          {
+                            "type": "ReturnStatement",
+                            "start": 13,
+                            "end": 25,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 13
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 25
+                              }
+                            },
+                            "argument": {
+                              "type": "BinaryExpression",
+                              "start": 20,
+                              "end": 25,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 20
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 25
+                                }
+                              },
+                              "left": {
+                                "type": "Identifier",
+                                "start": 20,
+                                "end": 21,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 20
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 21
+                                  }
+                                },
+                                "name": "x"
+                              },
+                              "operator": "*",
+                              "right": {
+                                "type": "Identifier",
+                                "start": 24,
+                                "end": 25,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 24
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 25
+                                  }
+                                },
+                                "name": "y"
+                              }
+                            }
+                          }
+                        ]
+                      }
                     }
-                }],
+                  }
+                ],
                 "sourceType": "script"
-            });
+              });
         });
     
         it('should parse "(function(){ return })"', () => {
