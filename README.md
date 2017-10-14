@@ -127,6 +127,14 @@ according to TC39, or they don't fail as they should according to the ECMAScript
 
 Cherow parses everything after the specs, and fails 90% after the specs (*work in progress*).
 
+## Compability with other parsers
+
+`Cherow` is compatible with other parsers, and can be used as an drop-in replacement. Only thing you have to do is to 
+replace the imported parser name with `cherow`. E.g `var require('foo').parse` should be `var require('cherow').parse`.
+
+Please *note* that the options supported my vary from parser to parser. If you are missing an option in Cherow, open an issue ticket
+and it will be implemented as long as there exist a solid reason for it.
+
 ## Performance and benchmarks
 
 The most important thing for an ECMAScript parser is performance, especially when it is a
