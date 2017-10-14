@@ -67,7 +67,7 @@ describe('Literals - RegExp', () => {
             parseScript(`var re = //;`)
         }).to.throw();
     });
-   
+      
     it('should parse IdentifierPart - "/(?:)/\u0067"', () => {
         expect(parseScript(`/(?:)/\u0067`)).to.eql({
             "body": [{

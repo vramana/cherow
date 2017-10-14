@@ -43,14 +43,15 @@ These need to be enabled with the `v8` option.
 
 ## Options
 
-* `next` - Enables `ECMAScript Next` support and let you use proposals at `stage 3` or higher such as `Import()`
-* `raw` - Enables the raw property on literal nodes (*Esprima and Acorn feature*)
 * `comments` - Enables option to collect comments. Optional; Either array or function. Works like [Acorn](https://github.com/ternjs/acorn) onComment
 * `directives` - Enables the [`ESTree`](https://github.com/estree/estree/blob/1da8e603237144f44710360f8feb7a9977e905e0/es5.md#directive) directive node.
 * `globalReturn` - Allow return statement in global scope
-* `ranges` - Enables the start and characters offsets on the AST node
-* `locations` - Enables location tracking
 * `jsx` - Enables JSX
+* `locations` - Enables location tracking
+* `next` - Enables `ECMAScript Next` support and let you use proposals at `stage 3` or higher such as `Import()`
+* `raw` - Enables the raw property on literal nodes (*Esprima and Acorn feature*)
+* `ranges` - Enables the start and characters offsets on the AST node
+* `v8` - Enables V8 experimental features
 
 ## API
 
