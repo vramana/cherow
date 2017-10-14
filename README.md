@@ -51,13 +51,16 @@ These need to be enabled with the `v8` option.
 * `next` - Enables `ECMAScript Next` support and let you use proposals at `stage 3` or higher such as `Import()`
 * `raw` - Enables the raw property on literal nodes (*Esprima and Acorn feature*)
 * `ranges` - Enables the start and characters offsets on the AST node
+* `sourceType` - Enables parsing in module code
 * `v8` - Enables V8 experimental features
 
 ## API
 
 Cherow can be used to perform syntactic analysis of JavaScript programs.
 
-**Note!** there does not exist an `sourceType: module` option for parsing module code. According the ECMAScript specs you should use either `parseScript` or `parseModule`.
+**Note!** The ECMAScript specs mentioned strictly that you should use either `parseScript` or `parseModule` for parsing in sloppy mode or module code.
+
+`parseScript` or `parseModule`.
 
 ```js
 
@@ -66,6 +69,14 @@ cherow.parseScript('const fooBar = 123;');
 
 // Parsing module code
 cherow.parseModule('const fooBar = 123;');
+
+```
+
+### Legacy
+
+```js
+// Parsing module code
+cherow.parse('const fooBar = 123;', { sourceType: 'module'});
 
 ```
 

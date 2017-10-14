@@ -61,7 +61,8 @@ export const enum Flags {
     OptionsOnToken               = 1 << 22, // ** on hold **
     OptionsV8                    = 1 << 23, // Enable / disable V8 experimental features
     OptionsFlow                  = 1 << 24, // ** on hold **
-    OptionsGlobalReturn          = 1 << 25, // Allow return statement in global scope
+    OptionsGlobalReturn          = 1 << 25, // Allow return statement in global scope,
+    OptionsSourceType            = 1 << 26, 
 
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc

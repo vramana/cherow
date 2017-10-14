@@ -104,13 +104,12 @@ export class Parser {
             if (options.ranges) this.flags |= Flags.OptionsRanges;
             if (options.raw) this.flags |= Flags.OptionsRaw;
             if (options.globalReturn) this.flags |= Flags.OptionsGlobalReturn;
-            
             if (options.directives) this.flags |= Flags.OptionsDirectives;
             if (options.v8) this.flags |= Flags.OptionsV8;
-    
+
             if (this.flags & Flags.OptionsOnComment) this.comments = options.comments;
         }
-    
+
         // 'strict' are a pre-set bitmask in 'module code',
         // so no need to check for strict directives, and the
         // 'body' are different. (thus the duplicate code path).

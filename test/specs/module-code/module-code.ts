@@ -1,8 +1,14 @@
-import { parseScript, parseModule } from '../../../src/cherow';
+import { parseScript, parseModule, parse } from '../../../src/cherow';
 import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('TC39 - Module code', () => {
+
+        it('should fail if duplicate label', () => {
+            expect(() => {
+                parse('label: { label: 0; }', { sourceType: 'module'});
+            }).to.throw();
+        });
 
         it('should fail if duplicate label', () => {
             expect(() => {

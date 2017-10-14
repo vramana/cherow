@@ -5220,15 +5220,24 @@ Parser.prototype.parseJSXChild = function parseJSXChild (context) {
     }
 };
 
-function parseModule(sourceText, options) {
-    if ( options === void 0 ) options = {};
-
-    return new Parser(sourceText, options).parseModule(2 /* Strict */ | 1 /* Module */);
-}
+// https://tc39.github.io/ecma262/#sec-scripts
 function parseScript(sourceText, options) {
     if ( options === void 0 ) options = {};
 
     return new Parser(sourceText, options).parseScript(0 /* None */);
 }
+// https://tc39.github.io/ecma262/#sec-modules
+function parseModule(sourceText, options) {
+    if ( options === void 0 ) options = {};
 
-export { parseModule, parseScript };
+    return new Parser(sourceText, options).parseModule(2 /* Strict */ | 1 /* Module */);
+}
+function parse(sourceText, options) {
+    if ( options === void 0 ) options = {};
+
+    return new Parser(sourceText, options).parseScript(options && typeof options.sourceType === 'string' && options.sourceType === 'module' ?
+        2 /* Strict */ | 1 /* Module */ :
+        0 /* None */);
+}
+
+export { parseScript, parseModule, parse };
