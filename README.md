@@ -56,9 +56,8 @@ These need to be enabled with the `v8` option.
 
 ## API
 
-Cherow can be used to perform syntactic analysis of JavaScript programs.
-
-**Note!** The ECMAScript specs mentioned strictly that you should use either `parseScript` or `parseModule` for parsing in sloppy mode or module code.
+A JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and
+both are accepted by Cherow to perform syntactic analysis of JavaScript programs.
 
 `parseScript` or `parseModule`.
 
@@ -74,7 +73,13 @@ cherow.parseModule('const fooBar = 123;');
 
 ### Legacy
 
+`ES2009` and older only accepted a single `parse` to perform syntactic analysis of JavaScript program. In Cherow we call such features for
+*Legacy* and choose to support it both for legacy reasons and the fact that many other ECMAScript parsers allow this syntax.
+
 ```js
+// Parsing script code
+cherow.parse('const fooBar = 123;');
+
 // Parsing module code
 cherow.parse('const fooBar = 123;', { sourceType: 'module'});
 
