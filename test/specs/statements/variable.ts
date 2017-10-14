@@ -143,6 +143,352 @@ describe('Statements - Variable', () => {
             }).to.not.throw();
         });
 
+        it('should parse shorthand properties named `set` as default in object destructuring', () => {
+            expect(parseScript(`var {set = defaultValue} = obj`, {
+                ranges: true,
+                raw: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "init": {
+                                    "type": "Identifier",
+                                    "name": "obj",
+                                    "start": 27,
+                                    "end": 30,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 27
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 30
+                                        }
+                                    }
+                                },
+                                "id": {
+                                    "type": "ObjectPattern",
+                                    "properties": [
+                                        {
+                                            "type": "Property",
+                                            "kind": "init",
+                                            "key": {
+                                                "type": "Identifier",
+                                                "name": "set",
+                                                "start": 5,
+                                                "end": 8,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 5
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 8
+                                                    }
+                                                }
+                                            },
+                                            "computed": false,
+                                            "value": {
+                                                "type": "AssignmentPattern",
+                                                "left": {
+                                                    "type": "Identifier",
+                                                    "name": "set",
+                                                    "start": 5,
+                                                    "end": 8,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 1,
+                                                            "column": 5
+                                                        },
+                                                        "end": {
+                                                            "line": 1,
+                                                            "column": 8
+                                                        }
+                                                    }
+                                                },
+                                                "right": {
+                                                    "type": "Identifier",
+                                                    "name": "defaultValue",
+                                                    "start": 11,
+                                                    "end": 23,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 1,
+                                                            "column": 11
+                                                        },
+                                                        "end": {
+                                                            "line": 1,
+                                                            "column": 23
+                                                        }
+                                                    }
+                                                },
+                                                "start": 5,
+                                                "end": 23,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 5
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 23
+                                                    }
+                                                }
+                                            },
+                                            "method": false,
+                                            "shorthand": true,
+                                            "start": 5,
+                                            "end": 23,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 5
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 23
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "start": 4,
+                                    "end": 24,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 4
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 24
+                                        }
+                                    }
+                                },
+                                "start": 4,
+                                "end": 30,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 30
+                                    }
+                                }
+                            }
+                        ],
+                        "kind": "var",
+                        "start": 0,
+                        "end": 30,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 30
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 30,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 30
+                    }
+                }
+            });
+        });
+
+        it('should parse shorthand properties named `get` as default in object destructuring', () => {
+            expect(parseScript(`var {get = defaultValue} = obj`, {
+                ranges: true,
+                raw: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "init": {
+                                    "type": "Identifier",
+                                    "name": "obj",
+                                    "start": 27,
+                                    "end": 30,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 27
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 30
+                                        }
+                                    }
+                                },
+                                "id": {
+                                    "type": "ObjectPattern",
+                                    "properties": [
+                                        {
+                                            "type": "Property",
+                                            "kind": "init",
+                                            "key": {
+                                                "type": "Identifier",
+                                                "name": "get",
+                                                "start": 5,
+                                                "end": 8,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 5
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 8
+                                                    }
+                                                }
+                                            },
+                                            "computed": false,
+                                            "value": {
+                                                "type": "AssignmentPattern",
+                                                "left": {
+                                                    "type": "Identifier",
+                                                    "name": "get",
+                                                    "start": 5,
+                                                    "end": 8,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 1,
+                                                            "column": 5
+                                                        },
+                                                        "end": {
+                                                            "line": 1,
+                                                            "column": 8
+                                                        }
+                                                    }
+                                                },
+                                                "right": {
+                                                    "type": "Identifier",
+                                                    "name": "defaultValue",
+                                                    "start": 11,
+                                                    "end": 23,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 1,
+                                                            "column": 11
+                                                        },
+                                                        "end": {
+                                                            "line": 1,
+                                                            "column": 23
+                                                        }
+                                                    }
+                                                },
+                                                "start": 5,
+                                                "end": 23,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 5
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 23
+                                                    }
+                                                }
+                                            },
+                                            "method": false,
+                                            "shorthand": true,
+                                            "start": 5,
+                                            "end": 23,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 5
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 23
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "start": 4,
+                                    "end": 24,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 4
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 24
+                                        }
+                                    }
+                                },
+                                "start": 4,
+                                "end": 30,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 30
+                                    }
+                                }
+                            }
+                        ],
+                        "kind": "var",
+                        "start": 0,
+                        "end": 30,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 30
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 30,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 30
+                    }
+                }
+            });
+        });
+
         it('should parse object pattern inside array rest element', () => {
             expect(parseScript(`var [ ...{length} ] = foo;
             [ ...{length} ] = foo;`, {

@@ -1411,9 +1411,9 @@ is y`);
             parseScript(`{`)
         }).to.throw();
     });
-    it(`should fail on "function twiss() { 'use strict'; 021; }"`, () => {
+    it(`should fail on "function foo() { 'use strict'; 021; }"`, () => {
         expect(() => {
-            parseScript(`function twiss() { 'use strict'; 021; }`)
+            parseScript(`function foo() { 'use strict'; 021; }`)
         }).to.throw();
     });
     it(`should fail on "() ? 42"`, () => {
@@ -1733,49 +1733,49 @@ is y`);
             parseScript(`switch (x) { default: continue; }`)
         }).to.throw();
     });
-    it(`should fail on "function twiss() {'use strict'; var arguments = 10; }"`, () => {
+    it(`should fail on "function foo() {'use strict'; var arguments = 10; }"`, () => {
         expect(() => {
-            parseScript(`function twiss() {'use strict'; var arguments = 10; }`)
+            parseScript(`function foo() {'use strict'; var arguments = 10; }`)
         }).to.throw();
     });
-    it(`should fail on "function twiss() {'use strict'; try { } catch (eval) { } }"`, () => {
+    it(`should fail on "function foo() {'use strict'; try { } catch (eval) { } }"`, () => {
         expect(() => {
-            parseScript(`function twiss() {'use strict'; try { } catch (eval) { } }`)
+            parseScript(`function foo() {'use strict'; try { } catch (eval) { } }`)
         }).to.throw();
     });
-    it(`should fail on "function twiss() {'use strict'; try { } catch (arguments) { } }"`, () => {
+    it(`should fail on "function foo() {'use strict'; try { } catch (arguments) { } }"`, () => {
         expect(() => {
-            parseScript(`function twiss() {'use strict'; try { } catch (arguments) { } }`)
+            parseScript(`function foo() {'use strict'; try { } catch (arguments) { } }`)
         }).to.throw();
     });
-    it(`should fail on "function twiss() {'use strict'; eval = 10; }"`, () => {
+    it(`should fail on "function foo() {'use strict'; eval = 10; }"`, () => {
         expect(() => {
-            parseScript(`function twiss() {'use strict'; eval = 10; }`)
+            parseScript(`function foo() {'use strict'; eval = 10; }`)
         }).to.throw();
     });
-    it(`should fail on "function twiss() {'use strict'; ++eval; }"`, () => {
+    it(`should fail on "function foo() {'use strict'; ++eval; }"`, () => {
         expect(() => {
-            parseScript(`function twiss() {'use strict'; ++eval; }`)
+            parseScript(`function foo() {'use strict'; ++eval; }`)
         }).to.throw();
     });
-    it(`should fail on "function twiss() {'use strict'; eval++; }"`, () => {
+    it(`should fail on "function foo() {'use strict'; eval++; }"`, () => {
         expect(() => {
-            parseScript(`function twiss() {'use strict'; eval++; }`)
+            parseScript(`function foo() {'use strict'; eval++; }`)
         }).to.throw();
     });
-    it(`should fail on "function twiss() {'use strict'; function eval() { } }"`, () => {
+    it(`should fail on "function foo() {'use strict'; function eval() { } }"`, () => {
         expect(() => {
-            parseScript(`function twiss() {'use strict'; function eval() { } }`)
+            parseScript(`function foo() {'use strict'; function eval() { } }`)
         }).to.throw();
     });
-    it(`should fail on "function twiss() {'use strict'; function arguments() { } }"`, () => {
+    it(`should fail on "function foo() {'use strict'; function arguments() { } }"`, () => {
         expect(() => {
-            parseScript(`function twiss() {'use strict'; function arguments() { } }`)
+            parseScript(`function foo() {'use strict'; function arguments() { } }`)
         }).to.throw();
     });
-    it(`should fail on "function twiss() {'use strict'; (function eval() { }()) }"`, () => {
+    it(`should fail on "function foo() {'use strict'; (function eval() { }()) }"`, () => {
         expect(() => {
-            parseScript(`function twiss() {'use strict'; (function eval() { }()) }`)
+            parseScript(`function foo() {'use strict'; (function eval() { }()) }`)
         }).to.throw();
     });
     it(`should fail on "(function package() {'use strict'; })()"`, () => {
@@ -1783,21 +1783,21 @@ is y`);
             parseModule(`(function package() {'use strict'; })()`)
         }).to.throw();
     });
-    it(`should fail on "function twiss() {'use strict'; ({ s: function s(eval) { } }); }"`, () => {
+    it(`should fail on "function foo() {'use strict'; ({ s: function s(eval) { } }); }"`, () => {
         expect(() => {
-            parseScript(`function twiss() {'use strict'; ({ s: function s(eval) { } }); }`)
+            parseScript(`function foo() {'use strict'; ({ s: function s(eval) { } }); }`)
         }).to.throw();
     });
 
 
-    it(`should fail on "function twiss() { "use strict"; var private; }"`, () => {
+    it(`should fail on "function foo() { "use strict"; var private; }"`, () => {
         expect(() => {
-            parseScript(`function twiss() { "use strict"; var private; }`)
+            parseScript(`function foo() { "use strict"; var private; }`)
         }).to.throw();
     });
-    it(`should fail on "function twiss() { "use strict"; var protected; }"`, () => {
+    it(`should fail on "function foo() { "use strict"; var protected; }"`, () => {
         expect(() => {
-            parseScript(`function twiss() { "use strict"; var protected; }`)
+            parseScript(`function foo() { "use strict"; var protected; }`)
         }).to.throw();
     });
     it(`should fail on "function eval(a) { "use strict"; }"`, () => {
@@ -2592,9 +2592,9 @@ is y`);
             parseScript(' for(a in b) function c(){}');
         }).to.throw();
     });
-    it('should fail on "function twiss() { "use strict"; ({ "\\1": 42 }); }"', () => {
+    it('should fail on "function foo() { "use strict"; ({ "\\1": 42 }); }"', () => {
         expect(() => {
-            parseScript('function twiss() { "use strict"; ({ "\\1": 42 }); }');
+            parseScript('function foo() { "use strict"; ({ "\\1": 42 }); }');
         }).to.throw();
     });
     it('should fail on "({ *a: 0 })"', () => {
@@ -2727,9 +2727,9 @@ is y`);
             parseModule('import {a as function} from "a";');
         }).to.throw();
     });
-    it('should fail on "function twiss() { "use strict"; function inner() { "octal directive\\1"; } }"', () => {
+    it('should fail on "function foo() { "use strict"; function inner() { "octal directive\\1"; } }"', () => {
         expect(() => {
-            parseScript('function twiss() { "use strict"; function inner() { "octal directive\\1"; } }');
+            parseScript('function foo() { "use strict"; function inner() { "octal directive\\1"; } }');
         }).to.throw();
     });
     it('should fail on "class A {static static static(){}}"', () => {
@@ -3302,69 +3302,69 @@ is y`);
         }).to.throw();
     });
 
-    it('should fail on "function twiss() {"use strict"; var eval = 10;"', () => {
+    it('should fail on "function foo() {"use strict"; var eval = 10;"', () => {
         expect(() => {
-            parseScript('function twiss() {"use strict"; var eval = 10;');
+            parseScript('function foo() {"use strict"; var eval = 10;');
         }).to.throw();
     });
 
-    it('should fail on "function twiss() {"use strict"; try { } catch (eval) { } }"', () => {
+    it('should fail on "function foo() {"use strict"; try { } catch (eval) { } }"', () => {
         expect(() => {
-            parseScript('function twiss() {"use strict"; try { } catch (eval) { } }');
+            parseScript('function foo() {"use strict"; try { } catch (eval) { } }');
         }).to.throw();
     });
 
-    it('should fail on "function twiss() {"use strict"; arguments++; }"', () => {
+    it('should fail on "function foo() {"use strict"; arguments++; }"', () => {
         expect(() => {
-            parseScript('function twiss() {"use strict"; arguments++; }');
+            parseScript('function foo() {"use strict"; arguments++; }');
         }).to.throw();
     });
 
-    it('should fail on "function twiss() {"use strict"; function eval() { } }"', () => {
+    it('should fail on "function foo() {"use strict"; function eval() { } }"', () => {
         expect(() => {
-            parseScript('function twiss() {"use strict"; function eval() { } }');
+            parseScript('function foo() {"use strict"; function eval() { } }');
         }).to.throw();
     });
 
-    it('should fail on "function twiss() {"use strict"; ({ s: function eval() { } }); }"', () => {
+    it('should fail on "function foo() {"use strict"; ({ s: function eval() { } }); }"', () => {
         expect(() => {
-            parseScript('function twiss() {"use strict"; ({ s: function eval() { } }); }');
+            parseScript('function foo() {"use strict"; ({ s: function eval() { } }); }');
         }).to.throw();
     });
 
-    it('should fail on "function twiss() {"use strict"; ({ s: function eval() { } }); }"', () => {
+    it('should fail on "function foo() {"use strict"; ({ s: function eval() { } }); }"', () => {
         expect(() => {
-            parseScript('function twiss() {"use strict"; ({ s: function eval() { } }); }');
+            parseScript('function foo() {"use strict"; ({ s: function eval() { } }); }');
         }).to.throw();
     });
 
-    it('should fail on "function twiss() {"use strict"; ({ i: 10, set s(eval) { } }); }"', () => {
+    it('should fail on "function foo() {"use strict"; ({ i: 10, set s(eval) { } }); }"', () => {
         expect(() => {
-            parseScript('function twiss() {"use strict"; ({ i: 10, set s(eval) { } }); }');
+            parseScript('function foo() {"use strict"; ({ i: 10, set s(eval) { } }); }');
         }).to.throw();
     });
 
-    it('should fail on "function twiss() {"use strict"; ({ i: 10, set s(eval) { } }); }"', () => {
+    it('should fail on "function foo() {"use strict"; ({ i: 10, set s(eval) { } }); }"', () => {
         expect(() => {
-            parseScript('function twiss() {"use strict"; ({ i: 10, set s(eval) { } }); }');
+            parseScript('function foo() {"use strict"; ({ i: 10, set s(eval) { } }); }');
         }).to.throw();
     });
 
-    it('should fail on "function twiss() {"use strict"; ({ s: function s(eval) { } }); }"', () => {
+    it('should fail on "function foo() {"use strict"; ({ s: function s(eval) { } }); }"', () => {
         expect(() => {
-            parseScript('function twiss() {"use strict"; ({ s: function s(eval) { } }); }');
+            parseScript('function foo() {"use strict"; ({ s: function s(eval) { } }); }');
         }).to.throw();
     });
 
-    it('should fail on "function twiss(eval) {"use strict";  }"', () => {
+    it('should fail on "function foo(eval) {"use strict";  }"', () => {
         expect(() => {
-            parseScript('function twiss(eval) {"use strict";  }');
+            parseScript('function foo(eval) {"use strict";  }');
         }).to.throw();
     });
 
-    it('should fail on "function twiss(package) {"use strict";  }"', () => {
+    it('should fail on "function foo(package) {"use strict";  }"', () => {
         expect(() => {
-            parseScript('function twiss(package) {"use strict";  }');
+            parseScript('function foo(package) {"use strict";  }');
         }).to.not.throw();
     });
 

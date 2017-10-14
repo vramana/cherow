@@ -937,7 +937,115 @@ describe('Miscellaneous - AnnexB semantics', () => {
                 parseScript('"use strict"; if (x) function f() {}')
             }).to.throw();
         });
-      
+
+        it('should parse "if (x) function f() {}"', () => {
+          expect(parseScript('if (x) function f() {}', {
+              ranges: true,
+              raw: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 22,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 22
+              }
+            },
+            "body": [
+              {
+                "type": "IfStatement",
+                "start": 0,
+                "end": 22,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 22
+                  }
+                },
+                "test": {
+                  "type": "Identifier",
+                  "start": 4,
+                  "end": 5,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 4
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 5
+                    }
+                  },
+                  "name": "x"
+                },
+                "consequent": {
+                  "type": "FunctionDeclaration",
+                  "start": 7,
+                  "end": 22,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 7
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 22
+                    }
+                  },
+                  "id": {
+                    "type": "Identifier",
+                    "start": 16,
+                    "end": 17,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 16
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 17
+                      }
+                    },
+                    "name": "f"
+                  },
+                  "generator": false,
+                  "expression": false,
+                  "async": false,
+                  "params": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "start": 20,
+                    "end": 22,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 20
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 22
+                      }
+                    },
+                    "body": []
+                  }
+                },
+                "alternate": null
+              }
+            ],
+            "sourceType": "script"
+          });
+        });
+
         it('should skip early error in if statement no else for statement', () => {
           expect(parseScript('for (let f; ; ) { if (true) function f() {  } break; }', {
               ranges: true,

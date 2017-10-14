@@ -24,7 +24,7 @@ describe('Miscellaneous - Simple parameter list', () => {
     it('should fail on array pattern default', () => {
         expect(() => {
             parseScript('function foo({a}) { "use strict"; }');
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on array pattern default', () => {
         expect(() => {
@@ -35,7 +35,7 @@ describe('Miscellaneous - Simple parameter list', () => {
     it('should fail on array pattern', () => {
         expect(() => {
             parseScript('function a([ option1, option2 ]) { "use strict"; }');
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on arrow function', () => {
         expect(() => {
@@ -64,7 +64,7 @@ describe('Miscellaneous - Simple parameter list', () => {
     it('should fail on object pattern', () => {
         expect(() => {
             parseScript('function a({ option1, option2 }) { "use strict"; }');
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on rest', () => {
         expect(() => {
@@ -85,7 +85,7 @@ describe('Miscellaneous - Simple parameter list', () => {
     it('should fail on array pattern', () => {
         expect(() => {
             parseScript('function a([ option1, option2 ]) { "use strict"; }');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should parse async arrow function concise body', () => {

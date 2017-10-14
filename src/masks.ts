@@ -96,6 +96,7 @@ export const enum ParenthesizedState {
     Yield           = 1 << 1, // If (async) arrow contains eval or agruments
     Await           = 1 << 2, // If async arrow contains 'await'
     Parenthesized   = 1 << 3, // Tracks invalid parenthesized pattern
+    Trailing        = 1 << 4, // Tracks trailing commas
 }
 
 // Flags used by both object expression and class decl / expr

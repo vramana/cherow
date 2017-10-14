@@ -20,7 +20,7 @@ describe('Declarations - Functions', () => {
   it('should fail on "function a([], []) {"use strict";}\n', () => {
     expect(() => {
         parseScript('function a([], []) {"use strict";}\n');
-    }).to.not.throw();
+    }).to.throw();
 });
 
 it('should fail on ""use strict" function eval() {"use strict"; }"', () => {
@@ -28,6 +28,7 @@ it('should fail on ""use strict" function eval() {"use strict"; }"', () => {
       parseScript('"use strict" function eval() {"use strict"; }');
   }).to.throw();
 });
+
 
     it('should fail on ""use strict"; function eval() {  }function eval() {  }"', () => {
         expect(() => {
@@ -87,6 +88,12 @@ it('should fail on ""use strict" function eval() {"use strict"; }"', () => {
         expect(() => {
             parseScript('function foo() { "use strict"; return {yield} }');
         }).to.throw('');
+    });
+
+    it('should fail on "function foo({a}) { "use strict"; }"', () => {
+      expect(() => {
+          parseScript('function foo({a}) { "use strict"; }');
+      }).to.throw('');
     });
 
     it('should fail if FormalParameters contains any duplicate element', () => {
@@ -254,6 +261,193 @@ it('should fail on ""use strict" function eval() {"use strict"; }"', () => {
                 }
               },
               "body": []
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+
+    it('should parse two function decl on top-level with same name', () => {
+      expect(parseScript(`function foo(a) { "use strict"; }`, {
+          ranges: true,
+          locations: true,
+          raw: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 33,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 33
+          }
+        },
+        "body": [
+          {
+            "type": "FunctionDeclaration",
+            "start": 0,
+            "end": 33,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 33
+              }
+            },
+            "id": {
+              "type": "Identifier",
+              "start": 9,
+              "end": 12,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 9
+                },
+                "end": {
+                  "line": 1,
+                  "column": 12
+                }
+              },
+              "name": "foo"
+            },
+            "generator": false,
+            "expression": false,
+            "async": false,
+            "params": [
+              {
+                "type": "Identifier",
+                "start": 13,
+                "end": 14,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 13
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 14
+                  }
+                },
+                "name": "a"
+              }
+            ],
+            "body": {
+              "type": "BlockStatement",
+              "start": 16,
+              "end": 33,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 16
+                },
+                "end": {
+                  "line": 1,
+                  "column": 33
+                }
+              },
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "start": 18,
+                  "end": 31,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 18
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 31
+                    }
+                  },
+                  "expression": {
+                    "type": "Literal",
+                    "start": 18,
+                    "end": 30,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 18
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 30
+                      }
+                    },
+                    "value": "use strict",
+                    "raw": "\"use strict\""
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+    
+    it('should parse function decl with numeric literal and "use strict" directive prologue', () => {
+      expect(parseScript(`function test() {'use strict'; 0O0; }`, {
+          ranges: true,
+          locations: false,
+          raw: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 37,
+        "body": [
+          {
+            "type": "FunctionDeclaration",
+            "start": 0,
+            "end": 37,
+            "id": {
+              "type": "Identifier",
+              "start": 9,
+              "end": 13,
+              "name": "test"
+            },
+            "generator": false,
+            "expression": false,
+            "async": false,
+            "params": [],
+            "body": {
+              "type": "BlockStatement",
+              "start": 16,
+              "end": 37,
+              "body": [
+                {
+                  "type": "ExpressionStatement",
+                  "start": 17,
+                  "end": 30,
+                  "expression": {
+                    "type": "Literal",
+                    "start": 17,
+                    "end": 29,
+                    "value": "use strict",
+                    "raw": "'use strict'"
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "start": 31,
+                  "end": 35,
+                  "expression": {
+                    "type": "Literal",
+                    "start": 31,
+                    "end": 34,
+                    "value": 0,
+                    "raw": "0O0"
+                  }
+                }
+              ]
             }
           }
         ],

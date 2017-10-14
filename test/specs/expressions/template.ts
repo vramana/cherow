@@ -1927,6 +1927,134 @@ describe('Espressions - Template', () => {
         });
     });
 
+
+    it('should parse if statement plus double braces', () => {
+        expect(parseScript('`outer${{x: {y: 10}}}bar${`nested${function(){return 1;}}endnest`}end`', {
+            locations: false,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "TemplateLiteral",
+                  "expressions": [
+                    {
+                      "type": "ObjectExpression",
+                      "properties": [
+                        {
+                          "type": "Property",
+                          "method": false,
+                          "shorthand": false,
+                          "computed": false,
+                          "key": {
+                            "type": "Identifier",
+                            "name": "x"
+                          },
+                          "value": {
+                            "type": "ObjectExpression",
+                            "properties": [
+                              {
+                                "type": "Property",
+                                "method": false,
+                                "shorthand": false,
+                                "computed": false,
+                                "key": {
+                                  "type": "Identifier",
+                                  "name": "y"
+                                },
+                                "value": {
+                                  "type": "Literal",
+                                  "value": 10,
+                                  "raw": "10"
+                                },
+                                "kind": "init"
+                              }
+                            ]
+                          },
+                          "kind": "init"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TemplateLiteral",
+                      "expressions": [
+                        {
+                          "type": "FunctionExpression",
+                          "id": null,
+                          "generator": false,
+                          "expression": false,
+                          "async": false,
+                          "params": [],
+                          "body": {
+                            "type": "BlockStatement",
+                            "body": [
+                              {
+                                "type": "ReturnStatement",
+                                "argument": {
+                                  "type": "Literal",
+                                  "value": 1,
+                                  "raw": "1"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "quasis": [
+                        {
+                          "type": "TemplateElement",
+                          "value": {
+                            "raw": "nested",
+                            "cooked": "nested"
+                          },
+                          "tail": false
+                        },
+                        {
+                          "type": "TemplateElement",
+                          "value": {
+                            "raw": "endnest",
+                            "cooked": "endnest"
+                          },
+                          "tail": true
+                        }
+                      ]
+                    }
+                  ],
+                  "quasis": [
+                    {
+                      "type": "TemplateElement",
+                      "value": {
+                        "raw": "outer",
+                        "cooked": "outer"
+                      },
+                      "tail": false
+                    },
+                    {
+                      "type": "TemplateElement",
+                      "value": {
+                        "raw": "bar",
+                        "cooked": "bar"
+                      },
+                      "tail": false
+                    },
+                    {
+                      "type": "TemplateElement",
+                      "value": {
+                        "raw": "end",
+                        "cooked": "end"
+                      },
+                      "tail": true
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
     it('should parse if statement plus double braces', () => {
         expect(parseScript('if(a) { (`${b}`) }', {
             locations: false,

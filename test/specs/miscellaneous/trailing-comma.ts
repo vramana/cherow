@@ -71,6 +71,188 @@ describe('Miscellaneous - Trailing comma', () => {
         }).to.throw();
     });
 
+    it('should fail on invalid export default', () => {
+        expect(() => {
+            parseModule('export default (function foo(,) { })');
+        }).to.throw();
+    });
+    
+    it('should fail on if comma after rest element', () => {
+        expect(() => {
+            parseScript('function foo(...a,) { }');
+        }).to.throw();
+    });
+
+    it('should fail on invalid comma after rest element in func param list', () => {
+        expect(() => {
+            parseScript('(function(...a,) { })');
+        }).to.throw();
+    });
+
+    it('should fail on invalid comma after rest element in arrow param list', () => {
+        expect(() => {
+            parseScript('(...a,) => a');
+        }).to.throw();
+    });
+
+    it('should fail on invalid comma after rest element in arrow param list', () => {
+        expect(() => {
+            parseScript('async (...a,) => a');
+        }).to.throw();
+    });
+
+    it('should fail on invalid trailing comma in class method', () => {
+        expect(() => {
+            parseScript('class A {foo(...a,) {}}');
+        }).to.throw();
+    });
+
+    it('should fail on invalid trailing comma in export default with function declaration', () => {
+        expect(() => {
+            parseModule('export default function foo(...a,) { }');
+        }).to.throw();
+    });
+
+    it('should fail on invalid trailing comma in export default with function expression', () => {
+        expect(() => {
+            parseModule('export default (function foo(...a,) { })');
+        }).to.throw();
+    });
+
+    it('should fail on invalid empty comma in function param list', () => {
+        expect(() => {
+            parseScript('function foo(,) { }');
+        }).to.throw();
+    });
+
+    it('should fail on invalid empty comma in arrow param list', () => {
+        expect(() => {
+            parseScript('(,) => a');
+        }).to.throw();
+    });
+
+    it('should fail on invalid empty comma in class static method', () => {
+        expect(() => {
+            parseScript('class A {static foo(,) {}}');
+        }).to.throw();
+    });
+
+    it('should fail on invalid empty comma in export default', () => {
+        expect(() => {
+            parseModule('export default function foo(,) { }');
+        }).to.throw();
+    });
+
+    it('should disallow in parens without arrow', () => {
+        expect(() => {
+            parseModule('(a,)');
+        }).to.throw();
+    });
+
+    it('should parse async + call expression with trailing comma', () => {
+        expect(parseScript(`async (...a,)`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 13,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 13
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 13,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 13
+                  }
+                },
+                "expression": {
+                  "type": "CallExpression",
+                  "start": 0,
+                  "end": 13,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 13
+                    }
+                  },
+                  "callee": {
+                    "type": "Identifier",
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 5
+                      }
+                    },
+                    "name": "async"
+                  },
+                  "arguments": [
+                    {
+                      "type": "SpreadElement",
+                      "start": 7,
+                      "end": 11,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 7
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 11
+                        }
+                      },
+                      "argument": {
+                        "type": "Identifier",
+                        "start": 10,
+                        "end": 11,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 10
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 11
+                          }
+                        },
+                        "name": "a"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
     it('should parse trailing comma object expression', () => {
         expect(parseScript(`({foo(a,) {}})`, {
             ranges: true,
@@ -789,6 +971,114 @@ describe('Miscellaneous - Trailing comma', () => {
     });
 
     it('should parse trailing comma export default', () => {
+        expect(parseModule(`export default (function foo(a,) { })`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 37,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 37
+              }
+            },
+            "body": [
+              {
+                "type": "ExportDefaultDeclaration",
+                "start": 0,
+                "end": 37,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 37
+                  }
+                },
+                "declaration": {
+                  "type": "FunctionExpression",
+                  "start": 16,
+                  "end": 36,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 16
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 36
+                    }
+                  },
+                  "id": {
+                    "type": "Identifier",
+                    "start": 25,
+                    "end": 28,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 25
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 28
+                      }
+                    },
+                    "name": "foo"
+                  },
+                  "generator": false,
+                  "expression": false,
+                  "async": false,
+                  "params": [
+                    {
+                      "type": "Identifier",
+                      "start": 29,
+                      "end": 30,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 29
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 30
+                        }
+                      },
+                      "name": "a"
+                    }
+                  ],
+                  "body": {
+                    "type": "BlockStatement",
+                    "start": 33,
+                    "end": 36,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 33
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 36
+                      }
+                    },
+                    "body": []
+                  }
+                }
+              }
+            ],
+            "sourceType": "module"
+          });
+    });
+
+    it('should parse trailing comma export default', () => {
         expect(parseModule(`export default function foo(a,) { }`, {
             ranges: true,
             raw: true
@@ -1093,6 +1383,167 @@ describe('Miscellaneous - Trailing comma', () => {
         });
     });
 
+    it('should parse var destructed array literal', () => {
+        expect(parseScript('class A {static foo(a,) {}}', {
+            locations: true,
+            ranges: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 27,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 27
+              }
+            },
+            "body": [
+              {
+                "type": "ClassDeclaration",
+                "start": 0,
+                "end": 27,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 27
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 6,
+                  "end": 7,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 6
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 7
+                    }
+                  },
+                  "name": "A"
+                },
+                "superClass": null,
+                "body": {
+                  "type": "ClassBody",
+                  "start": 8,
+                  "end": 27,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 8
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 27
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "MethodDefinition",
+                      "start": 9,
+                      "end": 26,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 9
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 26
+                        }
+                      },
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 16,
+                        "end": 19,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 16
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 19
+                          }
+                        },
+                        "name": "foo"
+                      },
+                      "static": true,
+                      "kind": "method",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 19,
+                        "end": 26,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 19
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 26
+                          }
+                        },
+                        "id": null,
+                        "generator": false,
+                        "expression": false,
+                        "async": false,
+                        "params": [
+                          {
+                            "type": "Identifier",
+                            "start": 20,
+                            "end": 21,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 20
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 21
+                              }
+                            },
+                            "name": "a"
+                          }
+                        ],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 24,
+                          "end": 26,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 24
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 26
+                            }
+                          },
+                          "body": []
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+    
     it('should parse var destructed array literal', () => {
         expect(parseScript('var [a, ...[b, c]] = d;')).to.eql({
             "type": "Program",

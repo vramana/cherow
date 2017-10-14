@@ -323,7 +323,7 @@ describe('Miscellaneous - Directive prologue', () => {
           });
     });
 
-    it('should parse "scans a single "use\\x20strict"""', () => {
+    it('should parse "use\\x20strict""', () => {
         expect(parseScript('"use\\x20strict"', {
             locations: false,
             raw: true,

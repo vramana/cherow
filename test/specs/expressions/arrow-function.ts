@@ -104,6 +104,24 @@ describe('Expressions - Arrow function', () => {
             }).to.throw()
         });
     
+        it('should fail if arrow parameter followed by call expression', () => {
+            expect(() => {
+                parseScript(`() => {}()`);
+            }).to.throw()
+        });
+
+        it('should fail if arrow parameter with identifier followed by call expression', () => {
+            expect(() => {
+                parseScript(`(a) => {}()`);
+            }).to.throw()
+        });
+
+        it('should fail if simple arrow are followed by call expression', () => {
+            expect(() => {
+                parseScript(`a => {}()`);
+            }).to.throw()
+        });
+
         it('should fail if arrow parameter contains eval (strict)', () => {
             expect(() => {
                 parseScript(`"use strict"; foo = (arguments) => 1;`);
@@ -134,6 +152,231 @@ describe('Expressions - Arrow function', () => {
             }).to.throw()
         });
 
+        it('should fail on "use strict" directive in function with non-simple parameter list', () => {
+            expect(() => {
+                parseScript('({a}) => { "use strict"; }');
+            }).to.throw();
+          });
+          
+
+          it('should parse arrow function wrapped in paren followed by call expression', () => {
+            expect(parseScript(`(() => {})()`, {
+                ranges: true,
+                locations: true,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 12,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 12
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 12,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 12
+                      }
+                    },
+                    "expression": {
+                      "type": "CallExpression",
+                      "start": 0,
+                      "end": 12,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 12
+                        }
+                      },
+                      "callee": {
+                        "type": "ArrowFunctionExpression",
+                        "start": 1,
+                        "end": 9,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 1
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 9
+                          }
+                        },
+                        "id": null,
+                        "generator": false,
+                        "expression": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 7,
+                          "end": 9,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 7
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 9
+                            }
+                          },
+                          "body": []
+                        }
+                      },
+                      "arguments": []
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+          it('should parse arrow function with a function call (parenthesized) ', () => {
+            expect(parseScript(`([a, , b]) => 42`, {
+                ranges: true,
+                locations: true,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 16,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 16
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "expression": {
+                      "type": "ArrowFunctionExpression",
+                      "start": 0,
+                      "end": 16,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 16
+                        }
+                      },
+                      "id": null,
+                      "generator": false,
+                      "expression": true,
+                      "async": false,
+                      "params": [
+                        {
+                          "type": "ArrayPattern",
+                          "start": 1,
+                          "end": 9,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 1
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 9
+                            }
+                          },
+                          "elements": [
+                            {
+                              "type": "Identifier",
+                              "start": 2,
+                              "end": 3,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 2
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 3
+                                }
+                              },
+                              "name": "a"
+                            },
+                            null,
+                            {
+                              "type": "Identifier",
+                              "start": 7,
+                              "end": 8,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 7
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 8
+                                }
+                              },
+                              "name": "b"
+                            }
+                          ]
+                        }
+                      ],
+                      "body": {
+                        "type": "Literal",
+                        "start": 14,
+                        "end": 16,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 14
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 16
+                          }
+                        },
+                        "value": 42,
+                        "raw": "42"
+                      }
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+            });            
         it('should parse arrow function with a function call (parenthesized) ', () => {
             expect(parseScript(`(a => b.test())`, {
                 ranges: true,

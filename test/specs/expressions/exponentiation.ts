@@ -47,6 +47,17 @@ describe('Espressions - Exponentiation', () => {
         }).to.throw();
     });
 
+    it('should fail on invalid subtract unary expression', () => {
+      expect(() => {
+          parseScript(`-2** 2;`)
+      }).to.throw();
+    });
+
+    it('should fail on invalid additive unary expression', () => {
+      expect(() => {
+          parseScript(`+2** 2;`)
+      }).to.throw();
+    });
 
     it('should fail on invalid logical not unary expression', () => {
       expect(() => {
@@ -124,6 +135,130 @@ describe('Espressions - Exponentiation', () => {
         expect(() => {
             parseScript(`~x ** y`)
         }).to.throw();
+    });
+
+
+    it('should parse ** as highest precedence', () => {
+      expect(parseScript('3 ** 5 * 1', {
+          raw: true,
+          ranges: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 10,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 10
+          }
+        },
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 10,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 10
+              }
+            },
+            "expression": {
+              "type": "BinaryExpression",
+              "start": 0,
+              "end": 10,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 10
+                }
+              },
+              "left": {
+                "type": "BinaryExpression",
+                "start": 0,
+                "end": 6,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 6
+                  }
+                },
+                "left": {
+                  "type": "Literal",
+                  "start": 0,
+                  "end": 1,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1
+                    }
+                  },
+                  "value": 3,
+                  "raw": "3"
+                },
+                "operator": "**",
+                "right": {
+                  "type": "Literal",
+                  "start": 5,
+                  "end": 6,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 5
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 6
+                    }
+                  },
+                  "value": 5,
+                  "raw": "5"
+                }
+              },
+              "operator": "*",
+              "right": {
+                "type": "Literal",
+                "start": 9,
+                "end": 10,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 9
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 10
+                  }
+                },
+                "value": 1,
+                "raw": "1"
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
     });
 
     it('should parse exponent operator - "2 ** (3 ** 2)"', () => {
