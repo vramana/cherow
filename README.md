@@ -59,8 +59,6 @@ These need to be enabled with the `v8` option.
 A JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and
 both are accepted by Cherow to perform syntactic analysis of JavaScript programs.
 
-`parseScript` or `parseModule`.
-
 ```js
 
 // Parsing script
