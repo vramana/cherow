@@ -135,6 +135,8 @@ replace the imported parser name with `cherow`. E.g `var require('foo').parse` s
 Please *note* that the options supported my vary from parser to parser. If you are missing an option in Cherow, open an issue ticket
 and it will be implemented as long as there exist a solid reason for it.
 
+Also not that both `Babylon` and `ShiftJS` isn't ESTree compatible. However. `Babylon` supports ESTree through a plugin.
+
 ## Performance and benchmarks
 
 The most important thing for an ECMAScript parser is performance, especially when it is a
