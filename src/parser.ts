@@ -2847,9 +2847,6 @@ export class Parser {
                 if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
     
                 context |= Context.Await;
-    
-                // 'await' is forbidden only in async function bodies (but not in child functions) and module code.
-                if (!(this.flags & Flags.InFunctionBody)) context |= Context.AsyncFunctionBody;
             }
     
             this.expect(context, Token.FunctionKeyword);
@@ -2884,11 +2881,15 @@ export class Parser {
                 if (context & Context.Strict) {
                     if (this.isEvalOrArguments(name)) this.error(Errors.UnexpectedStrictReserved);
                 }
-    
-                if (context & Context.AsyncFunctionBody) {
+
+                // 'await' is forbidden only in async function bodies (but not in child functions) and module code.
+                if (!(this.flags & Flags.InFunctionBody)) {
+                    context |= Context.AsyncFunctionBody;
+                } else if (context & Context.AsyncFunctionBody) {
                     if (this.token === Token.AwaitKeyword) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                     if (!(context & Context.Await)) context &= ~Context.AsyncFunctionBody;
                 }
+
                 if (context & Context.Statement && !(context & Context.AnnexB)) {
                     if (!this.initBlockScope() && (
                             this.blockScope !== this.functionScope && this.blockScope[name] ||
@@ -3164,9 +3165,14 @@ export class Parser {
                 } else if (!isValidSimpleAssignmentTarget(expr)) {
                     this.error(Errors.InvalidLHSInAssignment);
                 }
-    
+                
                 this.nextToken(context);
-    
+
+                // Invalid: 'async(a=await)=>12'. 
+                if (context & Context.InAsyncParameterList && !(this.flags & Flags.HaveSeenAwait) && this.token === Token.AwaitKeyword) {
+                    this.errorLocation = this.getLocations();
+                    this.flags |= Flags.HaveSeenAwait;
+                }
                 const right = this.parseAssignmentExpression(context);
     
                 return this.finishNode(pos, {
@@ -3183,7 +3189,7 @@ export class Parser {
     
             switch (params.type) {
                 case 'Identifier':
-                    if (context & Context.ArrowParameterList) {
+                    if (context & Context.InArrowParameterList) {
                         if (context & Context.Await) {
                             // Duplicate param validation are only done in "struct mode" for
                             // async arrow functions
@@ -3218,7 +3224,7 @@ export class Parser {
                     return;
     
                 case 'AssignmentExpression':
-                    if (params.operator !== '=') this.error(Errors.UnexpectedToken, params.type);
+                    if (!(context & Context.InArrowParameterList) && params.operator !== '=') this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                     params.type = 'AssignmentPattern';
                     delete params.operator;
                     // Fall through
@@ -3239,16 +3245,16 @@ export class Parser {
     
                 case 'MemberExpression':
                 case 'MetaProperty':
-                    if (!(context & Context.ArrowParameterList)) return;
+                    if (!(context & Context.InArrowParameterList)) return;
                     // Fall through
     
                 default:
-                    this.error(Errors.UnexpectedToken, params.type);
+                    this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             }
         }
     
         private parseArrowFormalList(context: Context, params: ESTree.Node[]): ESTree.Node[] {
-            for (const i in params) this.reinterpretAsPattern(context | Context.ArrowParameterList, params[i]);
+            for (const i in params) this.reinterpretAsPattern(context | Context.InArrowParameterList, params[i]);
             return params;
         }
     
@@ -3274,7 +3280,7 @@ export class Parser {
             if (this.token === Token.LeftBrace) {
                 body = this.parseFunctionBody(context | Context.AllowIn);
             } else {
-                body = this.parseConciseBody(context | Context.AllowIn);
+                body = this.parseAssignmentExpression(context | Context.AllowIn);
                 expression = true;
             }
     
@@ -3290,11 +3296,7 @@ export class Parser {
                 expression
             });
         }
-    
-        private parseConciseBody(context: Context): any {
-            return this.parseAssignmentExpression(context | Context.AllowIn);
-        }
-    
+        
         private parseConditionalExpression(context: Context, pos: any): any {
             const expr = this.parseBinaryExpression(context, 0, pos);
             if (!this.parseOptional(context, Token.QuestionMark)) return expr;
@@ -3646,6 +3648,9 @@ export class Parser {
     
             if (this.token !== Token.LeftParen && this.isIdentifier(context, this.token)) {
                 if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.StrictLHSAssignment);
+                // If a async function decl are wrapped inside parenthesis, it's parsed as function expr, and we need to forbid
+                // "await" as function name
+                if (context & Context.AsyncParen && this.token === Token.AwaitKeyword) this.error(Errors.StrictLHSAssignment);
                 if ((context & (Context.Await | Context.Yield) || (context & Context.Strict && savedContext & Context.Yield)) && this.token === Token.YieldKeyword) {
                     this.error(Errors.YieldReservedWord);
                 }
@@ -3724,7 +3729,13 @@ export class Parser {
             if (this.token === Token.YieldKeyword) {
                 if (context & (Context.Strict | Context.Yield)) this.error(Errors.Unexpected);
             }
+            // await expression are not allowed in default parameters
+            if (context & Context.Await && this.token === Token.AwaitKeyword) {
+                this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+            }
             const right = this.parseAssignmentExpression(context);
+
+            
             return this.finishNode(pos, {
                 type: 'AssignmentPattern',
                 left,
@@ -3822,7 +3833,7 @@ export class Parser {
                         this.errorLocation = this.getLocations();
                         state |= ParenthesizedState.Parenthesized;
                     }
-                    args.push(this.parseAssignmentExpression(context));
+                    args.push(this.parseAssignmentExpression(context | Context.InAsyncParameterList));
                 }
     
                 if (this.token === Token.RightParen) break;
@@ -3836,11 +3847,14 @@ export class Parser {
     
             if (this.token === Token.Arrow) {
                 // async arrows cannot have a line terminator between "async" and the formals
-                if (flags & Flags.LineTerminator) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                if (flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
+                // save the token together with the error location tracking
+                if (this.flags & Flags.HaveSeenAwait) this.error(Errors.UnexpectedToken, 'await');
                 if (isEscaped) this.error(Errors.InvalidEscapedReservedWord);
                 if (state & ParenthesizedState.EvalOrArg) this.error(Errors.StrictParamName);
                 if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
-                if (state & ParenthesizedState.Await) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                // save the token together with the error location tracking
+                if (state & ParenthesizedState.Await) this.error(Errors.UnexpectedToken, 'await');
                 if (state & ParenthesizedState.Trailing) this.error(Errors.UnexpectedComma);
                 
                 // Invalid: 'async[LineTerminator here] () => {}'
@@ -3848,6 +3862,8 @@ export class Parser {
                 return this.parseArrowFunction(context | Context.Await, pos, args);
             }
             
+            if (this.flags & Flags.HaveSeenAwait) this.flags &= ~Flags.HaveSeenAwait;
+
             this.errorLocation = undefined;
 
             return this.finishNode(pos, {
@@ -4022,7 +4038,7 @@ export class Parser {
         private parseClassDeclaration(context: Context): ESTree.ClassDeclaration {
     
             const pos = this.startNode();
-    
+
             this.expect(context, Token.ClassKeyword);
     
             let superClass: ESTree.Expression | null = null;
@@ -4033,6 +4049,7 @@ export class Parser {
     
             if (this.isIdentifier(context, this.token)) {
                 const name = this.tokenValue;
+          
                 if (context & Context.Statement) {
                     if (!this.initBlockScope() && name in this.blockScope) {
                         if (this.blockScope !== this.functionScope || this.blockScope[name] === ScopeMasks.NonShadowable) {
@@ -4151,7 +4168,12 @@ export class Parser {
                 if (this.tokenValue === 'constructor') state |= ObjectState.HasConstructor;
     
                 key = this.parsePropertyName(context & ~Context.Strict);
-    
+
+                // cannot use 'await' inside async functions.
+                if (context & Context.Await && this.flags & Flags.InFunctionBody && this.token === Token.AwaitKeyword) {
+                    this.error(Errors.InvalidAwaitInsideAsyncFunc);
+                }
+
                 if (token === Token.StaticKeyword && (qualifiedPropertyName(this.token) || this.token === Token.Multiply)) {
     
                     token = this.token;
@@ -4302,7 +4324,7 @@ export class Parser {
     
         private parseObjectElement(context: Context): ESTree.Property {
             const pos = this.startNode();
-    
+
             let key: ESTree.Expression | null = null;
             let value: ESTree.Expression | null = null;
             const token = this.token;

@@ -384,6 +384,314 @@ describe('Destructuring - Spread', () => {
           });
     });
 
+    
+    it('should parse destructed array literal"', () => {
+      expect(parseScript('var [a, ...[b, c]] = d', {
+          ranges: true,
+          raw: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 22,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 22
+          }
+        },
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "start": 0,
+            "end": 22,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 22
+              }
+            },
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "start": 4,
+                "end": 22,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 4
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 22
+                  }
+                },
+                "id": {
+                  "type": "ArrayPattern",
+                  "start": 4,
+                  "end": 18,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 4
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 18
+                    }
+                  },
+                  "elements": [
+                    {
+                      "type": "Identifier",
+                      "start": 5,
+                      "end": 6,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 5
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 6
+                        }
+                      },
+                      "name": "a"
+                    },
+                    {
+                      "type": "RestElement",
+                      "start": 8,
+                      "end": 17,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 8
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 17
+                        }
+                      },
+                      "argument": {
+                        "type": "ArrayPattern",
+                        "start": 11,
+                        "end": 17,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 11
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 17
+                          }
+                        },
+                        "elements": [
+                          {
+                            "type": "Identifier",
+                            "start": 12,
+                            "end": 13,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 12
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 13
+                              }
+                            },
+                            "name": "b"
+                          },
+                          {
+                            "type": "Identifier",
+                            "start": 15,
+                            "end": 16,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 15
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 16
+                              }
+                            },
+                            "name": "c"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "init": {
+                  "type": "Identifier",
+                  "start": 21,
+                  "end": 22,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 21
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 22
+                    }
+                  },
+                  "name": "d"
+                }
+              }
+            ],
+            "kind": "var"
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+    
+    it('should parse destructed array literal"', () => {
+      expect(parseScript('[a, ...b] = c', {
+          ranges: true,
+          raw: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 13,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 13
+          }
+        },
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 13,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 13
+              }
+            },
+            "expression": {
+              "type": "AssignmentExpression",
+              "start": 0,
+              "end": 13,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 13
+                }
+              },
+              "operator": "=",
+              "left": {
+                "type": "ArrayPattern",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 9
+                  }
+                },
+                "elements": [
+                  {
+                    "type": "Identifier",
+                    "start": 1,
+                    "end": 2,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 1
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 2
+                      }
+                    },
+                    "name": "a"
+                  },
+                  {
+                    "type": "RestElement",
+                    "start": 4,
+                    "end": 8,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 8
+                      }
+                    },
+                    "argument": {
+                      "type": "Identifier",
+                      "start": 7,
+                      "end": 8,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 7
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 8
+                        }
+                      },
+                      "name": "b"
+                    }
+                  }
+                ]
+              },
+              "right": {
+                "type": "Identifier",
+                "start": 12,
+                "end": 13,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 12
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 13
+                  }
+                },
+                "name": "c"
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+
     it('should parse destructed arrat literal"', () => {
         expect(parseScript('[a, ...[b, c]] = d;', {
             ranges: true,

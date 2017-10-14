@@ -4588,16 +4588,81 @@ is y`);
         }).to.throw();
     });
 
-    /*it('should fail on "var [...{length}] = [ 1, 2, 3];"', () => {
+    it('should fail on "x = { set method(val) v = val }"', () => {
         expect(() => {
-            parseScript('var [...{length}] = [ 1, 2, 3];');
+            parseScript('x = { set method(val) v = val }');
         }).to.throw();
     });
 
-    it('should fail on "[...a, b] = c"', () => {
+    it('should fail on "super"', () => {
         expect(() => {
-            parseScript('[...a, b] = c');
+            parseScript('super');
         }).to.throw();
-    }); */
+    });
 
+    it('should fail on "export let x = a; export function x() {}"', () => {
+        expect(() => {
+            parseModule('export let x = a; export function x() {}');
+        }).to.throw();
+    });
+
+    it('should fail on "export let [{x = 2}] = a; export {x}"', () => {
+        expect(() => {
+            parseModule('export let [{x = 2}] = a; export {x}');
+        }).to.not.throw();
+    });
+
+    it('should fail on "(function* foo(a = yield b) {})"', () => {
+        expect(() => {
+            parseScript('(function* foo(a = yield b) {})');
+        }).to.throw();
+    });
+
+    it('should fail on "function* foo(a = yield b) {}"', () => {
+        expect(() => {
+            parseScript('function* foo(a = yield b) {}');
+        }).to.throw();
+    });
+
+    it('should fail on "({*foo(a = yield b) {}})"', () => {
+        expect(() => {
+            parseScript('({*foo(a = yield b) {}})');
+        }).to.throw();
+    });
+
+    it('should fail on "(class {*foo(a = yield b) {}})"', () => {
+        expect(() => {
+            parseScript('(class {*foo(a = yield b) {}})');
+        }).to.throw();
+    });
+
+    it('should fail on "({*foo: 1})"', () => {
+        expect(() => {
+            parseScript('({*foo: 1})');
+        }).to.throw();
+    });
+
+    it('should fail on "function* wrap() {\n({a = yield b} = obj) => a\n}"', () => {
+        expect(() => {
+            parseScript('function* wrap() {\n({a = yield b} = obj) => a\n}');
+        }).to.throw();
+    });
+
+    it('should fail on "12e?"', () => {
+        expect(() => {
+            parseScript('12e?');
+        }).to.throw();
+    });
+
+    it('should fail on "({a 12 e, e: a})"', () => {
+        expect(() => {
+            parseScript('({a 12 e, e: a})');
+        }).to.throw();
+    });
+
+    it('should fail on "({a -= 12 } = 12)"', () => {
+        expect(() => {
+            parseScript('({a -= 12 } = 12)');
+        }).to.throw();
+    });
 });

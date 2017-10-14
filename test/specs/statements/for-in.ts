@@ -996,6 +996,162 @@ describe('Statements - For in', () => {
         });
     });
 
+    it('should parse "for (var [name, value] in obj) {}"', () => {
+        expect(parseScript(`for (var [name, value] in obj) {}`, {
+            ranges: true,
+            raw: true,
+            next: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 33,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 33
+              }
+            },
+            "body": [
+              {
+                "type": "ForInStatement",
+                "start": 0,
+                "end": 33,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 33
+                  }
+                },
+                "left": {
+                  "type": "VariableDeclaration",
+                  "start": 5,
+                  "end": 22,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 5
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 22
+                    }
+                  },
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "start": 9,
+                      "end": 22,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 9
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 22
+                        }
+                      },
+                      "id": {
+                        "type": "ArrayPattern",
+                        "start": 9,
+                        "end": 22,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 9
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 22
+                          }
+                        },
+                        "elements": [
+                          {
+                            "type": "Identifier",
+                            "start": 10,
+                            "end": 14,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 10
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 14
+                              }
+                            },
+                            "name": "name"
+                          },
+                          {
+                            "type": "Identifier",
+                            "start": 16,
+                            "end": 21,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 16
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 21
+                              }
+                            },
+                            "name": "value"
+                          }
+                        ]
+                      },
+                      "init": null
+                    }
+                  ],
+                  "kind": "var"
+                },
+                "right": {
+                  "type": "Identifier",
+                  "start": 26,
+                  "end": 29,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 26
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 29
+                    }
+                  },
+                  "name": "obj"
+                },
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 31,
+                  "end": 33,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 31
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 33
+                    }
+                  },
+                  "body": []
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
     it('should parse "for ((x) in { attr: null }) {}"', () => {
         expect(parseScript(`for ((x) in { attr: null }) {}`, {
             ranges: true,

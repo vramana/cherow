@@ -23,13 +23,11 @@ describe('Expressions - Await', () => {
         }).to.throw()
     });
 
-
     it('should fail on invalid plain await (module code)', () => {
         expect(() => {
             parseModule(`await;`);
         }).to.throw()
     });
-
 
     it('should fail on invalid plain await arrow', () => {
         expect(() => {
@@ -37,6 +35,23 @@ describe('Expressions - Await', () => {
         }).to.throw()
     });
 
+    it('should fail if await expression does not have an argument', () => {
+        expect(() => {
+            parseScript(`async function foo() { await }`);
+        }).to.throw();
+    });
+
+    it('should fail if await expression wrapped inside paren does not have an argument ', () => {
+        expect(() => {
+            parseScript(`(async function foo() { await })`);
+        }).to.throw();
+    });
+
+    it('should fail if await expression does not have an argument', () => {
+        expect(() => {
+            parseScript(`({async foo() { await }})`);
+        }).to.throw();
+    });
 
     it('should fail on invalid await arrow param', () => {
         expect(() => {

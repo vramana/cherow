@@ -9,26 +9,29 @@ export const enum Context {
     Await                  = 1 << 5,   // If node was parsed in the 'await' context created when parsing an async function
     InParenthesis          = 1 << 6,   // If node was parsed in a parenthesized expression context
     InParameter            = 1 << 7,   // If node was parsed in the formal list of an function
-    ArrowParameterList     = 1 << 8,   // If node was parsed in the formal list of an arrow function
-    Statement              = 1 << 9,   // If node was parsed in a statement context
-    IfClause               = 1 << 10,  // If node was parsed in a if statement (early error related)
-    AnnexB                 = 1 << 11,  // If node was parsed in the 'if statement' with the AnnexB semtantic
-    JSXChild               = 1 << 12,  // If node was parsed in a JSX context and has JSX children
-    Export                 = 1 << 13,  // Module
-    Import                 = 1 << 14,  // Module ( strict and non-strict)
-    OptionalIdentifier     = 1 << 15,  // Optional identifier for export of either anonymous class or function declaration
-    Method                 = 1 << 16,  // If node was parsed in a object / class method definition context
-    HasConstructor         = 1 << 17,  // If node was parsed inside Class and allow super
-    Constructor            = 1 << 18,  // Class declaration / expression
-    AsyncFunctionBody      = 1 << 19,  // If node was parsed in an async body of an function declaration
-    RequireInitializer     = 1 << 20,  // If node was parsed in a context where a variable declaration initializer are required (export)
-    ForStatement           = 1 << 21,  // If node was parsed in a for / for - in / for -of context
+    InAsyncParameterList   = 1 << 8,   // If node was parsed in the formal list of an async arrow function
+    InArrowParameterList   = 1 << 9,   // If node was parsed in the formal list of an arrow function
+    Statement              = 1 << 10,  // If node was parsed in a statement context
+    IfClause               = 1 << 11,  // If node was parsed in a if statement (early error related)
+    AnnexB                 = 1 << 12,  // If node was parsed in the 'if statement' with the AnnexB semtantic
+    JSXChild               = 1 << 13,  // If node was parsed in a JSX context and has JSX children
+    Export                 = 1 << 14,  // Module
+    Import                 = 1 << 15,  // Module ( strict and non-strict)
+    OptionalIdentifier     = 1 << 16,  // Optional identifier for export of either anonymous class or function declaration
+    Method                 = 1 << 17,  // If node was parsed in a object / class method definition context
+    HasConstructor         = 1 << 18,  // If node was parsed inside Class and allow super
+    Constructor            = 1 << 19,  // Class declaration / expression
+    AsyncFunctionBody      = 1 << 20,  // If node was parsed in an async body of an function declaration
+    RequireInitializer     = 1 << 21,  // If node was parsed in a context where a variable declaration initializer are required (export)
+    ForStatement           = 1 << 22,  // If node was parsed in a for / for - in / for -of context
 
-    Let                    = 1 << 22,  // Variable declaration
-    Const                  = 1 << 23,  // Variable declaration
-
+    Let                    = 1 << 23,  // Variable declaration
+    Const                  = 1 << 24,  // Variable declaration
+    
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
+
+    AsyncParen = InParenthesis | Await
 }
 
 // Mutable parser flags
@@ -43,26 +46,27 @@ export const enum Flags {
     Switch                       = 1 << 6,
     HasPrototype                 = 1 << 7,
     HaveSeenYield                = 1 << 8,  // Used if we have seen a 'yield' token. E.g. in arrow formal param list
-    BindingPosition              = 1 << 9,  // Used if an "identifier" are used in binding position in strict mode
-    HasStrictDirective           = 1 << 10, // Only used if we have seen a "use strict"; directive
-    Noctal                       = 1 << 11, // e.g. `0777`
-    BigInt                       = 1 << 12, // e.g. `0777`
-    SimpleParameterList          = 1 << 13, 
+    HaveSeenAwait                = 1 << 9,  // Used if we have seen a 'await' token. E.g. in async arrow formal param list
+    BindingPosition              = 1 << 10, // Used if an "identifier" are used in binding position in strict mode
+    HasStrictDirective           = 1 << 11, // Only used if we have seen a "use strict"; directive
+    Noctal                       = 1 << 12, // e.g. `0777`
+    BigInt                       = 1 << 13, // e.g. `0777`
+    SimpleParameterList          = 1 << 14,
 
     /* Options */
-    OptionsRanges                = 1 << 14, // Enable / disable "ranges"
-    OptionsLoc                   = 1 << 15, // Enable / disable location tracking on the node
-    OptionsSource                = 1 << 16,
-    OptionsJSX                   = 1 << 17, // Enable / disable JSX extension
-    OptionsRaw                   = 1 << 18, // Enable / disable "raw" property on the node
-    OptionsNext                  = 1 << 19, // Enable / disable Stage 3 proposals
-    OptionsDirectives            = 1 << 20, // Enable / disable directives on the node
-    OptionsOnComment             = 1 << 21, // Enable / disable comment collecting
-    OptionsOnToken               = 1 << 22, // ** on hold **
-    OptionsV8                    = 1 << 23, // Enable / disable V8 experimental features
-    OptionsFlow                  = 1 << 24, // ** on hold **
-    OptionsGlobalReturn          = 1 << 25, // Allow return statement in global scope,
-    OptionsSourceType            = 1 << 26, 
+    OptionsRanges                = 1 << 15, // Enable / disable "ranges"
+    OptionsLoc                   = 1 << 16, // Enable / disable location tracking on the node
+    OptionsSource                = 1 << 17,
+    OptionsJSX                   = 1 << 18, // Enable / disable JSX extension
+    OptionsRaw                   = 1 << 19, // Enable / disable "raw" property on the node
+    OptionsNext                  = 1 << 20, // Enable / disable Stage 3 proposals
+    OptionsDirectives            = 1 << 21, // Enable / disable directives on the node
+    OptionsOnComment             = 1 << 22, // Enable / disable comment collecting
+    OptionsOnToken               = 1 << 23, // ** on hold **
+    OptionsV8                    = 1 << 24, // Enable / disable V8 experimental features
+    OptionsFlow                  = 1 << 25, // ** on hold **
+    OptionsGlobalReturn          = 1 << 26, // Allow return statement in global scope,
+    OptionsSourceType            = 1 << 27,
 
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc

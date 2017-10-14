@@ -316,6 +316,148 @@ describe('Statements - Variable', () => {
             });
         });
 
+        it('should parse object binding pattern destructuring', () => {
+            expect(parseScript(`var {a} = {}`, {
+                ranges: true,
+                raw: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 12,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 12
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 12,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 12
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 12,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 12
+                          }
+                        },
+                        "id": {
+                          "type": "ObjectPattern",
+                          "start": 4,
+                          "end": 7,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 7
+                            }
+                          },
+                          "properties": [
+                            {
+                              "type": "Property",
+                              "start": 5,
+                              "end": 6,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 5
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 6
+                                }
+                              },
+                              "method": false,
+                              "shorthand": true,
+                              "computed": false,
+                              "key": {
+                                "type": "Identifier",
+                                "start": 5,
+                                "end": 6,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 5
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 6
+                                  }
+                                },
+                                "name": "a"
+                              },
+                              "kind": "init",
+                              "value": {
+                                "type": "Identifier",
+                                "start": 5,
+                                "end": 6,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 5
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 6
+                                  }
+                                },
+                                "name": "a"
+                              }
+                            }
+                          ]
+                        },
+                        "init": {
+                          "type": "ObjectExpression",
+                          "start": 10,
+                          "end": 12,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 10
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 12
+                            }
+                          },
+                          "properties": []
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
         it('should parse shorthand properties named `get` as default in object destructuring', () => {
             expect(parseScript(`var {get = defaultValue} = obj`, {
                 ranges: true,

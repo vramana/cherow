@@ -22,6 +22,136 @@ describe('Expressions - Rest parameters', () => {
             parseScript('function f(a, ...b, c);')
         }).to.throw()
     });
+    
+    it('expect "(...a) + 1" to throw', function() {
+        expect(function() {
+            parseScript(`(...a) + 1`);
+        }).to.throw();
+    });
+
+    it('should parse function decl with rest param list', () => {
+        expect(parseScript('function f(a, ...b) {}', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 22,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 22
+              }
+            },
+            "body": [
+              {
+                "type": "FunctionDeclaration",
+                "start": 0,
+                "end": 22,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 22
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 9,
+                  "end": 10,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 10
+                    }
+                  },
+                  "name": "f"
+                },
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [
+                  {
+                    "type": "Identifier",
+                    "start": 11,
+                    "end": 12,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 11
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 12
+                      }
+                    },
+                    "name": "a"
+                  },
+                  {
+                    "type": "RestElement",
+                    "start": 14,
+                    "end": 18,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 14
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 18
+                      }
+                    },
+                    "argument": {
+                      "type": "Identifier",
+                      "start": 17,
+                      "end": 18,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 17
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 18
+                        }
+                      },
+                      "name": "b"
+                    }
+                  }
+                ],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 20,
+                  "end": 22,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 20
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 22
+                    }
+                  },
+                  "body": []
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
 
     describe('Object pattern', () => {
 
@@ -1622,9 +1752,5 @@ describe('Expressions - Rest parameters', () => {
         });
     });
 
-    it('expect "(...a) + 1" to throw', function() {
-        expect(function() {
-            parseScript(`(...a) + 1`);
-        }).to.throw();
-    });
+  
 });

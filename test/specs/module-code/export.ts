@@ -1,4 +1,4 @@
-import { parseScript, parseModule } from '../../../src/cherow';
+import { parse, parseScript, parseModule } from '../../../src/cherow';
 import * as chai from 'chai';
 
 const expect = chai.expect;
@@ -16,12 +16,12 @@ describe('Module - Export', () => {
           parseModule(`var x; export { x }; export { x };`);
       }).to.not.throw();
     });
-    
-    it('should fail on duplicate default', () => {
+
+    it('should fail on export of let as identifier', () => {
       expect(() => {
-          parseModule(`export default default function foo () {}`);
+          parseModule(`export let`);
       }).to.throw();
-  });
+    });
 
     it('should fail on export of let as identifier', () => {
       expect(() => {
@@ -74,6 +74,48 @@ describe('Module - Export', () => {
       }).to.throw();
   });
 
+    it('should fail on export reserved word', () => {
+      expect(() => {
+          parse(`"export var await`, { sourceType: 'module'});
+      }).to.throw();
+    });
+
+    it('should fail on export of keyword', () => {
+      expect(() => {
+          parse(`export { if }`, { sourceType: 'module'});
+      }).to.throw();
+    });
+
+    it('should fail on export on default', () => {
+      expect(() => {
+          parse(`export { default as foo }`, { sourceType: 'module'});
+      }).to.throw();
+    });
+
+    it('should fail on export keyword as', () => {
+      expect(() => {
+          parse(`export { if as foo }`, { sourceType: 'module'});
+      }).to.throw();
+    });
+
+    it('should fail on export keyword as', () => {
+      expect(() => {
+        parse(`import { class, var } "bar"`, { sourceType: 'module'});
+      }).to.throw();
+    });
+
+    it('should fail on export keyword as', () => {
+      expect(() => {
+        parse(`import * as class from "bar"`, { sourceType: 'module'});
+      }).to.throw();
+    });
+
+    it('should fail on export keyword as', () => {
+      expect(() => {
+          parse(`import * as enum from "bar"`, { sourceType: 'module'});
+      }).to.throw();
+    });
+
     it('should fail on export of duplicate function', () => {
       expect(() => {
           parseModule(`export async function a() {}
@@ -97,6 +139,18 @@ describe('Module - Export', () => {
     it('should fail on export of arguments', () => {
         expect(() => {
             parseModule(' export { x as arguments };');
+        }).to.throw();
+    });
+
+    it('should fail on export of new expression', () => {
+      expect(() => {
+          parseModule('export new Foo();');
+      }).to.throw();
+  });
+
+    it('should fail on export of typeOf unary expression', () => {
+      expect(() => {
+        parseModule('export typeof foo;');
         }).to.throw();
     });
 
@@ -124,7 +178,7 @@ describe('Module - Export', () => {
           parseModule(`export const [foo] = bar;
           export function foo() {};`);
       }).to.throw();
-    });
+      });
 
       it('should fail on "{export default 3;}"', () => {
           expect(() => {
@@ -282,6 +336,82 @@ describe('Module - Export', () => {
           }).to.throw();
       });
 
+      it('should export async function expression', () => {
+        expect(parseModule(`export default (async function() { })`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 37,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 37
+            }
+          },
+          "body": [
+            {
+              "type": "ExportDefaultDeclaration",
+              "start": 0,
+              "end": 37,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 37
+                }
+              },
+              "declaration": {
+                "type": "FunctionExpression",
+                "start": 16,
+                "end": 36,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 16
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 36
+                  }
+                },
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 33,
+                  "end": 36,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 33
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 36
+                    }
+                  },
+                  "body": []
+                }
+              }
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+
       it('should parse in` operator within an exported AssignmentExpression', () => {
         expect(parseModule(`export default 'x' in { x: true }`, {
             ranges: true,
@@ -422,6 +552,384 @@ describe('Module - Export', () => {
             ],
             "sourceType": "module"
           });
+      });
+
+      it('should export default async named function', () => {
+        expect(parseModule(`export default async function() { }`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 35,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 35
+            }
+          },
+          "body": [
+            {
+              "type": "ExportDefaultDeclaration",
+              "start": 0,
+              "end": 35,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 35
+                }
+              },
+              "declaration": {
+                "type": "FunctionDeclaration",
+                "start": 15,
+                "end": 35,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 15
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 35
+                  }
+                },
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 32,
+                  "end": 35,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 32
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 35
+                    }
+                  },
+                  "body": []
+                }
+              }
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+      
+      it('should export async named function', () => {
+        expect(parseModule(`export async function foo() { }`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 31,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 31
+            }
+          },
+          "body": [
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 0,
+              "end": 31,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 31
+                }
+              },
+              "declaration": {
+                "type": "FunctionDeclaration",
+                "start": 7,
+                "end": 31,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 7
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 31
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 22,
+                  "end": 25,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 22
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 25
+                    }
+                  },
+                  "name": "foo"
+                },
+                "generator": false,
+                "expression": false,
+                "async": true,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 28,
+                  "end": 31,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 28
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 31
+                    }
+                  },
+                  "body": []
+                }
+              },
+              "specifiers": [],
+              "source": null
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+
+      it('should export default class expression', () => {
+        expect(parseModule(`export default class Foo {}++x`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 30,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 30
+            }
+          },
+          "body": [
+            {
+              "type": "ExportDefaultDeclaration",
+              "start": 0,
+              "end": 27,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 27
+                }
+              },
+              "declaration": {
+                "type": "ClassDeclaration",
+                "start": 15,
+                "end": 27,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 15
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 27
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 21,
+                  "end": 24,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 21
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 24
+                    }
+                  },
+                  "name": "Foo"
+                },
+                "superClass": null,
+                "body": {
+                  "type": "ClassBody",
+                  "start": 25,
+                  "end": 27,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 25
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 27
+                    }
+                  },
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 27,
+              "end": 30,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 27
+                },
+                "end": {
+                  "line": 1,
+                  "column": 30
+                }
+              },
+              "expression": {
+                "type": "UpdateExpression",
+                "start": 27,
+                "end": 30,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 27
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 30
+                  }
+                },
+                "operator": "++",
+                "prefix": true,
+                "argument": {
+                  "type": "Identifier",
+                  "start": 29,
+                  "end": 30,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 29
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 30
+                    }
+                  },
+                  "name": "x"
+                }
+              }
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+
+      it('should export default class expression', () => {
+        expect(parseModule(`export default (class{});`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 25,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 25
+            }
+          },
+          "body": [
+            {
+              "type": "ExportDefaultDeclaration",
+              "start": 0,
+              "end": 25,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 25
+                }
+              },
+              "declaration": {
+                "type": "ClassExpression",
+                "start": 16,
+                "end": 23,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 16
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 23
+                  }
+                },
+                "id": null,
+                "superClass": null,
+                "body": {
+                  "type": "ClassBody",
+                  "start": 21,
+                  "end": 23,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 21
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 23
+                    }
+                  },
+                  "body": []
+                }
+              }
+            }
+          ],
+          "sourceType": "module"
+        });
       });
 
       it('should parse an exported function declaration without terminated with a semicolon or newline', () => {
@@ -4218,6 +4726,297 @@ describe('Module - Export', () => {
           "sourceType": "module"
         });
       });
+      
+      it('should export named function declaration', () => {
+        expect(parseModule(`export function parse() { }`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 27,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 27
+            }
+          },
+          "body": [
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 0,
+              "end": 27,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 27
+                }
+              },
+              "declaration": {
+                "type": "FunctionDeclaration",
+                "start": 7,
+                "end": 27,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 7
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 27
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 16,
+                  "end": 21,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 16
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 21
+                    }
+                  },
+                  "name": "parse"
+                },
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 24,
+                  "end": 27,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 24
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 27
+                    }
+                  },
+                  "body": []
+                }
+              },
+              "specifiers": [],
+              "source": null
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+
+      it('should export class declaration', () => {
+        expect(parseModule(`export class Class {}`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 21,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 21
+            }
+          },
+          "body": [
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 0,
+              "end": 21,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 21
+                }
+              },
+              "declaration": {
+                "type": "ClassDeclaration",
+                "start": 7,
+                "end": 21,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 7
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 21
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 13,
+                  "end": 18,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 13
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 18
+                    }
+                  },
+                  "name": "Class"
+                },
+                "superClass": null,
+                "body": {
+                  "type": "ClassBody",
+                  "start": 19,
+                  "end": 21,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 19
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 21
+                    }
+                  },
+                  "body": []
+                }
+              },
+              "specifiers": [],
+              "source": null
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+      
+      it('should parse const object pattern', () => {
+        expect(parseModule(`export const document = { }`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 27,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 27
+            }
+          },
+          "body": [
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 0,
+              "end": 27,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 27
+                }
+              },
+              "declaration": {
+                "type": "VariableDeclaration",
+                "start": 7,
+                "end": 27,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 7
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 27
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 13,
+                    "end": 27,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 13
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 27
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 13,
+                      "end": 21,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 13
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 21
+                        }
+                      },
+                      "name": "document"
+                    },
+                    "init": {
+                      "type": "ObjectExpression",
+                      "start": 24,
+                      "end": 27,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 24
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 27
+                        }
+                      },
+                      "properties": []
+                    }
+                  }
+                ],
+                "kind": "const"
+              },
+              "specifiers": [],
+              "source": null
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+     
 
       it('should parse async await object method', () => {
         expect(parseModule(`export default async function() { };`, {

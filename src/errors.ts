@@ -110,7 +110,8 @@ export const enum Errors {
     InvalidAsyncGenerator,
     BadPropertyId,
     InvalidMethod,
-    InvalidArrowYieldParam
+    InvalidArrowYieldParam,
+    InvalidAwaitInsideAsyncFunc
 }
 
 export const ErrorMessages: {
@@ -195,14 +196,11 @@ export const ErrorMessages: {
     [Errors.DuplicateBinding]: 'Duplicate binding',
     [Errors.Redeclaration]: 'Label \'%0\' has already been declared',
     [Errors.UnknownLabel]: 'Undefined label \'%0\'',
-
     [Errors.InvalidLHSInArrow]: ' Invalid left-hand side in arrow function parameters',
     [Errors.InvalidNewTargetContext]: 'new.target expression is not allowed here',
     [Errors.UnexpectedReservedWord]: 'Unexpected reserved word',
     [Errors.InvalidShorthandProperty]: 'Invalid shorthand property',
-
     [Errors.UnterminatedTemplate]: 'Unterminated template literal',
-
     [Errors.UnexpectedStrictReserved]: 'Unexpected strict mode reserved word',
     [Errors.YieldReservedWord]: 'yield is a reserved word inside generator functions',
     [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter',
@@ -228,7 +226,8 @@ export const ErrorMessages: {
     [Errors.BadPropertyId]: 'Invalid property id',
     [Errors.InvalidMethod]: 'Only methods are allowed in classes',
     [Errors.InvalidArrowYieldParam]: 'Arrow parameters must not contain yield expressions',
-    ForInOfLoopInitializer: '%0 loop variable declaration may not have an initializer',
+    [Errors.InvalidAwaitInsideAsyncFunc]: 'Can not use \'await\' as identifier inside an async functio',
+    
 };
 
 function constructError(msg: string, column: number): Error {

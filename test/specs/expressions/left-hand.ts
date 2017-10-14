@@ -5,18 +5,24 @@ const expect = chai.expect;
 
 describe('Espressions - Left-hand side', () => {
 
-    it('should fail on "arguments" in strict mode - postfix', () => {
+    it('should fail on "({a: b += 0} = {})', () => {
       expect(() => {
           expect(parseScript('({a: b += 0} = {})'))
       }).to.throw('');
     });
 
-    it('should fail on "arguments" in strict mode - postfix', () => {
+    it('should fail on "[a += b] = []', () => {
       expect(() => {
           expect(parseScript('[a += b] = []'))
         }).to.throw('');
     });
 
+    it('should fail on "a[0]-- = 12', () => {
+      expect(() => {
+          expect(parseScript('a[0]-- = 12'))
+        }).to.throw('');
+    });
+    
     it('should parse "a.b(b, c)"', () => {
         expect(parseScript('a.b(b, c)', {
             ranges: true,

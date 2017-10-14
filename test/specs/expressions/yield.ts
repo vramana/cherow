@@ -401,6 +401,216 @@ describe('Espressions - Yield', () => {
                 });
 
                 it('should parse yield parameter default inside function inside generator', () => {
+                    expect(parseScript(`var x = { *test () { yield *v } };`, {
+                        ranges: true,
+                        raw: true,
+                        locations: true
+                    })).to.eql({
+                        "type": "Program",
+                        "start": 0,
+                        "end": 34,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 0
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 34
+                          }
+                        },
+                        "body": [
+                          {
+                            "type": "VariableDeclaration",
+                            "start": 0,
+                            "end": 34,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 0
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 34
+                              }
+                            },
+                            "declarations": [
+                              {
+                                "type": "VariableDeclarator",
+                                "start": 4,
+                                "end": 33,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 4
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 33
+                                  }
+                                },
+                                "id": {
+                                  "type": "Identifier",
+                                  "start": 4,
+                                  "end": 5,
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 4
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 5
+                                    }
+                                  },
+                                  "name": "x"
+                                },
+                                "init": {
+                                  "type": "ObjectExpression",
+                                  "start": 8,
+                                  "end": 33,
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 8
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 33
+                                    }
+                                  },
+                                  "properties": [
+                                    {
+                                      "type": "Property",
+                                      "start": 10,
+                                      "end": 31,
+                                      "loc": {
+                                        "start": {
+                                          "line": 1,
+                                          "column": 10
+                                        },
+                                        "end": {
+                                          "line": 1,
+                                          "column": 31
+                                        }
+                                      },
+                                      "method": true,
+                                      "shorthand": false,
+                                      "computed": false,
+                                      "key": {
+                                        "type": "Identifier",
+                                        "start": 11,
+                                        "end": 15,
+                                        "loc": {
+                                          "start": {
+                                            "line": 1,
+                                            "column": 11
+                                          },
+                                          "end": {
+                                            "line": 1,
+                                            "column": 15
+                                          }
+                                        },
+                                        "name": "test"
+                                      },
+                                      "kind": "init",
+                                      "value": {
+                                        "type": "FunctionExpression",
+                                        "start": 16,
+                                        "end": 31,
+                                        "loc": {
+                                          "start": {
+                                            "line": 1,
+                                            "column": 16
+                                          },
+                                          "end": {
+                                            "line": 1,
+                                            "column": 31
+                                          }
+                                        },
+                                        "id": null,
+                                        "generator": true,
+                                        "expression": false,
+                                        "async": false,
+                                        "params": [],
+                                        "body": {
+                                          "type": "BlockStatement",
+                                          "start": 19,
+                                          "end": 31,
+                                          "loc": {
+                                            "start": {
+                                              "line": 1,
+                                              "column": 19
+                                            },
+                                            "end": {
+                                              "line": 1,
+                                              "column": 31
+                                            }
+                                          },
+                                          "body": [
+                                            {
+                                              "type": "ExpressionStatement",
+                                              "start": 21,
+                                              "end": 29,
+                                              "loc": {
+                                                "start": {
+                                                  "line": 1,
+                                                  "column": 21
+                                                },
+                                                "end": {
+                                                  "line": 1,
+                                                  "column": 29
+                                                }
+                                              },
+                                              "expression": {
+                                                "type": "YieldExpression",
+                                                "start": 21,
+                                                "end": 29,
+                                                "loc": {
+                                                  "start": {
+                                                    "line": 1,
+                                                    "column": 21
+                                                  },
+                                                  "end": {
+                                                    "line": 1,
+                                                    "column": 29
+                                                  }
+                                                },
+                                                "delegate": true,
+                                                "argument": {
+                                                  "type": "Identifier",
+                                                  "start": 28,
+                                                  "end": 29,
+                                                  "loc": {
+                                                    "start": {
+                                                      "line": 1,
+                                                      "column": 28
+                                                    },
+                                                    "end": {
+                                                      "line": 1,
+                                                      "column": 29
+                                                    }
+                                                  },
+                                                  "name": "v"
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ],
+                            "kind": "var"
+                          }
+                        ],
+                        "sourceType": "script"
+                      });
+                });
+
+                it('should parse yield parameter default inside function inside generator', () => {
                     expect(parseScript(`(yield) => {}`, {
                         ranges: true,
                         raw: true,
@@ -2296,8 +2506,75 @@ describe('Espressions - Yield', () => {
               "type": "Program"
           });
       });
-  
-  
+
+      it('should  Distinguish ParenthesizedExpression or ArrowFunctionExpression', () => {
+        expect(parseScript('function *f() { yield\n{}/1/g\n}', {
+            ranges: true
+        })).to.eql({
+              "body": [
+                {
+                  "async": false,
+                  "body": {
+                    "body": [
+                      {
+                        "end": 21,
+                        "expression": {
+                         "argument": null,
+                          "delegate": false,
+                          "end": 21,
+                          "start": 16,
+                          "type": "YieldExpression"
+                        },
+                       "start": 16,
+                        "type": "ExpressionStatement"
+                      },
+                     {
+                        "body": [],
+                        "end": 24,
+                        "start": 22,
+                        "type": "BlockStatement"
+                      },
+                      {
+                        "end": 28,
+                        "expression": {
+                          "end": 28,
+                         "regex": {
+                            "flags": "g",
+                            "pattern": "1",
+                          },
+                          "start": 24,
+                          "type": "Literal",
+                          "value": /1/g,
+                        },
+                        "start": 24,
+                        "type": "ExpressionStatement",
+                      },
+                    ],
+                    "end": 30,
+                    "start": 14,
+                    "type": "BlockStatement",
+                  },
+                  "end": 30,
+                  "expression": false,
+                 "generator": true,
+                  "id": {
+                    "end": 11,
+                    "name": "f",
+                    "start": 10,
+                    "type": "Identifier",
+                  },
+                  "params": [],
+                  "start": 0,
+                  "type": "FunctionDeclaration",
+                },
+              ],
+              "end": 30,
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program",
+            });
+    });
+    
       it('should  Distinguish ParenthesizedExpression or ArrowFunctionExpression', () => {
           expect(parseScript('function* wrap() {\n({a = yield b} = obj)\n}', {
               ranges: true
@@ -5834,8 +6111,637 @@ describe('Espressions - Yield', () => {
             "sourceType": "script"
           });
     });
-      
-      it('should parse function name generator method', () => {
+
+     
+    it('should parse function name generator method', () => {
+        expect(parseScript(`function* foo() { console.log(yield); }`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 39,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 39
+              }
+            },
+            "body": [
+              {
+                "type": "FunctionDeclaration",
+                "start": 0,
+                "end": 39,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 39
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 10,
+                  "end": 13,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 10
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 13
+                    }
+                  },
+                  "name": "foo"
+                },
+                "generator": true,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 16,
+                  "end": 39,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 16
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 39
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "ExpressionStatement",
+                      "start": 18,
+                      "end": 37,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 18
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 37
+                        }
+                      },
+                      "expression": {
+                        "type": "CallExpression",
+                        "start": 18,
+                        "end": 36,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 18
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 36
+                          }
+                        },
+                        "callee": {
+                          "type": "MemberExpression",
+                          "start": 18,
+                          "end": 29,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 18
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 29
+                            }
+                          },
+                          "object": {
+                            "type": "Identifier",
+                            "start": 18,
+                            "end": 25,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 18
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 25
+                              }
+                            },
+                            "name": "console"
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "start": 26,
+                            "end": 29,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 26
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 29
+                              }
+                            },
+                            "name": "log"
+                          },
+                          "computed": false
+                        },
+                        "arguments": [
+                          {
+                            "type": "YieldExpression",
+                            "start": 30,
+                            "end": 35,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 30
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 35
+                              }
+                            },
+                            "delegate": false,
+                            "argument": null
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+    
+        it('should parse function name generator method', () => {
+            expect(parseScript(`var x = {*[test]() { yield *v; }}`, {
+                ranges: true,
+                raw: true,
+                locations: true
+                })).to.eql({
+                    "type": "Program",
+                    "start": 0,
+                    "end": 33,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 33
+                      }
+                    },
+                    "body": [
+                      {
+                        "type": "VariableDeclaration",
+                        "start": 0,
+                        "end": 33,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 0
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 33
+                          }
+                        },
+                        "declarations": [
+                          {
+                            "type": "VariableDeclarator",
+                            "start": 4,
+                            "end": 33,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 4
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 33
+                              }
+                            },
+                            "id": {
+                              "type": "Identifier",
+                              "start": 4,
+                              "end": 5,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 4
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 5
+                                }
+                              },
+                              "name": "x"
+                            },
+                            "init": {
+                              "type": "ObjectExpression",
+                              "start": 8,
+                              "end": 33,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 8
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 33
+                                }
+                              },
+                              "properties": [
+                                {
+                                  "type": "Property",
+                                  "start": 9,
+                                  "end": 32,
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 9
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 32
+                                    }
+                                  },
+                                  "method": true,
+                                  "shorthand": false,
+                                  "computed": true,
+                                  "key": {
+                                    "type": "Identifier",
+                                    "start": 11,
+                                    "end": 15,
+                                    "loc": {
+                                      "start": {
+                                        "line": 1,
+                                        "column": 11
+                                      },
+                                      "end": {
+                                        "line": 1,
+                                        "column": 15
+                                      }
+                                    },
+                                    "name": "test"
+                                  },
+                                  "kind": "init",
+                                  "value": {
+                                    "type": "FunctionExpression",
+                                    "start": 16,
+                                    "end": 32,
+                                    "loc": {
+                                      "start": {
+                                        "line": 1,
+                                        "column": 16
+                                      },
+                                      "end": {
+                                        "line": 1,
+                                        "column": 32
+                                      }
+                                    },
+                                    "id": null,
+                                    "generator": true,
+                                    "expression": false,
+                                    "async": false,
+                                    "params": [],
+                                    "body": {
+                                      "type": "BlockStatement",
+                                      "start": 19,
+                                      "end": 32,
+                                      "loc": {
+                                        "start": {
+                                          "line": 1,
+                                          "column": 19
+                                        },
+                                        "end": {
+                                          "line": 1,
+                                          "column": 32
+                                        }
+                                      },
+                                      "body": [
+                                        {
+                                          "type": "ExpressionStatement",
+                                          "start": 21,
+                                          "end": 30,
+                                          "loc": {
+                                            "start": {
+                                              "line": 1,
+                                              "column": 21
+                                            },
+                                            "end": {
+                                              "line": 1,
+                                              "column": 30
+                                            }
+                                          },
+                                          "expression": {
+                                            "type": "YieldExpression",
+                                            "start": 21,
+                                            "end": 29,
+                                            "loc": {
+                                              "start": {
+                                                "line": 1,
+                                                "column": 21
+                                              },
+                                              "end": {
+                                                "line": 1,
+                                                "column": 29
+                                              }
+                                            },
+                                            "delegate": true,
+                                            "argument": {
+                                              "type": "Identifier",
+                                              "start": 28,
+                                              "end": 29,
+                                              "loc": {
+                                                "start": {
+                                                  "line": 1,
+                                                  "column": 28
+                                                },
+                                                "end": {
+                                                  "line": 1,
+                                                  "column": 29
+                                                }
+                                              },
+                                              "name": "v"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        "kind": "var"
+                      }
+                    ],
+                    "sourceType": "script"
+                  });
+        });
+
+        it('should parse function name generator method', () => {
+            expect(parseScript(`function* foo(a = {*bar() { yield b }}) {}`, {
+                ranges: true,
+                raw: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 42,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 42
+                  }
+                },
+                "body": [
+                  {
+                    "type": "FunctionDeclaration",
+                    "start": 0,
+                    "end": 42,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 42
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 10,
+                      "end": 13,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 10
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 13
+                        }
+                      },
+                      "name": "foo"
+                    },
+                    "generator": true,
+                    "expression": false,
+                    "async": false,
+                    "params": [
+                      {
+                        "type": "AssignmentPattern",
+                        "start": 14,
+                        "end": 38,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 14
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 38
+                          }
+                        },
+                        "left": {
+                          "type": "Identifier",
+                          "start": 14,
+                          "end": 15,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 14
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 15
+                            }
+                          },
+                          "name": "a"
+                        },
+                        "right": {
+                          "type": "ObjectExpression",
+                          "start": 18,
+                          "end": 38,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 18
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 38
+                            }
+                          },
+                          "properties": [
+                            {
+                              "type": "Property",
+                              "start": 19,
+                              "end": 37,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 19
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 37
+                                }
+                              },
+                              "method": true,
+                              "shorthand": false,
+                              "computed": false,
+                              "key": {
+                                "type": "Identifier",
+                                "start": 20,
+                                "end": 23,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 20
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 23
+                                  }
+                                },
+                                "name": "bar"
+                              },
+                              "kind": "init",
+                              "value": {
+                                "type": "FunctionExpression",
+                                "start": 23,
+                                "end": 37,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 23
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 37
+                                  }
+                                },
+                                "id": null,
+                                "generator": true,
+                                "expression": false,
+                                "async": false,
+                                "params": [],
+                                "body": {
+                                  "type": "BlockStatement",
+                                  "start": 26,
+                                  "end": 37,
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 26
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 37
+                                    }
+                                  },
+                                  "body": [
+                                    {
+                                      "type": "ExpressionStatement",
+                                      "start": 28,
+                                      "end": 35,
+                                      "loc": {
+                                        "start": {
+                                          "line": 1,
+                                          "column": 28
+                                        },
+                                        "end": {
+                                          "line": 1,
+                                          "column": 35
+                                        }
+                                      },
+                                      "expression": {
+                                        "type": "YieldExpression",
+                                        "start": 28,
+                                        "end": 35,
+                                        "loc": {
+                                          "start": {
+                                            "line": 1,
+                                            "column": 28
+                                          },
+                                          "end": {
+                                            "line": 1,
+                                            "column": 35
+                                          }
+                                        },
+                                        "delegate": false,
+                                        "argument": {
+                                          "type": "Identifier",
+                                          "start": 34,
+                                          "end": 35,
+                                          "loc": {
+                                            "start": {
+                                              "line": 1,
+                                              "column": 34
+                                            },
+                                            "end": {
+                                              "line": 1,
+                                              "column": 35
+                                            }
+                                          },
+                                          "name": "b"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "body": {
+                      "type": "BlockStatement",
+                      "start": 40,
+                      "end": 42,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 40
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 42
+                        }
+                      },
+                      "body": []
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+        it('should parse function name generator method', () => {
         expect(parseScript(`class A { *yield() {} }`, {
             ranges: true,
             raw: true,

@@ -16,13 +16,24 @@ describe('Expressions - Call', () => {
             parseScript(`f(....a)`);
         }).to.throw()
     });
-
+   
     it('should fail on multiple periods followed by an identifier', () => {
         expect(() => {
             parseScript(`f(... ... a)`);
         }).to.throw()
     });
-    
+
+    it('should fail on incomplete new argument', () => {
+      expect(() => {
+          parseScript(`new L(12')`);
+      }).to.throw()
+  });
+
+    it('should fail on invalid new argument', () => {
+      expect(() => {
+          parseScript(`new ?`);
+      }).to.throw()
+    });
 
     it('should parse with trailing comma', () => {
         expect(parseScript(`foo(...a,);`, {

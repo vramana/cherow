@@ -81,7 +81,7 @@ describe('Next - Asynchronous Iteration', () => {
             parseScript(`(async function* await() { });`, {
                 next: true
             })
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it("should fail if escaped async", () => {
@@ -178,7 +178,7 @@ describe('Next - Asynchronous Iteration', () => {
             parseScript(`(async function* await() { });`, {
                 next: true
             })
-        }).to.not.throw();
+        }).to.throw();
     });
     it("should fail if BindingIdentifier is the IdentifierName arguments", () => {
         expect(() => {
@@ -269,7 +269,7 @@ describe('Next - Asynchronous Iteration', () => {
             parseScript(`(async function*(x = await 1) { });`, {
                 next: true
             })
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it("should fail if formals contains await", () => {
