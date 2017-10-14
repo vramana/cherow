@@ -13,9 +13,7 @@ export function parseModule(sourceText: string, options: Options = {}) {
 }
 
 export function parse(sourceText: string, options: Options = {}) {
-    return new Parser(sourceText, options).parseScript(
-        options && typeof options.sourceType === 'string' && options.sourceType === 'module' ?
-        Context.Strict | Context.Module :
-        Context.None
-    );
+    return options && typeof options.sourceType === 'string' && options.sourceType === 'module'
+            ? this.parseModule(sourceText, options)
+            : this.parseScript(sourceText, options);
 }

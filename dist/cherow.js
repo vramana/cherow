@@ -5241,9 +5241,9 @@ function parseModule(sourceText, options) {
 function parse(sourceText, options) {
     if ( options === void 0 ) options = {};
 
-    return new Parser(sourceText, options).parseScript(options && typeof options.sourceType === 'string' && options.sourceType === 'module' ?
-        2 /* Strict */ | 1 /* Module */ :
-        0 /* None */);
+    return options && typeof options.sourceType === 'string' && options.sourceType === 'module'
+        ? this.parseModule(sourceText, options)
+        : this.parseScript(sourceText, options);
 }
 
 exports.parseScript = parseScript;
