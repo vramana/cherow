@@ -158,6 +158,97 @@ describe('Expressions - Arrow function', () => {
             }).to.throw();
           });
           
+          it('should parse arrow function wrapped in paren followed by call expression', () => {
+            expect(parseScript(`((() => {}))()`, {
+                ranges: true,
+                locations: true,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 14,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 14
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 14,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 14
+                      }
+                    },
+                    "expression": {
+                      "type": "CallExpression",
+                      "start": 0,
+                      "end": 14,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 14
+                        }
+                      },
+                      "callee": {
+                        "type": "ArrowFunctionExpression",
+                        "start": 2,
+                        "end": 10,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 2
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 10
+                          }
+                        },
+                        "id": null,
+                        "generator": false,
+                        "expression": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 8,
+                          "end": 10,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 8
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 10
+                            }
+                          },
+                          "body": []
+                        }
+                      },
+                      "arguments": []
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
 
           it('should parse arrow function wrapped in paren followed by call expression', () => {
             expect(parseScript(`(() => {})()`, {
@@ -3889,6 +3980,525 @@ describe('Expressions - Arrow function', () => {
                 "sourceType": "script"
             });
         });
+
+        it('should parse call with arrow inside', () => {
+            expect(parseScript(`foo((x, y) => {})`, {
+                ranges: true,
+                locations: true,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 17,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 17
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 17,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 17
+                      }
+                    },
+                    "expression": {
+                      "type": "CallExpression",
+                      "start": 0,
+                      "end": 17,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 17
+                        }
+                      },
+                      "callee": {
+                        "type": "Identifier",
+                        "start": 0,
+                        "end": 3,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 0
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 3
+                          }
+                        },
+                        "name": "foo"
+                      },
+                      "arguments": [
+                        {
+                          "type": "ArrowFunctionExpression",
+                          "start": 4,
+                          "end": 16,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 16
+                            }
+                          },
+                          "id": null,
+                          "generator": false,
+                          "expression": false,
+                          "async": false,
+                          "params": [
+                            {
+                              "type": "Identifier",
+                              "start": 5,
+                              "end": 6,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 5
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 6
+                                }
+                              },
+                              "name": "x"
+                            },
+                            {
+                              "type": "Identifier",
+                              "start": 8,
+                              "end": 9,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 8
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 9
+                                }
+                              },
+                              "name": "y"
+                            }
+                          ],
+                          "body": {
+                            "type": "BlockStatement",
+                            "start": 14,
+                            "end": 16,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 14
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 16
+                              }
+                            },
+                            "body": []
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+        it('should parse call with arrow inside', () => {
+            expect(parseScript(`foo(() => {})`, {
+                ranges: true,
+                locations: true,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 13,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 13
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 13,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 13
+                      }
+                    },
+                    "expression": {
+                      "type": "CallExpression",
+                      "start": 0,
+                      "end": 13,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 13
+                        }
+                      },
+                      "callee": {
+                        "type": "Identifier",
+                        "start": 0,
+                        "end": 3,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 0
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 3
+                          }
+                        },
+                        "name": "foo"
+                      },
+                      "arguments": [
+                        {
+                          "type": "ArrowFunctionExpression",
+                          "start": 4,
+                          "end": 12,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 12
+                            }
+                          },
+                          "id": null,
+                          "generator": false,
+                          "expression": false,
+                          "async": false,
+                          "params": [],
+                          "body": {
+                            "type": "BlockStatement",
+                            "start": 10,
+                            "end": 12,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 10
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 12
+                              }
+                            },
+                            "body": []
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+        
+        it('should parse eval params assignment (sloppy mode)', () => {
+            expect(parseScript(`(eval, a = 10) => 42`, {
+                ranges: true,
+                locations: true,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 20,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 20
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 20,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 20
+                      }
+                    },
+                    "expression": {
+                      "type": "ArrowFunctionExpression",
+                      "start": 0,
+                      "end": 20,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 20
+                        }
+                      },
+                      "id": null,
+                      "generator": false,
+                      "expression": true,
+                      "async": false,
+                      "params": [
+                        {
+                          "type": "Identifier",
+                          "start": 1,
+                          "end": 5,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 1
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 5
+                            }
+                          },
+                          "name": "eval"
+                        },
+                        {
+                          "type": "AssignmentPattern",
+                          "start": 7,
+                          "end": 13,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 7
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 13
+                            }
+                          },
+                          "left": {
+                            "type": "Identifier",
+                            "start": 7,
+                            "end": 8,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 7
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 8
+                              }
+                            },
+                            "name": "a"
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "start": 11,
+                            "end": 13,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 11
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 13
+                              }
+                            },
+                            "value": 10,
+                            "raw": "10"
+                          }
+                        }
+                      ],
+                      "body": {
+                        "type": "Literal",
+                        "start": 18,
+                        "end": 20,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 18
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 20
+                          }
+                        },
+                        "value": 42,
+                        "raw": "42"
+                      }
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+        it('should parse eval params assignment (sloppy mode)', () => {
+            expect(parseScript(`(eval = 10) => 42`, {
+                ranges: true,
+                locations: true,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 17,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 17
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 17,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 17
+                      }
+                    },
+                    "expression": {
+                      "type": "ArrowFunctionExpression",
+                      "start": 0,
+                      "end": 17,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 17
+                        }
+                      },
+                      "id": null,
+                      "generator": false,
+                      "expression": true,
+                      "async": false,
+                      "params": [
+                        {
+                          "type": "AssignmentPattern",
+                          "start": 1,
+                          "end": 10,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 1
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 10
+                            }
+                          },
+                          "left": {
+                            "type": "Identifier",
+                            "start": 1,
+                            "end": 5,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 1
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 5
+                              }
+                            },
+                            "name": "eval"
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "start": 8,
+                            "end": 10,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 8
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 10
+                              }
+                            },
+                            "value": 10,
+                            "raw": "10"
+                          }
+                        }
+                      ],
+                      "body": {
+                        "type": "Literal",
+                        "start": 15,
+                        "end": 17,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 15
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 17
+                          }
+                        },
+                        "value": 42,
+                        "raw": "42"
+                      }
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
     
         it('should parse eval params (sloppy mode)', () => {
             expect(parseScript(`(eval, a) => 42;`, {
@@ -5117,8 +5727,164 @@ describe('Expressions - Arrow function', () => {
                 "sourceType": "script"
               });
         });
+        
+        it('should parse two arrow declaration functions', () => {
+            expect(parseScript(`(x=1) => x * x`, {
+                ranges: true,
+                locations: true,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 14,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 14
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 14,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 14
+                      }
+                    },
+                    "expression": {
+                      "type": "ArrowFunctionExpression",
+                      "start": 0,
+                      "end": 14,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 14
+                        }
+                      },
+                      "id": null,
+                      "generator": false,
+                      "expression": true,
+                      "async": false,
+                      "params": [
+                        {
+                          "type": "AssignmentPattern",
+                          "start": 1,
+                          "end": 4,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 1
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 4
+                            }
+                          },
+                          "left": {
+                            "type": "Identifier",
+                            "start": 1,
+                            "end": 2,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 1
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 2
+                              }
+                            },
+                            "name": "x"
+                          },
+                          "right": {
+                            "type": "Literal",
+                            "start": 3,
+                            "end": 4,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 3
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 4
+                              }
+                            },
+                            "value": 1,
+                            "raw": "1"
+                          }
+                        }
+                      ],
+                      "body": {
+                        "type": "BinaryExpression",
+                        "start": 9,
+                        "end": 14,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 9
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 14
+                          }
+                        },
+                        "left": {
+                          "type": "Identifier",
+                          "start": 9,
+                          "end": 10,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 9
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 10
+                            }
+                          },
+                          "name": "x"
+                        },
+                        "operator": "*",
+                        "right": {
+                          "type": "Identifier",
+                          "start": 13,
+                          "end": 14,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 13
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 14
+                            }
+                          },
+                          "name": "x"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
 
-    
         it('should parse two arrow declaration functions', () => {
             expect(parseScript(`() => {}
             () => {}`, {

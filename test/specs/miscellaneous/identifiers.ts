@@ -204,6 +204,12 @@ describe('Miscellaneous - Identifiers', () => {
           }).to.throw();
         });
 
+        it('should fail if unicode missing right brace', () => {
+          expect(() => {
+              parseScript('var \\u{74 = 123;');
+          }).to.throw();
+        });
+
         it('should fail if reserved words used as Identifier - "throw" ( hex 4)', () => {
           expect(() => {
               parseScript('var \\u0074\\u0072\\u0079 = 123;');

@@ -2055,6 +2055,65 @@ describe('Espressions - Template', () => {
           });
     });
 
+    it('should parse with new line', () => {
+        expect(parseScript('`\r\n\t\n`', {
+            locations: false,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "TemplateLiteral",
+                        "expressions": [],
+                        "quasis": [
+                            {
+                                "type": "TemplateElement",
+                                "value": {
+                                    "cooked": "\r\n\t\n",
+                                    "raw": "\r\n\t\n"
+                                },
+                                "tail": true
+                            }
+                        ]
+                    }
+                }
+            ],
+            "sourceType": "script"
+        });
+    });
+
+    it('should parse with new line', () => {
+        expect(parseScript('`\n`', {
+            locations: false,
+            raw: true
+        })).to.eql({
+              "body": [
+                {
+                  "expression": {
+                    "expressions": [],
+                    "quasis": [
+                      {
+                        "tail": true,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "\n",
+                          "raw": "\n",
+                        }
+                     },
+                    ],
+                    "type": "TemplateLiteral"
+                 },
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            });
+    });
+
+
     it('should parse if statement plus double braces', () => {
         expect(parseScript('if(a) { (`${b}`) }', {
             locations: false,

@@ -5,6 +5,12 @@ const expect = chai.expect;
 
 describe('Next - BigInt', () => {
 
+    it('should fail if options for BigInt isnt set', () => {
+        expect(() => {
+            parseScript(`9223372036854775807n`)
+        }).to.throw();
+    });
+
     it('should fail on invalid float', () => {
         expect(() => {
             parseScript('1.0n', {

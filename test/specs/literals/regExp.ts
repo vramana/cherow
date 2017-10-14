@@ -676,6 +676,24 @@ describe('Literals - RegExp', () => {
         }).to.throw('Unexpected regular expression flag');
     });
 
+    it('should fail on early error bad flag - m', () => {
+        expect(() => {
+            parseScript(`/./M;`)
+        }).to.throw('Unexpected regular expression flag');
+    });
+
+    it('should fail on early error bad flag - u', () => {
+        expect(() => {
+            parseScript(`/./U;`)
+        }).to.throw('Unexpected regular expression flag');
+    });
+
+    it('should fail on early error bad flag - y', () => {
+        expect(() => {
+            parseScript(`/./Y;`)
+        }).to.throw('Unexpected regular expression flag');
+    });
+
     it('should fail on early error duplicate flag', () => {
         expect(() => {
             parseScript(`/./gig;`)

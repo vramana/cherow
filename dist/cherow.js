@@ -1361,38 +1361,36 @@ Parser.prototype.scanNumber = function scanNumber (context) {
     }
     var end = this.index;
     var cp = this.nextChar();
-    if (!(cp >= 48 /* Zero */ && cp <= 57 /* Nine */)) {
-        switch (cp) {
-            // scan exponent, if any
-            case 69 /* UpperE */:
-            case 101 /* LowerE */:
+    switch (cp) {
+        // scan exponent, if any
+        case 69 /* UpperE */:
+        case 101 /* LowerE */:
+            this.advance();
+            state |= 4 /* Exponent */;
+            // scan exponent
+            switch (this.nextChar()) {
+                case 43 /* Plus */:
+                case 45 /* Hyphen */:
+                    this.readNext(104 /* UnexpectedTokenNumber */);
+                default: // ignore
+            }
+            cp = this.nextChar();
+            // we must have at least one decimal digit after 'e'/'E'
+            if (!(cp >= 48 /* Zero */ && cp <= 57 /* Nine */))
+                { this.error(105 /* UnexpectedMantissa */); }
+            this.advanceAndSkipDigits();
+            end = this.index;
+            break;
+        // BigInt - Stage 3 proposal
+        case 110 /* LowerN */:
+            if (this.flags & 524288 /* OptionsNext */) {
+                if (state & 2 /* Float */)
+                    { this.error(0 /* Unexpected */); }
                 this.advance();
-                state |= 4 /* Exponent */;
-                // scan exponent
-                switch (this.nextChar()) {
-                    case 43 /* Plus */:
-                    case 45 /* Hyphen */:
-                        this.readNext(104 /* UnexpectedTokenNumber */);
-                    default: // ignore
-                }
-                cp = this.nextChar();
-                // we must have at least one decimal digit after 'e'/'E'
-                if (!(cp >= 48 /* Zero */ && cp <= 57 /* Nine */))
-                    { this.error(105 /* UnexpectedMantissa */); }
-                this.advanceAndSkipDigits();
+                state |= 8 /* BigInt */;
                 end = this.index;
-                break;
-            // BigInt - Stage 3 proposal
-            case 110 /* LowerN */:
-                if (this.flags & 524288 /* OptionsNext */) {
-                    if (state & 2 /* Float */)
-                        { this.error(0 /* Unexpected */); }
-                    this.advance();
-                    state |= 8 /* BigInt */;
-                    end = this.index;
-                }
-            default: // ignore
-        }
+            }
+        default: // ignore
     }
     // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
     // The SourceCharacter immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
@@ -1577,10 +1575,7 @@ Parser.prototype.peekExtendedUnicodeEscape = function peekExtendedUnicodeEscape 
         if (code$1 < 0)
             { this.error(62 /* InvalidHexEscapeSequence */); }
         for (var i = 0; i < 3; i++) {
-            this$1.advance();
-            if (!this$1.hasNext())
-                { this$1.error(62 /* InvalidHexEscapeSequence */); }
-            ch = this$1.nextChar();
+            ch = this$1.readNext(62 /* InvalidHexEscapeSequence */);
             var digit$1 = toHex(ch);
             if (code$1 < 0)
                 { this$1.error(62 /* InvalidHexEscapeSequence */); }
@@ -1705,14 +1700,9 @@ Parser.prototype.scanStringEscape = function scanStringEscape (context) {
         case 57 /* Nine */:
             this.error(8 /* InvalidEightAndNine */);
         case 13 /* CarriageReturn */:
-            // Allow escaped CR+LF newlines in multiline string literals.
-            if (this.hasNext() && this.nextChar() === 10 /* LineFeed */)
-                { this.advance(); }
         case 10 /* LineFeed */:
         case 8232 /* LineSeparator */:
         case 8233 /* ParagraphSeparator */:
-            this.column = -1;
-            this.line++;
             return '';
         default:
             // Other escaped characters are interpreted as their non-escaped version.
@@ -1732,12 +1722,7 @@ Parser.prototype.scanJSXIdentifier = function scanJSXIdentifier (context) {
                         this$1.advance();
                         break;
                     default:
-                        if ((firstCharPosition === this$1.index) ? isIdentifierStart(ch) : isIdentifierPart(ch)) {
-                            this$1.advance();
-                        }
-                        else {
-                            break scan;
-                        }
+                        break scan;
                 }
             }
             this.tokenValue += this.source.slice(firstCharPosition, this.index - firstCharPosition);

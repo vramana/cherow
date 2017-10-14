@@ -1134,8 +1134,6 @@ export class Parser {
     
             let cp = this.nextChar();
     
-            if (!(cp >= Chars.Zero && cp <= Chars.Nine)) {
-    
                 switch (cp) {
     
                     // scan exponent, if any
@@ -1173,7 +1171,7 @@ export class Parser {
     
                     default: // ignore
                 }
-            }
+
             // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
             // The SourceCharacter immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
             // For example : 3in is an error and not the two input elements 3 and in
@@ -1385,9 +1383,7 @@ export class Parser {
                 if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
     
                 for (let i = 0; i < 3; i++) {
-                    this.advance();
-                    if (!this.hasNext()) this.error(Errors.InvalidHexEscapeSequence);
-                    ch = this.nextChar();
+                    ch = this.readNext(Errors.InvalidHexEscapeSequence)
                     const digit = toHex(ch);
                     if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
                     code = code << 4 | digit;
@@ -1525,13 +1521,9 @@ export class Parser {
                 case Chars.Nine:
                     this.error(Errors.InvalidEightAndNine);
                 case Chars.CarriageReturn:
-                    // Allow escaped CR+LF newlines in multiline string literals.
-                    if (this.hasNext() && this.nextChar() === Chars.LineFeed) this.advance();
                 case Chars.LineFeed:
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
-                    this.column = -1;
-                    this.line++;
                     return '';
                 default:
                     // Other escaped characters are interpreted as their non-escaped version.
@@ -1551,11 +1543,7 @@ export class Parser {
                                     this.advance();
                                     break;
                                 default:
-                                    if ((firstCharPosition === this.index) ? isIdentifierStart(ch) : isIdentifierPart(ch)) {
-                                        this.advance();
-                                    } else {
-                                        break scan;
-                                    }
+                                  break scan;
                             }
                         }
     
