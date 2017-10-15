@@ -3260,16 +3260,21 @@ export class Parser {
     
             // A line terminator between ArrowParameters and the => should trigger a SyntaxError.
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
+    
             if (context & Context.Yield) context &= ~Context.Yield;
     
             this.expect(context, Token.Arrow);
     
+            // Unsetting the 'AllowCall' mask here, let the parser fail correctly
+            // if a non-simple arrow are followed by a call expression.
+            //
+            //  (a) => {}()
+            //
             if (this.flags & Flags.AllowCall) this.flags &= ~Flags.AllowCall;
-    
-            if (this.flags & Flags.InFunctionBody && !(context & Context.Statement)) context &= ~Context.Await;
     
             const savedScope = this.enterFunctionScope();
     
+            // A 'simple arrow' is just a plain identifier and doesn't have any param list.
             if (!(context & Context.SimpleArrow)) {
                 for (const i in params) this.reinterpretAsPattern(context | Context.InArrowParameterList, params[i]);
             }
@@ -3278,6 +3283,19 @@ export class Parser {
             let expression = false;
     
             if (this.token === Token.LeftBrace) {
+                // An arrow function could be a non-trailing member of a comma
+                // expression or a semicolon terminating a full expression. In this
+                // cases this productions are valid:
+                //
+                //   a => {}, b;
+                //   (a => {}), b;
+                //
+                // However. If the arrow function ends a statement, ASI permits the
+                // next token to start an expression statement wich makes
+                // this production invalid:
+                //
+                //   a => {} /x/g;   // regular expression as a division
+                //
                 body = this.parseFunctionBody(context | Context.AllowIn);
             } else {
                 body = this.parseAssignmentExpression(context | Context.AllowIn);
