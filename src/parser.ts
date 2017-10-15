@@ -3252,14 +3252,13 @@ export class Parser {
             }
         }
     
-        private parseArrowFormalList(context: Context, params: ESTree.Node[]): ESTree.Node[] {
-            for (const i in params) this.reinterpretAsPattern(context | Context.InArrowParameterList, params[i]);
-            return params;
-        }
+        private parseArrowFunction(
+            context: Context,
+            pos: Location | undefined,
+            params: ESTree.Node[]
+        ): ESTree.ArrowFunctionExpression {
     
-        private parseArrowFunction(context: Context, pos: any, params: any[]): ESTree.ArrowFunctionExpression {
-            // ArrowFunction[In, Yield]:
-            // ArrowParameters[?Yield][no LineTerminator here]=>ConciseBody[?In]
+            // A line terminator between ArrowParameters and the => should trigger a SyntaxError.
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
             if (context & Context.Yield) context &= ~Context.Yield;
     
@@ -3271,7 +3270,9 @@ export class Parser {
     
             const savedScope = this.enterFunctionScope();
     
-            if (!(context & Context.SimpleArrow)) this.parseArrowFormalList(context, params);
+            if (!(context & Context.SimpleArrow)) {
+                for (const i in params) this.reinterpretAsPattern(context | Context.InArrowParameterList, params[i]);
+            }
     
             let body;
             let expression = false;
@@ -4359,7 +4360,7 @@ export class Parser {
                             break;
                         default: // ignore
                     }
-
+    
                     if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
                     key = this.parsePropertyName(context);
     
@@ -4378,11 +4379,11 @@ export class Parser {
             }
     
             switch (this.token) {
-
+    
                 case Token.LeftParen:
                     value = this.parseMethodDefinition(context | Context.Method, state);
                     break;
-
+    
                 case Token.Colon:
     
                     if (state & ObjectState.Yield) this.error(Errors.Unexpected);
@@ -4394,16 +4395,24 @@ export class Parser {
                         }
                     }
                     this.expect(context, Token.Colon);
+    
+                    if (context & Context.InAsyncParameterList && this.token === Token.AwaitKeyword) {
+                        this.errorLocation = this.getLocations();
+                        this.flags |= Flags.HaveSeenAwait;
+                    }
                     value = this.parseAssignmentExpression(context);
+    
+    
                     if (context & Context.Strict && this.isEvalOrArguments((value as any).name)) {
                         this.error(Errors.UnexpectedStrictReserved);
                     }
                     break;
-
+    
                 default:
-                   
+    
                     if (!this.isIdentifier(context, token)) this.error(Errors.UnexpectedToken, tokenDesc(token))
-                    
+                    if (state & ObjectState.Yield) this.error(Errors.Unexpected);
+    
                     if (token === Token.AwaitKeyword) {
                         if (context & Context.Await) this.error(Errors.UnexpectedToken, tokenDesc(token))
                         if (context & Context.InAsyncParameterList) {
@@ -4411,13 +4420,13 @@ export class Parser {
                             this.flags |= Flags.HaveSeenAwait;
                         }
                     }
-                   
+    
                     if (context & Context.Strict && this.isEvalOrArguments(tokenValue)) {
                         this.error(Errors.UnexpectedReservedWord);
                     }
-
+    
                     state |= ObjectState.Shorthand;
-
+    
                     if (this.token === Token.Assign) {
                         value = this.parseAssignmentPattern(context, pos, key)
                         break;
@@ -4455,7 +4464,7 @@ export class Parser {
                     this.error(Errors.BadSetterRestParameter);
                 }
             }
-        
+    
             const body = this.parseFunctionBody(context);
             this.flags = savedFlag;
     
@@ -4470,7 +4479,7 @@ export class Parser {
                 expression: false
             });
         }
-        
+    
         private parseRestElement(context: Context) {
             const pos = this.startNode();
     

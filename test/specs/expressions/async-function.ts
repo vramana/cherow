@@ -13,7 +13,6 @@ describe('Expressions - Async function', () => {
         }).to.not.throw()
     });
 
-
     it('should fail on invalid nested async', () => {
         expect(() => {
             parseScript(`async function wrap() {
@@ -32,12 +31,6 @@ describe('Expressions - Async function', () => {
         expect(() => {
             parseScript(`(async function foo(await) { });`);
         }).to.throw()
-    });
-
-    it('should fail on invalid await name destructed', () => {
-        expect(() => {
-            parseScript(`async ({a: await}) => 1;`);
-        }).to.not.throw()
     });
 
     it('should fail on invalid await function expression', () => {

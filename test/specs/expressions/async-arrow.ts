@@ -129,10 +129,10 @@ describe('Expressions - Async Arrow function', () => {
       }).to.throw()
     })
 
-    it('should fail if async contain unicode (object)', () => {
+    it('should fail on invalid await name destructed', () => {
       expect(() => {
         parseScript(`async ({a: await}) => 1`);
-      }).to.not.throw()
+      }).to.throw()
     })
 
     it('should fail if async inside async functions (array)', () => {

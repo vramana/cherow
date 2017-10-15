@@ -3162,16 +3162,10 @@ Parser.prototype.reinterpretAsPattern = function reinterpretAsPattern (context, 
             this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
     }
 };
-Parser.prototype.parseArrowFormalList = function parseArrowFormalList (context, params) {
+Parser.prototype.parseArrowFunction = function parseArrowFunction (context, pos, params) {
         var this$1 = this;
 
-    for (var i in params)
-        { this$1.reinterpretAsPattern(context | 512 /* InArrowParameterList */, params[i]); }
-    return params;
-};
-Parser.prototype.parseArrowFunction = function parseArrowFunction (context, pos, params) {
-    // ArrowFunction[In, Yield]:
-    // ArrowParameters[?Yield][no LineTerminator here]=>ConciseBody[?In]
+    // A line terminator between ArrowParameters and the => should trigger a SyntaxError.
     if (this.flags & 1 /* LineTerminator */)
         { this.error(67 /* LineBreakAfterAsync */); }
     if (context & 16 /* Yield */)
@@ -3182,8 +3176,10 @@ Parser.prototype.parseArrowFunction = function parseArrowFunction (context, pos,
     if (this.flags & 4 /* InFunctionBody */ && !(context & 1024 /* Statement */))
         { context &= ~32 /* Await */; }
     var savedScope = this.enterFunctionScope();
-    if (!(context & 8 /* SimpleArrow */))
-        { this.parseArrowFormalList(context, params); }
+    if (!(context & 8 /* SimpleArrow */)) {
+        for (var i in params)
+            { this$1.reinterpretAsPattern(context | 512 /* InArrowParameterList */, params[i]); }
+    }
     var body;
     var expression = false;
     if (this.token === 393228 /* LeftBrace */) {
@@ -4177,6 +4173,10 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context, has_
                 }
             }
             this.expect(context, 21 /* Colon */);
+            if (context & 256 /* InAsyncParameterList */ && this.token === 331885 /* AwaitKeyword */) {
+                this.errorLocation = this.getLocations();
+                this.flags |= 512 /* HaveSeenAwait */;
+            }
             value = this.parseAssignmentExpression(context);
             if (context & 2 /* Strict */ && this.isEvalOrArguments(value.name)) {
                 this.error(79 /* UnexpectedStrictReserved */);
@@ -4185,6 +4185,8 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context, has_
         default:
             if (!this.isIdentifier(context, token))
                 { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }
+            if (state & 1 /* Yield */)
+                { this.error(0 /* Unexpected */); }
             if (token === 331885 /* AwaitKeyword */) {
                 if (context & 32 /* Await */)
                     { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }

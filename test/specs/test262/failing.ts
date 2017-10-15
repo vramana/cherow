@@ -2302,16 +2302,10 @@ is y`);
         }).to.not.throw();
     });
 
-    it('should fail on "async (await) => 1 "', () => {
+    it('should fail on "async (await) => 1"', () => {
         expect(() => {
             parseScript('async (await) => 1');
         }).to.throw('');
-    });
-
-    it('should fail on " async ({a: await}) => 1"', () => {
-        expect(() => {
-            parseScript('async ({a: await}) => 1');
-        }).to.not.throw();
     });
 
     it('should fail on " async ([await]) => 1"', () => {
@@ -2419,12 +2413,6 @@ is y`);
         expect(() => {
             parseScript('async await => 1');
         }).to.throw();
-    });
-
-    it('should fail on " async ({a: await}) => 1"', () => {
-        expect(() => {
-            parseScript('async ({a: await}) => 1');
-        }).to.not.throw();
     });
 
     it('should fail on " class A {static async set foo(value) { }}"', () => {
