@@ -365,25 +365,25 @@ describe('Statements - For in', () => {
     it(`should fail on ""use strict"; for (var {x}=0 in y);"`, () => {
         expect(() => {
             parseScript(`"use strict"; for (var {x}=0 in y);`);
-        }).to.throw('Invalid variable declaration in for-in statement');
+        }).to.throw();
     });
 
     it(`should fail on ""use strict"; for (var i=0 in j);"`, () => {
         expect(() => {
             parseScript(`"use strict"; for (var i=0 in j);`);
-        }).to.throw('Invalid variable declaration in for-in statement');
+        }).to.throw();
     });
 
     it(`should fail on ""use strict"; for (var [p]=1 in q);"`, () => {
         expect(() => {
             parseScript(`"use strict"; for (var [p]=1 in q);`);
-        }).to.throw('Invalid variable declaration in for-in statement');
+        }).to.throw();
     });
      
     it(`should fail on ""use strict"; for (var i = "" in { a: 10, b: 20 }) {}"`, () => {
         expect(() => {
             parseScript(`"use strict"; for (var i = "" in { a: 10, b: 20 }) {}`);
-        }).to.throw('Invalid variable declaration in for-in statement');
+        }).to.throw();
     });
 
     it(`should fail on "for (var a in b)"`, () => {

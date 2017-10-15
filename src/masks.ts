@@ -27,7 +27,7 @@ export const enum Context {
 
     Let                    = 1 << 23,  // Variable declaration
     Const                  = 1 << 24,  // Variable declaration
-    
+
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
 

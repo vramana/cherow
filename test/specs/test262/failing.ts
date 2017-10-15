@@ -449,7 +449,7 @@ describe('Test262 Failing tests', () => {
     it(`should fail on "({get +:3})"`, () => {
         expect(() => {
             parseScript(`({get +:3})`)
-        }).to.not.throw();
+        }).to.throw();
     });
     it(`should fail on "#="`, () => {
         expect(() => {

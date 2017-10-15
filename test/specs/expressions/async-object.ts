@@ -4,49 +4,6 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Expressions - Async Object', () => {
-
-    it('should fail on invalid async property', () => {
-        expect(() => {
-            parseScript(`({async foo: 1});`);
-        }).to.throw()
-    });
-
-    it('should fail on invalid async object', () => {
-        expect(() => {
-            parseScript(`async ({a = b});`);
-        }).to.not.throw()
-    });
-
-    it('should fail on invalid async method return await', () => {
-        expect(() => {
-            parseScript(`({async foo() { return {await} }});`);
-        }).to.throw()
-    });
-
-    it('should fail on invalid async method expression', () => {
-        expect(() => {
-            parseScript(`({async foo() { var await }});`);
-        }).to.throw()
-    });
-
-    it('should fail on invalid async method empty await', () => {
-        expect(() => {
-            parseScript(`({async foo() { await }});`);
-        }).to.throw()
-    });
-
-    it('should fail on invalid async getter method', () => {
-        expect(() => {
-            parseScript(`({async get foo() { }});`);
-        }).to.not.throw()
-    });
-
-    it('should fail on invalid async generator method', () => {
-        expect(() => {
-            parseScript(`({async* foo() { }});`);
-        }).to.throw()
-    });
-
     it('should allow async as shorthand property', () => {
         expect(parseScript(`({async})`, {
             ranges: true,

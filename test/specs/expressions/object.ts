@@ -117,13 +117,13 @@ describe('Espressions - Object', () => {
     it('should fail on invalid shorthand', () => {
         expect(() => {
             parseScript(`var x = ({ const });`);
-        }).to.throw('');
+        }).to.throw();
     });
 
     it('should fail on mix of invalid shorthands', () => {
         expect(() => {
             parseScript(`({ get, this, if });`);
-        }).to.throw('');
+        }).to.throw();
     });
 
     it('should fail if a method definition are forwarded to the runtime', () => {
@@ -216,16 +216,6 @@ describe('Espressions - Object', () => {
         expect(() => {
             parseScript(` ({ *[(function() { }())]() {} }); });`);
         }).to.throw('');
-    });
-
-    it('should fail if a generator method contains a non-simple parameter list and a UseStrict directiv', () => {
-        expect(() => {
-            parseScript(`o = {
-  *m(a = 0) {
-    "use strict";
-  }
-};`);
-}).to.not.throw();
     });
 
     it('should fail on escaped ""get"', () => {
@@ -337,7 +327,7 @@ describe('Espressions - Object', () => {
     it('expect "({get +:3})" to fail', () => {
         expect(() => {
             parseScript(`({get +:3})`);
-    }).to.not.throw();
+    }).to.throw();
 
     });
 
@@ -368,30 +358,13 @@ describe('Espressions - Object', () => {
     it('should fail on invalid use of future reserved word ( eval) in strict mode - strict directive', () => {
         expect(() => {
             parseScript('"use strict"; ({ v: eval }) = obj')
-        }).to.throw('');
-    });
-    it('should fail on invalid use of future reserved word ( eval)  in strict mode - module code', () => {
-        expect(() => {
-            parseModule('"use strict"; ({ v: eval }) = obj')
-        }).to.throw('');
+        }).to.throw();
     });
 
     it('should fail on invalid use of future reserved word ( arguments) in strict mode - strict directive', () => {
         expect(() => {
             parseScript('"use strict"; ({ v: arguments }) = obj')
-        }).to.throw('');
-    });
-
-    it('should fail on invalid use of future reserved word ( arguments) in strict mode - strict directive', () => {
-        expect(() => {
-            parseScript('"use strict"; ({ eval: v }) = obj')
-        }).to.not.throw('');
-    });
-
-    it('should fail on invalid use of future reserved word (arguments) in strict mode - module code', () => {
-        expect(() => {
-            parseModule('"use strict"; ({ v: arguments }) = obj')
-        }).to.throw('');
+        }).to.throw();
     });
 
     it('should fail on invalid proto getter literal identifier', () => {

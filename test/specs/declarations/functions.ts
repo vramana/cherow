@@ -84,7 +84,7 @@ it('should fail on ""use strict" function eval() {"use strict"; }"', () => {
         }).to.throw('');
     });
 
-    it('should fail on "class A extends yield B { }"', () => {
+    it('should fail on "function foo() { "use strict"; return {yield} }"', () => {
         expect(() => {
             parseScript('function foo() { "use strict"; return {yield} }');
         }).to.throw('');

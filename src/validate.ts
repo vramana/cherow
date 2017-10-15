@@ -50,28 +50,3 @@ export function isValidSimpleAssignmentTarget(expr: Expression | Pattern): boole
             return false;
     }
 }
-
-export function isAsync(t: Token): boolean {
-
-    switch (t) {
-        case Token.Colon:
-        case Token.Assign:
-        case Token.LeftParen:
-        case Token.Comma:
-            return false;
-        default:
-            return true;
-    }
-}
-export function qualifiedPropertyName(t: Token): boolean {
-    switch (t) {
-        case Token.StringLiteral:
-        case Token.NumericLiteral:
-        case Token.Multiply:
-        case Token.LeftBracket:
-        case Token.Identifier:
-            return true;
-        default:
-            return hasMask(t, Token.Keyword);
-    }
-}
