@@ -23,6 +23,63 @@ describe('Miscellaneous - Directive prologue', () => {
         }).to.throw();
     });
 
+    it('should have no directive node if "directives" are enabled and no directive prologue', () => {
+        expect(parseScript('1', {
+            locations: true,
+            raw: true,
+            ranges: true,
+            directives: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 1,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 1
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 1,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 1
+                  }
+                },
+                "expression": {
+                  "type": "Literal",
+                  "start": 0,
+                  "end": 1,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 1
+                    }
+                  },
+                  "value": 1,
+                  "raw": "1"
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
     it('should parse if Use Strict Directive Prologue contain a EscapeSequence', () => {
         expect(parseScript('"use\\u0020strict"; eval = 42;', {
             locations: true,

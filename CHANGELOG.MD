@@ -10,3 +10,8 @@
 
 * Fails / passes correctly on block-scoping
 * Fails / passes correctly on duplicates in ForStatement
+
+*2017-10-16: Version 0.8.3*
+
+* Optimized label validation, and fixed a bug where not checking for undefined
+

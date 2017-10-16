@@ -11,6 +11,12 @@ describe('Module - Export', () => {
     }).to.throw();
   });
 
+    it('should fail if trying to export inside a function decl', () => {
+      expect(() => {
+        parseModule(`function() { export * from 123; }`);
+      }).to.throw();
+    });
+
     it('should fail on duplicates', () => {
         expect(() => {
           parseModule(`var x; export { x }; export { x };`);
@@ -133,6 +139,18 @@ describe('Module - Export', () => {
     it('should fail on export of duplicate class', () => {
       expect(() => {
           parseModule(`export class a{}  export class a{} `);
+      }).to.throw();
+    });
+
+    it('should fail on misspelled export default async function decl', () => {
+      expect(() => {
+          parseModule('export default async func');
+      }).to.throw();
+    });
+
+    it('should fail on misspelled export async function decl', () => {
+      expect(() => {
+          parseModule('export async func');
       }).to.throw();
     });
 
@@ -336,7 +354,7 @@ describe('Module - Export', () => {
           }).to.throw();
       });
 
-      it('should export async function expression', () => {
+      it('should export default async function expression', () => {
         expect(parseModule(`export default (async function() { })`, {
             ranges: true,
             raw: true,

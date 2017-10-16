@@ -40,9 +40,21 @@ describe('TC39 - Module code', () => {
             }).to.throw();
         });
 
-        it('should fail on early undefined break', () => {
+        it('should fail f ContainsUndefinedContinueTarget of module item list with arguments « » and « » is true"', () => {
             expect(() => {
-                parseModule('while (false) { break undef; }');
+                parseModule('while (false) { continue undef; }');
+            }).to.throw();
+        });
+
+        it('should fail if imported binding is a binding identifier and contain "eval"', () => {
+            expect(() => {
+                parseModule('import { eval } from "./early-import-eval.js";');
+            }).to.throw();
+        });
+
+        it('should fail if imported binding is a binding identifier and contain "eval"', () => {
+            expect(() => {
+                parseModule('import { eval } from "./early-import-eval.js";');
             }).to.throw();
         });
         
@@ -87,24 +99,6 @@ describe('TC39 - Module code', () => {
         it('should fail on invalid syntax', () => {
             expect(() => {
                 parseModule('?');
-            }).to.throw();
-        });
-
-        it('should fail f ContainsUndefinedContinueTarget of module item list with arguments « » and « » is true"', () => {
-            expect(() => {
-                parseModule('while (false) { continue undef; }');
-            }).to.throw();
-        });
-
-        it('should fail if imported binding is a binding identifier and contain "eval"', () => {
-            expect(() => {
-                parseModule('import { eval } from "./early-import-eval.js";');
-            }).to.throw();
-        });
-
-        it('should fail if imported binding is a binding identifier and contain "eval"', () => {
-            expect(() => {
-                parseModule('import { eval } from "./early-import-eval.js";');
             }).to.throw();
         });
 

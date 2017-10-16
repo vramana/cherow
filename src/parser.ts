@@ -1797,9 +1797,6 @@ export class Parser {
                 }
                 return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
             }
-            if (context & Context.SimpleArrow) {
-                if ((t & Token.Reserved) === Token.Reserved) this.error(Errors.UnexpectedStrictReserved);
-            }
             return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual || (t & Token.FutureReserved) === Token.FutureReserved;
         }
     
@@ -2211,12 +2208,8 @@ export class Parser {
             switch (this.token) {
                 case Token.Identifier:
                     return this.parseLabelledStatement(context);
-                    // VariableStatement[?Yield]
-                    // [+Return] ReturnStatement[?Yield]
                 case Token.LeftParen:
                     return this.parseExpressionStatement(context);
-                case Token.Identifier:
-                    return this.parseLabelledStatement(context);
                     // EmptyStatement
                 case Token.Semicolon:
                     return this.parseEmptyStatement(context);
@@ -2484,7 +2477,10 @@ export class Parser {
     
             if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
                 label = this.parseIdentifier(context);
-                if (!hasOwn.call(this.labelSet, '@' + label.name)) this.error(Errors.UnknownLabel, label.name);
+
+                if (this.labelSet === undefined || !hasOwn.call(this.labelSet, '@' + label.name)) {
+                    this.error(Errors.UnknownLabel, label.name);
+                }
             }
     
             if (!(this.flags & Flags.Continue) && !label) this.error(Errors.BadContinue);
@@ -2517,7 +2513,10 @@ export class Parser {
     
             if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
                 label = this.parseIdentifier(context);
-                if (!hasOwn.call(this.labelSet, '@' + label.name)) this.error(Errors.UnknownLabel, label.name);
+                
+                if (this.labelSet === undefined || !hasOwn.call(this.labelSet, '@' + label.name)) {
+                    this.error(Errors.UnknownLabel, label.name);
+                }
             }
     
             if (!(this.flags & (Flags.Break | Flags.Switch)) && !label) this.error(Errors.IllegalBreak);

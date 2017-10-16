@@ -1912,10 +1912,6 @@ Parser.prototype.isIdentifier = function isIdentifier (context, t) {
         }
         return t === 262145 /* Identifier */ || (t & 69632 /* Contextual */) === 69632 /* Contextual */;
     }
-    if (context & 8 /* SimpleArrow */) {
-        if ((t & 12288 /* Reserved */) === 12288 /* Reserved */)
-            { this.error(79 /* UnexpectedStrictReserved */); }
-    }
     return t === 262145 /* Identifier */ || (t & 69632 /* Contextual */) === 69632 /* Contextual */ || (t & 20480 /* FutureReserved */) === 20480 /* FutureReserved */;
 };
 Parser.prototype.nextTokenIsFuncKeywordOnSameLine = function nextTokenIsFuncKeywordOnSameLine (context) {
@@ -2272,12 +2268,8 @@ Parser.prototype.parseStatement = function parseStatement (context) {
     switch (this.token) {
         case 262145 /* Identifier */:
             return this.parseLabelledStatement(context);
-        // VariableStatement[?Yield]
-        // [+Return] ReturnStatement[?Yield]
         case 262155 /* LeftParen */:
             return this.parseExpressionStatement(context);
-        case 262145 /* Identifier */:
-            return this.parseLabelledStatement(context);
         // EmptyStatement
         case 17 /* Semicolon */:
             return this.parseEmptyStatement(context);
@@ -2495,8 +2487,9 @@ Parser.prototype.parseContinueStatement = function parseContinueStatement (conte
     var label = null;
     if (!(this.flags & 1 /* LineTerminator */) && this.token === 262145 /* Identifier */) {
         label = this.parseIdentifier(context);
-        if (!hasOwn.call(this.labelSet, '@' + label.name))
-            { this.error(74 /* UnknownLabel */, label.name); }
+        if (this.labelSet === undefined || !hasOwn.call(this.labelSet, '@' + label.name)) {
+            this.error(74 /* UnknownLabel */, label.name);
+        }
     }
     if (!(this.flags & 32 /* Continue */) && !label)
         { this.error(16 /* BadContinue */); }
@@ -2520,8 +2513,9 @@ Parser.prototype.parseBreakStatement = function parseBreakStatement (context) {
     var label = null;
     if (!(this.flags & 1 /* LineTerminator */) && this.token === 262145 /* Identifier */) {
         label = this.parseIdentifier(context);
-        if (!hasOwn.call(this.labelSet, '@' + label.name))
-            { this.error(74 /* UnknownLabel */, label.name); }
+        if (this.labelSet === undefined || !hasOwn.call(this.labelSet, '@' + label.name)) {
+            this.error(74 /* UnknownLabel */, label.name);
+        }
     }
     if (!(this.flags & (16 /* Break */ | 64 /* Switch */)) && !label)
         { this.error(17 /* IllegalBreak */); }

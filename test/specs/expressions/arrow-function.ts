@@ -152,13 +152,13 @@ describe('Expressions - Arrow function', () => {
             }).to.throw()
         });
 
-        it('should fail on "use strict" directive in function with non-simple parameter list', () => {
+        it('should fail on misspelled async function decl', () => {
             expect(() => {
-                parseScript('({a}) => { "use strict"; }');
+                parseScript('async func');
             }).to.throw();
           });
 
-          it('should parse arrow function followed by comma and identifier', () => {
+         it('should parse arrow function followed by comma and identifier', () => {
             expect(parseScript(`a => {}, b;`, {
                 ranges: true,
                 locations: true,

@@ -17,6 +17,24 @@ describe('Statements - do-while', () => {
         }).to.throw();
     });
 
+    it('should fail if async function declaration is in statement position`', () => {
+        expect(() => {
+            parseScript(`do async function f() {} while (false)`);
+        }).to.throw();
+    });
+
+    it('should fail on do without while', () => {
+        expect(() => {
+            parseScript(`do abc`);
+        }).to.throw();
+    });
+
+    it('should fail on do continue', () => {
+        expect(() => {
+            parseScript(`do continue`);
+        }).to.throw();
+    });
+
     it('should fail on labelled function statement', () => {
         expect(() => {
             parseScript(`do label1: label2: function f() {} while (false)`);
@@ -53,9 +71,18 @@ describe('Statements - do-while', () => {
         }).to.throw();
     });
 
-    it('should throw on \'while (false) let x;`', () => {
+    it('should fail on \'while (false) let x;`', () => {
         expect(() => {
             parseScript(`do function f() {} while (false)`)
+        }).to.throw();
+    });
+
+    it('should fail on unknown label', () => {
+        expect(() => {
+            parseScript(`label:
+            do {
+               continue label1;
+            } while (i < 5);`)
         }).to.throw();
     });
 

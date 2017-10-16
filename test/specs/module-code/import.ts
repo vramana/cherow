@@ -176,6 +176,12 @@ describe('Import', () => {
         }).to.throw();
     });
 
+    it('should fail if inside a function body', () => {
+        expect(() => {
+            parseModule('function() { import foo, from "bar"; }');
+        }).to.throw();
+    });
+
     it("should fail on \"import { for } from \"iteration\"\"", () => {
           expect(() => {
               parseModule("import { for } from \"iteration\"");
