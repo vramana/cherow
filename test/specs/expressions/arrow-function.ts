@@ -157,6 +157,132 @@ describe('Expressions - Arrow function', () => {
                 parseScript('({a}) => { "use strict"; }');
             }).to.throw();
           });
+
+          it('should parse arrow function followed by comma and identifier', () => {
+            expect(parseScript(`a => {}, b;`, {
+                ranges: true,
+                locations: true,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 11,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 11
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 11,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 11
+                      }
+                    },
+                    "expression": {
+                      "type": "SequenceExpression",
+                      "start": 0,
+                      "end": 10,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 10
+                        }
+                      },
+                      "expressions": [
+                        {
+                          "type": "ArrowFunctionExpression",
+                          "start": 0,
+                          "end": 7,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 0
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 7
+                            }
+                          },
+                          "id": null,
+                          "generator": false,
+                          "expression": false,
+                          "async": false,
+                          "params": [
+                            {
+                              "type": "Identifier",
+                              "start": 0,
+                              "end": 1,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 0
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 1
+                                }
+                              },
+                              "name": "a"
+                            }
+                          ],
+                          "body": {
+                            "type": "BlockStatement",
+                            "start": 5,
+                            "end": 7,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 5
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 7
+                              }
+                            },
+                            "body": []
+                          }
+                        },
+                        {
+                          "type": "Identifier",
+                          "start": 9,
+                          "end": 10,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 9
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 10
+                            }
+                          },
+                          "name": "b"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+          });
           
           it('should parse arrow function wrapped in paren followed by call expression', () => {
             expect(parseScript(`((() => {}))()`, {

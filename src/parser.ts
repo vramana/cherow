@@ -4091,6 +4091,7 @@ export class Parser {
             }
     
             classBody = this.parseClassBody(context | Context.Strict, flags);
+    
             this.flags = savedFlags;
             return this.finishNode(pos, {
                 type: 'ClassDeclaration',
@@ -4178,22 +4179,21 @@ export class Parser {
     
             if (this.parseOptional(context, Token.Multiply)) state |= ObjectState.Yield;
     
-            if (!(state & ObjectState.Yield)) {
+            if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
+            if (this.tokenValue === 'constructor') state |= ObjectState.HasConstructor;
     
-                if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
-                if (this.tokenValue === 'constructor') state |= ObjectState.HasConstructor;
+            key = this.parsePropertyName(context & ~Context.Strict);
     
-                key = this.parsePropertyName(context & ~Context.Strict);
+            // cannot use 'await' inside async functions.
+            if (context & Context.Await && this.flags & Flags.InFunctionBody && this.token === Token.AwaitKeyword) {
+                this.error(Errors.InvalidAwaitInArrowParam);
+            }
     
-                // cannot use 'await' inside async functions.
-                if (context & Context.Await && this.flags & Flags.InFunctionBody && this.token === Token.AwaitKeyword) {
-                    this.error(Errors.InvalidAwaitInArrowParam);
-                }
+            if (this.canFollowModifier(context, this.token)) {
     
-                if (token === Token.StaticKeyword && (this.canFollowModifier(context, this.token) || this.token === Token.Multiply)) {
-    
+                // 'static'
+                if (token === Token.StaticKeyword) {
                     token = this.token;
-    
                     state |= ObjectState.Static;
     
                     if (this.parseOptional(context, Token.Multiply)) {
@@ -4204,8 +4204,10 @@ export class Parser {
                     }
                 }
     
-                if (!(this.flags & Flags.LineTerminator) && (token === Token.AsyncKeyword)) {
+                if (token === Token.AsyncKeyword) {
+
                     if (this.token !== Token.Colon && this.token !== Token.LeftParen) {
+
                         state |= ObjectState.Async;
                         token = this.token;
                         tokenValue = this.tokenValue;
@@ -4233,7 +4235,7 @@ export class Parser {
                     }
                 }
             }
-    
+   
             // MethodDeclaration
             if (this.canFollowModifier(context, this.token)) {
     

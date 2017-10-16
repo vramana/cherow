@@ -12,7 +12,7 @@ describe('Miscellaneous - Trailing comma', () => {
       async
       a(){}
     }`);
-        }).to.throw();
+        }).to.not.throw();
     });
 
     it('should fail on invalid empty arrow', () => {

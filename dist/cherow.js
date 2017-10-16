@@ -3177,11 +3177,15 @@ Parser.prototype.parseArrowFunction = function parseArrowFunction (context, pos,
     if (context & 16 /* Yield */)
         { context &= ~16 /* Yield */; }
     this.expect(context, 10 /* Arrow */);
+    // Unsetting the 'AllowCall' mask here, let the parser fail correctly
+    // if a non-simple arrow are followed by a call expression.
+    //
+    //  (a) => {}()
+    //
     if (this.flags & 8 /* AllowCall */)
         { this.flags &= ~8 /* AllowCall */; }
-    if (this.flags & 4 /* InFunctionBody */ && !(context & 1024 /* Statement */))
-        { context &= ~32 /* Await */; }
     var savedScope = this.enterFunctionScope();
+    // A 'simple arrow' is just a plain identifier and doesn't have any param list.
     if (!(context & 8 /* SimpleArrow */)) {
         for (var i in params)
             { this$1.reinterpretAsPattern(context | 512 /* InArrowParameterList */, params[i]); }
@@ -3189,6 +3193,19 @@ Parser.prototype.parseArrowFunction = function parseArrowFunction (context, pos,
     var body;
     var expression = false;
     if (this.token === 393228 /* LeftBrace */) {
+        // An arrow function could be a non-trailing member of a comma
+        // expression or a semicolon terminating a full expression. In this
+        // cases this productions are valid:
+        //
+        //   a => {}, b;
+        //   (a => {}), b;
+        //
+        // However. If the arrow function ends a statement, ASI permits the
+        // next token to start an expression statement wich makes
+        // this production invalid:
+        //
+        //   a => {} /x/g;   // regular expression as a division
+        //
         body = this.parseFunctionBody(context | 4 /* AllowIn */);
     }
     else {
@@ -3959,17 +3976,18 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     var token = this.token;
     if (this.parseOptional(context, 2099763 /* Multiply */))
         { state |= 1 /* Yield */; }
-    if (!(state & 1 /* Yield */)) {
-        if (this.token === 393235 /* LeftBracket */)
-            { state |= 4 /* Computed */; }
-        if (this.tokenValue === 'constructor')
-            { state |= 128 /* HasConstructor */; }
-        key = this.parsePropertyName(context & ~2 /* Strict */);
-        // cannot use 'await' inside async functions.
-        if (context & 32 /* Await */ && this.flags & 4 /* InFunctionBody */ && this.token === 331885 /* AwaitKeyword */) {
-            this.error(102 /* InvalidAwaitInArrowParam */);
-        }
-        if (token === 20585 /* StaticKeyword */ && (this.canFollowModifier(context, this.token) || this.token === 2099763 /* Multiply */)) {
+    if (this.token === 393235 /* LeftBracket */)
+        { state |= 4 /* Computed */; }
+    if (this.tokenValue === 'constructor')
+        { state |= 128 /* HasConstructor */; }
+    key = this.parsePropertyName(context & ~2 /* Strict */);
+    // cannot use 'await' inside async functions.
+    if (context & 32 /* Await */ && this.flags & 4 /* InFunctionBody */ && this.token === 331885 /* AwaitKeyword */) {
+        this.error(102 /* InvalidAwaitInArrowParam */);
+    }
+    if (this.canFollowModifier(context, this.token)) {
+        // 'static'
+        if (token === 20585 /* StaticKeyword */) {
             token = this.token;
             state |= 512 /* Static */;
             if (this.parseOptional(context, 2099763 /* Multiply */)) {
@@ -3981,7 +3999,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                 key = this.parsePropertyName(context);
             }
         }
-        if (!(this.flags & 1 /* LineTerminator */) && (token === 69740 /* AsyncKeyword */)) {
+        if (token === 69740 /* AsyncKeyword */) {
             if (this.token !== 21 /* Colon */ && this.token !== 262155 /* LeftParen */) {
                 state |= 2 /* Async */;
                 token = this.token;
