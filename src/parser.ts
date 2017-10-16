@@ -888,7 +888,9 @@ export class Parser {
                 }
             }
 
-            if (Array.isArray(this.comments)) {
+            if (typeof this.comments === 'function') {
+                this.comments(type, value, commentStart as any, commentEnd as any, loc);
+            } else if (Array.isArray(this.comments)) {
 
                 const node: ESTree.Comment = {
                     type,
@@ -898,13 +900,8 @@ export class Parser {
                     loc
                 };
     
-                if (this.flags & Flags.OptionsLoc) {
-                    node.loc = loc;
-                }
                 this.comments.push(node);
-            } else if (typeof this.comments === 'function') {
-                this.comments(type, value, start, end, loc);
-            } 
+            }
         }
     
         private scanIdentifierOrKeyword(context: Context): Token {

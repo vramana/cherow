@@ -100,7 +100,7 @@ skipped by default, and can't be collected.
 
 ### Collecting comments
 
-Both a function or an array can be used to collect comments. If the location tracking isn't enabled, an empty object will be returned, and if if the `ranges option` isn't set - `undefined` will be returned.
+Both a function or an array can be used to collect comments. If the location tracking isn't enabled, an empty object will be returned, and if the `ranges option` isn't set - `undefined` will be returned.
 
 A function will be called with the following parameters
 
