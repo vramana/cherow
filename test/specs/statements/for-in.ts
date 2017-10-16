@@ -158,13 +158,13 @@ describe('Statements - For in', () => {
     it('should fail if the head declaration contain duplicate entries', () => {
         expect(() => {
             parseScript('for (const [x, x] in {}) {}');
-        }).to.not.throw('');
+        }).to.throw('');
     });
 
     it('should fail if the head declaration contain duplicate entries', () => {
         expect(() => {
             parseScript('for (let [x, x] in {}) {}');
-        }).to.not.throw('');
+        }).to.throw('');
     });
 
     it('should fail on "for (const x in {}) label1: label2: function f() {}"', () => {
@@ -233,12 +233,12 @@ describe('Statements - For in', () => {
     it('should fail on const bound name duplicates (const)', () => {
         expect(() => {
             parseScript('for (const [x, x] in {}) {}');
-        }).to.not.throw('');
+        }).to.throw('');
     });
     it('should fail on const bound name duplicates (let)', () => {
         expect(() => {
             parseScript('for (let [x, x] in {}) {}');
-        }).to.not.throw('');
+        }).to.throw('');
     });
     it('should fail on const bound name duplicates in statement (const)', () => {
         expect(() => {

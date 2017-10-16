@@ -2569,6 +2569,11 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
         state |= 8 /* Await */;
     }
     var savedFlag = this.flags;
+    var blockScope = this.blockScope;
+    var parentScope = this.parentScope;
+    if (blockScope !== undefined)
+        { this.parentScope = blockScope; }
+    this.blockScope = undefined;
     this.expect(context, 262155 /* LeftParen */);
     if (this.token !== 17 /* Semicolon */) {
         if (hasMask(this.token, 8650752 /* VarDeclStart */)) {
@@ -2661,6 +2666,10 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
             this.flags |= (32 /* Continue */ | 16 /* Break */);
             body = this.parseStatement(context | 4194304 /* ForStatement */);
             this.flags = savedFlag;
+            // Create a lexical scope node around the whole catch clause
+            this.blockScope = blockScope;
+            if (blockScope !== undefined)
+                { this.parentScope = parentScope; }
             return this.finishNode(pos, {
                 type: 'ForStatement',
                 body: body,
@@ -4704,8 +4713,7 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
     }
     if (this.flags & 2 /* HasUnicode */ && this.token === 282730 /* YieldKeyword */)
         { this.error(68 /* InvalidEscapedReservedWord */); }
-    if (!(context & 4194304 /* ForStatement */) && this.token === 262145 /* Identifier */)
-        { this.addVarOrBlock(context, name); }
+    this.addVarOrBlock(context, name);
     this.nextToken(context);
     return this.finishNode(pos, {
         type: 'Identifier',

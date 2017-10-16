@@ -2570,6 +2570,13 @@ export class Parser {
     
             const savedFlag = this.flags;
     
+            const blockScope = this.blockScope;
+            const parentScope = this.parentScope;
+    
+            if (blockScope !== undefined) this.parentScope = blockScope;
+    
+            this.blockScope = undefined;
+    
             this.expect(context, Token.LeftParen);
     
             if (this.token !== Token.Semicolon) {
@@ -2685,7 +2692,10 @@ export class Parser {
                     body = this.parseStatement(context | Context.ForStatement);
     
                     this.flags = savedFlag;
+                    // Create a lexical scope node around the whole catch clause
+                    this.blockScope = blockScope;
     
+                    if (blockScope !== undefined) this.parentScope = parentScope;
                     return this.finishNode(pos, {
                         type: 'ForStatement',
                         body,
@@ -4205,9 +4215,9 @@ export class Parser {
                 }
     
                 if (token === Token.AsyncKeyword) {
-
+    
                     if (this.token !== Token.Colon && this.token !== Token.LeftParen) {
-
+    
                         state |= ObjectState.Async;
                         token = this.token;
                         tokenValue = this.tokenValue;
@@ -4235,7 +4245,7 @@ export class Parser {
                     }
                 }
             }
-   
+    
             // MethodDeclaration
             if (this.canFollowModifier(context, this.token)) {
     
@@ -4988,7 +4998,8 @@ export class Parser {
             }
     
             if (this.flags & Flags.HasUnicode && this.token === Token.YieldKeyword) this.error(Errors.InvalidEscapedReservedWord);
-            if (!(context & Context.ForStatement) && this.token === Token.Identifier) this.addVarOrBlock(context, name);
+    
+            this.addVarOrBlock(context, name);
     
             this.nextToken(context);
     
