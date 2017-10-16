@@ -1065,14 +1065,14 @@ Parser.prototype.skipComments = function skipComments (state) {
             case 42 /* Asterisk */:
                 // For single and shebang comments, just advance, but
                 // for MultiLine comments we need to break the loop
-                if (!(state & 2 /* MultiLine */))
-                    { this$1.advance(); }
-                this$1.advance();
-                if (this$1.consume(47 /* Slash */)) {
-                    state |= 8 /* Closed */;
-                    break loop;
+                if (state & 2 /* MultiLine */) {
+                    this$1.advance();
+                    if (this$1.consume(47 /* Slash */)) {
+                        state |= 8 /* Closed */;
+                        break loop;
+                    }
+                    break;
                 }
-                break;
             // fall through
             default:
                 this$1.advance();
@@ -1106,7 +1106,10 @@ Parser.prototype.collectComment = function collectComment (type, value, start, e
             commentEnd = end;
         }
     }
-    if (Array.isArray(this.comments)) {
+    if (typeof this.comments === 'function') {
+        this.comments(type, value, commentStart, commentEnd, loc);
+    }
+    else if (Array.isArray(this.comments)) {
         var node = {
             type: type,
             value: value,
@@ -1114,13 +1117,7 @@ Parser.prototype.collectComment = function collectComment (type, value, start, e
             end: commentEnd,
             loc: loc
         };
-        if (this.flags & 65536 /* OptionsLoc */) {
-            node.loc = loc;
-        }
         this.comments.push(node);
-    }
-    else if (typeof this.comments === 'function') {
-        this.comments(type, value, start, end, loc);
     }
 };
 Parser.prototype.scanIdentifierOrKeyword = function scanIdentifierOrKeyword (context) {
@@ -1215,8 +1212,6 @@ Parser.prototype.scanNumberLiteral = function scanNumberLiteral (context) {
 Parser.prototype.scanOctalDigits = function scanOctalDigits (context) {
         var this$1 = this;
 
-    if (context & 2 /* Strict */)
-        { this.error(7 /* StrictOctalEscape */); }
     this.advanceTwice();
     var ch = this.nextChar();
     var code = ch - 48;
@@ -1228,8 +1223,6 @@ Parser.prototype.scanOctalDigits = function scanOctalDigits (context) {
         ch = this$1.nextChar();
         if (!(48 /* Zero */ <= ch && ch <= 55 /* Seven */))
             { break; }
-        if (ch < 48 /* Zero */ || ch >= 56 /* Eight */)
-            { this$1.error(43 /* InvalidBinaryDigit */); }
         code = (code << 3) | (ch - 48 /* Zero */);
         this$1.advance();
     }
@@ -1529,8 +1522,6 @@ Parser.prototype.peekExtendedUnicodeEscape = function peekExtendedUnicodeEscape 
             // At least one digit is expected
             ch = this$1.readNext(58 /* InvalidHexEscapeSequence */);
         }
-        if (ch !== 125 /* RightBrace */)
-            { this.error(58 /* InvalidHexEscapeSequence */); }
         return code;
         // '\uDDDD'
     }
@@ -1794,14 +1785,13 @@ Parser.prototype.parseDirective = function parseDirective (context) {
     var pos = this.startNode();
     if (this.flags & 2097152 /* OptionsDirectives */) {
         var expr = this.parseExpression(context, pos);
-        var directive = (expr.type === 'Literal') ? this.tokenRaw.slice(1, -1) : null;
+        var directive = this.tokenRaw.slice(1, -1);
         this.consumeSemicolon(context);
         var node = this.finishNode(pos, {
             type: 'ExpressionStatement',
             expression: expr,
+            directive: directive
         });
-        if (directive != null)
-            { node.directive = directive; }
         return node;
     }
     return context & 1 /* Module */ ? this.parseModuleItem(context) : this.parseStatementListItem(context);
@@ -1823,8 +1813,7 @@ Parser.prototype.parseStatementList = function parseStatementList (context, endT
                     { this$1.error(26 /* IllegalUseStrict */); }
                 if (this$1.flags & 1024 /* BindingPosition */)
                     { this$1.error(79 /* UnexpectedStrictReserved */); }
-                if (!(context & 2 /* Strict */))
-                    { context |= 2 /* Strict */; }
+                context |= 2 /* Strict */;
             }
         }
     }

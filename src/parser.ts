@@ -839,13 +839,14 @@ export class Parser {
                         case Chars.Asterisk:
                             // For single and shebang comments, just advance, but
                             // for MultiLine comments we need to break the loop
-                            if (!(state & ScannerState.MultiLine)) this.advance();
+                            if (state & ScannerState.MultiLine) {
                             this.advance();
                             if (this.consume(Chars.Slash)) {
                                 state |= ScannerState.Closed;
                                 break loop;
                             }
                             break;
+                        }
     
                             // fall through
                         default:
@@ -1005,9 +1006,7 @@ export class Parser {
         }
     
         private scanOctalDigits(context: Context): Token {
-    
-            if (context & Context.Strict) this.error(Errors.StrictOctalEscape);
-    
+
             this.advanceTwice();
     
             let ch = this.nextChar();
@@ -1021,7 +1020,6 @@ export class Parser {
             while (this.hasNext()) {
                 ch = this.nextChar();
                 if (!(Chars.Zero <= ch && ch <= Chars.Seven)) break;
-                if (ch < Chars.Zero || ch >= Chars.Eight) this.error(Errors.InvalidBinaryDigit);
                 code = (code << 3) | (ch - Chars.Zero);
                 this.advance();
             }
@@ -1372,8 +1370,7 @@ export class Parser {
                     ch = this.readNext(Errors.InvalidHexEscapeSequence);
                 }
     
-                if (ch !== Chars.RightBrace) this.error(Errors.InvalidHexEscapeSequence);
-    
+   
                 return code;
     
                 // '\uDDDD'
@@ -1662,14 +1659,13 @@ export class Parser {
             const pos = this.startNode();
             if (this.flags & Flags.OptionsDirectives) {
                 const expr = this.parseExpression(context, pos);
-                const directive = (expr.type === 'Literal') ? this.tokenRaw.slice(1, -1) : null;
+                const directive = this.tokenRaw.slice(1, -1);
                 this.consumeSemicolon(context);
                 const node = this.finishNode(pos, {
                     type: 'ExpressionStatement',
                     expression: expr,
+                    directive
                 });
-    
-                if (directive != null) node.directive = directive;
     
                 return node;
             }
@@ -1690,7 +1686,7 @@ export class Parser {
                     if (this.flags & Flags.HasStrictDirective) {
                         if (this.flags & Flags.SimpleParameterList) this.error(Errors.IllegalUseStrict);
                         if (this.flags & Flags.BindingPosition) this.error(Errors.UnexpectedStrictReserved);
-                        if (!(context & Context.Strict)) context |= Context.Strict;
+                        context |= Context.Strict;
                     }
                 }
             }

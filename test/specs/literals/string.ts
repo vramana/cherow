@@ -927,6 +927,63 @@ describe('TC39 - String literals', () => {
           });
     });
 
+    it('should parse "\\b"', () => {
+        expect(parseScript(`"\\b"`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+              "body": [
+                {
+                  "end": 4,
+                  "expression": {
+                    "end": 4,
+                    "loc": {
+                      "end": {
+                        "column": 4,
+                        "line": 1,
+                      },
+                      "start": {
+                        "column": 0,
+                        "line": 1,
+                      }
+                    },
+                    "raw": "\"\\b\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "\b",
+                  },
+                  "loc": {
+                    "end": {
+                      "column": 4,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement"
+                }
+             ],
+              "end": 4,
+              "loc": {
+                "end": {
+                  "column": 4,
+                  "line": 1,
+                },
+                "start": {
+                  "column": 0,
+                  "line": 1,
+                }
+              },
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program",
+            });
+    });
+
     it('should parse "\\r\\n"', () => {
         expect(parseScript(`"\\r\\n"`, {
             ranges: true,

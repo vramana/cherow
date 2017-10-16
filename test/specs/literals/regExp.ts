@@ -700,6 +700,24 @@ describe('Literals - RegExp', () => {
         }).to.throw('Duplicate flags supplied to RegExp constructor g');
     });
 
+    it('should fail on multiple duplicate flag', () => {
+        expect(() => {
+            parseScript(`/./gmgugimyg;`)
+        }).to.throw('Duplicate flags supplied to RegExp constructor g');
+    });
+
+    it('should fail on multiple unicode flag', () => {
+        expect(() => {
+            parseScript(`/./uu;`)
+        }).to.throw('Duplicate flags supplied to RegExp constructor u');
+    });
+
+    it('should fail on multiple unicode flag', () => {
+        expect(() => {
+            parseScript(`/./yy;`)
+        }).to.throw('Duplicate flags supplied to RegExp constructor y');
+    });
+
     it('should fail on invalid braced quantifier exact', () => {
         expect(() => {
             parseScript(`/{2}/;`)
@@ -734,6 +752,24 @@ describe('Literals - RegExp', () => {
                     },
                     "type": "Literal",
                     "value": /K/i
+                },
+                "type": "ExpressionStatement"
+            }],
+            "sourceType": "script",
+            "type": "Program"
+        });
+    });
+
+    it('should parse with multiple flags', () => {
+        expect(parseScript(`/\u212a/muy`)).to.eql({
+            "body": [{
+                "expression": {
+                    "regex": {
+                        "flags": "muy",
+                        "pattern": "K"
+                    },
+                    "type": "Literal",
+                    "value": /K/muy
                 },
                 "type": "ExpressionStatement"
             }],
@@ -810,4 +846,85 @@ describe('Literals - RegExp', () => {
           });
     });
 
+    it('should parse complex', () => {
+        expect(parseScript(`new RegExp(source.source, source.toString().match(/[^/]*$/)[0]);`,{
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "NewExpression",
+                  "callee": {
+                    "type": "Identifier",
+                    "name": "RegExp"
+                  },
+                  "arguments": [
+                    {
+                      "type": "MemberExpression",
+                      "object": {
+                        "type": "Identifier",
+                        "name": "source"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "name": "source"
+                      },
+                      "computed": false
+                    },
+                    {
+                      "type": "MemberExpression",
+                      "object": {
+                        "type": "CallExpression",
+                        "callee": {
+                          "type": "MemberExpression",
+                          "object": {
+                            "type": "CallExpression",
+                            "callee": {
+                              "type": "MemberExpression",
+                              "object": {
+                                "type": "Identifier",
+                                "name": "source"
+                              },
+                              "property": {
+                                "type": "Identifier",
+                                "name": "toString"
+                              },
+                              "computed": false
+                            },
+                            "arguments": []
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "name": "match"
+                          },
+                          "computed": false
+                        },
+                        "arguments": [
+                          {
+                            "type": "Literal",
+                            "value": /[^\/]*$/,
+                            "raw": "/[^/]*$/",
+                            "regex": {
+                              "pattern": "[^/]*$",
+                              "flags": ""
+                            }
+                          }
+                        ]
+                      },
+                      "property": {
+                        "type": "Literal",
+                        "value": 0,
+                        "raw": "0"
+                      },
+                      "computed": true
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
 });

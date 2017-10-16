@@ -71,6 +71,18 @@ describe('Literal - Numeric', () => {
             }).to.throw();
         });
     
+        it('should fail on octal digit (strict)', () => {
+            expect(() => {
+                parseScript('"use strict"; 0O0;')
+            }).to.not.throw();
+        });
+
+        it('should fail on invalid octal', () => {
+            expect(() => {
+                parseScript('0O0abc;')
+            }).to.throw();
+        });
+
         it('should fail on invalid octal digit', () => {
             expect(() => {
                 parseScript('0o8;')
