@@ -15,6 +15,7 @@ It's safe to use in production.
 ## Features
 
 - Full support for ECMAScript® 2017 [(ECMA-262 8th Edition)](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
+- Handle all early errors
 - Stage 3 proposals (*experimental*)
 - Support for [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), a syntax extension for React
 - Skips shebang comment nodes by default
