@@ -43,7 +43,7 @@ These need to be enabled with the `v8` option.
 
 ## Options
 
-* `comments` - Enables option to collect comments. Optional; Either array or function. Works like [Acorn](https://github.com/ternjs/acorn) onComment
+* `comments` - Enables option to collect comments. Optional; Either array or function.
 * `directives` - Enables the [`ESTree`](https://github.com/estree/estree/blob/1da8e603237144f44710360f8feb7a9977e905e0/es5.md#directive) directive node.
 * `globalReturn` - Allow return statement in global scope
 * `jsx` - Enables JSX
@@ -99,13 +99,24 @@ skipped by default, and can't be collected.
 
 ### Collecting comments
 
-Collecting comments works just the same way as for Acorn.
+Both a function or an array can be used to collect comments. If the location tracking isn't enabled, an empty object will be returned, and if if the `ranges option` isn't set - `undefined` will be returned.
+
+A function will be called with the following parameters
+
+- name - Either `SingleLineComment` or `MultiLineComment`
+- comment - The content of the comment
+- start - Character offset of the start of the comment.
+- end - Character offset of the end of the comment.
+- loc   - Column and line offset of the comment
+
+Here is how you collect comments:
+
 ```js
 
 // Function
 cherow.parseScript('// foo',
    {
-       comments: function(type, comment, start, end) {}
+       comments: function(name, comment, start, end, loc) {}
    }
 );
 

@@ -408,12 +408,6 @@ export class Parser {
                                 return Token.LessThanOrEqual;
                             }
     
-                            if (this.flags & Flags.OptionsJSX &&
-                                this.consume(Chars.Slash) &&
-                                !this.consume(Chars.Asterisk)) {
-                                return Token.JSXClose;
-                            }
-    
                             return Token.LessThan;
                         }
     
@@ -825,6 +819,7 @@ export class Parser {
                 while (this.hasNext()) {
     
                     switch (this.nextChar()) {
+    
                         // Line Terminators
                         case Chars.CarriageReturn:
                             this.advanceNewline();
@@ -842,14 +837,16 @@ export class Parser {
                             this.advanceNewline();
                             break;
                         case Chars.Asterisk:
-                            if (state & ScannerState.MultiLine) {
-                                this.advance();
-                                if (this.consume(Chars.Slash)) {
-                                    state |= ScannerState.Closed;
-                                    break loop;
-                                }
-                                break;
+                            // For single and shebang comments, just advance, but
+                            // for MultiLine comments we need to break the loop
+                            if (!(state & ScannerState.MultiLine)) this.advance();
+                            this.advance();
+                            if (this.consume(Chars.Slash)) {
+                                state |= ScannerState.Closed;
+                                break loop;
                             }
+                            break;
+    
                             // fall through
                         default:
                             this.advance();
@@ -867,40 +864,47 @@ export class Parser {
         }
     
         private collectComment(type: ESTree.CommentType, value: string, start: number, end: number): void {
-            let loc;
-    
-            if (this.flags & Flags.OptionsLoc) {
-                loc = {
-                    start: {
-                        line: this.startLine,
-                        column: this.startColumn,
-                    },
-                    end: {
-                        line: this.endLine,
-                        column: this.column
-                    }
-                };
-            }
-    
-            if (typeof this.comments === 'function') {
-                this.comments(type, value, start, end, loc);
-            } else if (Array.isArray(this.comments)) {
-    
-                const node: ESTree.Comment = {
-                    type,
-                    value
-                };
+            let loc = {};
+            let commentStart = undefined;
+            let commentEnd = undefined
+
+            if (this.flags & Flags.LocationTracking) {
+                if (this.flags & Flags.OptionsLoc) {
+                    loc = {
+                        start: {
+                            line: this.startLine,
+                            column: this.startColumn,
+                        },
+                        end: {
+                            line: this.endLine,
+                            column: this.column
+                        }
+                    };
+                }
     
                 if (this.flags & Flags.OptionsRanges) {
-                    node.start = start;
-                    node.end = end;
+                    commentStart = start;
+                    commentEnd = end;
                 }
+            }
+
+            if (Array.isArray(this.comments)) {
+
+                const node: ESTree.Comment = {
+                    type,
+                    value,
+                    start: commentStart,
+                    end: commentEnd,
+                    loc
+                };
     
                 if (this.flags & Flags.OptionsLoc) {
                     node.loc = loc;
                 }
                 this.comments.push(node);
-            }
+            } else if (typeof this.comments === 'function') {
+                this.comments(type, value, start, end, loc);
+            } 
         }
     
         private scanIdentifierOrKeyword(context: Context): Token {
@@ -2570,6 +2574,7 @@ export class Parser {
     
             const savedFlag = this.flags;
     
+            // Create a lexical scope node around the whole ForStatement
             const blockScope = this.blockScope;
             const parentScope = this.parentScope;
     
@@ -2692,10 +2697,10 @@ export class Parser {
                     body = this.parseStatement(context | Context.ForStatement);
     
                     this.flags = savedFlag;
-                    // Create a lexical scope node around the whole catch clause
-                    this.blockScope = blockScope;
     
+                    this.blockScope = blockScope;
                     if (blockScope !== undefined) this.parentScope = parentScope;
+    
                     return this.finishNode(pos, {
                         type: 'ForStatement',
                         body,

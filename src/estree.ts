@@ -257,9 +257,9 @@ export type CommentType = 'SingleLineComment' | 'MultiLineComment';
 export interface Comment {
     type: CommentType;
     value: string;
-    start?: number;
-    end?: number;
-    loc?: SourceLocation | null;
+    start?: number | undefined;
+    end?: number | undefined;
+    loc?: any;
 }
 
 /**

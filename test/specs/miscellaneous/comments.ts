@@ -5,6 +5,36 @@ const expect = chai.expect;
 
 describe('Miscellaneous - comments', () => {
 
+    it('should fail on unclosed Multi line comment', () => {
+        expect(() => {
+            parseScript(`/*CHEROW/`);
+        }).to.throw();
+    });
+
+    it('should fail on nested Multi line comment', () => {
+        expect(() => {
+            parseScript(`/*
+            var
+            /* x */
+            = 1;
+            */`);
+        }).to.throw();
+    });
+
+    it('should fail if single and Multi line comments are used together', () => {
+        expect(() => {
+            parseScript(`/* var*/
+            x*/`);
+        }).to.throw();
+    });
+
+    it('should fail if open Multi line comment at the end of Single comment', () => {
+        expect(() => {
+            parseScript(`// var /* 
+            x*/`);
+        }).to.throw();
+    });
+
     it('should fail on invalid use of HTML comment in module code', () => {
         expect(() => {
             parseModule(`<!-- HTML comment`);

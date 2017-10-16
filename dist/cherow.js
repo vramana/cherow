@@ -684,11 +684,6 @@ Parser.prototype.scanToken = function scanToken (context) {
                         this$1.advance();
                         return 2099005 /* LessThanOrEqual */;
                     }
-                    if (this$1.flags & 262144 /* OptionsJSX */ &&
-                        this$1.consume(47 /* Slash */) &&
-                        !this$1.consume(42 /* Asterisk */)) {
-                        return 25 /* JSXClose */;
-                    }
                     return 2361151 /* LessThan */;
                 }
             // -, --, -->, -=,
@@ -1074,14 +1069,16 @@ Parser.prototype.skipComments = function skipComments (state) {
                 this$1.advanceNewline();
                 break;
             case 42 /* Asterisk */:
-                if (state & 2 /* MultiLine */) {
-                    this$1.advance();
-                    if (this$1.consume(47 /* Slash */)) {
-                        state |= 8 /* Closed */;
-                        break loop;
-                    }
-                    break;
+                // For single and shebang comments, just advance, but
+                // for MultiLine comments we need to break the loop
+                if (!(state & 2 /* MultiLine */))
+                    { this$1.advance(); }
+                this$1.advance();
+                if (this$1.consume(47 /* Slash */)) {
+                    state |= 8 /* Closed */;
+                    break loop;
                 }
+                break;
             // fall through
             default:
                 this$1.advance();
@@ -1094,35 +1091,42 @@ Parser.prototype.skipComments = function skipComments (state) {
     }
 };
 Parser.prototype.collectComment = function collectComment (type, value, start, end) {
-    var loc;
-    if (this.flags & 65536 /* OptionsLoc */) {
-        loc = {
-            start: {
-                line: this.startLine,
-                column: this.startColumn,
-            },
-            end: {
-                line: this.endLine,
-                column: this.column
-            }
-        };
+    var loc = {};
+    var commentStart = undefined;
+    var commentEnd = undefined;
+    if (this.flags & 98304 /* LocationTracking */) {
+        if (this.flags & 65536 /* OptionsLoc */) {
+            loc = {
+                start: {
+                    line: this.startLine,
+                    column: this.startColumn,
+                },
+                end: {
+                    line: this.endLine,
+                    column: this.column
+                }
+            };
+        }
+        if (this.flags & 32768 /* OptionsRanges */) {
+            commentStart = start;
+            commentEnd = end;
+        }
     }
-    if (typeof this.comments === 'function') {
-        this.comments(type, value, start, end, loc);
-    }
-    else if (Array.isArray(this.comments)) {
+    if (Array.isArray(this.comments)) {
         var node = {
             type: type,
-            value: value
+            value: value,
+            start: commentStart,
+            end: commentEnd,
+            loc: loc
         };
-        if (this.flags & 32768 /* OptionsRanges */) {
-            node.start = start;
-            node.end = end;
-        }
         if (this.flags & 65536 /* OptionsLoc */) {
             node.loc = loc;
         }
         this.comments.push(node);
+    }
+    else if (typeof this.comments === 'function') {
+        this.comments(type, value, start, end, loc);
     }
 };
 Parser.prototype.scanIdentifierOrKeyword = function scanIdentifierOrKeyword (context) {
@@ -2575,6 +2579,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
         state |= 8 /* Await */;
     }
     var savedFlag = this.flags;
+    // Create a lexical scope node around the whole ForStatement
     var blockScope = this.blockScope;
     var parentScope = this.parentScope;
     if (blockScope !== undefined)
@@ -2672,7 +2677,6 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
             this.flags |= (32 /* Continue */ | 16 /* Break */);
             body = this.parseStatement(context | 4194304 /* ForStatement */);
             this.flags = savedFlag;
-            // Create a lexical scope node around the whole catch clause
             this.blockScope = blockScope;
             if (blockScope !== undefined)
                 { this.parentScope = parentScope; }

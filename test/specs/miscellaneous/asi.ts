@@ -1,27 +1,53 @@
 import { parseScript, parseModule } from '../../../src/cherow';
 import * as chai from 'chai';
+
 const expect = chai.expect;
-   
+
 describe('Miscellaneous - ASI', () => {
 
-    it('should throw on invalid throw Statement"', () => {
+    it('should fail on invalid throw Statement"', () => {
         expect(() => {
             parseScript(`try {
   throw 
   1;
 } catch(e) {  
-}  `)
+}`)
         }).to.throw('No line break is allowed between \'throw\' and its expression');
     });
 
+    it('should fail if header is (false semicolon false two semicolons false)"', () => {
+        expect(() => {
+            parseScript(`for(false;false;;false) {
+                break;
+              }`)
+        }).to.throw();
+    });
 
-    it('should throw on invalid throw Statement"', () => {
+    it('should fail on do \n while(false)', () => {
+        expect(() => {
+            parseScript(`do
+            while (false)`)
+        }).to.throw();
+    });
+
+    it('should fail on invalid ForStatement"', () => {
         expect(() => {
             parseScript(`for( a ; b
 )`)
         }).to.throw();
     });
-    
+
+    it('should fail on Variable1 \n ++ \n ++ \n Variable2 construction', () => {
+        expect(() => {
+            parseScript(`var x=0, y=0;
+            var z=
+            x
+            ++
+            ++
+            y`)
+        }).to.throw();
+    });
+
     describe('Do-While Statement for automatic semicolon insertion', () => {
 
         it('should parse do-While Statement for automatic semicolon insertion"', () => {
@@ -124,9 +150,9 @@ describe('Miscellaneous - ASI', () => {
         });
     });
 
-      describe(' Check For Statement for automatic semicolon insertion', () => {
+    describe(' Check For Statement for automatic semicolon insertion', () => {
 
-        it('should throw if ASI would become one of the two semicolons in the header of a For Statement."', () => {
+        it('should fail if ASI would become one of the two semicolons in the header of a For Statement."', () => {
             expect(() => {
                 parseScript(`for(
     false
@@ -149,7 +175,7 @@ describe('Miscellaneous - ASI', () => {
             }).to.throw();
         });
 
-        it('should throw if the for header is (false \n false \n)"', () => {
+        it('should fail if the for header is (false \n false \n)"', () => {
             expect(() => {
                 parseScript(`for(false
     false
@@ -159,7 +185,7 @@ describe('Miscellaneous - ASI', () => {
             }).to.throw();
         });
 
-        it('should throw if the for header is (\n false \n)"', () => {
+        it('should fail if the for header is (\n false \n)"', () => {
             expect(() => {
                 parseScript(`for(
     false
@@ -169,7 +195,7 @@ describe('Miscellaneous - ASI', () => {
             }).to.throw();
         });
 
-        it('should throw if the for header is (\n \n \n)"', () => {
+        it('should fail if the for header is (\n \n \n)"', () => {
             expect(() => {
                 parseScript(`for(
     
@@ -180,7 +206,7 @@ describe('Miscellaneous - ASI', () => {
             }).to.throw();
         });
 
-        it('should throw if the for header is  (\n \n)"', () => {
+        it('should fail if the for header is  (\n \n)"', () => {
             expect(() => {
                 parseScript(`for(
     
@@ -190,7 +216,7 @@ describe('Miscellaneous - ASI', () => {
             }).to.throw();
         });
 
-        it('should throw if the for header is (\n)"', () => {
+        it('should fail if the for header is (\n)"', () => {
             expect(() => {
                 parseScript(`for(
 ) {
@@ -209,7 +235,7 @@ describe('Miscellaneous - ASI', () => {
             }).to.throw();
         });
 
-        it('should throw if the for header is (false \n semicolon false \n)"', () => {
+        it('should fail if the for header is (false \n semicolon false \n)"', () => {
             expect(() => {
                 parseScript(`for(false
     ;
@@ -219,7 +245,7 @@ describe('Miscellaneous - ASI', () => {
             }).to.throw();
         });
 
-        it('should throw if the for header is (false semicolon \n false)"', () => {
+        it('should fail if the for header is (false semicolon \n false)"', () => {
             expect(() => {
                 parseScript(`for(false;
 false
@@ -229,7 +255,7 @@ false
             }).to.throw();
         });
 
-        it('should throw if the for header is (false semicolon false\n)"', () => {
+        it('should fail if the for header is (false semicolon false\n)"', () => {
             expect(() => {
                 parseScript(`for(false;false
 ) {
@@ -239,7 +265,7 @@ false
         });
 
 
-        it('should throw if the for header is (\n \n semicolon)"', () => {
+        it('should fail if the for header is (\n \n semicolon)"', () => {
             expect(() => {
                 parseScript(`for(
     
@@ -249,7 +275,7 @@ false
             }).to.throw();
         });
 
-        it('should throw if the for header is (\n semicolon)"', () => {
+        it('should fail if the for header is (\n semicolon)"', () => {
             expect(() => {
                 parseScript(`for(
 ;) {
@@ -258,7 +284,7 @@ false
             }).to.throw();
         });
 
-        it('should throw if the for header is  (\n semicolon \n)"', () => {
+        it('should fail if the for header is  (\n semicolon \n)"', () => {
             expect(() => {
                 parseScript(`for(
     ;
@@ -269,7 +295,7 @@ false
         });
 
 
-        it('should throw if the for header is (\n false \n semicolon)"', () => {
+        it('should fail if the for header is (\n false \n semicolon)"', () => {
             expect(() => {
                 parseScript(`for(
     false
@@ -279,7 +305,7 @@ false
             }).to.throw();
         });
 
-        it('should throw if the for header is semicolon \n)"', () => {
+        it('should fail if the for header is semicolon \n)"', () => {
             expect(() => {
                 parseScript(`for(;
 ) {
@@ -563,7 +589,7 @@ false
     });
 
 
-     describe('Check Var Statement for automatic semicolon insertion', () => {
+    describe('Check Var Statement for automatic semicolon insertion', () => {
 
         it('should throw on invalid "var x \n y"', () => {
             expect(() => {
@@ -685,8 +711,7 @@ false
         });
 
         it('should parse ";"', () => {
-            expect(parseScript(`;`, {
-            })).to.eql({
+            expect(parseScript(`;`, {})).to.eql({
                 "type": "Program",
                 "body": [{
                     "type": "EmptyStatement",
@@ -930,244 +955,221 @@ false
 
     it('should does not consume a missing same-line `;` at the end', () => {
         expect(parseScript("\"use strict\"")).to.eql({
-    "type": "Program",
-    "body": [
-          {
-            "expression": {
-              "type": "Literal",
-              "value": "use strict"
-           },
-            "type": "ExpressionStatement"
-          }
-        ],
-    "sourceType": "script"
-});
+            "type": "Program",
+            "body": [{
+                "expression": {
+                    "type": "Literal",
+                    "value": "use strict"
+                },
+                "type": "ExpressionStatement"
+            }],
+            "sourceType": "script"
+        });
     });
 
-     it('should does not consume a missing same-line `;` at the end', () => {
+    it('should does not consume a missing same-line `;` at the end', () => {
         expect(parseScript("'use\\x20strict'")).to.eql({
-    "type": "Program",
-    "body": [
-          {
-            "expression": {
-              "type": "Literal",
-              "value": "use strict"
-           },
-            "type": "ExpressionStatement"
-          }
-        ],
-    "sourceType": "script"
-});
+            "type": "Program",
+            "body": [{
+                "expression": {
+                    "type": "Literal",
+                    "value": "use strict"
+                },
+                "type": "ExpressionStatement"
+            }],
+            "sourceType": "script"
+        });
     });
 
 
-     it('should does not consume a missing same-line `;` at the end', () => {
-        expect(parseScript( "\"use\\x20strict\"")).to.eql({
-    "type": "Program",
-    "body": [
-          {
-            "expression": {
-              "type": "Literal",
-              "value": "use strict"
-           },
-            "type": "ExpressionStatement"
-          }
-        ],
-    "sourceType": "script"
-});
+    it('should does not consume a missing same-line `;` at the end', () => {
+        expect(parseScript("\"use\\x20strict\"")).to.eql({
+            "type": "Program",
+            "body": [{
+                "expression": {
+                    "type": "Literal",
+                    "value": "use strict"
+                },
+                "type": "ExpressionStatement"
+            }],
+            "sourceType": "script"
+        });
     });
 
     it('should does not consume a missing same-line `;` at the end', () => {
         expect(parseScript('    \t \f\v')).to.eql({
-    "type": "Program",
-    "body": [],
-    "sourceType": "script"
-});
+            "type": "Program",
+            "body": [],
+            "sourceType": "script"
+        });
     });
 
     it('should does not consume a missing same-line `;` at the end', () => {
         expect(parseScript(`    \t \f\v 'abc'  \t `)).to.eql({
-    "type": "Program",
-    "body":  [
-          {
-            "expression": {
-              "type": "Literal",
-              "value": "abc"
-           },
-            "type": "ExpressionStatement"
-          }
-       ],
-    "sourceType": "script"
-});
+            "type": "Program",
+            "body": [{
+                "expression": {
+                    "type": "Literal",
+                    "value": "abc"
+                },
+                "type": "ExpressionStatement"
+            }],
+            "sourceType": "script"
+        });
     });
 
-        it('should consume an inserted same-line `;` at the end', () => {
+    it('should consume an inserted same-line `;` at the end', () => {
         expect(parseScript(`    \t \f\v;  \t `, )).to.eql({
-    "type": "Program",
-    "body": [
-        {
-            "type": "EmptyStatement",
-        }
-    ],
-    "sourceType": "script"
-});
+            "type": "Program",
+            "body": [{
+                "type": "EmptyStatement",
+            }],
+            "sourceType": "script"
+        });
     });
 
-     it('should consume an inserted `;` before a string', () => {
+    it('should consume an inserted `;` before a string', () => {
         expect(parseScript(`    \t \f\v\n 'abc'  \t `)).to.eql({
-    "type": "Program",
-    "body": [
-        {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "Literal",
-                "value": "abc"
-            }
-        }
-    ],
-    "sourceType": "script"
-});
+            "type": "Program",
+            "body": [{
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "Literal",
+                    "value": "abc"
+                }
+            }],
+            "sourceType": "script"
+        });
     });
 
-     it('should consume an inserted `;` before a non-string', () => {
+    it('should consume an inserted `;` before a non-string', () => {
         expect(parseScript(`    \t \f\v\n abc  \t `)).to.eql({
-    "type": "Program",
-    "body": [
-        {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "Identifier",
-                 "name": "abc"
-            }
-        }
-    ],
-    "sourceType": "script"
-});
+            "type": "Program",
+            "body": [{
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "Identifier",
+                    "name": "abc"
+                }
+            }],
+            "sourceType": "script"
+        });
     });
 
     it('should consume an semicolon in an function expression with return statement', () => {
         expect(parseScript(`(function(){ return
 x; })`)).to.eql({
-    "type": "Program",
-    "body": [
-        {
-            "type": "ExpressionStatement",
-            "expression": {
-                "type": "FunctionExpression",
-                "id": null,
-                "params": [],
+            "type": "Program",
+            "body": [{
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "FunctionExpression",
+                    "id": null,
+                    "params": [],
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [{
+                                "type": "ReturnStatement",
+                                "argument": null
+                            },
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "Identifier",
+                                    "name": "x"
+                                }
+                            }
+                        ]
+                    },
+                    "generator": false,
+                    "expression": false,
+                    "async": false
+                }
+            }],
+            "sourceType": "script"
+        });
+    });
+
+    it('should consume an ";" in an while statement', () => {
+        expect(parseScript(`while (true) { continue
+there; }`)).to.eql({
+            "type": "Program",
+            "body": [{
+                "type": "WhileStatement",
+                "test": {
+                    "type": "Literal",
+                    "value": true
+                },
                 "body": {
                     "type": "BlockStatement",
-                    "body": [
-                        {
-                            "type": "ReturnStatement",
-                            "argument": null
+                    "body": [{
+                            "type": "ContinueStatement",
+                            "label": null
                         },
                         {
                             "type": "ExpressionStatement",
                             "expression": {
                                 "type": "Identifier",
-                                "name": "x"
+                                "name": "there"
                             }
                         }
                     ]
-                },
-                "generator": false,
-                "expression": false,
-                "async": false
-            }
-        }
-    ],
-    "sourceType": "script"
-});
+                }
+            }],
+            "sourceType": "script"
+        });
     });
 
- it('should consume an ";" in an while statement', () => {
-        expect(parseScript(`while (true) { continue
-there; }`)).to.eql({
-    "type": "Program",
-    "body": [
-        {
-            "type": "WhileStatement",
-            "test": {
-                "type": "Literal",
-                "value": true
-            },
-            "body": {
-                "type": "BlockStatement",
-                "body": [
-                    {
-                        "type": "ContinueStatement",
-                        "label": null
-                    },
-                    {
-                        "type": "ExpressionStatement",
-                        "expression": {
-                            "type": "Identifier",
-                            "name": "there"
-                        }
-                    }
-                ]
-            }
-        }
-    ],
-    "sourceType": "script"
-});
-    });
-    
-         it('should consume an inserted same-line `;` at the end', () => {
+    it('should consume an inserted same-line `;` at the end', () => {
         expect(parseScript(`    \t \f\v\n`)).to.eql({
-    "type": "Program",
-    "body": [],
-    "sourceType": "script"
-});
+            "type": "Program",
+            "body": [],
+            "sourceType": "script"
+        });
     });
-   it('should consume ASI with yield', () => {
+    it('should consume ASI with yield', () => {
         expect(parseScript(`function *f() { yield\n{}/1/g\n}`)).to.eql({
-       "body": [
-          {
-            "async": false,
-            "body": {
-              "body": [
-                {
-                  "expression": {
-                  "argument": null,
-                    "delegate": false,
-                    "type": "YieldExpression"
-                  },
-                  "type": "ExpressionStatement"
+            "body": [{
+                "async": false,
+                "body": {
+                    "body": [{
+                            "expression": {
+                                "argument": null,
+                                "delegate": false,
+                                "type": "YieldExpression"
+                            },
+                            "type": "ExpressionStatement"
+                        },
+                        {
+                            "body": [],
+                            "type": "BlockStatement"
+                        },
+                        {
+                            "expression": {
+                                "regex": {
+                                    "flags": "g",
+                                    "pattern": "1"
+                                },
+                                "type": "Literal",
+                                "value": /1/g,
+                            },
+                            "type": "ExpressionStatement"
+                        }
+                    ],
+                    "type": "BlockStatement",
                 },
-                {
-                  "body": [],
-                  "type": "BlockStatement"
+                "expression": false,
+                "generator": true,
+                "id": {
+                    "name": "f",
+                    "type": "Identifier"
                 },
-                {
-                  "expression": {
-                    "regex": {
-                      "flags": "g",
-                      "pattern": "1"
-                    },
-                    "type": "Literal",
-                    "value": /1/g,
-                  },
-                  "type": "ExpressionStatement"
-                }
-              ],
-              "type": "BlockStatement",
-            },
-            "expression": false,
-            "generator": true,
-            "id": {
-              "name": "f",
-              "type": "Identifier"
-            },
-            "params": [],
-            "type": "FunctionDeclaration"
-         }
-        ],
-        "sourceType": "script",
-        "type": "Program"
-      });
+                "params": [],
+                "type": "FunctionDeclaration"
+            }],
+            "sourceType": "script",
+            "type": "Program"
+        });
     });
 
 });
