@@ -252,7 +252,7 @@ export interface Position {
     column: number;
 }
 
-export type CommentType = 'SingleLineComment' | 'MultiLineComment';
+export type CommentType = 'Line' | 'Block';
 
 export interface Comment {
     type: CommentType;

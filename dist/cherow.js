@@ -554,7 +554,6 @@ Parser.prototype.advanceTwice = function advanceTwice () {
  * Advance to new line
  */
 Parser.prototype.advanceNewline = function advanceNewline () {
-    // this.flags |= Flags.LineTerminator;
     this.index++;
     this.column = 0;
     this.line++;
@@ -601,7 +600,7 @@ Parser.prototype.scanToken = function scanToken (context) {
     this.endPos = this.index;
     this.endColumn = this.column;
     this.endLine = this.line;
-    var state = this.index === 0 ? 4 /* NewLine */ : 0;
+    var state = this.index === 0 ? 4 /* LineStart */ : 0;
     while (this.hasNext()) {
         this$1.startPos = this$1.index;
         this$1.startColumn = this$1.column;
@@ -610,17 +609,17 @@ Parser.prototype.scanToken = function scanToken (context) {
         switch (first) {
             case 13 /* CarriageReturn */:
                 this$1.flags |= 1 /* LineTerminator */;
-                state |= 2 /* LastIsCR */ | 4 /* NewLine */;
+                state |= 2 /* LastIsCR */ | 4 /* LineStart */;
                 this$1.advanceNewline();
                 continue;
             case 10 /* LineFeed */:
                 this$1.consumeLineFeed(state);
                 this$1.flags |= 1 /* LineTerminator */;
-                state = state & ~2 /* LastIsCR */ | 4 /* NewLine */;
+                state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
                 continue;
             case 8232 /* LineSeparator */:
             case 8233 /* ParagraphSeparator */:
-                state = state & ~2 /* LastIsCR */ | 4 /* NewLine */;
+                state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
                 this$1.flags |= 1 /* LineTerminator */;
                 this$1.advanceNewline();
                 continue;
@@ -701,7 +700,7 @@ Parser.prototype.scanToken = function scanToken (context) {
                     var next$2 = this$1.nextChar();
                     if (next$2 === 45 /* Hyphen */) {
                         this$1.advance();
-                        if (context & 1 /* Module */ || !(state & 4 /* NewLine */))
+                        if (context & 1 /* Module */ || !(state & 4 /* LineStart */))
                             { return 786460 /* Decrement */; }
                         if (this$1.consume(62 /* GreaterThan */)) {
                             this$1.skipComments(state | 16 /* SingleLine */);
@@ -1058,20 +1057,20 @@ Parser.prototype.skipComments = function skipComments (state) {
             case 13 /* CarriageReturn */:
                 this$1.flags |= 1 /* LineTerminator */;
                 this$1.advanceNewline();
-                state |= 4 /* NewLine */ | 2 /* LastIsCR */;
+                state |= 4 /* LineStart */ | 2 /* LastIsCR */;
                 if (!(state & 8 /* MultiLine */))
                     { break loop; }
                 break;
             case 10 /* LineFeed */:
                 this$1.flags |= 1 /* LineTerminator */;
                 this$1.consumeLineFeed(state);
-                state = state & ~2 /* LastIsCR */ | 4 /* NewLine */;
+                state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
                 if (!(state & 8 /* MultiLine */))
                     { break loop; }
                 break;
             case 8232 /* LineSeparator */:
             case 8233 /* ParagraphSeparator */:
-                state = state & ~2 /* LastIsCR */ | 4 /* NewLine */;
+                state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
                 this$1.flags |= 1 /* LineTerminator */;
                 this$1.advanceNewline();
                 break;
@@ -1092,7 +1091,7 @@ Parser.prototype.skipComments = function skipComments (state) {
     if (!(state & 32 /* Closed */))
         { this.error(2 /* UnterminatedComment */); }
     if (state & 24 /* Collectable */ && this.flags & 4194304 /* OptionsOnComment */) {
-        this.collectComment(state & 8 /* MultiLine */ ? 'MultiLineComment' : 'SingleLineComment', this.source.slice(start, state & 8 /* MultiLine */ ? this.index - 2 : this.index), this.startPos, this.index);
+        this.collectComment(state & 8 /* MultiLine */ ? 'Block' : 'Line', this.source.slice(start, state & 8 /* MultiLine */ ? this.index - 2 : this.index), this.startPos, this.index);
     }
 };
 Parser.prototype.collectComment = function collectComment (type, value, start, end) {

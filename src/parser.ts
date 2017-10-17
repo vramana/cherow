@@ -261,7 +261,6 @@ export class Parser {
          * Advance to new line
          */
         private advanceNewline() {
-            // this.flags |= Flags.LineTerminator;
             this.index++;
             this.column = 0;
             this.line++;
@@ -311,7 +310,8 @@ export class Parser {
             this.endPos = this.index;
             this.endColumn = this.column;
             this.endLine = this.line;
-            let state = this.index === 0 ? Scanner.NewLine : Scanner.None;
+
+            let state = this.index === 0 ? Scanner.LineStart : Scanner.None;
     
             while (this.hasNext()) {
     
@@ -325,19 +325,19 @@ export class Parser {
     
                     case Chars.CarriageReturn:
                         this.flags |= Flags.LineTerminator;
-                        state |= Scanner.LastIsCR | Scanner.NewLine;
+                        state |= Scanner.LastIsCR | Scanner.LineStart;
                         this.advanceNewline();
                         continue;
     
                     case Chars.LineFeed:
                         this.consumeLineFeed(state);
                         this.flags |= Flags.LineTerminator;
-                        state = state & ~Scanner.LastIsCR | Scanner.NewLine;
+                        state = state & ~Scanner.LastIsCR | Scanner.LineStart;
                         continue;
     
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
-                        state = state & ~Scanner.LastIsCR | Scanner.NewLine;
+                        state = state & ~Scanner.LastIsCR | Scanner.LineStart;
                         this.flags |= Flags.LineTerminator;
                         this.advanceNewline();
                         continue;
@@ -430,7 +430,7 @@ export class Parser {
     
                             if (next === Chars.Hyphen) {
                                 this.advance();
-                                if (context & Context.Module || !(state & Scanner.NewLine)) return Token.Decrement;
+                                if (context & Context.Module || !(state & Scanner.LineStart)) return Token.Decrement;
                                 if (this.consume(Chars.GreaterThan)) {
                                     this.skipComments(state | Scanner.SingleLine);
                                     continue;
@@ -830,20 +830,20 @@ export class Parser {
                         case Chars.CarriageReturn:
                             this.flags |= Flags.LineTerminator;
                             this.advanceNewline();
-                            state |= Scanner.NewLine | Scanner.LastIsCR;
+                            state |= Scanner.LineStart | Scanner.LastIsCR;
                             if (!(state & Scanner.MultiLine)) break loop;
                             break;
     
                         case Chars.LineFeed:
                             this.flags |= Flags.LineTerminator;
                             this.consumeLineFeed(state);
-                            state = state & ~Scanner.LastIsCR | Scanner.NewLine;
+                            state = state & ~Scanner.LastIsCR | Scanner.LineStart;
                             if (!(state & Scanner.MultiLine)) break loop;
                             break;
     
                         case Chars.LineSeparator:
                         case Chars.ParagraphSeparator:
-                            state = state & ~Scanner.LastIsCR | Scanner.NewLine;
+                            state = state & ~Scanner.LastIsCR | Scanner.LineStart;
                             this.flags |= Flags.LineTerminator;
                             this.advanceNewline();
                             break;
@@ -868,7 +868,7 @@ export class Parser {
     
             if (state & Scanner.Collectable && this.flags & Flags.OptionsOnComment) {
                 this.collectComment(
-                    state & Scanner.MultiLine ? 'MultiLineComment' : 'SingleLineComment',
+                    state & Scanner.MultiLine ? 'Block' : 'Line',
                     this.source.slice(start, state & Scanner.MultiLine ? this.index - 2 : this.index),
                     this.startPos, this.index);
             }

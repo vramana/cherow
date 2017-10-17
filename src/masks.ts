@@ -125,8 +125,8 @@ export const enum ObjectState {
 // A set of flags for  maintaining the internal state machine.
 export const enum Scanner {
     None            = 0,
-    LastIsCR        = 1 << 1, // Tracks if last scanned is CR
-    NewLine         = 1 << 2, // Tracks start of a new line (HTML comments)
+    LastIsCR        = 1 << 1, // Tracks if previous scanned character was CR
+    LineStart       = 1 << 2, // Tracks if this is start of line
     MultiLine       = 1 << 3, // MultiLine comment
     SingleLine      = 1 << 4, // SingleLine comment (HTML, Shebang or plain)
     Closed          = 1 << 5, // If the node was closed or not

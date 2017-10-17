@@ -27,7 +27,7 @@ describe('Miscellaneous - onComment', () => {
             "sourceType": "script"
         });
 
-        expect(commentType).to.eql('SingleLineComment');
+        expect(commentType).to.eql('Line');
         expect(commentBody).to.eql(' HTML comment');
         expect(commentStart).to.eql(0);
         expect(commentEnd).to.eql(17);
@@ -51,7 +51,7 @@ describe('Miscellaneous - onComment', () => {
             "sourceType": "script"
         });
 
-        expect(commentType).to.eql('SingleLineComment');
+        expect(commentType).to.eql('Line');
         expect(commentBody).to.eql(' Cherow');
         expect(commentStart).to.eql(0);
         expect(commentEnd).to.eql(9);
@@ -135,8 +135,8 @@ describe('Miscellaneous - onComment', () => {
           });
 
         expect(foo.length).to.eql(2);
-        expect(foo[0].type).to.eql('MultiLineComment');
-        expect(foo[1].type).to.eql('MultiLineComment');
+        expect(foo[0].type).to.eql('Block');
+        expect(foo[1].type).to.eql('Block');
         expect(foo[0].value).to.eql(' ABC ');
         expect(foo[1].value).to.eql(' DEF ');
         expect(foo[0].start).to.eql(0);
@@ -165,7 +165,7 @@ describe('Miscellaneous - onComment', () => {
             "sourceType": "script"
         });
 
-        expect(commentType).to.eql('MultiLineComment');
+        expect(commentType).to.eql('Block');
         expect(commentBody).to.eql(' Hello multiline comment, are you colleced yet? ');
         expect(commentStart).to.eql(0);
         expect(commentEnd).to.eql(52);

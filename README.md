@@ -98,19 +98,22 @@ cherow.parseScript('const fooBar = 123;', { ranges: true, raw: true, next: true}
 Single line, multiline and HTML comments are supported, and can be collected as well. Shebang comment nodes (`#!foo`) are
 skipped by default, and can't be collected.
 
-### Collecting comments
+### Comment collecting
+Cherow can be instructed to collect comments by setting the `comments option` to either an array or an function.
 
-Both a function or an array can be used to collect comments. If the location tracking isn't enabled, an empty object will be returned, and if the `ranges option` isn't set - `undefined` will be returned.
+The type of each comment can either be `Line` for a single-line comment (`//`) og Block for a MultiLineComment (`/* */`).
+
+Note that if the location tracking isn't enabled, an empty object will be returned, and if the `ranges option` isn't set - `undefined` will be returned.
 
 A function will be called with the following parameters
 
-- name - Either `SingleLineComment` or `MultiLineComment`
+- name - Either `Line` or `Block`
 - comment - The content of the comment
 - start - Character offset of the start of the comment.
 - end - Character offset of the end of the comment.
 - loc   - Column and line offset of the comment
 
-Here is how you collect comments:
+Study the following examples to better understand how to collect comments:
 
 ```js
 
