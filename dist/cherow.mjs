@@ -694,13 +694,13 @@ Parser.prototype.scanToken = function scanToken (context) {
                     var next$2 = this$1.nextChar();
                     if (next$2 === 45 /* Hyphen */) {
                         this$1.advance();
-                        if (context & 1 /* Module */ || !(state & 4 /* LineStart */))
-                            { return 786460 /* Decrement */; }
-                        if (this$1.consume(62 /* GreaterThan */)) {
-                            this$1.skipComments(state | 16 /* SingleLine */);
-                            continue;
+                        if (context & 1 /* Module */ || !(state & 4 /* LineStart */)) {
+                            return 786460 /* Decrement */;
                         }
-                        return 786460 /* Decrement */;
+                        if (!this$1.consume(62 /* GreaterThan */))
+                            { return 786460 /* Decrement */; }
+                        this$1.skipComments(state | 16 /* SingleLine */);
+                        continue;
                     }
                     else if (next$2 === 61 /* EqualSign */) {
                         this$1.advance();
@@ -713,7 +713,7 @@ Parser.prototype.scanToken = function scanToken (context) {
             // `#`
             case 35 /* Hash */:
                 {
-                    if (this$1.index === 0 &&
+                    if (state & 4 /* LineStart */ &&
                         this$1.source.charCodeAt(this$1.index + 1) === 33 /* Exclamation */) {
                         this$1.advanceTwice();
                         this$1.skipComments(state);
@@ -1092,23 +1092,21 @@ Parser.prototype.collectComment = function collectComment (type, value, start, e
     var loc = {};
     var commentStart = undefined;
     var commentEnd = undefined;
-    if (this.flags & 98304 /* LocationTracking */) {
-        if (this.flags & 65536 /* OptionsLoc */) {
-            loc = {
-                start: {
-                    line: this.startLine,
-                    column: this.startColumn,
-                },
-                end: {
-                    line: this.endLine,
-                    column: this.column
-                }
-            };
-        }
-        if (this.flags & 32768 /* OptionsRanges */) {
-            commentStart = start;
-            commentEnd = end;
-        }
+    if (this.flags & 65536 /* OptionsLoc */) {
+        loc = {
+            start: {
+                line: this.startLine,
+                column: this.startColumn,
+            },
+            end: {
+                line: this.endLine,
+                column: this.column
+            }
+        };
+    }
+    if (this.flags & 32768 /* OptionsRanges */) {
+        commentStart = start;
+        commentEnd = end;
     }
     if (typeof this.comments === 'function') {
         this.comments(type, value, commentStart, commentEnd, loc);
@@ -1191,8 +1189,7 @@ Parser.prototype.scanNumberLiteral = function scanNumberLiteral (context) {
 
     if (context & 2 /* Strict */)
         { this.error(7 /* StrictOctalEscape */); }
-    if (!(this.flags & 4096 /* Noctal */))
-        { this.flags |= 4096 /* Noctal */; }
+    this.flags |= 4096 /* Noctal */;
     this.advance();
     var ch = this.nextChar();
     var code = 0;
@@ -3407,16 +3404,18 @@ Parser.prototype.parseLeftHandSideExpression = function parseLeftHandSideExpress
             break;
         // 'import'
         case 274521 /* ImportKeyword */:
-            if (!(this.flags & 1048576 /* OptionsNext */))
-                { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
+            if (!(this.flags & 1048576 /* OptionsNext */)) {
+                this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
+            }
             context |= 32768 /* Import */;
             expr = this.parseImport(context, pos);
             break;
         default:
             expr = this.parseMemberExpression(context, pos);
     }
-    if (!(this.flags & 8 /* AllowCall */) && expr.type === 'ArrowFunctionExpression')
-        { return expr; }
+    if (!(this.flags & 8 /* AllowCall */) && expr.type === 'ArrowFunctionExpression') {
+        return expr;
+    }
     return this.parseCallExpression(context, pos, expr);
 };
 Parser.prototype.parseMemberExpression = function parseMemberExpression (context, pos, expr) {
@@ -3803,10 +3802,6 @@ Parser.prototype.parseNewExpression = function parseNewExpression (context) {
 };
 Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (context, pos) {
     switch (this.token) {
-        case 2361909 /* Divide */:
-        case 1310757 /* DivideAssign */:
-            if (this.scanRegularExpression() === 262148 /* RegularExpression */)
-                { return this.parseRegularExpression(context); }
         case 262146 /* NumericLiteral */:
             if (this.flags & 8192 /* BigInt */)
                 { return this.parseBigIntLiteral(context); }
@@ -3840,6 +3835,9 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
             return this.parseTemplateTail(context, pos);
         case 262152 /* TemplateCont */:
             return this.parseTemplate(context, pos);
+        case 2361909 /* Divide */:
+        case 1310757 /* DivideAssign */:
+            return this.parseRegularExpression(context);
         case 69740 /* AsyncKeyword */:
             return this.parseAsyncFunctionExpression(context, pos);
         case 331885 /* AwaitKeyword */:
@@ -4404,6 +4402,7 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
     return expr;
 };
 Parser.prototype.parseRegularExpression = function parseRegularExpression (context) {
+    this.scanRegularExpression();
     var pos = this.startNode();
     var regex = this.tokenRegExp;
     var value = this.tokenValue;

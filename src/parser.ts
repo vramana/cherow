@@ -310,7 +310,7 @@ export class Parser {
             this.endPos = this.index;
             this.endColumn = this.column;
             this.endLine = this.line;
-
+    
             let state = this.index === 0 ? Scanner.LineStart : Scanner.None;
     
             while (this.hasNext()) {
@@ -430,12 +430,12 @@ export class Parser {
     
                             if (next === Chars.Hyphen) {
                                 this.advance();
-                                if (context & Context.Module || !(state & Scanner.LineStart)) return Token.Decrement;
-                                if (this.consume(Chars.GreaterThan)) {
-                                    this.skipComments(state | Scanner.SingleLine);
-                                    continue;
+                                if (context & Context.Module || !(state & Scanner.LineStart)) {
+                                    return Token.Decrement;
                                 }
-                                return Token.Decrement;
+                                if (!this.consume(Chars.GreaterThan)) return Token.Decrement;
+                                this.skipComments(state | Scanner.SingleLine);
+                                continue;
                             } else if (next === Chars.EqualSign) {
                                 this.advance();
                                 return Token.SubtractAssign;
@@ -447,7 +447,7 @@ export class Parser {
                         // `#`
                     case Chars.Hash:
                         {
-                            if (this.index === 0 &&
+                            if (state & Scanner.LineStart &&
                                 this.source.charCodeAt(this.index + 1) === Chars.Exclamation) {
                                 this.advanceTwice();
                                 this.skipComments(state);
@@ -879,24 +879,22 @@ export class Parser {
             let commentStart = undefined;
             let commentEnd = undefined
     
-            if (this.flags & Flags.LocationTracking) {
-                if (this.flags & Flags.OptionsLoc) {
-                    loc = {
-                        start: {
-                            line: this.startLine,
-                            column: this.startColumn,
-                        },
-                        end: {
-                            line: this.endLine,
-                            column: this.column
-                        }
-                    };
-                }
+            if (this.flags & Flags.OptionsLoc) {
+                loc = {
+                    start: {
+                        line: this.startLine,
+                        column: this.startColumn,
+                    },
+                    end: {
+                        line: this.endLine,
+                        column: this.column
+                    }
+                };
+            }
     
-                if (this.flags & Flags.OptionsRanges) {
-                    commentStart = start;
-                    commentEnd = end;
-                }
+            if (this.flags & Flags.OptionsRanges) {
+                commentStart = start;
+                commentEnd = end;
             }
     
             if (typeof this.comments === 'function') {
@@ -990,7 +988,7 @@ export class Parser {
     
             if (context & Context.Strict) this.error(Errors.StrictOctalEscape);
     
-            if (!(this.flags & Flags.Noctal)) this.flags |= Flags.Noctal;
+            this.flags |= Flags.Noctal;
     
             this.advance();
     
@@ -1287,7 +1285,6 @@ export class Parser {
                 }
     
             const flagsEnd = this.index;
-    
             const pattern = this.source.slice(bodyStart, bodyEnd);
             const flags = this.source.slice(flagsStart, flagsEnd);
     
@@ -1351,7 +1348,7 @@ export class Parser {
     
             // raw
             if (this.flags & (Flags.OptionsRaw | Flags.OptionsDirectives)) this.tokenRaw = this.source.slice(rawStart, this.index);
-    
+
             return Token.StringLiteral;
         }
     
@@ -3562,7 +3559,9 @@ export class Parser {
                     break;
                     // 'import'
                 case Token.ImportKeyword:
-                    if (!(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                    if (!(this.flags & Flags.OptionsNext)) {
+                        this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                    }
                     context |= Context.Import;
                     expr = this.parseImport(context, pos);
                     break;
@@ -3571,7 +3570,10 @@ export class Parser {
                     expr = this.parseMemberExpression(context, pos);
             }
     
-            if (!(this.flags & Flags.AllowCall) && expr.type === 'ArrowFunctionExpression') return expr;
+            if (!(this.flags & Flags.AllowCall) && expr.type === 'ArrowFunctionExpression') {
+                return expr;
+            }
+    
             return this.parseCallExpression(context, pos, expr);
         }
     
@@ -4008,9 +4010,6 @@ export class Parser {
         private parsePrimaryExpression(context: Context, pos: any) {
     
             switch (this.token) {
-                case Token.Divide:
-                case Token.DivideAssign:
-                    if (this.scanRegularExpression() === Token.RegularExpression) return this.parseRegularExpression(context);
                 case Token.NumericLiteral:
                     if (this.flags & Flags.BigInt) return this.parseBigIntLiteral(context);
                 case Token.StringLiteral:
@@ -4043,6 +4042,9 @@ export class Parser {
                     return this.parseTemplateTail(context, pos);
                 case Token.TemplateCont:
                     return this.parseTemplate(context, pos);
+                case Token.Divide:
+                case Token.DivideAssign:
+                    return this.parseRegularExpression(context);
                 case Token.AsyncKeyword:
                     return this.parseAsyncFunctionExpression(context, pos);
                 case Token.AwaitKeyword:
@@ -4669,7 +4671,7 @@ export class Parser {
         }
     
         private parseRegularExpression(context: Context): ESTree.RegExpLiteral {
-    
+            this.scanRegularExpression();
             const pos = this.startNode();
             const regex = this.tokenRegExp;
             const value = this.tokenValue;

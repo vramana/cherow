@@ -24,6 +24,12 @@ describe('Literals - RegExp', () => {
         }).to.throw('Duplicate flags supplied to RegExp constructor g');
     });
 
+    it('should fail on early error duplicate flag', () => {
+        expect(() => {
+            parseScript(`/./mm;`)
+        }).to.throw('Duplicate flags supplied to RegExp constructor m');
+    });
+
     it('should fail on duplicate "dotAll" flags', () => {
         expect(() => {
             parseScript(`/./sis`, { next: true})
