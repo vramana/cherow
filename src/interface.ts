@@ -25,12 +25,12 @@ export interface SavedState {
     token: Token;
     tokenValue: any;
     flags: Flags;
-    startPos: number;
-    endPos: number;
+    startIndex: number;
+    lastIndex: number;
     startLine: number;
-    endLine: number;
+    lastLine: number;
     startColumn: number;
-    endColumn: number;
+    lastColumn: number;
     tokenRegExp: any;
     tokenRaw: any;
 }

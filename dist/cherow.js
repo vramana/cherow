@@ -372,10 +372,10 @@ var Parser = function Parser(source, options) {
     this.index = 0;
     this.column = 0;
     this.line = 1;
-    this.endPos = 0;
-    this.endColumn = 0;
-    this.endLine = 0;
-    this.startPos = 0;
+    this.lastIndex = 0;
+    this.lastColumn = 0;
+    this.lastLine = 0;
+    this.startIndex = 0;
     this.startColumn = 0;
     this.startLine = 0;
     this.tokenRaw = '';
@@ -411,39 +411,15 @@ var Parser = function Parser(source, options) {
     if (this.flags & 4194304 /* OptionsOnComment */)
         { this.comments = options.comments; }
 };
-// 'strict' are a pre-set bitmask in 'module code',
-// so no need to check for strict directives, and the
-// 'body' are different. (thus the duplicate code path).
-Parser.prototype.parseModule = function parseModule (context) {
-    var node = {
-        type: 'Program',
-        body: this.parseModuleItemList(context | 4 /* AllowIn */),
-        sourceType: 'module'
-    };
-    if (this.flags & 32768 /* OptionsRanges */) {
-        node.start = 0;
-        node.end = this.source.length;
-    }
-    if (this.flags & 65536 /* OptionsLoc */) {
-        node.loc = {
-            start: {
-                line: 1,
-                column: 0,
-            },
-            end: {
-                line: this.line,
-                column: this.column
-            }
-        };
-    }
-    return node;
-};
-Parser.prototype.parseScript = function parseScript (context) {
+Parser.prototype.parse = function parse (context) {
     this.nextToken(context);
+    var body = context & 1 /* Module */ ?
+        this.parseModuleItemList(context | 4 /* AllowIn */) :
+        this.parseStatementList(context, 0 /* EndOfSource */);
     var node = {
         type: 'Program',
-        body: this.parseStatementList(context, 0 /* EndOfSource */),
-        sourceType: 'script'
+        body: body,
+        sourceType: context & 1 /* Module */ ? 'module' : 'script'
     };
     if (this.flags & 32768 /* OptionsRanges */) {
         node.start = 0;
@@ -477,14 +453,14 @@ Parser.prototype.saveState = function saveState () {
         column: this.column,
         line: this.line,
         startLine: this.startLine,
-        endLine: this.endLine,
+        lastLine: this.lastLine,
         startColumn: this.startColumn,
-        endColumn: this.endColumn,
+        lastColumn: this.lastColumn,
         token: this.token,
         tokenValue: this.tokenValue,
         tokenRaw: this.tokenRaw,
-        startPos: this.startPos,
-        endPos: this.endPos,
+        startIndex: this.startIndex,
+        lastIndex: this.lastIndex,
         tokenRegExp: this.tokenRegExp,
         flags: this.flags,
     };
@@ -495,12 +471,12 @@ Parser.prototype.rewindState = function rewindState (state) {
     this.line = state.line;
     this.token = state.token;
     this.tokenValue = state.tokenValue;
-    this.startPos = state.startPos;
-    this.endPos = state.endPos;
-    this.endLine = state.endLine;
+    this.startIndex = state.startIndex;
+    this.lastIndex = state.lastIndex;
+    this.lastLine = state.lastLine;
     this.startLine = state.startLine;
     this.startColumn = state.startColumn;
-    this.endColumn = state.endColumn;
+    this.lastColumn = state.lastColumn;
     this.tokenRegExp = state.tokenRegExp;
     this.tokenRaw = state.tokenRaw;
     this.flags = state.flags;
@@ -591,18 +567,13 @@ Parser.prototype.peekToken = function peekToken (context) {
 Parser.prototype.scanToken = function scanToken (context) {
         var this$1 = this;
 
-    if (this.peekedState) {
-        this.rewindState(this.peekedState);
-        this.peekedState = undefined;
-        return this.peekedToken;
-    }
     this.flags &= ~(1 /* LineTerminator */ | 2 /* HasUnicode */);
-    this.endPos = this.index;
-    this.endColumn = this.column;
-    this.endLine = this.line;
+    this.lastIndex = this.index;
+    this.lastColumn = this.column;
+    this.lastLine = this.line;
     var state = this.index === 0 ? 4 /* LineStart */ : 0;
     while (this.hasNext()) {
-        this$1.startPos = this$1.index;
+        this$1.startIndex = this$1.index;
         this$1.startColumn = this$1.column;
         this$1.startLine = this$1.line;
         var first = this$1.nextChar();
@@ -1091,7 +1062,7 @@ Parser.prototype.skipComments = function skipComments (state) {
     if (!(state & 32 /* Closed */))
         { this.error(2 /* UnterminatedComment */); }
     if (state & 24 /* Collectable */ && this.flags & 4194304 /* OptionsOnComment */) {
-        this.collectComment(state & 8 /* MultiLine */ ? 'Block' : 'Line', this.source.slice(start, state & 8 /* MultiLine */ ? this.index - 2 : this.index), this.startPos, this.index);
+        this.collectComment(state & 8 /* MultiLine */ ? 'Block' : 'Line', this.source.slice(start, state & 8 /* MultiLine */ ? this.index - 2 : this.index), this.startIndex, this.index);
     }
 };
 Parser.prototype.collectComment = function collectComment (type, value, start, end) {
@@ -1105,7 +1076,7 @@ Parser.prototype.collectComment = function collectComment (type, value, start, e
                 column: this.startColumn,
             },
             end: {
-                line: this.endLine,
+                line: this.lastLine,
                 column: this.column
             }
         };
@@ -1212,8 +1183,8 @@ Parser.prototype.scanNumberLiteral = function scanNumberLiteral (context) {
     if (this.flags & 1048576 /* OptionsNext */ && this.consume(110 /* LowerN */))
         { this.flags |= 8192 /* BigInt */; }
     if (this.flags & 524288 /* OptionsRaw */)
-        { this.tokenRaw = this.source.slice(this.startPos, this.index); }
-    this.tokenValue = isDecimal ? parseInt(this.source.slice(this.startPos, this.index), 10) : code;
+        { this.tokenRaw = this.source.slice(this.startIndex, this.index); }
+    this.tokenValue = isDecimal ? parseInt(this.source.slice(this.startIndex, this.index), 10) : code;
     return 262146 /* NumericLiteral */;
 };
 Parser.prototype.scanOctalDigits = function scanOctalDigits (context) {
@@ -1237,7 +1208,7 @@ Parser.prototype.scanOctalDigits = function scanOctalDigits (context) {
     if (this.flags & 1048576 /* OptionsNext */ && this.consume(110 /* LowerN */))
         { this.flags |= 8192 /* BigInt */; }
     if (this.flags & 524288 /* OptionsRaw */)
-        { this.tokenRaw = this.source.slice(this.startPos, this.index); }
+        { this.tokenRaw = this.source.slice(this.startIndex, this.index); }
     return 262146 /* NumericLiteral */;
 };
 Parser.prototype.scanHexadecimalDigit = function scanHexadecimalDigit () {
@@ -1261,7 +1232,7 @@ Parser.prototype.scanHexadecimalDigit = function scanHexadecimalDigit () {
     if (this.flags & 1048576 /* OptionsNext */ && this.consume(110 /* LowerN */))
         { this.flags |= 8192 /* BigInt */; }
     if (this.flags & 524288 /* OptionsRaw */)
-        { this.tokenRaw = this.source.slice(this.startPos, this.index); }
+        { this.tokenRaw = this.source.slice(this.startIndex, this.index); }
     return 262146 /* NumericLiteral */;
 };
 Parser.prototype.scanBinaryDigits = function scanBinaryDigits (context) {
@@ -1286,7 +1257,7 @@ Parser.prototype.scanBinaryDigits = function scanBinaryDigits (context) {
     if (this.flags & 1048576 /* OptionsNext */ && this.consume(110 /* LowerN */))
         { this.flags |= 8192 /* BigInt */; }
     if (this.flags & 524288 /* OptionsRaw */)
-        { this.tokenRaw = this.source.slice(this.startPos, this.index); }
+        { this.tokenRaw = this.source.slice(this.startIndex, this.index); }
     return 262146 /* NumericLiteral */;
 };
 Parser.prototype.advanceAndSkipDigits = function advanceAndSkipDigits () {
@@ -1372,7 +1343,7 @@ Parser.prototype.scanNumber = function scanNumber (context) {
 Parser.prototype.scanRegularExpression = function scanRegularExpression () {
         var this$1 = this;
 
-    var bodyStart = this.startPos + 1;
+    var bodyStart = this.startIndex + 1;
     var preparseState = 0;
     loop: while (true) {
         var ch = this$1.nextChar();
@@ -1463,7 +1434,7 @@ Parser.prototype.scanRegularExpression = function scanRegularExpression () {
     };
     this.tokenValue = tryCreate(pattern, flags);
     if (this.flags & 524288 /* OptionsRaw */)
-        { this.tokenRaw = this.source.slice(this.startPos, this.index); }
+        { this.tokenRaw = this.source.slice(this.startIndex, this.index); }
     return 262148 /* RegularExpression */;
 };
 Parser.prototype.scanString = function scanString (context, quote // Either double or single quote
@@ -1774,8 +1745,6 @@ Parser.prototype.parseModuleItemList = function parseModuleItemList (context) {
     // ecma262/#prod-ModuleItemList
     // ModuleBody :
     //   ModuleItem*
-    var pos = this.startNode();
-    this.nextToken(context);
     var statements = [];
     while (this.token !== 0 /* EndOfSource */) {
         if (this$1.token !== 262147 /* StringLiteral */)
@@ -1832,7 +1801,7 @@ Parser.prototype.parseStatementList = function parseStatementList (context, endT
 Parser.prototype.getLocations = function getLocations () {
     return {
         index: this.index,
-        start: this.startPos,
+        start: this.startIndex,
         line: this.startLine,
         column: this.startColumn
     };
@@ -1847,7 +1816,7 @@ Parser.prototype.finishNode = function finishNode (loc, node) {
     if (loc) {
         if (this.flags & 32768 /* OptionsRanges */) {
             node.start = loc.start;
-            node.end = this.endPos;
+            node.end = this.lastIndex;
         }
         if (this.flags & 65536 /* OptionsLoc */) {
             node.loc = {
@@ -1856,8 +1825,8 @@ Parser.prototype.finishNode = function finishNode (loc, node) {
                     column: loc.column,
                 },
                 end: {
-                    line: this.endLine,
-                    column: this.endColumn
+                    line: this.lastLine,
+                    column: this.lastColumn
                 }
             };
         }
@@ -2012,11 +1981,11 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
             break;
         // export LexicalDeclaration
         case 8663113 /* ConstKeyword */:
-            declaration = this.parseVariableStatement(context |= (16777216 /* Const */ | 2097152 /* RequireInitializer */));
+            declaration = this.parseVariableStatement(context |= (33554432 /* Const */ | 2097152 /* RequireInitializer */));
             break;
         // export LexicalDeclaration
         case 8671304 /* LetKeyword */:
-            declaration = this.parseVariableStatement(context |= (8388608 /* Let */ | 2097152 /* RequireInitializer */));
+            declaration = this.parseVariableStatement(context |= (16777216 /* Let */ | 2097152 /* RequireInitializer */));
             break;
         // export VariableDeclaration
         case 8663111 /* VarKeyword */:
@@ -2255,10 +2224,10 @@ Parser.prototype.parseStatementListItem = function parseStatementListItem (conte
         case 8671304 /* LetKeyword */:
             // If let follows identifier on the same line, it is an declaration. Parse it as a variable statement
             if (this.isLexical(context))
-                { return this.parseVariableStatement(context |= 8388608 /* Let */); }
+                { return this.parseVariableStatement(context |= 16777216 /* Let */); }
             return this.parseStatement(context);
         case 8663113 /* ConstKeyword */:
-            return this.parseVariableStatement(context | 16777216 /* Const */);
+            return this.parseVariableStatement(context | 33554432 /* Const */);
         // VariableStatement[?Yield]
         case 274521 /* ImportKeyword */:
             // We must be careful not to parse a 'import()'
@@ -2572,7 +2541,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
     this.expect(context, 262155 /* LeftParen */);
     if (this.token !== 17 /* Semicolon */) {
         if (hasMask(this.token, 8650752 /* VarDeclStart */)) {
-            var startPos = this.startNode();
+            var startIndex = this.startNode();
             kind = tokenDesc(this.token);
             if (this.parseOptional(context, 8663111 /* VarKeyword */)) {
                 state |= 1 /* Var */;
@@ -2580,13 +2549,13 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
             }
             else if (this.parseOptional(context, 8671304 /* LetKeyword */)) {
                 state |= 4 /* Let */;
-                declarations = this.parseVariableDeclarationList(context | (8388608 /* Let */ | 4194304 /* ForStatement */));
+                declarations = this.parseVariableDeclarationList(context | (16777216 /* Let */ | 4194304 /* ForStatement */));
             }
             else if (this.parseOptional(context, 8663113 /* ConstKeyword */)) {
                 state |= 2 /* Const */;
-                declarations = this.parseVariableDeclarationList(context | (16777216 /* Const */ | 4194304 /* ForStatement */));
+                declarations = this.parseVariableDeclarationList(context | (33554432 /* Const */ | 4194304 /* ForStatement */));
             }
-            init = this.finishNode(startPos, {
+            init = this.finishNode(startIndex, {
                 type: 'VariableDeclaration',
                 declarations: declarations,
                 kind: kind
@@ -2958,8 +2927,8 @@ Parser.prototype.parseVariableDeclaration = function parseVariableDeclaration (c
         this.error(89 /* MissingInitializer */);
     }
     // 'let', 'const'
-    if (context & 25165824 /* Lexical */) {
-        if (context & 16777216 /* Const */) {
+    if (context & 50331648 /* Lexical */) {
+        if (context & 33554432 /* Const */) {
             if (!(this.token === 2111281 /* InKeyword */ || this.token === 69746 /* OfKeyword */)) {
                 if (this.parseOptional(context, 1310749 /* Assign */)) {
                     init = this.parseAssignmentExpression(context);
@@ -4601,7 +4570,7 @@ Parser.prototype.addFunctionArg = function addFunctionArg (name) {
     this.functionScope[name] = 1 /* Shadowable */;
 };
 Parser.prototype.addVarOrBlock = function addVarOrBlock (context, name) {
-    if (context & 25165824 /* Lexical */) {
+    if (context & 50331648 /* Lexical */) {
         this.addBlockName(name);
     }
     else {
@@ -4688,7 +4657,7 @@ Parser.prototype.parseBindingPatternOrIdentifier = function parseBindingPatternO
             if (context & 16 /* Yield */)
                 { this.error(82 /* DisallowedInContext */, tokenDesc(this.token)); }
         case 8671304 /* LetKeyword */:
-            if (context & 25165824 /* Lexical */)
+            if (context & 50331648 /* Lexical */)
                 { this.error(54 /* LetInLexicalBinding */); }
         default:
             if (!this.isIdentifier(context, this.token))
@@ -4972,7 +4941,7 @@ Parser.prototype.scanJSXString = function scanJSXString () {
     return 262147 /* StringLiteral */;
 };
 Parser.prototype.scanJSXAttributeValue = function scanJSXAttributeValue (context) {
-    this.startPos = this.index;
+    this.startIndex = this.index;
     this.startColumn = this.column;
     this.startLine = this.line;
     switch (this.nextChar()) {
@@ -4984,8 +4953,8 @@ Parser.prototype.scanJSXAttributeValue = function scanJSXAttributeValue (context
     }
 };
 Parser.prototype.parseJSXEmptyExpression = function parseJSXEmptyExpression () {
-    // For empty JSX Expressions the 'endPos' need to become
-    // the 'startPos' and the other way around
+    // For empty JSX Expressions the 'lastIndex' need to become
+    // the 'startIndex' and the other way around
     var pos = this.startNode();
     return this.finishNode(pos, {
         type: 'JSXEmptyExpression'
@@ -5091,8 +5060,8 @@ Parser.prototype.parseJSXAttributes = function parseJSXAttributes (context) {
 Parser.prototype.scanJSXToken = function scanJSXToken () {
         var this$1 = this;
 
-    // Set 'endPos' and 'startPos' to current index
-    this.endPos = this.startPos = this.index;
+    // Set 'lastIndex' and 'startIndex' to current index
+    this.lastIndex = this.startIndex = this.index;
     if (!this.hasNext())
         { return 0 /* EndOfSource */; }
     var next = this.nextChar();
@@ -5196,7 +5165,7 @@ Parser.prototype.parseJSXElement = function parseJSXElement (context) {
 };
 Parser.prototype.parseJSXText = function parseJSXText (context) {
     var pos = this.startNode();
-    var value = this.source.slice(this.startPos, this.index);
+    var value = this.source.slice(this.startIndex, this.index);
     this.token = this.scanJSXToken();
     var node = this.finishNode(pos, {
         type: 'JSXText',
@@ -5222,24 +5191,22 @@ Parser.prototype.parseJSXChild = function parseJSXChild (context) {
     }
 };
 
-// https://tc39.github.io/ecma262/#sec-scripts
-function parseScript(sourceText, options) {
+function parseScript(source, options) {
     if ( options === void 0 ) options = {};
 
-    return new Parser(sourceText, options).parseScript(0 /* None */);
+    return new Parser(source, options).parse(0 /* None */);
 }
-// https://tc39.github.io/ecma262/#sec-modules
-function parseModule(sourceText, options) {
+function parseModule(source, options) {
     if ( options === void 0 ) options = {};
 
-    return new Parser(sourceText, options).parseModule(2 /* Strict */ | 1 /* Module */);
+    return new Parser(source, options).parse(2 /* Strict */ | 1 /* Module */);
 }
-function parse(sourceText, options) {
+function parse(source, options) {
     if ( options === void 0 ) options = {};
 
     return options && typeof options.sourceType === 'string' && options.sourceType === 'module'
-        ? this.parseModule(sourceText, options)
-        : this.parseScript(sourceText, options);
+        ? this.parseModule(source, options)
+        : this.parseScript(source, options);
 }
 
 exports.parseScript = parseScript;

@@ -23,7 +23,7 @@ export class Parser {
         private line: number;
     
         // Start position of whitespace before current token
-        private startPos: number;
+        private startIndex: number;
     
         // Start position of whitespace before current column
         private startColumn: number;
@@ -32,13 +32,13 @@ export class Parser {
         private startLine: number;
     
         // End position of source of current index
-        private endPos: number;
+        private lastIndex: number;
     
         // End position of column of current column
-        private endColumn: number;
+        private lastColumn: number;
     
         // End position of line of current line
-        private endLine: number;
+        private lastLine: number;
     
         // Contains the current value of parsed source
         private tokenValue: any;
@@ -78,10 +78,10 @@ export class Parser {
             this.index = 0;
             this.column = 0;
             this.line = 1;
-            this.endPos = 0;
-            this.endColumn = 0;
-            this.endLine = 0;
-            this.startPos = 0;
+            this.lastIndex = 0;
+            this.lastColumn = 0;
+            this.lastLine = 0;
+            this.startIndex = 0;
             this.startColumn = 0;
             this.startLine = 0;
             this.tokenRaw = '';
@@ -110,43 +110,18 @@ export class Parser {
             if (this.flags & Flags.OptionsOnComment) this.comments = options.comments;
         }
     
-        // 'strict' are a pre-set bitmask in 'module code',
-        // so no need to check for strict directives, and the
-        // 'body' are different. (thus the duplicate code path).
-        public parseModule(context: Context): ESTree.Program {
+        public parse(context: Context): ESTree.Program {
     
-            const node: ESTree.Program = {
-                type: 'Program',
-                body: this.parseModuleItemList(context | Context.AllowIn),
-                sourceType: 'module'
-            };
-    
-            if (this.flags & Flags.OptionsRanges) {
-                node.start = 0;
-                node.end = this.source.length;
-            }
-    
-            if (this.flags & Flags.OptionsLoc) {
-                node.loc = {
-                    start: {
-                        line: 1,
-                        column: 0,
-                    },
-                    end: {
-                        line: this.line,
-                        column: this.column
-                    }
-                };
-            }
-            return node;
-        }
-    
-        public parseScript(context: Context): ESTree.Program {
             this.nextToken(context);
+    
+            const body = context & Context.Module ?
+                this.parseModuleItemList(context | Context.AllowIn) :
+                this.parseStatementList(context, Token.EndOfSource)
+    
             const node: ESTree.Program = {
                 type: 'Program',
-                body: this.parseStatementList(context, Token.EndOfSource),
-                sourceType: 'script'
+                body,
+                sourceType: context & Context.Module ? 'module' : 'script'
             };
     
             if (this.flags & Flags.OptionsRanges) {
@@ -179,14 +154,14 @@ export class Parser {
                 column: this.column,
                 line: this.line,
                 startLine: this.startLine,
-                endLine: this.endLine,
+                lastLine: this.lastLine,
                 startColumn: this.startColumn,
-                endColumn: this.endColumn,
+                lastColumn: this.lastColumn,
                 token: this.token,
                 tokenValue: this.tokenValue,
                 tokenRaw: this.tokenRaw,
-                startPos: this.startPos,
-                endPos: this.endPos,
+                startIndex: this.startIndex,
+                lastIndex: this.lastIndex,
                 tokenRegExp: this.tokenRegExp,
                 flags: this.flags,
             };
@@ -198,12 +173,12 @@ export class Parser {
             this.line = state.line;
             this.token = state.token;
             this.tokenValue = state.tokenValue;
-            this.startPos = state.startPos;
-            this.endPos = state.endPos;
-            this.endLine = state.endLine;
+            this.startIndex = state.startIndex;
+            this.lastIndex = state.lastIndex;
+            this.lastLine = state.lastLine;
             this.startLine = state.startLine;
             this.startColumn = state.startColumn;
-            this.endColumn = state.endColumn;
+            this.lastColumn = state.lastColumn;
             this.tokenRegExp = state.tokenRegExp;
             this.tokenRaw = state.tokenRaw;
             this.flags = state.flags;
@@ -300,22 +275,17 @@ export class Parser {
          */
         private scanToken(context: Context): Token {
     
-            if (this.peekedState) {
-                this.rewindState(this.peekedState);
-                this.peekedState = undefined;
-                return this.peekedToken;
-            }
-    
             this.flags &= ~(Flags.LineTerminator | Flags.HasUnicode);
-            this.endPos = this.index;
-            this.endColumn = this.column;
-            this.endLine = this.line;
+    
+            this.lastIndex = this.index;
+            this.lastColumn = this.column;
+            this.lastLine = this.line;
     
             let state = this.index === 0 ? Scanner.LineStart : Scanner.None;
     
             while (this.hasNext()) {
     
-                this.startPos = this.index;
+                this.startIndex = this.index;
                 this.startColumn = this.column;
                 this.startLine = this.line;
     
@@ -870,7 +840,7 @@ export class Parser {
                 this.collectComment(
                     state & Scanner.MultiLine ? 'Block' : 'Line',
                     this.source.slice(start, state & Scanner.MultiLine ? this.index - 2 : this.index),
-                    this.startPos, this.index);
+                    this.startIndex, this.index);
             }
         }
     
@@ -886,7 +856,7 @@ export class Parser {
                         column: this.startColumn,
                     },
                     end: {
-                        line: this.endLine,
+                        line: this.lastLine,
                         column: this.column
                     }
                 };
@@ -1007,9 +977,9 @@ export class Parser {
     
             if (this.flags & Flags.OptionsNext && this.consume(Chars.LowerN)) this.flags |= Flags.BigInt;
     
-            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startPos, this.index);
+            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startIndex, this.index);
     
-            this.tokenValue = isDecimal ? parseInt(this.source.slice(this.startPos, this.index), 10) : code;
+            this.tokenValue = isDecimal ? parseInt(this.source.slice(this.startIndex, this.index), 10) : code;
             return Token.NumericLiteral;
         }
     
@@ -1036,7 +1006,7 @@ export class Parser {
     
             if (this.flags & Flags.OptionsNext && this.consume(Chars.LowerN)) this.flags |= Flags.BigInt;
     
-            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startPos, this.index);
+            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startIndex, this.index);
     
             return Token.NumericLiteral;
         }
@@ -1064,7 +1034,7 @@ export class Parser {
     
             if (this.flags & Flags.OptionsNext && this.consume(Chars.LowerN)) this.flags |= Flags.BigInt;
     
-            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startPos, this.index);
+            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startIndex, this.index);
             return Token.NumericLiteral;
         }
     
@@ -1093,7 +1063,7 @@ export class Parser {
     
             if (this.flags & Flags.OptionsNext && this.consume(Chars.LowerN)) this.flags |= Flags.BigInt;
     
-            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startPos, this.index);
+            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startIndex, this.index);
     
             return Token.NumericLiteral;
         }
@@ -1195,7 +1165,7 @@ export class Parser {
         }
     
         private scanRegularExpression(): Token {
-            const bodyStart = this.startPos + 1;
+            const bodyStart = this.startIndex + 1;
             let preparseState = RegExpState.Empty;
     
             loop:
@@ -1295,7 +1265,7 @@ export class Parser {
     
             this.tokenValue = tryCreate(pattern, flags);
     
-            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startPos, this.index);
+            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startIndex, this.index);
     
             return Token.RegularExpression;
         }
@@ -1348,7 +1318,7 @@ export class Parser {
     
             // raw
             if (this.flags & (Flags.OptionsRaw | Flags.OptionsDirectives)) this.tokenRaw = this.source.slice(rawStart, this.index);
-
+    
             return Token.StringLiteral;
         }
     
@@ -1644,8 +1614,7 @@ export class Parser {
             // ecma262/#prod-ModuleItemList
             // ModuleBody :
             //   ModuleItem*
-            const pos = this.startNode();
-            this.nextToken(context);
+    
     
             const statements: ESTree.Statement[] = [];
     
@@ -1708,7 +1677,7 @@ export class Parser {
         private getLocations(): Location {
             return {
                 index: this.index,
-                start: this.startPos,
+                start: this.startIndex,
                 line: this.startLine,
                 column: this.startColumn
             };
@@ -1725,7 +1694,7 @@ export class Parser {
             if (loc) {
                 if (this.flags & Flags.OptionsRanges) {
                     node.start = loc.start;
-                    node.end = this.endPos;
+                    node.end = this.lastIndex;
                 }
     
                 if (this.flags & Flags.OptionsLoc) {
@@ -1736,8 +1705,8 @@ export class Parser {
                             column: loc.column,
                         },
                         end: {
-                            line: this.endLine,
-                            column: this.endColumn
+                            line: this.lastLine,
+                            column: this.lastColumn
                         }
                     };
                 }
@@ -2587,7 +2556,7 @@ export class Parser {
     
                 if (hasMask(this.token, Token.VarDeclStart)) {
     
-                    const startPos = this.startNode();
+                    const startIndex = this.startNode();
                     kind = tokenDesc(this.token);
     
                     if (this.parseOptional(context, Token.VarKeyword)) {
@@ -2600,7 +2569,7 @@ export class Parser {
                         state |= IterationState.Const;
                         declarations = this.parseVariableDeclarationList(context | (Context.Const | Context.ForStatement));
                     }
-                    init = this.finishNode(startPos, {
+                    init = this.finishNode(startIndex, {
                         type: 'VariableDeclaration',
                         declarations,
                         kind
@@ -5299,7 +5268,7 @@ export class Parser {
     
         private scanJSXAttributeValue(context: Context): Token | undefined {
     
-            this.startPos = this.index;
+            this.startIndex = this.index;
             this.startColumn = this.column;
             this.startLine = this.line;
     
@@ -5313,8 +5282,8 @@ export class Parser {
         }
     
         private parseJSXEmptyExpression(): ESTree.JSXEmptyExpression {
-            // For empty JSX Expressions the 'endPos' need to become
-            // the 'startPos' and the other way around
+            // For empty JSX Expressions the 'lastIndex' need to become
+            // the 'startIndex' and the other way around
             const pos = this.startNode();
             return this.finishNode(pos, {
                 type: 'JSXEmptyExpression'
@@ -5450,8 +5419,8 @@ export class Parser {
     
         private scanJSXToken(): Token {
     
-            // Set 'endPos' and 'startPos' to current index
-            this.endPos = this.startPos = this.index;
+            // Set 'lastIndex' and 'startIndex' to current index
+            this.lastIndex = this.startIndex = this.index;
     
             if (!this.hasNext()) return Token.EndOfSource;
     
@@ -5580,7 +5549,7 @@ export class Parser {
     
         private parseJSXText(context: Context): ESTree.JSXText {
             const pos = this.startNode();
-            const value = this.source.slice(this.startPos, this.index);
+            const value = this.source.slice(this.startIndex, this.index);
     
             this.token = this.scanJSXToken();
     
