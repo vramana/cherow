@@ -99,11 +99,12 @@ Single line, multiline and HTML comments are supported, and can be collected as 
 skipped by default, and can't be collected.
 
 ### Comment collecting
+
 Cherow can be instructed to collect comments by setting the `comments option` to either an array or an function.
 
 The type of each comment can either be `Line` for a single-line comment (`//`) og Block for a MultiLineComment (`/* */`).
 
-Note that if the location tracking isn't enabled, an empty object will be returned, and if the `ranges option` isn't set - `undefined` will be returned.
+**Note** that if the location tracking isn't enabled, an empty object will be returned, and if the `ranges option` isn't set - `undefined` will be returned.
 
 A function will be called with the following parameters
 
