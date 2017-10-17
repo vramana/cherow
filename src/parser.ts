@@ -2,7 +2,7 @@ import { Chars } from './chars';
 import * as ESTree from './estree';
 import { hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isDirective } from './common';
 import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget } from './validate';
-import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, ScannerState, ParenthesizedState, IterationState, NumberState } from './masks';
+import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, Scanner, ParenthesizedState, IterationState, NumberState } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
@@ -252,11 +252,6 @@ export class Parser {
             this.column++;
         }
     
-        private decrease() {
-            this.index--;
-            this.column--;
-        }
-    
         private advanceTwice(): void {
             this.index += 2;
             this.column += 2;
@@ -266,10 +261,18 @@ export class Parser {
          * Advance to new line
          */
         private advanceNewline() {
-            this.flags |= Flags.LineTerminator;
+            // this.flags |= Flags.LineTerminator;
             this.index++;
             this.column = 0;
             this.line++;
+        }
+    
+        private consumeLineFeed(state: Scanner) {
+            this.index++;
+            if (!(state & Scanner.LastIsCR)) {
+                this.column = 0;
+                this.line++;
+            }
         }
     
         /**
@@ -305,11 +308,10 @@ export class Parser {
             }
     
             this.flags &= ~(Flags.LineTerminator | Flags.HasUnicode);
-    
             this.endPos = this.index;
             this.endColumn = this.column;
             this.endLine = this.line;
-            const state = ScannerState.None;
+            let state = this.index === 0 ? Scanner.NewLine : Scanner.None;
     
             while (this.hasNext()) {
     
@@ -320,15 +322,23 @@ export class Parser {
                 const first = this.nextChar();
     
                 switch (first) {
+    
                     case Chars.CarriageReturn:
+                        this.flags |= Flags.LineTerminator;
+                        state |= Scanner.LastIsCR | Scanner.NewLine;
                         this.advanceNewline();
-                        if (this.nextChar() === Chars.LineFeed) {
-                            this.index++;
-                        }
                         continue;
+    
                     case Chars.LineFeed:
+                        this.consumeLineFeed(state);
+                        this.flags |= Flags.LineTerminator;
+                        state = state & ~Scanner.LastIsCR | Scanner.NewLine;
+                        continue;
+    
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
+                        state = state & ~Scanner.LastIsCR | Scanner.NewLine;
+                        this.flags |= Flags.LineTerminator;
                         this.advanceNewline();
                         continue;
     
@@ -365,11 +375,11 @@ export class Parser {
     
                             if (next === Chars.Slash) {
                                 this.advance();
-                                this.skipComments(state | ScannerState.SingleLine);
+                                this.skipComments(state | Scanner.SingleLine);
                                 continue;
                             } else if (next === Chars.Asterisk) {
                                 this.advance();
-                                this.skipComments(state | ScannerState.MultiLine);
+                                this.skipComments(state | Scanner.MultiLine);
                                 continue;
                             } else if (next === Chars.EqualSign) {
                                 this.advance();
@@ -390,7 +400,7 @@ export class Parser {
                                 this.advance();
                                 if (this.consume(Chars.Hyphen) &&
                                     this.consume(Chars.Hyphen)) {
-                                    this.skipComments(state | ScannerState.SingleLine);
+                                    this.skipComments(state | Scanner.SingleLine);
                                 }
                                 continue;
                             }
@@ -420,14 +430,10 @@ export class Parser {
     
                             if (next === Chars.Hyphen) {
                                 this.advance();
+                                if (context & Context.Module || !(state & Scanner.NewLine)) return Token.Decrement;
                                 if (this.consume(Chars.GreaterThan)) {
-                                    if (context & Context.Module || !(this.flags & Flags.LineTerminator)) {
-                                        this.decrease();
-                                        return Token.Decrement;
-                                    } else {
-                                        this.skipComments(state | ScannerState.SingleLine);
-                                        continue;
-                                    }
+                                    this.skipComments(state | Scanner.SingleLine);
+                                    continue;
                                 }
                                 return Token.Decrement;
                             } else if (next === Chars.EqualSign) {
@@ -806,14 +812,14 @@ export class Parser {
         /**
          * Skips single line, shebang and multiline comments
          *
-         * @param state ScannerState
+         * @param state Scanner
          */
-        private skipComments(state: ScannerState) {
+        private skipComments(state: Scanner) {
     
             const start = this.index;
     
             // It's only pre-closed for shebang and single line comments
-            if (!(state & ScannerState.MultiLine)) state |= ScannerState.Closed;
+            if (!(state & Scanner.MultiLine)) state |= Scanner.Closed;
     
             loop:
                 while (this.hasNext()) {
@@ -822,44 +828,48 @@ export class Parser {
     
                         // Line Terminators
                         case Chars.CarriageReturn:
+                            this.flags |= Flags.LineTerminator;
                             this.advanceNewline();
-                            if (this.nextChar() === Chars.LineFeed) {
-                                this.index++;
-                            }
-                            if (!(state & ScannerState.MultiLine)) break loop;
+                            state |= Scanner.NewLine | Scanner.LastIsCR;
+                            if (!(state & Scanner.MultiLine)) break loop;
                             break;
+    
                         case Chars.LineFeed:
-                            this.advanceNewline();
-                            if (!(state & ScannerState.MultiLine)) break loop;
+                            this.flags |= Flags.LineTerminator;
+                            this.consumeLineFeed(state);
+                            state = state & ~Scanner.LastIsCR | Scanner.NewLine;
+                            if (!(state & Scanner.MultiLine)) break loop;
                             break;
+    
                         case Chars.LineSeparator:
                         case Chars.ParagraphSeparator:
+                            state = state & ~Scanner.LastIsCR | Scanner.NewLine;
+                            this.flags |= Flags.LineTerminator;
                             this.advanceNewline();
                             break;
-                        case Chars.Asterisk:
-                            // For single and shebang comments, just advance, but
-                            // for MultiLine comments we need to break the loop
-                            if (state & ScannerState.MultiLine) {
-                            this.advance();
-                            if (this.consume(Chars.Slash)) {
-                                state |= ScannerState.Closed;
-                                break loop;
-                            }
-                            break;
-                        }
     
-                            // fall through
+                        case Chars.Asterisk:
+                            if (state & Scanner.MultiLine) {
+                                this.advance();
+                                state &= ~Scanner.LastIsCR;
+                                if (this.consume(Chars.Slash)) {
+                                    state |= Scanner.Closed;
+                                    break loop;
+                                }
+                                break;
+                            }
+    
                         default:
                             this.advance();
                     }
                 }
     
-            if (!(state & ScannerState.Closed)) this.error(Errors.UnterminatedComment);
+            if (!(state & Scanner.Closed)) this.error(Errors.UnterminatedComment);
     
-            if (state & ScannerState.Collectable && this.flags & Flags.OptionsOnComment) {
+            if (state & Scanner.Collectable && this.flags & Flags.OptionsOnComment) {
                 this.collectComment(
-                    state & ScannerState.MultiLine ? 'MultiLineComment' : 'SingleLineComment',
-                    this.source.slice(start, state & ScannerState.MultiLine ? this.index - 2 : this.index),
+                    state & Scanner.MultiLine ? 'MultiLineComment' : 'SingleLineComment',
+                    this.source.slice(start, state & Scanner.MultiLine ? this.index - 2 : this.index),
                     this.startPos, this.index);
             }
         }
@@ -868,7 +878,7 @@ export class Parser {
             let loc = {};
             let commentStart = undefined;
             let commentEnd = undefined
-
+    
             if (this.flags & Flags.LocationTracking) {
                 if (this.flags & Flags.OptionsLoc) {
                     loc = {
@@ -888,11 +898,11 @@ export class Parser {
                     commentEnd = end;
                 }
             }
-
+    
             if (typeof this.comments === 'function') {
                 this.comments(type, value, commentStart as any, commentEnd as any, loc);
             } else if (Array.isArray(this.comments)) {
-
+    
                 const node: ESTree.Comment = {
                     type,
                     value,
@@ -1006,7 +1016,7 @@ export class Parser {
         }
     
         private scanOctalDigits(context: Context): Token {
-
+    
             this.advanceTwice();
     
             let ch = this.nextChar();
@@ -1370,7 +1380,7 @@ export class Parser {
                     ch = this.readNext(Errors.InvalidHexEscapeSequence);
                 }
     
-   
+    
                 return code;
     
                 // '\uDDDD'
@@ -2477,7 +2487,7 @@ export class Parser {
     
             if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
                 label = this.parseIdentifier(context);
-
+    
                 if (this.labelSet === undefined || !hasOwn.call(this.labelSet, '@' + label.name)) {
                     this.error(Errors.UnknownLabel, label.name);
                 }
@@ -2513,7 +2523,7 @@ export class Parser {
     
             if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
                 label = this.parseIdentifier(context);
-                
+    
                 if (this.labelSet === undefined || !hasOwn.call(this.labelSet, '@' + label.name)) {
                     this.error(Errors.UnknownLabel, label.name);
                 }

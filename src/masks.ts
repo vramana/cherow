@@ -122,12 +122,14 @@ export const enum ObjectState {
     Modifiers = Accessors | Method | Yield
 }
 
-// Flags to deal with the comments in the scanner
-export const enum ScannerState {
-    None = 0,
-    MultiLine       = 1 << 1, // MultiLine comment
-    SingleLine      = 1 << 2, // SingleLine comment (HTML, Shebang or plain)
-    Closed          = 1 << 3, // If the node was closed or not
+// A set of flags for  maintaining the internal state machine.
+export const enum Scanner {
+    None            = 0,
+    LastIsCR        = 1 << 1, // Tracks if last scanned is CR
+    NewLine         = 1 << 2, // Tracks start of a new line (HTML comments)
+    MultiLine       = 1 << 3, // MultiLine comment
+    SingleLine      = 1 << 4, // SingleLine comment (HTML, Shebang or plain)
+    Closed          = 1 << 5, // If the node was closed or not
 
     // Collectable comments - single and multiline (shebang excluded)
     Collectable = SingleLine | MultiLine

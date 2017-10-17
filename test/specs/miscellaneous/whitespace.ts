@@ -1032,7 +1032,30 @@ describe('Miscellaneous - Whitespace', () => {
     });
 
     it('should avoids block HTML close with windows newline + empty line', () => {
-        expect(parseScript(`  \t /*\n*/  -->\n `, {
+        expect(parseScript(`  \t /*\u2028*/  -->\n `, {
+            locations: true,
+            ranges: true
+        })).to.eql({
+            "body": [],
+            "end": 16,
+            "loc": {
+                "end": {
+                    "column": 1,
+                    "line": 3,
+                },
+                "start": {
+                    "column": 0,
+                    "line": 1,
+                },
+            },
+            "sourceType": "script",
+            "start": 0,
+            "type": "Program"
+        })
+    });
+
+    it('should avoids block HTML close with windows newline + empty line', () => {
+        expect(parseScript(`  \t /*\r*/  -->\n `, {
             locations: true,
             ranges: true
         })).to.eql({
@@ -1212,6 +1235,29 @@ describe('Miscellaneous - Whitespace', () => {
             "loc": {
                 "end": {
                     "column": 1,
+                    "line": 3,
+                },
+                "start": {
+                    "column": 0,
+                    "line": 1,
+                }
+            },
+            "sourceType": "script",
+            "start": 0,
+            "type": "Program"
+        })
+    });
+    
+    it('should skip block HTML close with \r + empty line', () => {
+        expect(parseScript(`\t /*\r*/  -->\r`, {
+            ranges: true,
+            locations: true
+        })).to.eql({
+            "body": [],
+            "end": 13,
+            "loc": {
+                "end": {
+                    "column": 0,
                     "line": 3,
                 },
                 "start": {
