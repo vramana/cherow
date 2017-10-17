@@ -183,45 +183,41 @@ export class Parser {
             this.tokenRaw = state.tokenRaw;
             this.flags = state.flags;
         }
-    
+
+        private PeekAhead(context: Context) {
+            const savedState = this.saveState();
+            this.peekedToken = this.scanToken(context);
+            this.peekedState = this.saveState();
+            this.rewindState(savedState);
+        }
+
         private nextToken(context: Context): Token {
-            this.token = this.scanToken(context);
+         
+            if (this.peekedState) {
+                this.rewindState(this.peekedState);
+                this.peekedState = undefined;
+                this.token = this.peekedToken;
+            } else {
+                this.token = this.scanToken(context);
+            }
+            
             return this.token;
         }
     
-        private hasNext() {
+        private hasNext(): boolean {
             return this.index < this.source.length;
         }
     
-        private nextChar() {
+        private nextChar(): Chars {
             return this.source.charCodeAt(this.index);
         }
     
-        private nextUnicodeChar() {
-            this.advance();
-            const hi = this.nextChar();
-            if (hi < 0xd800 || hi > 0xdbff) return hi;
-            if (this.index === this.source.length) return hi;
-            const lo = this.nextChar();
-    
-            if (lo < 0xdc00 || lo > 0xdfff) return hi;
-            return (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
-        }
-    
-        /**
-         * Advance to next position, and throw error if no next char
-         * in the stream
-         */
-    
-        private readNext(err: number = Errors.UnterminatedString) {
+        private readNext(err: number = Errors.UnterminatedString): Chars {
             this.advance();
             if (!this.hasNext()) this.error(err);
             return this.nextChar();
         }
     
-        /**
-         * Advance to next position
-         */
         private advance(): void {
             this.index++;
             this.column++;
@@ -232,9 +228,6 @@ export class Parser {
             this.column += 2;
         }
     
-        /**
-         * Advance to new line
-         */
         private advanceNewline() {
             this.index++;
             this.column = 0;
@@ -249,23 +242,12 @@ export class Parser {
             }
         }
     
-        /**
-         * Advance if the code unit matches the UTF-16 code unit at the given index.
-         *
-         * @param code Number
-         */
         private consume(code: number): boolean {
             if (this.nextChar() !== code) return false;
             this.advance();
             return true;
         }
     
-        private peekToken(context: Context) {
-            const savedState = this.saveState();
-            this.peekedToken = this.scanToken(context);
-            this.peekedState = this.saveState();
-            this.rewindState(savedState);
-        }
     
         /**
          * Scan the entire source code. Skips whitespace and comments, and
@@ -274,6 +256,7 @@ export class Parser {
          * @param context Context
          */
         private scanToken(context: Context): Token {
+    
     
             this.flags &= ~(Flags.LineTerminator | Flags.HasUnicode);
     
@@ -377,9 +360,7 @@ export class Parser {
     
                             if (next === Chars.LessThan) {
                                 this.advance();
-                                if (this.consume(Chars.EqualSign)) {
-                                    return Token.ShiftLeftAssign;
-                                }
+                                if (this.consume(Chars.EqualSign))  return Token.ShiftLeftAssign;
                                 return Token.ShiftLeft;
                             }
     
@@ -399,10 +380,9 @@ export class Parser {
                             const next = this.nextChar();
     
                             if (next === Chars.Hyphen) {
+
                                 this.advance();
-                                if (context & Context.Module || !(state & Scanner.LineStart)) {
-                                    return Token.Decrement;
-                                }
+                                if (context & Context.Module || !(state & Scanner.LineStart))  return Token.Decrement;
                                 if (!this.consume(Chars.GreaterThan)) return Token.Decrement;
                                 this.skipComments(state | Scanner.SingleLine);
                                 continue;
@@ -925,7 +905,6 @@ export class Parser {
                             start = this.index;
                             break;
                         default:
-                            if (code >= 0xd800 && code <= 0xdc00) code = this.nextUnicodeChar();
                             if (!isIdentifierPart(code)) break loop;
                             this.advance();
                     }
@@ -1246,7 +1225,6 @@ export class Parser {
                             }
     
                         default:
-                            if (code >= 0xd800 && code <= 0xdc00) code = this.nextUnicodeChar();
                             if (!isIdentifierPart(code)) break loop;
                             this.error(Errors.UnexpectedTokenRegExpFlag);
                     }
@@ -1755,14 +1733,14 @@ export class Parser {
     
         // 'import', 'import.meta'
         private nextTokenIsLeftParenOrPeriod(context: Context): boolean {
-            this.peekToken(context);
+            this.PeekAhead(context);
             return this.peekedToken === Token.LeftParen || this.peekedToken === Token.Period;
         }
     
         private isLexical(context: Context): boolean {
             // In ES6 'let' always starts a lexical declaration if followed by an identifier or {
             // or [.
-            this.peekToken(context);
+            this.PeekAhead(context);
             return this.peekedToken === Token.Identifier || hasMask(this.peekedToken, Token.BindingPattern);
         }
     
@@ -1777,7 +1755,7 @@ export class Parser {
         }
     
         private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
-            this.peekToken(context);
+            this.PeekAhead(context);
             return this.line === this.peekedState.line && this.peekedToken === Token.FunctionKeyword;
         }
     
@@ -3029,12 +3007,11 @@ export class Parser {
                             this.error(Errors.DeclarationMissingInitializer, 'const');
                         }
                     }
-                } else if (this.token === Token.Assign || (!(context & Context.ForStatement) && id.type !== 'Identifier')) {
+                } else if ((!(context & Context.ForStatement) && token !== Token.Identifier) || this.token === Token.Assign) {
                     this.expect(context, Token.Assign);
                     init = this.parseAssignmentExpression(context);
                 }
-            } else if (this.token === Token.Assign) {
-                this.expect(context, Token.Assign);
+            } else if (this.parseOptional(context, Token.Assign)) {
                 init = this.parseAssignmentExpression(context);
                 if (context & Context.ForStatement) {
                     if (this.token === Token.InKeyword) {
@@ -3879,15 +3856,19 @@ export class Parser {
     
         private parseFunctionBody(context: Context): ESTree.BlockStatement {
             const pos = this.startNode();
+
             this.expect(context, Token.LeftBrace);
             let body: ESTree.Statement[] = [];
     
             if (this.token !== Token.RightBrace) {
                 const previousLabelSet = this.labelSet;
                 this.labelSet = undefined;
+                const savedLexical = (context & Context.Lexical) !== 0;
+                context &= ~Context.Lexical;
                 if (!(this.flags & Flags.InFunctionBody)) this.flags |= Flags.InFunctionBody;
                 body = this.parseStatementList(context, Token.RightBrace);
                 this.labelSet = previousLabelSet;
+                if (savedLexical) context |= Context.Lexical;
             }
     
             this.expect(context, Token.RightBrace);
@@ -4018,7 +3999,7 @@ export class Parser {
                     return this.parseAsyncFunctionExpression(context, pos);
                 case Token.AwaitKeyword:
                     if (context & Context.Module) {
-                        this.peekToken(context);
+                        this.PeekAhead(context);
                         if (this.peekedToken !== Token.Assign) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                     }
                     return this.parseIdentifier(context);

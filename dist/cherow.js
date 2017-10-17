@@ -481,8 +481,21 @@ Parser.prototype.rewindState = function rewindState (state) {
     this.tokenRaw = state.tokenRaw;
     this.flags = state.flags;
 };
+Parser.prototype.PeekAhead = function PeekAhead (context) {
+    var savedState = this.saveState();
+    this.peekedToken = this.scanToken(context);
+    this.peekedState = this.saveState();
+    this.rewindState(savedState);
+};
 Parser.prototype.nextToken = function nextToken (context) {
-    this.token = this.scanToken(context);
+    if (this.peekedState) {
+        this.rewindState(this.peekedState);
+        this.peekedState = undefined;
+        this.token = this.peekedToken;
+    }
+    else {
+        this.token = this.scanToken(context);
+    }
     return this.token;
 };
 Parser.prototype.hasNext = function hasNext () {
@@ -491,22 +504,6 @@ Parser.prototype.hasNext = function hasNext () {
 Parser.prototype.nextChar = function nextChar () {
     return this.source.charCodeAt(this.index);
 };
-Parser.prototype.nextUnicodeChar = function nextUnicodeChar () {
-    this.advance();
-    var hi = this.nextChar();
-    if (hi < 0xd800 || hi > 0xdbff)
-        { return hi; }
-    if (this.index === this.source.length)
-        { return hi; }
-    var lo = this.nextChar();
-    if (lo < 0xdc00 || lo > 0xdfff)
-        { return hi; }
-    return (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
-};
-/**
- * Advance to next position, and throw error if no next char
- * in the stream
- */
 Parser.prototype.readNext = function readNext (err /* UnterminatedString */) {
         if ( err === void 0 ) err = 3;
 
@@ -515,9 +512,6 @@ Parser.prototype.readNext = function readNext (err /* UnterminatedString */) {
         { this.error(err); }
     return this.nextChar();
 };
-/**
- * Advance to next position
- */
 Parser.prototype.advance = function advance () {
     this.index++;
     this.column++;
@@ -526,9 +520,6 @@ Parser.prototype.advanceTwice = function advanceTwice () {
     this.index += 2;
     this.column += 2;
 };
-/**
- * Advance to new line
- */
 Parser.prototype.advanceNewline = function advanceNewline () {
     this.index++;
     this.column = 0;
@@ -541,22 +532,11 @@ Parser.prototype.consumeLineFeed = function consumeLineFeed (state) {
         this.line++;
     }
 };
-/**
- * Advance if the code unit matches the UTF-16 code unit at the given index.
- *
- * @param code Number
- */
 Parser.prototype.consume = function consume (code) {
     if (this.nextChar() !== code)
         { return false; }
     this.advance();
     return true;
-};
-Parser.prototype.peekToken = function peekToken (context) {
-    var savedState = this.saveState();
-    this.peekedToken = this.scanToken(context);
-    this.peekedState = this.saveState();
-    this.rewindState(savedState);
 };
 /**
  * Scan the entire source code. Skips whitespace and comments, and
@@ -653,9 +633,8 @@ Parser.prototype.scanToken = function scanToken (context) {
                     }
                     if (next$1 === 60 /* LessThan */) {
                         this$1.advance();
-                        if (this$1.consume(61 /* EqualSign */)) {
-                            return 1310750 /* ShiftLeftAssign */;
-                        }
+                        if (this$1.consume(61 /* EqualSign */))
+                            { return 1310750 /* ShiftLeftAssign */; }
                         return 2099265 /* ShiftLeft */;
                     }
                     if (next$1 === 61 /* EqualSign */) {
@@ -671,9 +650,8 @@ Parser.prototype.scanToken = function scanToken (context) {
                     var next$2 = this$1.nextChar();
                     if (next$2 === 45 /* Hyphen */) {
                         this$1.advance();
-                        if (context & 1 /* Module */ || !(state & 4 /* LineStart */)) {
-                            return 786460 /* Decrement */;
-                        }
+                        if (context & 1 /* Module */ || !(state & 4 /* LineStart */))
+                            { return 786460 /* Decrement */; }
                         if (!this$1.consume(62 /* GreaterThan */))
                             { return 786460 /* Decrement */; }
                         this$1.skipComments(state | 16 /* SingleLine */);
@@ -1135,8 +1113,6 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context) {
                 start = this$1.index;
                 break;
             default:
-                if (code >= 0xd800 && code <= 0xdc00)
-                    { code = this$1.nextUnicodeChar(); }
                 if (!isIdentifierPart(code))
                     { break loop; }
                 this$1.advance();
@@ -1417,8 +1393,6 @@ Parser.prototype.scanRegularExpression = function scanRegularExpression () {
                     break;
                 }
             default:
-                if (code >= 0xd800 && code <= 0xdc00)
-                    { code = this$1.nextUnicodeChar(); }
                 if (!isIdentifierPart(code))
                     { break loop; }
                 this$1.error(13 /* UnexpectedTokenRegExpFlag */);
@@ -1871,13 +1845,13 @@ Parser.prototype.consumeSemicolon = function consumeSemicolon (context) {
 };
 // 'import', 'import.meta'
 Parser.prototype.nextTokenIsLeftParenOrPeriod = function nextTokenIsLeftParenOrPeriod (context) {
-    this.peekToken(context);
+    this.PeekAhead(context);
     return this.peekedToken === 262155 /* LeftParen */ || this.peekedToken === 13 /* Period */;
 };
 Parser.prototype.isLexical = function isLexical (context) {
     // In ES6 'let' always starts a lexical declaration if followed by an identifier or {
     // or [.
-    this.peekToken(context);
+    this.PeekAhead(context);
     return this.peekedToken === 262145 /* Identifier */ || hasMask(this.peekedToken, 131072 /* BindingPattern */);
 };
 Parser.prototype.isIdentifier = function isIdentifier (context, t) {
@@ -1891,7 +1865,7 @@ Parser.prototype.isIdentifier = function isIdentifier (context, t) {
     return t === 262145 /* Identifier */ || (t & 69632 /* Contextual */) === 69632 /* Contextual */ || (t & 20480 /* FutureReserved */) === 20480 /* FutureReserved */;
 };
 Parser.prototype.nextTokenIsFuncKeywordOnSameLine = function nextTokenIsFuncKeywordOnSameLine (context) {
-    this.peekToken(context);
+    this.PeekAhead(context);
     return this.line === this.peekedState.line && this.peekedToken === 274519 /* FunctionKeyword */;
 };
 Parser.prototype.parseExportDefault = function parseExportDefault (context, pos) {
@@ -2938,13 +2912,12 @@ Parser.prototype.parseVariableDeclaration = function parseVariableDeclaration (c
                 }
             }
         }
-        else if (this.token === 1310749 /* Assign */ || (!(context & 4194304 /* ForStatement */) && id.type !== 'Identifier')) {
+        else if ((!(context & 4194304 /* ForStatement */) && token !== 262145 /* Identifier */) || this.token === 1310749 /* Assign */) {
             this.expect(context, 1310749 /* Assign */);
             init = this.parseAssignmentExpression(context);
         }
     }
-    else if (this.token === 1310749 /* Assign */) {
-        this.expect(context, 1310749 /* Assign */);
+    else if (this.parseOptional(context, 1310749 /* Assign */)) {
         init = this.parseAssignmentExpression(context);
         if (context & 4194304 /* ForStatement */) {
             if (this.token === 2111281 /* InKeyword */) {
@@ -3696,10 +3669,14 @@ Parser.prototype.parseFunctionBody = function parseFunctionBody (context) {
     if (this.token !== 15 /* RightBrace */) {
         var previousLabelSet = this.labelSet;
         this.labelSet = undefined;
+        var savedLexical = (context & 50331648 /* Lexical */) !== 0;
+        context &= ~50331648 /* Lexical */;
         if (!(this.flags & 4 /* InFunctionBody */))
             { this.flags |= 4 /* InFunctionBody */; }
         body = this.parseStatementList(context, 15 /* RightBrace */);
         this.labelSet = previousLabelSet;
+        if (savedLexical)
+            { context |= 50331648 /* Lexical */; }
     }
     this.expect(context, 15 /* RightBrace */);
     return this.finishNode(pos, {
@@ -3817,7 +3794,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
             return this.parseAsyncFunctionExpression(context, pos);
         case 331885 /* AwaitKeyword */:
             if (context & 1 /* Module */) {
-                this.peekToken(context);
+                this.PeekAhead(context);
                 if (this.peekedToken !== 1310749 /* Assign */)
                     { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
             }
