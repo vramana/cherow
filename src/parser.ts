@@ -2319,7 +2319,6 @@ export class Parser {
     
             if (!(this.flags & Flags.OptionsNext) || this.token === Token.LeftParen) {
                 this.expect(context, Token.LeftParen);
-                // if (this.token !== Token.Identifier || !hasMask(this.token, Token.BindingPattern)) this.throwUnexpectedToken();
                 this.addCatchArg(this.tokenValue, ScopeMasks.Shadowable);
     
                 param = this.parseBindingPatternOrIdentifier(context, pos);
@@ -4342,7 +4341,7 @@ export class Parser {
             const tokenValue = this.tokenValue;
             let state = ObjectState.None;
     
-            if (this.isIdentifier(context, this.token)) {
+            if (this.isIdentifier(context &~ Context.Module, this.token)) {
                 this.nextToken(context);
                 if (this.canFollowModifier(context, this.token)) {
                     switch (token) {
@@ -4997,10 +4996,12 @@ export class Parser {
         private parseAssignmentElementList(context: Context) {
             const pos = this.startNode();
             this.expect(context, Token.LeftBracket);
+
             if (context & Context.InParameter && !(this.flags & Flags.SimpleParameterList)) {
                 this.errorLocation = pos;
                 this.flags |= Flags.SimpleParameterList;
             }
+
             const elements: (ESTree.Pattern | null)[] = [];
             while (this.token !== Token.RightBracket) {
                 if (this.parseOptional(context, Token.Comma)) {

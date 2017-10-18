@@ -4,59 +4,214 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Binding - Array pattern', () => {
-    
-        it('should fail on invalid default catch param', () => {
-            expect(() => {
-                parseScript('try { } catch ([a = 0]) { }');
-            }).to.not.throw();
-        });
-
+  
         it('should fail on invalid rest elison', () => {
             expect(() => {
                 parseScript('let [...a,] = 0');
             }).to.throw();
         });
+
         it('should fail on invalid strict for let let', () => {
             expect(() => {
                 parseScript('"use strict"; for (let [x = let];;) {}');
             }).to.throw();
         });
+
         it('should fail on invalid catch duplicate', () => {
             expect(() => {
                 parseScript('try {} catch ([a,a]) {}');
             }).to.not.throw();
         });
+
         it('should fail on "var ([x]) = 0"', () => {
             expect(() => {
                 parseScript('var ([x]) = 0');
             }).to.throw();
         });
+
         it('should fail on "var [a.b] = 0"', () => {
             expect(() => {
                 parseScript('var [a.b] = 0');
             }).to.throw();
         });
+
         it('should fail on "(function* ([a.b]) {})"', () => {
             expect(() => {
                 parseScript('(function* ([a.b]) {})');
             }).to.throw();
         });
+
         it('should fail on "({a([a.b]){}})"', () => {
             expect(() => {
                 parseScript('({a([a.b]){}})');
             }).to.throw();
         });
+
         it('should fail on "({*a([a.b]){}})"', () => {
             expect(() => {
                 parseScript('({*a([a.b]){}})');
             }).to.throw();
         });
+
         it('should fail on "({set a([a.b]){}})"', () => {
             expect(() => {
                 parseScript('({set a([a.b]){}})');
             }).to.throw();
         });
-    
+        
+        it('should parse with valid array pattern and assignment', () => {
+            expect(parseScript(`try { } catch ([a = 0]) { }`, {
+                ranges: true,
+                raw: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 27,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 27
+                  }
+                },
+                "body": [
+                  {
+                    "type": "TryStatement",
+                    "start": 0,
+                    "end": 27,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 27
+                      }
+                    },
+                    "block": {
+                      "type": "BlockStatement",
+                      "start": 4,
+                      "end": 7,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 4
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 7
+                        }
+                      },
+                      "body": []
+                    },
+                    "handler": {
+                      "type": "CatchClause",
+                      "start": 8,
+                      "end": 27,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 8
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 27
+                        }
+                      },
+                      "param": {
+                        "type": "ArrayPattern",
+                        "start": 15,
+                        "end": 22,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 15
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 22
+                          }
+                        },
+                        "elements": [
+                          {
+                            "type": "AssignmentPattern",
+                            "start": 16,
+                            "end": 21,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 16
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 21
+                              }
+                            },
+                            "left": {
+                              "type": "Identifier",
+                              "start": 16,
+                              "end": 17,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 16
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 17
+                                }
+                              },
+                              "name": "a"
+                            },
+                            "right": {
+                              "type": "Literal",
+                              "start": 20,
+                              "end": 21,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 20
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 21
+                                }
+                              },
+                              "value": 0,
+                              "raw": "0"
+                            }
+                          }
+                        ]
+                      },
+                      "body": {
+                        "type": "BlockStatement",
+                        "start": 24,
+                        "end": 27,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 24
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 27
+                          }
+                        },
+                        "body": []
+                      }
+                    },
+                    "finalizer": null
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
         it('should parse pattern with an element list with initializers', () => {
             expect(parseScript(`function fn3([a,, b = a, c = 42]) {}`, {
                 ranges: true,
@@ -682,7 +837,7 @@ describe('Binding - Array pattern', () => {
                 }
             });
         });
-    
+
         it('should parse rest', () => {
             expect(parseScript(`let [...a] = 0;`, {
                 ranges: true,

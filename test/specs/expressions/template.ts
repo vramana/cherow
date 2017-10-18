@@ -576,6 +576,62 @@ describe('Espressions - Template', () => {
             }
         });
     });
+    
+    // This fails in the online demo!
+    it('should parse URL sourcemap template string (module code)', () => {
+        expect(parseModule('`//# ${SOURCEMAPPING_URL}=${url}\n`', {
+            ranges: false,
+            raw: true,
+            v8: true
+        })).to.eql({
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "TemplateLiteral",
+                        "quasis": [
+                            {
+                                "type": "TemplateElement",
+                                "value": {
+                                    "raw": "//# ",
+                                    "cooked": "//# "
+                                },
+                                "tail": false
+                            },
+                            {
+                                "type": "TemplateElement",
+                                "value": {
+                                    "raw": "=",
+                                    "cooked": "="
+                                },
+                                "tail": false
+                            },
+                            {
+                                "type": "TemplateElement",
+                                "value": {
+                                    "raw": "\n",
+                                    "cooked": "\n"
+                                },
+                                "tail": true
+                            }
+                        ],
+                        "expressions": [
+                            {
+                                "type": "Identifier",
+                                "name": "SOURCEMAPPING_URL"
+                            },
+                            {
+                                "type": "Identifier",
+                                "name": "url"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "sourceType": "module"
+        });
+    });
 
     it('should parse line terminator', () => {
         expect(parseScript('var source = `\u{1F4AA}`;', {
