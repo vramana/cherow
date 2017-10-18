@@ -1559,7 +1559,7 @@ Parser.prototype.scanStringEscape = function scanStringEscape (context) {
                         if (code !== 0 && context & 2 /* Strict */)
                             { this.error(9 /* StrictOctalLiteral */); }
                     }
-                    else if (context & 2 /* Strict */) {
+                    else if (!(context & 1 /* Module */) && context & 2 /* Strict */) {
                         this.error(9 /* StrictOctalLiteral */);
                     }
                     else {
