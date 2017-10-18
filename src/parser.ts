@@ -1416,7 +1416,7 @@ export class Parser {
     
                             if (next < Chars.Zero || next > Chars.Seven) {
                                 if (code !== 0 && context & Context.Strict) this.error(Errors.StrictOctalLiteral);
-                            } else if (!(context & Context.Module) && context & Context.Strict) {
+                            } else if (context & Context.Strict && context & Context.Strict) {
                                 this.error(Errors.StrictOctalLiteral);
                             } else {
                                 code = (code << 3) | (next - Chars.Zero);
