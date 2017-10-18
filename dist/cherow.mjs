@@ -2413,11 +2413,11 @@ Parser.prototype.parseDoWhileStatement = function parseDoWhileStatement (context
     var savedFlag = this.flags;
     if (!(this.flags & 16 /* Break */))
         { this.flags |= (32 /* Continue */ | 16 /* Break */); }
-    var body = this.parseStatement(context);
+    var body = this.parseStatement(context | 4 /* AllowIn */);
     this.flags = savedFlag;
     this.expect(context, 12385 /* WhileKeyword */);
     this.expect(context, 262155 /* LeftParen */);
-    var test = this.parseExpression(context, pos);
+    var test = this.parseExpression(context | 4 /* AllowIn */, pos);
     this.expect(context, 16 /* RightParen */);
     this.parseOptional(context, 17 /* Semicolon */);
     return this.finishNode(pos, {
@@ -2431,14 +2431,14 @@ Parser.prototype.parseContinueStatement = function parseContinueStatement (conte
     this.expect(context, 12366 /* ContinueKeyword */);
     var label = null;
     if (!(this.flags & 1 /* LineTerminator */) && this.token === 262145 /* Identifier */) {
-        label = this.parseIdentifier(context);
+        label = this.parseIdentifier(context | 4 /* AllowIn */);
         if (this.labelSet === undefined || !hasOwn.call(this.labelSet, '@' + label.name)) {
             this.error(74 /* UnknownLabel */, label.name);
         }
     }
     if (!(this.flags & 32 /* Continue */) && !label)
         { this.error(16 /* BadContinue */); }
-    this.consumeSemicolon(context);
+    this.consumeSemicolon(context | 4 /* AllowIn */);
     return this.finishNode(pos, {
         type: 'ContinueStatement',
         label: label
@@ -2447,14 +2447,6 @@ Parser.prototype.parseContinueStatement = function parseContinueStatement (conte
 Parser.prototype.parseBreakStatement = function parseBreakStatement (context) {
     var pos = this.startNode();
     this.expect(context, 12362 /* BreakKeyword */);
-    if (this.parseOptional(context, 17 /* Semicolon */)) {
-        if (!(this.flags & (32 /* Continue */ | 64 /* Switch */)))
-            { this.error(0 /* Unexpected */); }
-        return this.finishNode(pos, {
-            type: 'BreakStatement',
-            label: null
-        });
-    }
     var label = null;
     if (!(this.flags & 1 /* LineTerminator */) && this.token === 262145 /* Identifier */) {
         label = this.parseIdentifier(context);
@@ -4762,13 +4754,12 @@ Parser.prototype.parseRestProperty = function parseRestProperty (context) {
 };
 Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (context) {
     var pos = this.startNode();
-    var computed = false;
-    var shorthand = false;
-    var method = false;
+    var state = 0;
     var key;
     var value;
     if (this.isIdentifier(context, this.token)) {
         pos = this.startNode();
+        var token = this.token;
         var tokenValue = this.tokenValue;
         if (context & 2 /* Strict */ && this.isEvalOrArguments(tokenValue)) {
             this.error(76 /* UnexpectedReservedWord */);
@@ -4778,26 +4769,25 @@ Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (con
             type: 'Identifier',
             name: tokenValue
         });
-        if (this.token === 1310749 /* Assign */) {
-            shorthand = true;
-            this.nextToken(context);
-            var expr = this.parseAssignmentExpression(context);
-            value = this.finishNode(pos, {
-                type: 'AssignmentPattern',
-                left: init,
-                right: expr
-            });
-        }
-        else if (this.parseOptional(context, 21 /* Colon */)) {
+        if (this.parseOptional(context, 21 /* Colon */)) {
             value = this.parseAssignmentPattern(context);
         }
         else {
-            shorthand = true;
-            value = init;
+            state |= 8 /* Shorthand */;
+            if (context & 16 /* Yield */ && token === 282730 /* YieldKeyword */) {
+                this.error(82 /* DisallowedInContext */, tokenDesc(token));
+            }
+            if (this.token === 1310749 /* Assign */) {
+                value = this.parseAssignmentPattern(context, pos, init);
+            }
+            else {
+                value = init;
+            }
         }
     }
     else {
-        computed = this.token === 393235 /* LeftBracket */;
+        if (this.token === 393235 /* LeftBracket */)
+            { state |= 4 /* Computed */; }
         key = this.parsePropertyName(context);
         this.expect(context, 21 /* Colon */);
         value = this.parseAssignmentPattern(context);
@@ -4806,10 +4796,10 @@ Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (con
         type: 'Property',
         kind: 'init',
         key: key,
-        computed: computed,
+        computed: !!(state & 4 /* Computed */),
         value: value,
-        method: method,
-        shorthand: shorthand
+        method: false,
+        shorthand: !!(state & 8 /* Shorthand */)
     });
 };
 /** V8 */

@@ -183,16 +183,16 @@ export class Parser {
             this.tokenRaw = state.tokenRaw;
             this.flags = state.flags;
         }
-
+    
         private PeekAhead(context: Context) {
             const savedState = this.saveState();
             this.peekedToken = this.scanToken(context);
             this.peekedState = this.saveState();
             this.rewindState(savedState);
         }
-
+    
         private nextToken(context: Context): Token {
-         
+    
             if (this.peekedState) {
                 this.rewindState(this.peekedState);
                 this.peekedState = undefined;
@@ -200,7 +200,7 @@ export class Parser {
             } else {
                 this.token = this.scanToken(context);
             }
-            
+    
             return this.token;
         }
     
@@ -360,7 +360,7 @@ export class Parser {
     
                             if (next === Chars.LessThan) {
                                 this.advance();
-                                if (this.consume(Chars.EqualSign))  return Token.ShiftLeftAssign;
+                                if (this.consume(Chars.EqualSign)) return Token.ShiftLeftAssign;
                                 return Token.ShiftLeft;
                             }
     
@@ -380,9 +380,9 @@ export class Parser {
                             const next = this.nextChar();
     
                             if (next === Chars.Hyphen) {
-
+    
                                 this.advance();
-                                if (context & Context.Module || !(state & Scanner.LineStart))  return Token.Decrement;
+                                if (context & Context.Module || !(state & Scanner.LineStart)) return Token.Decrement;
                                 if (!this.consume(Chars.GreaterThan)) return Token.Decrement;
                                 this.skipComments(state | Scanner.SingleLine);
                                 continue;
@@ -2404,14 +2404,14 @@ export class Parser {
     
             if (!(this.flags & Flags.Break)) this.flags |= (Flags.Continue | Flags.Break);
     
-            const body = this.parseStatement(context);
+            const body = this.parseStatement(context | Context.AllowIn);
     
             this.flags = savedFlag;
     
             this.expect(context, Token.WhileKeyword);
             this.expect(context, Token.LeftParen);
     
-            const test = this.parseExpression(context, pos);
+            const test = this.parseExpression(context | Context.AllowIn, pos);
     
             this.expect(context, Token.RightParen);
             this.parseOptional(context, Token.Semicolon);
@@ -2430,7 +2430,7 @@ export class Parser {
             let label: ESTree.Identifier | null = null;
     
             if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
-                label = this.parseIdentifier(context);
+                label = this.parseIdentifier(context | Context.AllowIn);
     
                 if (this.labelSet === undefined || !hasOwn.call(this.labelSet, '@' + label.name)) {
                     this.error(Errors.UnknownLabel, label.name);
@@ -2439,7 +2439,7 @@ export class Parser {
     
             if (!(this.flags & Flags.Continue) && !label) this.error(Errors.BadContinue);
     
-            this.consumeSemicolon(context);
+            this.consumeSemicolon(context | Context.AllowIn);
     
             return this.finishNode(pos, {
                 type: 'ContinueStatement',
@@ -2453,21 +2453,10 @@ export class Parser {
     
             this.expect(context, Token.BreakKeyword);
     
-            if (this.parseOptional(context, Token.Semicolon)) {
-    
-                if (!(this.flags & (Flags.Continue | Flags.Switch))) this.error(Errors.Unexpected);
-    
-                return this.finishNode(pos, {
-                    type: 'BreakStatement',
-                    label: null
-                });
-            }
-    
             let label: ESTree.Identifier | null = null;
     
             if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
                 label = this.parseIdentifier(context);
-    
                 if (this.labelSet === undefined || !hasOwn.call(this.labelSet, '@' + label.name)) {
                     this.error(Errors.UnknownLabel, label.name);
                 }
@@ -2989,7 +2978,7 @@ export class Parser {
             let init = null;
             const token = this.token;
             const id = this.parseBindingPatternOrIdentifier(context, pos);
-        
+    
             // 'let', 'const'
             if (context & Context.Lexical) {
                 if (context & Context.Const) {
@@ -3668,11 +3657,11 @@ export class Parser {
             //
             // SingleNameBinding [Yield,Await]:
             //      BindingIdentifier[?Yield,?Await]Initializer [In, ?Yield,?Await] opt
-            
+    
             this.expect(context, Token.LeftParen);
             const result = [];
             this.flags &= ~Flags.SimpleParameterList;
-            
+    
             while (this.token !== Token.RightParen) {
                 if (this.token === Token.Ellipsis) {
                     if (!(this.flags & Flags.SimpleParameterList)) this.flags |= Flags.SimpleParameterList;
@@ -3858,7 +3847,7 @@ export class Parser {
     
         private parseFunctionBody(context: Context): ESTree.BlockStatement {
             const pos = this.startNode();
-
+    
             this.expect(context, Token.LeftBrace);
             let body: ESTree.Statement[] = [];
     
@@ -5078,16 +5067,11 @@ export class Parser {
         private parseAssignmentProperty(context: Context): ESTree.AssignmentProperty {
     
             let pos = this.startNode();
-    
-            let computed = false;
-            let shorthand = false;
-            const method = false;
-    
+            let state = ObjectState.None;
             let key;
             let value;
     
             if (this.isIdentifier(context, this.token)) {
-    
                 pos = this.startNode();
                 const token = this.token;
                 const tokenValue = this.tokenValue;
@@ -5099,23 +5083,27 @@ export class Parser {
                     type: 'Identifier',
                     name: tokenValue
                 });
-                if (this.token === Token.Assign) {
-                    shorthand = true;
-                    this.nextToken(context);
-                    const expr = this.parseAssignmentExpression(context);
-                    value = this.finishNode(pos, {
-                        type: 'AssignmentPattern',
-                        left: init,
-                        right: expr
-                    });
-                } else if (this.parseOptional(context, Token.Colon)) {
+
+                if (this.parseOptional(context, Token.Colon)) {
                     value = this.parseAssignmentPattern(context);
                 } else {
-                    shorthand = true;
-                    value = init;
+                 
+                    state |= ObjectState.Shorthand;
+                 
+                    if (context & Context.Yield && token === Token.YieldKeyword) {
+                        this.error(Errors.DisallowedInContext, tokenDesc(token));
+                    }
+    
+                    if (this.token === Token.Assign) {
+                        value = this.parseAssignmentPattern(context, pos, init);
+                    } else {
+                        value = init;
+                    }
                 }
+    
             } else {
-                computed = this.token === Token.LeftBracket;
+                
+                if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
                 key = this.parsePropertyName(context);
                 this.expect(context, Token.Colon);
                 value = this.parseAssignmentPattern(context);
@@ -5125,10 +5113,10 @@ export class Parser {
                 type: 'Property',
                 kind: 'init',
                 key,
-                computed,
+                computed: !!(state & ObjectState.Computed),
                 value,
-                method,
-                shorthand
+                method: false,
+                shorthand: !!(state & ObjectState.Shorthand)
             });
         }
     

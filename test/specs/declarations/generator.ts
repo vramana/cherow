@@ -41,7 +41,7 @@ describe('Statements - Generator', () => {
     it('should fail on "function*g({yield}){}"', () => {
         expect(() => {
             parseScript('function*g({yield}){}');
-        }).to.not.throw('');
+        }).to.throw('');
     });
 
     it('should fail on "function*g([yield]){}"', () => {
@@ -105,7 +105,7 @@ describe('Statements - Generator', () => {
     it('should fail if on "function*g() { var {yield} = 0; }"', () => {
         expect(() => {
             parseScript('function*g() { var {yield} = 0; }');
-          }).to.not.throw('');
+          }).to.throw('');
     });
 
     it('should fail if on "function*g() { for ({yield} in 0); }"', () => {
@@ -126,7 +126,7 @@ describe('Statements - Generator', () => {
     it('should fail if on "function*g() { var {yield = 0} = 0; }"', () => {
         expect(() => {
             parseScript('function*g() { var {yield = 0} = 0; }');
-          }).to.not.throw('');
+          }).to.throw('');
     });
 
     it('should fail if on "function*g() { for ({yield = 0} in 0); }"', () => {

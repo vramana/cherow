@@ -98,7 +98,7 @@ describe('Espressions - Object', () => {
     it('should fail if "yield" are used as shorthand property"', () => {
         expect(() => {
             parseScript(`function* y({yield}) {}`)
-        }).to.not.throw('');
+        }).to.throw('');
     });
 
     it('should fail on let param redeclaration', () => {

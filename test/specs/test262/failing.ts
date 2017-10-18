@@ -1980,7 +1980,7 @@ is y`);
 
     it(`should fail on "function* y({yield}) {}"`, () => {
          expect(() => { parseScript(`function* y({yield}) {}`) 
-    }).to.not.throw(); });
+    }).to.throw(); });
 
     it(`should fail on "x = { get method() 42 }"`, () => {
         expect(() => {
