@@ -170,6 +170,14 @@ not add any "extra" properties to any of its nodes.
 However there is a small difference from other parsers because Cherow outputs an `await` property on the `ForStatement` node.
 This because of the `Asynchronous Iteration` implementation.
 
+## Bug reporting
+
+If you find a bug or another issue, don't hesitate to report it and we will try our best to solve the issue within short time. I know how irritating it can be if you are writing code and encounter bugs in your dependencies. And even more frustrating if you need to wait weeks or days.
+
+So from the moment I respond to you, it will take maximum 30 minutes before the bug is fixed. For other issues the same response time. If it take longer time to fix. You will be notified.
+
+I will try to respond to you within one hour. Sometimes it can take a bit longer. I'm not allways online.
+
 ## Contribution
 
  You are welcome to contribute. As a golden rule - always run benchmarks to verify that you haven't created any
