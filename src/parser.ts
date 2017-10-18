@@ -4001,9 +4001,9 @@ export class Parser {
                     }
                     return this.parseIdentifier(context);
                 case Token.DoKeyword:
-                    if (this.flags & Flags.OptionsV8) return this.parseDoExpression(context);
+                     return this.parseDoExpression(context);
                 case Token.ThrowKeyword:
-                    if (this.flags & Flags.OptionsNext) return this.parseThrowExpression(context);
+                    return this.parseThrowExpression(context);
                 case Token.LetKeyword:
                     if (this.flags & Flags.LineTerminator) {
                         return this.error(Errors.UnexpectedToken, tokenDesc(this.token));
@@ -4480,6 +4480,11 @@ export class Parser {
         }
     
         private parseThrowExpression(context: Context) {
+
+            if (!(this.flags & Flags.OptionsNext)) {
+                this.error(Errors.UnsupportedFeature, tokenDesc(this.token), 'next');
+            }
+
             const pos = this.startNode();
             this.nextToken(context);
             return this.finishNode(pos, {
@@ -5123,6 +5128,11 @@ export class Parser {
         /** V8 */
     
         private parseDoExpression(context: Context): ESTree.Expression {
+            
+            if (!(this.flags & Flags.OptionsV8)) {
+                this.error(Errors.UnsupportedFeature, tokenDesc(this.token), 'v8');
+            }
+
             const pos = this.startNode();
             this.expect(context, Token.DoKeyword);
             const body = this.parseBlockStatement(context);

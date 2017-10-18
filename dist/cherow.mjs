@@ -296,6 +296,7 @@ ErrorMessages[100 /* InvalidMethod */] = 'Only methods are allowed in classes';
 ErrorMessages[101 /* InvalidArrowYieldParam */] = 'Arrow parameters must not contain yield expressions';
 ErrorMessages[102 /* InvalidAwaitInArrowParam */] = '\'await\' is not allowed inside an async arrow\'s parameter list';
 ErrorMessages[103 /* InvalidComplexBindingPattern */] = 'Complex binding patterns require an initialization value';
+ErrorMessages[104 /* UnsupportedFeature */] = '%0 isn\'t supported by default. Enable the \'%1\' option to use them';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -3793,11 +3794,9 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
             }
             return this.parseIdentifier(context);
         case 12369 /* DoKeyword */:
-            if (this.flags & 16777216 /* OptionsV8 */)
-                { return this.parseDoExpression(context); }
+            return this.parseDoExpression(context);
         case 12383 /* ThrowKeyword */:
-            if (this.flags & 1048576 /* OptionsNext */)
-                { return this.parseThrowExpression(context); }
+            return this.parseThrowExpression(context);
         case 8671304 /* LetKeyword */:
             if (this.flags & 1 /* LineTerminator */) {
                 return this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
@@ -4220,6 +4219,9 @@ Parser.prototype.parseRestElement = function parseRestElement (context) {
     });
 };
 Parser.prototype.parseThrowExpression = function parseThrowExpression (context) {
+    if (!(this.flags & 1048576 /* OptionsNext */)) {
+        this.error(104 /* UnsupportedFeature */, tokenDesc(this.token), 'next');
+    }
     var pos = this.startNode();
     this.nextToken(context);
     return this.finishNode(pos, {
@@ -4804,6 +4806,9 @@ Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (con
 };
 /** V8 */
 Parser.prototype.parseDoExpression = function parseDoExpression (context) {
+    if (!(this.flags & 16777216 /* OptionsV8 */)) {
+        this.error(104 /* UnsupportedFeature */, tokenDesc(this.token), 'v8');
+    }
     var pos = this.startNode();
     this.expect(context, 12369 /* DoKeyword */);
     var body = this.parseBlockStatement(context);

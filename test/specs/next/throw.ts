@@ -5,6 +5,13 @@ const expect = chai.expect;
 
 describe('Next - Throw expression', () => {
 
+    it('should fail if the next option is not set', () => {
+        expect(() => {
+            parseScript(`function save(filename = throw new TypeError("Argument required")) {}`, {
+            });
+        }).to.throw();
+    });
+
     it('should fail on invalid use of parenthesis', () => {
         expect(() => {
             parseScript('function test() { (throw 1, 2); }', {

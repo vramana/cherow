@@ -5,6 +5,99 @@ const expect = chai.expect;
 
 describe('V8 - Do expression', () => {
 
+    it('should fail on "let foo = [do 3+4, 5+6];"', () => {
+        expect(() => {
+            parseScript('let foo = [do 3+4, 5+6];', { v8: true });
+        }).to.throw();
+    });
+
+    it('should fail on "let foo = [do 3+4, 5+6];"', () => {
+        expect(() => {
+            parseScript('f(do 1,2);', { v8: true });
+        }).to.throw();
+    });
+
+    it('should fail if v8 flag is not set', () => {
+        expect(() => {
+            parseScript(`let x = do {
+                if (foo()) { f() }
+                else if (bar()) { g() }
+                else { h() }
+              };`, { v8: false });
+        }).to.throw('do isn\'t supported by default. Enable the \'v8\' option to use them');
+    });
+
+    it('should parse conditional', () => {
+        expect(parseScript(`f(do {1,2});`, {
+            ranges: true,
+            raw: true,
+            v8: true
+        })).to.eql({
+              "body": [
+                {
+                  "end": 12,
+                  "expression": {
+                    "arguments": [
+                      {
+                        "body": {
+                          "body": [
+                            {
+                              "end": 9,
+                              "expression": {
+                                "end": 9,
+                                "expressions": [
+                                  {
+                                    "end": 7,
+                                    "raw": "1",
+                                    "start": 6,
+                                    "type": "Literal",
+                                    "value": 1,
+                                  },
+                                  {
+                                    "end": 9,
+                                    "raw": "2",
+                                    "start": 8,
+                                    "type": "Literal",
+                                    "value": 2,
+                                  }
+                                ],
+                                "start": 6,
+                                "type": "SequenceExpression"
+                              },
+                             "start": 6,
+                              "type": "ExpressionStatement"
+                            }
+                          ],
+                          "end": 10,
+                          "start": 5,
+                          "type": "BlockStatement"
+                        },
+                        "end": 10,
+                        "start": 2,
+                        "type": "DoExpression"
+                      }
+                    ],
+                    "callee": {
+                     "end": 1,
+                      "name": "f",
+                      "start": 0,
+                      "type": "Identifier",
+                    },
+                    "end": 11,
+                    "start": 0,
+                    "type": "CallExpression"
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "end": 12,
+             "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
     it('should parse conditional', () => {
         expect(parseScript(`let x = do {
             if (foo()) { f() }

@@ -10,6 +10,7 @@ describe('Binding - Array pattern', () => {
                 parseScript('try { } catch ([a = 0]) { }');
             }).to.not.throw();
         });
+
         it('should fail on invalid rest elison', () => {
             expect(() => {
                 parseScript('let [...a,] = 0');
