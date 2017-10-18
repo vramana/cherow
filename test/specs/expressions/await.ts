@@ -102,6 +102,12 @@ describe('Expressions - Await', () => {
             parseScript(`async f() { x = { async await(){} } }`);
         }).to.throw()
     });
+
+    it('should fail on await assign in async parrow param list (module code)', () => {
+      expect(() => {
+          parseModule(`async(e=await)=>l`);
+      }).to.throw()
+  })
     
     it('should parse async arrow with await assign', () => {
       expect(parseScript(`async(e=await)=>l`, {

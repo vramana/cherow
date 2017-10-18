@@ -25,3 +25,11 @@
 *2017-10-18: Version 0.9.0*
 
 - parsed through mostly all common libraries on GH and fixed a few bugs along the road
+
+*2017-10-18: Version 0.9.2*
+
+- Fixed scoping issue with two or more switch statements in global
+- Fixed issue with await in async arrow param list in sloppy mode
+- Fixed several minor issues
+- Do and Throw expression now throw correctly if the options isn't set
+- Reduced code size
