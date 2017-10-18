@@ -2690,6 +2690,12 @@ export class Parser {
             const discriminant = this.parseExpression(context, pos);
     
             this.expect(context, Token.RightParen);
+    
+            const blockScope = this.blockScope;
+            const parentScope = this.parentScope;
+            if (blockScope !== undefined) this.parentScope = blockScope;
+            this.blockScope = undefined;
+    
             this.expect(context, Token.LeftBrace);
     
             const cases: ESTree.SwitchCase[] = [];
@@ -2716,7 +2722,9 @@ export class Parser {
             this.flags = SavedFlag;
     
             this.expect(context, Token.RightBrace);
-    
+        
+            this.blockScope = blockScope;
+            if (blockScope !== undefined) this.parentScope = parentScope;
             return this.finishNode(pos, {
                 type: 'SwitchStatement',
                 discriminant,
@@ -4001,7 +4009,7 @@ export class Parser {
                     }
                     return this.parseIdentifier(context);
                 case Token.DoKeyword:
-                     return this.parseDoExpression(context);
+                    return this.parseDoExpression(context);
                 case Token.ThrowKeyword:
                     return this.parseThrowExpression(context);
                 case Token.LetKeyword:
@@ -4480,11 +4488,11 @@ export class Parser {
         }
     
         private parseThrowExpression(context: Context) {
-
+    
             if (!(this.flags & Flags.OptionsNext)) {
                 this.error(Errors.UnsupportedFeature, tokenDesc(this.token), 'next');
             }
-
+    
             const pos = this.startNode();
             this.nextToken(context);
             return this.finishNode(pos, {
@@ -5088,13 +5096,13 @@ export class Parser {
                     type: 'Identifier',
                     name: tokenValue
                 });
-
+    
                 if (this.parseOptional(context, Token.Colon)) {
                     value = this.parseAssignmentPattern(context);
                 } else {
-                 
+    
                     state |= ObjectState.Shorthand;
-                 
+    
                     if (context & Context.Yield && token === Token.YieldKeyword) {
                         this.error(Errors.DisallowedInContext, tokenDesc(token));
                     }
@@ -5107,7 +5115,7 @@ export class Parser {
                 }
     
             } else {
-                
+    
                 if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
                 key = this.parsePropertyName(context);
                 this.expect(context, Token.Colon);
@@ -5128,11 +5136,11 @@ export class Parser {
         /** V8 */
     
         private parseDoExpression(context: Context): ESTree.Expression {
-            
+    
             if (!(this.flags & Flags.OptionsV8)) {
                 this.error(Errors.UnsupportedFeature, tokenDesc(this.token), 'v8');
             }
-
+    
             const pos = this.startNode();
             this.expect(context, Token.DoKeyword);
             const body = this.parseBlockStatement(context);

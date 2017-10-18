@@ -2640,6 +2640,11 @@ Parser.prototype.parseSwitchStatement = function parseSwitchStatement (context) 
     this.expect(context, 262155 /* LeftParen */);
     var discriminant = this.parseExpression(context, pos);
     this.expect(context, 16 /* RightParen */);
+    var blockScope = this.blockScope;
+    var parentScope = this.parentScope;
+    if (blockScope !== undefined)
+        { this.parentScope = blockScope; }
+    this.blockScope = undefined;
     this.expect(context, 393228 /* LeftBrace */);
     var cases = [];
     var seenDefault = false;
@@ -2658,6 +2663,9 @@ Parser.prototype.parseSwitchStatement = function parseSwitchStatement (context) 
     }
     this.flags = SavedFlag;
     this.expect(context, 15 /* RightBrace */);
+    this.blockScope = blockScope;
+    if (blockScope !== undefined)
+        { this.parentScope = parentScope; }
     return this.finishNode(pos, {
         type: 'SwitchStatement',
         discriminant: discriminant,

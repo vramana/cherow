@@ -302,6 +302,267 @@ describe('Statement - Switch', () => {
         var x = SwitchTest(0);`)
             }).to.throw();
         });
+
+        
+        it('should parse function declarations in statement position in strict mode', () => {
+            expect(parseScript(`switch (answer) { case 0: let a; }
+            switch (answer) { case 0: let a; }`, {
+                locations: true,
+                ranges: true,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 81,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 46
+                  }
+                },
+                "body": [
+                  {
+                    "type": "SwitchStatement",
+                    "start": 0,
+                    "end": 34,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 34
+                      }
+                    },
+                    "discriminant": {
+                      "type": "Identifier",
+                      "start": 8,
+                      "end": 14,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 8
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 14
+                        }
+                      },
+                      "name": "answer"
+                    },
+                    "cases": [
+                      {
+                        "type": "SwitchCase",
+                        "start": 18,
+                        "end": 32,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 18
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 32
+                          }
+                        },
+                        "consequent": [
+                          {
+                            "type": "VariableDeclaration",
+                            "start": 26,
+                            "end": 32,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 26
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 32
+                              }
+                            },
+                            "declarations": [
+                              {
+                                "type": "VariableDeclarator",
+                                "start": 30,
+                                "end": 31,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 30
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 31
+                                  }
+                                },
+                                "id": {
+                                  "type": "Identifier",
+                                  "start": 30,
+                                  "end": 31,
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 30
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 31
+                                    }
+                                  },
+                                  "name": "a"
+                                },
+                                "init": null
+                              }
+                            ],
+                            "kind": "let"
+                          }
+                        ],
+                        "test": {
+                          "type": "Literal",
+                          "start": 23,
+                          "end": 24,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 23
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 24
+                            }
+                          },
+                          "value": 0,
+                          "raw": "0"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "SwitchStatement",
+                    "start": 47,
+                    "end": 81,
+                    "loc": {
+                      "start": {
+                        "line": 2,
+                        "column": 12
+                      },
+                      "end": {
+                        "line": 2,
+                        "column": 46
+                      }
+                    },
+                    "discriminant": {
+                      "type": "Identifier",
+                      "start": 55,
+                      "end": 61,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 20
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 26
+                        }
+                      },
+                      "name": "answer"
+                    },
+                    "cases": [
+                      {
+                        "type": "SwitchCase",
+                        "start": 65,
+                        "end": 79,
+                        "loc": {
+                          "start": {
+                            "line": 2,
+                            "column": 30
+                          },
+                          "end": {
+                            "line": 2,
+                            "column": 44
+                          }
+                        },
+                        "consequent": [
+                          {
+                            "type": "VariableDeclaration",
+                            "start": 73,
+                            "end": 79,
+                            "loc": {
+                              "start": {
+                                "line": 2,
+                                "column": 38
+                              },
+                              "end": {
+                                "line": 2,
+                                "column": 44
+                              }
+                            },
+                            "declarations": [
+                              {
+                                "type": "VariableDeclarator",
+                                "start": 77,
+                                "end": 78,
+                                "loc": {
+                                  "start": {
+                                    "line": 2,
+                                    "column": 42
+                                  },
+                                  "end": {
+                                    "line": 2,
+                                    "column": 43
+                                  }
+                                },
+                                "id": {
+                                  "type": "Identifier",
+                                  "start": 77,
+                                  "end": 78,
+                                  "loc": {
+                                    "start": {
+                                      "line": 2,
+                                      "column": 42
+                                    },
+                                    "end": {
+                                      "line": 2,
+                                      "column": 43
+                                    }
+                                  },
+                                  "name": "a"
+                                },
+                                "init": null
+                              }
+                            ],
+                            "kind": "let"
+                          }
+                        ],
+                        "test": {
+                          "type": "Literal",
+                          "start": 70,
+                          "end": 71,
+                          "loc": {
+                            "start": {
+                              "line": 2,
+                              "column": 35
+                            },
+                            "end": {
+                              "line": 2,
+                              "column": 36
+                            }
+                          },
+                          "value": 0,
+                          "raw": "0"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
     
         it('should parse function declarations in statement position in strict mode', () => {
             expect(parseScript('switch (answer) { case 42: hi(); break; default: break; }', {})).to.eql({

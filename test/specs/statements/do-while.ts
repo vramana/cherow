@@ -214,6 +214,128 @@ describe('Statements - do-while', () => {
           });
     });
 
+    it('should parse two do while statements', () => {
+        expect(parseScript(`do continue; while(1);
+        do continue; while(1);`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 53,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 2,
+                "column": 30
+              }
+            },
+            "body": [
+              {
+                "type": "DoWhileStatement",
+                "start": 0,
+                "end": 22,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 22
+                  }
+                },
+                "body": {
+                  "type": "ContinueStatement",
+                  "start": 3,
+                  "end": 12,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 3
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 12
+                    }
+                  },
+                  "label": null
+                },
+                "test": {
+                  "type": "Literal",
+                  "start": 19,
+                  "end": 20,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 19
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 20
+                    }
+                  },
+                  "value": 1,
+                  "raw": "1"
+                }
+              },
+              {
+                "type": "DoWhileStatement",
+                "start": 31,
+                "end": 53,
+                "loc": {
+                  "start": {
+                    "line": 2,
+                    "column": 8
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 30
+                  }
+                },
+                "body": {
+                  "type": "ContinueStatement",
+                  "start": 34,
+                  "end": 43,
+                  "loc": {
+                    "start": {
+                      "line": 2,
+                      "column": 11
+                    },
+                    "end": {
+                      "line": 2,
+                      "column": 20
+                    }
+                  },
+                  "label": null
+                },
+                "test": {
+                  "type": "Literal",
+                  "start": 50,
+                  "end": 51,
+                  "loc": {
+                    "start": {
+                      "line": 2,
+                      "column": 27
+                    },
+                    "end": {
+                      "line": 2,
+                      "column": 28
+                    }
+                  },
+                  "value": 1,
+                  "raw": "1"
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
     it('should parse "do continue; while(1);"', () => {
         expect(parseScript('do continue; while(1);')).to.eql({
             type: "Program",
