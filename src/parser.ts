@@ -1859,17 +1859,17 @@ export class Parser {
     
                     // export LexicalDeclaration
                 case Token.ConstKeyword:
-                    declaration = this.parseVariableStatement(context |= (Context.Const | Context.RequireInitializer));
+                    declaration = this.parseVariableStatement(context | Context.Const);
                     break;
     
                     // export LexicalDeclaration
                 case Token.LetKeyword:
-                    declaration = this.parseVariableStatement(context |= (Context.Let | Context.RequireInitializer));
+                    declaration = this.parseVariableStatement(context | Context.Let);
                     break;
     
                     // export VariableDeclaration
                 case Token.VarKeyword:
-                    declaration = this.parseVariableStatement(context | Context.RequireInitializer | Context.Export);
+                    declaration = this.parseVariableStatement(context | Context.Export);
                     break;
     
                     // export HoistableDeclaration
@@ -2989,14 +2989,7 @@ export class Parser {
             let init = null;
             const token = this.token;
             const id = this.parseBindingPatternOrIdentifier(context, pos);
-    
-            // Invalid 'export let foo';
-            // Invalid 'export const foo';
-            // Invalid 'export var foo';
-            if (context & Context.RequireInitializer && this.token !== Token.Assign && id.type === 'Identifier') {
-                this.error(Errors.MissingInitializer);
-            }
-    
+        
             // 'let', 'const'
             if (context & Context.Lexical) {
                 if (context & Context.Const) {
@@ -4938,9 +4931,6 @@ export class Parser {
                     return this.parseAssignmentElementList(context);
                 case Token.LeftBrace:
                     return this.ObjectAssignmentPattern(context, pos);
-                case Token.Identifier:
-                    //if (context & Context.InParameter && context & Context.Strict) this.addFunctionArg(this.tokenValue);
-                    return this.parseBindingIdentifier(context);
                 case Token.AwaitKeyword:
                     if (context & (Context.Module | Context.Await)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                     return this.parseBindingIdentifier(context);

@@ -22,12 +22,11 @@ export const enum Context {
     HasConstructor         = 1 << 18,  // If node was parsed inside Class and allow super
     Constructor            = 1 << 19,  // Class declaration / expression
     AsyncFunctionBody      = 1 << 20,  // If node was parsed in an async body of an function declaration
-    RequireInitializer     = 1 << 21,  // If node was parsed in a context where a variable declaration initializer are required (export)
-    ForStatement           = 1 << 22,  // If node was parsed in a for / for - in / for -of context
-    LocationTracking       = 1 << 23,  // If node was parsed in a for / for - in / for -of context
+    ForStatement           = 1 << 21,  // If node was parsed in a for / for - in / for -of context
+    LocationTracking       = 1 << 22,  // If node was parsed in a for / for - in / for -of context
 
-    Let                    = 1 << 24,  // Variable declaration
-    Const                  = 1 << 25,  // Variable declaration
+    Let                    = 1 << 23,  // Variable declaration
+    Const                  = 1 << 24,  // Variable declaration
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
