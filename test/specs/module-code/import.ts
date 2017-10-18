@@ -28,7 +28,6 @@ describe('Import', () => {
           }).to.throw();
       });
   
-  
       it('should fail on "import {} from;"', () => {
           expect(() => {
               parseModule('import {} from;');
@@ -53,6 +52,48 @@ describe('Import', () => {
           }).to.throw();
       });
   
+      it('should fail on invalid import of keyword', () => {
+        expect(() => {
+            parseModule('import { class } from "foo"');
+        }).to.throw();
+    });
+
+     it('should fail on invalid import of keywords', () => {
+        expect(() => {
+            parseModule('import { class, var } from "foo"');
+        }).to.throw();
+        });
+
+        it('should fail on invalid import of keyword', () => {
+            expect(() => {
+                parseModule('import { a as class } from "foo"');
+            }).to.throw();
+        });
+
+        it('should fail on invalid import of keyword', () => {
+            expect(() => {
+                parseModule('import * as class from "foo"');
+            }).to.throw();
+        });
+
+        it('should fail on invalid import of keyword', () => {
+            expect(() => {
+                parseModule('import foo');
+            }).to.throw();
+        });
+
+        it('should fail if not on top level', () => {
+            expect(() => {
+                parseModule('if (1) import "foo";');
+            }).to.throw();
+        });
+
+        it('should fail on invalid import of keyword', () => {
+            expect(() => {
+                parseModule('import { enum } from "foo"');
+            }).to.throw();
+        });
+
       it('should fail on "import {a as function} from "a""', () => {
           expect(() => {
               parseModule('import {a as function} from "a"');
@@ -326,6 +367,154 @@ describe('Import', () => {
             parseModule('import {bar}, {foo} from "foo";');
         }).to.throw();
     });
+
+    it('should import "$" from jquery', () => {
+        expect(parseModule(`import $ from "jquery"`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 22,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 22
+              }
+            },
+            "body": [
+              {
+                "type": "ImportDeclaration",
+                "start": 0,
+                "end": 22,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 22
+                  }
+                },
+                "specifiers": [
+                  {
+                    "type": "ImportDefaultSpecifier",
+                    "start": 7,
+                    "end": 8,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 7
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 8
+                      }
+                    },
+                    "local": {
+                      "type": "Identifier",
+                      "start": 7,
+                      "end": 8,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 7
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 8
+                        }
+                      },
+                      "name": "$"
+                    }
+                  }
+                ],
+                "source": {
+                  "type": "Literal",
+                  "start": 14,
+                  "end": 22,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 14
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 22
+                    }
+                  },
+                  "value": "jquery",
+                  "raw": "\"jquery\""
+                }
+              }
+            ],
+            "sourceType": "module"
+          });
+    });
+
+    it('should import jquery', () => {
+        expect(parseModule(`import "jquery"`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 15,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 15
+            }
+          },
+          "body": [
+            {
+              "type": "ImportDeclaration",
+              "start": 0,
+              "end": 15,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 15
+                }
+              },
+              "specifiers": [],
+              "source": {
+                "type": "Literal",
+                "start": 7,
+                "end": 15,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 7
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 15
+                  }
+                },
+                "value": "jquery",
+                "raw": "\"jquery\""
+              }
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
 
       it('should import named specifiers comma', () => {
         expect(parseModule('import {foo,} from "bar"', {

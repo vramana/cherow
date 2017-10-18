@@ -17,6 +17,24 @@ describe('Module - Export', () => {
       }).to.throw();
     });
 
+    it('should fail on standalone exported default', () => {
+      expect(() => {
+        parseModule(`export { default }`);
+      }).to.throw();
+    });
+
+    it('should fail on unexpected export of keyword as foo', () => {
+      expect(() => {
+        parseModule(`export { if as foo }`);
+      }).to.throw();
+    });
+
+    it('should fail on unexpected export of keyword', () => {
+      expect(() => {
+        parseModule(`export { if }`);
+      }).to.throw();
+    });
+
     it('should fail on duplicates', () => {
         expect(() => {
           parseModule(`var x; export { x }; export { x };`);
@@ -354,7 +372,283 @@ describe('Module - Export', () => {
           }).to.throw();
       });
 
-      it('should export lexical', () => {
+      it('should export variable', () => {
+        expect(parseModule(`export var document`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 19,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 19
+            }
+          },
+          "body": [
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 0,
+              "end": 19,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 19
+                }
+              },
+              "declaration": {
+                "type": "VariableDeclaration",
+                "start": 7,
+                "end": 19,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 7
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 19
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 11,
+                    "end": 19,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 11
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 19
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 11,
+                      "end": 19,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 11
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 19
+                        }
+                      },
+                      "name": "document"
+                    },
+                    "init": null
+                  }
+                ],
+                "kind": "var"
+              },
+              "specifiers": [],
+              "source": null
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+
+      it('should export regular expression', () => {
+        expect(parseModule(`export default /foo/`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 20,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 20
+            }
+          },
+          "body": [
+            {
+              "type": "ExportDefaultDeclaration",
+              "start": 0,
+              "end": 20,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 20
+                }
+              },
+              "declaration": {
+                "type": "Literal",
+                "start": 15,
+                "end": 20,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 15
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 20
+                  }
+                },
+                "value": /foo/,
+                "raw": "/foo/",
+                "regex": {
+                  "pattern": "foo",
+                  "flags": ""
+                }
+              }
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+
+      it('should export lexical (const)', () => {
+        expect(parseModule(`export default function foo() {} false`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 38,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 38
+            }
+          },
+          "body": [
+            {
+              "type": "ExportDefaultDeclaration",
+              "start": 0,
+              "end": 32,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 32
+                }
+              },
+              "declaration": {
+                "type": "FunctionDeclaration",
+                "start": 15,
+                "end": 32,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 15
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 32
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 24,
+                  "end": 27,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 24
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 27
+                    }
+                  },
+                  "name": "foo"
+                },
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 30,
+                  "end": 32,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 30
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 32
+                    }
+                  },
+                  "body": []
+                }
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "start": 33,
+              "end": 38,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 33
+                },
+                "end": {
+                  "line": 1,
+                  "column": 38
+                }
+              },
+              "expression": {
+                "type": "Literal",
+                "start": 33,
+                "end": 38,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 33
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 38
+                  }
+                },
+                "value": false,
+                "raw": "false"
+              }
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+
+      it('should export lexical (const)', () => {
         expect(parseModule(`export const document = { }`, {
             ranges: true,
             raw: true,
@@ -452,6 +746,113 @@ describe('Module - Export', () => {
                   }
                 ],
                 "kind": "const"
+              },
+              "specifiers": [],
+              "source": null
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+
+      it('should export lexical (let)', () => {
+        expect(parseModule(`export let document = { }`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 25,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 25
+            }
+          },
+          "body": [
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 0,
+              "end": 25,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 25
+                }
+              },
+              "declaration": {
+                "type": "VariableDeclaration",
+                "start": 7,
+                "end": 25,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 7
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 25
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 11,
+                    "end": 25,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 11
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 25
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 11,
+                      "end": 19,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 11
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 19
+                        }
+                      },
+                      "name": "document"
+                    },
+                    "init": {
+                      "type": "ObjectExpression",
+                      "start": 22,
+                      "end": 25,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 22
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 25
+                        }
+                      },
+                      "properties": []
+                    }
+                  }
+                ],
+                "kind": "let"
               },
               "specifiers": [],
               "source": null
@@ -2877,6 +3278,97 @@ describe('Module - Export', () => {
               "sourceType": "module"
           });
       });
+
+      it('should export default named function', () => {
+        expect(parseModule(`export default function f() {}`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 30,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 30
+            }
+          },
+          "body": [
+            {
+              "type": "ExportDefaultDeclaration",
+              "start": 0,
+              "end": 30,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 30
+                }
+              },
+              "declaration": {
+                "type": "FunctionDeclaration",
+                "start": 15,
+                "end": 30,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 15
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 30
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 24,
+                  "end": 25,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 24
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 25
+                    }
+                  },
+                  "name": "f"
+                },
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 28,
+                  "end": 30,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 28
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 30
+                    }
+                  },
+                  "body": []
+                }
+              }
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
   
       it('should export default function', () => {
           expect(parseModule(`export default function () {}`, {
@@ -3073,6 +3565,844 @@ describe('Module - Export', () => {
               }],
               "sourceType": "module"
           });
+      });
+
+      it('should export two', () => {
+        expect(parseModule(`export { encrypt, decrypt }`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 27,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 27
+            }
+          },
+          "body": [
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 0,
+              "end": 27,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 27
+                }
+              },
+              "declaration": null,
+              "specifiers": [
+                {
+                  "type": "ExportSpecifier",
+                  "start": 9,
+                  "end": 16,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 16
+                    }
+                  },
+                  "local": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "name": "encrypt"
+                  },
+                  "exported": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "name": "encrypt"
+                  }
+                },
+                {
+                  "type": "ExportSpecifier",
+                  "start": 18,
+                  "end": 25,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 18
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 25
+                    }
+                  },
+                  "local": {
+                    "type": "Identifier",
+                    "start": 18,
+                    "end": 25,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 18
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 25
+                      }
+                    },
+                    "name": "decrypt"
+                  },
+                  "exported": {
+                    "type": "Identifier",
+                    "start": 18,
+                    "end": 25,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 18
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 25
+                      }
+                    },
+                    "name": "decrypt"
+                  }
+                }
+              ],
+              "source": null
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+
+      it('should export from batch', () => {
+        expect(parseModule(`export { encrypt as default }`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 29,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 29
+            }
+          },
+          "body": [
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 0,
+              "end": 29,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 29
+                }
+              },
+              "declaration": null,
+              "specifiers": [
+                {
+                  "type": "ExportSpecifier",
+                  "start": 9,
+                  "end": 27,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 27
+                    }
+                  },
+                  "local": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "name": "encrypt"
+                  },
+                  "exported": {
+                    "type": "Identifier",
+                    "start": 20,
+                    "end": 27,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 20
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 27
+                      }
+                    },
+                    "name": "default"
+                  }
+                }
+              ],
+              "source": null
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+
+      it('should parse triple export statements', () => {
+        expect(parseModule(`export { a } from "foo"
+        export { b } from "foo"
+        export { c } from "foo"`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 87,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 3,
+              "column": 31
+            }
+          },
+          "body": [
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 0,
+              "end": 23,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 23
+                }
+              },
+              "declaration": null,
+              "specifiers": [
+                {
+                  "type": "ExportSpecifier",
+                  "start": 9,
+                  "end": 10,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 10
+                    }
+                  },
+                  "local": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 10,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 10
+                      }
+                    },
+                    "name": "a"
+                  },
+                  "exported": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 10,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 10
+                      }
+                    },
+                    "name": "a"
+                  }
+                }
+              ],
+              "source": {
+                "type": "Literal",
+                "start": 18,
+                "end": 23,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 18
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 23
+                  }
+                },
+                "value": "foo",
+                "raw": "\"foo\""
+              }
+            },
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 32,
+              "end": 55,
+              "loc": {
+                "start": {
+                  "line": 2,
+                  "column": 8
+                },
+                "end": {
+                  "line": 2,
+                  "column": 31
+                }
+              },
+              "declaration": null,
+              "specifiers": [
+                {
+                  "type": "ExportSpecifier",
+                  "start": 41,
+                  "end": 42,
+                  "loc": {
+                    "start": {
+                      "line": 2,
+                      "column": 17
+                    },
+                    "end": {
+                      "line": 2,
+                      "column": 18
+                    }
+                  },
+                  "local": {
+                    "type": "Identifier",
+                    "start": 41,
+                    "end": 42,
+                    "loc": {
+                      "start": {
+                        "line": 2,
+                        "column": 17
+                      },
+                      "end": {
+                        "line": 2,
+                        "column": 18
+                      }
+                    },
+                    "name": "b"
+                  },
+                  "exported": {
+                    "type": "Identifier",
+                    "start": 41,
+                    "end": 42,
+                    "loc": {
+                      "start": {
+                        "line": 2,
+                        "column": 17
+                      },
+                      "end": {
+                        "line": 2,
+                        "column": 18
+                      }
+                    },
+                    "name": "b"
+                  }
+                }
+              ],
+              "source": {
+                "type": "Literal",
+                "start": 50,
+                "end": 55,
+                "loc": {
+                  "start": {
+                    "line": 2,
+                    "column": 26
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 31
+                  }
+                },
+                "value": "foo",
+                "raw": "\"foo\""
+              }
+            },
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 64,
+              "end": 87,
+              "loc": {
+                "start": {
+                  "line": 3,
+                  "column": 8
+                },
+                "end": {
+                  "line": 3,
+                  "column": 31
+                }
+              },
+              "declaration": null,
+              "specifiers": [
+                {
+                  "type": "ExportSpecifier",
+                  "start": 73,
+                  "end": 74,
+                  "loc": {
+                    "start": {
+                      "line": 3,
+                      "column": 17
+                    },
+                    "end": {
+                      "line": 3,
+                      "column": 18
+                    }
+                  },
+                  "local": {
+                    "type": "Identifier",
+                    "start": 73,
+                    "end": 74,
+                    "loc": {
+                      "start": {
+                        "line": 3,
+                        "column": 17
+                      },
+                      "end": {
+                        "line": 3,
+                        "column": 18
+                      }
+                    },
+                    "name": "c"
+                  },
+                  "exported": {
+                    "type": "Identifier",
+                    "start": 73,
+                    "end": 74,
+                    "loc": {
+                      "start": {
+                        "line": 3,
+                        "column": 17
+                      },
+                      "end": {
+                        "line": 3,
+                        "column": 18
+                      }
+                    },
+                    "name": "c"
+                  }
+                }
+              ],
+              "source": {
+                "type": "Literal",
+                "start": 82,
+                "end": 87,
+                "loc": {
+                  "start": {
+                    "line": 3,
+                    "column": 26
+                  },
+                  "end": {
+                    "line": 3,
+                    "column": 31
+                  }
+                },
+                "value": "foo",
+                "raw": "\"foo\""
+              }
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+
+      it('should export default from', () => {
+        expect(parseModule(`export { default } from "foo"`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 29,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 29
+            }
+          },
+          "body": [
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 0,
+              "end": 29,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 29
+                }
+              },
+              "declaration": null,
+              "specifiers": [
+                {
+                  "type": "ExportSpecifier",
+                  "start": 9,
+                  "end": 16,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 16
+                    }
+                  },
+                  "local": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "name": "default"
+                  },
+                  "exported": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "name": "default"
+                  }
+                }
+              ],
+              "source": {
+                "type": "Literal",
+                "start": 24,
+                "end": 29,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 24
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 29
+                  }
+                },
+                "value": "foo",
+                "raw": "\"foo\""
+              }
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+
+      it('should export as', () => {
+        expect(parseModule(`export { encrypt, decrypt as dec }`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 34,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 34
+            }
+          },
+          "body": [
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 0,
+              "end": 34,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 34
+                }
+              },
+              "declaration": null,
+              "specifiers": [
+                {
+                  "type": "ExportSpecifier",
+                  "start": 9,
+                  "end": 16,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 16
+                    }
+                  },
+                  "local": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "name": "encrypt"
+                  },
+                  "exported": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "name": "encrypt"
+                  }
+                },
+                {
+                  "type": "ExportSpecifier",
+                  "start": 18,
+                  "end": 32,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 18
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 32
+                    }
+                  },
+                  "local": {
+                    "type": "Identifier",
+                    "start": 18,
+                    "end": 25,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 18
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 25
+                      }
+                    },
+                    "name": "decrypt"
+                  },
+                  "exported": {
+                    "type": "Identifier",
+                    "start": 29,
+                    "end": 32,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 29
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 32
+                      }
+                    },
+                    "name": "dec"
+                  }
+                }
+              ],
+              "source": null
+            }
+          ],
+          "sourceType": "module"
+        });
+      });
+
+      it('should export from batch', () => {
+        expect(parseModule(`export { encrypt }`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 18,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 18
+            }
+          },
+          "body": [
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 0,
+              "end": 18,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 18
+                }
+              },
+              "declaration": null,
+              "specifiers": [
+                {
+                  "type": "ExportSpecifier",
+                  "start": 9,
+                  "end": 16,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 16
+                    }
+                  },
+                  "local": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "name": "encrypt"
+                  },
+                  "exported": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "name": "encrypt"
+                  }
+                }
+              ],
+              "source": null
+            }
+          ],
+          "sourceType": "module"
+        });
       });
   
       it('should export from batch', () => {
