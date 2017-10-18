@@ -22,3 +22,6 @@
 * Reduced code size
 * Optimized part of scanner code
 
+*2017-10-18: Version 0.9.0*
+
+- parsed through mostly all common libraries on GH and fixed a few bugs along the road

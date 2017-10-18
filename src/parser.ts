@@ -2894,7 +2894,7 @@ export class Parser {
     
             let argument: ESTree.Expression | null = null;
     
-            if (!this.canConsumeSemicolon()) argument = this.parseExpression(context, pos);
+            if (!this.canConsumeSemicolon()) argument = this.parseExpression(context | Context.AllowIn, pos);
     
             this.consumeSemicolon(context);
     
@@ -2965,7 +2965,7 @@ export class Parser {
             const token = this.token;
             if (this.flags & Flags.HasUnicode) this.error(Errors.Unexpected);
             this.nextToken(context);
-            const declarations = this.parseVariableDeclarationList(context);
+            const declarations = this.parseVariableDeclarationList(context | Context.AllowIn);
             this.consumeSemicolon(context);
             return this.finishNode(pos, {
                 type: 'VariableDeclaration',
@@ -3675,9 +3675,11 @@ export class Parser {
             //
             // SingleNameBinding [Yield,Await]:
             //      BindingIdentifier[?Yield,?Await]Initializer [In, ?Yield,?Await] opt
+            
             this.expect(context, Token.LeftParen);
             const result = [];
             this.flags &= ~Flags.SimpleParameterList;
+            
             while (this.token !== Token.RightParen) {
                 if (this.token === Token.Ellipsis) {
                     if (!(this.flags & Flags.SimpleParameterList)) this.flags |= Flags.SimpleParameterList;
@@ -3706,6 +3708,9 @@ export class Parser {
             context: Context,
         ): ESTree.AssignmentPattern | ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.RestElement {
             const pos = this.startNode();
+            if (context & Context.Strict && !(context & Context.Method) && this.token === Token.Identifier) {
+                this.addFunctionArg(this.tokenValue);
+            }
             const left = this.token === Token.Ellipsis ? this.parseRestElement(context) : this.parseBindingPatternOrIdentifier(context, pos);
     
             // Initializer[In, Yield] :
@@ -4934,7 +4939,7 @@ export class Parser {
                 case Token.LeftBrace:
                     return this.ObjectAssignmentPattern(context, pos);
                 case Token.Identifier:
-                    if (context & Context.InParameter && context & Context.Strict) this.addFunctionArg(this.tokenValue);
+                    //if (context & Context.InParameter && context & Context.Strict) this.addFunctionArg(this.tokenValue);
                     return this.parseBindingIdentifier(context);
                 case Token.AwaitKeyword:
                     if (context & (Context.Module | Context.Await)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
@@ -4968,6 +4973,7 @@ export class Parser {
     
             if (this.flags & Flags.HasUnicode && this.token === Token.YieldKeyword) this.error(Errors.InvalidEscapedReservedWord);
     
+            //if (!(context & Context.InParameter)) 
             this.addVarOrBlock(context, name);
     
             this.nextToken(context);

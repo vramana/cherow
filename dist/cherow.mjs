@@ -2803,7 +2803,7 @@ Parser.prototype.parseReturnStatement = function parseReturnStatement (context) 
     this.expect(context, 12379 /* ReturnKeyword */);
     var argument = null;
     if (!this.canConsumeSemicolon())
-        { argument = this.parseExpression(context, pos); }
+        { argument = this.parseExpression(context | 4 /* AllowIn */, pos); }
     this.consumeSemicolon(context);
     return this.finishNode(pos, {
         type: 'ReturnStatement',
@@ -2866,7 +2866,7 @@ Parser.prototype.parseVariableStatement = function parseVariableStatement (conte
     if (this.flags & 2 /* HasUnicode */)
         { this.error(0 /* Unexpected */); }
     this.nextToken(context);
-    var declarations = this.parseVariableDeclarationList(context);
+    var declarations = this.parseVariableDeclarationList(context | 4 /* AllowIn */);
     this.consumeSemicolon(context);
     return this.finishNode(pos, {
         type: 'VariableDeclaration',
@@ -3522,6 +3522,9 @@ Parser.prototype.parseParameterList = function parseParameterList (context, stat
 };
 Parser.prototype.parseFormalParameter = function parseFormalParameter (context) {
     var pos = this.startNode();
+    if (context & 2 /* Strict */ && !(context & 131072 /* Method */) && this.token === 262145 /* Identifier */) {
+        this.addFunctionArg(this.tokenValue);
+    }
     var left = this.token === 14 /* Ellipsis */ ? this.parseRestElement(context) : this.parseBindingPatternOrIdentifier(context, pos);
     // Initializer[In, Yield] :
     // = AssignmentExpression[?In, ?Yield]
@@ -4625,8 +4628,7 @@ Parser.prototype.parseBindingPatternOrIdentifier = function parseBindingPatternO
         case 393228 /* LeftBrace */:
             return this.ObjectAssignmentPattern(context, pos);
         case 262145 /* Identifier */:
-            if (context & 128 /* InParameter */ && context & 2 /* Strict */)
-                { this.addFunctionArg(this.tokenValue); }
+            //if (context & Context.InParameter && context & Context.Strict) this.addFunctionArg(this.tokenValue);
             return this.parseBindingIdentifier(context);
         case 331885 /* AwaitKeyword */:
             if (context & (1 /* Module */ | 32 /* Await */))
@@ -4659,6 +4661,7 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
     }
     if (this.flags & 2 /* HasUnicode */ && this.token === 282730 /* YieldKeyword */)
         { this.error(68 /* InvalidEscapedReservedWord */); }
+    //if (!(context & Context.InParameter)) 
     this.addVarOrBlock(context, name);
     this.nextToken(context);
     return this.finishNode(pos, {
