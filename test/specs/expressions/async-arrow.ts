@@ -113,12 +113,6 @@ describe('Expressions - Async Arrow function', () => {
 
     it('should fail if async contain unicode', () => {
       expect(() => {
-          parseScript(`\\u0061sync () => {}`);
-      }).to.throw()
-  })
-
-    it('should fail if async contain unicode', () => {
-      expect(() => {
         parseScript(`async await => 1`);
       }).to.throw()
     })
@@ -147,12 +141,6 @@ describe('Expressions - Async Arrow function', () => {
       }).to.throw()
     })
 
-    it('should fail if await are used in formal param assign', () => {
-      expect(() => {
-        parseScript(`async(a=await)=>12`);
-      }).to.throw()
-    })
-    
     it('should parse await expression in async arrow function', () => {
       expect(parseScript(`(async (a) => await a)`, {
           raw: true,

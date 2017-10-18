@@ -107,12 +107,6 @@ describe('Expressions - Async function', () => {
 
     it('should fail if async function expression has await expr in formal param', () => {
         expect(() => {
-            parseScript(`async function wrapper() {\nasync (a = await b) => {}\n}`);
-        }).to.throw();
-    });
-
-    it('should fail if async function expression has await expr in formal param', () => {
-        expect(() => {
             parseScript(`({async foo(a = await b) {}})`);
         }).to.throw();
     });

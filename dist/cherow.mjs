@@ -2640,17 +2640,16 @@ Parser.prototype.parseSwitchStatement = function parseSwitchStatement (context) 
     this.expect(context, 262155 /* LeftParen */);
     var discriminant = this.parseExpression(context, pos);
     this.expect(context, 16 /* RightParen */);
+    this.expect(context, 393228 /* LeftBrace */);
     var blockScope = this.blockScope;
     var parentScope = this.parentScope;
     if (blockScope !== undefined)
         { this.parentScope = blockScope; }
     this.blockScope = undefined;
-    this.expect(context, 393228 /* LeftBrace */);
     var cases = [];
     var seenDefault = false;
     var SavedFlag = this.flags;
-    if (!(this.flags & 16 /* Break */))
-        { this.flags |= (16 /* Break */ | 64 /* Switch */); }
+    this.flags |= (16 /* Break */ | 64 /* Switch */);
     while (this.token !== 15 /* RightBrace */) {
         var clause = this$1.parseSwitchCase(context);
         if (clause.test === null) {
@@ -3021,11 +3020,6 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
             this.error(36 /* InvalidLHSInAssignment */);
         }
         this.nextToken(context);
-        // Invalid: 'async(a=await)=>12'. 
-        if (context & 256 /* InAsyncParameterList */ && !(this.flags & 512 /* HaveSeenAwait */) && this.token === 331885 /* AwaitKeyword */) {
-            this.errorLocation = this.getLocations();
-            this.flags |= 512 /* HaveSeenAwait */;
-        }
         var right = this.parseAssignmentExpression(context);
         return this.finishNode(pos, {
             type: 'AssignmentExpression',

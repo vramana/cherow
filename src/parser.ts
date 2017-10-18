@@ -2690,13 +2690,13 @@ export class Parser {
             const discriminant = this.parseExpression(context, pos);
     
             this.expect(context, Token.RightParen);
-    
+            this.expect(context, Token.LeftBrace);
+        
             const blockScope = this.blockScope;
             const parentScope = this.parentScope;
+
             if (blockScope !== undefined) this.parentScope = blockScope;
             this.blockScope = undefined;
-    
-            this.expect(context, Token.LeftBrace);
     
             const cases: ESTree.SwitchCase[] = [];
     
@@ -2704,7 +2704,7 @@ export class Parser {
     
             const SavedFlag = this.flags;
     
-            if (!(this.flags & Flags.Break)) this.flags |= (Flags.Break | Flags.Switch);
+            this.flags |= (Flags.Break | Flags.Switch);
     
             while (this.token !== Token.RightBrace) {
     
@@ -2722,9 +2722,11 @@ export class Parser {
             this.flags = SavedFlag;
     
             this.expect(context, Token.RightBrace);
-        
+
             this.blockScope = blockScope;
+
             if (blockScope !== undefined) this.parentScope = parentScope;
+
             return this.finishNode(pos, {
                 type: 'SwitchStatement',
                 discriminant,
@@ -3120,12 +3122,7 @@ export class Parser {
                 }
     
                 this.nextToken(context);
-    
-                // Invalid: 'async(a=await)=>12'. 
-                if (context & Context.InAsyncParameterList && !(this.flags & Flags.HaveSeenAwait) && this.token === Token.AwaitKeyword) {
-                    this.errorLocation = this.getLocations();
-                    this.flags |= Flags.HaveSeenAwait;
-                }
+            
                 const right = this.parseAssignmentExpression(context);
     
                 return this.finishNode(pos, {
@@ -3830,6 +3827,8 @@ export class Parser {
             if (this.token === Token.Arrow) {
                 // async arrows cannot have a line terminator between "async" and the formals
                 if (flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
+                // Valid: 'async(a=await)=>12'. 
+                // Invalid: 'async(await)=>12'. 
                 if (this.flags & Flags.HaveSeenAwait) this.error(Errors.InvalidAwaitInArrowParam);
                 if (isEscaped) this.error(Errors.InvalidEscapedReservedWord);
                 if (state & ParenthesizedState.EvalOrArg) this.error(Errors.StrictParamName);
