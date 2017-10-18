@@ -1870,6 +1870,9 @@ Parser.prototype.isIdentifier = function isIdentifier (context, t) {
     }
     return t === 262145 /* Identifier */ || (t & 69632 /* Contextual */) === 69632 /* Contextual */ || (t & 20480 /* FutureReserved */) === 20480 /* FutureReserved */;
 };
+Parser.prototype.isIdentifierOrKeyword = function isIdentifierOrKeyword (t) {
+    return t === 262145 /* Identifier */ || hasMask(t, 4096 /* Keyword */);
+};
 Parser.prototype.nextTokenIsFuncKeywordOnSameLine = function nextTokenIsFuncKeywordOnSameLine (context) {
     this.PeekAhead(context);
     return this.line === this.peekedState.line && this.peekedToken === 274519 /* FunctionKeyword */;
@@ -1996,8 +1999,9 @@ Parser.prototype.parseExportSpecifier = function parseExportSpecifier (context) 
     var pos = this.startNode();
     // Valid: `export {default} from "foo";`
     // Invalid: '`export {with as a}`'
-    if (this.token !== 12368 /* DefaultKeyword */ && this.token !== 262145 /* Identifier */)
-        { this.error(0 /* Unexpected */); }
+    if (this.token !== 12368 /* DefaultKeyword */ && this.token !== 262145 /* Identifier */) {
+        this.error(0 /* Unexpected */);
+    }
     var local = this.parseIdentifier(context);
     var exported = local;
     if (this.parseOptional(context, 69739 /* AsKeyword */)) {
@@ -2038,7 +2042,7 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
     var pos = this.startNode();
     var imported;
     var local;
-    if (this.isIdentifier(context, this.token)) {
+    if (this.token === 262145 /* Identifier */) {
         imported = this.parseBindingIdentifier(context);
         local = imported;
         // In the presence of 'as', the left-side of the 'as' can
@@ -2087,8 +2091,9 @@ Parser.prototype.parseNamedImports = function parseNamedImports (context, specif
 Parser.prototype.parseImportNamespaceSpecifier = function parseImportNamespaceSpecifier (context) {
     var pos = this.startNode();
     this.expect(context, 2099763 /* Multiply */);
-    if (this.token !== 69739 /* AsKeyword */)
-        { this.error(38 /* NoAsAfterImportNamespace */); }
+    if (this.token !== 69739 /* AsKeyword */) {
+        this.error(38 /* NoAsAfterImportNamespace */);
+    }
     this.nextToken(context);
     if (this.token !== 262145 /* Identifier */) {
         this.throwUnexpectedToken();
@@ -4088,7 +4093,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context, has_
     var token = this.token;
     var tokenValue = this.tokenValue;
     var state = 0;
-    if (this.token === 262145 /* Identifier */ || hasMask(token, 4096 /* Keyword */)) {
+    if (this.isIdentifierOrKeyword(token)) {
         this.nextToken(context);
         if (this.canFollowModifier(context, this.token)) {
             switch (token) {

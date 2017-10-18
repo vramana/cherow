@@ -1758,6 +1758,10 @@ export class Parser {
             }
             return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual || (t & Token.FutureReserved) === Token.FutureReserved;
         }
+
+        private isIdentifierOrKeyword(t: Token): boolean | number {
+           return t === Token.Identifier || hasMask(t, Token.Keyword)
+        }
     
         private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
             this.PeekAhead(context);
@@ -1906,7 +1910,9 @@ export class Parser {
     
             // Valid: `export {default} from "foo";`
             // Invalid: '`export {with as a}`'
-            if (this.token !== Token.DefaultKeyword && this.token !== Token.Identifier) this.error(Errors.Unexpected);
+            if (this.token !== Token.DefaultKeyword && this.token !== Token.Identifier) {
+                this.error(Errors.Unexpected);
+            }
     
             const local = this.parseIdentifier(context);
             let exported = local;
@@ -1955,7 +1961,7 @@ export class Parser {
             let imported;
             let local;
     
-            if (this.isIdentifier(context, this.token)) {
+            if (this.token === Token.Identifier) {
                 imported = this.parseBindingIdentifier(context);
                 local = imported;
                 // In the presence of 'as', the left-side of the 'as' can
@@ -2006,7 +2012,9 @@ export class Parser {
     
             this.expect(context, Token.Multiply);
     
-            if (this.token !== Token.AsKeyword) this.error(Errors.NoAsAfterImportNamespace);
+            if (this.token !== Token.AsKeyword) {
+                this.error(Errors.NoAsAfterImportNamespace);
+            }
     
             this.nextToken(context);
     
@@ -4331,7 +4339,7 @@ export class Parser {
                 properties
             });
         }
-    
+
         private parseObjectElement(context: Context, has__proto__: any): ESTree.Property {
             const pos = this.startNode();
     
@@ -4341,7 +4349,7 @@ export class Parser {
             const tokenValue = this.tokenValue;
             let state = ObjectState.None;
     
-            if (this.token === Token.Identifier || hasMask(token, Token.Keyword)) {
+            if (this.isIdentifierOrKeyword(token)) {
                 this.nextToken(context);
                 if (this.canFollowModifier(context, this.token)) {
                     switch (token) {
