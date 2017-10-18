@@ -3680,12 +3680,13 @@ Parser.prototype.parseFunctionBody = function parseFunctionBody (context) {
         var savedContext = context;
         // ... unset context masks if needed
         context &= ~50331648 /* Lexical */;
-        if (!(this.flags & 4 /* InFunctionBody */))
-            { this.flags |= 4 /* InFunctionBody */; }
+        var savedFlags = this.flags;
+        this.flags |= 4 /* InFunctionBody */;
         body = this.parseStatementList(context, 15 /* RightBrace */);
         this.labelSet = previousLabelSet;
         // Restore current context
         context = savedContext;
+        this.flags = savedFlags;
     }
     this.expect(context, 15 /* RightBrace */);
     return this.finishNode(pos, {

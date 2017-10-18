@@ -3872,11 +3872,13 @@ export class Parser {
                 const savedContext = context;
                 // ... unset context masks if needed
                 context &= ~Context.Lexical;
-                if (!(this.flags & Flags.InFunctionBody)) this.flags |= Flags.InFunctionBody;
+                const savedFlags = this.flags;
+                this.flags |= Flags.InFunctionBody;
                 body = this.parseStatementList(context, Token.RightBrace);
                 this.labelSet = previousLabelSet;
                 // Restore current context
                 context = savedContext;
+                this.flags = savedFlags;
             }
     
             this.expect(context, Token.RightBrace);
