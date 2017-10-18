@@ -25,6 +25,12 @@ describe('Declarations - Let', () => {
         }`); }).to.throw();
     });
 
+    it('should fail on let in complex binding pattern without initializer', () => {
+      expect(() => {
+          parseScript('let [x]');
+      }).to.throw();
+  });
+
     it('should fail on let declarations with initialisers in statement positions ( do Statement while )', () => {
         expect(() => { parseScript('do let x = 1; while (false)'); }).to.throw();
     });

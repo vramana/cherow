@@ -2804,7 +2804,7 @@ is y`);
     it('should fail on "var []"', () => {
         expect(() => {
             parseScript('var []');
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on "({}=>0)"', () => {
         expect(() => {
@@ -3734,7 +3734,7 @@ is y`);
     it('should fail on "var [x]"', () => {
         expect(() => {
             parseScript('var [x]');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "if (1) let x = 10;"', () => {
@@ -4221,7 +4221,7 @@ is y`);
     it('should fail on "var {a};', () => {
         expect(() => {
             parseScript('var {a};');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on ""\\u{110000}"', () => {

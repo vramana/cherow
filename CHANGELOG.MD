@@ -15,3 +15,10 @@
 
 * Optimized label validation, and fixed a bug where not checking for undefined
 
+*2017-10-18: Version 0.8.9*
+
+* Fixed lexical issues in scope
+* Fixed variabel so they are failing correctly on complex binding patterns
+* Reduced code size
+* Optimized part of scanner code
+

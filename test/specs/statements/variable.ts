@@ -62,13 +62,13 @@ describe('Statements - Variable', () => {
         it('should fail on  "var []"', () => {
             expect(() => {
                 parseScript(`var []`);
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on  "var {}"', () => {
             expect(() => {
                 parseScript(`var {}`);
-            }).to.not.throw();
+            }).to.throw();
         });
 
         it('should fail on "var"', () => {
@@ -98,7 +98,7 @@ describe('Statements - Variable', () => {
         it('should fail on "var {a:a};', () => {
             expect(() => {
                 parseScript(`var {a:a};`);
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on "var if = 0" to throw', () => {
@@ -136,11 +136,124 @@ describe('Statements - Variable', () => {
                 parseModule(`var super`);
             }).to.throw();
         });
-    
+
+        it('should fail on let in complex binding pattern without initializer', () => {
+            expect(() => {
+                parseScript('var [x]');
+            }).to.throw();
+        });
+
         it('should fail on fail on "var [x]"', () => {
             expect(() => {
                 parseScript(`var [x]`)
-            }).to.not.throw();
+            }).to.throw();
+        });
+
+        it('should parse without initilizers', () => {
+            expect(parseScript(`var a, b`, {
+                ranges: true,
+                raw: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 8,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 8
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 8,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 8
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 5,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 5
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 5,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 5
+                            }
+                          },
+                          "name": "a"
+                        },
+                        "init": null
+                      },
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 7,
+                        "end": 8,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 7
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 8
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 7,
+                          "end": 8,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 7
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 8
+                            }
+                          },
+                          "name": "b"
+                        },
+                        "init": null
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
         });
 
         it('should parse shorthand properties named `set` as default in object destructuring', () => {

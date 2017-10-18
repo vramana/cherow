@@ -101,7 +101,8 @@ export const enum Errors {
     BadPropertyId,
     InvalidMethod,
     InvalidArrowYieldParam,
-    InvalidAwaitInArrowParam
+    InvalidAwaitInArrowParam,
+    InvalidComplexBindingPattern
 }
 
 export const ErrorMessages: {
@@ -208,6 +209,7 @@ export const ErrorMessages: {
     [Errors.InvalidMethod]: 'Only methods are allowed in classes',
     [Errors.InvalidArrowYieldParam]: 'Arrow parameters must not contain yield expressions',
     [Errors.InvalidAwaitInArrowParam]: '\'await\' is not allowed inside an async arrow\'s parameter list',
+    [Errors.InvalidComplexBindingPattern]: 'Complex binding patterns require an initialization value',
 };
 
 function constructError(msg: string, column: number): Error {

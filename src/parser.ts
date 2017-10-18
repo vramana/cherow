@@ -3011,14 +3011,18 @@ export class Parser {
                     this.expect(context, Token.Assign);
                     init = this.parseAssignmentExpression(context);
                 }
-            } else if (this.parseOptional(context, Token.Assign)) {
-                init = this.parseAssignmentExpression(context);
-                if (context & Context.ForStatement) {
-                    if (this.token === Token.InKeyword) {
-                        if (context & Context.Strict || hasMask(token, Token.BindingPattern)) {
-                            this.error(Errors.InvalidVarDeclInForIn);
+            } else {
+                if (this.parseOptional(context, Token.Assign)) {
+                    init = this.parseAssignmentExpression(context);
+                    if (context & Context.ForStatement) {
+                        if (this.token === Token.InKeyword) {
+                            if (context & Context.Strict || hasMask(token, Token.BindingPattern)) {
+                                this.error(Errors.InvalidVarDeclInForIn);
+                            }
                         }
                     }
+                } else if (!(context & Context.ForStatement) && hasMask(token, Token.BindingPattern)) {
+                    this.error(Errors.InvalidComplexBindingPattern);
                 }
             }
     
@@ -3863,12 +3867,16 @@ export class Parser {
             if (this.token !== Token.RightBrace) {
                 const previousLabelSet = this.labelSet;
                 this.labelSet = undefined;
-                const savedLexical = (context & Context.Lexical) !== 0;
+                // Backup the context while entering a new scope, 
+                // and ...
+                const savedContext = context;
+                // ... unset context masks if needed
                 context &= ~Context.Lexical;
                 if (!(this.flags & Flags.InFunctionBody)) this.flags |= Flags.InFunctionBody;
                 body = this.parseStatementList(context, Token.RightBrace);
                 this.labelSet = previousLabelSet;
-                if (savedLexical) context |= Context.Lexical;
+                // Restore current context
+                context = savedContext;
             }
     
             this.expect(context, Token.RightBrace);

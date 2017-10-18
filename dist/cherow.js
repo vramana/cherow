@@ -301,6 +301,7 @@ ErrorMessages[99 /* BadPropertyId */] = 'Invalid property id';
 ErrorMessages[100 /* InvalidMethod */] = 'Only methods are allowed in classes';
 ErrorMessages[101 /* InvalidArrowYieldParam */] = 'Arrow parameters must not contain yield expressions';
 ErrorMessages[102 /* InvalidAwaitInArrowParam */] = '\'await\' is not allowed inside an async arrow\'s parameter list';
+ErrorMessages[103 /* InvalidComplexBindingPattern */] = 'Complex binding patterns require an initialization value';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -2917,14 +2918,19 @@ Parser.prototype.parseVariableDeclaration = function parseVariableDeclaration (c
             init = this.parseAssignmentExpression(context);
         }
     }
-    else if (this.parseOptional(context, 1310749 /* Assign */)) {
-        init = this.parseAssignmentExpression(context);
-        if (context & 4194304 /* ForStatement */) {
-            if (this.token === 2111281 /* InKeyword */) {
-                if (context & 2 /* Strict */ || hasMask(token, 131072 /* BindingPattern */)) {
-                    this.error(91 /* InvalidVarDeclInForIn */);
+    else {
+        if (this.parseOptional(context, 1310749 /* Assign */)) {
+            init = this.parseAssignmentExpression(context);
+            if (context & 4194304 /* ForStatement */) {
+                if (this.token === 2111281 /* InKeyword */) {
+                    if (context & 2 /* Strict */ || hasMask(token, 131072 /* BindingPattern */)) {
+                        this.error(91 /* InvalidVarDeclInForIn */);
+                    }
                 }
             }
+        }
+        else if (!(context & 4194304 /* ForStatement */) && hasMask(token, 131072 /* BindingPattern */)) {
+            this.error(103 /* InvalidComplexBindingPattern */);
         }
     }
     return this.finishNode(pos, {
@@ -3669,14 +3675,17 @@ Parser.prototype.parseFunctionBody = function parseFunctionBody (context) {
     if (this.token !== 15 /* RightBrace */) {
         var previousLabelSet = this.labelSet;
         this.labelSet = undefined;
-        var savedLexical = (context & 50331648 /* Lexical */) !== 0;
+        // Backup the context while entering a new scope, 
+        // and ...
+        var savedContext = context;
+        // ... unset context masks if needed
         context &= ~50331648 /* Lexical */;
         if (!(this.flags & 4 /* InFunctionBody */))
             { this.flags |= 4 /* InFunctionBody */; }
         body = this.parseStatementList(context, 15 /* RightBrace */);
         this.labelSet = previousLabelSet;
-        if (savedLexical)
-            { context |= 50331648 /* Lexical */; }
+        // Restore current context
+        context = savedContext;
     }
     this.expect(context, 15 /* RightBrace */);
     return this.finishNode(pos, {
