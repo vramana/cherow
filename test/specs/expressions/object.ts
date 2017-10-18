@@ -7595,7 +7595,7 @@ describe('Espressions - Object', () => {
               });
         });
    
-        it('should parse bindingElement with array binding pattern', () => {
+        it('should parse reserved words as object key (module code)', () => {
             expect(parseModule(`({ implements: a });`, {
                 raw: true,
                 ranges: true,
@@ -7701,6 +7701,147 @@ describe('Espressions - Object', () => {
                   }
                 ],
                 "sourceType": "module"
+              });
+        });
+
+        it('should parse reserved words as object key (strict mode)', () => {
+            expect(parseScript(`"use strict"; ({ implements: a });`, {
+                raw: true,
+                ranges: true,
+                next: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 34,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 34
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 13,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 13
+                      }
+                    },
+                    "expression": {
+                      "type": "Literal",
+                      "start": 0,
+                      "end": 12,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 12
+                        }
+                      },
+                      "value": "use strict",
+                      "raw": "\"use strict\""
+                    }
+                  },
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 14,
+                    "end": 34,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 14
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 34
+                      }
+                    },
+                    "expression": {
+                      "type": "ObjectExpression",
+                      "start": 15,
+                      "end": 32,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 15
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 32
+                        }
+                      },
+                      "properties": [
+                        {
+                          "type": "Property",
+                          "start": 17,
+                          "end": 30,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 17
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 30
+                            }
+                          },
+                          "method": false,
+                          "shorthand": false,
+                          "computed": false,
+                          "key": {
+                            "type": "Identifier",
+                            "start": 17,
+                            "end": 27,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 17
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 27
+                              }
+                            },
+                            "name": "implements"
+                          },
+                          "value": {
+                            "type": "Identifier",
+                            "start": 29,
+                            "end": 30,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 29
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 30
+                              }
+                            },
+                            "name": "a"
+                          },
+                          "kind": "init"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "sourceType": "script"
               });
         });
 });

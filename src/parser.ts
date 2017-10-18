@@ -4341,7 +4341,7 @@ export class Parser {
             const tokenValue = this.tokenValue;
             let state = ObjectState.None;
     
-            if (this.isIdentifier(context &~ Context.Module, this.token)) {
+            if (this.token === Token.Identifier || hasMask(token, Token.Keyword)) {
                 this.nextToken(context);
                 if (this.canFollowModifier(context, this.token)) {
                     switch (token) {

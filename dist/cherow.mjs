@@ -4082,7 +4082,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context, has_
     var token = this.token;
     var tokenValue = this.tokenValue;
     var state = 0;
-    if (this.isIdentifier(context & ~1 /* Module */, this.token)) {
+    if (this.token === 262145 /* Identifier */ || hasMask(token, 4096 /* Keyword */)) {
         this.nextToken(context);
         if (this.canFollowModifier(context, this.token)) {
             switch (token) {

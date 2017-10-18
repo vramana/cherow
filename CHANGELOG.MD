@@ -33,3 +33,6 @@
 - Fixed several minor issues
 - Do and Throw expression now throw correctly if the options isn't set
 - Reduced code size
+
+*2017-10-18: Version 0.9.3*
+- Fixed issue with reserved words in module code for object expressions
