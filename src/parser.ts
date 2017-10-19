@@ -1849,7 +1849,7 @@ export class Parser {
                         // export {foo} from 'foo';
                         source = this.parseModuleSpecifier(context);
                     } else if (isExportedReservedWord) {
-                        this.error(Errors.Unexpected);
+                        this.throwUnexpectedToken();
                     } 
     
                     this.consumeSemicolon(context);
@@ -1911,7 +1911,6 @@ export class Parser {
                 this.expect(context, Token.AsKeyword);
                     
                 exported = this.parseIdentifierName(context, this.token);
-                //if (token !== Token.Identifier || (this.token !== Token.DefaultKeyword || this.token === Token.Identifier)) this.error(Errors.Unexpected)
             }
     
             return this.finishNode(pos, {
@@ -1983,7 +1982,10 @@ export class Parser {
         }
     
         // {foo, bar as bas}
-        private parseNamedImports(context: Context, specifiers: (ESTree.ImportSpecifier | ESTree.ImportDefaultSpecifier | ESTree.ImportNamespaceSpecifier)[]) {
+        private parseNamedImports(
+            context: Context, 
+            specifiers: (ESTree.ImportSpecifier | ESTree.ImportDefaultSpecifier | ESTree.ImportNamespaceSpecifier)[]
+            ) {
             //  NamedImports
             //  ImportedDefaultBinding, NameSpaceImport
             //  ImportedDefaultBinding, NamedImports

@@ -36,3 +36,6 @@
 
 *2017-10-18: Version 0.9.3*
 - Fixed issue with reserved words in module code for object expressions
+
+*2017-10-19: Version 0.9.8*
+- Refactored module-code.

@@ -1945,7 +1945,7 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
                 source = this.parseModuleSpecifier(context);
             }
             else if (isExportedReservedWord) {
-                this.error(0 /* Unexpected */);
+                this.throwUnexpectedToken();
             }
             this.consumeSemicolon(context);
             break;
@@ -1993,7 +1993,6 @@ Parser.prototype.parseExportSpecifier = function parseExportSpecifier (context) 
     if (this.token === 69739 /* AsKeyword */) {
         this.expect(context, 69739 /* AsKeyword */);
         exported = this.parseIdentifierName(context, this.token);
-        //if (token !== Token.Identifier || (this.token !== Token.DefaultKeyword || this.token === Token.Identifier)) this.error(Errors.Unexpected)
     }
     return this.finishNode(pos, {
         type: 'ExportSpecifier',
