@@ -11,22 +11,20 @@ export const enum Context {
     InParameter            = 1 << 7,   // If node was parsed in the formal list of an function
     InAsyncParameterList   = 1 << 8,   // If node was parsed in the formal list of an async arrow function
     InArrowParameterList   = 1 << 9,   // If node was parsed in the formal list of an arrow function
-    Statement              = 1 << 10,  // If node was parsed in a statement context
+    TopLevel               = 1 << 10,  // If node was parsed at the TopLevel
     IfClause               = 1 << 11,  // If node was parsed in a if statement (early error related)
     AnnexB                 = 1 << 12,  // If node was parsed in the 'if statement' with the AnnexB semtantic
     JSXChild               = 1 << 13,  // If node was parsed in a JSX context and has JSX children
-    Export                 = 1 << 14,  // Module
-    Import                 = 1 << 15,  // Module ( strict and non-strict)
-    OptionalIdentifier     = 1 << 16,  // Optional identifier for export of either anonymous class or function declaration
-    Method                 = 1 << 17,  // If node was parsed in a object / class method definition context
-    HasConstructor         = 1 << 18,  // If node was parsed inside Class and allow super
-    Constructor            = 1 << 19,  // Class declaration / expression
-    AsyncFunctionBody      = 1 << 20,  // If node was parsed in an async body of an function declaration
-    ForStatement           = 1 << 21,  // If node was parsed in a for / for - in / for -of context
-    LocationTracking       = 1 << 22,  // If node was parsed in a for / for - in / for -of context
+    Import                 = 1 << 14,  // Module ( strict and non-strict)
+    OptionalIdentifier     = 1 << 15,  // Optional identifier for export of either anonymous class or function declaration
+    Method                 = 1 << 16,  // If node was parsed in a object / class method definition context
+    HasConstructor         = 1 << 17,  // If node was parsed inside Class and allow super
+    Constructor            = 1 << 18,  // Class declaration / expression
+    ForStatement           = 1 << 19,  // If node was parsed in a for / for - in / for -of context
+    LocationTracking       = 1 << 20,  // If node was parsed in a for / for - in / for -of context
 
-    Let                    = 1 << 23,  // Variable declaration
-    Const                  = 1 << 24,  // Variable declaration
+    Let                    = 1 << 21,  // Variable declaration
+    Const                  = 1 << 22,  // Variable declaration
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,

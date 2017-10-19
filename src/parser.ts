@@ -1779,18 +1779,18 @@ export class Parser {
     
                 // export default HoistableDeclaration[Default]
                 case Token.FunctionKeyword:
-                    declaration = this.parseFunctionDeclaration(context |= (Context.OptionalIdentifier | Context.Export));
+                    declaration = this.parseFunctionDeclaration(context | (Context.OptionalIdentifier | Context.TopLevel));
                     break;
     
                     // export default ClassDeclaration[Default]
                 case Token.ClassKeyword:
-                    declaration = this.parseClassDeclaration(context | (Context.OptionalIdentifier | Context.Export));
+                    declaration = this.parseClassDeclaration(context | (Context.OptionalIdentifier | Context.TopLevel));
                     break;
     
                     // export default HoistableDeclaration[Default]
                 case Token.AsyncKeyword:
                     if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                        declaration = this.parseFunctionDeclaration(context | (Context.OptionalIdentifier | Context.Export));
+                        declaration = this.parseFunctionDeclaration(context | (Context.OptionalIdentifier | Context.TopLevel));
                         break;
                     }
                     // falls through
@@ -1861,7 +1861,7 @@ export class Parser {
     
                     // export ClassDeclaration
                 case Token.ClassKeyword:
-                    declaration = this.parseClassDeclaration(context | Context.Export);
+                    declaration = this.parseClassDeclaration(context | Context.TopLevel);
                     break;
     
                     // export LexicalDeclaration
@@ -1876,18 +1876,18 @@ export class Parser {
     
                     // export VariableDeclaration
                 case Token.VarKeyword:
-                    declaration = this.parseVariableStatement(context | Context.Export);
+                    declaration = this.parseVariableStatement(context | Context.TopLevel);
                     break;
     
                     // export HoistableDeclaration
                 case Token.FunctionKeyword:
-                    declaration = this.parseFunctionDeclaration(context | Context.Export);
+                    declaration = this.parseFunctionDeclaration(context | Context.TopLevel);
                     break;
     
                     // export HoistableDeclaration
                 case Token.AsyncKeyword:
                     if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                        declaration = this.parseFunctionDeclaration(context | Context.Export);
+                        declaration = this.parseFunctionDeclaration(context | Context.TopLevel);
                         break;
                     }
                     // Falls through
@@ -2217,7 +2217,7 @@ export class Parser {
                     return this.parseWithStatement(context);
     
                 case Token.SwitchKeyword:
-                    return this.parseSwitchStatement(context | Context.Statement);
+                    return this.parseSwitchStatement(context | Context.TopLevel);
     
                     // ThrowStatement[?Yield]
                 case Token.ThrowKeyword:
@@ -2228,9 +2228,6 @@ export class Parser {
                     return this.parseTryStatement(context);
                     // AsyncFunctionDeclaration[Yield, Await, Default]
                     // Both 'class' and 'function' are forbidden by lookahead restriction.
-                case Token.ClassKeyword:
-                case Token.FunctionKeyword:
-                    this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
     
                 case Token.YieldKeyword:
                     return this.parseLabelledStatement(context);
@@ -2242,14 +2239,22 @@ export class Parser {
                     // J.K. Thomas
                     if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                         // Note: async function are only subject to AnnexB if we forbid them to parse
-                        if (context & Context.Statement || this.flags & Flags.Break) this.error(Errors.Unexpected);
+                        if (context & Context.TopLevel || this.flags & Flags.Break) this.error(Errors.Unexpected);
                         return this.parseFunctionDeclaration(context);
                     }
                     // 'Async' is a valid contextual keyword in sloppy mode for labelled statement, so either
                     // parse out 'LabelledStatement' or an plain identifier. We pass down the 'Statement' mask
                     // so we can easily switch async state if needed on "TopLevel" even if we are inside
                     // the PrimaryExpression production
-                    return this.parseLabelledStatement(context | Context.Statement);
+                    return this.parseLabelledStatement(context | Context.TopLevel);
+    
+                case Token.FunctionKeyword:
+                    if (context & Context.AnnexB) {
+                        return this.parseFunctionDeclaration(context | Context.AnnexB);
+                    }
+    
+                case Token.ClassKeyword:
+                    this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
                 default:
                     return this.parseExpressionStatement(context);
             }
@@ -2266,7 +2271,7 @@ export class Parser {
             const flag = this.flags;
     
             while (this.token !== Token.RightBrace) {
-                body.push(this.parseStatementListItem(context | Context.Statement));
+                body.push(this.parseStatementListItem(context | Context.TopLevel));
             }
             this.flags = flag;
             this.expect(context, Token.RightBrace);
@@ -2481,19 +2486,12 @@ export class Parser {
                 label
             });
         }
+
         private parseIfStatementChild(context: Context): ESTree.Statement {
-            // Annex B.3.4 says that unbraced FunctionDeclarations under if/else in
-            // non-strict code act as if they were braced: '(if (x) function f() {})'
-            // parses as '(if (x) { function f() {} })'.
-            //
-            if (this.token === Token.FunctionKeyword) {
-                if (context & Context.Strict) this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
-    
-                // Pass the 'AnnexB' mask
-                return this.parseFunctionDeclaration(context | Context.AnnexB);
+            if (context & Context.Strict && this.token === Token.FunctionKeyword) {
+                this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
             }
-    
-            return this.parseStatement(context | Context.Statement);
+            return this.parseStatement(context | (Context.AnnexB | Context.TopLevel));
         }
     
         private parseForStatement(context: Context): any {
@@ -2804,17 +2802,19 @@ export class Parser {
         }
     
         private parseFunctionDeclaration(context: Context): any {
+
             const pos = this.startNode();
+    
             const savedContext = context;
     
-            if (context & (Context.Await | Context.Yield)) context &= ~(Context.Await | Context.Yield);
+            if (context & (Context.Await | Context.Yield)) {
+                context &= ~(Context.Await | Context.Yield);
+            }
     
             if (this.token === Token.AsyncKeyword) {
                 if (context & Context.AnnexB) this.throwUnexpectedToken();
                 this.expect(context, Token.AsyncKeyword);
-    
                 if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
-    
                 context |= Context.Await;
             }
     
@@ -2833,33 +2833,32 @@ export class Parser {
                 this.expect(context, Token.Multiply);
                 context |= Context.Yield;
             }
-    
-            // Invalid: 'export function a() {} export function a() {}'
-            if (context & Context.Export && this.token === Token.Identifier) this.addFunctionArg(this.tokenValue);
-    
+        
             let id: ESTree.Identifier | null = null;
+            let firstRestricted: any;
     
             if (this.token !== Token.LeftParen) {
+    
                 const name = this.tokenValue;
     
-                // If the parent has the 'yield' mask, and the func decl name is 'yield' we have to throw an decent error message
-                if (savedContext & Context.Yield && this.token === Token.YieldKeyword) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                // Invalid: 'function*g(){ function yield(){}; }'
+                if (savedContext & Context.Yield && this.token === Token.YieldKeyword) {
+                    this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                }
+                // if (context & Context.Strict && hasMask(this.token, Token.FutureReserved)) this.flags |= Flags.BindingPosition
                 if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
                 if (context & Context.Module && this.token === Token.AwaitKeyword) this.throwUnexpectedToken();
     
-                if (context & Context.Strict) {
-                    if (this.isEvalOrArguments(name)) this.error(Errors.UnexpectedStrictReserved);
+                if (context & Context.Strict && this.isEvalOrArguments(name)) {
+                    this.error(Errors.UnexpectedStrictReserved);
                 }
     
                 // 'await' is forbidden only in async function bodies (but not in child functions) and module code.
-                if (!(this.flags & Flags.InFunctionBody)) {
-                    context |= Context.AsyncFunctionBody;
-                } else if (context & Context.AsyncFunctionBody) {
+                if (context & Context.Await && this.flags & Flags.InFunctionBody) {
                     if (this.token === Token.AwaitKeyword) this.throwUnexpectedToken();
-                    if (!(context & Context.Await)) context &= ~Context.AsyncFunctionBody;
                 }
     
-                if (context & Context.Statement && !(context & Context.AnnexB)) {
+                if (context & Context.TopLevel && !(context & Context.AnnexB)) {
                     if (!this.initBlockScope() && (
                             this.blockScope !== this.functionScope && this.blockScope[name] ||
                             this.blockScope[name] === ScopeMasks.NonShadowable
@@ -2876,7 +2875,7 @@ export class Parser {
             }
     
             const savedScope = this.enterFunctionScope();
-            const params = this.parseParameterList(context & ~(Context.Statement | Context.OptionalIdentifier) | Context.InParameter, ObjectState.None);
+            const params = this.parseParameterList(context & ~(Context.TopLevel | Context.OptionalIdentifier) | Context.InParameter, ObjectState.None);
             const body = this.parseFunctionBody(context & ~Context.OptionalIdentifier);
     
             this.exitFunctionScope(savedScope);
@@ -4049,19 +4048,16 @@ export class Parser {
     
             if (this.isIdentifier(context, this.token)) {
                 const name = this.tokenValue;
-    
-                if (context & Context.Statement) {
-                    if (!this.initBlockScope() && name in this.blockScope) {
-                        if (this.blockScope !== this.functionScope || this.blockScope[name] === ScopeMasks.NonShadowable) {
-                            this.error(Errors.DuplicateIdentifier, name);
-                        }
+                
+                if (context & Context.TopLevel) {
+                    if (!this.initBlockScope() && (
+                            this.blockScope !== this.functionScope && this.blockScope[name] ||
+                            this.blockScope[name] === ScopeMasks.NonShadowable
+                        )) {
+                        this.error(Errors.DuplicateIdentifier, name);
                     }
                     this.blockScope[name] = ScopeMasks.Shadowable;
                 }
-    
-                // Invalid: 'export class a{}  export class a{}'
-                if (context & Context.Export && this.token === Token.Identifier) this.addFunctionArg(this.tokenValue);
-    
                 id = this.parseBindingIdentifier(context | Context.Strict);
                 // Valid: `export default class {};`
                 // Invalid: `class {};`
@@ -4099,7 +4095,7 @@ export class Parser {
     
             if (this.token === Token.Identifier) {
                 const name = this.tokenValue;
-                if (context & Context.Statement) {
+                if (context & Context.TopLevel) {
                     if (!this.initBlockScope() && name in this.blockScope) {
                         if (this.blockScope !== this.functionScope || this.blockScope[name] === ScopeMasks.NonShadowable) {
                             this.error(Errors.DuplicateIdentifier, name);

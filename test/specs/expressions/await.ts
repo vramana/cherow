@@ -76,7 +76,7 @@ describe('Expressions - Await', () => {
     it('should fail on invalid await function', () => {
         expect(() => {
             parseScript(`a = async function () { async function await() {} }`);
-        }).to.not.throw()
+        }).to.throw()
     });
 
     it('should fail on invalid await identifier', () => {
