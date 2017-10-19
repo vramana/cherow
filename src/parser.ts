@@ -1751,6 +1751,11 @@ export class Parser {
         private isIdentifierOrKeyword(t: Token): boolean | number {
             return t === Token.Identifier || hasMask(t, Token.Keyword)
         }
+
+        private parseIdentifierName(context: Context, t: Token) {
+            if (!this.isIdentifierOrKeyword(t)) this.throwUnexpectedToken();
+            return this.parseIdentifier(context);
+        }
     
         private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
             this.PeekAhead(context);
@@ -1896,17 +1901,11 @@ export class Parser {
     
         private parseExportSpecifier(context: Context): ESTree.ExportSpecifier {
             const pos = this.getLocations();
-    
-            // Valid: `export {default} from "foo";`
-            // Invalid: '`export {with as a}`'
-            if (this.token !== Token.DefaultKeyword && this.token !== Token.Identifier) {
-                this.error(Errors.Unexpected);
-            }
-            const local = this.parseIdentifier(context);
+            const local = this.parseIdentifierName(context, this.token);
             let exported = local;
     
             if (this.parseOptional(context, Token.AsKeyword)) {
-                exported = this.parseIdentifier(context);
+                exported = this.parseIdentifierName(context, this.token);
             }
     
             return this.finishNode(pos, {
@@ -2008,7 +2007,7 @@ export class Parser {
                 this.throwUnexpectedToken();
             }
     
-            const local = this.parseIdentifier(context);
+            const local = this.parseIdentifierName(context, this.token);
     
             return this.finishNode(pos, {
                 type: 'ImportNamespaceSpecifier',
@@ -2020,7 +2019,7 @@ export class Parser {
         private parseImportDefaultSpecifier(context: Context): ESTree.ImportDefaultSpecifier {
             return this.finishNode(this.getLocations(), {
                 type: 'ImportDefaultSpecifier',
-                local: this.parseIdentifier(context)
+                local: this.parseIdentifierName(context, this.token)
             });
         }
     

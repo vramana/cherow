@@ -1864,6 +1864,11 @@ Parser.prototype.isIdentifier = function isIdentifier (context, t) {
 Parser.prototype.isIdentifierOrKeyword = function isIdentifierOrKeyword (t) {
     return t === 262145 /* Identifier */ || hasMask(t, 4096 /* Keyword */);
 };
+Parser.prototype.parseIdentifierName = function parseIdentifierName (context, t) {
+    if (!this.isIdentifierOrKeyword(t))
+        { this.throwUnexpectedToken(); }
+    return this.parseIdentifier(context);
+};
 Parser.prototype.nextTokenIsFuncKeywordOnSameLine = function nextTokenIsFuncKeywordOnSameLine (context) {
     this.PeekAhead(context);
     return this.line === this.peekedState.line && this.peekedToken === 274519 /* FunctionKeyword */;
@@ -1988,15 +1993,10 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
 };
 Parser.prototype.parseExportSpecifier = function parseExportSpecifier (context) {
     var pos = this.getLocations();
-    // Valid: `export {default} from "foo";`
-    // Invalid: '`export {with as a}`'
-    if (this.token !== 12368 /* DefaultKeyword */ && this.token !== 262145 /* Identifier */) {
-        this.error(0 /* Unexpected */);
-    }
-    var local = this.parseIdentifier(context);
+    var local = this.parseIdentifierName(context, this.token);
     var exported = local;
     if (this.parseOptional(context, 69739 /* AsKeyword */)) {
-        exported = this.parseIdentifier(context);
+        exported = this.parseIdentifierName(context, this.token);
     }
     return this.finishNode(pos, {
         type: 'ExportSpecifier',
@@ -2085,7 +2085,7 @@ Parser.prototype.parseImportNamespaceSpecifier = function parseImportNamespaceSp
     if (this.token !== 262145 /* Identifier */) {
         this.throwUnexpectedToken();
     }
-    var local = this.parseIdentifier(context);
+    var local = this.parseIdentifierName(context, this.token);
     return this.finishNode(pos, {
         type: 'ImportNamespaceSpecifier',
         local: local
@@ -2095,7 +2095,7 @@ Parser.prototype.parseImportNamespaceSpecifier = function parseImportNamespaceSp
 Parser.prototype.parseImportDefaultSpecifier = function parseImportDefaultSpecifier (context) {
     return this.finishNode(this.getLocations(), {
         type: 'ImportDefaultSpecifier',
-        local: this.parseIdentifier(context)
+        local: this.parseIdentifierName(context, this.token)
     });
 };
 Parser.prototype.parseImportDeclaration = function parseImportDeclaration (context) {

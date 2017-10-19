@@ -274,6 +274,14 @@ describe('Import', () => {
           }).to.throw();
       });
 
+      it("should fail if statement contain an `import` declaration", () => {
+        expect(() => {
+            parseModule(`try { } catch (err) {
+                import v from './decl-pos-import-try-catch.js';
+              }`);
+        }).to.throw();
+    });
+
       it("should fail if statement contain an import declaration", () => {
           expect(() => {
               parseModule("class C { static method() { import v from './decl-pos-import-class-decl-meth-static.js'; } }");
@@ -349,6 +357,18 @@ describe('Import', () => {
     it('should fail on invalid import named after named', () => {
         expect(() => {
             parseModule('import {bar}, {foo} from "foo";');
+        }).to.throw();
+    });
+
+    it('should fail on imported binding  as a binding identifier with "arguments" value', () => {
+        expect(() => {
+            parseModule('import { x as arguments } from "./foo.js";');
+        }).to.throw();
+    });
+
+    it('should fail on imported binding as a binding identifier with "eval" value', () => {
+        expect(() => {
+            parseModule('import { x as eval } from "./foo.js";');
         }).to.throw();
     });
 
@@ -500,7 +520,8 @@ describe('Import', () => {
         });
       });
 
-      it('should import named specifiers comma', () => {
+      
+    it('should import named specifiers comma', () => {
         expect(parseModule('import {foo,} from "bar"', {
             ranges: true,
             raw: true,
