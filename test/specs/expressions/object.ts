@@ -50,17 +50,9 @@ describe('Espressions - Object', () => {
                     const a = 3;
                 }
             };`);
-        }).to.throw('');
+        }).to.not.throw('');
     })
-    it('should fail on let param redeclaration', () => {
-        expect(() => {
-            parseScript(`var obj = {
-                *foo(a) {
-                    let a = 3;
-                }
-            };`);
-        }).to.throw();
-    });
+
 
     it('should fail on let param redeclaration', () => {
         expect(() => {

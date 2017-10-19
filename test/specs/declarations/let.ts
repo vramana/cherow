@@ -55,6 +55,97 @@ describe('Declarations - Let', () => {
         expect(() => { parseScript('(function() { "use strict"; { let f; var f; } })'); }).to.throw();
     });
 
+    it('should parse let as async keyword in module code', () => {
+      expect(parseModule('let async = ""', {
+          raw: true,
+          ranges: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 14,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 14
+          }
+        },
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "start": 0,
+            "end": 14,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 14
+              }
+            },
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "start": 4,
+                "end": 14,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 4
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 14
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 4,
+                  "end": 9,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 4
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 9
+                    }
+                  },
+                  "name": "async"
+                },
+                "init": {
+                  "type": "Literal",
+                  "start": 12,
+                  "end": 14,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 12
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 14
+                    }
+                  },
+                  "value": "",
+                  "raw": "\"\""
+                }
+              }
+            ],
+            "kind": "let"
+          }
+        ],
+        "sourceType": "module"
+      });
+    });
+
     it('should parse function name arrow', () => {
         expect(parseScript('let arrow = () => {};', {
             raw: true,

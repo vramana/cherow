@@ -4,13 +4,13 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Declarations - Functions', () => {
-  
+
       it('should fail on anonymous function declaration', () => {
           expect(() => {
               parseScript('function () {}');
           }).to.throw();
       });
-  
+      
       it('should fail on ""use strict" function eval() {"use strict"; }"', () => {
           expect(() => {
               parseScript('"use strict" function eval() {"use strict"; }');
@@ -129,19 +129,19 @@ describe('Declarations - Functions', () => {
       it('should fail if a FunctionDeclaration has two identical parameters', () => {
           expect(() => {
               parseScript('"use strict"; function _13_1_5_fun(param, param) { }');
-          }).to.throw('');
+          }).to.throw();
       });
   
       it('should fail if any Identifier value occurs more than once within a FormalParameterList', () => {
           expect(() => {
               parseScript('"use strict"; var _13_1_9_fun = function (param1, param2, param1) { };');
-          }).to.throw('');
+            }).to.throw();
       });
   
       it('should fail if a FunctionDeclaration has two identical parameters', () => {
           expect(() => {
               parseScript('"use strict"; function _13_1_5_fun(param, param) { }');
-          }).to.throw('');
+            }).to.throw();
       });
   
       it('should fail on "class A extends yield B { }"', () => {
@@ -177,7 +177,7 @@ describe('Declarations - Functions', () => {
       it('should fail on duplicate params', () => {
           expect(() => {
               parseScript(`"use strict"; function foo(bar, bar) {}`);
-          }).to.throw('');
+            }).to.throw();
       });
   
       it('should fail on yield as function name in strict mode', () => {
@@ -191,8 +191,479 @@ describe('Declarations - Functions', () => {
               parseScript(`a: function* a(){}`);
           }).to.throw('');
       });
-  
-      it('should parse two function decl on top-level with same name', () => {
+
+      it('should fail on duplicate binding in param list for func expr in func decl body (strict mode)', () => {
+        expect(() => {
+            parseScript(`"use strict"; function foo() {  const bar = function (abc, abc) {}  }`);
+        }).to.throw('');
+      });
+
+      it('should fail on duplicate binding in param list for func expr in func decl body (strict mode)', () => {
+        expect(() => {
+            parseScript(`function foo(abc, abc ) {  "use strict"; const bar = function (abc, def) {}  }`);
+        }).to.not.throw('');
+      });
+
+      it('should fail on duplicate binding in param list for func expr in func decl body (module code)', () => {
+        expect(() => {
+            parseModule(`function foo() {  const bar = function (abc, abc) {}  }`);
+        }).to.throw('');
+      });
+
+      it('should parse binding in param list for func expr in func decl body', () => {
+        expect(parseScript(`function foo(abc, abc ) {  "use strict"; const bar = function (abc, def) {}  }`, {
+            ranges: true,
+            locations: true,
+        })).to.eql({
+            "type": "Program",
+            "body": [
+                {
+                    "type": "FunctionDeclaration",
+                    "params": [
+                        {
+                            "type": "Identifier",
+                            "name": "abc",
+                            "start": 13,
+                            "end": 16,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 16
+                                }
+                            }
+                        },
+                        {
+                            "type": "Identifier",
+                            "name": "abc",
+                            "start": 18,
+                            "end": 21,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 18
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 21
+                                }
+                            }
+                        }
+                    ],
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "Literal",
+                                    "value": "use strict",
+                                    "start": 27,
+                                    "end": 39,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 27
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 39
+                                        }
+                                    }
+                                },
+                                "start": 27,
+                                "end": 40,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 27
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 40
+                                    }
+                                }
+                            },
+                            {
+                                "type": "VariableDeclaration",
+                                "declarations": [
+                                    {
+                                        "type": "VariableDeclarator",
+                                        "init": {
+                                            "type": "FunctionExpression",
+                                            "params": [
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "abc",
+                                                    "start": 63,
+                                                    "end": 66,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 1,
+                                                            "column": 63
+                                                        },
+                                                        "end": {
+                                                            "line": 1,
+                                                            "column": 66
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "def",
+                                                    "start": 68,
+                                                    "end": 71,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 1,
+                                                            "column": 68
+                                                        },
+                                                        "end": {
+                                                            "line": 1,
+                                                            "column": 71
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "body": {
+                                                "type": "BlockStatement",
+                                                "body": [],
+                                                "start": 73,
+                                                "end": 75,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 73
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 75
+                                                    }
+                                                }
+                                            },
+                                            "async": false,
+                                            "generator": false,
+                                            "expression": false,
+                                            "id": null,
+                                            "start": 53,
+                                            "end": 75,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 53
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 75
+                                                }
+                                            }
+                                        },
+                                        "id": {
+                                            "type": "Identifier",
+                                            "name": "bar",
+                                            "start": 47,
+                                            "end": 50,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 47
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 50
+                                                }
+                                            }
+                                        },
+                                        "start": 47,
+                                        "end": 75,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 47
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 75
+                                            }
+                                        }
+                                    }
+                                ],
+                                "kind": "const",
+                                "start": 41,
+                                "end": 75,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 41
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 75
+                                    }
+                                }
+                            }
+                        ],
+                        "start": 24,
+                        "end": 78,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 24
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 78
+                            }
+                        }
+                    },
+                    "async": false,
+                    "generator": false,
+                    "expression": false,
+                    "id": {
+                        "type": "Identifier",
+                        "name": "foo",
+                        "start": 9,
+                        "end": 12,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 9
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 12
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 78,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 78
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 78,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 78
+                }
+            }
+        });
+      });
+
+      it('should parse binding in param list for func expr in func decl body', () => {
+        expect(parseModule(`function foo() {  const bar = function (abc, def) {}    }`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 57,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 57
+              }
+            },
+            "body": [
+              {
+                "type": "FunctionDeclaration",
+                "start": 0,
+                "end": 57,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 57
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 9,
+                  "end": 12,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 12
+                    }
+                  },
+                  "name": "foo"
+                },
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 15,
+                  "end": 57,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 15
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 57
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "VariableDeclaration",
+                      "start": 18,
+                      "end": 52,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 18
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 52
+                        }
+                      },
+                      "declarations": [
+                        {
+                          "type": "VariableDeclarator",
+                          "start": 24,
+                          "end": 52,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 24
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 52
+                            }
+                          },
+                          "id": {
+                            "type": "Identifier",
+                            "start": 24,
+                            "end": 27,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 24
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 27
+                              }
+                            },
+                            "name": "bar"
+                          },
+                          "init": {
+                            "type": "FunctionExpression",
+                            "start": 30,
+                            "end": 52,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 30
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 52
+                              }
+                            },
+                            "id": null,
+                            "generator": false,
+                            "expression": false,
+                            "async": false,
+                            "params": [
+                              {
+                                "type": "Identifier",
+                                "start": 40,
+                                "end": 43,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 40
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 43
+                                  }
+                                },
+                                "name": "abc"
+                              },
+                              {
+                                "type": "Identifier",
+                                "start": 45,
+                                "end": 48,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 45
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 48
+                                  }
+                                },
+                                "name": "def"
+                              }
+                            ],
+                            "body": {
+                              "type": "BlockStatement",
+                              "start": 50,
+                              "end": 52,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 50
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 52
+                                }
+                              },
+                              "body": []
+                            }
+                          }
+                        }
+                      ],
+                      "kind": "const"
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "module"
+          });
+    });
+
+    it('should parse two function decl on top-level with same name', () => {
           expect(parseScript(`function a() {}`, {
               ranges: true,
               locations: true,

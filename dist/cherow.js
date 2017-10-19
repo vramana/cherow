@@ -1756,21 +1756,19 @@ Parser.prototype.parseStatementList = function parseStatementList (context, endT
         var this$1 = this;
 
     var statements = [];
-    if (!(context & 2 /* Strict */)) {
-        while (this.token !== endToken) {
-            if (this$1.token !== 262147 /* StringLiteral */)
-                { break; }
-            var item = this$1.parseDirective(context);
-            statements.push(item);
-            if (!isDirective(item))
-                { break; }
-            if (this$1.flags & 2048 /* HasStrictDirective */) {
-                if (this$1.flags & 16384 /* SimpleParameterList */)
-                    { this$1.error(26 /* IllegalUseStrict */); }
-                if (this$1.flags & 1024 /* BindingPosition */)
-                    { this$1.error(79 /* UnexpectedStrictReserved */); }
-                context |= 2 /* Strict */;
-            }
+    while (this.token !== endToken) {
+        if (this$1.token !== 262147 /* StringLiteral */)
+            { break; }
+        var item = this$1.parseDirective(context);
+        statements.push(item);
+        if (!isDirective(item))
+            { break; }
+        if (this$1.flags & 2048 /* HasStrictDirective */) {
+            if (this$1.flags & 16384 /* SimpleParameterList */)
+                { this$1.error(26 /* IllegalUseStrict */); }
+            if (this$1.flags & 1024 /* BindingPosition */)
+                { this$1.error(79 /* UnexpectedStrictReserved */); }
+            context |= 2 /* Strict */;
         }
     }
     while (this.token !== endToken) {
@@ -1858,7 +1856,7 @@ Parser.prototype.isLexical = function isLexical (context) {
     // In ES6 'let' always starts a lexical declaration if followed by an identifier or {
     // or [.
     this.PeekAhead(context);
-    return this.peekedToken === 262145 /* Identifier */ || hasMask(this.peekedToken, 131072 /* BindingPattern */);
+    return this.isIdentifierOrKeyword(this.peekedToken) || hasMask(this.peekedToken, 131072 /* BindingPattern */);
 };
 Parser.prototype.isIdentifier = function isIdentifier (context, t) {
     if (context & 2 /* Strict */) {
@@ -3525,9 +3523,6 @@ Parser.prototype.parseParameterList = function parseParameterList (context, stat
 };
 Parser.prototype.parseFormalParameter = function parseFormalParameter (context) {
     var pos = this.startNode();
-    if (context & 2 /* Strict */ && !(context & 131072 /* Method */) && this.token === 262145 /* Identifier */) {
-        this.addFunctionArg(this.tokenValue);
-    }
     var left = this.token === 14 /* Ellipsis */ ? this.parseRestElement(context) : this.parseBindingPatternOrIdentifier(context, pos);
     // Initializer[In, Yield] :
     // = AssignmentExpression[?In, ?Yield]
@@ -4666,8 +4661,14 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
     }
     if (this.flags & 2 /* HasUnicode */ && this.token === 282730 /* YieldKeyword */)
         { this.error(68 /* InvalidEscapedReservedWord */); }
-    //if (!(context & Context.InParameter)) 
-    this.addVarOrBlock(context, name);
+    if (context & 128 /* InParameter */) {
+        if (context & 2 /* Strict */) {
+            this.addFunctionArg(name);
+        }
+    }
+    else {
+        this.addVarOrBlock(context, name);
+    }
     this.nextToken(context);
     return this.finishNode(pos, {
         type: 'Identifier',

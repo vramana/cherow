@@ -21,15 +21,32 @@ describe('Miscellaneous - Simple parameter list', () => {
             parseScript('(a=2) => { "use strict"; }');
         }).to.not.throw('');
     });
+    it('should fail on array pattern default (module code)', () => {
+        expect(() => {
+            parseModule('function foo({a}) { "use strict"; }');
+        }).to.throw();
+    });
     it('should fail on array pattern default', () => {
         expect(() => {
             parseScript('function foo({a}) { "use strict"; }');
         }).to.throw();
     });
+    it('should fail on array pattern default (module code)', () => {
+        expect(() => {
+            parseModule('({a}) => { "use strict"; }');
+        }).to.throw('');
+    });
+
     it('should fail on array pattern default', () => {
         expect(() => {
             parseScript('({a}) => { "use strict"; }');
         }).to.throw('');
+    });
+
+    it('should fail on array pattern (module code)', () => {
+        expect(() => {
+            parseModule('function a([ option1, option2 ]) { "use strict"; }');
+        }).to.throw();
     });
 
     it('should fail on array pattern', () => {

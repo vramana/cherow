@@ -798,12 +798,12 @@ describe('Test262 - Early error', () => {
         it('should fail on ""use strict"; function f(a, a){}"', () => {
             expect(() => {
                 parseScript('"use strict"; function f(a, a){}')
-            }).to.throw('');
+            }).to.throw();
         });
         it('should fail on ""use strict"; function f([a, a]){}"', () => {
             expect(() => {
                 parseScript('"use strict"; function f([a, a]){}')
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on ""use strict"; function eval(){}"', () => {
             expect(() => {
@@ -829,22 +829,22 @@ describe('Test262 - Early error', () => {
         it('should fail on "function f(a){ let a; }"', () => {
             expect(() => {
                 parseScript('function f(a){ let a; }')
-            }).to.throw();
+            }).to.not.throw();
         });
         it('should fail on "function f(a){ const a = 0; }"', () => {
             expect(() => {
                 parseScript('function f(a){ const a = 0; }')
-            }).to.throw();
+            }).to.not.throw();
         });
         it('should fail on "!function(a){ let a; }"', () => {
             expect(() => {
                 parseScript('!function(a){ let a; }')
-            }).to.throw();
+            }).to.not.throw();
         });
         it('should fail on "!function(a){ const a = 0; }"', () => {
             expect(() => {
                 parseScript('!function(a){ const a = 0; }')
-            }).to.throw();
+            }).to.not.throw();
         });
     
         it('should fail on "function f(a, [a]){}"', () => {
@@ -855,12 +855,12 @@ describe('Test262 - Early error', () => {
         it('should fail on "function* f(a) { let a; }"', () => {
             expect(() => {
                 parseScript('function* f(a) { let a; }')
-            }).to.throw();
+            }).to.not.throw();
         });
         it('should fail on "function* f([a]){ let a; }"', () => {
             expect(() => {
                 parseScript('function* f([a]){ let a; }')
-            }).to.throw();
+            }).to.not.throw();
         });
     
         it('should fail on "function* f({a}){ let a; }"', () => {
