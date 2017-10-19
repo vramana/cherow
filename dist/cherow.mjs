@@ -1926,11 +1926,6 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
             // 'export' ExportClause FromClause ';'
             //
             this.expect(context, 393228 /* LeftBrace */);
-            var blockScope = this.blockScope;
-            var parentScope = this.parentScope;
-            if (blockScope !== undefined)
-                { this.parentScope = blockScope; }
-            this.blockScope = undefined;
             while (!this.parseOptional(context, 15 /* RightBrace */)) {
                 if (this$1.token === 12368 /* DefaultKeyword */)
                     { isExportFromIdentifier = true; }
@@ -1939,9 +1934,6 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
                 if (this$1.token !== 15 /* RightBrace */)
                     { this$1.expect(context, 18 /* Comma */); }
             }
-            this.blockScope = blockScope;
-            if (blockScope !== undefined)
-                { this.parentScope = parentScope; }
             if (this.parseOptional(context, 69745 /* FromKeyword */)) {
                 // export {default} from 'foo';
                 // export {foo} from 'foo';
@@ -1995,7 +1987,6 @@ Parser.prototype.parseExportSpecifier = function parseExportSpecifier (context) 
     if (this.token !== 12368 /* DefaultKeyword */ && this.token !== 262145 /* Identifier */) {
         this.error(0 /* Unexpected */);
     }
-    this.addBlockName(this.tokenValue);
     var local = this.parseIdentifier(context);
     var exported = local;
     if (this.parseOptional(context, 69739 /* AsKeyword */)) {
@@ -2033,13 +2024,12 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
     var imported;
     var local;
     if (this.token === 262145 /* Identifier */ || hasMask(this.token, 131072 /* BindingPattern */)) {
-        imported = this.parseBindingIdentifier(context);
+        imported = this.parseIdentifier(context);
         local = imported;
         // In the presence of 'as', the left-side of the 'as' can
         // be any IdentifierName. But without 'as', it must be a valid
         // BindingIdentifier.
         if (this.token === 69739 /* AsKeyword */) {
-            this.addBlockName(this.tokenValue);
             // 'import {a \\u0061s b} from "./foo.js";'
             if (this.flags & 2 /* HasUnicode */)
                 { this.error(68 /* InvalidEscapedReservedWord */); }

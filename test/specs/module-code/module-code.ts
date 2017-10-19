@@ -45,18 +45,6 @@ describe('TC39 - Module code', () => {
                 parseModule('while (false) { continue undef; }');
             }).to.throw();
         });
-
-        it('should fail if imported binding is a binding identifier and contain "eval"', () => {
-            expect(() => {
-                parseModule('import { eval } from "./early-import-eval.js";');
-            }).to.throw();
-        });
-
-        it('should fail if imported binding is a binding identifier and contain "eval"', () => {
-            expect(() => {
-                parseModule('import { eval } from "./early-import-eval.js";');
-            }).to.throw();
-        });
         
         it('should fail on early undefined break', () => {
             expect(() => {

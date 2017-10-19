@@ -1833,11 +1833,6 @@ export class Parser {
                     //
                     this.expect(context, Token.LeftBrace);
     
-                    const blockScope = this.blockScope;
-                    const parentScope = this.parentScope;
-                    if (blockScope !== undefined) this.parentScope = blockScope;
-                    this.blockScope = undefined;
-
                     while (!this.parseOptional(context, Token.RightBrace)) {
                         if (this.token === Token.DefaultKeyword) isExportFromIdentifier = true;
                         specifiers.push(this.parseExportSpecifier(context));
@@ -1845,9 +1840,6 @@ export class Parser {
                         if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
                     }
 
-                    this.blockScope = blockScope;
-                    if (blockScope !== undefined) this.parentScope = parentScope;
-    
                     if (this.parseOptional(context, Token.FromKeyword)) {
                         // export {default} from 'foo';
                         // export {foo} from 'foo';
@@ -1910,9 +1902,6 @@ export class Parser {
             if (this.token !== Token.DefaultKeyword && this.token !== Token.Identifier) {
                 this.error(Errors.Unexpected);
             }
-    
-            this.addBlockName(this.tokenValue);
-    
             const local = this.parseIdentifier(context);
             let exported = local;
     
@@ -1958,13 +1947,13 @@ export class Parser {
             let local;
     
             if (this.token === Token.Identifier || hasMask(this.token, Token.BindingPattern)) {
-                imported = this.parseBindingIdentifier(context);
+                imported = this.parseIdentifier(context);
                 local = imported;
                 // In the presence of 'as', the left-side of the 'as' can
                 // be any IdentifierName. But without 'as', it must be a valid
                 // BindingIdentifier.
                 if (this.token === Token.AsKeyword) {
-                    this.addBlockName(this.tokenValue)
+
                     // 'import {a \\u0061s b} from "./foo.js";'
                     if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
                     if (this.token === Token.AsKeyword) {
