@@ -14,7 +14,7 @@ describe('Statements - For of', () => {
         it('should fail when a `yield` token appears within the Initializer of a nested destructuring assignment', () => {
             expect(() => {
                 parseScript('"use strict"; for ({ x: [x = yield] } of [{ x: [] }]) ;');
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on async generator function declaration is not allowed in statement position', () => {

@@ -1917,9 +1917,6 @@ export class Parser {
             let exported = local;
     
             if (this.parseOptional(context, Token.AsKeyword)) {
-                // Invalid: 'export { x as arguments };'
-                // Invalid: 'export { x as eval };'
-                if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
                 exported = this.parseIdentifier(context);
             }
     
@@ -4039,6 +4036,7 @@ export class Parser {
                     }
                     // fall through
                 default:
+                
                     if (!this.isIdentifier(context, this.token)) {
                         this.throwUnexpectedToken();
                     }
@@ -4816,6 +4814,9 @@ export class Parser {
         }
     
         private parseIdentifier(context: Context): ESTree.Identifier {
+            if (context & Context.Strict && this.token === Token.YieldKeyword) {
+                this.throwUnexpectedToken();
+            }
             const name = this.tokenValue;
             const pos = this.getLocations();
             this.nextToken(context);

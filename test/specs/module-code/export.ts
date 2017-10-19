@@ -203,12 +203,6 @@ describe('Module - Export', () => {
       }).to.throw();
     });
 
-    it('should fail on export of arguments', () => {
-        expect(() => {
-            parseModule(' export { x as arguments };');
-        }).to.throw();
-    });
-
     it('should fail on export of new expression', () => {
       expect(() => {
           parseModule('export new Foo();');
@@ -220,18 +214,6 @@ describe('Module - Export', () => {
         parseModule('export typeof foo;');
         }).to.throw();
     });
-
-    it('should fail on export of eval', () => {
-        expect(() => {
-            parseModule(' export { x as eval };');
-        }).to.throw();
-    });
-
-    it('should fail on export of eval', () => {
-      expect(() => {
-          parseModule(' export { x as eval };');
-      }).to.throw();
-  });
 
     it('should fail on duplicate named export destructuring', () => {
       expect(() => {
@@ -401,6 +383,97 @@ describe('Module - Export', () => {
           expect(() => {
               parseModule(`export default = 42`);
           }).to.throw();
+      });
+
+      it('should export variable', () => {
+        expect(parseModule(`export { foo as eval }`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 22,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 22
+            }
+          },
+          "body": [
+            {
+              "type": "ExportNamedDeclaration",
+              "start": 0,
+              "end": 22,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 22
+                }
+              },
+              "declaration": null,
+              "specifiers": [
+                {
+                  "type": "ExportSpecifier",
+                  "start": 9,
+                  "end": 20,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 20
+                    }
+                  },
+                  "local": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 12,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 12
+                      }
+                    },
+                    "name": "foo"
+                  },
+                  "exported": {
+                    "type": "Identifier",
+                    "start": 16,
+                    "end": 20,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 16
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 20
+                      }
+                    },
+                    "name": "eval"
+                  }
+                }
+              ],
+              "source": null
+            }
+          ],
+          "sourceType": "module"
+        });
       });
 
       it('should export variable', () => {

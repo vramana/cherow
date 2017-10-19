@@ -62,7 +62,7 @@ describe('Statements - For in', () => {
     it('should fail on ""use strict"; for ({ x: [x = yield] } in [{ x: [] }]) ;"', () => {
         expect(() => {
             parseScript('"use strict"; for ({ x: [x = yield] } in [{ x: [] }]) ;');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on yield nested destructuring assignment', () => {
@@ -116,7 +116,7 @@ describe('Statements - For in', () => {
     it('should fail on ""use strict"; for ([[x[yield]]] in [[[]]]) ;"', () => {
         expect(() => {
             parseScript('"use strict"; for ([[x[yield]]] in [[[]]]) ;');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on array rest before elison', () => {
@@ -128,13 +128,13 @@ describe('Statements - For in', () => {
     it('should fail on invalid use of yield in destructuring assignment', () => {
         expect(() => {
             parseScript('"use strict"; for ([ x[yield] ] in [[]]) ;');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on invalid use of yield in destructuring assignment of nested destructuruing assignment', () => {
         expect(() => {
             parseScript('"use strict"; for ([[x[yield]]] in [[[]]]) ;');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "for ([[(x, y)]] in [[[]]]) ;"', () => {
@@ -280,12 +280,12 @@ describe('Statements - For in', () => {
     it('should fail on ""use strict"; for ({ x: x[yield] } in [{}]);"', () => {
         expect(() => {
             parseScript('"use strict"; for ({ x: x[yield] } in [{}]);');
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on invalid array yield identifier', () => {
         expect(() => {
             parseScript('"use strict"; for ({ x: [x = yield] } in [{ x: [] }]) ;');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on invalid array rest', () => {
@@ -308,7 +308,7 @@ describe('Statements - For in', () => {
     it('should fail on invalid array element nested array yield identifier', () => {
         expect(() => {
             parseScript('"use strict"; for ([[x[yield]]] in [[[]]]) ;');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "for(let a = 0 in b);"', () => {

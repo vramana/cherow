@@ -2005,10 +2005,6 @@ Parser.prototype.parseExportSpecifier = function parseExportSpecifier (context) 
     var local = this.parseIdentifier(context);
     var exported = local;
     if (this.parseOptional(context, 69739 /* AsKeyword */)) {
-        // Invalid: 'export { x as arguments };'
-        // Invalid: 'export { x as eval };'
-        if (this.isEvalOrArguments(this.tokenValue))
-            { this.error(76 /* UnexpectedReservedWord */); }
         exported = this.parseIdentifier(context);
     }
     return this.finishNode(pos, {
@@ -4504,6 +4500,9 @@ Parser.prototype.parseNullExpression = function parseNullExpression (context) {
     return node;
 };
 Parser.prototype.parseIdentifier = function parseIdentifier (context) {
+    if (context & 2 /* Strict */ && this.token === 282730 /* YieldKeyword */) {
+        this.throwUnexpectedToken();
+    }
     var name = this.tokenValue;
     var pos = this.getLocations();
     this.nextToken(context);
