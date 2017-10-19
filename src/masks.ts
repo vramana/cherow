@@ -30,6 +30,8 @@ export const enum Context {
     Lexical = Let | Const,
 
     AsyncParen = InParenthesis | Await
+
+    
 }
 
 // Mutable parser flags
@@ -67,7 +69,9 @@ export const enum Flags {
     OptionsSourceType            = 1 << 27,
 
     // Common mask used to verify if either ranges or locations are enabled
-    LocationTracking = OptionsRanges | OptionsLoc
+    LocationTracking = OptionsRanges | OptionsLoc,
+
+    GlobalReturn = OptionsGlobalReturn |  InFunctionBody
 }
 
 // Flags used in 'ForStatement'

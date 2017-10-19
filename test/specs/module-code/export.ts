@@ -5,6 +5,37 @@ const expect = chai.expect;
 
 describe('Module - Export', () => {
 
+     it('should fail on early export global', () => {
+      expect(() => {
+        parseModule(`export { Number };`);
+    }).to.throw();
+
+    });
+
+    it('should fail if the ExportedNames of ModuleItemList contains any duplicate entries.', () => {
+      expect(() => {
+        parseModule(`export default var x = null;
+        export default var x = null;`);
+    }).to.throw();
+
+    });
+
+    it('should fail if the ExportedNames of ModuleItemList contains any duplicate entries.', () => {
+      expect(() => {
+        parseModule(`label: {
+          label: 0;
+        }`);
+    }).to.throw();
+
+    });
+
+    it('should fail on early export global', () => {
+      expect(() => {
+        parseModule(`export { x, x };`);
+    }).to.throw();
+
+    });
+
     it('should fail on "export * from 123;"', () => {
       expect(() => {
         parseModule(`export * from 123;`);

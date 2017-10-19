@@ -103,7 +103,8 @@ export const enum Errors {
     InvalidArrowYieldParam,
     InvalidAwaitInArrowParam,
     InvalidComplexBindingPattern,
-    UnsupportedFeature
+    UnsupportedFeature,
+    UndeclaredBinding
 }
 
 export const ErrorMessages: {
@@ -212,6 +213,8 @@ export const ErrorMessages: {
     [Errors.InvalidAwaitInArrowParam]: '\'await\' is not allowed inside an async arrow\'s parameter list',
     [Errors.InvalidComplexBindingPattern]: 'Complex binding patterns require an initialization value',
     [Errors.UnsupportedFeature]: '%0 isn\'t supported by default. Enable the \'%1\' option to use them',
+    [Errors.UndeclaredBinding]: 'Exported binding %0 is not declared',
+    
 };
 
 function constructError(msg: string, column: number): Error {
