@@ -85,13 +85,13 @@ describe('Module - Export', () => {
     it('should fail on unexpected export of keyword as foo', () => {
       expect(() => {
         parseModule(`export { if as foo }`);
-      }).to.not.throw();
+      }).to.throw();
     });
 
     it('should fail on unexpected export of keyword', () => {
       expect(() => {
         parseModule(`export { if }`);
-      }).to.not.throw();
+      }).to.throw();
     });
 
     it('should fail on duplicates', () => {
@@ -166,7 +166,7 @@ describe('Module - Export', () => {
     it('should fail on export of keyword', () => {
       expect(() => {
           parse(`export { if }`, { sourceType: 'module'});
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on export on default', () => {
@@ -178,7 +178,7 @@ describe('Module - Export', () => {
     it('should fail on export keyword as', () => {
       expect(() => {
           parse(`export { if as foo }`, { sourceType: 'module'});
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on export keyword as', () => {
@@ -266,7 +266,7 @@ describe('Module - Export', () => {
       it('should fail on "export {with as a}"', () => {
         expect(() => {
             parseModule(`export {with as a}`);
-          }).to.not.throw();
+          }).to.throw();
     });
 
     it('should fail on "{export {a};}"', () => {
@@ -341,11 +341,7 @@ describe('Module - Export', () => {
           }).to.throw();
       });
 
-      it('should fail if expression contain an `export` declaration', () => {
-        expect(() => {
-            parseModule(`export {foo as bar};`);
-        }).to.not.throw();
-    });
+    
 
       it('should fail if expression contain an `export` declaration', () => {
         expect(() => {

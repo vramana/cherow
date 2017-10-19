@@ -3389,13 +3389,13 @@ is y`);
     it('should fail on "export { if }"', () => {
         expect(() => {
             parseModule('export { if }');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "export { if as foo }"', () => {
         expect(() => {
             parseModule('export { if as foo }');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "import default from "foo""', () => {

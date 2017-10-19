@@ -1815,7 +1815,7 @@ export class Parser {
             const specifiers: ESTree.ExportSpecifier[] = [];
     
             let source = null;
-            let isExportFromIdentifier = false;
+            let isExportedReservedWord = false;
             let declaration: ESTree.Statement | null = null;
     
             this.expect(context, Token.ExportKeyword);
@@ -1839,17 +1839,18 @@ export class Parser {
                     this.expect(context, Token.LeftBrace);
     
                     while (!this.parseOptional(context, Token.RightBrace)) {
-                        if (this.token === Token.DefaultKeyword) isExportFromIdentifier = true;
+                        if (hasMask(this.token, Token.Reserved)) isExportedReservedWord = true;
                         specifiers.push(this.parseExportSpecifier(context));
                         // Invalid: 'export {a,,b}'
                         if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
                     }
-
                     if (this.parseOptional(context, Token.FromKeyword)) {
                         // export {default} from 'foo';
                         // export {foo} from 'foo';
                         source = this.parseModuleSpecifier(context);
-                    } else if (isExportFromIdentifier) this.error(Errors.Unexpected);
+                    } else if (isExportedReservedWord) {
+                        this.error(Errors.Unexpected);
+                    } 
     
                     this.consumeSemicolon(context);
     
@@ -1890,7 +1891,7 @@ export class Parser {
                 default:
                     this.error(Errors.MissingMsgDeclarationAfterExport);
             }
-    
+            
             return this.finishNode(pos, {
                 type: 'ExportNamedDeclaration',
                 source,
@@ -1901,11 +1902,16 @@ export class Parser {
     
         private parseExportSpecifier(context: Context): ESTree.ExportSpecifier {
             const pos = this.getLocations();
+
             const local = this.parseIdentifierName(context, this.token);
+
             let exported = local;
-    
-            if (this.parseOptional(context, Token.AsKeyword)) {
+            let token = this.token;
+            if (this.token === Token.AsKeyword) {
+                this.expect(context, Token.AsKeyword);
+                    
                 exported = this.parseIdentifierName(context, this.token);
+                //if (token !== Token.Identifier || (this.token !== Token.DefaultKeyword || this.token === Token.Identifier)) this.error(Errors.Unexpected)
             }
     
             return this.finishNode(pos, {

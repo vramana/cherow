@@ -1920,7 +1920,7 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
     var pos = this.getLocations();
     var specifiers = [];
     var source = null;
-    var isExportFromIdentifier = false;
+    var isExportedReservedWord = false;
     var declaration = null;
     this.expect(context, 12371 /* ExportKeyword */);
     switch (this.token) {
@@ -1938,8 +1938,8 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
             //
             this.expect(context, 393228 /* LeftBrace */);
             while (!this.parseOptional(context, 15 /* RightBrace */)) {
-                if (this$1.token === 12368 /* DefaultKeyword */)
-                    { isExportFromIdentifier = true; }
+                if (hasMask(this$1.token, 12288 /* Reserved */))
+                    { isExportedReservedWord = true; }
                 specifiers.push(this$1.parseExportSpecifier(context));
                 // Invalid: 'export {a,,b}'
                 if (this$1.token !== 15 /* RightBrace */)
@@ -1950,8 +1950,9 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
                 // export {foo} from 'foo';
                 source = this.parseModuleSpecifier(context);
             }
-            else if (isExportFromIdentifier)
-                { this.error(0 /* Unexpected */); }
+            else if (isExportedReservedWord) {
+                this.error(0 /* Unexpected */);
+            }
             this.consumeSemicolon(context);
             break;
         // export ClassDeclaration
@@ -1995,8 +1996,10 @@ Parser.prototype.parseExportSpecifier = function parseExportSpecifier (context) 
     var pos = this.getLocations();
     var local = this.parseIdentifierName(context, this.token);
     var exported = local;
-    if (this.parseOptional(context, 69739 /* AsKeyword */)) {
+    if (this.token === 69739 /* AsKeyword */) {
+        this.expect(context, 69739 /* AsKeyword */);
         exported = this.parseIdentifierName(context, this.token);
+        //if (token !== Token.Identifier || (this.token !== Token.DefaultKeyword || this.token === Token.Identifier)) this.error(Errors.Unexpected)
     }
     return this.finishNode(pos, {
         type: 'ExportSpecifier',
