@@ -4,8 +4,9 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Module - Export', () => {
+   
 
-     it('should fail on early export global', () => {
+  it('should fail on early export global', () => {
       expect(() => {
         parseModule(`export { Number };`);
     }).to.not.throw();
@@ -10521,4 +10522,95 @@ describe('Module - Export', () => {
           });
     });
 
+    it('should parse edge case', () => {
+      expect(parseModule(`export { as as as };`, {
+          ranges: true,
+          raw: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 20,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 20
+          }
+        },
+        "body": [
+          {
+            "type": "ExportNamedDeclaration",
+            "start": 0,
+            "end": 20,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 20
+              }
+            },
+            "declaration": null,
+            "specifiers": [
+              {
+                "type": "ExportSpecifier",
+                "start": 9,
+                "end": 17,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 9
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 17
+                  }
+                },
+                "local": {
+                  "type": "Identifier",
+                  "start": 9,
+                  "end": 11,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 11
+                    }
+                  },
+                  "name": "as"
+                },
+                "exported": {
+                  "type": "Identifier",
+                  "start": 15,
+                  "end": 17,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 15
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 17
+                    }
+                  },
+                  "name": "as"
+                }
+              }
+            ],
+            "source": null
+          }
+        ],
+        "sourceType": "module"
+      });
+    });
+  
   });
