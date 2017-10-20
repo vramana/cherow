@@ -28,7 +28,6 @@
       'change #jsx': 'onJsxChange',
       'change #directives': 'onDirectivesChange',
       'change #module': 'onModuleChange',
-      'click .output-tabs a': 'onTabClick'
     },
 
     _options: { v8: true },
@@ -48,7 +47,6 @@
       this.$url = this.$el.find('#url');
       this.$jsx = this.$el.find('#jsx');
       this.$directives = this.$el.find('#directives');
-      this.$outputTabs = this.$el.find('.output-tabs');
 
       EventBus.on('resize:window', this.onWindowResize);
       this.onWindowResize();
@@ -99,10 +97,6 @@
       this._options.locations = this.$loc.prop('checked');
       this.parse();
     },
-    onTabClick: function(event) {
-      var method = $(event.currentTarget).data('method');
-      this.changeTab(method);
-    },
     parse: function() {
       if (this._timerId) {
         clearTimeout(this._timerId);
@@ -131,7 +125,7 @@
       var params = {
         code: this.$input.val(),
         method: this._method,
-        range: this._options.range,
+        range: this._options.ranges,
         loc: this._options.locations,
         next: this._options.next,
         module: this._options.module,
@@ -146,34 +140,34 @@
     parseURL: function() {
       var params = Util.parseParams(location.search.substring(1));
       if (params.range === 'true') {
-        this.$range.prop('checked', true);
+        this.$range.prop('checked', true).change();
       }
-      if (params.locations === 'true') {
-        this.$loc.prop('checked', true);
+      if (params.loc === 'true') {
+        this.$loc.prop('checked', true).change();
       }
       if (params.raw === 'true') {
-        this.$raw.prop('checked', true);
+        this.$raw.prop('checked', true).change();
       }
       if (params.next === 'true') {
-        this.$next.prop('checked', true);
+        this.$next.prop('checked', true).change();
       }
       if (params.module === 'true') {
-        this.$module.prop('checked', true);
+        this.$module.prop('checked', true).change();
       }
 
       if (params.directives === 'true') {
-        this.$directives.prop('checked', true);
+        this.$directives.prop('checked', true).change();
       }
 
       if (params.jsx === 'true') {
-        this.$jsx.prop('checked', true);
+        this.$jsx.prop('checked', true).change();
       }
 
       if (params.method) {
-        this.changeTab(params.method);
+
       }
       if (params.code) {
-        this.$input.val(params.code);
+        this.$input.val(params.code).change();
       }
     },
 
