@@ -70,7 +70,7 @@
       this.parse();
     },
     onRangeChange: function(event) {
-      this._options.range = this.$range.prop('checked');
+      this._options.ranges = this.$range.prop('checked');
       this.parse();
     },
     onNextChange: function(event) {
@@ -125,7 +125,7 @@
       var params = {
         code: this.$input.val(),
         method: this._method,
-        range: this._options.range,
+        range: this._options.ranges,
         loc: this._options.locations,
         next: this._options.next,
         module: this._options.module,
