@@ -13,6 +13,18 @@ describe('Next - For await of', () => {
         }).to.throw();
     });
 
+    it("should fail if 'next' option isn't set", () => {
+        expect(() => {
+            parseScript(`async function fn() { for await ([[x[yield]]] of [[[]]]) }`)
+        }).to.throw();
+    });
+
+    it("should fail if for in", () => {
+        expect(() => {
+            parseScript(`async function fn() { for await ([[x[yield]]] in [[[]]]) }`)
+        }).to.throw();
+    });
+
     it("should fail if `yield` appears within the Initializer of an AssignmentElement outside of a generator function body", () => {
         expect(() => {
             parseScript(`async function fn() { for await ([ x = yield ] of [[]]) }`, {

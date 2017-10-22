@@ -10,7 +10,36 @@ describe('Import', () => {
           }).to.throw();
       });
   
-      it('should fail on "{import a from "b";}"', () => {
+      it('should fail on invalid import keyword module', () => {
+        expect(() => {
+            parseModule('import { for } from "iteration"');
+        }).to.throw();
+    });
+
+    it('should fail on invalid import missing comma module', () => {
+        expect(() => {
+            parseModule('import foo { bar } from "bar";"');
+        }).to.throw();
+    });
+    it('should fail on invalid import named as missing from module', () => {
+        expect(() => {
+            parseModule('import {default as foo}');
+        }).to.throw();
+    });
+
+    it('should fail on invalid import namespace missing as module', () => {
+        expect(() => {
+            parseModule('import * from "foo"');
+        }).to.throw();
+    });
+
+    it('should fail on invalid import null as module', () => {
+        expect(() => {
+            parseModule('import { null } from "null"');
+        }).to.throw();
+    });
+
+    it('should fail on "{import a from "b";}"', () => {
           expect(() => {
               parseModule('{import a from "b";}');
           }).to.throw();
@@ -370,6 +399,443 @@ describe('Import', () => {
         expect(() => {
             parseModule('import { x as eval } from "./foo.js";');
         }).to.throw();
+    });
+
+    it('should import as export as', () => {
+        expect(parseModule(`import * as m from './resources/m3.js';`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 39,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 39
+              }
+            },
+            "body": [
+              {
+                "type": "ImportDeclaration",
+                "start": 0,
+                "end": 39,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 39
+                  }
+                },
+                "specifiers": [
+                  {
+                    "type": "ImportNamespaceSpecifier",
+                    "start": 7,
+                    "end": 13,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 7
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 13
+                      }
+                    },
+                    "local": {
+                      "type": "Identifier",
+                      "start": 12,
+                      "end": 13,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 12
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 13
+                        }
+                      },
+                      "name": "m"
+                    }
+                  }
+                ],
+                "source": {
+                  "type": "Literal",
+                  "start": 19,
+                  "end": 38,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 19
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 38
+                    }
+                  },
+                  "value": "./resources/m3.js",
+                  "raw": "'./resources/m3.js'"
+                }
+              }
+            ],
+            "sourceType": "module"
+          });
+    });
+
+    it('should import pair', () => {
+        expect(parseModule(`import def, * as m from './resources/default-and-named.js';
+        import def2, {x} from './resources/default-and-named.js';
+        import def3, {x as y} from './resources/default-and-named.js';`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 196,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 3,
+                "column": 70
+              }
+            },
+            "body": [
+              {
+                "type": "ImportDeclaration",
+                "start": 0,
+                "end": 59,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 59
+                  }
+                },
+                "specifiers": [
+                  {
+                    "type": "ImportDefaultSpecifier",
+                    "start": 7,
+                    "end": 10,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 7
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 10
+                      }
+                    },
+                    "local": {
+                      "type": "Identifier",
+                      "start": 7,
+                      "end": 10,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 7
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 10
+                        }
+                      },
+                      "name": "def"
+                    }
+                  },
+                  {
+                    "type": "ImportNamespaceSpecifier",
+                    "start": 12,
+                    "end": 18,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 12
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 18
+                      }
+                    },
+                    "local": {
+                      "type": "Identifier",
+                      "start": 17,
+                      "end": 18,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 17
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 18
+                        }
+                      },
+                      "name": "m"
+                    }
+                  }
+                ],
+                "source": {
+                  "type": "Literal",
+                  "start": 24,
+                  "end": 58,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 24
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 58
+                    }
+                  },
+                  "value": "./resources/default-and-named.js",
+                  "raw": "'./resources/default-and-named.js'"
+                }
+              },
+              {
+                "type": "ImportDeclaration",
+                "start": 68,
+                "end": 125,
+                "loc": {
+                  "start": {
+                    "line": 2,
+                    "column": 8
+                  },
+                  "end": {
+                    "line": 2,
+                    "column": 65
+                  }
+                },
+                "specifiers": [
+                  {
+                    "type": "ImportDefaultSpecifier",
+                    "start": 75,
+                    "end": 79,
+                    "loc": {
+                      "start": {
+                        "line": 2,
+                        "column": 15
+                      },
+                      "end": {
+                        "line": 2,
+                        "column": 19
+                      }
+                    },
+                    "local": {
+                      "type": "Identifier",
+                      "start": 75,
+                      "end": 79,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 15
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 19
+                        }
+                      },
+                      "name": "def2"
+                    }
+                  },
+                  {
+                    "type": "ImportSpecifier",
+                    "start": 82,
+                    "end": 83,
+                    "loc": {
+                      "start": {
+                        "line": 2,
+                        "column": 22
+                      },
+                      "end": {
+                        "line": 2,
+                        "column": 23
+                      }
+                    },
+                    "imported": {
+                      "type": "Identifier",
+                      "start": 82,
+                      "end": 83,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 22
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 23
+                        }
+                      },
+                      "name": "x"
+                    },
+                    "local": {
+                      "type": "Identifier",
+                      "start": 82,
+                      "end": 83,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 22
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 23
+                        }
+                      },
+                      "name": "x"
+                    }
+                  }
+                ],
+                "source": {
+                  "type": "Literal",
+                  "start": 90,
+                  "end": 124,
+                  "loc": {
+                    "start": {
+                      "line": 2,
+                      "column": 30
+                    },
+                    "end": {
+                      "line": 2,
+                      "column": 64
+                    }
+                  },
+                  "value": "./resources/default-and-named.js",
+                  "raw": "'./resources/default-and-named.js'"
+                }
+              },
+              {
+                "type": "ImportDeclaration",
+                "start": 134,
+                "end": 196,
+                "loc": {
+                  "start": {
+                    "line": 3,
+                    "column": 8
+                  },
+                  "end": {
+                    "line": 3,
+                    "column": 70
+                  }
+                },
+                "specifiers": [
+                  {
+                    "type": "ImportDefaultSpecifier",
+                    "start": 141,
+                    "end": 145,
+                    "loc": {
+                      "start": {
+                        "line": 3,
+                        "column": 15
+                      },
+                      "end": {
+                        "line": 3,
+                        "column": 19
+                      }
+                    },
+                    "local": {
+                      "type": "Identifier",
+                      "start": 141,
+                      "end": 145,
+                      "loc": {
+                        "start": {
+                          "line": 3,
+                          "column": 15
+                        },
+                        "end": {
+                          "line": 3,
+                          "column": 19
+                        }
+                      },
+                      "name": "def3"
+                    }
+                  },
+                  {
+                    "type": "ImportSpecifier",
+                    "start": 148,
+                    "end": 154,
+                    "loc": {
+                      "start": {
+                        "line": 3,
+                        "column": 22
+                      },
+                      "end": {
+                        "line": 3,
+                        "column": 28
+                      }
+                    },
+                    "imported": {
+                      "type": "Identifier",
+                      "start": 148,
+                      "end": 149,
+                      "loc": {
+                        "start": {
+                          "line": 3,
+                          "column": 22
+                        },
+                        "end": {
+                          "line": 3,
+                          "column": 23
+                        }
+                      },
+                      "name": "x"
+                    },
+                    "local": {
+                      "type": "Identifier",
+                      "start": 153,
+                      "end": 154,
+                      "loc": {
+                        "start": {
+                          "line": 3,
+                          "column": 27
+                        },
+                        "end": {
+                          "line": 3,
+                          "column": 28
+                        }
+                      },
+                      "name": "y"
+                    }
+                  }
+                ],
+                "source": {
+                  "type": "Literal",
+                  "start": 161,
+                  "end": 195,
+                  "loc": {
+                    "start": {
+                      "line": 3,
+                      "column": 35
+                    },
+                    "end": {
+                      "line": 3,
+                      "column": 69
+                    }
+                  },
+                  "value": "./resources/default-and-named.js",
+                  "raw": "'./resources/default-and-named.js'"
+                }
+              }
+            ],
+            "sourceType": "module"
+          });
     });
 
     it('should import "$" from jquery', () => {

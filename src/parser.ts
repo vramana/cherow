@@ -1809,7 +1809,6 @@ export class Parser {
             //    'export' VariableStatement
             //    'export' Declaration
             //    'export' 'default' ... (handled in ParseExportDefault)
-            if (this.flags & Flags.InFunctionBody) this.error(Errors.ExportDeclAtTopLevel);
     
             const pos = this.getLocations();
             const specifiers: ESTree.ExportSpecifier[] = [];
@@ -2045,7 +2044,6 @@ export class Parser {
             //
             // NameSpaceImport :
             //   '*' 'as' ImportedBinding
-            if (this.flags & Flags.InFunctionBody) this.error(Errors.ImportDeclAtTopLevel);
     
             const pos = this.getLocations();
             const specifiers: (ESTree.ImportSpecifier |
@@ -2153,13 +2151,16 @@ export class Parser {
                 case Token.ConstKeyword:
                     return this.parseVariableStatement(context | Context.Const);
                     // VariableStatement[?Yield]
+                case Token.ExportKeyword:
+                    if (context & Context.Module) this.error(Errors.ExportDeclAtTopLevel);
                 case Token.ImportKeyword:
                     // We must be careful not to parse a 'import()'
                     // expression or 'import.meta' as an import declaration.
-                    if (this.flags & Flags.OptionsNext && this.nextTokenIsLeftParenOrPeriod(context)) return this.parseExpressionStatement(context);
-                    if (!(context & Context.Module)) this.throwUnexpectedToken();
-    
-                default:
+                    if (this.flags & Flags.OptionsNext && this.nextTokenIsLeftParenOrPeriod(context)) {
+                        return this.parseExpressionStatement(context);
+                    }
+                    if (context & Context.Module) this.error(Errors.ImportDeclAtTopLevel);
+                    default:
                     return this.parseStatement(context);
             }
         }
@@ -2412,7 +2413,7 @@ export class Parser {
     
             const savedFlag = this.flags;
     
-            if (!(this.flags & Flags.Break)) this.flags |= (Flags.Continue | Flags.Break);
+            this.flags |= (Flags.Continue | Flags.Break);
     
             const body = this.parseStatement(context & ~Context.TopLevel | Context.AllowIn);
     
@@ -2807,9 +2808,7 @@ export class Parser {
             }
     
             if (this.token === Token.AsyncKeyword) {
-                if (context & Context.AnnexB) this.throwUnexpectedToken();
                 this.expect(context, Token.AsyncKeyword);
-                if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
                 context |= Context.Await;
             }
     
@@ -3045,16 +3044,6 @@ export class Parser {
                 type: 'SequenceExpression',
                 expressions
             });
-        }
-    
-        private isValidArrowBindingIdentifier(t: Token): boolean | undefined {
-            switch (t) {
-                case Token.Identifier:
-                case Token.YieldKeyword:
-                    return true;
-                default:
-                    this.error(Errors.UnexpectedToken, tokenDesc(t));
-            }
         }
     
         private parseYieldExpression(context: Context, pos: Location): ESTree.YieldExpression {

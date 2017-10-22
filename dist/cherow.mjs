@@ -1909,8 +1909,6 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
     //'export' VariableStatement
     //'export' Declaration
     //'export' 'default' ... (handled in ParseExportDefault)
-    if (this.flags & 4 /* InFunctionBody */)
-        { this.error(49 /* ExportDeclAtTopLevel */); }
     var pos = this.getLocations();
     var specifiers = [];
     var source = null;
@@ -2108,8 +2106,6 @@ Parser.prototype.parseImportDeclaration = function parseImportDeclaration (conte
     //
     // NameSpaceImport :
     //   '*' 'as' ImportedBinding
-    if (this.flags & 4 /* InFunctionBody */)
-        { this.error(50 /* ImportDeclAtTopLevel */); }
     var pos = this.getLocations();
     var specifiers = [];
     this.expect(context, 274521 /* ImportKeyword */);
@@ -2197,13 +2193,17 @@ Parser.prototype.parseStatementListItem = function parseStatementListItem (conte
         case 8663113 /* ConstKeyword */:
             return this.parseVariableStatement(context | 4194304 /* Const */);
         // VariableStatement[?Yield]
+        case 12371 /* ExportKeyword */:
+            if (context & 1 /* Module */)
+                { this.error(49 /* ExportDeclAtTopLevel */); }
         case 274521 /* ImportKeyword */:
             // We must be careful not to parse a 'import()'
             // expression or 'import.meta' as an import declaration.
-            if (this.flags & 1048576 /* OptionsNext */ && this.nextTokenIsLeftParenOrPeriod(context))
-                { return this.parseExpressionStatement(context); }
-            if (!(context & 1 /* Module */))
-                { this.throwUnexpectedToken(); }
+            if (this.flags & 1048576 /* OptionsNext */ && this.nextTokenIsLeftParenOrPeriod(context)) {
+                return this.parseExpressionStatement(context);
+            }
+            if (context & 1 /* Module */)
+                { this.error(50 /* ImportDeclAtTopLevel */); }
         default:
             return this.parseStatement(context);
     }
@@ -2412,8 +2412,7 @@ Parser.prototype.parseDoWhileStatement = function parseDoWhileStatement (context
     var pos = this.getLocations();
     this.expect(context, 12369 /* DoKeyword */);
     var savedFlag = this.flags;
-    if (!(this.flags & 16 /* Break */))
-        { this.flags |= (32 /* Continue */ | 16 /* Break */); }
+    this.flags |= (32 /* Continue */ | 16 /* Break */);
     var body = this.parseStatement(context & ~1024 /* TopLevel */ | 4 /* AllowIn */);
     this.flags = savedFlag;
     this.expect(context, 12385 /* WhileKeyword */);
@@ -2716,11 +2715,7 @@ Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (c
         context &= ~(32 /* Await */ | 16 /* Yield */);
     }
     if (this.token === 69740 /* AsyncKeyword */) {
-        if (context & 4096 /* AnnexB */)
-            { this.throwUnexpectedToken(); }
         this.expect(context, 69740 /* AsyncKeyword */);
-        if (this.flags & 1 /* LineTerminator */)
-            { this.error(67 /* LineBreakAfterAsync */); }
         context |= 32 /* Await */;
     }
     this.expect(context, 274519 /* FunctionKeyword */);
@@ -2930,15 +2925,6 @@ Parser.prototype.parseExpression = function parseExpression (context, pos) {
         type: 'SequenceExpression',
         expressions: expressions
     });
-};
-Parser.prototype.isValidArrowBindingIdentifier = function isValidArrowBindingIdentifier (t) {
-    switch (t) {
-        case 262145 /* Identifier */:
-        case 282730 /* YieldKeyword */:
-            return true;
-        default:
-            this.error(1 /* UnexpectedToken */, tokenDesc(t));
-    }
 };
 Parser.prototype.parseYieldExpression = function parseYieldExpression (context, pos) {
     // TODO! Record error locations

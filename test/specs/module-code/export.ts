@@ -4,7 +4,13 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Module - Export', () => {
-   
+
+  it('should fail if export wrapped in functions body', () => {
+    expect(() => {
+      parseModule(`function foo() { export { Number }; }`);
+  }).to.throw();
+
+  });
 
   it('should fail on early export global', () => {
       expect(() => {
@@ -82,7 +88,7 @@ describe('Module - Export', () => {
       }).to.throw();
     });
 
-    it('should fail on unexpected export of keyword as foo', () => {
+    it('should fail on unexpected export of keyword with as', () => {
       expect(() => {
         parseModule(`export { if as foo }`);
       }).to.throw();
@@ -407,6 +413,96 @@ describe('Module - Export', () => {
           expect(() => {
               parseModule(`export default = 42`);
           }).to.throw();
+      });
+
+      it('should export star', () => {
+        expect(parseModule(`import * as o from './resources/o.js';`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 38,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 38
+            }
+          },
+          "body": [
+            {
+              "type": "ImportDeclaration",
+              "start": 0,
+              "end": 38,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 38
+                }
+              },
+              "specifiers": [
+                {
+                  "type": "ImportNamespaceSpecifier",
+                  "start": 7,
+                  "end": 13,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 7
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 13
+                    }
+                  },
+                  "local": {
+                    "type": "Identifier",
+                    "start": 12,
+                    "end": 13,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 12
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 13
+                      }
+                    },
+                    "name": "o"
+                  }
+                }
+              ],
+              "source": {
+                "type": "Literal",
+                "start": 19,
+                "end": 37,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 19
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 37
+                  }
+                },
+                "value": "./resources/o.js",
+                "raw": "'./resources/o.js'"
+              }
+            }
+          ],
+          "sourceType": "module"
+        });
       });
 
       it('should export variable and export', () => {
