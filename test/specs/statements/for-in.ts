@@ -398,15 +398,6 @@ describe('Statements - For in', () => {
         }).to.throw();
     });
 
-    it.skip('should parse "for (var i = "" in { a: 10, b: 20 }) {}" in sloppy mode only', () => {
-        expect(parseScript(`for ([...x, ...y] in [[]]) ;`, {
-            ranges: true,
-            raw: true,
-            next: true,
-            locations: true
-        })).to.eql({});
-    });
-
     it('should parse "for (var i = "" in { a: 10, b: 20 }) {}" in sloppy mode only', () => {
         expect(parseScript(`for (var i = "" in { a: 10, b: 20 }) {}`, {
             ranges: true,

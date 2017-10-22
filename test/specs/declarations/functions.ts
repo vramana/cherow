@@ -1257,62 +1257,148 @@ describe('Declarations - Functions', () => {
           });
       });
   
-      it.skip('should parse yield as function expression name wrapped in a function declaration  in sloppy mode', () => {
+      it('should parse yield as function expression name wrapped in a function declaration  in sloppy mode', () => {
           expect(parseScript(`function* fn() {
                 (function yield() {});
               }`, {
-              ranges: true
+              ranges: true,
+              raw: true,
+              locations: true
           })).to.eql({
-              "type": "Program",
-              "start": 0,
-              "end": 67,
-              "body": [{
-                  "type": "FunctionDeclaration",
-                  "start": 0,
-                  "end": 67,
-                  "id": {
-                      "type": "Identifier",
-                      "start": 10,
-                      "end": 12,
-                      "name": "fn"
+            "type": "Program",
+            "start": 0,
+            "end": 71,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 3,
+                "column": 15
+              }
+            },
+            "body": [
+              {
+                "type": "FunctionDeclaration",
+                "start": 0,
+                "end": 71,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
                   },
-                  "generator": true,
-                  "expression": false,
-                  "async": false,
-                  "params": [],
-                  "body": {
-                      "type": "BlockStatement",
-                      "start": 15,
-                      "end": 67,
-                      "body": [{
-                          "type": "ExpressionStatement",
-                          "start": 31,
-                          "end": 53,
-                          "expression": {
-                              "type": "FunctionExpression",
-                              "start": 32,
-                              "end": 51,
-                              "id": {
-                                  "type": "Identifier",
-                                  "start": 41,
-                                  "end": 46,
-                                  "name": "yield"
-                              },
-                              "generator": false,
-                              "expression": false,
-                              "async": false,
-                              "params": [],
-                              "body": {
-                                  "type": "BlockStatement",
-                                  "start": 49,
-                                  "end": 51,
-                                  "body": []
-                              }
-                          }
-                      }]
+                  "end": {
+                    "line": 3,
+                    "column": 15
                   }
-              }],
-              "sourceType": "script"
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 10,
+                  "end": 12,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 10
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 12
+                    }
+                  },
+                  "name": "fn"
+                },
+                "generator": true,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 15,
+                  "end": 71,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 15
+                    },
+                    "end": {
+                      "line": 3,
+                      "column": 15
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "ExpressionStatement",
+                      "start": 33,
+                      "end": 55,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 16
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 38
+                        }
+                      },
+                      "expression": {
+                        "type": "FunctionExpression",
+                        "start": 34,
+                        "end": 53,
+                        "loc": {
+                          "start": {
+                            "line": 2,
+                            "column": 17
+                          },
+                          "end": {
+                            "line": 2,
+                            "column": 36
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 43,
+                          "end": 48,
+                          "loc": {
+                            "start": {
+                              "line": 2,
+                              "column": 26
+                            },
+                            "end": {
+                              "line": 2,
+                              "column": 31
+                            }
+                          },
+                          "name": "yield"
+                        },
+                        "generator": false,
+                        "expression": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 51,
+                          "end": 53,
+                          "loc": {
+                            "start": {
+                              "line": 2,
+                              "column": 34
+                            },
+                            "end": {
+                              "line": 2,
+                              "column": 36
+                            }
+                          },
+                          "body": []
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
           });
       });
   

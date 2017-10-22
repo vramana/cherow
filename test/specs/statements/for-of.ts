@@ -4259,7 +4259,7 @@ describe('Statements - For of', () => {
             });
         });
     
-        it.skip('should parse array element init in', () => {
+        it('should parse array element init in', () => {
             expect(parseScript(`for ([ x = 'x' in {} ] of [[]]) {}`, {
                 ranges: true,
                 raw: true,

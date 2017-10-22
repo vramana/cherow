@@ -678,22 +678,6 @@ describe('Miscellaneous - Identifiers', () => {
           });
         });
 
-        it.skip('should parse math alef', () => {
-          expect(parseScript('var 𞸀', {
-              raw: true,
-              ranges: true,
-              locations: true
-          })).to.eql({});
-        });
-
-        it.skip('should parse math kaf lam', () => {
-          expect(parseScript('var 𞸊𞸋', {
-              raw: true,
-              ranges: true,
-              locations: true
-          })).to.eql({});
-        });
-
         it('should parse valid await', () => {
           expect(parseScript('var await; (await);', {
               raw: true,

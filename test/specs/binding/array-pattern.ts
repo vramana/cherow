@@ -664,7 +664,7 @@ describe('Binding - Array pattern', () => {
             });
         });
     
-        it.skip('should parse rest element object pattern', () => {
+        it('should parse rest element object pattern', () => {
             expect(parseScript(`var [...{x}] = y`, {
                 ranges: true,
                 raw: true,
