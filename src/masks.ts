@@ -28,10 +28,6 @@ export const enum Context {
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
-
-    AsyncParen = InParenthesis | Await
-
-    
 }
 
 // Mutable parser flags

@@ -7,6 +7,7 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, CollectComments, Location } from './interface';
+
 export class Parser {
     
         // Holds the program to be parser
@@ -1751,7 +1752,7 @@ export class Parser {
         private isIdentifierOrKeyword(t: Token): boolean | number {
             return t === Token.Identifier || hasMask(t, Token.Keyword)
         }
-
+    
         private parseIdentifierName(context: Context, t: Token) {
             if (!this.isIdentifierOrKeyword(t)) this.throwUnexpectedToken();
             return this.parseIdentifier(context);
@@ -1836,23 +1837,23 @@ export class Parser {
                     // 'export' ExportClause FromClause ';'
                     //
                     this.expect(context, Token.LeftBrace);
-
+    
                     while (this.token !== Token.RightBrace) {
                         if (hasMask(this.token, Token.Reserved)) isExportedReservedWord = true;
                         specifiers.push(this.parseExportSpecifier(context));
                         // Invalid: 'export {a,,b}'
                         if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
                     }
-
+    
                     this.expect(context, Token.RightBrace)
-
+    
                     if (this.parseOptional(context, Token.FromKeyword)) {
                         // export {default} from 'foo';
                         // export {foo} from 'foo';
                         source = this.parseModuleSpecifier(context);
                     } else if (isExportedReservedWord) {
                         this.throwUnexpectedToken();
-                    } 
+                    }
     
                     this.consumeSemicolon(context);
     
@@ -1893,7 +1894,7 @@ export class Parser {
                 default:
                     this.error(Errors.MissingMsgDeclarationAfterExport);
             }
-            
+    
             return this.finishNode(pos, {
                 type: 'ExportNamedDeclaration',
                 source,
@@ -1904,14 +1905,14 @@ export class Parser {
     
         private parseExportSpecifier(context: Context): ESTree.ExportSpecifier {
             const pos = this.getLocations();
-
+    
             const local = this.parseIdentifierName(context, this.token);
-
+    
             let exported = local;
             let token = this.token;
             if (this.token === Token.AsKeyword) {
                 this.expect(context, Token.AsKeyword);
-                    
+    
                 exported = this.parseIdentifierName(context, this.token);
             }
     
@@ -1955,7 +1956,7 @@ export class Parser {
                 // be any IdentifierName. But without 'as', it must be a valid
                 // BindingIdentifier.
                 if (this.token === Token.AsKeyword) {
-
+    
                     // 'import {a \\u0061s b} from "./foo.js";'
                     if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
                     if (this.token === Token.AsKeyword) {
@@ -1981,14 +1982,14 @@ export class Parser {
     
         // {foo, bar as bas}
         private parseNamedImports(
-            context: Context, 
+            context: Context,
             specifiers: (ESTree.ImportSpecifier | ESTree.ImportDefaultSpecifier | ESTree.ImportNamespaceSpecifier)[]
-            ) {
+        ) {
             //  NamedImports
             //  ImportedDefaultBinding, NameSpaceImport
             //  ImportedDefaultBinding, NamedImports
             this.expect(context, Token.LeftBrace);
-
+    
             while (!this.parseOptional(context, Token.RightBrace)) {
                 // only accepts identifiers or keywords
                 specifiers.push(this.parseImportSpecifier(context));
@@ -2159,7 +2160,7 @@ export class Parser {
                         return this.parseExpressionStatement(context);
                     }
                     if (context & Context.Module) this.error(Errors.ImportDeclAtTopLevel);
-                    default:
+                default:
                     return this.parseStatement(context);
             }
         }
@@ -2414,14 +2415,14 @@ export class Parser {
     
             this.flags |= Flags.Iteration;
     
-            const body = this.parseStatement(context & ~Context.TopLevel | Context.AllowIn);
+            const body = this.parseStatement(context & ~Context.TopLevel);
     
             this.flags = savedFlag;
     
             this.expect(context, Token.WhileKeyword);
             this.expect(context, Token.LeftParen);
     
-            const test = this.parseExpression(context | Context.AllowIn, pos);
+            const test = this.parseExpression(context & ~Context.TopLevel, pos);
     
             this.expect(context, Token.RightParen);
             this.parseOptional(context, Token.Semicolon);
@@ -2440,16 +2441,16 @@ export class Parser {
             let label: ESTree.Identifier | null = null;
     
             if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
-                label = this.parseIdentifier(context | Context.AllowIn);
+                label = this.parseIdentifierName(context, this.token);
     
                 if (this.labelSet === undefined || !hasOwn.call(this.labelSet, '@' + label.name)) {
                     this.error(Errors.UnknownLabel, label.name);
                 }
             }
     
-            if (!(this.flags & Flags.Iteration) && !label) this.error(Errors.BadContinue);
+            if (!label && !(this.flags & Flags.Iteration)) this.error(Errors.BadContinue);
     
-            this.consumeSemicolon(context | Context.AllowIn);
+            this.consumeSemicolon(context);
     
             return this.finishNode(pos, {
                 type: 'ContinueStatement',
@@ -2466,7 +2467,7 @@ export class Parser {
             let label: ESTree.Identifier | null = null;
     
             if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
-                label = this.parseIdentifier(context);
+                label = this.parseIdentifierName(context, this.token);
                 if (this.labelSet === undefined || !hasOwn.call(this.labelSet, '@' + label.name)) {
                     this.error(Errors.UnknownLabel, label.name);
                 }
@@ -2839,7 +2840,7 @@ export class Parser {
                 if (savedContext & Context.Yield && this.token === Token.YieldKeyword) {
                     this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                 }
-                // if (context & Context.Strict && hasMask(this.token, Token.FutureReserved)) this.flags |= Flags.BindingPosition
+    
                 if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
                 if (context & Context.Module && this.token === Token.AwaitKeyword) this.throwUnexpectedToken();
     
@@ -3603,9 +3604,8 @@ export class Parser {
             }
         }
     
-        // 14.6 Async Function Definitions
         private parseFunctionExpression(context: Context, pos: Location): ESTree.FunctionExpression {
-       
+    
             const savedContext = context;
     
             if (context & Context.Yield) context &= ~Context.Yield;
@@ -3622,16 +3622,18 @@ export class Parser {
     
             let id: ESTree.Identifier | null = null;
     
-            if (this.token !== Token.LeftParen && this.isIdentifier(context, this.token)) {
+            if (this.token !== Token.LeftParen) {
+                const token = this.token;
+                if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
+    
                 if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.StrictLHSAssignment);
                 // If a async function decl are wrapped inside parenthesis, it's parsed as function expr, and we need to forbid
                 // "await" as function name
-                if (context & Context.AsyncParen && this.token === Token.AwaitKeyword) {
+                if (context & Context.Await && this.token === Token.AwaitKeyword) {
                     this.error(Errors.StrictLHSAssignment);
                 }
-                if ((context & (Context.Await | Context.Yield) ||
-                        (context & Context.Strict && savedContext & Context.Yield)) && this.token === Token.YieldKeyword) {
-                    this.error(Errors.YieldReservedWord);
+                if (context & Context.Yield && this.token === Token.YieldKeyword) {
+                    this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                 }
                 id = this.parseIdentifier(context);
             }
@@ -4017,7 +4019,7 @@ export class Parser {
                     }
                     // fall through
                 default:
-                
+    
                     if (!this.isIdentifier(context, this.token)) {
                         this.throwUnexpectedToken();
                     }
