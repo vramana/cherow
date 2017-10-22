@@ -1812,6 +1812,11 @@ Parser.prototype.expect = function expect (context, t) {
 Parser.prototype.isEvalOrArguments = function isEvalOrArguments (value) {
     return value === 'eval' || value === 'arguments';
 };
+Parser.prototype.isEvalOrArgumentsIdentifier = function isEvalOrArgumentsIdentifier (context, value) {
+    if (!(context & 2 /* Strict */))
+        { return false; }
+    return this.isEvalOrArguments(value);
+};
 Parser.prototype.canConsumeSemicolon = function canConsumeSemicolon () {
     // Bail out quickly if we have seen a LineTerminator
     if (this.flags & 1 /* LineTerminator */)
@@ -2708,7 +2713,7 @@ Parser.prototype.parseEmptyStatement = function parseEmptyStatement (context) {
 };
 Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (context) {
     var pos = this.getLocations();
-    var savedContext = context;
+    var parentContext = context;
     if (context & (32 /* Await */ | 16 /* Yield */))
         { context &= ~(32 /* Await */ | 16 /* Yield */); }
     if (this.parseOptional(context, 69740 /* AsyncKeyword */))
@@ -2732,7 +2737,7 @@ Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (c
         var token = this.token;
         switch (token) {
             case 282730 /* YieldKeyword */:
-                if (savedContext & 16 /* Yield */)
+                if (parentContext & 16 /* Yield */)
                     { this.error(82 /* DisallowedInContext */, tokenDesc(this.token)); }
                 break;
             case 331885 /* AwaitKeyword */:
@@ -2748,9 +2753,6 @@ Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (c
         }
         if (!this.isIdentifier(context, this.token))
             { this.throwUnexpectedToken(); }
-        if (context & 2 /* Strict */ && this.isEvalOrArguments(name)) {
-            this.error(79 /* UnexpectedStrictReserved */);
-        }
         if (context & 1024 /* TopLevel */ && !(context & 4096 /* AnnexB */)) {
             if (!this.initBlockScope() && (this.blockScope !== this.functionScope && this.blockScope[name] ||
                 this.blockScope[name] === 2 /* NonShadowable */)) {
@@ -2966,7 +2968,7 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
             // 1.) Checks reserved words
             // 2.) Eval and arguments
             // 3.) Invalid non-Identifier productions
-            if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name)) {
+            if (this.isEvalOrArgumentsIdentifier(context, expr.name)) {
                 this.error(79 /* UnexpectedStrictReserved */);
             }
             if (expr.type !== 'Identifier')
@@ -2987,7 +2989,7 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
     }
     if (hasMask(this.token, 1310720 /* AssignOperator */)) {
         var operator = this.token;
-        if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name)) {
+        if (this.isEvalOrArgumentsIdentifier(context, expr.name)) {
             this.error(35 /* StrictLHSAssignment */);
         }
         else if (!(context & 128 /* InParameter */) && this.token === 1310749 /* Assign */) {
@@ -3223,7 +3225,7 @@ Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context
         var operator = this.token;
         this.nextToken(context);
         expr = this.parseLeftHandSideExpression(context, pos);
-        if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name)) {
+        if (this.isEvalOrArgumentsIdentifier(context, expr.name)) {
             this.error(46 /* StrictLHSPrefix */);
         }
         else if (!isValidSimpleAssignmentTarget(expr))
@@ -3243,7 +3245,7 @@ Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context
         // The identifier eval or arguments may not appear as the LeftHandSideExpression of an
         // Assignment operator(12.15) or of a PostfixExpression or as the UnaryExpression
         // operated upon by a Prefix Increment(12.4.6) or a Prefix Decrement(12.4.7) operator.
-        if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name)) {
+        if (this.isEvalOrArgumentsIdentifier(context, expr.name)) {
             this.error(47 /* StrictLHSPostfix */);
         }
         if (!isValidSimpleAssignmentTarget(expr))
@@ -3404,8 +3406,6 @@ Parser.prototype.parseCallExpression = function parseCallExpression (context, po
     }
 };
 Parser.prototype.parseFunctionExpression = function parseFunctionExpression (context, pos) {
-    if (context & 16 /* Yield */)
-        { context &= ~16 /* Yield */; }
     this.expect(context, 274519 /* FunctionKeyword */);
     if (this.token === 2099763 /* Multiply */) {
         // If we are in the 'await' context. Check if the 'Next' option are set
@@ -3417,17 +3417,19 @@ Parser.prototype.parseFunctionExpression = function parseFunctionExpression (con
     }
     var id = null;
     if (this.token !== 262155 /* LeftParen */) {
-        if (!this.isIdentifier(context, this.token))
+        var token = this.token;
+        if (!this.isIdentifier(context, token))
             { this.throwUnexpectedToken(); }
-        if (context & 2 /* Strict */ && this.isEvalOrArguments(this.tokenValue))
+        if (this.isEvalOrArgumentsIdentifier(context, this.tokenValue))
             { this.error(35 /* StrictLHSAssignment */); }
-        // If a async function decl are wrapped inside parenthesis, it's parsed as function expr, and we need to forbid
-        // "await" as function name
-        if (context & 32 /* Await */ && this.token === 331885 /* AwaitKeyword */) {
-            this.error(35 /* StrictLHSAssignment */);
-        }
-        if (context & 16 /* Yield */ && this.token === 282730 /* YieldKeyword */) {
-            this.error(82 /* DisallowedInContext */, tokenDesc(this.token));
+        switch (token) {
+            case 331885 /* AwaitKeyword */:
+            case 282730 /* YieldKeyword */:
+                if (context & (32 /* Await */ | 16 /* Yield */)) {
+                    this.error(82 /* DisallowedInContext */, tokenDesc(token));
+                }
+                break;
+            default: // ignore
         }
         id = this.parseIdentifier(context);
     }
@@ -3531,7 +3533,7 @@ Parser.prototype.parseAsyncFunctionExpression = function parseAsyncFunctionExpre
             // we got an LineTerminator. The 'FunctionExpression' will be parsed out in 'parsePrimaryExpression'
             if (this.flags & 1 /* LineTerminator */)
                 { return id; }
-            return this.parseFunctionExpression(context | 32 /* Await */, pos);
+            return this.parseFunctionExpression(context & ~16 /* Yield */ | 32 /* Await */, pos);
         // 'AsyncArrowFunction[In, Yield, Await]'
         case 282730 /* YieldKeyword */:
         case 262145 /* Identifier */:
@@ -3728,7 +3730,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 262145 /* Identifier */:
             return this.parseIdentifier(context);
         case 274519 /* FunctionKeyword */:
-            return this.parseFunctionExpression(context | 64 /* InParenthesis */, pos);
+            return this.parseFunctionExpression(context & ~16 /* Yield */ | 64 /* InParenthesis */, pos);
         case 274526 /* ThisKeyword */:
             return this.parseThisExpression(context);
         case 274439 /* NullKeyword */:
@@ -4107,7 +4109,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context, has_
                 this.flags |= 512 /* HaveSeenAwait */;
             }
             value = this.parseAssignmentExpression(context);
-            if (context & 2 /* Strict */ && this.isEvalOrArguments(value.name)) {
+            if (this.isEvalOrArgumentsIdentifier(context, value.name)) {
                 this.error(79 /* UnexpectedStrictReserved */);
             }
             break;
@@ -4124,7 +4126,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context, has_
                     this.flags |= 512 /* HaveSeenAwait */;
                 }
             }
-            if (context & 2 /* Strict */ && this.isEvalOrArguments(tokenValue)) {
+            if (this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
                 this.error(76 /* UnexpectedReservedWord */);
             }
             state |= 8 /* Shorthand */;
@@ -4743,7 +4745,7 @@ Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (con
         pos = this.getLocations();
         var token = this.token;
         var tokenValue = this.tokenValue;
-        if (context & 2 /* Strict */ && this.isEvalOrArguments(tokenValue)) {
+        if (this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
             this.error(76 /* UnexpectedReservedWord */);
         }
         key = this.parsePropertyName(context);

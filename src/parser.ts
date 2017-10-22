@@ -1703,6 +1703,11 @@ export class Parser {
             return value === 'eval' || value === 'arguments';
         }
     
+        private isEvalOrArgumentsIdentifier(context: Context, value: string): boolean {
+            if (!(context & Context.Strict)) return false;
+            return this.isEvalOrArguments(value);
+        }
+    
         private canConsumeSemicolon(): boolean {
     
             // Bail out quickly if we have seen a LineTerminator
@@ -2803,7 +2808,7 @@ export class Parser {
     
             const pos = this.getLocations();
     
-            const savedContext = context;
+            const parentContext = context;
     
             if (context & (Context.Await | Context.Yield)) context &= ~(Context.Await | Context.Yield);
     
@@ -2834,7 +2839,7 @@ export class Parser {
     
                 switch (token) {
                     case Token.YieldKeyword:
-                        if (savedContext & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                        if (parentContext & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                         break;
                     case Token.AwaitKeyword:
                         if (context & Context.Module) this.throwUnexpectedToken();
@@ -2848,9 +2853,6 @@ export class Parser {
                 }
     
                 if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
-                if (context & Context.Strict && this.isEvalOrArguments(name)) {
-                    this.error(Errors.UnexpectedStrictReserved);
-                }
     
                 if (context & Context.TopLevel && !(context & Context.AnnexB)) {
                     if (!this.initBlockScope() && (
@@ -3093,7 +3095,7 @@ export class Parser {
                     // 1.) Checks reserved words
                     // 2.) Eval and arguments
                     // 3.) Invalid non-Identifier productions
-                    if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
+                    if (this.isEvalOrArgumentsIdentifier(context, (expr as ESTree.Identifier).name)) {
                         this.error(Errors.UnexpectedStrictReserved);
                     }
                     if (expr.type !== 'Identifier') this.throwUnexpectedToken();
@@ -3113,7 +3115,7 @@ export class Parser {
     
             if (hasMask(this.token, Token.AssignOperator)) {
                 const operator = this.token;
-                if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
+                if (this.isEvalOrArgumentsIdentifier(context, (expr as ESTree.Identifier).name)) {
                     this.error(Errors.StrictLHSAssignment);
                 } else if (!(context & Context.InParameter) && this.token === Token.Assign) {
                     this.reinterpretAsPattern(context, expr);
@@ -3384,7 +3386,7 @@ export class Parser {
     
                 expr = this.parseLeftHandSideExpression(context, pos);
     
-                if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
+                if (this.isEvalOrArgumentsIdentifier(context, (expr as ESTree.Identifier).name)) {
                     this.error(Errors.StrictLHSPrefix);
                 } else if (!isValidSimpleAssignmentTarget(expr)) this.error(Errors.InvalidLHSInAssignment);
     
@@ -3407,7 +3409,7 @@ export class Parser {
                 // The identifier eval or arguments may not appear as the LeftHandSideExpression of an
                 // Assignment operator(12.15) or of a PostfixExpression or as the UnaryExpression
                 // operated upon by a Prefix Increment(12.4.6) or a Prefix Decrement(12.4.7) operator.
-                if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
+                if (this.isEvalOrArgumentsIdentifier(context, (expr as ESTree.Identifier).name)) {
                     this.error(Errors.StrictLHSPostfix);
                 }
     
@@ -3604,10 +3606,6 @@ export class Parser {
     
         private parseFunctionExpression(context: Context, pos: Location): ESTree.FunctionExpression {
     
-            const savedContext = context;
-    
-            if (context & Context.Yield) context &= ~Context.Yield;
-    
             this.expect(context, Token.FunctionKeyword);
     
             if (this.token === Token.Multiply) {
@@ -3622,17 +3620,19 @@ export class Parser {
     
             if (this.token !== Token.LeftParen) {
                 const token = this.token;
-                if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
+                if (!this.isIdentifier(context, token)) this.throwUnexpectedToken();
+                if (this.isEvalOrArgumentsIdentifier(context, this.tokenValue)) this.error(Errors.StrictLHSAssignment);
     
-                if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.StrictLHSAssignment);
-                // If a async function decl are wrapped inside parenthesis, it's parsed as function expr, and we need to forbid
-                // "await" as function name
-                if (context & Context.Await && this.token === Token.AwaitKeyword) {
-                    this.error(Errors.StrictLHSAssignment);
+                switch (token) {
+                    case Token.AwaitKeyword:
+                    case Token.YieldKeyword:
+                        if (context & (Context.Await | Context.Yield)) {
+                            this.error(Errors.DisallowedInContext, tokenDesc(token));
+                        }
+                        break;
+                    default: // ignore
                 }
-                if (context & Context.Yield && this.token === Token.YieldKeyword) {
-                    this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                }
+    
                 id = this.parseIdentifier(context);
             }
     
@@ -3750,7 +3750,7 @@ export class Parser {
                     // The specs says "async[no LineTerminator here]", so just return an plain identifier in case
                     // we got an LineTerminator. The 'FunctionExpression' will be parsed out in 'parsePrimaryExpression'
                     if (this.flags & Flags.LineTerminator) return id;
-                    return this.parseFunctionExpression(context | Context.Await, pos);
+                    return this.parseFunctionExpression(context & ~Context.Yield | Context.Await, pos);
     
                     // 'AsyncArrowFunction[In, Yield, Await]'
                 case Token.YieldKeyword:
@@ -3969,7 +3969,7 @@ export class Parser {
                 case Token.Identifier:
                     return this.parseIdentifier(context);
                 case Token.FunctionKeyword:
-                    return this.parseFunctionExpression(context | Context.InParenthesis, pos);
+                    return this.parseFunctionExpression(context & ~Context.Yield | Context.InParenthesis, pos);
                 case Token.ThisKeyword:
                     return this.parseThisExpression(context);
                 case Token.NullKeyword:
@@ -4394,7 +4394,7 @@ export class Parser {
                     value = this.parseAssignmentExpression(context);
     
     
-                    if (context & Context.Strict && this.isEvalOrArguments((value as any).name)) {
+                    if (this.isEvalOrArgumentsIdentifier(context, (value as any).name)) {
                         this.error(Errors.UnexpectedStrictReserved);
                     }
                     break;
@@ -4412,7 +4412,7 @@ export class Parser {
                         }
                     }
     
-                    if (context & Context.Strict && this.isEvalOrArguments(tokenValue)) {
+                    if (this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
                         this.error(Errors.UnexpectedReservedWord);
                     }
     
@@ -5097,7 +5097,7 @@ export class Parser {
                 pos = this.getLocations();
                 const token = this.token;
                 const tokenValue = this.tokenValue;
-                if (context & Context.Strict && this.isEvalOrArguments(tokenValue)) {
+                if (this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
                     this.error(Errors.UnexpectedReservedWord);
                 }
                 key = this.parsePropertyName(context);

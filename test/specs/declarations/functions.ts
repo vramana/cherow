@@ -10,6 +10,12 @@ describe('Declarations - Functions', () => {
               parseScript('function () {}');
           }).to.throw();
       });
+
+      it('should fail on eval as func name in strict mode', () => {
+        expect(() => {
+            parseScript('"use strict"; function eval () {}');
+        }).to.throw('');
+    });
       
       it('should fail on ""use strict" function eval() {"use strict"; }"', () => {
           expect(() => {
