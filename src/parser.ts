@@ -2234,7 +2234,7 @@ export class Parser {
                     // J.K. Thomas
                     if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                         // Note: async function are only subject to AnnexB if we forbid them to parse
-                        if (context & Context.TopLevel || this.flags & Flags.Break) this.error(Errors.Unexpected);
+                        if (context & Context.TopLevel || this.flags & Flags.Iteration) this.error(Errors.Unexpected);
                         return this.parseFunctionDeclaration(context);
                     }
                     // 'Async' is a valid contextual keyword in sloppy mode for labelled statement, so either
@@ -2392,7 +2392,7 @@ export class Parser {
     
             const savedFlag = this.flags;
     
-            if (!(this.flags & Flags.Break)) this.flags |= (Flags.Continue | Flags.Break);
+            this.flags |= Flags.Iteration;
     
             const body = this.parseStatement(context & ~Context.TopLevel);
             this.flags = savedFlag;
@@ -2412,7 +2412,7 @@ export class Parser {
     
             const savedFlag = this.flags;
     
-            this.flags |= (Flags.Continue | Flags.Break);
+            this.flags |= Flags.Iteration;
     
             const body = this.parseStatement(context & ~Context.TopLevel | Context.AllowIn);
     
@@ -2447,7 +2447,7 @@ export class Parser {
                 }
             }
     
-            if (!(this.flags & Flags.Continue) && !label) this.error(Errors.BadContinue);
+            if (!(this.flags & Flags.Iteration) && !label) this.error(Errors.BadContinue);
     
             this.consumeSemicolon(context | Context.AllowIn);
     
@@ -2472,7 +2472,9 @@ export class Parser {
                 }
             }
     
-            if (!(this.flags & (Flags.Break | Flags.Switch)) && !label) this.error(Errors.IllegalBreak);
+            if (!(this.flags & (Flags.Break | Flags.Iteration)) && !label) {
+                this.error(Errors.IllegalBreak);
+            }
     
             this.consumeSemicolon(context);
     
@@ -2568,7 +2570,7 @@ export class Parser {
     
                     this.expect(context, Token.RightParen);
     
-                    this.flags |= (Flags.Continue | Flags.Break);
+                    this.flags |= Flags.Iteration;
     
                     body = this.parseStatement(context & ~Context.TopLevel | Context.ForStatement);
     
@@ -2599,7 +2601,7 @@ export class Parser {
     
                     this.expect(context, Token.RightParen);
     
-                    this.flags |= (Flags.Continue | Flags.Break);
+                    this.flags |= Flags.Iteration;
     
                     body = this.parseStatement(context & ~Context.TopLevel | Context.ForStatement);
     
@@ -2630,7 +2632,7 @@ export class Parser {
     
                     this.expect(context, Token.RightParen);
     
-                    this.flags |= (Flags.Continue | Flags.Break);
+                    this.flags |= Flags.Iteration;
     
                     body = this.parseStatement(context & ~Context.TopLevel | Context.ForStatement);
     
@@ -3854,26 +3856,23 @@ export class Parser {
         }
     
         private parseFunctionBody(context: Context): ESTree.BlockStatement {
-            
             const pos = this.getLocations();
     
             this.expect(context, Token.LeftBrace);
-            
             let body: ESTree.Statement[] = [];
     
             if (this.token !== Token.RightBrace) {
                 const previousLabelSet = this.labelSet;
                 this.labelSet = undefined;
                 const savedFlags = this.flags;
-                this.flags &= ~(Flags.Switch | Flags.Break | Flags.Continue | Flags.HasPrototype | Flags.HasStrictDirective);
                 this.flags |= Flags.InFunctionBody;
+                this.flags &= ~(Flags.Switch | Flags.Break | Flags.Iteration);
                 body = this.parseStatementList(context & ~Context.Lexical, Token.RightBrace);
                 this.labelSet = previousLabelSet;
                 this.flags = savedFlags;
             }
     
             this.expect(context, Token.RightBrace);
-
             return this.finishNode(pos, {
                 type: 'BlockStatement',
                 body

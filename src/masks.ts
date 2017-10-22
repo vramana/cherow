@@ -42,7 +42,7 @@ export const enum Flags {
     InFunctionBody               = 1 << 2, // If node was parsed in a function body
     AllowCall                    = 1 << 3, // If node was parsed in a context where call should be allowed
     Break                        = 1 << 4,
-    Continue                     = 1 << 5,
+    Iteration                    = 1 << 5,
     Switch                       = 1 << 6,
     HasPrototype                 = 1 << 7,
     HaveSeenYield                = 1 << 8,  // Used if we have seen a 'yield' token. E.g. in arrow formal param list
