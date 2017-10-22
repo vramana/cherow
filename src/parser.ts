@@ -2805,19 +2805,14 @@ export class Parser {
     
             const savedContext = context;
     
-            if (context & (Context.Await | Context.Yield)) {
-                context &= ~(Context.Await | Context.Yield);
-            }
+            if (context & (Context.Await | Context.Yield)) context &= ~(Context.Await | Context.Yield);
     
-            if (this.token === Token.AsyncKeyword) {
-                this.expect(context, Token.AsyncKeyword);
-                context |= Context.Await;
-            }
+            if (this.parseOptional(context, Token.AsyncKeyword)) context |= Context.Await;
     
             this.expect(context, Token.FunctionKeyword);
     
             const savedFlags = this.flags;
-            const token = this.token;
+    
     
             if (this.token === Token.Multiply) {
     
@@ -2835,22 +2830,26 @@ export class Parser {
             if (this.token !== Token.LeftParen) {
     
                 const name = this.tokenValue;
+                const token = this.token;
     
-                // Invalid: 'function*g(){ function yield(){}; }'
-                if (savedContext & Context.Yield && this.token === Token.YieldKeyword) {
-                    this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                switch (token) {
+                    case Token.YieldKeyword:
+                        if (savedContext & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                        break;
+                    case Token.AwaitKeyword:
+                        if (context & Context.Module) this.throwUnexpectedToken();
+                        // 'await' is forbidden only in async function bodies (but not in child functions) and module code.
+                        if (context & Context.Await &&
+                            this.flags & Flags.InFunctionBody) {
+                            this.throwUnexpectedToken();
+                        }
+                        break;
+                    default: // ignore
                 }
     
                 if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
-                if (context & Context.Module && this.token === Token.AwaitKeyword) this.throwUnexpectedToken();
-    
                 if (context & Context.Strict && this.isEvalOrArguments(name)) {
                     this.error(Errors.UnexpectedStrictReserved);
-                }
-    
-                // 'await' is forbidden only in async function bodies (but not in child functions) and module code.
-                if (context & Context.Await && this.flags & Flags.InFunctionBody) {
-                    if (this.token === Token.AwaitKeyword) this.throwUnexpectedToken();
                 }
     
                 if (context & Context.TopLevel && !(context & Context.AnnexB)) {
@@ -2872,7 +2871,6 @@ export class Parser {
             const savedScope = this.enterFunctionScope();
             const params = this.parseParameterList(context & ~(Context.TopLevel | Context.OptionalIdentifier) | Context.InParameter, ObjectState.None);
             const body = this.parseFunctionBody(context & ~Context.OptionalIdentifier);
-    
             this.exitFunctionScope(savedScope);
     
             this.flags = savedFlags;
