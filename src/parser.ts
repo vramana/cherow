@@ -1,6 +1,6 @@
 import { Chars } from './chars';
 import * as ESTree from './estree';
-import { hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isDirective } from './common';
+import { hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isPrologueDirective } from './common';
 import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget } from './validate';
 import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, Scanner, ParenthesizedState, IterationState, NumberState } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
@@ -1640,7 +1640,7 @@ export class Parser {
                 if (this.token !== Token.StringLiteral) break;
                 const item: ESTree.Statement = this.parseDirective(context);
                 statements.push(item);
-                if (!isDirective(item)) break;
+                if (!isPrologueDirective(item)) break;
                 if (this.flags & Flags.HasStrictDirective) {
                     if (this.flags & Flags.SimpleParameterList) this.error(Errors.IllegalUseStrict);
                     if (this.flags & Flags.BindingPosition) this.error(Errors.UnexpectedStrictReserved);
@@ -2270,7 +2270,7 @@ export class Parser {
             if (blockScope != null) this.parentScope = blockScope;
             this.blockScope = context & Context.IfClause ? blockScope : undefined;
             const flag = this.flags;
-    
+            
             while (this.token !== Token.RightBrace) {
                 body.push(this.parseStatementListItem(context | Context.TopLevel));
             }
@@ -2371,7 +2371,8 @@ export class Parser {
         private parseWithStatement(context: Context): ESTree.WithStatement {
             const pos = this.getLocations();
     
-            // Invalid `"use strict"; with ({}) { }`
+            // Strict mode code may not include a WithStatement. The occurrence of a WithStatement in such 
+            // a context is an grammar error
             if (context & Context.Strict) this.error(Errors.StrictModeWith);
     
             this.expect(context, Token.WithKeyword);
@@ -2438,7 +2439,7 @@ export class Parser {
                 test
             });
         }
-    
+        
         private parseContinueStatement(context: Context): ESTree.ContinueStatement {
             const pos = this.getLocations();
             this.expect(context, Token.ContinueKeyword);
@@ -2447,10 +2448,7 @@ export class Parser {
     
             if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
                 label = this.parseIdentifierName(context, this.token);
-    
-                if (this.labelSet === undefined || !hasOwn.call(this.labelSet, '@' + label.name)) {
-                    this.error(Errors.UnknownLabel, label.name);
-                }
+                this.validateLabel(label.name);
             }
     
             if (!label && !(this.flags & Flags.Iteration)) this.error(Errors.BadContinue);
@@ -2473,12 +2471,10 @@ export class Parser {
     
             if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
                 label = this.parseIdentifierName(context, this.token);
-                if (this.labelSet === undefined || !hasOwn.call(this.labelSet, '@' + label.name)) {
-                    this.error(Errors.UnknownLabel, label.name);
-                }
+                this.validateLabel(label.name);
             }
     
-            if (!(this.flags & (Flags.Break | Flags.Iteration)) && !label) {
+            if (!label && !(this.flags & (Flags.Break | Flags.Iteration))) {
                 this.error(Errors.IllegalBreak);
             }
     
@@ -2810,14 +2806,11 @@ export class Parser {
     
             const parentContext = context;
     
-            if (context & (Context.Await | Context.Yield)) context &= ~(Context.Await | Context.Yield);
+            context &= ~(Context.Await | Context.Yield);
     
             if (this.parseOptional(context, Token.AsyncKeyword)) context |= Context.Await;
     
             this.expect(context, Token.FunctionKeyword);
-    
-            const savedFlags = this.flags;
-    
     
             if (this.token === Token.Multiply) {
     
@@ -2831,28 +2824,26 @@ export class Parser {
             }
     
             let id: ESTree.Identifier | null = null;
-    
+            
+            const savedFlags = this.flags;
+            
             if (this.token !== Token.LeftParen) {
     
                 const name = this.tokenValue;
                 const token = this.token;
-    
+
+                if (!this.isIdentifier(context, token)) this.throwUnexpectedToken();    
+                
                 switch (token) {
                     case Token.YieldKeyword:
-                        if (parentContext & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                        if (parentContext & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(token));
                         break;
                     case Token.AwaitKeyword:
                         if (context & Context.Module) this.throwUnexpectedToken();
                         // 'await' is forbidden only in async function bodies (but not in child functions) and module code.
-                        if (context & Context.Await &&
-                            this.flags & Flags.InFunctionBody) {
-                            this.throwUnexpectedToken();
-                        }
-                        break;
+                        if (context & Context.Await && this.flags & Flags.InFunctionBody) this.error(Errors.DisallowedInContext, tokenDesc(token));
                     default: // ignore
                 }
-    
-                if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
     
                 if (context & Context.TopLevel && !(context & Context.AnnexB)) {
                     if (!this.initBlockScope() && (
@@ -2866,9 +2857,7 @@ export class Parser {
     
                 id = this.parseBindingIdentifier(context);
     
-            } else if (!(context & Context.OptionalIdentifier)) {
-                this.error(Errors.UnNamedFunctionStmt);
-            }
+            } else if (!(context & Context.OptionalIdentifier)) this.error(Errors.UnNamedFunctionStmt);
     
             const savedScope = this.enterFunctionScope();
             const params = this.parseParameterList(context & ~(Context.TopLevel | Context.OptionalIdentifier) | Context.InParameter, ObjectState.None);
@@ -2891,17 +2880,13 @@ export class Parser {
         private parseReturnStatement(context: Context): ESTree.ReturnStatement {
             const pos = this.getLocations();
     
-            if (!(this.flags & Flags.GlobalReturn)) {
-                this.error(Errors.IllegalReturn);
-            }
+            if (!(this.flags & Flags.GlobalReturn))  this.error(Errors.IllegalReturn);
     
             this.expect(context, Token.ReturnKeyword);
     
             let argument: ESTree.Expression | null = null;
     
-            if (!this.canConsumeSemicolon()) {
-                argument = this.parseExpression(context | Context.AllowIn, pos);
-            }
+            if (!this.canConsumeSemicolon()) argument = this.parseExpression(context | Context.AllowIn, pos);
     
             this.consumeSemicolon(context);
     
@@ -4808,6 +4793,16 @@ export class Parser {
             });
         }
     
+        /****
+         * Label
+         */
+
+        private validateLabel(name: string) {
+            if (this.labelSet === undefined || !('@' + name in this.labelSet)) {
+                this.error(Errors.UnknownLabel, name);
+            }
+        }
+
         /****
          * Scope
          */

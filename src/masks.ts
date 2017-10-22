@@ -21,8 +21,7 @@ export const enum Context {
     HasConstructor         = 1 << 17,  // If node was parsed inside Class and allow super
     Constructor            = 1 << 18,  // Class declaration / expression
     ForStatement           = 1 << 19,  // If node was parsed in a for / for - in / for -of context
-    LocationTracking       = 1 << 20,  // If node was parsed in a for / for - in / for -of context
-
+    LocationTracking       = 1 << 20,
     Let                    = 1 << 21,  // Variable declaration
     Const                  = 1 << 22,  // Variable declaration
 
@@ -46,7 +45,7 @@ export const enum Flags {
     BindingPosition              = 1 << 10, // Used if an "identifier" are used in binding position in strict mode
     HasStrictDirective           = 1 << 11, // Only used if we have seen a "use strict"; directive
     Noctal                       = 1 << 12, // e.g. `0777`
-    BigInt                       = 1 << 13, // e.g. `0777`
+    BigInt                       = 1 << 13, // e.g. `100n`
     SimpleParameterList          = 1 << 14,
 
     /* Options */
