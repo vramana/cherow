@@ -1929,7 +1929,7 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
             // 'export' ExportClause FromClause ';'
             //
             this.expect(context, 393228 /* LeftBrace */);
-            while (!this.parseOptional(context, 15 /* RightBrace */)) {
+            while (this.token !== 15 /* RightBrace */) {
                 if (hasMask(this$1.token, 12288 /* Reserved */))
                     { isExportedReservedWord = true; }
                 specifiers.push(this$1.parseExportSpecifier(context));
@@ -1937,6 +1937,7 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
                 if (this$1.token !== 15 /* RightBrace */)
                     { this$1.expect(context, 18 /* Comma */); }
             }
+            this.expect(context, 15 /* RightBrace */);
             if (this.parseOptional(context, 69745 /* FromKeyword */)) {
                 // export {default} from 'foo';
                 // export {foo} from 'foo';
@@ -2001,9 +2002,6 @@ Parser.prototype.parseExportSpecifier = function parseExportSpecifier (context) 
 Parser.prototype.parseExportAllDeclaration = function parseExportAllDeclaration (context, pos) {
     this.expect(context, 2099763 /* Multiply */);
     this.expect(context, 69745 /* FromKeyword */);
-    // Invalid `export * from 123;`
-    if (this.token !== 262147 /* StringLiteral */)
-        { this.throwUnexpectedToken(); }
     var source = this.parseModuleSpecifier(context);
     this.consumeSemicolon(context);
     return this.finishNode(pos, {
@@ -2927,9 +2925,10 @@ Parser.prototype.parseExpression = function parseExpression (context, pos) {
     });
 };
 Parser.prototype.parseYieldExpression = function parseYieldExpression (context, pos) {
-    // TODO! Record error locations
-    if (context & 64 /* InParenthesis */)
-        { this.flags |= 256 /* HaveSeenYield */; }
+    if (context & 64 /* InParenthesis */) {
+        this.errorLocation = pos;
+        this.flags |= 256 /* HaveSeenYield */;
+    }
     this.expect(context, 282730 /* YieldKeyword */);
     var argument = null;
     var delegate = false;
@@ -3078,8 +3077,6 @@ Parser.prototype.parseArrowFunction = function parseArrowFunction (context, pos,
     // A line terminator between ArrowParameters and the => should trigger a SyntaxError.
     if (this.flags & 1 /* LineTerminator */)
         { this.error(67 /* LineBreakAfterAsync */); }
-    if (context & 16 /* Yield */)
-        { context &= ~16 /* Yield */; }
     this.expect(context, 10 /* Arrow */);
     // Unsetting the 'AllowCall' mask here, let the parser fail correctly
     // if a non-simple arrow are followed by a call expression.
@@ -3543,7 +3540,7 @@ Parser.prototype.parseAsyncFunctionExpression = function parseAsyncFunctionExpre
                 { return id; }
             var expr = this.parseIdentifier(context);
             if (this.token === 10 /* Arrow */)
-                { return this.parseArrowFunction(context | 32 /* Await */, pos, [expr]); }
+                { return this.parseArrowFunction(context & ~16 /* Yield */ | 32 /* Await */, pos, [expr]); }
             // Invalid: 'async abc'
             this.throwUnexpectedToken();
         // CoverCallExpressionAndAsyncArrowHead[Yield, Await]:
@@ -3620,7 +3617,7 @@ Parser.prototype.parseAsyncArguments = function parseAsyncArguments (context, po
         // Invalid: 'async[LineTerminator here] () => {}'
         if (this.flags & 1 /* LineTerminator */)
             { this.error(67 /* LineBreakAfterAsync */); }
-        return this.parseArrowFunction(context | 32 /* Await */, pos, args);
+        return this.parseArrowFunction(context & ~16 /* Yield */ | 32 /* Await */, pos, args);
     }
     if (this.flags & 512 /* HaveSeenAwait */)
         { this.flags &= ~512 /* HaveSeenAwait */; }
@@ -3638,17 +3635,11 @@ Parser.prototype.parseFunctionBody = function parseFunctionBody (context) {
     if (this.token !== 15 /* RightBrace */) {
         var previousLabelSet = this.labelSet;
         this.labelSet = undefined;
-        // Backup the context while entering a new scope, 
-        // and ...
-        var savedContext = context;
-        // ... unset context masks if needed
-        context &= ~6291456 /* Lexical */;
         var savedFlags = this.flags;
+        this.flags &= ~(64 /* Switch */ | 16 /* Break */ | 32 /* Continue */ | 128 /* HasPrototype */ | 2048 /* HasStrictDirective */);
         this.flags |= 4 /* InFunctionBody */;
-        body = this.parseStatementList(context, 15 /* RightBrace */);
+        body = this.parseStatementList(context & ~6291456 /* Lexical */, 15 /* RightBrace */);
         this.labelSet = previousLabelSet;
-        // Restore current context
-        context = savedContext;
         this.flags = savedFlags;
     }
     this.expect(context, 15 /* RightBrace */);
@@ -4258,7 +4249,7 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
     if (this.token === 14 /* Ellipsis */) {
         expr = this.parseRestElement(context);
         this.expect(context, 16 /* RightParen */);
-        return this.parseArrowFunction(context & ~(32 /* Await */ | 524288 /* ForStatement */), pos, [expr]);
+        return this.parseArrowFunction(context & ~(32 /* Await */ | 16 /* Yield */ | 524288 /* ForStatement */), pos, [expr]);
     }
     var sequencePos = this.getLocations();
     if (context & 2 /* Strict */) {

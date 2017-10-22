@@ -3263,13 +3263,13 @@ is y`);
     it('should fail on "x: while (true) { (function () { break; }); }"', () => {
         expect(() => {
             parseScript('x: while (true) { (function () { break; }); }');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "x: while (true) { (function () { continue; }); }"', () => {
         expect(() => {
             parseScript('x: while (true) { (function () { continue; }); }');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "x: while (true) { x: while (true) { } }"', () => {

@@ -17270,6 +17270,36 @@ describe('TC262 - explicit', () => {
         "sourceType": "script"
       });
     });
+
+    it('should parse "var source = "\\u2163\u2161 = []";"', () => {
+      expect(parseScript(`var source = '\\u2163\u2161 = []';`, {
+          raw: true,
+      })).to.eql({
+        "type": "Program",
+        "body": [
+            {
+                "type": "VariableDeclaration",
+                "declarations": [
+                    {
+                        "type": "VariableDeclarator",
+                        "init": {
+                            "type": "Literal",
+                            "value": "ⅣⅡ = []",
+                            "raw": "'\\u2163Ⅱ = []'"
+                        },
+                        "id": {
+                            "type": "Identifier",
+                            "name": "source"
+                        }
+                    }
+                ],
+                "kind": "var"
+            }
+        ],
+        "sourceType": "script"
+    });
+    });
+
     it('should parse "null"', () => {
       expect(parseScript(`null`, {
           ranges: true,

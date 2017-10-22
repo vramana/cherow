@@ -1836,13 +1836,16 @@ export class Parser {
                     // 'export' ExportClause FromClause ';'
                     //
                     this.expect(context, Token.LeftBrace);
-    
-                    while (!this.parseOptional(context, Token.RightBrace)) {
+
+                    while (this.token !== Token.RightBrace) {
                         if (hasMask(this.token, Token.Reserved)) isExportedReservedWord = true;
                         specifiers.push(this.parseExportSpecifier(context));
                         // Invalid: 'export {a,,b}'
                         if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
                     }
+
+                    this.expect(context, Token.RightBrace)
+
                     if (this.parseOptional(context, Token.FromKeyword)) {
                         // export {default} from 'foo';
                         // export {foo} from 'foo';
@@ -1922,10 +1925,6 @@ export class Parser {
         private parseExportAllDeclaration(context: Context, pos: Location): ESTree.ExportAllDeclaration {
             this.expect(context, Token.Multiply);
             this.expect(context, Token.FromKeyword);
-    
-            // Invalid `export * from 123;`
-            if (this.token !== Token.StringLiteral) this.throwUnexpectedToken();
-    
             const source = this.parseModuleSpecifier(context);
             this.consumeSemicolon(context);
             return this.finishNode(pos, {
@@ -3048,8 +3047,10 @@ export class Parser {
     
         private parseYieldExpression(context: Context, pos: Location): ESTree.YieldExpression {
     
-            // TODO! Record error locations
-            if (context & Context.InParenthesis) this.flags |= Flags.HaveSeenYield;
+            if (context & Context.InParenthesis) {
+                this.errorLocation = pos;
+                this.flags |= Flags.HaveSeenYield;
+            }
     
             this.expect(context, Token.YieldKeyword);
     
@@ -3209,8 +3210,6 @@ export class Parser {
     
             // A line terminator between ArrowParameters and the => should trigger a SyntaxError.
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
-    
-            if (context & Context.Yield) context &= ~Context.Yield;
     
             this.expect(context, Token.Arrow);
     
@@ -3604,6 +3603,7 @@ export class Parser {
     
         // 14.6 Async Function Definitions
         private parseFunctionExpression(context: Context, pos: Location): ESTree.FunctionExpression {
+       
             const savedContext = context;
     
             if (context & Context.Yield) context &= ~Context.Yield;
@@ -3757,7 +3757,7 @@ export class Parser {
                     // we got an LineTerminator. The 'ArrowFunctionExpression' will be parsed out in 'parseAssignmentExpression'
                     if (this.flags & Flags.LineTerminator) return id;
                     const expr = this.parseIdentifier(context);
-                    if (this.token === Token.Arrow) return this.parseArrowFunction(context | Context.Await, pos, [expr]);
+                    if (this.token === Token.Arrow) return this.parseArrowFunction(context & ~Context.Yield | Context.Await, pos, [expr]);
                     // Invalid: 'async abc'
                     this.throwUnexpectedToken();
     
@@ -3839,7 +3839,7 @@ export class Parser {
     
                 // Invalid: 'async[LineTerminator here] () => {}'
                 if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
-                return this.parseArrowFunction(context | Context.Await, pos, args);
+                return this.parseArrowFunction(context & ~Context.Yield | Context.Await, pos, args);
             }
     
             if (this.flags & Flags.HaveSeenAwait) this.flags &= ~Flags.HaveSeenAwait;
@@ -3854,29 +3854,26 @@ export class Parser {
         }
     
         private parseFunctionBody(context: Context): ESTree.BlockStatement {
+            
             const pos = this.getLocations();
     
             this.expect(context, Token.LeftBrace);
+            
             let body: ESTree.Statement[] = [];
     
             if (this.token !== Token.RightBrace) {
                 const previousLabelSet = this.labelSet;
                 this.labelSet = undefined;
-                // Backup the context while entering a new scope, 
-                // and ...
-                const savedContext = context;
-                // ... unset context masks if needed
-                context &= ~Context.Lexical;
                 const savedFlags = this.flags;
+                this.flags &= ~(Flags.Switch | Flags.Break | Flags.Continue | Flags.HasPrototype | Flags.HasStrictDirective);
                 this.flags |= Flags.InFunctionBody;
-                body = this.parseStatementList(context, Token.RightBrace);
+                body = this.parseStatementList(context & ~Context.Lexical, Token.RightBrace);
                 this.labelSet = previousLabelSet;
-                // Restore current context
-                context = savedContext;
                 this.flags = savedFlags;
             }
     
             this.expect(context, Token.RightBrace);
+
             return this.finishNode(pos, {
                 type: 'BlockStatement',
                 body
@@ -4555,7 +4552,7 @@ export class Parser {
             if (this.token === Token.Ellipsis) {
                 expr = this.parseRestElement(context);
                 this.expect(context, Token.RightParen);
-                return this.parseArrowFunction(context & ~(Context.Await | Context.ForStatement), pos, [expr]);
+                return this.parseArrowFunction(context & ~(Context.Await | Context.Yield | Context.ForStatement), pos, [expr]);
             }
     
             const sequencePos = this.getLocations();
