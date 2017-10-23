@@ -146,7 +146,7 @@ and end location of the node.
 An example illustrating the delegate is the following:
 
 ```js
-    parseScript('var ariya = 123;', { delegate: function(node, start, end, metadata) {
+    parseScript('let x = 42; // answer', { delegate: function(node, start, end, metadata) {
          console.log(node.type);
     }})
 ```
@@ -162,7 +162,7 @@ An example illustrating how to collect literal nodes:
     }})
 ```
 
-*Note:* Unlike comments - delegate accepts only a callback function, and not an array.
+*Note:* Unlike comments - delegate only accepts a callback function, and not an array.
 
 
 ## Acorn and Esprima differences
