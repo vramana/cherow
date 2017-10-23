@@ -46,6 +46,7 @@ These need to be enabled with the `v8` option.
 
 * `comments` - Enables option to collect comments. Optional; Either array or function.
 * `directives` - Enables the [`ESTree`](https://github.com/estree/estree/blob/1da8e603237144f44710360f8feb7a9977e905e0/es5.md#directive) directive node.
+* `delegate` - Enables token delegate
 * `globalReturn` - Allow return statement in global scope
 * `jsx` - Enables JSX
 * `locations` - Enables location tracking

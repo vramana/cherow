@@ -867,11 +867,14 @@ export class Parser {
                     end: commentEnd,
                     loc
                 };
-    
+
+                if (this.flags & Flags.OptionsDelegate) {
+                    this.delegate(node, commentStart, commentEnd, loc);
+                }
+
                 this.comments.push(node);
             }
         }
-    
         private scanIdentifierOrKeyword(context: Context): Token {
             const ret = this.scanIdentifier(context);
     
@@ -1688,11 +1691,24 @@ export class Parser {
                     }
                 };
             }
-            
+    
             if (this.flags & Flags.OptionsDelegate) {
-                this.delegate(node, 1, 2, 3, 4, 5);
+                const metadata = {
+                    start: {
+                        line: loc.line,
+                        column: loc.column,
+                        offset: loc.index
+                    },
+                    end: {
+                        line: this.lastLine,
+                        column: this.lastColumn,
+                        offset: this.lastIndex
+                    }
+                };
+    
+                this.delegate(node, loc.start, this.lastIndex, metadata);
             }
-
+    
             return node;
         }
     

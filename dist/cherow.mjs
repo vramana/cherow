@@ -1060,6 +1060,9 @@ Parser.prototype.collectComment = function collectComment (type, value, start, e
             end: commentEnd,
             loc: loc
         };
+        if (this.flags & 8388608 /* OptionsDelegate */) {
+            this.delegate(node, commentStart, commentEnd, loc);
+        }
         this.comments.push(node);
     }
 };
@@ -1782,7 +1785,19 @@ Parser.prototype.finishNode = function finishNode (loc, node) {
         };
     }
     if (this.flags & 8388608 /* OptionsDelegate */) {
-        this.delegate(node, 1, 2, 3, 4, 5);
+        var metadata = {
+            start: {
+                line: loc.line,
+                column: loc.column,
+                offset: loc.index
+            },
+            end: {
+                line: this.lastLine,
+                column: this.lastColumn,
+                offset: this.lastIndex
+            }
+        };
+        this.delegate(node, loc.start, this.lastIndex, metadata);
     }
     return node;
 };
