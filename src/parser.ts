@@ -1770,12 +1770,12 @@ export class Parser {
             this.PeekAhead(context);
             return this.line === this.peekedState.line && this.peekedToken === Token.FunctionKeyword;
         }
-    
+
         private parseExportDefault(context: Context, pos: Location): ESTree.ExportDefaultDeclaration {
-            //  Supports the following productions, starting after the 'default' token:
-            //    'export' 'default' HoistableDeclaration
-            //    'export' 'default' ClassDeclaration
-            //    'export' 'default' AssignmentExpression[In] ';'
+            
+            // Note:  The `default` contextual keyword must not contain Unicode escape sequences.
+            if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+
             this.expect(context, Token.DefaultKeyword);
     
             let declaration: ESTree.FunctionDeclaration | ESTree.ClassDeclaration | ESTree.Expression;
@@ -1969,10 +1969,9 @@ export class Parser {
                 // be any IdentifierName. But without 'as', it must be a valid
                 // BindingIdentifier.
                 if (this.token === Token.AsKeyword) {
-    
-                    // 'import {a \\u0061s b} from "./foo.js";'
-                    if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
                     if (this.token === Token.AsKeyword) {
+                        // Note:  The `as` contextual keyword must not contain Unicode escape sequences.
+                        if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
                         this.expect(context, Token.AsKeyword);
                         local = this.parseBindingPatternOrIdentifier(context, pos);
                     } else {
@@ -1982,6 +1981,8 @@ export class Parser {
             } else {
                 imported = this.parseIdentifier(context);
                 local = imported;
+                // Note:  The `default` contextual keyword must not contain Unicode escape sequences.
+                if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
                 this.expect(context, Token.AsKeyword);
                 local = this.parseBindingPatternOrIdentifier(context, pos);
             }
@@ -2017,11 +2018,12 @@ export class Parser {
     
             this.expect(context, Token.Multiply);
     
-            if (this.token !== Token.AsKeyword) {
-                this.error(Errors.NoAsAfterImportNamespace);
-            }
+            if (this.token !== Token.AsKeyword) this.error(Errors.NoAsAfterImportNamespace);
     
-            this.nextToken(context);
+            // Note:  The `default` contextual keyword must not contain Unicode escape sequences.
+            if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+            
+            this.expect(context, Token.AsKeyword);
     
             if (this.token !== Token.Identifier) {
                 this.throwUnexpectedToken();

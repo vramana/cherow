@@ -4,6 +4,19 @@ const expect = chai.expect;
 
 describe('Import', () => {
 
+      it('should fail if the "as" contextual keyword contain Unicode escape sequences.', () => {
+        expect(() => {
+          parseModule(`import {a \\u0061s b} from "./escaped-as-import-specifier.js";`);
+        }).to.throw();
+      });
+
+      it('should fail if the "as" contextual keyword contain Unicode escape sequences.', () => {
+        expect(() => {
+          parseModule(`import* \\u0061s self from "./escaped-as-namespace-import.js";`);
+      }).to.throw();
+    
+      });
+
       it('should fail on import as of arguments', () => {
           expect(() => {
               parseModule('import { x as arguments } from "./cherow.js";');

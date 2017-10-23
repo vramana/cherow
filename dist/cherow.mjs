@@ -1858,10 +1858,9 @@ Parser.prototype.nextTokenIsFuncKeywordOnSameLine = function nextTokenIsFuncKeyw
     return this.line === this.peekedState.line && this.peekedToken === 274519 /* FunctionKeyword */;
 };
 Parser.prototype.parseExportDefault = function parseExportDefault (context, pos) {
-    //  Supports the following productions, starting after the 'default' token:
-    //'export' 'default' HoistableDeclaration
-    //'export' 'default' ClassDeclaration
-    //'export' 'default' AssignmentExpression[In] ';'
+    // Note:  The `default` contextual keyword must not contain Unicode escape sequences.
+    if (this.flags & 2 /* HasUnicode */)
+        { this.error(68 /* InvalidEscapedReservedWord */); }
     this.expect(context, 12368 /* DefaultKeyword */);
     var declaration;
     switch (this.token) {
@@ -2025,10 +2024,10 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
         // be any IdentifierName. But without 'as', it must be a valid
         // BindingIdentifier.
         if (this.token === 69739 /* AsKeyword */) {
-            // 'import {a \\u0061s b} from "./foo.js";'
-            if (this.flags & 2 /* HasUnicode */)
-                { this.error(68 /* InvalidEscapedReservedWord */); }
             if (this.token === 69739 /* AsKeyword */) {
+                // Note:  The `as` contextual keyword must not contain Unicode escape sequences.
+                if (this.flags & 2 /* HasUnicode */)
+                    { this.error(68 /* InvalidEscapedReservedWord */); }
                 this.expect(context, 69739 /* AsKeyword */);
                 local = this.parseBindingPatternOrIdentifier(context, pos);
             }
@@ -2040,6 +2039,9 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
     else {
         imported = this.parseIdentifier(context);
         local = imported;
+        // Note:  The `default` contextual keyword must not contain Unicode escape sequences.
+        if (this.flags & 2 /* HasUnicode */)
+            { this.error(68 /* InvalidEscapedReservedWord */); }
         this.expect(context, 69739 /* AsKeyword */);
         local = this.parseBindingPatternOrIdentifier(context, pos);
     }
@@ -2067,10 +2069,12 @@ Parser.prototype.parseNamedImports = function parseNamedImports (context, specif
 Parser.prototype.parseImportNamespaceSpecifier = function parseImportNamespaceSpecifier (context) {
     var pos = this.getLocations();
     this.expect(context, 2099763 /* Multiply */);
-    if (this.token !== 69739 /* AsKeyword */) {
-        this.error(38 /* NoAsAfterImportNamespace */);
-    }
-    this.nextToken(context);
+    if (this.token !== 69739 /* AsKeyword */)
+        { this.error(38 /* NoAsAfterImportNamespace */); }
+    // Note:  The `default` contextual keyword must not contain Unicode escape sequences.
+    if (this.flags & 2 /* HasUnicode */)
+        { this.error(68 /* InvalidEscapedReservedWord */); }
+    this.expect(context, 69739 /* AsKeyword */);
     if (this.token !== 262145 /* Identifier */) {
         this.throwUnexpectedToken();
     }

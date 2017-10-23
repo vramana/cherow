@@ -19,6 +19,13 @@ describe('Module - Export', () => {
 
   });
 
+  it('should fail if the "default" contextual keyword contain Unicode escape sequences.', () => {
+    expect(() => {
+      parseModule(`export d\\u0065fault 0;`);
+  }).to.throw();
+
+  });
+
   it('should fail if export wrapped in functions body', () => {
     expect(() => {
       parseModule(`function foo() { export { Number }; }`);
