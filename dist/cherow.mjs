@@ -260,7 +260,7 @@ ErrorMessages[84 /* UnexpectedBigIntLiteral */] = 'Unexpected BigInt literal';
 ErrorMessages[85 /* UnNamedClassStmt */] = 'Class statement requires a name';
 ErrorMessages[86 /* UnNamedFunctionStmt */] = 'Function statement requires a name';
 ErrorMessages[87 /* InvalidStrictExpPostion */] = 'The identifier \'%0\' must not be in expression position in strict mode';
-ErrorMessages[88 /* InvalidStrictLexical */] = 'Lexical declarations must not have a binding named "let"';
+ErrorMessages[88 /* InvalidStrictLexical */] = 'The identifier \'let\' must not be in binding position in strict mode';
 ErrorMessages[89 /* MissingInitializer */] = 'Missing initializer';
 ErrorMessages[90 /* InvalidLabeledForOf */] = 'The body of a for-of statement must not be a labeled function declaration';
 ErrorMessages[91 /* InvalidVarDeclInForIn */] = 'Invalid variable declaration in for-in statement';
@@ -4595,6 +4595,8 @@ Parser.prototype.parseBindingPatternOrIdentifier = function parseBindingPatternO
             if (context & 16 /* Yield */)
                 { this.error(82 /* DisallowedInContext */, tokenDesc(this.token)); }
         case 8671304 /* LetKeyword */:
+            if (this.flags & 2 /* HasUnicode */)
+                { this.error(88 /* InvalidStrictLexical */); }
             if (context & 6291456 /* Lexical */)
                 { this.error(54 /* LetInLexicalBinding */); }
         default:

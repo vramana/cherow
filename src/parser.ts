@@ -4948,6 +4948,7 @@ export class Parser {
                     this.flags |= Flags.BindingPosition;
                     if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                 case Token.LetKeyword:
+                    if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidStrictLexical);
                     if (context & Context.Lexical) this.error(Errors.LetInLexicalBinding);
                 default:
                     if (!this.isIdentifier(context, this.token)) this.error(Errors.Unexpected);

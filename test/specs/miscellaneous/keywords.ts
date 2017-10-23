@@ -234,37 +234,4 @@ describe('Miscellaneous - Keyword', () => {
               "type": "Program"
             });
     });
-
-    it('should parse "var le\\u0074"', () => {
-        expect(parseScript('var le\\u0074', {
-            ranges: true
-        })).to.eql({
-              "body": [
-                {
-                  "declarations": [
-                    {
-                      "end": 12,
-                      "id": {
-                        "end": 12,
-                        "name": "let",
-                       "start": 4,
-                        "type": "Identifier"
-                      },
-                      "init": null,
-                      "start": 4,
-                      "type": "VariableDeclarator"
-                    }
-                  ],
-                  "end": 12,
-                 "kind": "var",
-                  "start": 0,
-                  "type": "VariableDeclaration"
-                }
-              ],
-             "end": 12,
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
-            });
-    });
 });

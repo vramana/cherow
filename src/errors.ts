@@ -196,7 +196,7 @@ export const ErrorMessages: {
     [Errors.UnNamedClassStmt]: 'Class statement requires a name',
     [Errors.UnNamedFunctionStmt]: 'Function statement requires a name',
     [Errors.InvalidStrictExpPostion]: 'The identifier \'%0\' must not be in expression position in strict mode',
-    [Errors.InvalidStrictLexical]: 'Lexical declarations must not have a binding named "let"',
+    [Errors.InvalidStrictLexical]: 'The identifier \'let\' must not be in binding position in strict mode',
     [Errors.MissingInitializer]: 'Missing initializer',
     [Errors.InvalidLabeledForOf]: 'The body of a for-of statement must not be a labeled function declaration',
     [Errors.InvalidVarDeclInForIn]: 'Invalid variable declaration in for-in statement',

@@ -13,7 +13,13 @@ describe('Miscellaneous - Future reserved words', () => {
 
         it('should fail on expected reserved words used as Identifier"', () => {
             expect(() => {
-                parseScript('"use strict"; var inte\u0072face = 123;')
+                parseScript('"use strict"; var inte\\u0072face = 123;')
+            }).to.throw()
+        });
+
+        it('should fail on implement strict escaped', () => {
+            expect(() => {
+                parseScript('"use strict"; var \\u0069mplements = 123;')
             }).to.throw()
         });
 
@@ -29,9 +35,15 @@ describe('Miscellaneous - Future reserved words', () => {
             }).to.throw()
         });
 
-        it('should fail on execution of "super=1"', () => {
+        it('should fail on execution of "yield = 1 (only strict)"', () => {
             expect(() => {
-                parseScript('var super = 1;')
+                parseScript('"use strict"; var yield = 1;')
+            }).to.throw()
+        });
+     
+        it('should fail on execution of escaped "yield"', () => {
+            expect(() => {
+                parseScript('var \\u0079ield = 123;')
             }).to.throw()
         });
 
@@ -64,11 +76,115 @@ describe('Miscellaneous - Future reserved words', () => {
                 parseScript('var \\u0079ield = 123;')
             }).to.throw();
         });
+
+        it('should fail on const', () => {
+            expect(() => {
+                parseScript('var const = 1;')
+            }).to.throw();
+        });
+
+        it('should fail on escaped let', () => {
+            expect(() => {
+                parseScript('var l\\u0065t = 123;')
+            }).to.throw();
+        });
     
-        it('should fail on expected reserved words used as Identifier"', () => {
+        it('should fail on expected "protected" reserved words used as Identifier in strict mode', () => {
             expect(() => {
                 parseScript('"use strict"; var \\u0070\\u0075\\u0062\\u006c\\u0069\\u0063 = 123;')
             }).to.throw()
+        });
+    
+        
+        it('should parse Implement as title case correctly', () => {
+            expect(parseScript('var Implements = 1;', {
+                ranges: true,
+                locations: true,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 19,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 19
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 19,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 19
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 18,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 18
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 14,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 14
+                            }
+                          },
+                          "name": "Implements"
+                        },
+                        "init": {
+                          "type": "Literal",
+                          "start": 17,
+                          "end": 18,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 17
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 18
+                            }
+                          },
+                          "value": 1,
+                          "raw": "1"
+                        }
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
         });
     
         it('should parse "var abstract = 1;"', () => {
