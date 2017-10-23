@@ -35,6 +35,43 @@ describe('Espressions - Super', () => {
                 }).to.throw();
             });
 
+            it(`should fail on "!function* (a){ super.b }"`, () => {
+              expect(() => {
+                  parseScript(`!function* (a){ super.b }`);
+              }).to.throw();
+          });
+
+          it(`should fail on "class A extends B { constructor() { super } }"`, () => {
+            expect(() => {
+                parseScript(`class A extends B { constructor() { super } }`);
+            }).to.throw();
+          });
+
+          it(`should fail on "class A extends B { constructor() { super; } }"`, () => {
+              expect(() => {
+              parseScript(`class A extends B { constructor() { super; } }`);
+            }).to.throw();
+        });
+
+        it(`should fail on "class A extends B { constructor() { (super)() } }"`, () => {
+          expect(() => {
+          parseScript(`class A extends B { constructor() { (super)() } }`);
+        }).to.throw();
+    });
+
+    it(`should fail on "class A extends B { foo() { (super).foo } }"`, () => {
+      expect(() => {
+      parseScript(`class A extends B { foo() { (super).foo } }`);
+    }).to.throw();
+});
+
+it(`should fail on "({super: 1})"`, () => {
+  expect(() => {
+  parseScript(`({super: 1})`);
+}).to.not.throw();
+});
+
+
             it(`should fail on "{ a() { function* b(){ super.c(); } } };"`, () => {
                 expect(() => {
                     parseScript(`{ a() { function* b(){ super.c(); } } };`);
