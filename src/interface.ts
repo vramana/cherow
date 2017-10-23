@@ -7,6 +7,7 @@ export interface Options {
     ranges?: boolean;
     locations?: boolean;
     comments?: CollectComments;
+    tokens?: CollectComments;
     loc?: boolean;
     raw?: boolean;
     directives?: boolean;

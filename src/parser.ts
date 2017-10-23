@@ -64,6 +64,7 @@ export class Parser {
         private functionScope: any;
         private errorLocation: void | Location;
         private comments: CollectComments | void;
+        private tokens: any;
         private tokenRegExp: void | {
             pattern: string;
             flags: string;
@@ -96,9 +97,11 @@ export class Parser {
             this.blockScope = undefined;
             this.parentScope = undefined;
             this.comments = undefined;
+            this.tokens = undefined;
     
             if (options.next) this.flags |= Flags.OptionsNext;
             if (options.comments) this.flags |= Flags.OptionsOnComment;
+            if (options.tokens) this.flags |= Flags.OptionsOnToken;
             if (options.jsx) this.flags |= Flags.OptionsJSX;
             if (options.locations) this.flags |= Flags.OptionsLoc;
             if (options.ranges) this.flags |= Flags.OptionsRanges;
@@ -108,6 +111,7 @@ export class Parser {
             if (options.v8) this.flags |= Flags.OptionsV8;
     
             if (this.flags & Flags.OptionsOnComment) this.comments = options.comments;
+            if (this.flags & Flags.OptionsOnToken) this.tokens = options.tokens;
         }
     
         public parse(context: Context): ESTree.Program {
@@ -205,8 +209,13 @@ export class Parser {
             } else {
                 this.token = this.scanToken(context);
             }
-    
+        
+            if (this.flags & Flags.OptionsOnToken) this.collectToken(this.token);
             return this.token;
+        }
+
+        private collectToken(t: Token): any {
+           if (t !== Token.EndOfSource) this.tokens(tokenDesc(t));
         }
     
         private hasNext(): boolean {
