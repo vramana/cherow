@@ -39,3 +39,10 @@
 
 *2017-10-19: Version 0.9.8*
 - Refactored module-code.
+
+*2017-10-23: Version 0.10.0*
+
+- Fixed several edge cases
+- Reduced code size
+- Removed dead code
+- Should be stable. 

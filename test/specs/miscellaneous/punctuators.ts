@@ -17,6 +17,12 @@ describe('Expressions - Compound assignment', () => {
         }).to.throw()
     });
 
+    it('should fail if punctuators are expressed as a Unicode escape sequence', () => {
+        expect(() => {
+            parseScript(`1\\u003B;`);
+        }).to.throw()
+    });
+
     it('should parse correct interpretation of all punctuators', () => {
         expect(parseScript(`({});[];
         this.nan;
