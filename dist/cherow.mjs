@@ -482,13 +482,7 @@ Parser.prototype.nextToken = function nextToken (context) {
     else {
         this.token = this.scanToken(context);
     }
-    if (this.flags & 8388608 /* OptionsOnToken */)
-        { this.collectToken(this.token); }
     return this.token;
-};
-Parser.prototype.collectToken = function collectToken (t) {
-    if (t !== 0 /* EndOfSource */)
-        { this.tokens(tokenDesc(t)); }
 };
 Parser.prototype.hasNext = function hasNext () {
     return this.index < this.source.length;
@@ -1934,7 +1928,11 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
                     { this$1.expect(context, 18 /* Comma */); }
             }
             this.expect(context, 15 /* RightBrace */);
-            if (this.parseOptional(context, 69745 /* FromKeyword */)) {
+            if (this.token === 69745 /* FromKeyword */) {
+                // Note:  The `from` contextual keyword must not contain Unicode escape sequences.
+                if (this.flags & 2 /* HasUnicode */)
+                    { this.error(68 /* InvalidEscapedReservedWord */); }
+                this.expect(context, 69745 /* FromKeyword */);
                 // export {default} from 'foo';
                 // export {foo} from 'foo';
                 source = this.parseModuleSpecifier(context);
@@ -1986,6 +1984,9 @@ Parser.prototype.parseExportSpecifier = function parseExportSpecifier (context) 
     var local = this.parseIdentifierName(context, this.token);
     var exported = local;
     if (this.token === 69739 /* AsKeyword */) {
+        // Note:  The `as` contextual keyword must not contain Unicode escape sequences.
+        if (this.flags & 2 /* HasUnicode */)
+            { this.error(68 /* InvalidEscapedReservedWord */); }
         this.expect(context, 69739 /* AsKeyword */);
         exported = this.parseIdentifierName(context, this.token);
     }

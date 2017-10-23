@@ -209,13 +209,7 @@ export class Parser {
             } else {
                 this.token = this.scanToken(context);
             }
-        
-            if (this.flags & Flags.OptionsOnToken) this.collectToken(this.token);
             return this.token;
-        }
-
-        private collectToken(t: Token): any {
-           if (t !== Token.EndOfSource) this.tokens(tokenDesc(t));
         }
     
         private hasNext(): boolean {
@@ -1861,7 +1855,10 @@ export class Parser {
     
                     this.expect(context, Token.RightBrace)
     
-                    if (this.parseOptional(context, Token.FromKeyword)) {
+                    if (this.token === Token.FromKeyword) {
+                        // Note:  The `from` contextual keyword must not contain Unicode escape sequences.
+                        if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+                        this.expect(context, Token.FromKeyword);
                         // export {default} from 'foo';
                         // export {foo} from 'foo';
                         source = this.parseModuleSpecifier(context);
@@ -1924,9 +1921,11 @@ export class Parser {
     
             let exported = local;
             let token = this.token;
-            if (this.token === Token.AsKeyword) {
-                this.expect(context, Token.AsKeyword);
     
+            if (this.token === Token.AsKeyword) {
+                // Note:  The `as` contextual keyword must not contain Unicode escape sequences.
+                if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+                this.expect(context, Token.AsKeyword);
                 exported = this.parseIdentifierName(context, this.token);
             }
     
@@ -2279,7 +2278,7 @@ export class Parser {
             if (blockScope != null) this.parentScope = blockScope;
             this.blockScope = context & Context.IfClause ? blockScope : undefined;
             const flag = this.flags;
-            
+    
             while (this.token !== Token.RightBrace) {
                 body.push(this.parseStatementListItem(context | Context.TopLevel));
             }
@@ -2448,7 +2447,7 @@ export class Parser {
                 test
             });
         }
-        
+    
         private parseContinueStatement(context: Context): ESTree.ContinueStatement {
             const pos = this.getLocations();
             this.expect(context, Token.ContinueKeyword);
@@ -2833,16 +2832,16 @@ export class Parser {
             }
     
             let id: ESTree.Identifier | null = null;
-            
+    
             const savedFlags = this.flags;
-            
+    
             if (this.token !== Token.LeftParen) {
     
                 const name = this.tokenValue;
                 const token = this.token;
-
-                if (!this.isIdentifier(context, token)) this.throwUnexpectedToken();    
-                
+    
+                if (!this.isIdentifier(context, token)) this.throwUnexpectedToken();
+    
                 switch (token) {
                     case Token.YieldKeyword:
                         if (parentContext & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(token));
@@ -2889,7 +2888,7 @@ export class Parser {
         private parseReturnStatement(context: Context): ESTree.ReturnStatement {
             const pos = this.getLocations();
     
-            if (!(this.flags & Flags.GlobalReturn))  this.error(Errors.IllegalReturn);
+            if (!(this.flags & Flags.GlobalReturn)) this.error(Errors.IllegalReturn);
     
             this.expect(context, Token.ReturnKeyword);
     
@@ -4805,13 +4804,13 @@ export class Parser {
         /****
          * Label
          */
-
+    
         private validateLabel(name: string) {
             if (this.labelSet === undefined || !('@' + name in this.labelSet)) {
                 this.error(Errors.UnknownLabel, name);
             }
         }
-
+    
         /****
          * Scope
          */

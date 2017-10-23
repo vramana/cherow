@@ -5,6 +5,20 @@ const expect = chai.expect;
 
 describe('Module - Export', () => {
 
+  it('should fail if the "as" contextual keyword contain Unicode escape sequences.', () => {
+    expect(() => {
+      parseModule(`export {a \\u0061s b} from "./escaped-as-export-specifier.js";`);
+  }).to.throw();
+
+  });
+
+  it('should fail if the "from" contextual keyword contain Unicode escape sequences.', () => {
+    expect(() => {
+      parseModule(`export {} \\u0066rom "./escaped-from.js";`);
+  }).to.throw();
+
+  });
+
   it('should fail if export wrapped in functions body', () => {
     expect(() => {
       parseModule(`function foo() { export { Number }; }`);

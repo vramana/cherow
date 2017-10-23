@@ -5,6 +5,13 @@ const expect = chai.expect;
 
 describe('Miscellaneous - comments', () => {
 
+        it('should fail on arbitrary character sequence before HTMLCloseComment token', () => {
+            expect(() => {
+                parseScript(`    /*
+                */ the comment should not include these characters, regardless of AnnexB extensions -->`);
+            }).to.throw();
+        });
+
     it('should fail on unclosed Multi line comment', () => {
         expect(() => {
             parseScript(`/*CHEROW/`);
