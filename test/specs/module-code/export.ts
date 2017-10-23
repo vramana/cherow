@@ -283,7 +283,9 @@ describe('Module - Export', () => {
           export function foo() {};`);
       }).to.throw();
       });
-
+      
+      // See Esprima. https://github.com/jquery/esprima/issues/1780
+      // For this 3 test cases
       it('should fail on "{export default 3;}"', () => {
           expect(() => {
               parseModule(`{export default 3;}`);

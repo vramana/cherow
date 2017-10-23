@@ -10,6 +10,13 @@ describe('Espressions - Yield', () => {
           }).to.throw();
       });
 
+        // See Esprima. "https://github.com/jquery/esprima/issues/1706"  
+        it('should fail on yield as default value', () => {
+          expect(() => {
+              parseScript('function *g(x = yield){}');
+          }).to.throw();
+        });
+    
       it('should fail on invalid left-hand side', () => {
         expect(() => {
             parseScript('function* fn() { yield = 1; }');
@@ -8159,8 +8166,9 @@ describe('Espressions - Yield', () => {
             "sourceType": "script"
           });
     });
+    
   
-      it('should parse function name function expression inside generator', () => {
+    it('should parse function name function expression inside generator', () => {
           expect(parseScript(`function* fn() {
           (function yield() {});
         }`, {

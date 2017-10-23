@@ -141,6 +141,228 @@ describe('Declarations - Class', () => {
         }).to.throw('');
     });
 
+    // See Esprma issue. "https://github.com/jquery/esprima/issues/1785"
+    it('should parse "class a extends b { constructor(c = super()){} }"', () => {
+        expect(parseScript(`class a extends b { constructor(c = super()){} }`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 48,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 48
+              }
+            },
+            "body": [
+              {
+                "type": "ClassDeclaration",
+                "start": 0,
+                "end": 48,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 48
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 6,
+                  "end": 7,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 6
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 7
+                    }
+                  },
+                  "name": "a"
+                },
+                "superClass": {
+                  "type": "Identifier",
+                  "start": 16,
+                  "end": 17,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 16
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 17
+                    }
+                  },
+                  "name": "b"
+                },
+                "body": {
+                  "type": "ClassBody",
+                  "start": 18,
+                  "end": 48,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 18
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 48
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "MethodDefinition",
+                      "start": 20,
+                      "end": 46,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 20
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 46
+                        }
+                      },
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 20,
+                        "end": 31,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 20
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 31
+                          }
+                        },
+                        "name": "constructor"
+                      },
+                      "static": false,
+                      "kind": "constructor",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 31,
+                        "end": 46,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 31
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 46
+                          }
+                        },
+                        "id": null,
+                        "generator": false,
+                        "expression": false,
+                        "async": false,
+                        "params": [
+                          {
+                            "type": "AssignmentPattern",
+                            "start": 32,
+                            "end": 43,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 32
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 43
+                              }
+                            },
+                            "left": {
+                              "type": "Identifier",
+                              "start": 32,
+                              "end": 33,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 32
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 33
+                                }
+                              },
+                              "name": "c"
+                            },
+                            "right": {
+                              "type": "CallExpression",
+                              "start": 36,
+                              "end": 43,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 36
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 43
+                                }
+                              },
+                              "callee": {
+                                "type": "Super",
+                                "start": 36,
+                                "end": 41,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 36
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 41
+                                  }
+                                }
+                              },
+                              "arguments": []
+                            }
+                          }
+                        ],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 44,
+                          "end": 46,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 44
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 46
+                            }
+                          },
+                          "body": []
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
 
     it('should parse class static method named prototype"', () => {
         expect(parseScript(`class A {static ["prototype"](){}};`, {

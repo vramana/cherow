@@ -5,6 +5,12 @@ const expect = chai.expect;
 
 describe('TC39 - Parenthesized', () => {
 
+    it('should fail on invalid rest elison', () => {
+      expect(() => {
+          parseScript('[a, ...(b = c)] = 0');
+      }).to.not.throw();
+    });
+
     it('should fail on invalid lefthand side value', () => {
         expect(() => {
             parseScript('(x=1)=2')
