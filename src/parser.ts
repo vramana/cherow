@@ -6,7 +6,7 @@ import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, Scann
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
-import { Options, SavedState, CollectComments, Location } from './interface';
+import { Options, SavedState, CollectComments, Delegate, Location } from './interface';
 
 export class Parser {
     
@@ -64,7 +64,7 @@ export class Parser {
         private functionScope: any;
         private errorLocation: void | Location;
         private comments: CollectComments | void;
-        private tokens: any;
+        private delegate: any;
         private tokenRegExp: void | {
             pattern: string;
             flags: string;
@@ -97,11 +97,11 @@ export class Parser {
             this.blockScope = undefined;
             this.parentScope = undefined;
             this.comments = undefined;
-            this.tokens = undefined;
+            this.delegate = undefined;
     
             if (options.next) this.flags |= Flags.OptionsNext;
             if (options.comments) this.flags |= Flags.OptionsOnComment;
-            if (options.tokens) this.flags |= Flags.OptionsOnToken;
+            if (options.delegate) this.flags |= Flags.OptionsDelegate;
             if (options.jsx) this.flags |= Flags.OptionsJSX;
             if (options.locations) this.flags |= Flags.OptionsLoc;
             if (options.ranges) this.flags |= Flags.OptionsRanges;
@@ -111,7 +111,7 @@ export class Parser {
             if (options.v8) this.flags |= Flags.OptionsV8;
     
             if (this.flags & Flags.OptionsOnComment) this.comments = options.comments;
-            if (this.flags & Flags.OptionsOnToken) this.tokens = options.tokens;
+            if (this.flags & Flags.OptionsDelegate) this.delegate = options.delegate;
         }
     
         public parse(context: Context): ESTree.Program {
@@ -209,6 +209,7 @@ export class Parser {
             } else {
                 this.token = this.scanToken(context);
             }
+    
             return this.token;
         }
     
@@ -1687,7 +1688,11 @@ export class Parser {
                     }
                 };
             }
-    
+            
+            if (this.flags & Flags.OptionsDelegate) {
+                this.delegate(node, 1, 2, 3, 4, 5);
+            }
+
             return node;
         }
     
@@ -1770,12 +1775,12 @@ export class Parser {
             this.PeekAhead(context);
             return this.line === this.peekedState.line && this.peekedToken === Token.FunctionKeyword;
         }
-
+    
         private parseExportDefault(context: Context, pos: Location): ESTree.ExportDefaultDeclaration {
-            
+    
             // Note:  The `default` contextual keyword must not contain Unicode escape sequences.
             if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
-
+    
             this.expect(context, Token.DefaultKeyword);
     
             let declaration: ESTree.FunctionDeclaration | ESTree.ClassDeclaration | ESTree.Expression;
@@ -2022,7 +2027,7 @@ export class Parser {
     
             // Note:  The `default` contextual keyword must not contain Unicode escape sequences.
             if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
-            
+    
             this.expect(context, Token.AsKeyword);
     
             if (this.token !== Token.Identifier) {

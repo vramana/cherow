@@ -57,11 +57,10 @@ export const enum Flags {
     OptionsNext                  = 1 << 20, // Enable / disable Stage 3 proposals
     OptionsDirectives            = 1 << 21, // Enable / disable directives on the node
     OptionsOnComment             = 1 << 22, // Enable / disable comment collecting
-    OptionsOnToken               = 1 << 23, // ** on hold **
+    OptionsDelegate              = 1 << 23, // 
     OptionsV8                    = 1 << 24, // Enable / disable V8 experimental features
-    OptionsFlow                  = 1 << 25, // ** on hold **
-    OptionsGlobalReturn          = 1 << 26, // Allow return statement in global scope,
-    OptionsSourceType            = 1 << 27,
+    OptionsGlobalReturn          = 1 << 25, // Allow return statement in global scope,
+    OptionsSourceType            = 1 << 26,
 
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc,

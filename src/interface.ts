@@ -7,7 +7,7 @@ export interface Options {
     ranges?: boolean;
     locations?: boolean;
     comments?: CollectComments;
-    tokens?: any;
+    delegate?: Delegate;
     loc?: boolean;
     raw?: boolean;
     directives?: boolean;
@@ -43,9 +43,10 @@ export interface Location {
     column: number;
 }
 
-/**
- * The type of the `onComment` option.
- */
 export type CollectComments = void | Comment[] | (
     (type: string, value: string, start: number, end: number, loc: any) => any
+);
+
+export type Delegate = void | (
+    (node: any, start: number, end: number, loc: any) => any
 );

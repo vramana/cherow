@@ -373,13 +373,13 @@ var Parser = function Parser(source, options) {
     this.blockScope = undefined;
     this.parentScope = undefined;
     this.comments = undefined;
-    this.tokens = undefined;
+    this.delegate = undefined;
     if (options.next)
         { this.flags |= 1048576 /* OptionsNext */; }
     if (options.comments)
         { this.flags |= 4194304 /* OptionsOnComment */; }
-    if (options.tokens)
-        { this.flags |= 8388608 /* OptionsOnToken */; }
+    if (options.delegate)
+        { this.flags |= 8388608 /* OptionsDelegate */; }
     if (options.jsx)
         { this.flags |= 262144 /* OptionsJSX */; }
     if (options.locations)
@@ -389,15 +389,15 @@ var Parser = function Parser(source, options) {
     if (options.raw)
         { this.flags |= 524288 /* OptionsRaw */; }
     if (options.globalReturn)
-        { this.flags |= 67108864 /* OptionsGlobalReturn */; }
+        { this.flags |= 33554432 /* OptionsGlobalReturn */; }
     if (options.directives)
         { this.flags |= 2097152 /* OptionsDirectives */; }
     if (options.v8)
         { this.flags |= 16777216 /* OptionsV8 */; }
     if (this.flags & 4194304 /* OptionsOnComment */)
         { this.comments = options.comments; }
-    if (this.flags & 8388608 /* OptionsOnToken */)
-        { this.tokens = options.tokens; }
+    if (this.flags & 8388608 /* OptionsDelegate */)
+        { this.delegate = options.delegate; }
 };
 Parser.prototype.parse = function parse (context) {
     this.nextToken(context);
@@ -1787,6 +1787,9 @@ Parser.prototype.finishNode = function finishNode (loc, node) {
             }
         };
     }
+    if (this.flags & 8388608 /* OptionsDelegate */) {
+        this.delegate(node, 1, 2, 3, 4, 5);
+    }
     return node;
 };
 Parser.prototype.parseOptional = function parseOptional (context, t) {
@@ -2776,7 +2779,7 @@ Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (c
 };
 Parser.prototype.parseReturnStatement = function parseReturnStatement (context) {
     var pos = this.getLocations();
-    if (!(this.flags & 67108868 /* GlobalReturn */))
+    if (!(this.flags & 33554436 /* GlobalReturn */))
         { this.error(19 /* IllegalReturn */); }
     this.expect(context, 12379 /* ReturnKeyword */);
     var argument = null;
