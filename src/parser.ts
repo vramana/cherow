@@ -65,6 +65,7 @@ export class Parser {
         private errorLocation: void | Location;
         private comments: CollectComments | void;
         private delegate: any;
+        private locSource: any;
         private tokenRegExp: void | {
             pattern: string;
             flags: string;
@@ -100,27 +101,29 @@ export class Parser {
             this.delegate = undefined;
     
             if (options.next) this.flags |= Flags.OptionsNext;
-            if (options.comments) this.flags |= Flags.OptionsOnComment;
+            if (options.comments) this.flags |= Flags.OptionsComments;
             if (options.delegate) this.flags |= Flags.OptionsDelegate;
             if (options.jsx) this.flags |= Flags.OptionsJSX;
             if (options.locations) this.flags |= Flags.OptionsLoc;
+            if (options.source) this.flags |= Flags.OptionsSource;
             if (options.ranges) this.flags |= Flags.OptionsRanges;
             if (options.raw) this.flags |= Flags.OptionsRaw;
             if (options.globalReturn) this.flags |= Flags.OptionsGlobalReturn;
             if (options.directives) this.flags |= Flags.OptionsDirectives;
             if (options.v8) this.flags |= Flags.OptionsV8;
     
-            if (this.flags & Flags.OptionsOnComment) this.comments = options.comments;
+            if (this.flags & Flags.OptionsComments) this.comments = options.comments;
             if (this.flags & Flags.OptionsDelegate) this.delegate = options.delegate;
+            if (this.flags & (Flags.OptionsLoc | Flags.OptionsSource)) this.locSource = String(options.source);
         }
-    
+
         public parse(context: Context): ESTree.Program {
     
             this.nextToken(context);
     
             const body = context & Context.Module ?
                 this.parseModuleItemList(context | Context.AllowIn) :
-                this.parseStatementList(context, Token.EndOfSource)
+                this.parseStatementList(context, Token.EndOfSource);
     
             const node: ESTree.Program = {
                 type: 'Program',
@@ -825,7 +828,7 @@ export class Parser {
     
             if (!(state & Scanner.Closed)) this.error(Errors.UnterminatedComment);
     
-            if (state & Scanner.Collectable && this.flags & Flags.OptionsOnComment) {
+            if (state & Scanner.Collectable && this.flags & Flags.OptionsComments) {
                 this.collectComment(
                     state & Scanner.MultiLine ? 'Block' : 'Line',
                     this.source.slice(start, state & Scanner.MultiLine ? this.index - 2 : this.index),
@@ -835,8 +838,8 @@ export class Parser {
     
         private collectComment(type: ESTree.CommentType, value: string, start: number, end: number): void {
             let loc = {};
-            let commentStart = undefined;
-            let commentEnd = undefined
+            let commentStart;
+            let commentEnd;
     
             if (this.flags & Flags.OptionsLoc) {
                 loc = {
@@ -908,7 +911,7 @@ export class Parser {
     
             loop:
                 while (this.hasNext()) {
-                    let code = this.nextChar();
+                    const code = this.nextChar();
                     switch (code) {
                         case Chars.Backslash:
                             this.flags |= Flags.HasUnicode;
@@ -1148,7 +1151,7 @@ export class Parser {
     
             if (this.flags & Flags.OptionsRaw) this.tokenRaw = raw;
     
-            if (state & NumberState.BigInt) this.flags |= Flags.BigInt
+            if (state & NumberState.BigInt) this.flags |= Flags.BigInt;
     
             this.tokenValue = state & NumberState.FloatOrExponent ? parseFloat(raw) : parseInt(raw, 10);
     
@@ -1201,7 +1204,7 @@ export class Parser {
     
             loop:
                 while (this.hasNext()) {
-                    let code = this.nextChar();
+                    const code = this.nextChar();
                     switch (code) {
                         case Chars.LowerG:
                             if (mask & RegExpFlag.Global) this.error(Errors.DuplicateRegExpFlag, 'g');
@@ -1347,7 +1350,7 @@ export class Parser {
                 if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
     
                 for (let i = 0; i < 3; i++) {
-                    ch = this.readNext(Errors.InvalidHexEscapeSequence)
+                    ch = this.readNext(Errors.InvalidHexEscapeSequence);
                     const digit = toHex(ch);
                     if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
                     code = code << 4 | digit;
@@ -1690,6 +1693,10 @@ export class Parser {
                         column: this.lastColumn
                     }
                 };
+
+                if (this.flags & Flags.OptionsSource) {
+                    node.loc.source = this.locSource;
+                }
             }
     
             if (this.flags & Flags.OptionsDelegate) {
@@ -1779,7 +1786,7 @@ export class Parser {
         }
     
         private isIdentifierOrKeyword(t: Token): boolean | number {
-            return t === Token.Identifier || hasMask(t, Token.Keyword)
+            return t === Token.Identifier || hasMask(t, Token.Keyword);
         }
     
         private parseIdentifierName(context: Context, t: Token) {
@@ -1874,7 +1881,7 @@ export class Parser {
                         if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
                     }
     
-                    this.expect(context, Token.RightBrace)
+                    this.expect(context, Token.RightBrace);
     
                     if (this.token === Token.FromKeyword) {
                         // Note:  The `from` contextual keyword must not contain Unicode escape sequences.
@@ -1941,7 +1948,7 @@ export class Parser {
             const local = this.parseIdentifierName(context, this.token);
     
             let exported = local;
-            let token = this.token;
+            const token = this.token;
     
             if (this.token === Token.AsKeyword) {
                 // Note:  The `as` contextual keyword must not contain Unicode escape sequences.
@@ -4320,7 +4327,7 @@ export class Parser {
             this.expect(context, Token.LeftBrace);
             if (!(this.flags & Flags.SimpleParameterList)) this.flags |= Flags.SimpleParameterList;
             const properties: (ESTree.Property | ESTree.SpreadElement)[] = [];
-            let has__proto__ = [false];
+            const hasProto = [false];
             while (this.token !== Token.RightBrace) {
     
                 if (this.token === Token.Ellipsis) {
@@ -4328,18 +4335,18 @@ export class Parser {
                     if (!(this.flags & Flags.OptionsNext)) this.throwUnexpectedToken();
                     properties.push(this.parseSpreadElement(context));
                 } else {
-                    properties.push(this.parseObjectElement(context, has__proto__));
+                    properties.push(this.parseObjectElement(context, hasProto));
                 }
                 if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
             }
-            this.expect(context, Token.RightBrace)
+            this.expect(context, Token.RightBrace);
             return this.finishNode(pos, {
                 type: 'ObjectExpression',
                 properties
             });
         }
     
-        private parseObjectElement(context: Context, has__proto__: any): ESTree.Property {
+        private parseObjectElement(context: Context, hasProto: any): ESTree.Property {
             const pos = this.getLocations();
     
             let key: ESTree.Expression | null = null;
@@ -4395,8 +4402,8 @@ export class Parser {
     
                     if (state & ObjectState.Yield) this.error(Errors.Unexpected);
                     if (!(state & ObjectState.Computed) && this.tokenValue === '__proto__') {
-                        if (!has__proto__[0]) {
-                            has__proto__[0] = true;
+                        if (!hasProto[0]) {
+                            hasProto[0] = true;
                         } else {
                             this.error(Errors.Unexpected);
                         }
@@ -4417,11 +4424,11 @@ export class Parser {
     
                 default:
     
-                    if (!this.isIdentifier(context, token)) this.error(Errors.UnexpectedToken, tokenDesc(token))
+                    if (!this.isIdentifier(context, token)) this.error(Errors.UnexpectedToken, tokenDesc(token));
                     if (state & ObjectState.Yield) this.error(Errors.Unexpected);
     
                     if (token === Token.AwaitKeyword) {
-                        if (context & Context.Await) this.error(Errors.UnexpectedToken, tokenDesc(token))
+                        if (context & Context.Await) this.error(Errors.UnexpectedToken, tokenDesc(token));
                         if (context & Context.InAsyncParameterList) {
                             this.errorLocation = this.getLocations();
                             this.flags |= Flags.HaveSeenAwait;
@@ -4435,7 +4442,7 @@ export class Parser {
                     state |= ObjectState.Shorthand;
     
                     if (this.token === Token.Assign) {
-                        value = this.parseAssignmentPattern(context, pos, key)
+                        value = this.parseAssignmentPattern(context, pos, key);
                         break;
                     } else {
                         value = key;

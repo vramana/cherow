@@ -44,9 +44,9 @@ export interface Location {
 }
 
 export type CollectComments = void | Comment[] | (
-    (type: string, value: string, start: number, end: number, loc: any) => any
+    (type: string, value: string, start: number, end: number, loc: any) => void
 );
 
 export type Delegate = void | (
-    (node: any, start: number, end: number, loc: any) => any
+    (node: any, start: number, end: number, loc: any) => void
 );

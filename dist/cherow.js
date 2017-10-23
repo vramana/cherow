@@ -377,13 +377,15 @@ var Parser = function Parser(source, options) {
     if (options.next)
         { this.flags |= 1048576 /* OptionsNext */; }
     if (options.comments)
-        { this.flags |= 4194304 /* OptionsOnComment */; }
+        { this.flags |= 4194304 /* OptionsComments */; }
     if (options.delegate)
         { this.flags |= 8388608 /* OptionsDelegate */; }
     if (options.jsx)
         { this.flags |= 262144 /* OptionsJSX */; }
     if (options.locations)
         { this.flags |= 65536 /* OptionsLoc */; }
+    if (options.source)
+        { this.flags |= 131072 /* OptionsSource */; }
     if (options.ranges)
         { this.flags |= 32768 /* OptionsRanges */; }
     if (options.raw)
@@ -394,10 +396,12 @@ var Parser = function Parser(source, options) {
         { this.flags |= 2097152 /* OptionsDirectives */; }
     if (options.v8)
         { this.flags |= 16777216 /* OptionsV8 */; }
-    if (this.flags & 4194304 /* OptionsOnComment */)
+    if (this.flags & 4194304 /* OptionsComments */)
         { this.comments = options.comments; }
     if (this.flags & 8388608 /* OptionsDelegate */)
         { this.delegate = options.delegate; }
+    if (this.flags & (65536 /* OptionsLoc */ | 131072 /* OptionsSource */))
+        { this.locSource = String(options.source); }
 };
 Parser.prototype.parse = function parse (context) {
     this.nextToken(context);
@@ -1031,14 +1035,14 @@ Parser.prototype.skipComments = function skipComments (state) {
     }
     if (!(state & 32 /* Closed */))
         { this.error(2 /* UnterminatedComment */); }
-    if (state & 24 /* Collectable */ && this.flags & 4194304 /* OptionsOnComment */) {
+    if (state & 24 /* Collectable */ && this.flags & 4194304 /* OptionsComments */) {
         this.collectComment(state & 8 /* MultiLine */ ? 'Block' : 'Line', this.source.slice(start, state & 8 /* MultiLine */ ? this.index - 2 : this.index), this.startIndex, this.index);
     }
 };
 Parser.prototype.collectComment = function collectComment (type, value, start, end) {
     var loc = {};
-    var commentStart = undefined;
-    var commentEnd = undefined;
+    var commentStart;
+    var commentEnd;
     if (this.flags & 65536 /* OptionsLoc */) {
         loc = {
             start: {
@@ -1789,6 +1793,9 @@ Parser.prototype.finishNode = function finishNode (loc, node) {
                 column: this.lastColumn
             }
         };
+        if (this.flags & 131072 /* OptionsSource */) {
+            node.loc.source = this.locSource;
+        }
     }
     if (this.flags & 8388608 /* OptionsDelegate */) {
         var metadata = {
@@ -4027,7 +4034,7 @@ Parser.prototype.parseObjectExpression = function parseObjectExpression (context
     if (!(this.flags & 16384 /* SimpleParameterList */))
         { this.flags |= 16384 /* SimpleParameterList */; }
     var properties = [];
-    var has__proto__ = [false];
+    var hasProto = [false];
     while (this.token !== 15 /* RightBrace */) {
         if (this$1.token === 14 /* Ellipsis */) {
             // Object rest spread - Stage 3 proposal
@@ -4036,7 +4043,7 @@ Parser.prototype.parseObjectExpression = function parseObjectExpression (context
             properties.push(this$1.parseSpreadElement(context));
         }
         else {
-            properties.push(this$1.parseObjectElement(context, has__proto__));
+            properties.push(this$1.parseObjectElement(context, hasProto));
         }
         if (this$1.token !== 15 /* RightBrace */)
             { this$1.expect(context, 18 /* Comma */); }
@@ -4047,7 +4054,7 @@ Parser.prototype.parseObjectExpression = function parseObjectExpression (context
         properties: properties
     });
 };
-Parser.prototype.parseObjectElement = function parseObjectElement (context, has__proto__) {
+Parser.prototype.parseObjectElement = function parseObjectElement (context, hasProto) {
     var pos = this.getLocations();
     var key = null;
     var value = null;
@@ -4106,8 +4113,8 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context, has_
             if (state & 1 /* Yield */)
                 { this.error(0 /* Unexpected */); }
             if (!(state & 4 /* Computed */) && this.tokenValue === '__proto__') {
-                if (!has__proto__[0]) {
-                    has__proto__[0] = true;
+                if (!hasProto[0]) {
+                    hasProto[0] = true;
                 }
                 else {
                     this.error(0 /* Unexpected */);

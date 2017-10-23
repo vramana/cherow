@@ -56,11 +56,11 @@ export const enum Flags {
     OptionsRaw                   = 1 << 19, // Enable / disable "raw" property on the node
     OptionsNext                  = 1 << 20, // Enable / disable Stage 3 proposals
     OptionsDirectives            = 1 << 21, // Enable / disable directives on the node
-    OptionsOnComment             = 1 << 22, // Enable / disable comment collecting
-    OptionsDelegate              = 1 << 23, // 
+    OptionsComments              = 1 << 22, // Enable / disable comment collecting
+    OptionsDelegate              = 1 << 23, // Enable / disable token syntax delegate
     OptionsV8                    = 1 << 24, // Enable / disable V8 experimental features
     OptionsGlobalReturn          = 1 << 25, // Allow return statement in global scope,
-    OptionsSourceType            = 1 << 26,
+    OptionsSourceType            = 1 << 26, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
 
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc,

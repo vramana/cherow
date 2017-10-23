@@ -46,3 +46,6 @@
 - Reduced code size
 - Removed dead code
 - Should be stable. 
+
+*2017-10-24: Version 0.10.2*
+- Added source option to the node location meta data

@@ -23,6 +23,86 @@ describe('Miscellaneous - API', () => {
         }).to.throw();
     });
 
+    it('should parse correctly with the source option on location node', () => {
+      expect(parseScript(`function f(){}`, {
+          ranges: true,
+          locations: true,
+          raw: true,
+          source: 'cherow.js'
+      })).to.eql({
+          "body": [
+            {
+              "async": false,
+              "body": {
+                "body": [],
+                "end": 14,
+                "loc": {
+                  "end": {
+                    "column": 14,
+                    "line": 1,
+                  },
+                  "source": "cherow.js",
+                 "start": {
+                    "column": 12,
+                    "line": 1,
+                  }
+                },
+                "start": 12,
+                "type": "BlockStatement",
+              },
+              "end": 14,
+              "expression": false,
+              "generator": false,
+              "id": {
+                "end": 10,
+                "loc": {
+                  "end": {
+                    "column": 10,
+                   "line": 1,
+                  },
+                  "source": "cherow.js",
+                  "start": {
+                    "column": 9,
+                    "line": 1,
+                  }
+                },
+                "name": "f",
+                "start": 9,
+                "type": "Identifier",
+              },
+              "loc": {
+                "end": {
+                  "column": 14,
+                  "line": 1,
+                },
+                "source": "cherow.js",
+                "start": {
+                  "column": 0,
+                  "line": 1
+                }
+              },
+              "params": [],
+              "start": 0,
+              "type": "FunctionDeclaration"
+            }
+          ],
+         "end": 14,
+          "loc": {
+            "end": {
+              "column": 14,
+              "line": 1,
+            },
+            "start": {
+              "column": 0,
+              "line": 1,
+            }
+          },
+          "sourceType": "script",
+          "start": 0,
+          "type": "Program",
+        });
+    });
+
     it('should parse one string parameter', () => {
         expect(parseScript(`function f(){}`, {
             ranges: true,
