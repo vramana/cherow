@@ -157,7 +157,7 @@ An example illustrating how to collect literal nodes:
     let list = [];
     parseScript('answer = 42', { delegate: function(node, start, end, metadata) {
          if (node.type === 'Literal') {
-                list.push(node;
+                list.push(node);
             }
     }})
 ```
