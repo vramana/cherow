@@ -23,6 +23,19 @@ describe('Statements - With statement', () => {
         }).to.throw('');
     });
 
+    it('should throw if generator declaration is in statement position', () => {
+        expect(() => {
+            parseModule(`
+            with ({}) function* g() {}`)
+        }).to.throw('');
+    });
+
+    it('should throw if async function declaration is in statement position', () => {
+        expect(() => {
+            parseModule(`with ({}) async function f() {}`)
+        }).to.throw('');
+    });
+
     it('should throw if lexical declaration (const) are used in statement position', () => {
         expect(() => {
             parseScript(`with ({}) const x = null;`)

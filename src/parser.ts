@@ -2949,7 +2949,7 @@ export class Parser {
     
                 this.labelSet[key] = true;
                 let body: ESTree.Statement;
-    
+
                 if (this.token === Token.FunctionKeyword) {
                     // '13.1.1 - Static Semantics: ContainsDuplicateLabels', says it's a syntax error if
                     // LabelledItem: FunctionDeclaration is ever matched. Annex B.3.2 changes this behaviour.
@@ -2962,7 +2962,7 @@ export class Parser {
                 } else {
                     body = this.parseStatement(context | Context.TopLevel);
                 }
-    
+
                 this.labelSet[key] = false;
     
                 return this.finishNode(pos, {

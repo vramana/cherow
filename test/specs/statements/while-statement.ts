@@ -78,7 +78,7 @@ describe('Statements - While statement', () => {
                 parseScript(`while 1 break;`)
             }).to.throw();
         });
-    
+
         it('should throw if execution of "while 0 break" fails', () => {
             expect(() => {
                 parseScript(`while 0 break;`)
