@@ -213,7 +213,7 @@ describe('Statements - For in', () => {
     });
 
     it('should throw on "for (a = 0 in {});"', () => {
-        expect(() => { parseScript('for (a = 0 in {});')}).to.not.throw();
+        expect(() => { parseScript('for (a = 0 in {});')}).to.throw();
     });
 
     it('should throw on "for (let a = 0 in {});"', () => {

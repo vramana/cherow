@@ -203,7 +203,7 @@ export class Parser {
             this.rewindState(savedState);
         }
     
-        private nextToken(context: Context): Token {
+        private nextToken(context: Context) {
     
             if (this.peekedState) {
                 this.rewindState(this.peekedState);
@@ -212,8 +212,6 @@ export class Parser {
             } else {
                 this.token = this.scanToken(context);
             }
-    
-            return this.token;
         }
     
         private hasNext(): boolean {
@@ -1997,14 +1995,10 @@ export class Parser {
                 // be any IdentifierName. But without 'as', it must be a valid
                 // BindingIdentifier.
                 if (this.token === Token.AsKeyword) {
-                    if (this.token === Token.AsKeyword) {
-                        // Note:  The `as` contextual keyword must not contain Unicode escape sequences.
-                        if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
-                        this.expect(context, Token.AsKeyword);
-                        local = this.parseBindingPatternOrIdentifier(context, pos);
-                    } else {
-                        this.error(Errors.MissingAsImportSpecifier);
-                    }
+                    // Note:  The `as` contextual keyword must not contain Unicode escape sequences.
+                    if (this.flags & Flags.HasUnicode) this.error(Errors.InvalidEscapedReservedWord);
+                    this.expect(context, Token.AsKeyword);
+                    local = this.parseBindingPatternOrIdentifier(context, pos);
                 }
             } else {
                 imported = this.parseIdentifier(context);
@@ -3153,7 +3147,7 @@ export class Parser {
     
                 this.nextToken(context);
     
-                const right = this.parseAssignmentExpression(context);
+                const right = this.parseAssignmentExpression(context | Context.AllowIn);
     
                 return this.finishNode(pos, {
                     type: 'AssignmentExpression',
@@ -3294,10 +3288,10 @@ export class Parser {
             });
         }
     
-        private parseConditionalExpression(context: Context, pos: Location): any {
+        private parseConditionalExpression(context: Context, pos: Location) {
             const expr = this.parseBinaryExpression(context, 0, pos);
             if (!this.parseOptional(context, Token.QuestionMark)) return expr;
-            const consequent = this.parseAssignmentExpression(context);
+            const consequent = this.parseAssignmentExpression(context | Context.AllowIn);
             this.expect(context, Token.Colon);
             const alternate = this.parseAssignmentExpression(context);
             return this.finishNode(pos, {
@@ -3310,18 +3304,21 @@ export class Parser {
     
         private parseBinaryExpression(
             context: Context,
-            precedence: number,
+            minPrec: number,
             pos: Location,
             expr: ESTree.Expression = this.parseUnaryExpression(context)
         ): ESTree.Expression {
     
             while (true) {
     
-                const newPrecedence = this.token & Token.Precedence;
+                const prec = this.token & Token.Precedence;
+    
+                if (prec === 0) return expr;
     
                 if (!(context & Context.AllowIn) && this.token === Token.InKeyword) break;
     
-                const operator = this.token === Token.Exponentiate ? newPrecedence >= precedence : newPrecedence > precedence;
+                // Only ** is right to left.
+                const operator = this.token === Token.Exponentiate ? prec >= minPrec : prec > minPrec;
     
                 if (!operator) break;
     
@@ -3333,7 +3330,7 @@ export class Parser {
                     type: (binaryOperator === Token.LogicalAnd || binaryOperator === Token.LogicalOr) ?
                         'LogicalExpression' : 'BinaryExpression',
                     left: expr,
-                    right: this.parseBinaryExpression(context, newPrecedence, this.getLocations()),
+                    right: this.parseBinaryExpression(context, prec, this.getLocations()),
                     operator: tokenDesc(binaryOperator)
                 });
             }
@@ -3613,7 +3610,7 @@ export class Parser {
                         const args = this.parseArguments(context & ~Context.InParameter, pos);
     
                         if (context & Context.Import && args.length !== 1 &&
-                            expr.type as any === 'Import') this.error(Errors.BadImportCallArity);
+                            expr.type as string === 'Import') this.error(Errors.BadImportCallArity);
     
                         expr = this.finishNode(pos, {
                             type: 'CallExpression',
@@ -3697,12 +3694,14 @@ export class Parser {
             this.flags &= ~Flags.SimpleParameterList;
     
             while (this.token !== Token.RightParen) {
+
                 if (this.token === Token.Ellipsis) {
-                    if (!(this.flags & Flags.SimpleParameterList)) this.flags |= Flags.SimpleParameterList;
+                    this.flags |= Flags.SimpleParameterList;
                     result.push(this.parseRestElement(context));
                     this.parseOptional(context, Token.Comma);
                     break;
                 }
+    
                 result.push(this.parseFormalParameter(context));
                 if (this.token !== Token.RightParen) this.expect(context, Token.Comma);
             }
@@ -3725,7 +3724,12 @@ export class Parser {
         ): ESTree.AssignmentPattern | ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.RestElement {
             const pos = this.getLocations();
     
-            const left = this.token === Token.Ellipsis ? this.parseRestElement(context) : this.parseBindingPatternOrIdentifier(context, pos);
+            if (this.token !== Token.Identifier) {
+                this.errorLocation = pos;
+                this.flags |= Flags.SimpleParameterList;
+            }
+    
+            const left = this.parseBindingPatternOrIdentifier(context, pos);
     
             // Initializer[In, Yield] :
             //     = AssignmentExpression[?In, ?Yield]
@@ -3740,8 +3744,7 @@ export class Parser {
                 this.error(Errors.DisallowedInContext, tokenDesc(this.token));
             }
             const right = this.parseAssignmentExpression(context);
-    
-    
+        
             return this.finishNode(pos, {
                 type: 'AssignmentPattern',
                 left,
@@ -4529,7 +4532,6 @@ export class Parser {
         private parseArrayInitializer(context: Context): ESTree.ArrayExpression {
             const pos = this.getLocations();
             this.expect(context, Token.LeftBracket);
-            if (!(this.flags & Flags.SimpleParameterList)) this.flags |= Flags.SimpleParameterList;
             const elements = [];
     
             while (this.token !== Token.RightBracket) {
@@ -5037,11 +5039,6 @@ export class Parser {
             const pos = this.getLocations();
             this.expect(context, Token.LeftBracket);
     
-            if (context & Context.InParameter && !(this.flags & Flags.SimpleParameterList)) {
-                this.errorLocation = pos;
-                this.flags |= Flags.SimpleParameterList;
-            }
-    
             const elements: (ESTree.Pattern | null)[] = [];
             while (this.token !== Token.RightBracket) {
                 if (this.parseOptional(context, Token.Comma)) {
@@ -5088,10 +5085,6 @@ export class Parser {
         private ObjectAssignmentPattern(context: Context, pos: Location): ESTree.ObjectPattern {
             const properties: (ESTree.AssignmentProperty | ESTree.RestElement)[] = [];
             this.expect(context, Token.LeftBrace);
-            if (context & Context.InParameter && !(this.flags & Flags.SimpleParameterList)) {
-                this.errorLocation = pos;
-                this.flags |= Flags.SimpleParameterList;
-            }
     
             while (this.token !== Token.RightBrace) {
                 if (this.token === Token.Ellipsis) {
