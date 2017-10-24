@@ -2398,7 +2398,7 @@ Parser.prototype.parseThrowStatement = function parseThrowStatement (context) {
     this.expect(context, 12383 /* ThrowKeyword */);
     if (this.flags & 1 /* LineTerminator */)
         { this.error(21 /* LineBreakAfterThrow */); }
-    var argument = this.parseExpression(context, pos);
+    var argument = this.parseExpression(context | 4 /* AllowIn */, pos);
     this.consumeSemicolon(context);
     return this.finishNode(pos, {
         type: 'ThrowStatement',
@@ -2413,7 +2413,7 @@ Parser.prototype.parseWithStatement = function parseWithStatement (context) {
         { this.error(22 /* StrictModeWith */); }
     this.expect(context, 12386 /* WithKeyword */);
     this.expect(context, 262155 /* LeftParen */);
-    var object = this.parseExpression(context, pos);
+    var object = this.parseExpression(context | 4 /* AllowIn */, pos);
     this.expect(context, 16 /* RightParen */);
     var body = this.parseStatement(context & ~1024 /* TopLevel */);
     return this.finishNode(pos, {
@@ -2426,7 +2426,7 @@ Parser.prototype.parseWhileStatement = function parseWhileStatement (context) {
     var pos = this.getLocations();
     this.expect(context, 12385 /* WhileKeyword */);
     this.expect(context, 262155 /* LeftParen */);
-    var test = this.parseExpression(context, pos);
+    var test = this.parseExpression(context | 4 /* AllowIn */, pos);
     this.expect(context, 16 /* RightParen */);
     var savedFlag = this.flags;
     this.flags |= 32 /* Iteration */;
@@ -2447,7 +2447,7 @@ Parser.prototype.parseDoWhileStatement = function parseDoWhileStatement (context
     this.flags = savedFlag;
     this.expect(context, 12385 /* WhileKeyword */);
     this.expect(context, 262155 /* LeftParen */);
-    var test = this.parseExpression(context & ~1024 /* TopLevel */, pos);
+    var test = this.parseExpression(context & ~1024 /* TopLevel */ | 4 /* AllowIn */, pos);
     this.expect(context, 16 /* RightParen */);
     this.parseOptional(context, 17 /* Semicolon */);
     return this.finishNode(pos, {
@@ -2488,12 +2488,6 @@ Parser.prototype.parseBreakStatement = function parseBreakStatement (context) {
         type: 'BreakStatement',
         label: label
     });
-};
-Parser.prototype.parseIfStatementChild = function parseIfStatementChild (context) {
-    if (context & 2 /* Strict */ && this.token === 274519 /* FunctionKeyword */) {
-        this.error(97 /* ForbiddenAsStatement */, tokenDesc(this.token));
-    }
-    return this.parseStatement(context & ~1024 /* TopLevel */ | (4096 /* AnnexB */ | 1024 /* TopLevel */));
 };
 Parser.prototype.parseForStatement = function parseForStatement (context) {
     var pos = this.getLocations();
@@ -2622,6 +2616,12 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
                 update: update
             });
     }
+};
+Parser.prototype.parseIfStatementChild = function parseIfStatementChild (context) {
+    if (context & 2 /* Strict */ && this.token === 274519 /* FunctionKeyword */) {
+        this.error(97 /* ForbiddenAsStatement */, tokenDesc(this.token));
+    }
+    return this.parseStatement(context & ~1024 /* TopLevel */ | (4096 /* AnnexB */ | 1024 /* TopLevel */));
 };
 Parser.prototype.parseIfStatement = function parseIfStatement (context) {
     var pos = this.getLocations();
@@ -2805,8 +2805,9 @@ Parser.prototype.parseReturnStatement = function parseReturnStatement (context) 
         { this.error(19 /* IllegalReturn */); }
     this.expect(context, 12379 /* ReturnKeyword */);
     var argument = null;
-    if (!this.canConsumeSemicolon())
-        { argument = this.parseExpression(context | 4 /* AllowIn */, pos); }
+    if (!this.canConsumeSemicolon()) {
+        argument = this.parseExpression(context | 4 /* AllowIn */, pos);
+    }
     this.consumeSemicolon(context);
     return this.finishNode(pos, {
         type: 'ReturnStatement',
@@ -3253,9 +3254,6 @@ Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context
             prefix: true,
             argument: expr
         });
-    }
-    if (this.flags & 262144 /* OptionsJSX */ && this.token === 2361151 /* LessThan */) {
-        return this.parseJSXElement(context | 8192 /* JSXChild */);
     }
     expr = this.parseLeftHandSideExpression(context, pos);
     if (hasMask(this.token, 786432 /* UpdateOperator */) && !(this.flags & 1 /* LineTerminator */)) {
@@ -3794,6 +3792,10 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
                 this.throwUnexpectedToken();
             }
         // fall through
+        case 2361151 /* LessThan */:
+            if (this.flags & 262144 /* OptionsJSX */) {
+                return this.parseJSXElement(context | 8192 /* JSXChild */);
+            }
         default:
             if (!this.isIdentifier(context, this.token)) {
                 this.throwUnexpectedToken();

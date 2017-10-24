@@ -116,7 +116,7 @@ export class Parser {
             if (this.flags & Flags.OptionsDelegate) this.delegate = options.delegate;
             if (this.flags & (Flags.OptionsLoc | Flags.OptionsSource)) this.locSource = String(options.source);
         }
-
+    
         public parse(context: Context): ESTree.Program {
     
             this.nextToken(context);
@@ -870,11 +870,11 @@ export class Parser {
                     end: commentEnd,
                     loc
                 };
-
+    
                 if (this.flags & Flags.OptionsDelegate) {
                     this.delegate(node, commentStart, commentEnd, loc);
                 }
-
+    
                 this.comments.push(node);
             }
         }
@@ -1693,7 +1693,7 @@ export class Parser {
                         column: this.lastColumn
                     }
                 };
-
+    
                 if (this.flags & Flags.OptionsSource) {
                     node.loc.source = this.locSource;
                 }
@@ -2396,7 +2396,7 @@ export class Parser {
     
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterThrow);
     
-            const argument: ESTree.Expression = this.parseExpression(context, pos);
+            const argument: ESTree.Expression = this.parseExpression(context | Context.AllowIn, pos);
     
             this.consumeSemicolon(context);
     
@@ -2415,7 +2415,7 @@ export class Parser {
     
             this.expect(context, Token.WithKeyword);
             this.expect(context, Token.LeftParen);
-            const object = this.parseExpression(context, pos);
+            const object = this.parseExpression(context | Context.AllowIn, pos);
             this.expect(context, Token.RightParen);
             const body = this.parseStatement(context & ~Context.TopLevel);
             return this.finishNode(pos, {
@@ -2431,7 +2431,7 @@ export class Parser {
             this.expect(context, Token.WhileKeyword);
             this.expect(context, Token.LeftParen);
     
-            const test = this.parseExpression(context, pos);
+            const test = this.parseExpression(context | Context.AllowIn, pos);
     
             this.expect(context, Token.RightParen);
     
@@ -2466,7 +2466,7 @@ export class Parser {
             this.expect(context, Token.WhileKeyword);
             this.expect(context, Token.LeftParen);
     
-            const test = this.parseExpression(context & ~Context.TopLevel, pos);
+            const test = this.parseExpression(context & ~Context.TopLevel | Context.AllowIn, pos);
     
             this.expect(context, Token.RightParen);
             this.parseOptional(context, Token.Semicolon);
@@ -2522,13 +2522,6 @@ export class Parser {
                 type: 'BreakStatement',
                 label
             });
-        }
-    
-        private parseIfStatementChild(context: Context): ESTree.Statement {
-            if (context & Context.Strict && this.token === Token.FunctionKeyword) {
-                this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
-            }
-            return this.parseStatement(context & ~Context.TopLevel | (Context.AnnexB | Context.TopLevel));
         }
     
         private parseForStatement(context: Context): any {
@@ -2689,6 +2682,13 @@ export class Parser {
                         update
                     });
             }
+        }
+    
+        private parseIfStatementChild(context: Context): ESTree.Statement {
+            if (context & Context.Strict && this.token === Token.FunctionKeyword) {
+                this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
+            }
+            return this.parseStatement(context & ~Context.TopLevel | (Context.AnnexB | Context.TopLevel));
         }
     
         private parseIfStatement(context: Context): ESTree.IfStatement {
@@ -2924,7 +2924,9 @@ export class Parser {
     
             let argument: ESTree.Expression | null = null;
     
-            if (!this.canConsumeSemicolon()) argument = this.parseExpression(context | Context.AllowIn, pos);
+            if (!this.canConsumeSemicolon()) {
+                argument = this.parseExpression(context | Context.AllowIn, pos);
+            }
     
             this.consumeSemicolon(context);
     
@@ -2949,7 +2951,7 @@ export class Parser {
     
                 this.labelSet[key] = true;
                 let body: ESTree.Statement;
-
+    
                 if (this.token === Token.FunctionKeyword) {
                     // '13.1.1 - Static Semantics: ContainsDuplicateLabels', says it's a syntax error if
                     // LabelledItem: FunctionDeclaration is ever matched. Annex B.3.2 changes this behaviour.
@@ -2962,7 +2964,7 @@ export class Parser {
                 } else {
                     body = this.parseStatement(context | Context.TopLevel);
                 }
-
+    
                 this.labelSet[key] = false;
     
                 return this.finishNode(pos, {
@@ -3071,7 +3073,10 @@ export class Parser {
             });
         }
     
-        private parseYieldExpression(context: Context, pos: Location): ESTree.YieldExpression {
+        private parseYieldExpression(
+            context: Context,
+            pos: Location
+        ): ESTree.YieldExpression {
     
             if (context & Context.InParenthesis) {
                 this.errorLocation = pos;
@@ -3419,10 +3424,6 @@ export class Parser {
                     prefix: true,
                     argument: expr
                 });
-            }
-    
-            if (this.flags & Flags.OptionsJSX && this.token === Token.LessThan) {
-                return this.parseJSXElement(context | Context.JSXChild);
             }
     
             expr = this.parseLeftHandSideExpression(context, pos);
@@ -4039,6 +4040,10 @@ export class Parser {
                         this.throwUnexpectedToken();
                     }
                     // fall through
+                case Token.LessThan:
+                    if (this.flags & Flags.OptionsJSX) {
+                        return this.parseJSXElement(context | Context.JSXChild);
+                    }
                 default:
     
                     if (!this.isIdentifier(context, this.token)) {
