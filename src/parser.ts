@@ -3694,7 +3694,7 @@ export class Parser {
             this.flags &= ~Flags.SimpleParameterList;
     
             while (this.token !== Token.RightParen) {
-
+    
                 if (this.token === Token.Ellipsis) {
                     this.flags |= Flags.SimpleParameterList;
                     result.push(this.parseRestElement(context));
@@ -3734,17 +3734,20 @@ export class Parser {
             // Initializer[In, Yield] :
             //     = AssignmentExpression[?In, ?Yield]
             if (!this.parseOptional(context, Token.Assign)) return left;
-            // Note: Checking for invalid Yield token occurance here, let us have correct
-            // error location if we have to throw an error
-            if (this.token === Token.YieldKeyword) {
-                if (context & (Context.Strict | Context.Yield)) this.error(Errors.Unexpected);
+    
+            switch (this.token) {
+
+                case Token.YieldKeyword:
+                case Token.AwaitKeyword:
+                    if (context & Context.Await || (context & (Context.Strict | Context.Yield))) {
+                        this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                    }
+    
+                default: // ignore
             }
-            // await expression are not allowed in default parameters
-            if (context & Context.Await && this.token === Token.AwaitKeyword) {
-                this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-            }
+    
             const right = this.parseAssignmentExpression(context);
-        
+    
             return this.finishNode(pos, {
                 type: 'AssignmentPattern',
                 left,
@@ -3769,7 +3772,9 @@ export class Parser {
             const isEscaped = !!(this.flags & Flags.HasUnicode);
             const id = this.parseIdentifier(context);
             const flags = this.flags;
-            if (!(this.flags & Flags.SimpleParameterList)) this.flags |= Flags.SimpleParameterList;
+            
+            this.flags |= Flags.SimpleParameterList;
+
             switch (this.token) {
     
                 // 'parseAsyncFunctionExpression'
@@ -3928,11 +3933,7 @@ export class Parser {
                     this.parseAssignmentExpression(context);
                 args.push(expr);
     
-                if (this.token === Token.RightParen) break;
-    
-                this.expect(context, Token.Comma);
-    
-                if (this.token === Token.RightParen) break;
+                if (this.token !== Token.RightParen)   this.expect(context, Token.Comma);
             }
     
             this.expect(context, Token.RightParen);
@@ -4110,27 +4111,10 @@ export class Parser {
             this.expect(context, Token.ClassKeyword);
     
             let superClass: ESTree.Expression | null = null;
-            let id = null;
             let classBody;
             let flags = ObjectState.None;
             const savedFlags = this.flags;
-    
-            if (this.token === Token.Identifier) {
-                const name = this.tokenValue;
-                if (context & Context.TopLevel) {
-                    if (!this.initBlockScope() && name in this.blockScope) {
-                        if (this.blockScope !== this.functionScope || this.blockScope[name] === ScopeMasks.NonShadowable) {
-                            this.error(Errors.DuplicateIdentifier, name);
-                        }
-                    }
-                    this.blockScope[name] = ScopeMasks.Shadowable;
-                }
-    
-                id = this.isIdentifier(context, this.token) ? this.parseIdentifier(context | Context.Strict) : null;
-    
-                // Valid: `export default class {};`
-                // Invalid: `class {};`
-            }
+            const id = this.isIdentifier(context, this.token) ? this.parseIdentifier(context | Context.Strict) : null;
     
             if (this.parseOptional(context, Token.ExtendsKeyword)) {
     
@@ -4220,17 +4204,8 @@ export class Parser {
                         }
                         // Async generator
                         if (this.parseOptional(context, Token.Multiply)) state |= ObjectState.Yield;
-    
-                        switch (this.token) {
-                            case Token.LeftBracket:
-                                state |= ObjectState.Computed;
-                                break;
-                                // Invalid: `class X { async static f() {} }`
-                            case Token.StaticKeyword:
-                                this.error(Errors.InvalidMethod);
-                            default: // ignore
-                        }
-    
+                        // Invalid: `class X { async static f() {} }`
+                        if (this.token === Token.StaticKeyword)  this.error(Errors.InvalidMethod);  
                         key = this.parsePropertyName(context);
     
                         if (token === Token.ConstructorKeyword) this.error(Errors.ConstructorIsAsync);
@@ -4590,9 +4565,6 @@ export class Parser {
                 if (!(state & ParenthesizedState.EvalOrArg) && this.isEvalOrArguments(this.tokenValue)) {
                     state |= ParenthesizedState.EvalOrArg;
                 }
-                if (!(state & ParenthesizedState.Yield) && this.token === Token.YieldKeyword) {
-                    state |= ParenthesizedState.Yield;
-                }
             }
     
             if (!(state & ParenthesizedState.Parenthesized) && this.token === Token.LeftParen) {
@@ -4620,10 +4592,6 @@ export class Parser {
                                 this.errorLocation = errPos;
                                 state |= ParenthesizedState.EvalOrArg;
                             }
-                            if (!(state & ParenthesizedState.Yield) && this.token === Token.YieldKeyword) {
-                                this.errorLocation = errPos;
-                                state |= ParenthesizedState.Yield;
-                            }
                         }
                         if (!(state & ParenthesizedState.Parenthesized) && this.token === Token.LeftParen) {
                             this.errorLocation = this.getLocations();
@@ -4648,7 +4616,6 @@ export class Parser {
                 if (this.flags & Flags.HaveSeenYield) this.error(Errors.InvalidArrowYieldParam);
                 if (state & ParenthesizedState.EvalOrArg) this.error(Errors.StrictParamName);
                 if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
-                if (state & ParenthesizedState.Yield) this.error(Errors.InvalidArrowYieldParam);
                 return this.parseArrowFunction(context, pos, expr.type === 'SequenceExpression' ? expr.expressions : [expr]);
             }
     
@@ -5006,8 +4973,6 @@ export class Parser {
                 }
             }
     
-            if (this.flags & Flags.HasUnicode && this.token === Token.YieldKeyword) this.error(Errors.InvalidEscapedReservedWord);
-    
             if (context & Context.InParameter) {
                 if (context & Context.Strict) {
                     this.addFunctionArg(name);
@@ -5035,6 +5000,28 @@ export class Parser {
             });
         }
     
+        /**
+         * ArrayAssignmentPattern[Yield] :
+         *   [ Elisionopt AssignmentRestElement[?Yield]opt ]
+         *   [ AssignmentElementList[?Yield] ]
+         *   [ AssignmentElementList[?Yield] , Elisionopt AssignmentRestElement[?Yield]opt ]
+         *
+         * AssignmentRestElement[Yield] :
+         *   ... DestructuringAssignmentTarget[?Yield]
+         *
+         * AssignmentElementList[Yield] :
+         *   AssignmentElisionElement[?Yield]
+         *   AssignmentElementList[?Yield] , AssignmentElisionElement[?Yield]
+         *
+         * AssignmentElisionElement[Yield] :
+         *   Elisionopt AssignmentElement[?Yield]
+         *
+         * AssignmentElement[Yield] :
+         *   DestructuringAssignmentTarget[?Yield] Initializer[In,?Yield]opt
+         *
+         * DestructuringAssignmentTarget[Yield] :
+         *   LeftHandSideExpression[?Yield]
+         */
         private parseAssignmentElementList(context: Context) {
             const pos = this.getLocations();
             this.expect(context, Token.LeftBracket);
@@ -5076,7 +5063,6 @@ export class Parser {
     
         private parseComputedPropertyName(context: Context): ESTree.Expression {
             this.expect(context, Token.LeftBracket);
-            if (context & Context.Yield && context & Context.InParameter) context &= ~Context.Yield;
             const expression = this.parseAssignmentExpression(context | Context.AllowIn);
             this.expect(context, Token.RightBracket);
             return expression;

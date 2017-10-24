@@ -93,10 +93,9 @@ export const enum NumberState {
 export const enum ParenthesizedState {
     None            = 0,
     EvalOrArg       = 1 << 0, // If (async) arrow contains eval or agruments
-    Yield           = 1 << 1, // If (async) arrow contains eval or agruments
-    Await           = 1 << 2, // If async arrow contains 'await'
-    Parenthesized   = 1 << 3, // Tracks invalid parenthesized pattern
-    Trailing        = 1 << 4, // Tracks trailing commas
+    Await           = 1 << 1, // If async arrow contains 'await'
+    Parenthesized   = 1 << 2, // Tracks invalid parenthesized pattern
+    Trailing        = 1 << 3, // Tracks trailing commas
 }
 
 // Flags used by both object expression and class decl / expr
