@@ -647,7 +647,7 @@ describe('V8 - Do expression', () => {
         });
     });
 
-    it('should parse with JSX', () => {
+    it.skip('should parse with JSX', () => {
         expect(parseScript(`function foo() {
             return (
               <nav>
@@ -869,7 +869,7 @@ describe('V8 - Do expression', () => {
         });
     });
 
-    it('should parse complex JSX', () => {
+    it.skip('should parse complex JSX', () => {
         expect(parseScript(`const Component = props =>
         <div className='myComponent'>
           {do {

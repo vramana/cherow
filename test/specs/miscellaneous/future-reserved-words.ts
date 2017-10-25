@@ -43,7 +43,7 @@ describe('Miscellaneous - Future reserved words', () => {
      
         it('should fail on execution of escaped "yield"', () => {
             expect(() => {
-                parseScript('var \\u0079ield = 123;')
+                parseScript('"use strict"; var \\u0079ield = 123;')
             }).to.throw()
         });
 
@@ -71,12 +71,6 @@ describe('Miscellaneous - Future reserved words', () => {
             }).to.throw()
         });
     
-        it('should fail on expected reserved words used as Identifier - yield"', () => {
-            expect(() => {
-                parseScript('var \\u0079ield = 123;')
-            }).to.throw();
-        });
-
         it('should fail on const', () => {
             expect(() => {
                 parseScript('var const = 1;')
@@ -85,7 +79,7 @@ describe('Miscellaneous - Future reserved words', () => {
 
         it('should fail on escaped let', () => {
             expect(() => {
-                parseScript('var l\\u0065t = 123;')
+                parseScript('"use strict"; var l\\u0065t = 123;')
             }).to.throw();
         });
     

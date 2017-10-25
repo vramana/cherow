@@ -89,7 +89,7 @@ describe('Next - Asynchronous Iteration', () => {
             parseScript(`\\u0061sync function* f(){}`, {
                 next: true
             })
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it("should fail on named await as binding reference", () => {

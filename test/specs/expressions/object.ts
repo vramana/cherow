@@ -13,10 +13,17 @@ describe('Espressions - Object', () => {
     
     it('should fail on invalid cover initialized name', () => {
         expect(() => {
+            parseScript(`({ g\\u{65}t x(){} })`);
+        }).to.throw('');
+    });
+
+    it('should fail on invalid cover initialized name', () => {
+        expect(() => {
             parseScript(`({ a = 1 });`);
         }).to.not.throw('');
     });
 
+    
     it('should fail on use of enum', () => {
         expect(() => {
             parseScript(`{ enum: 1} `);
@@ -213,7 +220,7 @@ describe('Espressions - Object', () => {
     it('should fail on escaped ""get"', () => {
         expect(() => {
             parseScript(`({ g\\u0065t m() {} })`)
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail if `yield` expressions bind weakly', () => {
