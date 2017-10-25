@@ -5260,7 +5260,7 @@ export class Parser {
                 expression
             });
         }
-
+    
         private parseJSXEmptyExpression(pos: Location): ESTree.JSXEmptyExpression {
             return this.finishNode(pos, {
                 type: 'JSXEmptyExpression'
@@ -5296,15 +5296,24 @@ export class Parser {
             });
         }
     
+        private parseJSXClosingFragment(context: Context) {
+            const pos = this.getLocations();
+            this.expect(context, Token.JSXClose);
+            this.expect(context, Token.GreaterThan);
+            return this.finishNode(pos, {
+                type: 'JSXClosingFragment'
+            });
+        }
+    
         private parseJSXElement(context: Context) {
             const pos = this.getLocations();
             const openingElement = this.parseJSXOpeningElement(context);
-            let children: any = [];
+            let children: ESTree.JSXElement[] = [];
             let closingElement = null;
     
             if (openingElement.type === 'JSXOpeningFragment') {
                 children = this.parseJSXChildren(context);
-                closingElement = this.parseJSXClosingFragment(context | Context.JSXChild);
+                closingElement = this.parseJSXClosingFragment(context);
     
                 return this.finishNode(pos, {
                     type: 'JSXFragment',
@@ -5330,41 +5339,19 @@ export class Parser {
             });
         }
     
-        private parseJSXClosingFragment(context: Context) {
-            const pos = this.getLocations();
-            this.expect(context, Token.JSXClose);
-            if (this.isIdentifierOrKeyword(this.token)) {
-                this.throwUnexpectedToken();
-            }
-            if (context & Context.JSXChild) {
-                this.expect(context, Token.GreaterThan);
-            } else {
-                this.scanJSXText();
-            }
-    
-            return this.finishNode(pos, {
-                type: 'JSXClosingFragment'
-            });
-        }
-    
-        private parseJSXOpeningFragment(context: Context) {
-            const pos = this.getLocations();
-            if (this.token === Token.GreaterThan) {
-                this.token = this.scanJSXToken();
-            }
-            return this.finishNode(pos, {
-                type: 'JSXOpeningFragment'
-            });
-        }
-    
         private parseJSXOpeningElement(context: Context) {
             const pos = this.getLocations();
+    
             this.expect(context, Token.LessThan);
     
-            if (this.token === Token.GreaterThan) return this.parseJSXOpeningFragment(context);
+            if (this.token === Token.GreaterThan) {
+                this.token = this.scanJSXToken();
+                return this.finishNode(pos, {
+                    type: 'JSXOpeningFragment'
+                });
+            }
     
             const tagName = this.parseJSXElementName(context);
-
             const attributes = this.parseJSXAttributes(context);
             const selfClosing = this.token === Token.Divide;
     
@@ -5441,20 +5428,21 @@ export class Parser {
             if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(rawStart, this.index);
     
             return Token.StringLiteral;
-        }        private scanJSXAttributeValue(context: Context): Token | undefined {
-            
-                    this.startIndex = this.index;
-                    this.startColumn = this.column;
-                    this.startLine = this.line;
-            
-                    switch (this.nextChar()) {
-                        case Chars.DoubleQuote:
-                        case Chars.SingleQuote:
-                            return this.scanJSXString();
-                        default:
-                            this.nextToken(context);
-                    }
-                }
+        }
+        private scanJSXAttributeValue(context: Context): Token | undefined {
+    
+            this.startIndex = this.index;
+            this.startColumn = this.column;
+            this.startLine = this.line;
+    
+            switch (this.nextChar()) {
+                case Chars.DoubleQuote:
+                case Chars.SingleQuote:
+                    return this.scanJSXString();
+                default:
+                    this.nextToken(context);
+            }
+        }
     
         private parseJSXSpreadAttribute(context: Context) {
             const pos = this.getLocations();
@@ -5468,7 +5456,7 @@ export class Parser {
                 argument: expression
             });
         }
-
+    
         private parseJSXAttributeName(context: Context): ESTree.JSXIdentifier | ESTree.JSXNamespacedName {
             const pos = this.getLocations();
             const identifier: ESTree.JSXIdentifier = this.parseJSXIdentifier(context);
@@ -5500,68 +5488,63 @@ export class Parser {
                 name: attrName
             });
         }
-
+    
         private parseJSXExpressionAttribute(context: Context): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
-            
-                    const pos = this.getLocations();
-            
-                    this.expect(context, Token.LeftBrace);
-            
-                    switch (this.token) {
-                        case Token.RightBrace:
-                            this.error(Errors.NonEmptyJSXExpression);
-                        case Token.Ellipsis:
-                            return this.parseJSXSpreadChild(context);
-                        default: // ignore
-                    }
-            
-                    const expression = this.parseAssignmentExpression(context);
-            
-                    this.expect(context, Token.RightBrace);
-            
-                    return this.finishNode(pos, {
-                        type: 'JSXExpressionContainer',
-                        expression
-                    });
-                }
-
+    
+            const pos = this.getLocations();
+    
+            this.expect(context, Token.LeftBrace);
+    
+            switch (this.token) {
+                case Token.RightBrace:
+                    this.error(Errors.NonEmptyJSXExpression);
+                case Token.Ellipsis:
+                    return this.parseJSXSpreadChild(context);
+                default: // ignore
+            }
+    
+            const expression = this.parseAssignmentExpression(context);
+    
+            this.expect(context, Token.RightBrace);
+    
+            return this.finishNode(pos, {
+                type: 'JSXExpressionContainer',
+                expression
+            });
+        }
+    
         private parseJSXAttributes(context: Context): ESTree.JSXAttribute[] {
-            
-                    const attributes: ESTree.JSXAttribute[] = [];
-            
-                    loop:
-                        while (this.hasNext()) {
-            
-                            switch (this.token) {
-            
-                                // '/'
-                                case Token.Divide:
-            
-                                    // `>`
-                                case Token.GreaterThan:
-                                    break loop;
-            
-                                    // `{`
-                                case Token.LeftBrace:
-                                    attributes.push(this.parseJSXSpreadAttribute(context &= ~Context.JSXChild));
-                                    break;
-            
-                                default:
-                                    attributes.push(this.parseJSXAttribute(context));
-                            }
-                        }
-            
-                    return attributes;
+    
+            const attributes: ESTree.JSXAttribute[] = [];
+    
+            loop:
+                while (this.hasNext()) {
+    
+                    switch (this.token) {
+    
+                        // '/'
+                        case Token.Divide:
+    
+                            // `>`
+                        case Token.GreaterThan:
+                            break loop;
+    
+                            // `{`
+                        case Token.LeftBrace:
+                            attributes.push(this.parseJSXSpreadAttribute(context &= ~Context.JSXChild));
+                            break;
+    
+                        default:
+                            attributes.push(this.parseJSXAttribute(context));
+                    }
                 }
-        private scanJSXText() {
-            //  this.token === this.scanJSXToken();
+    
+            return attributes;
         }
     
         private scanJSXToken(): Token {
             // Set 'lastIndex' and 'startIndex' to current index
             this.lastIndex = this.startIndex = this.index;
-    
-            if (!this.hasNext()) return Token.EndOfSource;
     
             if (this.consume(Chars.LessThan)) {
                 if (this.nextChar() !== Chars.Slash) return Token.LessThan;
@@ -5571,16 +5554,14 @@ export class Parser {
     
             if (this.consume(Chars.LeftBrace)) return Token.LeftBrace;
     
-            scan:
-                while (this.hasNext()) {
-                    switch (this.nextChar()) {
-                        case Chars.LeftBrace:
-                        case Chars.LessThan:
-                            break scan;
-                        default:
-                            this.advance();
+            while (this.hasNext()) {
+                if (this.nextChar() === Chars.LeftBrace || 
+                    this.nextChar() === Chars.LessThan) {
+                        break;
                     }
-                }
+                    
+                this.advance();
+            }
     
             return Token.Identifier;
         }
@@ -5629,7 +5610,7 @@ export class Parser {
     
             // Member expression
             while (this.parseOptional(context, Token.Period)) {
-                expression = this.parseJSXMemberExpression(context, expression, pos);
+                //  expression = this.parseJSXMemberExpression(context, expression, pos);
             }
     
             return expression;

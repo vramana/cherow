@@ -49,3 +49,6 @@
 
 *2017-10-24: Version 0.10.2*
 - Added source option to the node location meta data
+
+*2017-10-24: Version 0.10.5*
+- Implemented JSX fragment support

@@ -4,7 +4,198 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('JSX - Miscellaneous', () => {
-
+    
+                it('should fail if tagName contain number', () => {
+                    expect(() => {
+                        parseScript(`<1/>`)
+                    }).to.throw();
+                });
+    
+                it('should fail on adjacent JSX elements not wrapped in an enclosing tag', () => {
+                    expect(() => {
+                        parseScript(`<div>one</div><div>two</div>`)
+                    }).to.throw();
+                });
+    
+                it('should fail on invalid empty selfclosing', () => {
+                    expect(() => {
+                        parseScript(`</>`)
+                    }).to.throw();
+                });
+    
+                it('should fail if assigning to a non-empty expression', () => {
+                    expect(() => {
+                        parseScript(`<div foo="foo" bar={} baz="baz"/>`)
+                    }).to.throw();
+                });
+    
+                it('should fail on invalid element', () => {
+                    expect(() => {
+                        parseScript(`</>`)
+                    }).to.throw();
+                });
+    
+                it('should fail on invalid match member', () => {
+                    expect(() => {
+                        parseScript(`<foo.bar></foo.baz>`)
+                    }).to.throw();
+                });
+    
+                it('should fail on invalid closing trail', () => {
+                    expect(() => {
+                        parseScript(`<a/!`)
+                    }).to.throw();
+                });
+    
+                it('should fail on invalid attribute value trail', () => {
+                    expect(() => {
+                        parseScript(`<a b=: />`)
+                    }).to.throw();
+                });
+    
+                it('should fail on invalid match', () => {
+                    expect(() => {
+                        parseScript(`node = <strong></em>`)
+                    }).to.throw();
+                });
+    
+                it('should fail on invalid match namespace', () => {
+                    expect(() => {
+                        parseScript(`<svg:path></svg:circle>`)
+                    }).to.throw();
+                });
+    
+                it('should fail on invalid incomplete member', () => {
+                    expect(() => {
+                        parseScript(`<xyz. />`)
+                    }).to.throw();
+                });
+    
+                it('should fail on invalid start member', () => {
+                    expect(() => {
+                        parseScript(`<.abc />`)
+                    }).to.throw();
+                });
+    
+                it('should fail on invalid start namespace', () => {
+                    expect(() => {
+                        parseScript(`<:path />`)
+                    }).to.throw();
+                });
+    
+                it('should fail on invalid unicode escape in identifier', () => {
+    
+                    expect(() => {
+                        parseScript('<\\u{2F804}></\\u{2F804}>');
+                    }).to.throw();
+                });
+    
+                it('should fail on unterminated string', () => {
+    
+                    expect(() => {
+                        parseScript('<foo bar="');
+                    }).to.throw();
+                });
+    
+                it('should throw invalid attribute empty expression', () => {
+    
+                    expect(() => {
+                        parseScript('<foo bar={} />');
+                    }).to.throw();
+                });
+    
+                it('should fail on wrong closing tag', () => {
+    
+                    expect(() => {
+                        parseScript('<Foo></Bar>');
+                    }).to.throw();
+                });
+    
+                it('should fail on invalid attribute arbitrary expression', () => {
+    
+                    expect(() => {
+                        parseScript('<Foo bar=bar() />');
+                    }).to.throw();
+                });
+    
+                it('should fail on "<a foo="bar', () => {
+                    expect(() => {
+                        parseScript('<a foo="bar');
+                    }).to.throw();
+                });
+    
+                it('should fail on "<dd><e></e></dddd>;', () => {
+                    expect(() => {
+                        parseScript('<dd><e></e></dddd>;');
+                    }).to.throw();
+                });
+    
+                it('should fail on "<f><g/></ff>;', () => {
+                    expect(() => {
+                        parseScript('<f><g/></ff>;');
+                    }).to.throw();
+                });
+    
+                it('should fail on "<b.b></b>;', () => {
+                    expect(() => {
+                        parseScript('<b.b></b>;');
+                    }).to.throw();
+                });
+    
+                it('should fail on "<a[foo]></a[foo]>"', () => {
+                    expect(() => {
+                        parseScript('<a[foo]></a[foo]>');
+                    }).to.throw();
+                });
+    
+                it('should fail on <a>{"str";}</a>', () => {
+                    expect(() => {
+                        parseScript('<a>{"str";}</a>');
+                    }).to.throw();
+                });
+    
+                it('should fail on "<div className"app">"', () => {
+                    expect(() => {
+                        parseScript('<div className"app">');
+                    }).to.throw();
+                });
+    
+                it('should fail on "<a b=}>"', () => {
+                    expect(() => {
+                        parseScript('<a b=}>');
+                    }).to.throw();
+                });
+    
+                it('should fail on "<div {...props}>stuff</div {...props}>"', () => {
+                    expect(() => {
+                        parseScript('<div {...props}>stuff</div {...props}>');
+                    }).to.throw();
+                });
+    
+    
+                it('should fail if closing tag does not match opening tag', () => {
+                    expect(() => {
+                        parseScript('<div></span>');
+                    }).to.throw();
+                });
+    
+                it('should fail if closing tag namespace does not match opening tag namespace', () => {
+                    expect(() => {
+                        parseScript('<div:a></div:b>');
+                    }).to.throw();
+                });
+    
+                it('should fail if closing tag namespace does not match opening tag namespace', () => {
+                    expect(() => {
+                        parseScript('<div> prefix [...children] suffix </div>');
+                    }).to.throw();
+                });
+    
+                it('should fail on empty expression container', () => {
+                    expect(() => {
+                        parseScript('<div> prefix {} suffix </div>');
+                    }).to.throw();
+                });
     it('should parse attribute spread', () => {
         expect(parseScript(`<span {... style}></span>`, {
             jsx: true,

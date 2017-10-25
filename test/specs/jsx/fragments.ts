@@ -5,6 +5,30 @@ const expect = chai.expect;
 
 describe('Miscellaneous - JSX fragments', () => {
 
+  it('should fail on attributes in fragments', () => {
+    expect(() => {
+        parseScript(`< key="nope"></>`)
+    }).to.throw();
+});
+
+it('should fail on unclosed fragment', () => {
+  expect(() => {
+      parseScript(`<><></>`)
+  }).to.throw();
+});
+
+it('should fail on wrong closing tag fragment', () => {
+  expect(() => {
+      parseScript(`<></something>`)
+  }).to.throw();
+});
+
+it('should fail on wrong opening tag fragment', () => {
+  expect(() => {
+      parseScript(`<something></>`)
+  }).to.throw();
+});
+
   it('should parse simple JSX Fragment', () => {
         expect(parseScript(`<></>`, {
             jsx: true,
@@ -12,84 +36,84 @@ describe('Miscellaneous - JSX fragments', () => {
             raw: true,
             locations: true
         })).to.eql({
-            "body": [
+          "type": "Program",
+          "body": [
               {
-                "end": 5,
-                "expression": {
-                  "children": [],
-                  "closingElement": {
-                    "end": 5,
-                    "loc": {
-                      "end": {
-                        "column": 5,
-                        "line": 1,
+                  "type": "ExpressionStatement",
+                  "expression": {
+                      "type": "JSXFragment",
+                      "children": [],
+                      "openingElement": {
+                          "type": "JSXOpeningFragment",
+                          "start": 0,
+                          "end": 2,
+                          "loc": {
+                              "start": {
+                                  "line": 1,
+                                  "column": 0
+                              },
+                              "end": {
+                                  "line": 1,
+                                  "column": 1
+                              }
+                          }
                       },
-                      "start": {
-                        "column": 1,
-                        "line": 1,
+                      "closingElement": {
+                          "type": "JSXClosingFragment",
+                          "start": 2,
+                          "end": 5,
+                          "loc": {
+                              "start": {
+                                  "line": 1,
+                                  "column": 1
+                              },
+                              "end": {
+                                  "line": 1,
+                                  "column": 5
+                              }
+                          }
+                      },
+                      "start": 0,
+                      "end": 5,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 0
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 5
+                          }
                       }
-                    },
-                   "start": 2,
-                    "type": "JSXClosingFragment"
-                  },
-                  "end": 5,
-                  "loc": {
-                    "end": {
-                      "column": 5,
-                      "line": 1,
-                    },
-                    "start": {
-                      "column": 0,
-                      "line": 1
-                    }
-                  },
-                  "openingElement": {
-                    "end": 2,
-                    "loc": {
-                      "end": {
-                       "column": 1,
-                        "line": 1,
-                      },
-                      "start": {
-                        "column": 1,
-                        "line": 1,
-                      },
-                    },
-                    "start": 1,
-                    "type": "JSXOpeningFragment"
                   },
                   "start": 0,
-                  "type": "JSXFragment"
-                },
-                "loc": {
-                 "end": {
-                    "column": 5,
-                   "line": 1,
-                  },
-                  "start": {
-                    "column": 0,
-                    "line": 1,
+                  "end": 5,
+                  "loc": {
+                      "start": {
+                          "line": 1,
+                          "column": 0
+                      },
+                      "end": {
+                          "line": 1,
+                          "column": 5
+                      }
                   }
-                },
-                "start": 0,
-                "type": "ExpressionStatement",
               }
-            ],
-            "end": 5,
-            "loc": {
-             "end": {
-                "column": 5,
-                "line": 1,
-             },
+          ],
+          "sourceType": "script",
+          "start": 0,
+          "end": 5,
+          "loc": {
               "start": {
-                "column": 0,
-                "line": 1,
+                  "line": 1,
+                  "column": 0
+              },
+              "end": {
+                  "line": 1,
+                  "column": 5
               }
-            },
-           "sourceType": "script",
-            "start": 0,
-            "type": "Program",
-          });
+          }
+      });
     });
 
     
@@ -109,12 +133,12 @@ describe('Miscellaneous - JSX fragments', () => {
                   "children": [],
                   "openingElement": {
                       "type": "JSXOpeningFragment",
-                      "start": 5,
+                      "start": 0,
                       "end": 6,
                       "loc": {
                           "start": {
                               "line": 1,
-                              "column": 5
+                              "column": 0
                           },
                           "end": {
                               "line": 1,
@@ -181,92 +205,91 @@ describe('Miscellaneous - JSX fragments', () => {
   });
 
   it('should parse with comments in the tags', () => {
-    expect(parseScript(`< /*starting wrap*/ ></ /*ending wrap*/>; // comments in the tags`, {
+    expect(parseScript(`< /*starting wrap*/ ></ /*ending wrap*/>;`, {
         jsx: true,
         ranges: true,
         raw: true,
         locations: true
     })).to.eql({
-      "type": "Program",
-      "body": [
-          {
-              "type": "ExpressionStatement",
-              "expression": {
-                  "type": "JSXFragment",
-                  "children": [],
-                  "openingElement": {
-                      "type": "JSXOpeningFragment",
-                      "start": 20,
-                      "end": 21,
-                      "loc": {
-                          "start": {
-                              "line": 1,
-                              "column": 20
-                          },
-                          "end": {
-                              "line": 1,
-                              "column": 1
-                          }
-                      }
-                  },
-                  "closingElement": {
-                      "type": "JSXClosingFragment",
-                      "start": 21,
-                      "end": 40,
-                      "loc": {
-                          "start": {
-                              "line": 1,
-                              "column": 20
-                          },
-                          "end": {
-                              "line": 1,
-                              "column": 40
-                          }
-                      }
-                  },
-                  "start": 0,
-                  "end": 40,
-                  "loc": {
-                      "start": {
-                          "line": 1,
-                          "column": 0
-                      },
-                      "end": {
-                          "line": 1,
-                          "column": 40
-                      }
-                  }
-              },
-              "start": 0,
-              "end": 41,
-              "loc": {
-                  "start": {
-                      "line": 1,
-                      "column": 0
-                  },
-                  "end": {
-                      "line": 1,
-                      "column": 41
-                  }
-              }
-          }
-      ],
-      "sourceType": "script",
-      "start": 0,
-      "end": 65,
-      "loc": {
-          "start": {
-              "line": 1,
-              "column": 0
-          },
-          "end": {
-              "line": 1,
-              "column": 65
-          }
-      }
+    "type": "Program",
+    "body": [
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "JSXFragment",
+                "children": [],
+                "openingElement": {
+                    "type": "JSXOpeningFragment",
+                    "start": 0,
+                    "end": 21,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 1
+                        }
+                    }
+                },
+                "closingElement": {
+                    "type": "JSXClosingFragment",
+                    "start": 21,
+                    "end": 40,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 20
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 40
+                        }
+                    }
+                },
+                "start": 0,
+                "end": 40,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 40
+                    }
+                }
+            },
+            "start": 0,
+            "end": 41,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 41
+                }
+            }
+        }
+    ],
+    "sourceType": "script",
+    "start": 0,
+    "end": 41,
+    "loc": {
+        "start": {
+            "line": 1,
+            "column": 0
+        },
+        "end": {
+            "line": 1,
+            "column": 41
+        }
+    }
+});
   });
-  });
-
 
   it('should parse fragment with text inside', () => {
     expect(parseScript(`<>hi</>;`, {
@@ -302,12 +325,12 @@ describe('Miscellaneous - JSX fragments', () => {
                   ],
                   "openingElement": {
                       "type": "JSXOpeningFragment",
-                      "start": 1,
+                      "start": 0,
                       "end": 2,
                       "loc": {
                           "start": {
                               "line": 1,
-                              "column": 1
+                              "column": 0
                           },
                           "end": {
                               "line": 1,
@@ -587,12 +610,12 @@ describe('Miscellaneous - JSX fragments', () => {
                   ],
                   "openingElement": {
                       "type": "JSXOpeningFragment",
-                      "start": 1,
+                      "start": 0,
                       "end": 2,
                       "loc": {
                           "start": {
                               "line": 1,
-                              "column": 1
+                              "column": 0
                           },
                           "end": {
                               "line": 1,
@@ -972,12 +995,12 @@ describe('Miscellaneous - JSX fragments', () => {
                           ],
                           "openingElement": {
                               "type": "JSXOpeningFragment",
-                              "start": 17,
+                              "start": 16,
                               "end": 18,
                               "loc": {
                                   "start": {
                                       "line": 1,
-                                      "column": 17
+                                      "column": 15
                                   },
                                   "end": {
                                       "line": 1,
@@ -1114,12 +1137,12 @@ describe('Miscellaneous - JSX fragments', () => {
                   ],
                   "openingElement": {
                       "type": "JSXOpeningFragment",
-                      "start": 1,
+                      "start": 0,
                       "end": 2,
                       "loc": {
                           "start": {
                               "line": 1,
-                              "column": 1
+                              "column": 0
                           },
                           "end": {
                               "line": 1,
@@ -1221,7 +1244,6 @@ describe('Miscellaneous - JSX fragments', () => {
                                   }
                               ],
                               "openingElement": {
-                                "attributes": [],
                                   "type": "JSXOpeningElement",
                                   "name": {
                                       "type": "JSXIdentifier",
@@ -1239,6 +1261,7 @@ describe('Miscellaneous - JSX fragments', () => {
                                           }
                                       }
                                   },
+                                  "attributes": [],
                                   "selfClosing": false,
                                   "start": 2,
                                   "end": 8,
@@ -1336,7 +1359,6 @@ describe('Miscellaneous - JSX fragments', () => {
                                   }
                               ],
                               "openingElement": {
-                                "attributes": [],
                                   "type": "JSXOpeningElement",
                                   "name": {
                                       "type": "JSXIdentifier",
@@ -1354,6 +1376,7 @@ describe('Miscellaneous - JSX fragments', () => {
                                           }
                                       }
                                   },
+                                  "attributes": [],
                                   "selfClosing": false,
                                   "start": 20,
                                   "end": 25,
@@ -1432,12 +1455,12 @@ describe('Miscellaneous - JSX fragments', () => {
                       ],
                       "openingElement": {
                           "type": "JSXOpeningFragment",
-                          "start": 1,
+                          "start": 0,
                           "end": 2,
                           "loc": {
                               "start": {
                                   "line": 1,
-                                  "column": 1
+                                  "column": 0
                               },
                               "end": {
                                   "line": 1,
@@ -1544,7 +1567,6 @@ describe('Miscellaneous - JSX fragments', () => {
                               "type": "JSXElement",
                               "children": [],
                               "openingElement": {
-                                "attributes": [],
                                   "type": "JSXOpeningElement",
                                   "name": {
                                       "type": "JSXIdentifier",
@@ -1562,6 +1584,7 @@ describe('Miscellaneous - JSX fragments', () => {
                                           }
                                       }
                                   },
+                                  "attributes": [],
                                   "selfClosing": false,
                                   "start": 64,
                                   "end": 69,
@@ -1641,7 +1664,6 @@ describe('Miscellaneous - JSX fragments', () => {
                               "type": "JSXElement",
                               "children": [],
                               "openingElement": {
-                                "attributes": [],
                                   "type": "JSXOpeningElement",
                                   "name": {
                                       "type": "JSXIdentifier",
@@ -1659,6 +1681,7 @@ describe('Miscellaneous - JSX fragments', () => {
                                           }
                                       }
                                   },
+                                  "attributes": [],
                                   "selfClosing": false,
                                   "start": 86,
                                   "end": 91,
@@ -1737,12 +1760,12 @@ describe('Miscellaneous - JSX fragments', () => {
                       ],
                       "openingElement": {
                           "type": "JSXOpeningFragment",
-                          "start": 53,
+                          "start": 0,
                           "end": 54,
                           "loc": {
                               "start": {
-                                  "line": 4,
-                                  "column": 8
+                                  "line": 1,
+                                  "column": 0
                               },
                               "end": {
                                   "line": 1,
@@ -1888,12 +1911,12 @@ describe('Miscellaneous - JSX fragments', () => {
                                     ],
                                     "openingElement": {
                                         "type": "JSXOpeningFragment",
-                                        "start": 25,
+                                        "start": 24,
                                         "end": 26,
                                         "loc": {
                                             "start": {
                                                 "line": 1,
-                                                "column": 25
+                                                "column": 12
                                             },
                                             "end": {
                                                 "line": 1,
@@ -1932,12 +1955,12 @@ describe('Miscellaneous - JSX fragments', () => {
                             ],
                             "openingElement": {
                                 "type": "JSXOpeningFragment",
-                                "start": 12,
+                                "start": 11,
                                 "end": 13,
                                 "loc": {
                                     "start": {
                                         "line": 1,
-                                        "column": 12
+                                        "column": 1
                                     },
                                     "end": {
                                         "line": 1,
@@ -1976,12 +1999,12 @@ describe('Miscellaneous - JSX fragments', () => {
                     ],
                     "openingElement": {
                         "type": "JSXOpeningFragment",
-                        "start": 1,
+                        "start": 0,
                         "end": 2,
                         "loc": {
                             "start": {
                                 "line": 1,
-                                "column": 1
+                                "column": 0
                             },
                             "end": {
                                 "line": 1,
@@ -2212,12 +2235,12 @@ describe('Miscellaneous - JSX fragments', () => {
                     ],
                     "openingElement": {
                         "type": "JSXOpeningFragment",
-                        "start": 1,
+                        "start": 0,
                         "end": 2,
                         "loc": {
                             "start": {
                                 "line": 1,
-                                "column": 1
+                                "column": 0
                             },
                             "end": {
                                 "line": 1,
