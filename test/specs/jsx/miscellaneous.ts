@@ -196,6 +196,647 @@ describe('JSX - Miscellaneous', () => {
                         parseScript('<div> prefix {} suffix </div>');
                     }).to.throw();
                 });
+                
+                it('should parse simple namespace', () => {
+                    expect(parseScript(`<svg:path/>`, {
+                        jsx: true,
+                        ranges: true,
+                        raw: true,
+                        locations: true
+                    })).to.eql({
+                        "type": "Program",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "JSXElement",
+                                    "children": [],
+                                    "openingElement": {
+                                        "type": "JSXOpeningElement",
+                                        "name": {
+                                            "type": "JSXNamespacedName",
+                                            "namespace": {
+                                                "type": "JSXIdentifier",
+                                                "name": "svg",
+                                                "start": 1,
+                                                "end": 4,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 1
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 4
+                                                    }
+                                                }
+                                            },
+                                            "name": {
+                                                "type": "JSXIdentifier",
+                                                "name": "path",
+                                                "start": 5,
+                                                "end": 9,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 5
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 9
+                                                    }
+                                                }
+                                            },
+                                            "start": 1,
+                                            "end": 9,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 1
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 9
+                                                }
+                                            }
+                                        },
+                                        "attributes": [],
+                                        "selfClosing": true,
+                                        "start": 0,
+                                        "end": 11,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 0
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 11
+                                            }
+                                        }
+                                    },
+                                    "closingElement": null,
+                                    "start": 0,
+                                    "end": 11,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 0
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 11
+                                        }
+                                    }
+                                },
+                                "start": 0,
+                                "end": 11,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 11
+                                    }
+                                }
+                            }
+                        ],
+                        "sourceType": "script",
+                        "start": 0,
+                        "end": 11,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 11
+                            }
+                        }
+                    });
+                });
+                
+                it('should parse namespace pair', () => {
+                    expect(parseScript(`<svg:path></svg:path>`, {
+                        jsx: true,
+                        ranges: true,
+                        raw: true,
+                        locations: true
+                    })).to.eql({
+                        "type": "Program",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "JSXElement",
+                                    "children": [],
+                                    "openingElement": {
+                                        "type": "JSXOpeningElement",
+                                        "name": {
+                                            "type": "JSXNamespacedName",
+                                            "namespace": {
+                                                "type": "JSXIdentifier",
+                                                "name": "svg",
+                                                "start": 1,
+                                                "end": 4,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 1
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 4
+                                                    }
+                                                }
+                                            },
+                                            "name": {
+                                                "type": "JSXIdentifier",
+                                                "name": "path",
+                                                "start": 5,
+                                                "end": 9,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 5
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 9
+                                                    }
+                                                }
+                                            },
+                                            "start": 1,
+                                            "end": 9,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 1
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 9
+                                                }
+                                            }
+                                        },
+                                        "attributes": [],
+                                        "selfClosing": false,
+                                        "start": 0,
+                                        "end": 10,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 0
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 9
+                                            }
+                                        }
+                                    },
+                                    "closingElement": {
+                                        "type": "JSXClosingElement",
+                                        "name": {
+                                            "type": "JSXNamespacedName",
+                                            "namespace": {
+                                                "type": "JSXIdentifier",
+                                                "name": "svg",
+                                                "start": 12,
+                                                "end": 15,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 12
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 15
+                                                    }
+                                                }
+                                            },
+                                            "name": {
+                                                "type": "JSXIdentifier",
+                                                "name": "path",
+                                                "start": 16,
+                                                "end": 20,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 16
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 20
+                                                    }
+                                                }
+                                            },
+                                            "start": 12,
+                                            "end": 20,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 12
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 20
+                                                }
+                                            }
+                                        },
+                                        "start": 10,
+                                        "end": 21,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 9
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 21
+                                            }
+                                        }
+                                    },
+                                    "start": 0,
+                                    "end": 21,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 0
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 21
+                                        }
+                                    }
+                                },
+                                "start": 0,
+                                "end": 21,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 21
+                                    }
+                                }
+                            }
+                        ],
+                        "sourceType": "script",
+                        "start": 0,
+                        "end": 21,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 21
+                            }
+                        }
+                    });
+                });
+
+                it('should parse empty expression', () => {
+                    expect(parseScript(`<a>{}</a>`, {
+                        jsx: true,
+                        ranges: true,
+                        raw: true,
+                        locations: true
+                    })).to.eql({
+                        "type": "Program",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "JSXElement",
+                                    "children": [
+                                        {
+                                            "type": "JSXExpressionContainer",
+                                            "expression": {
+                                                "type": "JSXEmptyExpression",
+                                                "start": 3,
+                                                "end": 4,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 2
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 4
+                                                    }
+                                                }
+                                            },
+                                            "start": 3,
+                                            "end": 5,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 2
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 4
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "openingElement": {
+                                        "type": "JSXOpeningElement",
+                                        "name": {
+                                            "type": "JSXIdentifier",
+                                            "name": "a",
+                                            "start": 1,
+                                            "end": 2,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 1
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 2
+                                                }
+                                            }
+                                        },
+                                        "attributes": [],
+                                        "selfClosing": false,
+                                        "start": 0,
+                                        "end": 3,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 0
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 2
+                                            }
+                                        }
+                                    },
+                                    "closingElement": {
+                                        "type": "JSXClosingElement",
+                                        "name": {
+                                            "type": "JSXIdentifier",
+                                            "name": "a",
+                                            "start": 7,
+                                            "end": 8,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 7
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 8
+                                                }
+                                            }
+                                        },
+                                        "start": 5,
+                                        "end": 9,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 4
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 9
+                                            }
+                                        }
+                                    },
+                                    "start": 0,
+                                    "end": 9,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 0
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 9
+                                        }
+                                    }
+                                },
+                                "start": 0,
+                                "end": 9,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 9
+                                    }
+                                }
+                            }
+                        ],
+                        "sourceType": "script",
+                        "start": 0,
+                        "end": 9,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 9
+                            }
+                        }
+                    });
+                });
+
+                it('should parse JSX Memberexpression', () => {
+                    expect(parseScript(`<Test.X></Test.X>`, {
+                        jsx: true,
+                        ranges: true,
+                        raw: true,
+                        locations: true
+                    })).to.eql({
+                        "type": "Program",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "JSXElement",
+                                    "children": [],
+                                    "openingElement": {
+                                        "type": "JSXOpeningElement",
+                                        "name": {
+                                            "type": "JSXMemberExpression",
+                                            "object": {
+                                                "type": "JSXIdentifier",
+                                                "name": "Test",
+                                                "start": 1,
+                                                "end": 5,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 1
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 5
+                                                    }
+                                                }
+                                            },
+                                            "property": {
+                                                "type": "JSXIdentifier",
+                                                "name": "X",
+                                                "start": 6,
+                                                "end": 7,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 6
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 7
+                                                    }
+                                                }
+                                            },
+                                            "start": 1,
+                                            "end": 7,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 1
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 7
+                                                }
+                                            }
+                                        },
+                                        "attributes": [],
+                                        "selfClosing": false,
+                                        "start": 0,
+                                        "end": 8,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 0
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 7
+                                            }
+                                        }
+                                    },
+                                    "closingElement": {
+                                        "type": "JSXClosingElement",
+                                        "name": {
+                                            "type": "JSXMemberExpression",
+                                            "object": {
+                                                "type": "JSXIdentifier",
+                                                "name": "Test",
+                                                "start": 10,
+                                                "end": 14,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 10
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 14
+                                                    }
+                                                }
+                                            },
+                                            "property": {
+                                                "type": "JSXIdentifier",
+                                                "name": "X",
+                                                "start": 15,
+                                                "end": 16,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 15
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 16
+                                                    }
+                                                }
+                                            },
+                                            "start": 10,
+                                            "end": 16,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 10
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 16
+                                                }
+                                            }
+                                        },
+                                        "start": 8,
+                                        "end": 17,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 7
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 17
+                                            }
+                                        }
+                                    },
+                                    "start": 0,
+                                    "end": 17,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 0
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 17
+                                        }
+                                    }
+                                },
+                                "start": 0,
+                                "end": 17,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 17
+                                    }
+                                }
+                            }
+                        ],
+                        "sourceType": "script",
+                        "start": 0,
+                        "end": 17,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 17
+                            }
+                        }
+                    });
+                });
+            
     it('should parse attribute spread', () => {
         expect(parseScript(`<span {... style}></span>`, {
             jsx: true,

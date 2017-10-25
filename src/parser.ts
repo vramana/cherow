@@ -357,7 +357,7 @@ export class Parser {
                         {
                             this.advance();
     
-                            const next = this.nextChar();
+                            let next = this.nextChar();
     
                             if (!(context & Context.Module) && next === Chars.Exclamation) {
                                 this.advance();
@@ -368,25 +368,34 @@ export class Parser {
                                 continue;
                             }
     
-                            if (next === Chars.LessThan) {
-                                this.advance();
-                                if (this.consume(Chars.EqualSign)) return Token.ShiftLeftAssign;
-                                return Token.ShiftLeft;
+                            switch (next) {
+                                case Chars.LessThan:
+                                    this.advance();
+                                    if (this.consume(Chars.EqualSign)) {
+                                        return Token.ShiftLeftAssign;
+                                    }
+                                    return Token.ShiftLeft;
+                                case Chars.EqualSign:
+                                    this.advance();
+                                    return Token.LessThanOrEqual;
+                                case Chars.Slash:
+                                    {
+    
+                                        if (!(this.flags & Flags.OptionsJSX)) return Token.LessThan;
+    
+                                        const index = this.index + 1;
+    
+                                        // Check that it's not a comment start.
+                                        if (index < this.source.length) {
+                                            next = this.source.charCodeAt(index);
+                                            if (next === Chars.Asterisk || next === Chars.Slash) break;
+                                        }
+                                        this.advance();
+                                        return Token.JSXClose;
+                                    }
+                                default:
+                                    return Token.LessThan;
                             }
-    
-                            if (next === Chars.EqualSign) {
-                                this.advance();
-                                return Token.LessThanOrEqual;
-                            }
-    
-                            if (!(this.flags & Flags.OptionsJSX)) return Token.LessThan;
-    
-                            if (next === Chars.Slash) {
-                                this.advance();
-                                return Token.JSXClose;
-                            }
-    
-                            return Token.LessThan;
                         }
     
                         // -, --, -->, -=,
@@ -397,7 +406,6 @@ export class Parser {
                             const next = this.nextChar();
     
                             if (next === Chars.Hyphen) {
-    
                                 this.advance();
                                 if (context & Context.Module || !(state & Scanner.LineStart)) return Token.Decrement;
                                 if (!this.consume(Chars.GreaterThan)) return Token.Decrement;
@@ -4894,7 +4902,7 @@ export class Parser {
                 case 'Number':
                 case 'String':
                 case 'undefined':
-                    this.error(Errors.UndeclaredBinding, name);
+                    this.error(Errors.DuplicateIdentifier, name);
                 default: // ignore
             }
     
@@ -5196,12 +5204,10 @@ export class Parser {
             });
         }
     
-    
         /** JSX */
     
-    
         private parseJSXChildren(context: Context) {
-            const children: any[] = [];
+            const children: any = [];
     
             while (this.token !== Token.JSXClose) {
                 children.push(this.parseJSXChild(context | Context.JSXChild, this.getLocations()));
@@ -5210,43 +5216,20 @@ export class Parser {
             return children;
         }
     
-        private parseJSXText(context: Context): ESTree.JSXText {
-    
-            const pos = this.getLocations();
-    
-            const value = this.source.slice(this.startIndex, this.index);
-    
-            this.token = this.scanJSXToken();
-    
-    
-            const node = this.finishNode(pos, {
-                type: 'JSXText',
-                value
-            });
-    
-            if (this.flags & Flags.OptionsRaw) node.raw = value;
-    
-            return node;
-        }
-    
         private parseJSXChild(
             context: Context,
             pos: Location,
         ): ESTree.JSXText | ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild | ESTree.JSXElement | undefined {
+    
             switch (this.token) {
-                // 'abc'
+                case Token.JSXText:
                 case Token.Identifier:
                     return this.parseJSXText(context);
-    
-                    // '{'
                 case Token.LeftBrace:
-                    return this.parseJSXExpressionContainer(context &= ~Context.JSXChild, pos);
-                    // '<'
+                    return this.parseJSXExpressionContainer(context, pos);
                 case Token.LessThan:
-                    return this.parseJSXElement(context &= ~Context.JSXChild);
-    
-                default:
-                    this.error(Errors.Unexpected);
+                    return this.parseJSXElement(context & ~Context.JSXChild);
+                default: // ignore
             }
         }
     
@@ -5261,34 +5244,45 @@ export class Parser {
             });
         }
     
+        private parseJSXText(context: Context): ESTree.JSXText {
+    
+            const pos = this.getLocations();
+            const value = this.source.slice(this.startIndex, this.index);
+    
+            this.nextJSXToken();
+        
+            const node = this.finishNode(pos, {
+                type: 'JSXText',
+                value
+            });
+    
+            if (this.flags & Flags.OptionsRaw) node.raw = value;
+    
+            return node;
+        }
+    
         private parseJSXEmptyExpression(pos: Location): ESTree.JSXEmptyExpression {
             return this.finishNode(pos, {
                 type: 'JSXEmptyExpression'
             });
         }
     
-        private parseJSXExpressionContainer(context: Context, pos: Location): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
+        private parseJSXExpressionContainer(
+            context: Context,
+            pos: Location
+        ): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
     
             this.expect(context, Token.LeftBrace);
     
-            let expression;
-    
-            switch (this.token) {
-    
-                // '...'
-                case Token.Ellipsis:
-                    return this.parseJSXSpreadChild(context);
-    
-                    // '}'
-                case Token.RightBrace:
-                    expression = this.parseJSXEmptyExpression(pos);
-                    break;
-    
-                default:
-                    expression = this.parseAssignmentExpression(context);
+            if (this.token === Token.Ellipsis) {
+                return this.parseJSXSpreadChild(context);
             }
     
-            this.token = this.scanJSXToken();
+            const expression = this.token === Token.RightBrace ?
+                this.parseJSXEmptyExpression(pos) :
+                this.parseAssignmentExpression(context);
+    
+            this.nextJSXToken();
     
             return this.finishNode(pos, {
                 type: 'JSXExpressionContainer',
@@ -5345,7 +5339,7 @@ export class Parser {
             this.expect(context, Token.LessThan);
     
             if (this.token === Token.GreaterThan) {
-                this.token = this.scanJSXToken();
+                this.nextJSXToken();
                 return this.finishNode(pos, {
                     type: 'JSXOpeningFragment'
                 });
@@ -5356,14 +5350,14 @@ export class Parser {
             const selfClosing = this.token === Token.Divide;
     
             if (this.token === Token.GreaterThan) {
-                this.token = this.scanJSXToken();
+                this.nextJSXToken();
             } else {
                 this.expect(context, Token.Divide);
                 if (context & Context.JSXChild) {
     
                     this.expect(context, Token.GreaterThan);
                 } else {
-                    this.token = this.scanJSXToken();
+                    this.nextJSXToken();
                 }
             }
     
@@ -5384,7 +5378,7 @@ export class Parser {
             if (context & Context.JSXChild) {
                 this.expect(context, Token.GreaterThan);
             } else {
-                this.token = this.scanJSXToken();
+                this.nextJSXToken();
             }
     
             return this.finishNode(pos, {
@@ -5402,14 +5396,6 @@ export class Parser {
             let ch;
     
             while (ch !== quote) {
-                switch (ch) {
-                    case Chars.CarriageReturn:
-                    case Chars.LineFeed:
-                    case Chars.LineSeparator:
-                    case Chars.ParagraphSeparator:
-                        this.error(Errors.UnterminatedString);
-                    default: // ignore
-                }
     
                 this.advance();
                 ch = this.nextChar();
@@ -5494,14 +5480,8 @@ export class Parser {
             const pos = this.getLocations();
     
             this.expect(context, Token.LeftBrace);
-    
-            switch (this.token) {
-                case Token.RightBrace:
-                    this.error(Errors.NonEmptyJSXExpression);
-                case Token.Ellipsis:
-                    return this.parseJSXSpreadChild(context);
-                default: // ignore
-            }
+
+            if (this.token === Token.Ellipsis) return this.parseJSXSpreadChild(context);
     
             const expression = this.parseAssignmentExpression(context);
     
@@ -5521,15 +5501,9 @@ export class Parser {
                 while (this.hasNext()) {
     
                     switch (this.token) {
-    
-                        // '/'
                         case Token.Divide:
-    
-                            // `>`
                         case Token.GreaterThan:
                             break loop;
-    
-                            // `{`
                         case Token.LeftBrace:
                             attributes.push(this.parseJSXSpreadAttribute(context &= ~Context.JSXChild));
                             break;
@@ -5540,6 +5514,10 @@ export class Parser {
                 }
     
             return attributes;
+        }
+    
+        private nextJSXToken() {
+            this.token = this.scanJSXToken();
         }
     
         private scanJSXToken(): Token {
@@ -5555,15 +5533,15 @@ export class Parser {
             if (this.consume(Chars.LeftBrace)) return Token.LeftBrace;
     
             while (this.hasNext()) {
-                if (this.nextChar() === Chars.LeftBrace || 
+                if (this.nextChar() === Chars.LeftBrace ||
                     this.nextChar() === Chars.LessThan) {
-                        break;
-                    }
-                    
+                    break;
+                }
+    
                 this.advance();
             }
     
-            return Token.Identifier;
+            return Token.JSXText;
         }
     
         private parseJSXIdentifier(context: Context): ESTree.JSXIdentifier {
@@ -5610,7 +5588,7 @@ export class Parser {
     
             // Member expression
             while (this.parseOptional(context, Token.Period)) {
-                //  expression = this.parseJSXMemberExpression(context, expression, pos);
+                expression = this.parseJSXMemberExpression(context, expression, pos);
             }
     
             return expression;

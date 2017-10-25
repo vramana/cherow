@@ -110,7 +110,9 @@ var KeywordDescTable = [
     'implements', 'interface', 'package', 'private', 'protected', 'public', 'static', 'yield',
     /* Contextual keywords */
     'as', 'async', 'await', 'constructor', 'get', 'set', 'from', 'of',
-    'enum'
+    'enum',
+    /* JSX */
+    'JSXText'
 ];
 /**
  * The conversion function between token and its string description/representation.
@@ -283,7 +285,6 @@ ErrorMessages[101 /* InvalidArrowYieldParam */] = 'Arrow parameters must not con
 ErrorMessages[102 /* InvalidAwaitInArrowParam */] = '\'await\' is not allowed inside an async arrow\'s parameter list';
 ErrorMessages[103 /* InvalidComplexBindingPattern */] = 'Complex binding patterns require an initialization value';
 ErrorMessages[104 /* UnsupportedFeature */] = '%0 isn\'t supported by default. Enable the \'%1\' option to use them';
-ErrorMessages[105 /* UndeclaredBinding */] = 'Exported binding %0 is not declared';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -626,23 +627,33 @@ Parser.prototype.scanToken = function scanToken (context) {
                         }
                         continue;
                     }
-                    if (next$1 === 60 /* LessThan */) {
-                        this$1.advance();
-                        if (this$1.consume(61 /* EqualSign */))
-                            { return 1310750 /* ShiftLeftAssign */; }
-                        return 2099265 /* ShiftLeft */;
+                    switch (next$1) {
+                        case 60 /* LessThan */:
+                            this$1.advance();
+                            if (this$1.consume(61 /* EqualSign */)) {
+                                return 1310750 /* ShiftLeftAssign */;
+                            }
+                            return 2099265 /* ShiftLeft */;
+                        case 61 /* EqualSign */:
+                            this$1.advance();
+                            return 2099005 /* LessThanOrEqual */;
+                        case 47 /* Slash */:
+                            {
+                                if (!(this$1.flags & 262144 /* OptionsJSX */))
+                                    { return 2361151 /* LessThan */; }
+                                var index = this$1.index + 1;
+                                // Check that it's not a comment start.
+                                if (index < this$1.source.length) {
+                                    next$1 = this$1.source.charCodeAt(index);
+                                    if (next$1 === 42 /* Asterisk */ || next$1 === 47 /* Slash */)
+                                        { break; }
+                                }
+                                this$1.advance();
+                                return 25 /* JSXClose */;
+                            }
+                        default:
+                            return 2361151 /* LessThan */;
                     }
-                    if (next$1 === 61 /* EqualSign */) {
-                        this$1.advance();
-                        return 2099005 /* LessThanOrEqual */;
-                    }
-                    if (!(this$1.flags & 262144 /* OptionsJSX */))
-                        { return 2361151 /* LessThan */; }
-                    if (next$1 === 47 /* Slash */) {
-                        this$1.advance();
-                        return 25 /* JSXClose */;
-                    }
-                    return 2361151 /* LessThan */;
                 }
             // -, --, -->, -=,
             case 45 /* Hyphen */:
@@ -868,17 +879,17 @@ Parser.prototype.scanToken = function scanToken (context) {
             // '.'
             case 46 /* Period */:
                 {
-                    var index = this$1.index + 1;
-                    var next$9 = this$1.source.charCodeAt(index);
+                    var index$1 = this$1.index + 1;
+                    var next$9 = this$1.source.charCodeAt(index$1);
                     if (next$9 >= 48 /* Zero */ && next$9 <= 57 /* Nine */) {
                         this$1.scanNumber(context);
                         return 262146 /* NumericLiteral */;
                     }
                     else if (next$9 === 46 /* Period */) {
-                        index++;
-                        if (index < this$1.source.length &&
-                            this$1.source.charCodeAt(index) === 46 /* Period */) {
-                            this$1.index = index + 1;
+                        index$1++;
+                        if (index$1 < this$1.source.length &&
+                            this$1.source.charCodeAt(index$1) === 46 /* Period */) {
+                            this$1.index = index$1 + 1;
                             this$1.column += 3;
                             return 14 /* Ellipsis */;
                         }
@@ -889,9 +900,9 @@ Parser.prototype.scanToken = function scanToken (context) {
             // '0'
             case 48 /* Zero */:
                 {
-                    var index$1 = this$1.index + 1;
-                    if (index$1 + 1 < this$1.source.length) {
-                        switch (this$1.source.charCodeAt(index$1)) {
+                    var index$2 = this$1.index + 1;
+                    if (index$2 + 1 < this$1.source.length) {
+                        switch (this$1.source.charCodeAt(index$2)) {
                             case 120 /* LowerX */:
                             case 88 /* UpperX */:
                                 return this$1.scanHexadecimalDigit();
@@ -904,8 +915,8 @@ Parser.prototype.scanToken = function scanToken (context) {
                             default: // ignore
                         }
                     }
-                    var nextChar = this$1.source.charCodeAt(index$1);
-                    if (index$1 < this$1.source.length && nextChar >= 48 /* Zero */ && nextChar <= 55 /* Seven */) {
+                    var nextChar = this$1.source.charCodeAt(index$2);
+                    if (index$2 < this$1.source.length && nextChar >= 48 /* Zero */ && nextChar <= 55 /* Seven */) {
                         return this$1.scanNumberLiteral(context);
                     }
                 }
@@ -4549,7 +4560,7 @@ Parser.prototype.addBlockName = function addBlockName (name) {
         case 'Number':
         case 'String':
         case 'undefined':
-            this.error(105 /* UndeclaredBinding */, name);
+            this.error(71 /* DuplicateIdentifier */, name);
         default: // ignore
     }
     if (!this.initBlockScope() && (
@@ -4834,31 +4845,16 @@ Parser.prototype.parseJSXChildren = function parseJSXChildren (context) {
     }
     return children;
 };
-Parser.prototype.parseJSXText = function parseJSXText (context) {
-    var pos = this.getLocations();
-    var value = this.source.slice(this.startIndex, this.index);
-    this.token = this.scanJSXToken();
-    var node = this.finishNode(pos, {
-        type: 'JSXText',
-        value: value
-    });
-    if (this.flags & 524288 /* OptionsRaw */)
-        { node.raw = value; }
-    return node;
-};
 Parser.prototype.parseJSXChild = function parseJSXChild (context, pos) {
     switch (this.token) {
-        // 'abc'
+        case 12404 /* JSXText */:
         case 262145 /* Identifier */:
             return this.parseJSXText(context);
-        // '{'
         case 393228 /* LeftBrace */:
-            return this.parseJSXExpressionContainer(context &= ~8192 /* JSXChild */, pos);
-        // '<'
+            return this.parseJSXExpressionContainer(context, pos);
         case 2361151 /* LessThan */:
-            return this.parseJSXElement(context &= ~8192 /* JSXChild */);
-        default:
-            this.error(0 /* Unexpected */);
+            return this.parseJSXElement(context & ~8192 /* JSXChild */);
+        default: // ignore
     }
 };
 Parser.prototype.parseJSXSpreadChild = function parseJSXSpreadChild (context) {
@@ -4871,6 +4867,18 @@ Parser.prototype.parseJSXSpreadChild = function parseJSXSpreadChild (context) {
         expression: expression
     });
 };
+Parser.prototype.parseJSXText = function parseJSXText (context) {
+    var pos = this.getLocations();
+    var value = this.source.slice(this.startIndex, this.index);
+    this.nextJSXToken();
+    var node = this.finishNode(pos, {
+        type: 'JSXText',
+        value: value
+    });
+    if (this.flags & 524288 /* OptionsRaw */)
+        { node.raw = value; }
+    return node;
+};
 Parser.prototype.parseJSXEmptyExpression = function parseJSXEmptyExpression (pos) {
     return this.finishNode(pos, {
         type: 'JSXEmptyExpression'
@@ -4878,19 +4886,13 @@ Parser.prototype.parseJSXEmptyExpression = function parseJSXEmptyExpression (pos
 };
 Parser.prototype.parseJSXExpressionContainer = function parseJSXExpressionContainer (context, pos) {
     this.expect(context, 393228 /* LeftBrace */);
-    var expression;
-    switch (this.token) {
-        // '...'
-        case 14 /* Ellipsis */:
-            return this.parseJSXSpreadChild(context);
-        // '}'
-        case 15 /* RightBrace */:
-            expression = this.parseJSXEmptyExpression(pos);
-            break;
-        default:
-            expression = this.parseAssignmentExpression(context);
+    if (this.token === 14 /* Ellipsis */) {
+        return this.parseJSXSpreadChild(context);
     }
-    this.token = this.scanJSXToken();
+    var expression = this.token === 15 /* RightBrace */ ?
+        this.parseJSXEmptyExpression(pos) :
+        this.parseAssignmentExpression(context);
+    this.nextJSXToken();
     return this.finishNode(pos, {
         type: 'JSXExpressionContainer',
         expression: expression
@@ -4938,7 +4940,7 @@ Parser.prototype.parseJSXOpeningElement = function parseJSXOpeningElement (conte
     var pos = this.getLocations();
     this.expect(context, 2361151 /* LessThan */);
     if (this.token === 2099008 /* GreaterThan */) {
-        this.token = this.scanJSXToken();
+        this.nextJSXToken();
         return this.finishNode(pos, {
             type: 'JSXOpeningFragment'
         });
@@ -4947,7 +4949,7 @@ Parser.prototype.parseJSXOpeningElement = function parseJSXOpeningElement (conte
     var attributes = this.parseJSXAttributes(context);
     var selfClosing = this.token === 2361909;
     if (this.token === 2099008 /* GreaterThan */) {
-        this.token = this.scanJSXToken();
+        this.nextJSXToken();
     }
     else {
         this.expect(context, 2361909 /* Divide */);
@@ -4955,7 +4957,7 @@ Parser.prototype.parseJSXOpeningElement = function parseJSXOpeningElement (conte
             this.expect(context, 2099008 /* GreaterThan */);
         }
         else {
-            this.token = this.scanJSXToken();
+            this.nextJSXToken();
         }
     }
     return this.finishNode(pos, {
@@ -4973,7 +4975,7 @@ Parser.prototype.parseJSXClosingElement = function parseJSXClosingElement (conte
         this.expect(context, 2099008 /* GreaterThan */);
     }
     else {
-        this.token = this.scanJSXToken();
+        this.nextJSXToken();
     }
     return this.finishNode(pos, {
         type: 'JSXClosingElement',
@@ -4990,14 +4992,6 @@ Parser.prototype.scanJSXString = function scanJSXString () {
     var start = this.index;
     var ch;
     while (ch !== quote) {
-        switch (ch) {
-            case 13 /* CarriageReturn */:
-            case 10 /* LineFeed */:
-            case 8232 /* LineSeparator */:
-            case 8233 /* ParagraphSeparator */:
-                this$1.error(3 /* UnterminatedString */);
-            default: // ignore
-        }
         this$1.advance();
         ch = this$1.nextChar();
     }
@@ -5067,13 +5061,8 @@ Parser.prototype.parseJSXAttribute = function parseJSXAttribute (context) {
 Parser.prototype.parseJSXExpressionAttribute = function parseJSXExpressionAttribute (context) {
     var pos = this.getLocations();
     this.expect(context, 393228 /* LeftBrace */);
-    switch (this.token) {
-        case 15 /* RightBrace */:
-            this.error(40 /* NonEmptyJSXExpression */);
-        case 14 /* Ellipsis */:
-            return this.parseJSXSpreadChild(context);
-        default: // ignore
-    }
+    if (this.token === 14 /* Ellipsis */)
+        { return this.parseJSXSpreadChild(context); }
     var expression = this.parseAssignmentExpression(context);
     this.expect(context, 15 /* RightBrace */);
     return this.finishNode(pos, {
@@ -5087,12 +5076,9 @@ Parser.prototype.parseJSXAttributes = function parseJSXAttributes (context) {
     var attributes = [];
     loop: while (this.hasNext()) {
         switch (this$1.token) {
-            // '/'
             case 2361909 /* Divide */:
-            // `>`
             case 2099008 /* GreaterThan */:
                 break loop;
-            // `{`
             case 393228 /* LeftBrace */:
                 attributes.push(this$1.parseJSXSpreadAttribute(context &= ~8192 /* JSXChild */));
                 break;
@@ -5101,6 +5087,9 @@ Parser.prototype.parseJSXAttributes = function parseJSXAttributes (context) {
         }
     }
     return attributes;
+};
+Parser.prototype.nextJSXToken = function nextJSXToken () {
+    this.token = this.scanJSXToken();
 };
 Parser.prototype.scanJSXToken = function scanJSXToken () {
         var this$1 = this;
@@ -5122,7 +5111,7 @@ Parser.prototype.scanJSXToken = function scanJSXToken () {
         }
         this$1.advance();
     }
-    return 262145 /* Identifier */;
+    return 12404 /* JSXText */;
 };
 Parser.prototype.parseJSXIdentifier = function parseJSXIdentifier (context) {
     var name = this.tokenValue;
@@ -5150,6 +5139,8 @@ Parser.prototype.parseJSXMemberExpression = function parseJSXMemberExpression (c
     });
 };
 Parser.prototype.parseJSXElementName = function parseJSXElementName (context) {
+        var this$1 = this;
+
     var pos = this.getLocations();
     this.scanJSXIdentifier(context);
     var expression = this.parseJSXIdentifier(context | 8192 /* JSXChild */);
@@ -5158,7 +5149,7 @@ Parser.prototype.parseJSXElementName = function parseJSXElementName (context) {
         { return this.parseJSXNamespacedName(context, expression, pos); }
     // Member expression
     while (this.parseOptional(context, 13 /* Period */)) {
-        //  expression = this.parseJSXMemberExpression(context, expression, pos);
+        expression = this$1.parseJSXMemberExpression(context, expression, pos);
     }
     return expression;
 };

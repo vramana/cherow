@@ -212,9 +212,7 @@ export const ErrorMessages: {
     [Errors.InvalidArrowYieldParam]: 'Arrow parameters must not contain yield expressions',
     [Errors.InvalidAwaitInArrowParam]: '\'await\' is not allowed inside an async arrow\'s parameter list',
     [Errors.InvalidComplexBindingPattern]: 'Complex binding patterns require an initialization value',
-    [Errors.UnsupportedFeature]: '%0 isn\'t supported by default. Enable the \'%1\' option to use them',
-    [Errors.UndeclaredBinding]: 'Exported binding %0 is not declared',
-    
+    [Errors.UnsupportedFeature]: '%0 isn\'t supported by default. Enable the \'%1\' option to use them'
 };
 
 function constructError(msg: string, column: number): Error {

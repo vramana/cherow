@@ -13,6 +13,10 @@ describe('Declarations - Let', () => {
         expect(() => { parseScript('{ let f; var f; }'); }).to.throw();
     });
 
+    it('should fail on predeclared "Infinity"', () => {
+      expect(() => { parseScript('let Infinity'); }).to.throw();
+  });
+
     it('should fail on let let| split across two lines', () => {
         expect(() => { parseScript(`let  // start of a LexicalDeclaration, *not* an ASI opportunity
         let = "irrelevant initializer";`); }).to.throw();
