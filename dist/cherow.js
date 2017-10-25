@@ -4896,6 +4896,14 @@ Parser.prototype.parseJSXExpressionContainer = function parseJSXExpressionContai
         expression: expression
     });
 };
+Parser.prototype.parseJSXClosingFragment = function parseJSXClosingFragment (context) {
+    var pos = this.getLocations();
+    this.expect(context, 25 /* JSXClose */);
+    this.expect(context, 2099008 /* GreaterThan */);
+    return this.finishNode(pos, {
+        type: 'JSXClosingFragment'
+    });
+};
 Parser.prototype.parseJSXElement = function parseJSXElement (context) {
     var pos = this.getLocations();
     var openingElement = this.parseJSXOpeningElement(context);
@@ -4903,7 +4911,7 @@ Parser.prototype.parseJSXElement = function parseJSXElement (context) {
     var closingElement = null;
     if (openingElement.type === 'JSXOpeningFragment') {
         children = this.parseJSXChildren(context);
-        closingElement = this.parseJSXClosingFragment(context | 8192 /* JSXChild */);
+        closingElement = this.parseJSXClosingFragment(context);
         return this.finishNode(pos, {
             type: 'JSXFragment',
             children: children,
@@ -4926,36 +4934,15 @@ Parser.prototype.parseJSXElement = function parseJSXElement (context) {
         closingElement: closingElement,
     });
 };
-Parser.prototype.parseJSXClosingFragment = function parseJSXClosingFragment (context) {
-    var pos = this.getLocations();
-    this.expect(context, 25 /* JSXClose */);
-    if (this.isIdentifierOrKeyword(this.token)) {
-        this.throwUnexpectedToken();
-    }
-    if (context & 8192 /* JSXChild */) {
-        this.expect(context, 2099008 /* GreaterThan */);
-    }
-    else {
-        this.scanJSXText();
-    }
-    return this.finishNode(pos, {
-        type: 'JSXClosingFragment'
-    });
-};
-Parser.prototype.parseJSXOpeningFragment = function parseJSXOpeningFragment (context) {
-    var pos = this.getLocations();
-    if (this.token === 2099008 /* GreaterThan */) {
-        this.token = this.scanJSXToken();
-    }
-    return this.finishNode(pos, {
-        type: 'JSXOpeningFragment'
-    });
-};
 Parser.prototype.parseJSXOpeningElement = function parseJSXOpeningElement (context) {
     var pos = this.getLocations();
     this.expect(context, 2361151 /* LessThan */);
-    if (this.token === 2099008 /* GreaterThan */)
-        { return this.parseJSXOpeningFragment(context); }
+    if (this.token === 2099008 /* GreaterThan */) {
+        this.token = this.scanJSXToken();
+        return this.finishNode(pos, {
+            type: 'JSXOpeningFragment'
+        });
+    }
     var tagName = this.parseJSXElementName(context);
     var attributes = this.parseJSXAttributes(context);
     var selfClosing = this.token === 2361909;
@@ -5115,16 +5102,11 @@ Parser.prototype.parseJSXAttributes = function parseJSXAttributes (context) {
     }
     return attributes;
 };
-Parser.prototype.scanJSXText = function scanJSXText () {
-    //  this.token === this.scanJSXToken();
-};
 Parser.prototype.scanJSXToken = function scanJSXToken () {
         var this$1 = this;
 
     // Set 'lastIndex' and 'startIndex' to current index
     this.lastIndex = this.startIndex = this.index;
-    if (!this.hasNext())
-        { return 0 /* EndOfSource */; }
     if (this.consume(60 /* LessThan */)) {
         if (this.nextChar() !== 47 /* Slash */)
             { return 2361151 /* LessThan */; }
@@ -5133,14 +5115,12 @@ Parser.prototype.scanJSXToken = function scanJSXToken () {
     }
     if (this.consume(123 /* LeftBrace */))
         { return 393228 /* LeftBrace */; }
-    scan: while (this.hasNext()) {
-        switch (this$1.nextChar()) {
-            case 123 /* LeftBrace */:
-            case 60 /* LessThan */:
-                break scan;
-            default:
-                this$1.advance();
+    while (this.hasNext()) {
+        if (this$1.nextChar() === 123 /* LeftBrace */ ||
+            this$1.nextChar() === 60 /* LessThan */) {
+            break;
         }
+        this$1.advance();
     }
     return 262145 /* Identifier */;
 };
@@ -5170,8 +5150,6 @@ Parser.prototype.parseJSXMemberExpression = function parseJSXMemberExpression (c
     });
 };
 Parser.prototype.parseJSXElementName = function parseJSXElementName (context) {
-        var this$1 = this;
-
     var pos = this.getLocations();
     this.scanJSXIdentifier(context);
     var expression = this.parseJSXIdentifier(context | 8192 /* JSXChild */);
@@ -5180,7 +5158,7 @@ Parser.prototype.parseJSXElementName = function parseJSXElementName (context) {
         { return this.parseJSXNamespacedName(context, expression, pos); }
     // Member expression
     while (this.parseOptional(context, 13 /* Period */)) {
-        expression = this$1.parseJSXMemberExpression(context, expression, pos);
+        //  expression = this.parseJSXMemberExpression(context, expression, pos);
     }
     return expression;
 };
