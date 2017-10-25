@@ -16,16 +16,17 @@ It's safe to use in production.
 
 - Full support for ECMAScript® 2017 [(ECMA-262 8th Edition)](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
 - Handle all early errors
-- Stage 3 proposals (*experimental*)
+- Stage 3 proposals 
 - Support for [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), a syntax extension for React
 - Skips shebang comment nodes by default
 - Optimized for handheld devices
 - Optional tracking of syntax node location (index-based and line-column)
-- 5600 unit tests
+- 5700 unit tests
 
 ## ESNext features
 
-`Stage 3` features support. These need to be enabled with the `next` option.
+`Stage 3` features support. These need to be enabled with the `next` option. 
+**Note** This implementations can change any time until they have reached `Stage 4`.
 
 - Import()
 - Asynchronous Iteration
