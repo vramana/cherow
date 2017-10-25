@@ -1,4 +1,4 @@
-import { parseScript, parseModule } from '../../../src/cherow';
+import { parseScript, parseModule } from '../../../../src/cherow';
 import * as chai from 'chai';
 
 const expect = chai.expect;
@@ -34,14 +34,15 @@ describe('Next - Asynchronous Iteration', () => {
             parseScript(`var gen = async function *g() { void await; };`, {
                 next: true
             })
-        }).to.not.throw();
+        }).to.throw();
     });
+
     it("should fail on named await as identifier reference escaped", () => {
         expect(() => {
             parseScript(`var gen = async function *g() { void \\u0061wait; };`, {
                 next: true
             })
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it("should fail if bound names of formal parameters contains any duplicate elements", () => {
@@ -49,15 +50,7 @@ describe('Next - Asynchronous Iteration', () => {
             parseScript(`async function* f(x = 0, x) {};`, {
                 next: true
             })
-        }).to.not.throw();
-    });
-
-    it("should fail  if BoundNames of formal parameters contains any duplicate elements", () => {
-        expect(() => {
-            parseScript(`0, async function*(x = 0, x) {};`, {
-                next: true
-            })
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it("should fail if BoundNames of formal parameters also occurs in the lexically declared names of async function body", () => {
@@ -65,7 +58,7 @@ describe('Next - Asynchronous Iteration', () => {
             parseScript(`(async function*(a) { const a = 0; });`, {
                 next: true
             })
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it("should fail if BoundNames of formal parameters also occurs in the lexically declared names of async function body", () => {
@@ -238,7 +231,7 @@ describe('Next - Asynchronous Iteration', () => {
             parseScript(`(async function*(a) { let a; });`, {
                 next: true
             })
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it("should fail if BoundNames of formal parameters also occurs in the LexicallyDeclaredNames of AsyncFunctionBody", () => {
@@ -246,7 +239,7 @@ describe('Next - Asynchronous Iteration', () => {
             parseScript(`(async function*(a) { let a; });`, {
                 next: true
             })
-        }).to.not.throw();
+        }).to.throw();
     });
     
     it("should fail if formal contains await expression", () => {

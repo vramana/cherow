@@ -11,12 +11,6 @@ describe('V8 - Do expression', () => {
         }).to.throw();
     });
 
-    it('should fail on "let foo = [do 3+4, 5+6];"', () => {
-        expect(() => {
-            parseScript('f(do 1,2);', { v8: true });
-        }).to.throw();
-    });
-
     it('should fail if v8 flag is not set', () => {
         expect(() => {
             parseScript(`let x = do {

@@ -54,6 +54,52 @@ describe('Expressions - Async Object', () => {
      }).to.throw()
     });
 
+    it('should fail if if FormalParameters default expressions contains await', () => {
+        expect(() => {
+            parseScript(`({
+                async foo (x = await) {  }
+              })`, { next: true});
+     }).to.throw()
+    });
+
+    it('should fail if if AsyncFunctionBody contains SuperCall', () => {
+        expect(() => {
+            parseScript(`({
+                async foo () { super() }
+              })`, { next: true});
+     }).to.throw()
+    });
+
+    it('should fail on async async', () => {
+        expect(() => {
+            parseScript(`({async async});`);
+        }).to.throw();
+    });
+
+    it('should fail on object method duplicate parameters', () => {
+        expect(() => {
+            parseScript(`({
+                async foo(a, a) { }
+              })`, { next: true});
+     }).to.throw()
+    });
+
+    it('should fail if FormalParameters contains eval in strict mode', () => {
+        expect(() => {
+            parseScript(`"use strict"; ({
+                async foo(eval) { }
+              })`, { next: true});
+     }).to.throw()
+    });
+
+    it('should fail if if BoundNames of FormalParameters also occurs in the LexicallyDeclaredNames of AsyncFunctionBody', () => {
+        expect(() => {
+            parseScript(`({
+                async function foo(bar) { let bar; }
+              })`, { next: true});
+     }).to.throw()
+    });
+
     it('should allow async as shorthand property', () => {
         expect(parseScript(`({async})`, {
             ranges: true,

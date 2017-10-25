@@ -4049,6 +4049,12 @@ export class Parser {
                 case Token.ThrowKeyword:
                     return this.parseThrowExpression(context);
                 case Token.AwaitKeyword:
+                    if (this.flags & Flags.HasUnicode) {
+                        this.error(Errors.UnexpectedReservedWord)
+                    }
+                    if (context & Context.Await) {
+                        this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                    }
                     if (context & Context.Module) {
                         // Valid: 'await = 0;'
                         this.PeekAhead(context);
@@ -4433,7 +4439,9 @@ export class Parser {
     
                 default:
     
-                    if (!this.isIdentifier(context, token)) this.error(Errors.UnexpectedToken, tokenDesc(token));
+                    if (state & ObjectState.Async || !this.isIdentifier(context, token)) {
+                        this.error(Errors.UnexpectedToken, tokenDesc(token));
+                    }
                     if (state & ObjectState.Yield) this.error(Errors.Unexpected);
     
                     if (token === Token.AwaitKeyword) {
@@ -5001,7 +5009,9 @@ export class Parser {
             }
     
             if (context & Context.InParameter) {
-                if (context & Context.Strict) {
+                // In a parameter list, we only check for duplicate params
+                // if inside a strict, method or await context
+                if (context & (Context.Strict | Context.Await | Context.Method)) {
                     this.addFunctionArg(name);
                 }
             } else {

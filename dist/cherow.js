@@ -3796,6 +3796,12 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 12383 /* ThrowKeyword */:
             return this.parseThrowExpression(context);
         case 331885 /* AwaitKeyword */:
+            if (this.flags & 2 /* HasUnicode */) {
+                this.error(76 /* UnexpectedReservedWord */);
+            }
+            if (context & 32 /* Await */) {
+                this.error(82 /* DisallowedInContext */, tokenDesc(this.token));
+            }
             if (context & 1 /* Module */) {
                 // Valid: 'await = 0;'
                 this.PeekAhead(context);
@@ -4140,8 +4146,9 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context, hasP
             }
             break;
         default:
-            if (!this.isIdentifier(context, token))
-                { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }
+            if (state & 2 /* Async */ || !this.isIdentifier(context, token)) {
+                this.error(1 /* UnexpectedToken */, tokenDesc(token));
+            }
             if (state & 1 /* Yield */)
                 { this.error(0 /* Unexpected */); }
             if (token === 331885 /* AwaitKeyword */) {
@@ -4647,7 +4654,9 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
         }
     }
     if (context & 128 /* InParameter */) {
-        if (context & 2 /* Strict */) {
+        // In a parameter list, we only check for duplicate params
+        // if inside a strict, method or await context
+        if (context & (2 /* Strict */ | 32 /* Await */ | 65536 /* Method */)) {
             this.addFunctionArg(name);
         }
     }

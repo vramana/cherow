@@ -35,7 +35,7 @@ describe('Declarations - Class', () => {
     it('should fail on invalid use of static await as identifier', () => {
         expect(() => {
             parseScript(`void \\u0061wait;`);
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on invalid use of eval in strict mode', () => {
