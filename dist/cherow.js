@@ -2531,23 +2531,39 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
         if (hasMask(this.token, 8650752 /* VarDeclStart */)) {
             var startIndex = this.getLocations();
             kind = tokenDesc(this.token);
-            if (this.parseOptional(context, 8663111 /* VarKeyword */)) {
-                state |= 1 /* Var */;
-                declarations = this.parseVariableDeclarationList(context | 524288 /* ForStatement */);
+            if (this.token === 8671304 /* LetKeyword */ && this.isLexical(context)) {
+                if (this.parseOptional(context, 8671304 /* LetKeyword */)) {
+                    state |= 4 /* Let */;
+                    declarations = this.parseVariableDeclarationList(context | (2097152 /* Let */ | 4 /* AllowIn */ | 524288 /* ForStatement */));
+                }
+                if (state & (6 /* Lexical */ | 1 /* Var */)) {
+                    init = this.finishNode(startIndex, {
+                        type: 'VariableDeclaration',
+                        declarations: declarations,
+                        kind: kind
+                    });
+                }
             }
-            else if (this.parseOptional(context, 8671304 /* LetKeyword */)) {
-                state |= 4 /* Let */;
-                declarations = this.parseVariableDeclarationList(context | (2097152 /* Let */ | 4 /* AllowIn */ | 524288 /* ForStatement */));
+            else {
+                if (this.parseOptional(context, 8663111 /* VarKeyword */)) {
+                    state |= 1 /* Var */;
+                    declarations = this.parseVariableDeclarationList(context | 524288 /* ForStatement */);
+                }
+                else if (this.parseOptional(context, 8663113 /* ConstKeyword */)) {
+                    state |= 2 /* Const */;
+                    declarations = this.parseVariableDeclarationList(context | (4194304 /* Const */ | 4 /* AllowIn */ | 524288 /* ForStatement */));
+                }
+                else {
+                    init = this.parseExpression(context & ~4 /* AllowIn */ | 524288 /* ForStatement */, pos);
+                }
+                if (state & (6 /* Lexical */ | 1 /* Var */)) {
+                    init = this.finishNode(startIndex, {
+                        type: 'VariableDeclaration',
+                        declarations: declarations,
+                        kind: kind
+                    });
+                }
             }
-            else if (this.parseOptional(context, 8663113 /* ConstKeyword */)) {
-                state |= 2 /* Const */;
-                declarations = this.parseVariableDeclarationList(context | (4194304 /* Const */ | 4 /* AllowIn */ | 524288 /* ForStatement */));
-            }
-            init = this.finishNode(startIndex, {
-                type: 'VariableDeclaration',
-                declarations: declarations,
-                kind: kind
-            });
         }
         else {
             init = this.parseExpression(context & ~4 /* AllowIn */ | 524288 /* ForStatement */, pos);
@@ -3364,7 +3380,7 @@ Parser.prototype.parseLeftHandSideExpression = function parseLeftHandSideExpress
     if (!(this.flags & 8 /* AllowCall */) && expr.type === 'ArrowFunctionExpression') {
         return expr;
     }
-    return this.parseCallExpression(context, pos, expr);
+    return this.parseCallExpression(context | 4 /* AllowIn */, pos, expr);
 };
 Parser.prototype.parseMemberExpression = function parseMemberExpression (context, pos, expr) {
         var this$1 = this;
@@ -3770,7 +3786,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 274437 /* FalseKeyword */:
             return this.parseTrueOrFalseExpression(context);
         case 262155 /* LeftParen */:
-            return this.parseParenthesizedExpression(context | 64 /* InParenthesis */);
+            return this.parseParenthesizedExpression(context | 64 /* InParenthesis */ | 4 /* AllowIn */);
         case 393235 /* LeftBracket */:
             return this.parseArrayInitializer(context);
         case 274522 /* NewKeyword */:

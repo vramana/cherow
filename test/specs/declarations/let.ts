@@ -59,6 +59,149 @@ describe('Declarations - Let', () => {
         expect(() => { parseScript('(function() { "use strict"; { let f; var f; } })'); }).to.throw();
     });
 
+    it('should parse "let {a: b} = ({});"', () => {
+      expect(parseScript(`let {a: b} = ({});`, {
+          ranges: true,
+          raw: true,
+          next: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 18,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 18
+          }
+        },
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "start": 0,
+            "end": 18,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 18
+              }
+            },
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "start": 4,
+                "end": 17,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 4
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 17
+                  }
+                },
+                "id": {
+                  "type": "ObjectPattern",
+                  "start": 4,
+                  "end": 10,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 4
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 10
+                    }
+                  },
+                  "properties": [
+                    {
+                      "type": "Property",
+                      "start": 5,
+                      "end": 9,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 5
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 9
+                        }
+                      },
+                      "method": false,
+                      "shorthand": false,
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 5,
+                        "end": 6,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 5
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 6
+                          }
+                        },
+                        "name": "a"
+                      },
+                      "value": {
+                        "type": "Identifier",
+                        "start": 8,
+                        "end": 9,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 8
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 9
+                          }
+                        },
+                        "name": "b"
+                      },
+                      "kind": "init"
+                    }
+                  ]
+                },
+                "init": {
+                  "type": "ObjectExpression",
+                  "start": 14,
+                  "end": 16,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 14
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 16
+                    }
+                  },
+                  "properties": []
+                }
+              }
+            ],
+            "kind": "let"
+          }
+        ],
+        "sourceType": "script"
+      });
+  });
+
     it('should parse let as async keyword in module code', () => {
       expect(parseModule('let async = ""', {
           raw: true,

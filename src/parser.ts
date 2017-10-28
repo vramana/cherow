@@ -2574,21 +2574,40 @@ export class Parser {
                     const startIndex = this.getLocations();
                     kind = tokenDesc(this.token);
     
-                    if (this.parseOptional(context, Token.VarKeyword)) {
-                        state |= IterationState.Var;
-                        declarations = this.parseVariableDeclarationList(context | Context.ForStatement);
-                    } else if (this.parseOptional(context, Token.LetKeyword)) {
-                        state |= IterationState.Let;
-                        declarations = this.parseVariableDeclarationList(context | (Context.Let | Context.AllowIn | Context.ForStatement));
-                    } else if (this.parseOptional(context, Token.ConstKeyword)) {
-                        state |= IterationState.Const;
-                        declarations = this.parseVariableDeclarationList(context | (Context.Const | Context.AllowIn | Context.ForStatement));
+                    if (this.token === Token.LetKeyword && this.isLexical(context)) {
+
+                        if (this.parseOptional(context, Token.LetKeyword)) {
+                            state |= IterationState.Let;
+                            declarations = this.parseVariableDeclarationList(context | (Context.Let | Context.AllowIn | Context.ForStatement));
+                        }
+                        if (state & (IterationState.Lexical | IterationState.Var)) {
+                            init = this.finishNode(startIndex, {
+                                type: 'VariableDeclaration',
+                                declarations,
+                                kind
+                            });
+                        }
+                    } else {
+                        if (this.parseOptional(context, Token.VarKeyword)) {
+                            
+                            state |= IterationState.Var;
+                            declarations = this.parseVariableDeclarationList(context | Context.ForStatement);
+                        } else if (this.parseOptional(context, Token.ConstKeyword)) {
+                            state |= IterationState.Const;
+                            declarations = this.parseVariableDeclarationList(context | (Context.Const | Context.AllowIn | Context.ForStatement));
+                        } else {
+                            init = this.parseExpression(context & ~Context.AllowIn | Context.ForStatement, pos);
+                        }
+
+                        if (state & (IterationState.Lexical | IterationState.Var)) {
+                            init = this.finishNode(startIndex, {
+                                type: 'VariableDeclaration',
+                                declarations,
+                                kind
+                            });
+                        }
                     }
-                    init = this.finishNode(startIndex, {
-                        type: 'VariableDeclaration',
-                        declarations,
-                        kind
-                    });
+       
                 } else {
                     init = this.parseExpression(context & ~Context.AllowIn | Context.ForStatement, pos);
                 }
@@ -3551,7 +3570,7 @@ export class Parser {
                 return expr;
             }
     
-            return this.parseCallExpression(context, pos, expr);
+            return this.parseCallExpression(context | Context.AllowIn, pos, expr);
         }
     
         private parseMemberExpression(
@@ -4023,7 +4042,7 @@ export class Parser {
                 case Token.FalseKeyword:
                     return this.parseTrueOrFalseExpression(context);
                 case Token.LeftParen:
-                    return this.parseParenthesizedExpression(context | Context.InParenthesis);
+                    return this.parseParenthesizedExpression(context | Context.InParenthesis | Context.AllowIn);
                 case Token.LeftBracket:
                     return this.parseArrayInitializer(context);
                 case Token.NewKeyword:

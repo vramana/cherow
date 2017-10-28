@@ -148,7 +148,7 @@ describe('Statements - Variable', () => {
                 parseScript(`var [x]`)
             }).to.throw();
         });
-        
+
         it('should parse with initilizers and allow in', () => {
             expect(parseScript(`var c = b in document;`, {
                 ranges: true,

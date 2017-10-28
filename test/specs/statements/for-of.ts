@@ -4258,6 +4258,96 @@ describe('Statements - For of', () => {
                 "sourceType": "script"
             });
         });
+
+        it('should parse "for (a of let) {}"', () => {
+            expect(parseScript(`for (a of let) {}`, {
+                ranges: true,
+                raw: true,
+                next: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 17,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 17
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ForOfStatement",
+                    "start": 0,
+                    "end": 17,
+                    "await": false,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 17
+                      }
+                    },
+                    "left": {
+                      "type": "Identifier",
+                      "start": 5,
+                      "end": 6,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 5
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 6
+                        }
+                      },
+                      "name": "a"
+                    },
+                    "right": {
+                      "type": "Identifier",
+                      "start": 10,
+                      "end": 13,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 10
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 13
+                        }
+                      },
+                      "name": "let"
+                    },
+                    "body": {
+                      "type": "BlockStatement",
+                      "start": 15,
+                      "end": 17,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 15
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 17
+                        }
+                      },
+                      "body": []
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
     
         it('should parse array element init in', () => {
             expect(parseScript(`for ([ x = 'x' in {} ] of [[]]) {}`, {
