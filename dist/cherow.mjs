@@ -2531,11 +2531,11 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
             }
             else if (this.parseOptional(context, 8671304 /* LetKeyword */)) {
                 state |= 4 /* Let */;
-                declarations = this.parseVariableDeclarationList(context | (2097152 /* Let */ | 524288 /* ForStatement */));
+                declarations = this.parseVariableDeclarationList(context | (2097152 /* Let */ | 4 /* AllowIn */ | 524288 /* ForStatement */));
             }
             else if (this.parseOptional(context, 8663113 /* ConstKeyword */)) {
                 state |= 2 /* Const */;
-                declarations = this.parseVariableDeclarationList(context | (4194304 /* Const */ | 524288 /* ForStatement */));
+                declarations = this.parseVariableDeclarationList(context | (4194304 /* Const */ | 4 /* AllowIn */ | 524288 /* ForStatement */));
             }
             init = this.finishNode(startIndex, {
                 type: 'VariableDeclaration',
@@ -2891,8 +2891,7 @@ Parser.prototype.parseVariableDeclarationList = function parseVariableDeclaratio
         var this$1 = this;
 
     var list = [this.parseVariableDeclaration(context)];
-    while (this.token === 18 /* Comma */) {
-        this$1.expect(context, 18 /* Comma */);
+    while (this.parseOptional(context, 18 /* Comma */)) {
         list.push(this$1.parseVariableDeclaration(context));
     }
     return list;
@@ -4624,12 +4623,18 @@ Parser.prototype.parseBindingPatternOrIdentifier = function parseBindingPatternO
             this.flags |= 1024 /* BindingPosition */;
             if (context & 16 /* Yield */)
                 { this.error(82 /* DisallowedInContext */, tokenDesc(this.token)); }
-        // falls through
+            if (context & 2 /* Strict */) {
+                if (this.flags & 2 /* HasUnicode */)
+                    { this.error(68 /* UnexpectedEscapedKeyword */); }
+                this.error(82 /* DisallowedInContext */, tokenDesc(this.token));
+            }
+            return this.parseBindingIdentifier(context);
         case 8671304 /* LetKeyword */:
             if (context & 2 /* Strict */ && this.flags & 2 /* HasUnicode */)
                 { this.error(68 /* UnexpectedEscapedKeyword */); }
             if (context & 6291456 /* Lexical */)
                 { this.error(54 /* LetInLexicalBinding */); }
+        // falls through
         default:
             if (!this.isIdentifier(context, this.token))
                 { this.throwUnexpectedToken(); }

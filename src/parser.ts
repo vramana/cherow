@@ -2579,10 +2579,10 @@ export class Parser {
                         declarations = this.parseVariableDeclarationList(context | Context.ForStatement);
                     } else if (this.parseOptional(context, Token.LetKeyword)) {
                         state |= IterationState.Let;
-                        declarations = this.parseVariableDeclarationList(context | (Context.Let | Context.ForStatement));
+                        declarations = this.parseVariableDeclarationList(context | (Context.Let | Context.AllowIn | Context.ForStatement));
                     } else if (this.parseOptional(context, Token.ConstKeyword)) {
                         state |= IterationState.Const;
-                        declarations = this.parseVariableDeclarationList(context | (Context.Const | Context.ForStatement));
+                        declarations = this.parseVariableDeclarationList(context | (Context.Const | Context.AllowIn | Context.ForStatement));
                     }
                     init = this.finishNode(startIndex, {
                         type: 'VariableDeclaration',
@@ -3020,8 +3020,7 @@ export class Parser {
         private parseVariableDeclarationList(context: Context): ESTree.VariableDeclarator[] {
             const list: ESTree.VariableDeclarator[] = [this.parseVariableDeclaration(context)];
     
-            while (this.token === Token.Comma) {
-                this.expect(context, Token.Comma);
+            while (this.parseOptional(context, Token.Comma)) {
                 list.push(this.parseVariableDeclaration(context));
             }
             return list;
@@ -4983,10 +4982,16 @@ export class Parser {
                     this.errorLocation = pos;
                     this.flags |= Flags.BindingPosition;
                     if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                    // falls through
+                    if (context & Context.Strict) {
+                        if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+                        this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                    }
+    
+                    return this.parseBindingIdentifier(context);
                 case Token.LetKeyword:
                     if (context & Context.Strict && this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
                     if (context & Context.Lexical) this.error(Errors.LetInLexicalBinding);
+                    // falls through
                 default:
                     if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
                     return this.parseBindingIdentifier(context);
@@ -5260,7 +5265,7 @@ export class Parser {
             const value = this.source.slice(this.startIndex, this.index);
     
             this.nextJSXToken();
-        
+    
             const node = this.finishNode(pos, {
                 type: 'JSXText',
                 value
@@ -5490,7 +5495,7 @@ export class Parser {
             const pos = this.getLocations();
     
             this.expect(context, Token.LeftBrace);
-
+    
             if (this.token === Token.Ellipsis) return this.parseJSXSpreadChild(context);
     
             const expression = this.parseAssignmentExpression(context);

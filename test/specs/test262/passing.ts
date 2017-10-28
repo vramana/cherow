@@ -24934,7 +24934,220 @@ describe('TC262 - passing', () => {
           "sourceType": "script"
         });
       });
+      
+      it('should parse "for(let yield in 1);"', () => {
+        expect(parseScript('for(let yield in 1);', {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 20,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 20
+            }
+          },
+          "body": [
+            {
+              "type": "ForInStatement",
+              "start": 0,
+              "end": 20,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 20
+                }
+              },
+              "left": {
+                "type": "VariableDeclaration",
+                "start": 4,
+                "end": 13,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 4
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 13
+                  }
+                },
+                "declarations": [
+                  {
+                    "type": "VariableDeclarator",
+                    "start": 8,
+                    "end": 13,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 8
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 13
+                      }
+                    },
+                    "id": {
+                      "type": "Identifier",
+                      "start": 8,
+                      "end": 13,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 8
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 13
+                        }
+                      },
+                      "name": "yield"
+                    },
+                    "init": null
+                  }
+                ],
+                "kind": "let"
+              },
+              "right": {
+                "type": "Literal",
+                "start": 17,
+                "end": 18,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 17
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 18
+                  }
+                },
+                "value": 1,
+                "raw": "1"
+              },
+              "body": {
+                "type": "EmptyStatement",
+                "start": 19,
+                "end": 20,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 19
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 20
+                  }
+                }
+              }
+            }
+          ],
+          "sourceType": "script"
+        });
+      });
 
+      it('should parse "let yield = 1;"', () => {
+        expect(parseScript('let yield = 1;', {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+          "type": "Program",
+          "start": 0,
+          "end": 14,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 14
+            }
+          },
+          "body": [
+            {
+              "type": "VariableDeclaration",
+              "start": 0,
+              "end": 14,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 14
+                }
+              },
+              "declarations": [
+                {
+                  "type": "VariableDeclarator",
+                  "start": 4,
+                  "end": 13,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 4
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 13
+                    }
+                  },
+                  "id": {
+                    "type": "Identifier",
+                    "start": 4,
+                    "end": 9,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 4
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 9
+                      }
+                    },
+                    "name": "yield"
+                  },
+                  "init": {
+                    "type": "Literal",
+                    "start": 12,
+                    "end": 13,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 12
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 13
+                      }
+                    },
+                    "value": 1,
+                    "raw": "1"
+                  }
+                }
+              ],
+              "kind": "let"
+            }
+          ],
+          "sourceType": "script"
+        });
+      });
+      
       it('should parse "function *a(){yield/=3/}"', () => {
         expect(parseScript('function *a(){yield/=3/}', {
             ranges: true,

@@ -86,7 +86,7 @@ describe('Statements - For in', () => {
     it('should fail "for (const a = 0 in {});"', () => {
         expect(() => {
             parseScript('for (const a = 0 in {});');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail "for (var {a} = 0 in {});"', () => {
@@ -193,11 +193,11 @@ describe('Statements - For in', () => {
     });
 
     it('should throw on unexpected number', () => {
-        expect(() => { parseScript('for(let a = 0 in b);')}).to.not.throw();
+        expect(() => { parseScript('for(let a = 0 in b);')}).to.throw();
     });
 
     it('should throw on unexpected number', () => {
-        expect(() => { parseScript('for(const a = 0 in b);')}).to.not.throw();
+        expect(() => { parseScript('for(const a = 0 in b);')}).to.throw();
     });
 
     it('should throw on "for(let ? b : c in 0);"', () => {
@@ -217,7 +217,7 @@ describe('Statements - For in', () => {
     });
 
     it('should throw on "for (let a = 0 in {});"', () => {
-        expect(() => { parseScript('for (let a = 0 in {});')}).to.not.throw();
+        expect(() => { parseScript('for (let a = 0 in {});')}).to.throw();
     });
 
     it('should throw on "for (var [a] = 0 in {});"', () => {
@@ -314,12 +314,12 @@ describe('Statements - For in', () => {
     it('should fail on "for(let a = 0 in b);"', () => {
         expect(() => {
             parseScript('for(let a = 0 in b);');
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on "for(const a = 0 in b);"', () => {
         expect(() => {
             parseScript('for(const a = 0 in b);;');
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on "for(let ? b : c in 0);"', () => {
         expect(() => {

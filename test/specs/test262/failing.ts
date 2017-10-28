@@ -1519,7 +1519,7 @@ is y`);
     it(`should fail on "for (let x = 0 in y){}"`, () => {
         expect(() => {
             parseScript(`for (let x = 0 in y){}`)
-        }).to.not.throw();
+        }).to.throw();
     });
     it(`should fail on "({ 5 }) => {}"`, () => {
         expect(() => {
@@ -2257,7 +2257,7 @@ is y`);
     it('should fail on "for (let x = 0 in y){} "', () => {
         expect(() => {
             parseScript('for (let x = 0 in y){}');
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on "({ *[0]: 0 }) "', () => {
         expect(() => {
