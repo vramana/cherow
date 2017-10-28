@@ -995,6 +995,8 @@ Parser.prototype.scanToken = function scanToken (context) {
             default:
                 if (isValidIdentifierStart(first))
                     { return this$1.scanUnicodeIdentifier(context); }
+                if (first >= 0x0D800 && first <= 0x0DBFF)
+                    { return this$1.scanSurrogate(context, first); }
                 this$1.error(0 /* Unexpected */);
         }
     }
@@ -1108,16 +1110,28 @@ Parser.prototype.scanIdentifierOrKeyword = function scanIdentifierOrKeyword (con
     }
     return 262145 /* Identifier */;
 };
+Parser.prototype.scanSurrogate = function scanSurrogate (context, first) {
+    if (this.index + 1 >= this.source.length)
+        { this.error(0 /* Unexpected */); }
+    var surrogateTail = this.source.charCodeAt(this.index + 1);
+    if (!isIdentifierStart(((first - 0x0d800) << 10) + (this.source.charCodeAt(this.index + 1) - 0x0dc00) + 0x010000)) {
+        this.error(0 /* Unexpected */);
+    }
+    this.advanceTwice();
+    this.tokenValue = this.scanIdentifier(context, String.fromCharCode(first) + String.fromCharCode(surrogateTail));
+    return 262145 /* Identifier */;
+};
 Parser.prototype.scanUnicodeIdentifier = function scanUnicodeIdentifier (context) {
     var ret = this.scanIdentifier(context);
     this.tokenValue = ret;
     return 262145 /* Identifier */;
 };
-Parser.prototype.scanIdentifier = function scanIdentifier (context) {
+Parser.prototype.scanIdentifier = function scanIdentifier (context, ret) {
         var this$1 = this;
+        if ( ret === void 0 ) ret = '';
 
     var start = this.index;
-    var ret = '';
+    //        let ret = '';
     loop: while (this.hasNext()) {
         var code = this$1.nextChar();
         switch (code) {

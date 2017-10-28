@@ -7,7 +7,6 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, CollectComments, Delegate, Location } from './interface';
-
 export class Parser {
     
         // Holds the program to be parser
@@ -777,6 +776,7 @@ export class Parser {
                         return this.scanIdentifierOrKeyword(context);
                     default:
                         if (isValidIdentifierStart(first)) return this.scanUnicodeIdentifier(context);
+                        if (first >= 0x0D800 && first <= 0x0DBFF) return this.scanSurrogate(context, first);
                         this.error(Errors.Unexpected);
                 }
             }
@@ -911,16 +911,32 @@ export class Parser {
             return Token.Identifier;
         }
     
+        private scanSurrogate(context: Context, first: Chars): Token {
+    
+            if (this.index + 1 >= this.source.length) this.error(Errors.Unexpected);
+    
+            const surrogateTail = this.source.charCodeAt(this.index + 1);
+    
+            if (!isIdentifierStart(((first - 0x0d800) << 10) + (this.source.charCodeAt(this.index + 1) - 0x0dc00) + 0x010000)) {
+                this.error(Errors.Unexpected);
+            }
+    
+            this.advanceTwice();
+            this.tokenValue = this.scanIdentifier(context, String.fromCharCode(first) + String.fromCharCode(surrogateTail));
+    
+            return Token.Identifier;
+        }
+    
         private scanUnicodeIdentifier(context: Context): Token {
             const ret = this.scanIdentifier(context);
             this.tokenValue = ret;
             return Token.Identifier;
         }
     
-        private scanIdentifier(context: Context): string {
+        private scanIdentifier(context: Context, ret = ''): string {
     
             let start = this.index;
-            let ret = '';
+            //            let ret = '';
     
             loop:
                 while (this.hasNext()) {
@@ -2575,7 +2591,7 @@ export class Parser {
                     kind = tokenDesc(this.token);
     
                     if (this.token === Token.LetKeyword && this.isLexical(context)) {
-
+    
                         if (this.parseOptional(context, Token.LetKeyword)) {
                             state |= IterationState.Let;
                             declarations = this.parseVariableDeclarationList(context | (Context.Let | Context.AllowIn | Context.ForStatement));
@@ -2589,7 +2605,7 @@ export class Parser {
                         }
                     } else {
                         if (this.parseOptional(context, Token.VarKeyword)) {
-                            
+    
                             state |= IterationState.Var;
                             declarations = this.parseVariableDeclarationList(context | Context.ForStatement);
                         } else if (this.parseOptional(context, Token.ConstKeyword)) {
@@ -2598,7 +2614,7 @@ export class Parser {
                         } else {
                             init = this.parseExpression(context & ~Context.AllowIn | Context.ForStatement, pos);
                         }
-
+    
                         if (state & (IterationState.Lexical | IterationState.Var)) {
                             init = this.finishNode(startIndex, {
                                 type: 'VariableDeclaration',
@@ -2607,7 +2623,7 @@ export class Parser {
                             });
                         }
                     }
-       
+    
                 } else {
                     init = this.parseExpression(context & ~Context.AllowIn | Context.ForStatement, pos);
                 }

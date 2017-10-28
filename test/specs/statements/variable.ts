@@ -1442,4 +1442,156 @@ describe('Statements - Variable', () => {
             });
         });
     
+        it('should parse "var _𞸃"', () => {
+            expect(parseScript(`var 𞸀`, {
+                ranges: true,
+                raw: true,
+                next: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 6,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 6
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 6,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 6
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 6,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 6
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 6,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 6
+                            }
+                          },
+                          "name": "𞸀"
+                        },
+                        "init": null
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+        it('should parse "var 𞸆_$"', () => {
+            expect(parseScript(`var 𞸆_$`, {
+                ranges: true,
+                raw: true,
+                next: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 8,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 8
+                  }
+                },
+                "body": [
+                  {
+                    "type": "VariableDeclaration",
+                    "start": 0,
+                    "end": 8,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 8
+                      }
+                    },
+                    "declarations": [
+                      {
+                        "type": "VariableDeclarator",
+                        "start": 4,
+                        "end": 8,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 4
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 8
+                          }
+                        },
+                        "id": {
+                          "type": "Identifier",
+                          "start": 4,
+                          "end": 8,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 4
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 8
+                            }
+                          },
+                          "name": "𞸆_$"
+                        },
+                        "init": null
+                      }
+                    ],
+                    "kind": "var"
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+        
     });

@@ -677,7 +677,7 @@ describe('Statements - For in', () => {
             "sourceType": "script"
           });
     });
-    
+  
     it('should parse "for (let();;) ;"', () => {
         expect(parseScript(`for (let();;) ;`, {
             ranges: true,
