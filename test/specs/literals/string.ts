@@ -290,12 +290,12 @@ describe('TC39 - String literals', () => {
     it('should fail on invalid } after Unicode \\u000', () => {
         expect(() => {
             parseScript(`'foo\\u000} bar'`)
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on invalid } after Unicode \\u00a', () => {
         expect(() => {
             parseScript(`'foo\\u00a} bar'`)
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on invalid } after Unicode \\u{', () => {
         expect(() => {
@@ -319,32 +319,32 @@ describe('TC39 - String literals', () => {
     it('should fail  if missing single quote in module code', () => {
         expect(() => {
             parseModule(`'`)
-        }).to.throw('Unterminated string literal');
+        }).to.throw();
     });
 
     it('should fail on "Hello\nworld"', () => {
         expect(() => {
             parseScript(`"Hello\nworld"`)
-        }).to.throw('Unterminated string literal');
+        }).to.throw();
     });
 
     it('should fail on "\n\r\t\v\b\f\\\'\"\0"', () => {
         expect(() => {
             parseScript(`"\n\r\t\v\b\f\\\'\"\0"`)
-        }).to.throw('Unterminated string literal');
+        }).to.throw();
     });
 
     it('should fail  if missing single quote in module sloppy mode', () => {
         expect(() => {
             parseScript(`'`)
-        }).to.throw('Unterminated string literal');
+        }).to.throw();
     });
 
     it('should fail  if missing single quote in module sloppy mode with line break', () => {
         expect(() => {
             parseScript(`'
             '`)
-        }).to.throw('Unterminated string literal');
+        }).to.throw();
     });
 
     it('should fail  on "\\08" in strict mode', () => {
@@ -424,7 +424,7 @@ describe('TC39 - String literals', () => {
     it('should fail  if missing single quote', () => {
         expect(() => {
             parseModule(`'`)
-        }).to.throw('Unterminated string literal');
+        }).to.throw();
     });
 
     it('should fail  on  "\"\\\\\\\"" in strict mode', () => {

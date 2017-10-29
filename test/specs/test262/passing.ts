@@ -18051,24 +18051,7 @@ describe('TC262 - passing', () => {
                 "sourceType": "script"
             });
         });
-    
-        it('should parse "1111"', () => {
-            expect(parseScript(`('\u{10FFFF}')`, {
-                raw: true
-            })).to.eql({
-                "type": "Program",
-                "body": [{
-                    "type": "ExpressionStatement",
-                    "expression": {
-                        "type": "Literal",
-                        "value": "􏿿",
-                        "raw": "'􏿿'"
-                    }
-                }],
-                "sourceType": "script"
-            });
-        });
-    
+        
         it('should parse "new a(b,c)"', () => {
             expect(parseScript(`new a(b,c)`, {
                 raw: true

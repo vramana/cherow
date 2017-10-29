@@ -1125,7 +1125,6 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context, ret) {
         if ( ret === void 0 ) ret = '';
 
     var start = this.index;
-    //        let ret = '';
     loop: while (this.hasNext()) {
         var code = this$1.nextChar();
         switch (code) {
@@ -1138,6 +1137,13 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context, ret) {
             default:
                 if (!isIdentifierPart(code))
                     { break loop; }
+                if (code >= 0x0D800 && code <= 0x0DBFF) {
+                    this$1.advance();
+                    var surrogateTail = this$1.nextChar();
+                    code = ((code - 0x0d800) << 10) + (surrogateTail - 0x0dc00) + 0x010000;
+                    if (!isIdentifierPart(code))
+                        { this$1.error(0 /* Unexpected */); }
+                }
                 this$1.advance();
         }
     }
@@ -4511,7 +4517,7 @@ Parser.prototype.parseNullExpression = function parseNullExpression (context) {
     return node;
 };
 Parser.prototype.parseIdentifier = function parseIdentifier (context) {
-    if (context & 2 /* Strict */ && this.token === 282730 /* YieldKeyword */) {
+    if (context & 2 /* Strict */ && !(context & 65536 /* Method */) && this.token === 282730 /* YieldKeyword */) {
         this.throwUnexpectedToken();
     }
     var name = this.tokenValue;

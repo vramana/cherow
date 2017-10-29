@@ -24,7 +24,7 @@ export const enum Context {
     LocationTracking       = 1 << 20,
     Let                    = 1 << 21,  // Variable declaration
     Const                  = 1 << 22,  // Variable declaration
-
+    TaggedTemplate  = 1 << 23, 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
 }

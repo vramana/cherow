@@ -461,78 +461,89 @@ describe('Next - Dynamic Import', () => {
             next: true
         })).to.eql({
             "type": "Program",
-            "body": [{
-                "type": "FunctionDeclaration",
-                "params": [{
-                    "type": "Identifier",
-                    "name": "file",
-                    "start": 20,
-                    "end": 24
-                }],
-                "body": {
-                    "type": "BlockStatement",
-                    "body": [{
-                        "type": "ReturnStatement",
-                        "argument": {
-                            "type": "CallExpression",
-                            "arguments": [{
-                                "type": "TemplateLiteral",
-                                "expressions": [{
-                                    "type": "Identifier",
-                                    "name": "file",
-                                    "start": 50,
-                                    "end": 54
-                                }],
-                                "quasis": [{
-                                        "type": "TemplateElement",
-                                        "value": {
-                                            "cooked": "test/",
-                                            "raw": "test/"
-                                        },
-                                        "tail": false,
-                                        "start": 54,
-                                        "end": 54
+            "body": [
+                {
+                    "type": "FunctionDeclaration",
+                    "params": [
+                        {
+                            "type": "Identifier",
+                            "name": "file",
+                            "start": 20,
+                            "end": 24
+                        }
+                    ],
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                            {
+                                "type": "ReturnStatement",
+                                "argument": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                        "type": "Import",
+                                        "start": 35,
+                                        "end": 41
                                     },
-                                    {
-                                        "type": "TemplateElement",
-                                        "value": {
-                                            "cooked": ".js",
-                                            "raw": ".js"
-                                        },
-                                        "tail": true,
-                                        "start": 42,
-                                        "end": 59
-                                    }
-                                ],
-                                "start": 42,
-                                "end": 59
-                            }],
-                            "callee": {
-                                "type": "Import",
-                                "start": 35,
-                                "end": 41
-                            },
-                            "start": 35,
-                            "end": 60
-                        },
-                        "start": 28,
-                        "end": 61
-                    }],
-                    "start": 26,
+                                    "arguments": [
+                                        {
+                                            "type": "TemplateLiteral",
+                                            "expressions": [
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "file",
+                                                    "start": 50,
+                                                    "end": 54
+                                                }
+                                            ],
+                                            "quasis": [
+                                                {
+                                                    "type": "TemplateElement",
+                                                    "value": {
+                                                        "cooked": "test/",
+                                                        "raw": "test/"
+                                                    },
+                                                    "tail": false,
+                                                    "start": 54,
+                                                    "end": 54
+                                                },
+                                                {
+                                                    "type": "TemplateElement",
+                                                    "value": {
+                                                        "cooked": ".js",
+                                                        "raw": ".js"
+                                                    },
+                                                    "tail": true,
+                                                    "start": 54,
+                                                    "end": 59
+                                                }
+                                            ],
+                                            "start": 42,
+                                            "end": 59
+                                        }
+                                    ],
+                                    "start": 35,
+                                    "end": 60
+                                },
+                                "start": 28,
+                                "end": 61
+                            }
+                        ],
+                        "start": 26,
+                        "end": 63
+                    },
+                    "async": false,
+                    "generator": false,
+                    "expression": false,
+                    "id": {
+                        "type": "Identifier",
+                        "name": "loadImport",
+                        "start": 9,
+                        "end": 19
+                    },
+                    "start": 0,
                     "end": 63
-                },
-                "async": false,
-                "generator": false,
-                "expression": false,
-                "id": {
-                    "type": "Identifier",
-                    "name": "loadImport",
-                    "start": 9,
-                    "end": 19
-                },
-                "start": 0,
-                "end": 63
-            }],
+                }
+            ],
             "sourceType": "script",
             "start": 0,
             "end": 63

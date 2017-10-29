@@ -1441,6 +1441,63 @@ describe('Statements - Variable', () => {
                 "sourceType": "script"
             });
         });
+
+        it('should parse "𐀀', () => {
+            expect(parseScript(`𐀀`, {
+                ranges: true,
+                raw: true,
+                next: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 2,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 2
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 2,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 2
+                      }
+                    },
+                    "expression": {
+                      "type": "Identifier",
+                      "start": 0,
+                      "end": 2,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 2
+                        }
+                      },
+                      "name": "𐀀"
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
     
         it('should parse "var _𞸃"', () => {
             expect(parseScript(`var 𞸀`, {
