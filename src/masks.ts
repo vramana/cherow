@@ -132,9 +132,9 @@ export const enum Scanner {
 }
 
 export const enum ArrayState {
-    None    = 0,
-    EvalArg = 1 << 0,
-    Spread     = 1 << 1,
+    None      = 0,
+    EvalArg   = 1 << 0,
+    Spread    = 1 << 1,
 }
 
 // Regular expression scanning
@@ -161,10 +161,10 @@ export const enum ScopeMasks {
 }
 
 export const enum Escape {
-    Empty = -1,
-        StrictOctal = -2,
-        EightOrNine = -3,
-        InvalidHex = -4,
-        OutOfRange = -5,
+    Empty       = -1,
+    StrictOctal = -2,
+    EightOrNine = -3,
+    InvalidHex  = -4,
+    OutOfRange  = -5,
 }
 

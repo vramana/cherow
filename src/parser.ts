@@ -6,7 +6,7 @@ import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, Scann
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
-import { Options, SavedState, CollectComments, Delegate, Location } from './interface';
+import { Options, SavedState, Delegate, Location } from './interface';
 export class Parser {
     
         // Holds the program to be parser
@@ -56,7 +56,7 @@ export class Parser {
         private parentScope: any;
         private functionScope: any;
         private errorLocation: void | Location;
-        private comments: CollectComments | void;
+        private comments: any;
         private delegate: any;
         private locSource: any;
         private lastChar: any;
@@ -820,55 +820,51 @@ export class Parser {
             if (!(state & Scanner.Closed)) this.error(Errors.UnterminatedComment);
     
             if (state & Scanner.Collectable && this.flags & Flags.OptionsComments) {
-                this.collectComment(
-                    state & Scanner.MultiLine ? 'Block' : 'Line',
-                    this.source.slice(start, state & Scanner.MultiLine ? this.index - 2 : this.index),
-                    this.startIndex, this.index);
-            }
-        }
+                let loc = {};
+                let commentStart;
+                let commentEnd;
+                let type = state & Scanner.MultiLine ? 'Block' : 'Line';
+                let value = this.source.slice(start, state & Scanner.MultiLine ? this.index - 2 : this.index);
     
-        private collectComment(type: ESTree.CommentType, value: string, start: number, end: number): void {
-            let loc = {};
-            let commentStart;
-            let commentEnd;
-    
-            if (this.flags & Flags.OptionsLoc) {
-                loc = {
-                    start: {
-                        line: this.startLine,
-                        column: this.startColumn,
-                    },
-                    end: {
-                        line: this.lastLine,
-                        column: this.column
-                    }
-                };
-            }
-    
-            if (this.flags & Flags.OptionsRanges) {
-                commentStart = start;
-                commentEnd = end;
-            }
-    
-            if (typeof this.comments === 'function') {
-                this.comments(type, value, commentStart as any, commentEnd as any, loc);
-            } else if (Array.isArray(this.comments)) {
-    
-                const node: ESTree.Comment = {
-                    type,
-                    value,
-                    start: commentStart,
-                    end: commentEnd,
-                    loc
-                };
-    
-                if (this.flags & Flags.OptionsDelegate) {
-                    this.delegate(node, commentStart, commentEnd, loc);
+                if (this.flags & Flags.OptionsLoc) {
+                    loc = {
+                        start: {
+                            line: this.startLine,
+                            column: this.startColumn,
+                        },
+                        end: {
+                            line: this.lastLine,
+                            column: this.column
+                        }
+                    };
                 }
     
-                this.comments.push(node);
-            }
+                if (this.flags & Flags.OptionsRanges) {
+                    commentStart = this.startIndex;
+                    commentEnd = this.index;
+                }
+    
+                if (typeof this.comments === 'function') {
+                    this.comments(type, value, commentStart as any, commentEnd as any, loc);
+                } else if (Array.isArray(this.comments)) {
+    
+                    const node: any = {
+                        type,
+                        value,
+                        start: commentStart,
+                        end: commentEnd,
+                        loc
+                    };
+    
+                    if (this.flags & Flags.OptionsDelegate) {
+                        this.delegate(node, commentStart, commentEnd, loc);
+                    }
+    
+                    this.comments.push(node);
+                }
+           }
         }
+    
         private scanIdentifierOrKeyword(context: Context): Token {
             const ret = this.scanIdentifier(context);
     
@@ -4737,12 +4733,12 @@ export class Parser {
                         state |= ArrayState.EvalArg;
                         this.errorLocation = this.getLocations();
                     }
-                    
+    
                     // Invalid: 'function* f() { [yield {a = 0}]; }'
                     if (context & Context.Yield && this.flags & Flags.InFunctionBody && this.token === Token.YieldKeyword) {
                         this.error(Errors.InvalidShorthandAssignment);
                     }
-
+    
                     elements.push(this.parseAssignmentExpression(context | Context.AllowIn));
                     if (this.token !== Token.RightBracket) {
                         this.expect(context, Token.Comma);
@@ -4750,11 +4746,11 @@ export class Parser {
                 }
             }
             this.expect(context, Token.RightBracket);
-            
-            if (this.token=== Token.Assign) {
+    
+            if (this.token === Token.Assign) {
                 if (state & ArrayState.EvalArg) this.error(Errors.StrictParamName);
             }
-
+    
             return this.finishNode(pos, {
                 type: 'ArrayExpression',
                 elements
@@ -4775,7 +4771,9 @@ export class Parser {
             let state = ParenthesizedState.None;
     
             if (this.parseOptional(context, Token.RightParen)) {
-                if (this.token === Token.Arrow) return this.parseArrowFunction(context & ~(Context.Await | Context.Yield | Context.ForStatement), pos, []);
+                if (this.token === Token.Arrow) {
+                    return this.parseArrowFunction(context & ~(Context.Await | Context.Yield | Context.ForStatement), pos, []);
+                }
                 this.error(Errors.MissingArrowAfterParentheses);
             }
     
@@ -4796,7 +4794,6 @@ export class Parser {
             }
     
             if (!(state & ParenthesizedState.Parenthesized) && this.token === Token.LeftParen) {
-    
                 state |= ParenthesizedState.Parenthesized;
             }
     

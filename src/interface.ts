@@ -6,7 +6,7 @@ export interface Options {
     next?: boolean;
     ranges?: boolean;
     locations?: boolean;
-    comments?: CollectComments;
+    comments?: EmitComments;
     delegate?: Delegate;
     loc?: boolean;
     raw?: boolean;
@@ -43,7 +43,7 @@ export interface Location {
     column: number;
 }
 
-export type CollectComments = void | Comment[] | (
+export type EmitComments = void | Comment[] | (
     (type: string, value: string, start: number, end: number, loc: any) => void
 );
 

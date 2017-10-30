@@ -1036,44 +1036,43 @@ Parser.prototype.skipComments = function skipComments (state) {
     if (!(state & 32 /* Closed */))
         { this.error(2 /* UnterminatedComment */); }
     if (state & 24 /* Collectable */ && this.flags & 4194304 /* OptionsComments */) {
-        this.collectComment(state & 8 /* MultiLine */ ? 'Block' : 'Line', this.source.slice(start, state & 8 /* MultiLine */ ? this.index - 2 : this.index), this.startIndex, this.index);
-    }
-};
-Parser.prototype.collectComment = function collectComment (type, value, start, end) {
-    var loc = {};
-    var commentStart;
-    var commentEnd;
-    if (this.flags & 65536 /* OptionsLoc */) {
-        loc = {
-            start: {
-                line: this.startLine,
-                column: this.startColumn,
-            },
-            end: {
-                line: this.lastLine,
-                column: this.column
-            }
-        };
-    }
-    if (this.flags & 32768 /* OptionsRanges */) {
-        commentStart = start;
-        commentEnd = end;
-    }
-    if (typeof this.comments === 'function') {
-        this.comments(type, value, commentStart, commentEnd, loc);
-    }
-    else if (Array.isArray(this.comments)) {
-        var node = {
-            type: type,
-            value: value,
-            start: commentStart,
-            end: commentEnd,
-            loc: loc
-        };
-        if (this.flags & 8388608 /* OptionsDelegate */) {
-            this.delegate(node, commentStart, commentEnd, loc);
+        var loc = {};
+        var commentStart;
+        var commentEnd;
+        var type = state & 8 /* MultiLine */ ? 'Block' : 'Line';
+        var value = this.source.slice(start, state & 8 /* MultiLine */ ? this.index - 2 : this.index);
+        if (this.flags & 65536 /* OptionsLoc */) {
+            loc = {
+                start: {
+                    line: this.startLine,
+                    column: this.startColumn,
+                },
+                end: {
+                    line: this.lastLine,
+                    column: this.column
+                }
+            };
         }
-        this.comments.push(node);
+        if (this.flags & 32768 /* OptionsRanges */) {
+            commentStart = this.startIndex;
+            commentEnd = this.index;
+        }
+        if (typeof this.comments === 'function') {
+            this.comments(type, value, commentStart, commentEnd, loc);
+        }
+        else if (Array.isArray(this.comments)) {
+            var node = {
+                type: type,
+                value: value,
+                start: commentStart,
+                end: commentEnd,
+                loc: loc
+            };
+            if (this.flags & 8388608 /* OptionsDelegate */) {
+                this.delegate(node, commentStart, commentEnd, loc);
+            }
+            this.comments.push(node);
+        }
     }
 };
 Parser.prototype.scanIdentifierOrKeyword = function scanIdentifierOrKeyword (context) {
@@ -4465,8 +4464,9 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
     }
     var state = 0;
     if (this.parseOptional(context, 16 /* RightParen */)) {
-        if (this.token === 10 /* Arrow */)
-            { return this.parseArrowFunction(context & ~(32 /* Await */ | 16 /* Yield */ | 524288 /* ForStatement */), pos, []); }
+        if (this.token === 10 /* Arrow */) {
+            return this.parseArrowFunction(context & ~(32 /* Await */ | 16 /* Yield */ | 524288 /* ForStatement */), pos, []);
+        }
         this.error(69 /* MissingArrowAfterParentheses */);
     }
     var expr;
