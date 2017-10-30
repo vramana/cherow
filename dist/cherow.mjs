@@ -2481,8 +2481,9 @@ Parser.prototype.parseStatement = function parseStatement (context) {
             // J.K. Thomas
             if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                 // Note: async function are only subject to AnnexB if we forbid them to parse
-                if (context & 1024 /* TopLevel */ || this.flags & 32 /* Iteration */)
-                    { this.error(0 /* Unexpected */); }
+                if (context & 1024 /* TopLevel */ || this.flags & 32 /* Iteration */) {
+                    this.throwUnexpectedToken();
+                }
                 if (this.flags & 2 /* HasUnicode */)
                     { this.error(68 /* UnexpectedEscapedKeyword */); }
                 return this.parseFunctionDeclaration(context);
@@ -2810,7 +2811,7 @@ Parser.prototype.parseIfStatementChild = function parseIfStatementChild (context
     if (context & 2 /* Strict */ && this.token === 274519 /* FunctionKeyword */) {
         this.error(98 /* ForbiddenAsStatement */, tokenDesc(this.token));
     }
-    return this.parseStatement(context & ~1024 /* TopLevel */ | (4096 /* AnnexB */ | 1024 /* TopLevel */));
+    return this.parseStatement(context | (4096 /* AnnexB */ | 1024 /* TopLevel */));
 };
 Parser.prototype.parseIfStatement = function parseIfStatement (context) {
     var pos = this.getLocations();
@@ -4334,7 +4335,12 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context, hasP
                     this.flags |= 512 /* HaveSeenAwait */;
                 }
             }
-            if (this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
+            // Note: It's a SyntaxError if the IdentifierName eval or the IdentifierName 
+            // arguments occurs as a BindingIdentifier within strict mode code, but
+            // 'arguments' and 'eval' are not reserved words and property shorthand 
+            // syntax is not BindingIdentifier
+            if (context & (524288 /* ForStatement */ | 64 /* InParenthesis */) &&
+                this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
                 this.error(76 /* UnexpectedReservedWord */);
             }
             state |= 8 /* Shorthand */;

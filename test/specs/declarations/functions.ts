@@ -191,7 +191,13 @@ describe('Declarations - Functions', () => {
               parseScript(`"use strict"; function yield() {}`);
           }).to.throw('');
       });
-  
+
+      it('should fail "function foo() { "use strict"; return {yield} }"', () => {
+        expect(() => {
+            parseScript(`function foo() { 'use strict'; return {yield} }`);
+        }).to.throw('');
+    });
+    
       it('should fail on yield as function name in strict mode', () => {
           expect(() => {
               parseScript(`a: function* a(){}`);
@@ -215,6 +221,48 @@ describe('Declarations - Functions', () => {
             parseModule(`function foo() {  const bar = function (abc, abc) {}  }`);
         }).to.throw('');
       });
+
+
+
+      it('should parse ES2016 strict directive correctly', () => {
+        expect(parseScript(`function foo(a) { 'use strict'; }`, {
+            raw: true
+        })).to.eql({
+              "body": [
+                {
+                  "async": false,
+                  "body": {
+                    "body": [
+                      {
+                        "expression": {
+                         "raw": "'use strict'",
+                          "type": "Literal",
+                          "value": "use strict",
+                        },
+                        "type": "ExpressionStatement"
+                      }
+                    ],
+                    "type": "BlockStatement"
+                  },
+                  "expression": false,
+                  "generator": false,
+                  "id": {
+                    "name": "foo",
+                    "type": "Identifier"
+                  },
+                  "params": [
+                    {
+                      "name": "a",
+                      "type": "Identifier"
+                    },
+                 ],
+                  "type": "FunctionDeclaration"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            });
+    });
 
       it('should parse in strict mode', () => {
         expect(parseScript(`function hello() { 'use strict'; "\\0"; }`, {
@@ -257,6 +305,518 @@ describe('Declarations - Functions', () => {
               "sourceType": "script",
               "type": "Program",
             });
+    });
+
+    it('arguments" are not reserved word, but those can not be a BindingIdentifier.', () => {
+        expect(parseScript(`function foo() { 'use strict'; return {arguments} }`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 51,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 51
+              }
+            },
+            "body": [
+              {
+                "type": "FunctionDeclaration",
+                "start": 0,
+                "end": 51,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 51
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 9,
+                  "end": 12,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 12
+                    }
+                  },
+                  "name": "foo"
+                },
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 15,
+                  "end": 51,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 15
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 51
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "ExpressionStatement",
+                      "start": 17,
+                      "end": 30,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 17
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 30
+                        }
+                      },
+                      "expression": {
+                        "type": "Literal",
+                        "start": 17,
+                        "end": 29,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 17
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 29
+                          }
+                        },
+                        "value": "use strict",
+                        "raw": "'use strict'"
+                      }
+                    },
+                    {
+                      "type": "ReturnStatement",
+                      "start": 31,
+                      "end": 49,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 31
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 49
+                        }
+                      },
+                      "argument": {
+                        "type": "ObjectExpression",
+                        "start": 38,
+                        "end": 49,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 38
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 49
+                          }
+                        },
+                        "properties": [
+                          {
+                            "type": "Property",
+                            "start": 39,
+                            "end": 48,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 39
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 48
+                              }
+                            },
+                            "method": false,
+                            "shorthand": true,
+                            "computed": false,
+                            "key": {
+                              "type": "Identifier",
+                              "start": 39,
+                              "end": 48,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 39
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 48
+                                }
+                              },
+                              "name": "arguments"
+                            },
+                            "kind": "init",
+                            "value": {
+                              "type": "Identifier",
+                              "start": 39,
+                              "end": 48,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 39
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 48
+                                }
+                              },
+                              "name": "arguments"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
+    it('arguments" are not reserved word, but those can not be a BindingIdentifier.', () => {
+        expect(parseScript(`function foo() { return {yield} }`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 33,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 33
+              }
+            },
+            "body": [
+              {
+                "type": "FunctionDeclaration",
+                "start": 0,
+                "end": 33,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 33
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 9,
+                  "end": 12,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 12
+                    }
+                  },
+                  "name": "foo"
+                },
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 15,
+                  "end": 33,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 15
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 33
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "ReturnStatement",
+                      "start": 17,
+                      "end": 31,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 17
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 31
+                        }
+                      },
+                      "argument": {
+                        "type": "ObjectExpression",
+                        "start": 24,
+                        "end": 31,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 24
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 31
+                          }
+                        },
+                        "properties": [
+                          {
+                            "type": "Property",
+                            "start": 25,
+                            "end": 30,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 25
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 30
+                              }
+                            },
+                            "method": false,
+                            "shorthand": true,
+                            "computed": false,
+                            "key": {
+                              "type": "Identifier",
+                              "start": 25,
+                              "end": 30,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 25
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 30
+                                }
+                              },
+                              "name": "yield"
+                            },
+                            "kind": "init",
+                            "value": {
+                              "type": "Identifier",
+                              "start": 25,
+                              "end": 30,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 25
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 30
+                                }
+                              },
+                              "name": "yield"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
+    it('arguments" are not reserved word, but those can not be a BindingIdentifier.', () => {
+        expect(parseScript(`function foo() { return {arguments} }`, {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 37,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 37
+              }
+            },
+            "body": [
+              {
+                "type": "FunctionDeclaration",
+                "start": 0,
+                "end": 37,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 37
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 9,
+                  "end": 12,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 12
+                    }
+                  },
+                  "name": "foo"
+                },
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 15,
+                  "end": 37,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 15
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 37
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "ReturnStatement",
+                      "start": 17,
+                      "end": 35,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 17
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 35
+                        }
+                      },
+                      "argument": {
+                        "type": "ObjectExpression",
+                        "start": 24,
+                        "end": 35,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 24
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 35
+                          }
+                        },
+                        "properties": [
+                          {
+                            "type": "Property",
+                            "start": 25,
+                            "end": 34,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 25
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 34
+                              }
+                            },
+                            "method": false,
+                            "shorthand": true,
+                            "computed": false,
+                            "key": {
+                              "type": "Identifier",
+                              "start": 25,
+                              "end": 34,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 25
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 34
+                                }
+                              },
+                              "name": "arguments"
+                            },
+                            "kind": "init",
+                            "value": {
+                              "type": "Identifier",
+                              "start": 25,
+                              "end": 34,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 25
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 34
+                                }
+                              },
+                              "name": "arguments"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
     });
 
       it('should parse binding in param list for func expr in func decl body', () => {

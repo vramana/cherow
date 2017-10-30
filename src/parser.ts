@@ -2453,7 +2453,9 @@ export class Parser {
                     // J.K. Thomas
                     if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                         // Note: async function are only subject to AnnexB if we forbid them to parse
-                        if (context & Context.TopLevel || this.flags & Flags.Iteration) this.error(Errors.Unexpected);
+                        if (context & Context.TopLevel || this.flags & Flags.Iteration) {
+                            this.throwUnexpectedToken();
+                        }
                         if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
                         return this.parseFunctionDeclaration(context);
                     }
@@ -2873,7 +2875,7 @@ export class Parser {
             if (context & Context.Strict && this.token === Token.FunctionKeyword) {
                 this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
             }
-            return this.parseStatement(context & ~Context.TopLevel | (Context.AnnexB | Context.TopLevel));
+            return this.parseStatement(context | (Context.AnnexB | Context.TopLevel));
         }
     
         private parseIfStatement(context: Context): ESTree.IfStatement {
@@ -4626,8 +4628,13 @@ export class Parser {
                             this.flags |= Flags.HaveSeenAwait;
                         }
                     }
-    
-                    if (this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
+                    
+                    // Note: It's a SyntaxError if the IdentifierName eval or the IdentifierName 
+                    // arguments occurs as a BindingIdentifier within strict mode code, but
+                    // 'arguments' and 'eval' are not reserved words and property shorthand 
+                    // syntax is not BindingIdentifier
+                    if (context & (Context.ForStatement | Context.InParenthesis) && 
+                        this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
                         this.error(Errors.UnexpectedReservedWord);
                     }
     

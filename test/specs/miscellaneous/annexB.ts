@@ -938,6 +938,230 @@ describe('Miscellaneous - AnnexB semantics', () => {
             }).to.throw();
         });
 
+        it('should parse "if (x) function f() { return 23; } else function f() { return 42; }"', () => {
+          expect(parseScript('if (x) function f() { return 23; } else function f() { return 42; }', {
+              ranges: true,
+              raw: true,
+              locations: true
+          })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 67,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 67
+              }
+            },
+            "body": [
+              {
+                "type": "IfStatement",
+                "start": 0,
+                "end": 67,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 67
+                  }
+                },
+                "test": {
+                  "type": "Identifier",
+                  "start": 4,
+                  "end": 5,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 4
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 5
+                    }
+                  },
+                  "name": "x"
+                },
+                "consequent": {
+                  "type": "FunctionDeclaration",
+                  "start": 7,
+                  "end": 34,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 7
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 34
+                    }
+                  },
+                  "id": {
+                    "type": "Identifier",
+                    "start": 16,
+                    "end": 17,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 16
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 17
+                      }
+                    },
+                    "name": "f"
+                  },
+                  "generator": false,
+                  "expression": false,
+                  "async": false,
+                  "params": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "start": 20,
+                    "end": 34,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 20
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 34
+                      }
+                    },
+                    "body": [
+                      {
+                        "type": "ReturnStatement",
+                        "start": 22,
+                        "end": 32,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 22
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 32
+                          }
+                        },
+                        "argument": {
+                          "type": "Literal",
+                          "start": 29,
+                          "end": 31,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 29
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 31
+                            }
+                          },
+                          "value": 23,
+                          "raw": "23"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "alternate": {
+                  "type": "FunctionDeclaration",
+                  "start": 40,
+                  "end": 67,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 40
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 67
+                    }
+                  },
+                  "id": {
+                    "type": "Identifier",
+                    "start": 49,
+                    "end": 50,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 49
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 50
+                      }
+                    },
+                    "name": "f"
+                  },
+                  "generator": false,
+                  "expression": false,
+                  "async": false,
+                  "params": [],
+                  "body": {
+                    "type": "BlockStatement",
+                    "start": 53,
+                    "end": 67,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 53
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 67
+                      }
+                    },
+                    "body": [
+                      {
+                        "type": "ReturnStatement",
+                        "start": 55,
+                        "end": 65,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 55
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 65
+                          }
+                        },
+                        "argument": {
+                          "type": "Literal",
+                          "start": 62,
+                          "end": 64,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 62
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 64
+                            }
+                          },
+                          "value": 42,
+                          "raw": "42"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+        });
+     
         it('should parse "if (x) function f() {}"', () => {
           expect(parseScript('if (x) function f() {}', {
               ranges: true,
