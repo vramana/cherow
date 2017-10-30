@@ -226,7 +226,7 @@ describe('Statements - For of', () => {
         it('should fail on re-declare variables declared in the head', () => {
             expect(() => {
                 parseScript(`for (const x of []) { var x; }`);
-            }).to.not.throw('');
+            }).to.throw('');
         });
         it('should fail if declaration contain a binding for `let`', () => {
             expect(() => {

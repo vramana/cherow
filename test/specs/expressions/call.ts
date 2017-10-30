@@ -35,6 +35,142 @@ describe('Expressions - Call', () => {
       }).to.throw()
     });
 
+    it('should parse with strict directive', () => {
+      expect(parseScript(`'use strict';\nobject.static();`, {
+          ranges: true,
+          raw: true,
+          locations: true
+      })).to.eql({
+          "body": [
+            {
+              "end": 13,
+              "expression": {
+                "end": 12,
+                "loc": {
+                  "end": {
+                    "column": 12,
+                    "line": 1,
+                  },
+                  "start": {
+                    "column": 0,
+                    "line": 1,
+                  }
+                },
+                "raw": "'use strict'",
+                "start": 0,
+               "type": "Literal",
+                "value": "use strict",
+              },
+              "loc": {
+                "end": {
+                  "column": 13,
+                  "line": 1,
+                },
+                "start": {
+                  "column": 0,
+                  "line": 1,
+                },
+              },
+              "start": 0,
+              "type": "ExpressionStatement",
+            },
+            {
+              "end": 30,
+              "expression": {
+                "arguments": [],
+                "callee": {
+                  "computed": false,
+                  "end": 27,
+                  "loc": {
+                    "end": {
+                      "column": 13,
+                      "line": 2,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 2,
+                    }
+                  },
+                  "object": {
+                    "end": 20,
+                    "loc": {
+                      "end": {
+                        "column": 6,
+                        "line": 2,
+                      },
+                      "start": {
+                        "column": 0,
+                        "line": 2,
+                      }
+                    },
+                   "name": "object",
+                    "start": 14,
+                    "type": "Identifier",
+                  },
+                  "property": {
+                    "end": 27,
+                    "loc": {
+                     "end": {
+                        "column": 13,
+                        "line": 2,
+                      },
+                      "start": {
+                        "column": 7,
+                        "line": 2,
+                      },
+                   },
+                    "name": "static",
+                    "start": 21,
+                    "type": "Identifier",
+                  },
+                  "start": 14,
+                  "type": "MemberExpression",
+                },
+                "end": 29,
+                "loc": {
+                  "end": {
+                    "column": 15,
+                    "line": 2,
+                  },
+                  "start": {
+                    "column": 0,
+                    "line": 2,
+                  },
+                },
+                "start": 14,
+                "type": "CallExpression",
+              },
+              "loc": {
+                "end": {
+                  "column": 16,
+                  "line": 2,
+                },
+                "start": {
+                  "column": 0,
+                  "line": 2,
+                }
+              },
+              "start": 14,
+              "type": "ExpressionStatement",
+            }
+          ],
+          "end": 30,
+          "loc": {
+            "end": {
+              "column": 16,
+              "line": 2,
+            },
+            "start": {
+              "column": 0,
+              "line": 1,
+            }
+         },
+          "sourceType": "script",
+          "start": 0,
+          "type": "Program",
+        });
+    }); 
+
     it('should parse with trailing comma', () => {
         expect(parseScript(`foo(...a,);`, {
             ranges: true,

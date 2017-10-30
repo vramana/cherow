@@ -82,14 +82,14 @@ describe('Declarations - Class', () => {
             parseScript(`class C { async *gen() { void yi\u0065ld; }}`, {
                 next: true
             });
-        }).to.throw();
+        }).to.not.throw();
     });
     it('should fail if escaped yield as reserved keyword are used within generator function bodies as binding identifier', () => {
         expect(() => {
             parseScript(`class C { async *gen() { void yield; }}`, {
                 next: true
             });
-        }).to.throw();
+        }).to.not.throw();
     });
     it('should fail on await as binding identifier', () => {
         expect(() => {
@@ -139,6 +139,229 @@ describe('Declarations - Class', () => {
                 next: true
             });
         }).to.throw('');
+    });
+    
+    // See Esprma issue. "https://github.com/jquery/esprima/issues/1785"
+    it('should parse "class a extends b { c() { super.yield } }"', () => {
+        expect(parseScript(`class a extends b { c() { super.yield } }`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 41,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 41
+              }
+            },
+            "body": [
+              {
+                "type": "ClassDeclaration",
+                "start": 0,
+                "end": 41,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 41
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 6,
+                  "end": 7,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 6
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 7
+                    }
+                  },
+                  "name": "a"
+                },
+                "superClass": {
+                  "type": "Identifier",
+                  "start": 16,
+                  "end": 17,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 16
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 17
+                    }
+                  },
+                  "name": "b"
+                },
+                "body": {
+                  "type": "ClassBody",
+                  "start": 18,
+                  "end": 41,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 18
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 41
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "MethodDefinition",
+                      "start": 20,
+                      "end": 39,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 20
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 39
+                        }
+                      },
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 20,
+                        "end": 21,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 20
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 21
+                          }
+                        },
+                        "name": "c"
+                      },
+                      "static": false,
+                      "kind": "method",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 21,
+                        "end": 39,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 21
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 39
+                          }
+                        },
+                        "id": null,
+                        "generator": false,
+                        "expression": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 24,
+                          "end": 39,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 24
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 39
+                            }
+                          },
+                          "body": [
+                            {
+                              "type": "ExpressionStatement",
+                              "start": 26,
+                              "end": 37,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 26
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 37
+                                }
+                              },
+                              "expression": {
+                                "type": "MemberExpression",
+                                "start": 26,
+                                "end": 37,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 26
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 37
+                                  }
+                                },
+                                "object": {
+                                  "type": "Super",
+                                  "start": 26,
+                                  "end": 31,
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 26
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 31
+                                    }
+                                  }
+                                },
+                                "property": {
+                                  "type": "Identifier",
+                                  "start": 32,
+                                  "end": 37,
+                                  "loc": {
+                                    "start": {
+                                      "line": 1,
+                                      "column": 32
+                                    },
+                                    "end": {
+                                      "line": 1,
+                                      "column": 37
+                                    }
+                                  },
+                                  "name": "yield"
+                                },
+                                "computed": false
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
     });
 
     // See Esprma issue. "https://github.com/jquery/esprima/issues/1785"

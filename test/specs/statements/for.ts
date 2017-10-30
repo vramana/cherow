@@ -101,6 +101,274 @@ describe('Statements - For', () => {
             parseScript(`for (const x; false; ) { var x; }`);
         }).to.throw();
     });
+    
+    it('should parse "for (let in a) {}"', () => {
+      expect(parseScript(`for (let in a) {}`, {
+          ranges: true,
+          raw: true,
+          next: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 17,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 17
+          }
+        },
+        "body": [
+          {
+            "type": "ForInStatement",
+            "start": 0,
+            "end": 17,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 17
+              }
+            },
+            "left": {
+              "type": "Identifier",
+              "start": 5,
+              "end": 8,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 5
+                },
+                "end": {
+                  "line": 1,
+                  "column": 8
+                }
+              },
+              "name": "let"
+            },
+            "right": {
+              "type": "Identifier",
+              "start": 12,
+              "end": 13,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 12
+                },
+                "end": {
+                  "line": 1,
+                  "column": 13
+                }
+              },
+              "name": "a"
+            },
+            "body": {
+              "type": "BlockStatement",
+              "start": 15,
+              "end": 17,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 15
+                },
+                "end": {
+                  "line": 1,
+                  "column": 17
+                }
+              },
+              "body": []
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+
+    it('should parse "for(let in 1);', () => {
+      expect(parseScript(`for(let in 1);`, {
+          ranges: true,
+          raw: true,
+          next: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 14,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 14
+          }
+        },
+        "body": [
+          {
+            "type": "ForInStatement",
+            "start": 0,
+            "end": 14,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 14
+              }
+            },
+            "left": {
+              "type": "Identifier",
+              "start": 4,
+              "end": 7,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 4
+                },
+                "end": {
+                  "line": 1,
+                  "column": 7
+                }
+              },
+              "name": "let"
+            },
+            "right": {
+              "type": "Literal",
+              "start": 11,
+              "end": 12,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 11
+                },
+                "end": {
+                  "line": 1,
+                  "column": 12
+                }
+              },
+              "value": 1,
+              "raw": "1"
+            },
+            "body": {
+              "type": "EmptyStatement",
+              "start": 13,
+              "end": 14,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 13
+                },
+                "end": {
+                  "line": 1,
+                  "column": 14
+                }
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+
+    it('should parse "for (let();;) ;"', () => {
+      expect(parseScript(`for (let();;) ;`, {
+          ranges: true,
+          raw: true,
+          next: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 15,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 15
+          }
+        },
+        "body": [
+          {
+            "type": "ForStatement",
+            "start": 0,
+            "end": 15,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 15
+              }
+            },
+            "init": {
+              "type": "CallExpression",
+              "start": 5,
+              "end": 10,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 5
+                },
+                "end": {
+                  "line": 1,
+                  "column": 10
+                }
+              },
+              "callee": {
+                "type": "Identifier",
+                "start": 5,
+                "end": 8,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 5
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 8
+                  }
+                },
+                "name": "let"
+              },
+              "arguments": []
+            },
+            "test": null,
+            "update": null,
+            "body": {
+              "type": "EmptyStatement",
+              "start": 14,
+              "end": 15,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 14
+                },
+                "end": {
+                  "line": 1,
+                  "column": 15
+                }
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
 
     it('should parse "for(;;);"', () => {
         expect(parseScript(`for(;;);`, {

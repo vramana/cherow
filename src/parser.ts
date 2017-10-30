@@ -2,11 +2,11 @@ import { Chars } from './chars';
 import * as ESTree from './estree';
 import { hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isPrologueDirective } from './common';
 import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget } from './validate';
-import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, Scanner, ParenthesizedState, IterationState, NumberState } from './masks';
+import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, Scanner, ParenthesizedState, IterationState, NumberState, ArrayState, Escape } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
-import { Options, SavedState, CollectComments, Delegate, Location } from './interface';
+import { Options, SavedState, Delegate, Location } from './interface';
 export class Parser {
     
         // Holds the program to be parser
@@ -45,12 +45,6 @@ export class Parser {
         // Hold current token
         private token: Token;
     
-        // Hold the next token ahead
-        private peekedToken: Token;
-    
-        // Contain scanner state info after a lookahead
-        private peekedState: any;
-    
         // Raw value of current token
         private tokenRaw: string;
     
@@ -62,9 +56,10 @@ export class Parser {
         private parentScope: any;
         private functionScope: any;
         private errorLocation: void | Location;
-        private comments: CollectComments | void;
+        private comments: any;
         private delegate: any;
         private locSource: any;
+        private lastChar: any;
         private tokenRegExp: void | {
             pattern: string;
             flags: string;
@@ -87,9 +82,7 @@ export class Parser {
             this.startLine = 0;
             this.tokenRaw = '';
             this.token = 0;
-            this.peekedToken = 0;
             this.tokenValue = undefined;
-            this.peekedState = undefined;
             this.labelSet = undefined;
             this.errorLocation = undefined;
             this.tokenRegExp = undefined;
@@ -98,6 +91,7 @@ export class Parser {
             this.parentScope = undefined;
             this.comments = undefined;
             this.delegate = undefined;
+            this.lastChar = undefined;
     
             if (options.next) this.flags |= Flags.OptionsNext;
             if (options.comments) this.flags |= Flags.OptionsComments;
@@ -195,22 +189,8 @@ export class Parser {
             this.flags = state.flags;
         }
     
-        private PeekAhead(context: Context) {
-            const savedState = this.saveState();
-            this.peekedToken = this.scanToken(context);
-            this.peekedState = this.saveState();
-            this.rewindState(savedState);
-        }
-    
         private nextToken(context: Context) {
-    
-            if (this.peekedState) {
-                this.rewindState(this.peekedState);
-                this.peekedState = undefined;
-                this.token = this.peekedToken;
-            } else {
-                this.token = this.scanToken(context);
-            }
+            this.token = this.scanToken(context);
         }
     
         private hasNext(): boolean {
@@ -257,7 +237,6 @@ export class Parser {
             return true;
         }
     
-    
         /**
          * Scan the entire source code. Skips whitespace and comments, and
          * return the token at the given index.
@@ -265,7 +244,6 @@ export class Parser {
          * @param context Context
          */
         private scanToken(context: Context): Token {
-    
     
             this.flags &= ~(Flags.LineTerminator | Flags.HasUnicode);
     
@@ -485,7 +463,7 @@ export class Parser {
     
                         // Template
                     case Chars.Backtick:
-                        return this.scanTemplate(context);
+                        return this.scanTemplate(context, first);
     
                         // `'string'`, `"string"`
                     case Chars.DoubleQuote:
@@ -842,55 +820,51 @@ export class Parser {
             if (!(state & Scanner.Closed)) this.error(Errors.UnterminatedComment);
     
             if (state & Scanner.Collectable && this.flags & Flags.OptionsComments) {
-                this.collectComment(
-                    state & Scanner.MultiLine ? 'Block' : 'Line',
-                    this.source.slice(start, state & Scanner.MultiLine ? this.index - 2 : this.index),
-                    this.startIndex, this.index);
-            }
-        }
+                let loc = {};
+                let commentStart;
+                let commentEnd;
+                let type = state & Scanner.MultiLine ? 'Block' : 'Line';
+                let value = this.source.slice(start, state & Scanner.MultiLine ? this.index - 2 : this.index);
     
-        private collectComment(type: ESTree.CommentType, value: string, start: number, end: number): void {
-            let loc = {};
-            let commentStart;
-            let commentEnd;
-    
-            if (this.flags & Flags.OptionsLoc) {
-                loc = {
-                    start: {
-                        line: this.startLine,
-                        column: this.startColumn,
-                    },
-                    end: {
-                        line: this.lastLine,
-                        column: this.column
-                    }
-                };
-            }
-    
-            if (this.flags & Flags.OptionsRanges) {
-                commentStart = start;
-                commentEnd = end;
-            }
-    
-            if (typeof this.comments === 'function') {
-                this.comments(type, value, commentStart as any, commentEnd as any, loc);
-            } else if (Array.isArray(this.comments)) {
-    
-                const node: ESTree.Comment = {
-                    type,
-                    value,
-                    start: commentStart,
-                    end: commentEnd,
-                    loc
-                };
-    
-                if (this.flags & Flags.OptionsDelegate) {
-                    this.delegate(node, commentStart, commentEnd, loc);
+                if (this.flags & Flags.OptionsLoc) {
+                    loc = {
+                        start: {
+                            line: this.startLine,
+                            column: this.startColumn,
+                        },
+                        end: {
+                            line: this.lastLine,
+                            column: this.column
+                        }
+                    };
                 }
     
-                this.comments.push(node);
-            }
+                if (this.flags & Flags.OptionsRanges) {
+                    commentStart = this.startIndex;
+                    commentEnd = this.index;
+                }
+    
+                if (typeof this.comments === 'function') {
+                    this.comments(type, value, commentStart as any, commentEnd as any, loc);
+                } else if (Array.isArray(this.comments)) {
+    
+                    const node: any = {
+                        type,
+                        value,
+                        start: commentStart,
+                        end: commentEnd,
+                        loc
+                    };
+    
+                    if (this.flags & Flags.OptionsDelegate) {
+                        this.delegate(node, commentStart, commentEnd, loc);
+                    }
+    
+                    this.comments.push(node);
+                }
+           }
         }
+    
         private scanIdentifierOrKeyword(context: Context): Token {
             const ret = this.scanIdentifier(context);
     
@@ -936,11 +910,10 @@ export class Parser {
         private scanIdentifier(context: Context, ret = ''): string {
     
             let start = this.index;
-            //            let ret = '';
     
             loop:
                 while (this.hasNext()) {
-                    const code = this.nextChar();
+                    let code = this.nextChar();
                     switch (code) {
                         case Chars.Backslash:
                             this.flags |= Flags.HasUnicode;
@@ -950,6 +923,13 @@ export class Parser {
                             break;
                         default:
                             if (!isIdentifierPart(code)) break loop;
+                            if (code >= 0x0D800 && code <= 0x0DBFF) {
+                                this.advance();
+                                const surrogateTail = this.nextChar();
+                                code = ((code - 0x0d800) << 10) + (surrogateTail - 0x0dc00) + 0x010000;
+                                if (!isIdentifierPart(code)) this.error(Errors.Unexpected);
+                            }
+    
                             this.advance();
                     }
                 }
@@ -1292,25 +1272,24 @@ export class Parser {
             return Token.RegularExpression;
         }
     
-        private scanString(
-            context: Context,
-            quote: Chars // Either double or single quote
-        ): Token {
+        private storeRaw(start: number) {
+            this.tokenRaw = this.source.slice(start, this.index);
+        }
     
-            const rawStart = this.index;
+        private scanNext(ch: Chars, err: Errors = Errors.UnterminatedString): number {
+            this.advance();
+            if (ch & 0x10000) this.index++;
+            if (!this.hasNext()) this.error(err);
+            return this.nextUnicodeChar();
+        }
     
-            this.readNext();
-    
+        private scanString(context: Context, quote: number): Token {
+            const start = this.index;
+            const lastChar = this.lastChar;
             let ret = '';
-            let start = this.index;
-            let ch;
     
-            while (this.hasNext()) {
-    
-                ch = this.nextChar();
-    
-                if (ch === quote) break;
-    
+            let ch = this.scanNext(quote);
+            while (ch !== quote) {
                 switch (ch) {
                     case Chars.CarriageReturn:
                     case Chars.LineFeed:
@@ -1318,31 +1297,242 @@ export class Parser {
                     case Chars.ParagraphSeparator:
                         this.error(Errors.UnterminatedString);
                     case Chars.Backslash:
-                        ret += this.source.slice(start, this.index);
-                        ret += this.scanStringEscape(context);
-                        this.advance();
-                        if (!(this.flags & Flags.HasUnicode)) this.flags |= Flags.HasUnicode;
-                        start = this.index;
-                        continue;
-                    default: // ignore
+                        ch = this.scanNext(ch);
+    
+                        if (ch >= 128) {
+                            ret += fromCodePoint(ch);
+                        } else {
+                            this.lastChar = ch;
+                            const code = this.scanEscapeSequence(context, ch);
+    
+                            if (code >= 0) {
+                                ret += fromCodePoint(code);
+                            } else {
+                                this.handleStringError(code as Escape);
+                            }
+    
+                            this.flags |= Flags.HasUnicode;
+    
+                            ch = this.lastChar;
+                        }
+                        break;
+    
+                    default:
+                        ret += fromCodePoint(ch);
                 }
     
-                this.readNext();
+                ch = this.scanNext(ch);
             }
     
-            if (start !== this.index) ret += this.source.slice(start, this.index);
-    
-            if (ch !== quote) this.error(Errors.UnterminatedString);
-    
-            this.advance(); // skip the quote
-    
+            this.advance(); // Consume the quote
+            if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
             this.tokenValue = ret;
-    
-            // raw
-            if (this.flags & (Flags.OptionsRaw | Flags.OptionsDirectives)) this.tokenRaw = this.source.slice(rawStart, this.index);
-    
+            this.lastChar = lastChar;
             return Token.StringLiteral;
         }
+    
+        private handleStringError(
+            code: Escape
+        ): void {
+            switch (code) {
+                case Escape.Empty:
+                    return;
+                case Escape.StrictOctal:
+                    this.error(Errors.StrictOctalEscape);
+                case Escape.EightOrNine:
+                    this.error(Errors.InvalidEightAndNine);
+                case Escape.InvalidHex:
+                    this.error(Errors.InvalidHexEscapeSequence);
+                case Escape.OutOfRange:
+                    this.error(Errors.UnicodeOutOfRange);
+                default:
+                    this.error(Errors.BadUntaggedTemplate);
+            }
+        }
+        private scanEscapeSequence(context: Context, first: number): number {
+    
+            switch (first) {
+                // Magic escapes
+                case Chars.LowerB:
+                    return Chars.Backspace;
+                case Chars.LowerF:
+                    return Chars.FormFeed;
+                case Chars.LowerR:
+                    return Chars.CarriageReturn;
+                case Chars.LowerN:
+                    return Chars.LineFeed;
+                case Chars.LowerT:
+                    return Chars.Tab;
+                case Chars.LowerV:
+                    return Chars.VerticalTab;
+    
+                    // Line continuations
+                case Chars.CarriageReturn:
+                    {
+                        const index = this.index;
+    
+                        if (index < this.source.length) {
+                            const ch = this.source.charCodeAt(index);
+    
+                            if (ch === Chars.LineFeed) {
+                                this.lastChar = ch;
+                                this.index = index + 1;
+                            }
+                        }
+                    }
+                    // falls through
+                case Chars.LineFeed:
+                case Chars.LineSeparator:
+                case Chars.ParagraphSeparator:
+                    this.column = -1;
+                    this.line++;
+                    return Escape.Empty;
+    
+                    // Null character, octals
+                case Chars.Zero:
+                case Chars.One:
+                case Chars.Two:
+                case Chars.Three:
+                    {
+                        let code = first - Chars.Zero;
+                        let index = this.index + 1;
+                        let column = this.column + 1;
+    
+                        if (index < this.source.length) {
+                            let next = this.source.charCodeAt(index);
+    
+                            if (next < Chars.Zero || next > Chars.Seven) {
+                                // Verify that it's `\0` if we're in strict mode.
+                                if (code !== 0 && context & Context.Strict) {
+                                    return Escape.StrictOctal;
+                                }
+                            } else if (context & Context.Strict) {
+                                // This happens in cases like `\00` in strict mode.
+                                return Escape.StrictOctal;
+                            } else {
+                                this.lastChar = next;
+                                code = (code << 3) | (next - Chars.Zero);
+                                index++;
+                                column++;
+    
+                                if (index < this.source.length) {
+                                    next = this.source.charCodeAt(index);
+    
+                                    if (next >= Chars.Zero && next <= Chars.Seven) {
+                                        this.lastChar = next;
+                                        code = (code << 3) | (next - Chars.Zero);
+                                        index++;
+                                        column++;
+                                    }
+                                }
+    
+                                this.index = index - 1;
+                                this.column = column - 1;
+                            }
+                        }
+    
+                        return code;
+                    }
+    
+                case Chars.Four:
+                case Chars.Five:
+                case Chars.Six:
+                case Chars.Seven:
+                    {
+                        if (context & Context.Strict) return Escape.StrictOctal;
+                        let code = first - Chars.Zero;
+                        const index = this.index + 1;
+                        const column = this.column + 1;
+    
+                        if (index < this.source.length) {
+                            const next = this.source.charCodeAt(index);
+    
+                            if (next >= Chars.Zero && next <= Chars.Seven) {
+                                code = (code << 3) | (next - Chars.Zero);
+                                this.lastChar = next;
+                                this.index = index;
+                                this.column = column;
+                            }
+                        }
+    
+                        return code;
+                    }
+    
+                    // `8`, `9` (invalid escapes)
+                case Chars.Eight:
+                case Chars.Nine:
+                    return Escape.EightOrNine;
+    
+                    // ASCII escapes
+                case Chars.LowerX:
+                    {
+                        const ch1 = this.lastChar = this.scanNext(first);
+                        const hi = toHex(ch1);
+                        if (hi < 0) return Escape.InvalidHex;
+                        const ch2 = this.lastChar = this.scanNext(ch1);
+                        const lo = toHex(ch2);
+                        if (lo < 0) return Escape.InvalidHex;
+    
+                        return hi << 4 | lo;
+                    }
+    
+                    // UCS-2/Unicode escapes
+                case Chars.LowerU:
+                    {
+                        let ch = this.lastChar = this.scanNext(first);
+                        if (ch === Chars.LeftBrace) {
+                            // \u{N}
+                            // The first digit is required, so handle it *out* of the loop.
+                            ch = this.lastChar = this.scanNext(ch);
+                            let code = toHex(ch);
+                            if (code < 0) return Escape.InvalidHex;
+    
+                            ch = this.lastChar = this.scanNext(ch);
+                            while (ch !== Chars.RightBrace) {
+                                const digit = toHex(ch);
+                                if (digit < 0) return Escape.InvalidHex;
+                                code = code << 4 | digit;
+    
+                                // Check this early to avoid `code` wrapping to a negative on overflow (which is
+                                // reserved for abnormal conditions).
+                                if (code > Chars.LastUnicodeChar) return Escape.OutOfRange;
+                                ch = this.lastChar = this.scanNext(ch);
+                            }
+    
+                            return code;
+                        } else {
+                            // \uNNNN
+                            let code = toHex(ch);
+                            if (code < 0) return Escape.InvalidHex;
+    
+                            for (let i = 0; i < 3; i++) {
+                                ch = this.lastChar = this.scanNext(ch);
+                                const digit = toHex(ch);
+                                if (digit < 0) return Escape.InvalidHex;
+                                code = code << 4 | digit;
+                            }
+    
+                            return code;
+                        }
+                    }
+    
+                default:
+                    return this.nextUnicodeChar();
+            }
+        }
+    
+        private nextUnicodeChar() {
+            let index = this.index;
+            const hi = this.source.charCodeAt(index++);
+    
+            if (hi < 0xd800 || hi > 0xdbff) return hi;
+            if (index === this.source.length) return hi;
+            const lo = this.source.charCodeAt(index);
+    
+            if (lo < 0xdc00 || lo > 0xdfff) return hi;
+            return (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
+        }
+    
     
         private peekExtendedUnicodeEscape(): any {
     
@@ -1399,134 +1589,6 @@ export class Parser {
             this.error(Errors.InvalidUnicodeEscapeSequence);
         }
     
-        private scanStringEscape(context: Context): string {
-    
-            const cp = this.readNext(Errors.InvalidHexEscapeSequence);
-    
-            switch (cp) {
-                case Chars.LowerB:
-                    return '\b';
-                case Chars.LowerT:
-                    return '\t';
-                case Chars.LowerN:
-                    return '\n';
-                case Chars.LowerV:
-                    return '\v';
-                case Chars.LowerF:
-                    return '\f';
-                case Chars.LowerR:
-                    return '\r';
-                case Chars.Backslash:
-                    return '\\';
-                case Chars.SingleQuote:
-                    return '\'';
-                case Chars.DoubleQuote:
-                    return '\"';
-    
-                    // Unicode character specification.
-                case Chars.LowerU:
-                    return fromCodePoint(this.peekExtendedUnicodeEscape());
-                    // Hexadecimal character specification.
-                case Chars.LowerX:
-                    {
-                        const ch = this.readNext(Errors.UnterminatedString);
-                        const ch1 = this.nextChar();
-                        const hi = toHex(ch1);
-                        if (hi < 0) this.error(Errors.InvalidHexEscapeSequence);
-                        this.advance();
-                        if (!this.hasNext()) this.error(Errors.UnterminatedString);
-                        const ch2 = this.nextChar();
-                        const lo = toHex(ch2);
-                        if (lo < 0) this.error(Errors.InvalidHexEscapeSequence);
-                        return fromCodePoint(hi << 4 | lo);
-                    }
-    
-                    // Octal character specification.
-                case Chars.Zero:
-                    // falls through
-                case Chars.One:
-                    // falls through
-                case Chars.Two:
-                    // falls through
-                case Chars.Three:
-                    {
-                        let code = cp - Chars.Zero;
-                        let index = this.index + 1;
-                        let column = this.column + 1;
-    
-                        if (index < this.source.length) {
-    
-                            let next = this.source.charCodeAt(index);
-    
-                            if (next < Chars.Zero || next > Chars.Seven) {
-                                if (code !== 0 && context & Context.Strict) this.error(Errors.StrictOctalLiteral);
-                            } else if (context & Context.Strict && context & Context.Strict) {
-                                this.error(Errors.StrictOctalLiteral);
-                            } else {
-                                code = (code << 3) | (next - Chars.Zero);
-                                index++;
-                                column++;
-    
-                                if (index < this.source.length) {
-                                    next = this.source.charCodeAt(index);
-    
-                                    if (next >= Chars.Zero && next <= Chars.Seven) {
-                                        code = (code << 3) | (next - Chars.Zero);
-                                        index++;
-                                        column++;
-                                    }
-                                }
-    
-                                this.index = index - 1;
-                                this.column = column - 1;
-                            }
-                        }
-    
-                        return String.fromCharCode(code);
-                    }
-    
-                case Chars.Four:
-                    // falls through
-                case Chars.Five:
-                    // falls through
-                case Chars.Six:
-                    // falls through
-                case Chars.Seven:
-                    {
-                        if (context & Context.Strict) this.error(Errors.StrictOctalEscape);
-    
-                        let code = cp - Chars.Zero;
-                        const index = this.index + 1;
-                        const column = this.column + 1;
-    
-                        if (index < this.source.length) {
-                            const next = this.source.charCodeAt(index);
-    
-                            if (next >= Chars.Zero && next <= Chars.Seven) {
-                                code = (code << 3) | (next - Chars.Zero);
-                                this.index = index;
-                                this.column = column;
-                            }
-                        }
-    
-                        return String.fromCharCode(code);
-                    }
-    
-                case Chars.Eight:
-                    // falls through
-                case Chars.Nine:
-                    this.error(Errors.InvalidEightAndNine);
-                case Chars.CarriageReturn:
-                case Chars.LineFeed:
-                case Chars.LineSeparator:
-                case Chars.ParagraphSeparator:
-                    return '';
-                default:
-                    // Other escaped characters are interpreted as their non-escaped version.
-                    return this.source.charAt(cp);
-            }
-        }
-    
         private scanJSXIdentifier(context: Context) {
             switch (this.token) {
                 case Token.Identifier:
@@ -1553,20 +1615,23 @@ export class Parser {
             if (!this.hasNext()) this.error(Errors.Unexpected);
             this.index--;
             this.column--;
-            return this.scanTemplate(context);
+            return this.scanTemplate(context, Chars.RightBrace);
         }
     
-        private scanTemplate(context: Context): Token {
+        private scanTemplate(context: Context, first: number): Token {
             const start = this.index;
+            const lastChar = this.lastChar;
             let tail = true;
-            let ret: string | void = '';
+            let ret: string | void | null = '';
     
-            let ch = this.readNext(Errors.UnterminatedTemplate);
+            let ch = this.scanNext(first, Errors.UnterminatedTemplate);
     
             loop:
                 while (ch !== Chars.Backtick) {
     
                     switch (ch) {
+    
+                        // '$'
                         case Chars.Dollar:
                             {
                                 const index = this.index + 1;
@@ -1581,18 +1646,36 @@ export class Parser {
                                 break;
                             }
     
+                            // '/'
                         case Chars.Backslash:
-                            this.advance();
-                            if (!this.hasNext()) this.error(Errors.UnterminatedTemplate);
+    
+                            ch = this.scanNext(ch, Errors.UnterminatedTemplate);
     
                             if (ch >= 128) {
                                 ret += fromCodePoint(ch);
                             } else {
-                                ret += this.scanStringEscape(context);
+                                this.lastChar = ch;
+                                const code = this.scanEscapeSequence(context, ch);
+    
+                                if (code >= 0) {
+                                    ret += fromCodePoint(code);
+                                } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
+                                    ret = null;
+                                    ch = this.scanLooserTemplateSegment(this.lastChar);
+                                    if (ch < 0) {
+                                        ch = -ch;
+                                        tail = false;
+                                    }
+                                    break loop;
+                                } else {
+                                    this.handleStringError(code as Escape);
+                                }
+                                ch = this.lastChar;
                             }
     
                             break;
     
+                            // Line terminators
                         case Chars.CarriageReturn:
                             if (this.hasNext() && this.nextChar() === Chars.LineFeed) {
                                 if (ret != null) ret += fromCodePoint(ch);
@@ -1608,16 +1691,15 @@ export class Parser {
                             if (ret != null) ret += fromCodePoint(ch);
                     }
     
-                    this.advance();
-    
-                    if (!this.hasNext()) this.error(Errors.UnterminatedTemplate);
-    
-                    ch = this.nextChar();
+                    ch = this.scanNext(ch, Errors.UnterminatedTemplate);
                 }
     
             this.advance();
     
+            if (ch & 0x10000) this.index++;
+    
             this.tokenValue = ret;
+            this.lastChar = lastChar;
     
             if (tail) {
                 this.tokenRaw = this.source.slice(start + 1, this.index - 1);
@@ -1628,6 +1710,51 @@ export class Parser {
             }
         }
     
+        private scanLooserTemplateSegment(ch: Chars): Chars {
+    
+            while (ch !== Chars.Backtick) {
+                switch (ch) {
+                    // '$'
+                    case Chars.Dollar:
+                        {
+                            const index = this.index + 1;
+                            if (index < this.source.length &&
+                                this.source.charCodeAt(index) === Chars.LeftBrace) {
+                                this.index = index;
+                                this.column++;
+                                return -ch;
+                            }
+                            break;
+                        }
+    
+                        // '/'
+                    case Chars.Backslash:
+                        ch = this.scanNext(ch);
+                        break;
+    
+                        // LineTerminators
+                    case Chars.CarriageReturn:
+                        if (this.hasNext() && this.nextChar() === Chars.LineFeed) {
+                            ch = this.nextChar();
+                            this.index++;
+                        }
+                        // falls through
+                    case Chars.LineFeed:
+                    case Chars.LineSeparator:
+                    case Chars.ParagraphSeparator:
+                        this.column = -1;
+                        this.line++;
+                        // falls through
+                    default:
+                        // ignore
+                }
+    
+                ch = this.scanNext(ch);
+            }
+    
+            return ch;
+        }
+    
         private parseModuleItemList(context: Context): ESTree.Statement[] {
             // ecma262/#prod-Module
             // Module :
@@ -1636,7 +1763,6 @@ export class Parser {
             // ecma262/#prod-ModuleItemList
             // ModuleBody :
             //   ModuleItem*
-    
     
             const statements: ESTree.Statement[] = [];
     
@@ -1793,15 +1919,35 @@ export class Parser {
     
         // 'import', 'import.meta'
         private nextTokenIsLeftParenOrPeriod(context: Context): boolean {
-            this.PeekAhead(context);
-            return this.peekedToken === Token.LeftParen || this.peekedToken === Token.Period;
+            const savedState = this.saveState();
+            this.nextToken(context);
+            const next = this.token;
+            this.rewindState(savedState);
+            return next === Token.LeftParen || next === Token.Period;
         }
     
-        private isLexical(context: Context): boolean | number {
+        private isLexical(context: Context): boolean {
             // In ES6 'let' always starts a lexical declaration if followed by an identifier or {
             // or [.
-            this.PeekAhead(context);
-            return this.isIdentifierOrKeyword(this.peekedToken) || hasMask(this.peekedToken, Token.BindingPattern);
+            const savedState = this.saveState();
+            this.nextToken(context);
+            const next = this.token;
+            this.rewindState(savedState);
+    
+            if (next === Token.Identifier) return true;
+    
+            // Fast path for '{}' / '[];
+            if (hasMask(next, Token.BindingPattern)) return true;
+    
+            switch (next) {
+                case Token.LeftBrace:
+                case Token.Identifier:
+                case Token.LeftBracket:
+                case Token.YieldKeyword:
+                    return true;
+                default:
+                    return hasMask(next, Token.Contextual);
+            }
         }
     
         private isIdentifier(context: Context, t: Token): boolean {
@@ -1824,8 +1970,12 @@ export class Parser {
         }
     
         private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
-            this.PeekAhead(context);
-            return this.line === this.peekedState.line && this.peekedToken === Token.FunctionKeyword;
+            const savedState = this.saveState();
+            this.nextToken(context);
+            const next = this.token;
+            const line = this.line;
+            this.rewindState(savedState);
+            return line === this.line && next === Token.FunctionKeyword;
         }
     
         private parseExportDefault(context: Context, pos: Location): ESTree.ExportDefaultDeclaration {
@@ -2585,45 +2735,34 @@ export class Parser {
     
             if (this.token !== Token.Semicolon) {
     
-                if (hasMask(this.token, Token.VarDeclStart)) {
+                switch (this.token) {
+                    case Token.LetKeyword:
+                        if (!this.isLexical(context)) break;
+                        context |= Context.Let | Context.AllowIn;
+                        state |= IterationState.Let;
+                        break;
+                    case Token.VarKeyword:
+                        state |= IterationState.Var;
+                        break;
+                    case Token.ConstKeyword:
+                        context |= Context.Const | Context.AllowIn;
+                        state |= IterationState.Const;
+                        break;
+                    default:
+                        // ignore
+                }
     
+                if (state & (IterationState.Lexical | IterationState.Var)) {
                     const startIndex = this.getLocations();
                     kind = tokenDesc(this.token);
+                    this.nextToken(context);
+                    declarations = this.parseVariableDeclarationList(context | Context.ForStatement);
     
-                    if (this.token === Token.LetKeyword && this.isLexical(context)) {
-    
-                        if (this.parseOptional(context, Token.LetKeyword)) {
-                            state |= IterationState.Let;
-                            declarations = this.parseVariableDeclarationList(context | (Context.Let | Context.AllowIn | Context.ForStatement));
-                        }
-                        if (state & (IterationState.Lexical | IterationState.Var)) {
-                            init = this.finishNode(startIndex, {
-                                type: 'VariableDeclaration',
-                                declarations,
-                                kind
-                            });
-                        }
-                    } else {
-                        if (this.parseOptional(context, Token.VarKeyword)) {
-    
-                            state |= IterationState.Var;
-                            declarations = this.parseVariableDeclarationList(context | Context.ForStatement);
-                        } else if (this.parseOptional(context, Token.ConstKeyword)) {
-                            state |= IterationState.Const;
-                            declarations = this.parseVariableDeclarationList(context | (Context.Const | Context.AllowIn | Context.ForStatement));
-                        } else {
-                            init = this.parseExpression(context & ~Context.AllowIn | Context.ForStatement, pos);
-                        }
-    
-                        if (state & (IterationState.Lexical | IterationState.Var)) {
-                            init = this.finishNode(startIndex, {
-                                type: 'VariableDeclaration',
-                                declarations,
-                                kind
-                            });
-                        }
-                    }
-    
+                    init = this.finishNode(startIndex, {
+                        type: 'VariableDeclaration',
+                        declarations,
+                        kind
+                    });
                 } else {
                     init = this.parseExpression(context & ~Context.AllowIn | Context.ForStatement, pos);
                 }
@@ -3628,15 +3767,13 @@ export class Parser {
                             });
                             break;
                         }
+    
                     case Token.TemplateCont:
-                        {
-                            const quasi = this.parseTemplate(context, this.getLocations());
-                            expr = this.parseTaggedTemplateExpression(context, expr, quasi, this.getLocations());
-                            break;
-                        }
                     case Token.TemplateTail:
                         {
-                            const quasi = this.parseTemplateTail(context, this.getLocations());
+                            const quasiPos = this.getLocations();
+                            const quasi = this.token === Token.TemplateCont ?
+                                this.parseTemplate(context | Context.TaggedTemplate, quasiPos) : this.parseTemplateTail(context | Context.TaggedTemplate, quasiPos);
                             expr = this.parseTaggedTemplateExpression(context, expr, quasi, pos);
                             break;
                         }
@@ -4037,7 +4174,14 @@ export class Parser {
                     });
             }
         }
-    
+        private nextTokenIsAssign(context: Context) {
+            const savedState = this.saveState();
+            this.nextToken(context);
+            const next = this.token;
+            const line = this.line;
+            this.rewindState(savedState);
+            return next === Token.Assign;
+        }
         private parsePrimaryExpression(context: Context, pos: Location) {
     
             switch (this.token) {
@@ -4084,17 +4228,14 @@ export class Parser {
                     return this.parseThrowExpression(context);
                 case Token.AwaitKeyword:
                     if (this.flags & Flags.HasUnicode) {
-                        this.error(Errors.UnexpectedReservedWord)
+                        this.error(Errors.UnexpectedReservedWord);
                     }
                     if (context & Context.Await) {
                         this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                     }
                     if (context & Context.Module) {
                         // Valid: 'await = 0;'
-                        this.PeekAhead(context);
-                        if (this.peekedToken !== Token.Assign) {
-                            this.throwUnexpectedToken();
-                        }
+                        if (!this.nextTokenIsAssign(context)) this.throwUnexpectedToken();
                     }
                     return this.parseIdentifier(context);
                 case Token.LetKeyword:
@@ -4576,17 +4717,28 @@ export class Parser {
             const pos = this.getLocations();
             this.expect(context, Token.LeftBracket);
             const elements = [];
-    
+            let state = ArrayState.None;
             while (this.token !== Token.RightBracket) {
                 if (this.parseOptional(context, Token.Comma)) {
                     elements.push(null);
                 } else if (this.token === Token.Ellipsis) {
+                    state |= ArrayState.Spread;
                     const element = this.parseSpreadElement(context);
                     if (this.token !== Token.RightBracket) {
                         this.expect(context, Token.Comma);
                     }
                     elements.push(element);
                 } else {
+                    if (this.isEvalOrArguments(this.tokenValue)) {
+                        state |= ArrayState.EvalArg;
+                        this.errorLocation = this.getLocations();
+                    }
+    
+                    // Invalid: 'function* f() { [yield {a = 0}]; }'
+                    if (context & Context.Yield && this.flags & Flags.InFunctionBody && this.token === Token.YieldKeyword) {
+                        this.error(Errors.InvalidShorthandAssignment);
+                    }
+    
                     elements.push(this.parseAssignmentExpression(context | Context.AllowIn));
                     if (this.token !== Token.RightBracket) {
                         this.expect(context, Token.Comma);
@@ -4594,6 +4746,10 @@ export class Parser {
                 }
             }
             this.expect(context, Token.RightBracket);
+    
+            if (this.token === Token.Assign) {
+                if (state & ArrayState.EvalArg) this.error(Errors.StrictParamName);
+            }
     
             return this.finishNode(pos, {
                 type: 'ArrayExpression',
@@ -4615,7 +4771,9 @@ export class Parser {
             let state = ParenthesizedState.None;
     
             if (this.parseOptional(context, Token.RightParen)) {
-                if (this.token === Token.Arrow) return this.parseArrowFunction(context & ~(Context.Await | Context.Yield | Context.ForStatement), pos, []);
+                if (this.token === Token.Arrow) {
+                    return this.parseArrowFunction(context & ~(Context.Await | Context.Yield | Context.ForStatement), pos, []);
+                }
                 this.error(Errors.MissingArrowAfterParentheses);
             }
     
@@ -4636,7 +4794,6 @@ export class Parser {
             }
     
             if (!(state & ParenthesizedState.Parenthesized) && this.token === Token.LeftParen) {
-    
                 state |= ParenthesizedState.Parenthesized;
             }
     
@@ -4713,7 +4870,8 @@ export class Parser {
         }
     
         private parseTemplateTail(context: Context, pos: Location): ESTree.TemplateLiteral {
-            const quasis = this.parseTemplateElement(context, pos);
+            pos = this.getLocations();
+            const quasis = this.parseTemplateElement(context);
             return this.finishNode(pos, {
                 type: 'TemplateLiteral',
                 expressions: [],
@@ -4734,10 +4892,13 @@ export class Parser {
             });
         }
     
-        private parseTemplateElement(context: Context, pos: Location): ESTree.TemplateElement {
+        private parseTemplateElement(context: Context): ESTree.TemplateElement {
+            const pos = this.getLocations();
             const cooked = this.tokenValue;
             const raw = this.tokenRaw;
+    
             this.expect(context, Token.TemplateTail);
+    
             return this.finishNode(pos, {
                 type: 'TemplateElement',
                 value: {
@@ -4771,7 +4932,7 @@ export class Parser {
             }
     
             while (this.token === Token.TemplateTail) {
-                quasis.push(this.parseTemplateElement(context, pos));
+                quasis.push(this.parseTemplateElement(context));
             }
     
             return this.finishNode(pos, {
@@ -4860,7 +5021,7 @@ export class Parser {
         }
     
         private parseIdentifier(context: Context): ESTree.Identifier {
-            if (context & Context.Strict && this.token === Token.YieldKeyword) {
+            if (context & Context.Strict && !(context & Context.Method) && this.token === Token.YieldKeyword) {
                 this.throwUnexpectedToken();
             }
             const name = this.tokenValue;
@@ -5192,9 +5353,7 @@ export class Parser {
                 pos = this.getLocations();
                 const token = this.token;
                 const tokenValue = this.tokenValue;
-                if (this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
-                    this.error(Errors.UnexpectedReservedWord);
-                }
+    
                 key = this.parsePropertyName(context);
                 const init = this.finishNode(pos, {
                     type: 'Identifier',

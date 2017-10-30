@@ -281,6 +281,475 @@ describe('Statement - Labelled', () => {
           });
     });
 
+    it('should parse "foo: if (true) break foo;""', () => {
+        expect(parseScript('foo: if (true) break foo;', {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 25,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 25
+              }
+            },
+            "body": [
+              {
+                "type": "LabeledStatement",
+                "start": 0,
+                "end": 25,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 25
+                  }
+                },
+                "body": {
+                  "type": "IfStatement",
+                  "start": 5,
+                  "end": 25,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 5
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 25
+                    }
+                  },
+                  "test": {
+                    "type": "Literal",
+                    "start": 9,
+                    "end": 13,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 13
+                      }
+                    },
+                    "value": true,
+                    "raw": "true"
+                  },
+                  "consequent": {
+                    "type": "BreakStatement",
+                    "start": 15,
+                    "end": 25,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 15
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 25
+                      }
+                    },
+                    "label": {
+                      "type": "Identifier",
+                      "start": 21,
+                      "end": 24,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 21
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 24
+                        }
+                      },
+                      "name": "foo"
+                    }
+                  },
+                  "alternate": null
+                },
+                "label": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 3,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 3
+                    }
+                  },
+                  "name": "foo"
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
+    it('should parse two labels"', () => {
+        expect(parseScript('target1: target2: target3: while (true) { continue target1; }', {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 61,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 61
+              }
+            },
+            "body": [
+              {
+                "type": "LabeledStatement",
+                "start": 0,
+                "end": 61,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 61
+                  }
+                },
+                "body": {
+                  "type": "LabeledStatement",
+                  "start": 9,
+                  "end": 61,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 61
+                    }
+                  },
+                  "body": {
+                    "type": "LabeledStatement",
+                    "start": 18,
+                    "end": 61,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 18
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 61
+                      }
+                    },
+                    "body": {
+                      "type": "WhileStatement",
+                      "start": 27,
+                      "end": 61,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 27
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 61
+                        }
+                      },
+                      "test": {
+                        "type": "Literal",
+                        "start": 34,
+                        "end": 38,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 34
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 38
+                          }
+                        },
+                        "value": true,
+                        "raw": "true"
+                      },
+                      "body": {
+                        "type": "BlockStatement",
+                        "start": 40,
+                        "end": 61,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 40
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 61
+                          }
+                        },
+                        "body": [
+                          {
+                            "type": "ContinueStatement",
+                            "start": 42,
+                            "end": 59,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 42
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 59
+                              }
+                            },
+                            "label": {
+                              "type": "Identifier",
+                              "start": 51,
+                              "end": 58,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 51
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 58
+                                }
+                              },
+                              "name": "target1"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "label": {
+                      "type": "Identifier",
+                      "start": 18,
+                      "end": 25,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 18
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 25
+                        }
+                      },
+                      "name": "target3"
+                    }
+                  },
+                  "label": {
+                    "type": "Identifier",
+                    "start": 9,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 9
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "name": "target2"
+                  }
+                },
+                "label": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 7,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 7
+                    }
+                  },
+                  "name": "target1"
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
+    it('should parse two labels"', () => {
+        expect(parseScript('foo: 10; foo: 20;', {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 17,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 17
+              }
+            },
+            "body": [
+              {
+                "type": "LabeledStatement",
+                "start": 0,
+                "end": 8,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 8
+                  }
+                },
+                "body": {
+                  "type": "ExpressionStatement",
+                  "start": 5,
+                  "end": 8,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 5
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 8
+                    }
+                  },
+                  "expression": {
+                    "type": "Literal",
+                    "start": 5,
+                    "end": 7,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 5
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 7
+                      }
+                    },
+                    "value": 10,
+                    "raw": "10"
+                  }
+                },
+                "label": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 3,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 3
+                    }
+                  },
+                  "name": "foo"
+                }
+              },
+              {
+                "type": "LabeledStatement",
+                "start": 9,
+                "end": 17,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 9
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 17
+                  }
+                },
+                "body": {
+                  "type": "ExpressionStatement",
+                  "start": 14,
+                  "end": 17,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 14
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 17
+                    }
+                  },
+                  "expression": {
+                    "type": "Literal",
+                    "start": 14,
+                    "end": 16,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 14
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 16
+                      }
+                    },
+                    "value": 20,
+                    "raw": "20"
+                  }
+                },
+                "label": {
+                  "type": "Identifier",
+                  "start": 9,
+                  "end": 12,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 12
+                    }
+                  },
+                  "name": "foo"
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
     it('should parse yield as label in non-strict mode"', () => {
         expect(parseScript('yield: 1;', {
             ranges: true,

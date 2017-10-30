@@ -16,4 +16,5 @@ describe('Statements - Throw', () => {
             parseScript(`throw ?`);
         }).to.throw();
     });
+ 
 });
