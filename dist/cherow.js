@@ -460,7 +460,7 @@ Parser.prototype.saveState = function saveState () {
         startIndex: this.startIndex,
         lastIndex: this.lastIndex,
         tokenRegExp: this.tokenRegExp,
-        flags: this.flags,
+        flags: this.flags
     };
 };
 Parser.prototype.rewindState = function rewindState (state) {
@@ -495,6 +495,31 @@ Parser.prototype.readNext = function readNext (err /* UnterminatedString */) {
     if (!this.hasNext())
         { this.error(err); }
     return this.nextChar();
+};
+Parser.prototype.storeRaw = function storeRaw (start) {
+    this.tokenRaw = this.source.slice(start, this.index);
+};
+Parser.prototype.scanNext = function scanNext (ch, err /* UnterminatedString */) {
+        if ( err === void 0 ) err = 3;
+
+    this.advance();
+    if (ch & 0x10000)
+        { this.index++; }
+    if (!this.hasNext())
+        { this.error(err); }
+    return this.nextUnicodeChar();
+};
+Parser.prototype.nextUnicodeChar = function nextUnicodeChar () {
+    var index = this.index;
+    var hi = this.source.charCodeAt(index++);
+    if (hi < 0xd800 || hi > 0xdbff)
+        { return hi; }
+    if (index === this.source.length)
+        { return hi; }
+    var lo = this.source.charCodeAt(index);
+    if (lo < 0xdc00 || lo > 0xdfff)
+        { return hi; }
+    return (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
 };
 Parser.prototype.advance = function advance () {
     this.index++;
@@ -1159,6 +1184,46 @@ Parser.prototype.peekUnicodeEscape = function peekUnicodeEscape () {
     this.advance();
     return code;
 };
+Parser.prototype.peekExtendedUnicodeEscape = function peekExtendedUnicodeEscape () {
+        var this$1 = this;
+
+    var ch = this.readNext(58 /* InvalidHexEscapeSequence */);
+    var code = 0;
+    // '\u{DDDDDDDD}'
+    if (ch === 123 /* LeftBrace */) {
+        ch = this.readNext(58 /* InvalidHexEscapeSequence */);
+        // At least, one hex digit is required.
+        if (ch === 125 /* RightBrace */) {
+            this.error(58 /* InvalidHexEscapeSequence */);
+        }
+        while (ch !== 125 /* RightBrace */) {
+            var digit = toHex(ch);
+            if (digit < 0)
+                { this$1.error(58 /* InvalidHexEscapeSequence */); }
+            code = (code << 4) | digit;
+            if (code > 1114111 /* LastUnicodeChar */)
+                { this$1.error(5 /* UnicodeOutOfRange */); }
+            // At least one digit is expected
+            ch = this$1.readNext(58 /* InvalidHexEscapeSequence */);
+        }
+        return code;
+    }
+    if (this.index + 3 > this.source.length) {
+        this.error(6 /* InvalidUnicodeEscapeSequence */);
+    }
+    // '\uDDDD'    
+    code = toHex(ch);
+    if (code < 0)
+        { this.error(58 /* InvalidHexEscapeSequence */); }
+    for (var i = 0; i < 3; i++) {
+        ch = this$1.readNext(58 /* InvalidHexEscapeSequence */);
+        var digit$1 = toHex(ch);
+        if (code < 0)
+            { this$1.error(58 /* InvalidHexEscapeSequence */); }
+        code = code << 4 | digit$1;
+    }
+    return code;
+};
 Parser.prototype.scanNumberLiteral = function scanNumberLiteral (context) {
         var this$1 = this;
 
@@ -1181,7 +1246,7 @@ Parser.prototype.scanNumberLiteral = function scanNumberLiteral (context) {
     if (this.flags & 1048576 /* OptionsNext */ && this.consume(110 /* LowerN */))
         { this.flags |= 8192 /* BigInt */; }
     if (this.flags & 524288 /* OptionsRaw */)
-        { this.tokenRaw = this.source.slice(this.startIndex, this.index); }
+        { this.storeRaw(this.startIndex); }
     this.tokenValue = isDecimal ? parseInt(this.source.slice(this.startIndex, this.index), 10) : code;
     return 262146 /* NumericLiteral */;
 };
@@ -1206,7 +1271,7 @@ Parser.prototype.scanOctalDigits = function scanOctalDigits (context) {
     if (this.flags & 1048576 /* OptionsNext */ && this.consume(110 /* LowerN */))
         { this.flags |= 8192 /* BigInt */; }
     if (this.flags & 524288 /* OptionsRaw */)
-        { this.tokenRaw = this.source.slice(this.startIndex, this.index); }
+        { this.storeRaw(this.startIndex); }
     return 262146 /* NumericLiteral */;
 };
 Parser.prototype.scanHexadecimalDigit = function scanHexadecimalDigit () {
@@ -1230,7 +1295,7 @@ Parser.prototype.scanHexadecimalDigit = function scanHexadecimalDigit () {
     if (this.flags & 1048576 /* OptionsNext */ && this.consume(110 /* LowerN */))
         { this.flags |= 8192 /* BigInt */; }
     if (this.flags & 524288 /* OptionsRaw */)
-        { this.tokenRaw = this.source.slice(this.startIndex, this.index); }
+        { this.storeRaw(this.startIndex); }
     return 262146 /* NumericLiteral */;
 };
 Parser.prototype.scanBinaryDigits = function scanBinaryDigits (context) {
@@ -1255,7 +1320,7 @@ Parser.prototype.scanBinaryDigits = function scanBinaryDigits (context) {
     if (this.flags & 1048576 /* OptionsNext */ && this.consume(110 /* LowerN */))
         { this.flags |= 8192 /* BigInt */; }
     if (this.flags & 524288 /* OptionsRaw */)
-        { this.tokenRaw = this.source.slice(this.startIndex, this.index); }
+        { this.storeRaw(this.startIndex); }
     return 262146 /* NumericLiteral */;
 };
 Parser.prototype.advanceAndSkipDigits = function advanceAndSkipDigits () {
@@ -1430,21 +1495,8 @@ Parser.prototype.scanRegularExpression = function scanRegularExpression () {
     };
     this.tokenValue = tryCreate(pattern, flags);
     if (this.flags & 524288 /* OptionsRaw */)
-        { this.tokenRaw = this.source.slice(this.startIndex, this.index); }
+        { this.storeRaw(this.startIndex); }
     return 262148 /* RegularExpression */;
-};
-Parser.prototype.storeRaw = function storeRaw (start) {
-    this.tokenRaw = this.source.slice(start, this.index);
-};
-Parser.prototype.scanNext = function scanNext (ch, err /* UnterminatedString */) {
-        if ( err === void 0 ) err = 3;
-
-    this.advance();
-    if (ch & 0x10000)
-        { this.index++; }
-    if (!this.hasNext())
-        { this.error(err); }
-    return this.nextUnicodeChar();
 };
 Parser.prototype.scanString = function scanString (context, quote) {
         var this$1 = this;
@@ -1554,13 +1606,10 @@ Parser.prototype.scanEscapeSequence = function scanEscapeSequence (context, firs
                 if (index$1 < this.source.length) {
                     var next = this.source.charCodeAt(index$1);
                     if (next < 48 /* Zero */ || next > 55 /* Seven */) {
-                        // Verify that it's `\0` if we're in strict mode.
-                        if (code !== 0 && context & 2 /* Strict */) {
-                            return -2 /* StrictOctal */;
-                        }
+                        if (code !== 0 && context & 2 /* Strict */)
+                            { return -2 /* StrictOctal */; }
                     }
                     else if (context & 2 /* Strict */) {
-                        // This happens in cases like `\00` in strict mode.
                         return -2 /* StrictOctal */;
                     }
                     else {
@@ -1627,7 +1676,6 @@ Parser.prototype.scanEscapeSequence = function scanEscapeSequence (context, firs
                 var ch$1 = this.lastChar = this.scanNext(first);
                 if (ch$1 === 123 /* LeftBrace */) {
                     // \u{N}
-                    // The first digit is required, so handle it *out* of the loop.
                     ch$1 = this.lastChar = this.scanNext(ch$1);
                     var code$2 = toHex(ch$1);
                     if (code$2 < 0)
@@ -1638,8 +1686,6 @@ Parser.prototype.scanEscapeSequence = function scanEscapeSequence (context, firs
                         if (digit < 0)
                             { return -4 /* InvalidHex */; }
                         code$2 = code$2 << 4 | digit;
-                        // Check this early to avoid `code` wrapping to a negative on overflow (which is
-                        // reserved for abnormal conditions).
                         if (code$2 > 1114111 /* LastUnicodeChar */)
                             { return -5 /* OutOfRange */; }
                         ch$1 = this$1.lastChar = this$1.scanNext(ch$1);
@@ -1663,85 +1709,6 @@ Parser.prototype.scanEscapeSequence = function scanEscapeSequence (context, firs
             }
         default:
             return this.nextUnicodeChar();
-    }
-};
-Parser.prototype.nextUnicodeChar = function nextUnicodeChar () {
-    var index = this.index;
-    var hi = this.source.charCodeAt(index++);
-    if (hi < 0xd800 || hi > 0xdbff)
-        { return hi; }
-    if (index === this.source.length)
-        { return hi; }
-    var lo = this.source.charCodeAt(index);
-    if (lo < 0xdc00 || lo > 0xdfff)
-        { return hi; }
-    return (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
-};
-Parser.prototype.peekExtendedUnicodeEscape = function peekExtendedUnicodeEscape () {
-        var this$1 = this;
-
-    var ch = this.readNext(0 /* Unexpected */);
-    // '\u{DDDDDDDD}'
-    if (ch === 123 /* LeftBrace */) {
-        var code = 0;
-        ch = this.readNext(58 /* InvalidHexEscapeSequence */);
-        // At least, one hex digit is required.
-        if (ch === 125 /* RightBrace */)
-            { this.error(58 /* InvalidHexEscapeSequence */); }
-        while (ch !== 125 /* RightBrace */) {
-            var digit = toHex(ch);
-            if (digit < 0)
-                { this$1.error(58 /* InvalidHexEscapeSequence */); }
-            code = (code << 4) | digit;
-            if (code > 1114111 /* LastUnicodeChar */)
-                { this$1.error(5 /* UnicodeOutOfRange */); }
-            // At least one digit is expected
-            ch = this$1.readNext(58 /* InvalidHexEscapeSequence */);
-        }
-        return code;
-        // '\uDDDD'
-    }
-    else if (this.index + 3 < this.source.length) {
-        var code$1 = toHex(ch);
-        if (code$1 < 0)
-            { this.error(58 /* InvalidHexEscapeSequence */); }
-        for (var i = 0; i < 3; i++) {
-            ch = this$1.readNext(58 /* InvalidHexEscapeSequence */);
-            var digit$1 = toHex(ch);
-            if (code$1 < 0)
-                { this$1.error(58 /* InvalidHexEscapeSequence */); }
-            code$1 = code$1 << 4 | digit$1;
-        }
-        // Invalid:  "'foo\u000u bar'", "'foo\u000U bar'"
-        switch (ch) {
-            case 117 /* LowerU */:
-            case 85 /* UpperU */:
-                this.error(58 /* InvalidHexEscapeSequence */);
-            default: // ignore
-        }
-        return code$1;
-    }
-    this.error(6 /* InvalidUnicodeEscapeSequence */);
-};
-Parser.prototype.scanJSXIdentifier = function scanJSXIdentifier (context) {
-        var this$1 = this;
-
-    switch (this.token) {
-        case 262145 /* Identifier */:
-            var firstCharPosition = this.index;
-            scan: while (this.hasNext()) {
-                var ch = this$1.nextChar();
-                switch (ch) {
-                    case 45 /* Hyphen */:
-                        this$1.advance();
-                        break;
-                    default:
-                        break scan;
-                }
-            }
-            this.tokenValue += this.source.slice(firstCharPosition, this.index - firstCharPosition);
-        default:
-            return this.token;
     }
 };
 Parser.prototype.scanTemplateNext = function scanTemplateNext (context) {
@@ -1874,6 +1841,27 @@ Parser.prototype.scanLooserTemplateSegment = function scanLooserTemplateSegment 
         ch = this$1.scanNext(ch);
     }
     return ch;
+};
+Parser.prototype.scanJSXIdentifier = function scanJSXIdentifier (context) {
+        var this$1 = this;
+
+    switch (this.token) {
+        case 262145 /* Identifier */:
+            var firstCharPosition = this.index;
+            scan: while (this.hasNext()) {
+                var ch = this$1.nextChar();
+                switch (ch) {
+                    case 45 /* Hyphen */:
+                        this$1.advance();
+                        break;
+                    default:
+                        break scan;
+                }
+            }
+            this.tokenValue += this.source.slice(firstCharPosition, this.index - firstCharPosition);
+        default:
+            return this.token;
+    }
 };
 Parser.prototype.parseModuleItemList = function parseModuleItemList (context) {
         var this$1 = this;
@@ -5220,7 +5208,7 @@ Parser.prototype.scanJSXString = function scanJSXString () {
     this.tokenValue = ret;
     // raw
     if (this.flags & 524288 /* OptionsRaw */)
-        { this.tokenRaw = this.source.slice(rawStart, this.index); }
+        { this.storeRaw(rawStart); }
     return 262147 /* StringLiteral */;
 };
 Parser.prototype.scanJSXAttributeValue = function scanJSXAttributeValue (context) {

@@ -168,7 +168,7 @@ export class Parser {
                 startIndex: this.startIndex,
                 lastIndex: this.lastIndex,
                 tokenRegExp: this.tokenRegExp,
-                flags: this.flags,
+                flags: this.flags
             };
         }
     
@@ -205,6 +205,29 @@ export class Parser {
             this.advance();
             if (!this.hasNext()) this.error(err);
             return this.nextChar();
+        }
+    
+        private storeRaw(start: number) {
+            this.tokenRaw = this.source.slice(start, this.index);
+        }
+    
+        private scanNext(ch: Chars, err: Errors = Errors.UnterminatedString): Chars {
+            this.advance();
+            if (ch & 0x10000) this.index++;
+            if (!this.hasNext()) this.error(err);
+            return this.nextUnicodeChar();
+        }
+    
+        private nextUnicodeChar() {
+            let index = this.index;
+            const hi = this.source.charCodeAt(index++);
+    
+            if (hi < 0xd800 || hi > 0xdbff) return hi;
+            if (index === this.source.length) return hi;
+            const lo = this.source.charCodeAt(index);
+    
+            if (lo < 0xdc00 || lo > 0xdfff) return hi;
+            return (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
         }
     
         private advance(): void {
@@ -862,7 +885,7 @@ export class Parser {
     
                     this.comments.push(node);
                 }
-           }
+            }
         }
     
         private scanIdentifierOrKeyword(context: Context): Token {
@@ -941,7 +964,7 @@ export class Parser {
         /**
          * Peek unicode escape
          */
-        private peekUnicodeEscape(): any {
+        private peekUnicodeEscape(): Chars {
             this.advance();
             const code = this.peekExtendedUnicodeEscape();
     
@@ -954,6 +977,54 @@ export class Parser {
             }
     
             this.advance();
+            return code;
+        }
+    
+        private peekExtendedUnicodeEscape(): Chars {
+    
+            let ch = this.readNext(Errors.InvalidHexEscapeSequence);
+            let code = 0;
+    
+            // '\u{DDDDDDDD}'
+            if (ch === Chars.LeftBrace) { // {
+    
+                ch = this.readNext(Errors.InvalidHexEscapeSequence);
+    
+                // At least, one hex digit is required.
+                if (ch === Chars.RightBrace) {
+                    this.error(Errors.InvalidHexEscapeSequence);
+                }
+    
+                while (ch !== Chars.RightBrace) {
+                    const digit = toHex(ch);
+                    if (digit < 0) this.error(Errors.InvalidHexEscapeSequence);
+                    code = (code << 4) | digit;
+    
+                    if (code > Chars.LastUnicodeChar) this.error(Errors.UnicodeOutOfRange);
+    
+                    // At least one digit is expected
+                    ch = this.readNext(Errors.InvalidHexEscapeSequence);
+                }
+    
+                return code;
+            }
+    
+            if (this.index + 3 > this.source.length) {
+                this.error(Errors.InvalidUnicodeEscapeSequence);
+            }
+    
+            // '\uDDDD'    
+            code = toHex(ch);
+    
+            if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
+    
+            for (let i = 0; i < 3; i++) {
+                ch = this.readNext(Errors.InvalidHexEscapeSequence);
+                const digit = toHex(ch);
+                if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
+                code = code << 4 | digit;
+            }
+    
             return code;
         }
     
@@ -980,7 +1051,7 @@ export class Parser {
     
             if (this.flags & Flags.OptionsNext && this.consume(Chars.LowerN)) this.flags |= Flags.BigInt;
     
-            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startIndex, this.index);
+            if (this.flags & Flags.OptionsRaw) this.storeRaw(this.startIndex);
     
             this.tokenValue = isDecimal ? parseInt(this.source.slice(this.startIndex, this.index), 10) : code;
             return Token.NumericLiteral;
@@ -1009,7 +1080,7 @@ export class Parser {
     
             if (this.flags & Flags.OptionsNext && this.consume(Chars.LowerN)) this.flags |= Flags.BigInt;
     
-            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startIndex, this.index);
+            if (this.flags & Flags.OptionsRaw) this.storeRaw(this.startIndex);
     
             return Token.NumericLiteral;
         }
@@ -1037,7 +1108,7 @@ export class Parser {
     
             if (this.flags & Flags.OptionsNext && this.consume(Chars.LowerN)) this.flags |= Flags.BigInt;
     
-            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startIndex, this.index);
+            if (this.flags & Flags.OptionsRaw) this.storeRaw(this.startIndex);
             return Token.NumericLiteral;
         }
     
@@ -1066,7 +1137,7 @@ export class Parser {
     
             if (this.flags & Flags.OptionsNext && this.consume(Chars.LowerN)) this.flags |= Flags.BigInt;
     
-            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startIndex, this.index);
+            if (this.flags & Flags.OptionsRaw) this.storeRaw(this.startIndex);
     
             return Token.NumericLiteral;
         }
@@ -1267,20 +1338,9 @@ export class Parser {
     
             this.tokenValue = tryCreate(pattern, flags);
     
-            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(this.startIndex, this.index);
+            if (this.flags & Flags.OptionsRaw) this.storeRaw(this.startIndex);
     
             return Token.RegularExpression;
-        }
-    
-        private storeRaw(start: number) {
-            this.tokenRaw = this.source.slice(start, this.index);
-        }
-    
-        private scanNext(ch: Chars, err: Errors = Errors.UnterminatedString): number {
-            this.advance();
-            if (ch & 0x10000) this.index++;
-            if (!this.hasNext()) this.error(err);
-            return this.nextUnicodeChar();
         }
     
         private scanString(context: Context, quote: number): Token {
@@ -1349,6 +1409,7 @@ export class Parser {
                     this.error(Errors.BadUntaggedTemplate);
             }
         }
+
         private scanEscapeSequence(context: Context, first: number): number {
     
             switch (first) {
@@ -1402,12 +1463,8 @@ export class Parser {
                             let next = this.source.charCodeAt(index);
     
                             if (next < Chars.Zero || next > Chars.Seven) {
-                                // Verify that it's `\0` if we're in strict mode.
-                                if (code !== 0 && context & Context.Strict) {
-                                    return Escape.StrictOctal;
-                                }
+                                if (code !== 0 && context & Context.Strict) return Escape.StrictOctal;
                             } else if (context & Context.Strict) {
-                                // This happens in cases like `\00` in strict mode.
                                 return Escape.StrictOctal;
                             } else {
                                 this.lastChar = next;
@@ -1482,19 +1539,16 @@ export class Parser {
                         let ch = this.lastChar = this.scanNext(first);
                         if (ch === Chars.LeftBrace) {
                             // \u{N}
-                            // The first digit is required, so handle it *out* of the loop.
                             ch = this.lastChar = this.scanNext(ch);
                             let code = toHex(ch);
                             if (code < 0) return Escape.InvalidHex;
     
                             ch = this.lastChar = this.scanNext(ch);
+    
                             while (ch !== Chars.RightBrace) {
                                 const digit = toHex(ch);
                                 if (digit < 0) return Escape.InvalidHex;
                                 code = code << 4 | digit;
-    
-                                // Check this early to avoid `code` wrapping to a negative on overflow (which is
-                                // reserved for abnormal conditions).
                                 if (code > Chars.LastUnicodeChar) return Escape.OutOfRange;
                                 ch = this.lastChar = this.scanNext(ch);
                             }
@@ -1518,96 +1572,6 @@ export class Parser {
     
                 default:
                     return this.nextUnicodeChar();
-            }
-        }
-    
-        private nextUnicodeChar() {
-            let index = this.index;
-            const hi = this.source.charCodeAt(index++);
-    
-            if (hi < 0xd800 || hi > 0xdbff) return hi;
-            if (index === this.source.length) return hi;
-            const lo = this.source.charCodeAt(index);
-    
-            if (lo < 0xdc00 || lo > 0xdfff) return hi;
-            return (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
-        }
-    
-    
-        private peekExtendedUnicodeEscape(): any {
-    
-            let ch = this.readNext(Errors.Unexpected);
-    
-            // '\u{DDDDDDDD}'
-            if (ch === Chars.LeftBrace) { // {
-    
-                let code = 0;
-    
-                ch = this.readNext(Errors.InvalidHexEscapeSequence);
-    
-                // At least, one hex digit is required.
-                if (ch === Chars.RightBrace) this.error(Errors.InvalidHexEscapeSequence);
-    
-                while (ch !== Chars.RightBrace) {
-                    const digit = toHex(ch);
-                    if (digit < 0) this.error(Errors.InvalidHexEscapeSequence);
-                    code = (code << 4) | digit;
-    
-                    if (code > Chars.LastUnicodeChar) this.error(Errors.UnicodeOutOfRange);
-    
-                    // At least one digit is expected
-                    ch = this.readNext(Errors.InvalidHexEscapeSequence);
-                }
-    
-    
-                return code;
-    
-                // '\uDDDD'
-            } else if (this.index + 3 < this.source.length) {
-    
-                let code = toHex(ch);
-                if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
-    
-                for (let i = 0; i < 3; i++) {
-                    ch = this.readNext(Errors.InvalidHexEscapeSequence);
-                    const digit = toHex(ch);
-                    if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
-                    code = code << 4 | digit;
-                }
-    
-                // Invalid:  "'foo\u000u bar'", "'foo\u000U bar'"
-                switch (ch) {
-                    case Chars.LowerU:
-                    case Chars.UpperU:
-                        this.error(Errors.InvalidHexEscapeSequence);
-                    default: // ignore
-                }
-    
-                return code;
-            }
-    
-            this.error(Errors.InvalidUnicodeEscapeSequence);
-        }
-    
-        private scanJSXIdentifier(context: Context) {
-            switch (this.token) {
-                case Token.Identifier:
-                    const firstCharPosition = this.index;
-                    scan:
-                        while (this.hasNext()) {
-                            const ch = this.nextChar();
-                            switch (ch) {
-                                case Chars.Hyphen:
-                                    this.advance();
-                                    break;
-                                default:
-                                    break scan;
-                            }
-                        }
-    
-                    this.tokenValue += this.source.slice(firstCharPosition, this.index - firstCharPosition);
-                default:
-                    return this.token;
             }
         }
     
@@ -1754,7 +1718,29 @@ export class Parser {
     
             return ch;
         }
+
+        private scanJSXIdentifier(context: Context): Token {
+            switch (this.token) {
+                case Token.Identifier:
+                    const firstCharPosition = this.index;
+                    scan:
+                        while (this.hasNext()) {
+                            const ch = this.nextChar();
+                            switch (ch) {
+                                case Chars.Hyphen:
+                                    this.advance();
+                                    break;
+                                default:
+                                    break scan;
+                            }
+                        }
     
+                    this.tokenValue += this.source.slice(firstCharPosition, this.index - firstCharPosition);
+                default:
+                    return this.token;
+            }
+        }
+        
         private parseModuleItemList(context: Context): ESTree.Statement[] {
             // ecma262/#prod-Module
             // Module :
@@ -4628,12 +4614,12 @@ export class Parser {
                             this.flags |= Flags.HaveSeenAwait;
                         }
                     }
-                    
+    
                     // Note: It's a SyntaxError if the IdentifierName eval or the IdentifierName 
                     // arguments occurs as a BindingIdentifier within strict mode code, but
                     // 'arguments' and 'eval' are not reserved words and property shorthand 
                     // syntax is not BindingIdentifier
-                    if (context & (Context.ForStatement | Context.InParenthesis) && 
+                    if (context & (Context.ForStatement | Context.InParenthesis) &&
                         this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
                         this.error(Errors.UnexpectedReservedWord);
                     }
@@ -5627,7 +5613,7 @@ export class Parser {
             this.tokenValue = ret;
     
             // raw
-            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(rawStart, this.index);
+            if (this.flags & Flags.OptionsRaw) this.storeRaw(rawStart);
     
             return Token.StringLiteral;
         }
