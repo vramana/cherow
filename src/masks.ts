@@ -21,10 +21,11 @@ export const enum Context {
     HasConstructor         = 1 << 17,  // If node was parsed inside Class and allow super
     Constructor            = 1 << 18,  // Class declaration / expression
     ForStatement           = 1 << 19,  // If node was parsed in a for / for - in / for -of context
-    LocationTracking       = 1 << 20,
-    Let                    = 1 << 21,  // Variable declaration
-    Const                  = 1 << 22,  // Variable declaration
-    TaggedTemplate  = 1 << 23, 
+    TaggedTemplate         = 1 << 20,  // 
+    LocationTracking       = 1 << 21,
+    Let                    = 1 << 22,  // Variable declaration
+    Const                  = 1 << 23,  // Variable declaration
+
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
 }
@@ -61,7 +62,7 @@ export const enum Flags {
     OptionsV8                    = 1 << 24, // Enable / disable V8 experimental features
     OptionsGlobalReturn          = 1 << 25, // Allow return statement in global scope,
     OptionsSourceType            = 1 << 26, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
-
+    
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc,
 
@@ -130,6 +131,12 @@ export const enum Scanner {
     Collectable = SingleLine | MultiLine
 }
 
+export const enum ArrayState {
+    None    = 0,
+    EvalArg = 1 << 0,
+    Spread     = 1 << 1,
+}
+
 // Regular expression scanning
 export const enum RegExpState {
     Empty = 0,
@@ -152,3 +159,12 @@ export const enum ScopeMasks {
     Shadowable = 0x1,
     NonShadowable = 0x2,
 }
+
+export const enum Escape {
+    Empty = -1,
+        StrictOctal = -2,
+        EightOrNine = -3,
+        InvalidHex = -4,
+        OutOfRange = -5,
+}
+

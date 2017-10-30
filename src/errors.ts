@@ -77,6 +77,7 @@ export const enum Errors {
     InvalidNewTargetContext,
     UnexpectedReservedWord,
     InvalidShorthandProperty,
+    InvalidShorthandAssignment,
     UnterminatedTemplate,
     UnexpectedStrictReserved,
     YieldReservedWord,
@@ -104,7 +105,8 @@ export const enum Errors {
     InvalidAwaitInArrowParam,
     InvalidComplexBindingPattern,
     UnsupportedFeature,
-    UndeclaredBinding
+    UndeclaredBinding,
+    BadUntaggedTemplate
 }
 
 export const ErrorMessages: {
@@ -186,6 +188,7 @@ export const ErrorMessages: {
     [Errors.InvalidNewTargetContext]: 'new.target expression is not allowed here',
     [Errors.UnexpectedReservedWord]: 'Unexpected reserved word',
     [Errors.InvalidShorthandProperty]: 'Invalid shorthand property',
+    [Errors.InvalidShorthandAssignment]: 'Shorthand property assignments are valid only in destructuring patterns',
     [Errors.UnterminatedTemplate]: 'Unterminated template literal',
     [Errors.UnexpectedStrictReserved]: 'Unexpected strict mode reserved word',
     [Errors.YieldReservedWord]: 'yield is a reserved word inside generator functions',
@@ -212,7 +215,9 @@ export const ErrorMessages: {
     [Errors.InvalidArrowYieldParam]: 'Arrow parameters must not contain yield expressions',
     [Errors.InvalidAwaitInArrowParam]: '\'await\' is not allowed inside an async arrow\'s parameter list',
     [Errors.InvalidComplexBindingPattern]: 'Complex binding patterns require an initialization value',
-    [Errors.UnsupportedFeature]: '%0 isn\'t supported by default. Enable the \'%1\' option to use them'
+    [Errors.UnsupportedFeature]: '%0 isn\'t supported by default. Enable the \'%1\' option to use them',
+    [Errors.BadUntaggedTemplate]: 'Bad escape sequence in untagged template literal'
+    
 };
 
 function constructError(msg: string, column: number): Error {

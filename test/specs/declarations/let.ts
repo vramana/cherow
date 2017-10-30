@@ -202,6 +202,94 @@ describe('Declarations - Let', () => {
       });
   });
 
+  it('should parse let instanceof', () => {
+    expect(parseScript('let instanceof Foo', {
+        raw: true,
+        ranges: true,
+        locations: true
+    })).to.eql({
+      "type": "Program",
+      "start": 0,
+      "end": 18,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 0
+        },
+        "end": {
+          "line": 1,
+          "column": 18
+        }
+      },
+      "body": [
+        {
+          "type": "ExpressionStatement",
+          "start": 0,
+          "end": 18,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 1,
+              "column": 18
+            }
+          },
+          "expression": {
+            "type": "BinaryExpression",
+            "start": 0,
+            "end": 18,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 18
+              }
+            },
+            "left": {
+              "type": "Identifier",
+              "start": 0,
+              "end": 3,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 3
+                }
+              },
+              "name": "let"
+            },
+            "operator": "instanceof",
+            "right": {
+              "type": "Identifier",
+              "start": 15,
+              "end": 18,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 15
+                },
+                "end": {
+                  "line": 1,
+                  "column": 18
+                }
+              },
+              "name": "Foo"
+            }
+          }
+        }
+      ],
+      "sourceType": "script"
+    });
+  });
+
     it('should parse let as async keyword in module code', () => {
       expect(parseModule('let async = ""', {
           raw: true,

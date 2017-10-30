@@ -216,6 +216,49 @@ describe('Declarations - Functions', () => {
         }).to.throw('');
       });
 
+      it('should parse in strict mode', () => {
+        expect(parseScript(`function hello() { 'use strict'; "\\0"; }`, {
+            raw: true
+        })).to.eql({
+             "body": [
+                {
+                  "async": false,
+                  "body": {
+                    "body": [
+                      {
+                        "expression": {
+                          "raw": "'use strict'",
+                          "type": "Literal",
+                          "value": "use strict",
+                        },
+                        "type": "ExpressionStatement"
+                      },
+                      {
+                        "expression": {
+                          "raw": "\"\\0\"",
+                          "type": "Literal",
+                          "value": "\u0000",
+                        },
+                        "type": "ExpressionStatement"
+                      }
+                   ],
+                    "type": "BlockStatement"
+                  },
+                  "expression": false,
+                  "generator": false,
+                  "id": {
+                    "name": "hello",
+                    "type": "Identifier",
+                  },
+                  "params": [],
+                  "type": "FunctionDeclaration"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program",
+            });
+    });
+
       it('should parse binding in param list for func expr in func decl body', () => {
         expect(parseScript(`function a() { var b = (1); }`, {
             ranges: true,

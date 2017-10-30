@@ -11,10 +11,160 @@ describe('Espressions - assignment', () => {
         }).to.throw();
     });
 
+    it('should fail on "x %* y"', () => {
+        expect(() => {
+            parseScript(`x %* y`)
+        }).to.throw();
+    });
+
+    it('should fail on "x %*= y"', () => {
+        expect(() => {
+            parseScript(`x %*= y`)
+        }).to.throw();
+    });
+
     it('expect "(a,b)=(c,d);" to throw', () => {
         expect(function() {
             parseScript(`(a,b)=(c,d);`);
         }).to.throw();
+    });
+    
+    it('should parse "x = y-->10;\n --> nothing"', () => {
+        expect(parseScript('x = y-->10;\n --> nothing', {
+            locations: true,
+            raw: true,
+            ranges: true
+        })).to.eql({
+              "body": [
+                {
+                  "end": 11,
+                 "expression": {
+                    "end": 10,
+                    "left": {
+                      "end": 1,
+                      "loc": {
+                        "end": {
+                          "column": 1,
+                          "line": 1,
+                        },
+                        "start": {
+                          "column": 0,
+                          "line": 1,
+                        }
+                      },
+                     "name": "x",
+                      "start": 0,
+                     "type": "Identifier",
+                    },
+                    "loc": {
+                      "end": {
+                        "column": 10,
+                        "line": 1,
+                      },
+                      "start": {
+                        "column": 0,
+                        "line": 1,
+                      }
+                    },
+                    "operator": "=",
+                    "right": {
+                      "end": 10,
+                      "left": {
+                        "argument": {
+                          "end": 5,
+                          "loc": {
+                            "end": {
+                              "column": 5,
+                              "line": 1,
+                            },
+                            "start": {
+                              "column": 4,
+                              "line": 1,
+                            },
+                          },
+                          "name": "y",
+                          "start": 4,
+                          "type": "Identifier",
+                        },
+                        "end": 7,
+                        "loc": {
+                          "end": {
+                            "column": 7,
+                            "line": 1
+                          },
+                          "start": {
+                            "column": 4,
+                            "line": 1,
+                          }
+                        },
+                        "operator": "--",
+                        "prefix": false,
+                        "start": 4,
+                       "type": "UpdateExpression",
+                      },
+                     "loc": {
+                        "end": {
+                          "column": 10,
+                         "line": 1,
+                        },
+                        "start": {
+                          "column": 4,
+                          "line": 1,
+                        }
+                      },
+                      "operator": ">",
+                      "right": {
+                        "end": 10,
+                        "loc": {
+                          "end": {
+                            "column": 10,
+                            "line": 1,
+                          },
+                          "start": {
+                           "column": 8,
+                            "line": 1,
+                          }
+                        },
+                        "raw": "10",
+                        "start": 8,
+                        "type": "Literal",
+                        "value": 10,
+                      },
+                     "start": 4,
+                      "type": "BinaryExpression",
+                    },
+                    "start": 0,
+                    "type": "AssignmentExpression",
+                  },
+                  "loc": {
+                    "end": {
+                     "column": 11,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    },
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement",
+                },
+              ],
+              "end": 24,
+              "loc": {
+                "end": {
+                  "column": 12,
+                  "line": 2,
+                },
+                "start": {
+                  "column": 0,
+                  "line": 1,
+                },
+             },
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
     });
 
     it('should parse "x = 0"', () => {

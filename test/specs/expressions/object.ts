@@ -22,7 +22,6 @@ describe('Espressions - Object', () => {
             parseScript(`({ a = 1 });`);
         }).to.not.throw('');
     });
-
     
     it('should fail on use of enum', () => {
         expect(() => {

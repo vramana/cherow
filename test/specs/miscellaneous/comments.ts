@@ -224,6 +224,63 @@ describe('Miscellaneous - comments', () => {
     });
 
     it('should parse a single "var p1;/* block comment 1 */ /* block comment 2 */"', () => {
+        expect(parseScript('42 /*the*/ /*answer*/', {
+            ranges: true,
+            locations: true,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 21,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 21
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 2,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 2
+                  }
+                },
+                "expression": {
+                  "type": "Literal",
+                  "start": 0,
+                  "end": 2,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 2
+                    }
+                  },
+                  "value": 42,
+                  "raw": "42"
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
+    it('should parse a single "var p1;/* block comment 1 */ /* block comment 2 */"', () => {
         expect(parseScript('var p1;/* block comment 1 */ /* block comment 2 */', {
             ranges: true,
             locations: true,

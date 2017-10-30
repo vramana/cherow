@@ -12,7 +12,37 @@ describe('Statement - Block', () => {
     it('should fail if BlockStatement exist inside of expression', () => {
         expect(() => { parseScript(`y={x;};`)}).to.throw();
     });
-
+    
+    it('should parse "{ throw error/* Multiline\nComment */error; }"', () => {
+      expect(parseScript('{ throw error/* Multiline\nComment */error; }', {
+          raw: true
+      })).to.eql({
+            "body": [
+              {
+                "body": [
+                 {
+                    "argument": {
+                      "name": "error",
+                      "type": "Identifier",
+                    },
+                    "type": "ThrowStatement"
+                  },
+                  {
+                    "expression": {
+                      "name": "error",
+                      "type": "Identifier",
+                    },
+                    "type": "ExpressionStatement"
+                  }
+                ],
+                "type": "BlockStatement"
+              }
+           ],
+            "sourceType": "script",
+            "type": "Program"
+          });
+  });
+  
     it('should parse "{ foo }"', () => {
         expect(parseScript(`{ foo }`, {
             raw: true,

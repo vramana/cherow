@@ -23,6 +23,183 @@ describe('Miscellaneous - Directive prologue', () => {
         }).to.throw();
     });
 
+    it('should parse simple non-strict directive', () => {
+        expect(parseScript('"Hello\\nworld"', {
+            locations: true,
+            raw: true,
+            ranges: true,
+            directives: true
+        })).to.eql({
+              "body": [
+                {
+                  "directive": "Hello\\nworld",
+                  "end": 14,
+                  "expression": {
+                    "end": 14,
+                    "loc": {
+                      "end": {
+                        "column": 14,
+                        "line": 1,
+                      },
+                      "start": {
+                        "column": 0,
+                        "line": 1,
+                      }
+                    },
+                    "raw": "\"Hello\\nworld\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "Hello\nworld",
+                  },
+                  "loc": {
+                    "end": {
+                      "column": 14,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    },
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement"
+                },
+              ],
+              "end": 14,
+              "loc": {
+                "end": {
+                  "column": 14,
+                  "line": 1,
+                },
+                "start": {
+                 "column": 0,
+                  "line": 1,
+                },
+              },
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program",
+            });
+    });
+
+    it('should parse hexadecimal directive', () => {
+        expect(parseScript('"\\x61"', {
+            locations: true,
+            raw: true,
+            ranges: true,
+            directives: true
+        })).to.eql({
+              "body": [
+                {
+                  "directive": "\\x61",
+                  "end": 6,
+                  "expression": {
+                    "end": 6,
+                    "loc": {
+                      "end": {
+                       "column": 6,
+                        "line": 1,
+                      },
+                      "start": {
+                        "column": 0,
+                        "line": 1,
+                      }
+                    },
+                    "raw": "\"\\x61\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "a",
+                  },
+                  "loc": {
+                    "end": {
+                      "column": 6,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "end": 6,
+              "loc": {
+                "end": {
+                  "column": 6,
+                  "line": 1,
+                },
+                "start": {
+                  "column": 0,
+                  "line": 1,
+                }
+              },
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
+    it('should octal directives', () => {
+        expect(parseScript('"Hello\\412World"', {
+            locations: true,
+            raw: true,
+            ranges: true,
+            directives: true
+        })).to.eql({
+              "body": [
+                {
+                  "directive": "Hello\\412World",
+                  "end": 16,
+                  "expression": {
+                    "end": 16,
+                    "loc": {
+                      "end": {
+                        "column": 16,
+                        "line": 1,
+                      },
+                      "start": {
+                        "column": 0,
+                        "line": 1,
+                      }
+                    },
+                    "raw": "\"Hello\\412World\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "Hello!2World",
+                  },
+                  "loc": {
+                    "end": {
+                      "column": 16,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement",
+                }
+              ],
+              "end": 16,
+              "loc": {
+                "end": {
+                  "column": 16,
+                  "line": 1,
+                },
+                "start": {
+                 "column": 0,
+                  "line": 1,
+                }
+              },
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
     it('should have no directive node if "directives" are enabled and no directive prologue', () => {
         expect(parseScript('1', {
             locations: true,
@@ -80,6 +257,52 @@ describe('Miscellaneous - Directive prologue', () => {
             "sourceType": "script"
           });
     });
+
+    it('should parse directive in func expr body', () => {
+        expect(parseScript('(function() {\'use strict\';return 0;});', {
+            raw: true,
+            directives: true
+        })).to.eql({
+              "body": [
+                {
+                  "expression": {
+                    "async": false,
+                    "body": {
+                      "body": [
+                        {
+                          "directive": "use strict",
+                          "expression": {
+                            "raw": "'use strict'",
+                            "type": "Literal",
+                            "value": "use strict",
+                          },
+                         "type": "ExpressionStatement",
+                        },
+                       {
+                          "argument": {
+                           "raw": "0",
+                            "type": "Literal",
+                           "value": 0,
+                          },
+                          "type": "ReturnStatement"
+                        }
+                      ],
+                      "type": "BlockStatement",
+                    },
+                    "expression": false,
+                    "generator": false,
+                    "id": null,
+                    "params": [],
+                   "type": "FunctionExpression"
+                  },
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            });
+    });
+
     it('should parse if Use Strict Directive Prologue contain a EscapeSequence', () => {
         expect(parseScript('"use\\u0020strict"; eval = 42;', {
             locations: true,
@@ -1267,6 +1490,47 @@ describe('Miscellaneous - Directive prologue', () => {
                 }
             }
         });
+    });
+
+    it('should test that innocuous string that evaluates to `use strict` is not promoted to Use Strict directive', () => {
+        expect(parseScript('"use\\x20strict"; with (x) foo = bar;', {
+            raw: true,
+        })).to.eql({
+              "body": [
+                {
+                  "expression": {
+                    "raw": "\"use\\x20strict\"",
+                    "type": "Literal",
+                    "value": "use strict",
+                  },
+                  "type": "ExpressionStatement"
+                },
+                {
+                  "body": {
+                    "expression": {
+                      "left": {
+                        "name": "foo",
+                        "type": "Identifier",
+                      },
+                      "operator": "=",
+                      "right": {
+                       "name": "bar",
+                        "type": "Identifier"
+                      },
+                      "type": "AssignmentExpression"
+                    },
+                   "type": "ExpressionStatement"
+                  },
+                 "object": {
+                    "name": "x",
+                    "type": "Identifier"
+                  },
+                  "type": "WithStatement"
+                }
+             ],
+              "sourceType": "script",
+              "type": "Program"
+            });
     });
 
     it('should parse function in a default parameter"', () => {
