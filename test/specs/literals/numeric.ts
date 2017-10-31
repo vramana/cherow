@@ -106,8 +106,7 @@ describe('Literal - Numeric', () => {
                 parseScript('"use strict"; 08;')
             }).to.not.throw();
         });
-    
-    
+        
         describe('ExponentPart :: ExponentIndicator ( /+/-) 0 DecimalDigits is allowed', () => {
     
             it('8E+01', () => {

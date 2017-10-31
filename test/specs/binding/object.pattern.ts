@@ -31,7 +31,206 @@ describe('Binding - Object pattern', () => {
         }).to.throw();
     });
 
-    it('should parse object pattern with no property list', () => {
+   it('should allow duplicate __proto__ fields', () => {
+    expect(parseScript(`function fn({
+      __proto__: a,
+     __proto__: b
+   }) {}`, {
+        ranges: true,
+        raw: true,
+        locations: true
+    })).to.eql({
+      "type": "Program",
+      "body": [
+          {
+              "type": "FunctionDeclaration",
+              "params": [
+                  {
+                      "type": "ObjectPattern",
+                      "properties": [
+                          {
+                              "type": "Property",
+                              "kind": "init",
+                              "key": {
+                                  "type": "Identifier",
+                                  "name": "__proto__",
+                                  "start": 20,
+                                  "end": 29,
+                                  "loc": {
+                                      "start": {
+                                          "line": 2,
+                                          "column": 6
+                                      },
+                                      "end": {
+                                          "line": 2,
+                                          "column": 15
+                                      }
+                                  }
+                              },
+                              "computed": false,
+                              "value": {
+                                  "type": "Identifier",
+                                  "name": "a",
+                                  "start": 31,
+                                  "end": 32,
+                                  "loc": {
+                                      "start": {
+                                          "line": 2,
+                                          "column": 17
+                                      },
+                                      "end": {
+                                          "line": 2,
+                                          "column": 18
+                                      }
+                                  }
+                              },
+                              "method": false,
+                              "shorthand": false,
+                              "start": 20,
+                              "end": 32,
+                              "loc": {
+                                  "start": {
+                                      "line": 2,
+                                      "column": 6
+                                  },
+                                  "end": {
+                                      "line": 2,
+                                      "column": 18
+                                  }
+                              }
+                          },
+                          {
+                              "type": "Property",
+                              "kind": "init",
+                              "key": {
+                                  "type": "Identifier",
+                                  "name": "__proto__",
+                                  "start": 39,
+                                  "end": 48,
+                                  "loc": {
+                                      "start": {
+                                          "line": 3,
+                                          "column": 5
+                                      },
+                                      "end": {
+                                          "line": 3,
+                                          "column": 14
+                                      }
+                                  }
+                              },
+                              "computed": false,
+                              "value": {
+                                  "type": "Identifier",
+                                  "name": "b",
+                                  "start": 50,
+                                  "end": 51,
+                                  "loc": {
+                                      "start": {
+                                          "line": 3,
+                                          "column": 16
+                                      },
+                                      "end": {
+                                          "line": 3,
+                                          "column": 17
+                                      }
+                                  }
+                              },
+                              "method": false,
+                              "shorthand": false,
+                              "start": 39,
+                              "end": 51,
+                              "loc": {
+                                  "start": {
+                                      "line": 3,
+                                      "column": 5
+                                  },
+                                  "end": {
+                                      "line": 3,
+                                      "column": 17
+                                  }
+                              }
+                          }
+                      ],
+                      "start": 12,
+                      "end": 56,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 12
+                          },
+                          "end": {
+                              "line": 4,
+                              "column": 4
+                          }
+                      }
+                  }
+              ],
+              "body": {
+                  "type": "BlockStatement",
+                  "body": [],
+                  "start": 58,
+                  "end": 60,
+                  "loc": {
+                      "start": {
+                          "line": 4,
+                          "column": 6
+                      },
+                      "end": {
+                          "line": 4,
+                          "column": 8
+                      }
+                  }
+              },
+              "async": false,
+              "generator": false,
+              "expression": false,
+              "id": {
+                  "type": "Identifier",
+                  "name": "fn",
+                  "start": 9,
+                  "end": 11,
+                  "loc": {
+                      "start": {
+                          "line": 1,
+                          "column": 9
+                      },
+                      "end": {
+                          "line": 1,
+                          "column": 11
+                      }
+                  }
+              },
+              "start": 0,
+              "end": 60,
+              "loc": {
+                  "start": {
+                      "line": 1,
+                      "column": 0
+                  },
+                  "end": {
+                      "line": 4,
+                      "column": 8
+                  }
+              }
+          }
+      ],
+      "sourceType": "script",
+      "start": 0,
+      "end": 60,
+      "loc": {
+          "start": {
+              "line": 1,
+              "column": 0
+          },
+          "end": {
+              "line": 4,
+              "column": 8
+          }
+      }
+  });
+  });
+ 
+   it('should parse object pattern with no property list', () => {
         expect(parseScript(`function fn({}) {}`, {
             ranges: true,
             raw: true,

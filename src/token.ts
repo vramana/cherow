@@ -158,7 +158,7 @@ export const enum Token {
     EnumKeyword        = 115 | Reserved,
 
     /** JSX */
-    JSXText            = 116 | Reserved
+    JSXText            = 116
 }
 
 const KeywordDescTable = [

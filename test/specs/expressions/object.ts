@@ -203,7 +203,7 @@ describe('Espressions - Object', () => {
         }).to.throw();
     });
 
-    it('expect "({ set: s(a, b) { } })" to fail', () => {
+    it('should fail on  "({ set: s(a, b) { } })" to fail', () => {
         expect(() => {
             parseScript(`({ set: s(a, b) { } })`);
         }).to.throw();
@@ -338,24 +338,24 @@ describe('Espressions - Object', () => {
         }).to.throw();
     });
 
-    it('expect "({ set: s() { } })" to fail', () => {
+    it('should fail on  "({ set: s() { } })"', () => {
         expect(() => {
             parseScript(`({ set: s() { } })`);
         }).to.throw();
     });
 
-    it('expect "({ set: s(a, b) { } })" to fail', () => {
+    it('should fail on  "({ set: s(a, b) { } })"', () => {
         expect(() => {
             parseScript(`({ set: s(a, b) { } })`);
         }).to.throw();
     });
-    it('expect "({ get: g(d) { } })" to fail', () => {
+    it('should fail on  "({ get: g(d) { } })"', () => {
         expect(() => {
             parseScript(`({ get: g(d) { } })`);
         }).to.throw();
     });
 
-    it('expect "({ set i(x) { }, i: 42 }" to fail', () => {
+    it('should fail on  "({ set i(x) { }, i: 42 }"', () => {
         expect(() => {
             parseScript(`({ set i(x) { }, i: 42 }`);
         }).to.throw();
@@ -378,68 +378,77 @@ describe('Espressions - Object', () => {
         }).to.throw();
     });
 
-    it('expect "{ set 1 }" to fail', () => {
+    it('should fail on  "{ set 1 }"', () => {
         expect(() => {
             parseScript(`{ set 1 }`);
         }).to.throw();
     });
 
-    it('expect "{" to fail', () => {
+    it('should fail if __proto__ appers more than once', () => {
+      expect(() => {
+          parseScript(`var a = {
+            __proto__: a,
+           __proto__: b
+         }`);
+      }).to.throw('Property name __proto__ appears more than once in object literal');
+  });
+    
+    it('should fail on  "{" to fail', () => {
         expect(() => {
             parseScript(`{`);
         }).to.throw();
     });
 
-    it('expect "({ get test() { } }) => 42" to fail', () => {
+    it('should fail on  "({ get test() { } }) => 42"', () => {
         expect(() => {
             parseScript('({ get test() { } }) => 42');
         }).to.throw();
     });
 
-    it('expect "a.12" to fail', () => {
+    it('should fail on  "a.12" to fail', () => {
         expect(() => {
             parseScript(`a.12`);
         }).to.throw();
     });
 
-    it('expect "a[e 12" to fail', () => {
+    it('should fail on  "a[e 12"', () => {
         expect(() => {
             parseScript(`a[e 12`);
         }).to.throw();
     });
 
-    it('expect "({get a 12})" to fail', () => {
+    it('should fail on  "({get a 12})"', () => {
         expect(() => {
             parseScript(`({get a 12})`);
         }).to.throw();
     });
 
-    it('expect "({ "chance" }) = obj" to fail', () => {
+    it('should fail on  "({ "chance" }) = obj"', () => {
         expect(() => {
             parseScript('({ "chance" }) = obj');
         }).to.throw();
     });
 
-    it('expect "({[a 12]: e})" to fail', () => {
+    it('should fail on  "({[a 12]: e})"', () => {
         expect(() => {
             parseScript(`({[a 12]: e})`);
         }).to.throw();
     });
 
-    it('expect "({get +:3})" to fail', () => {
+    it('should fail on  "({get +:3})"', () => {
         expect(() => {
             parseScript(`({get +:3})`);
     }).to.throw();
 
     });
 
-    it('expect "({ obj:20 }) = 42" to fail', () => {
+    it('should fail on  "({ obj:20 }) = 42"', () => {
         expect(() => {
             parseScript('({ obj:20 }) = 42');
         }).to.throw();
     });
 
-    it('expect "( { get x() {} } ) = 0" to fail', () => {
+    it('should fail on  "( { get x() {} } ) = 0"', () => {
         expect(() => {
             parseScript('( { get x() {} } ) = 0');
         }).to.throw();
