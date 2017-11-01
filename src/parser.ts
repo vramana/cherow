@@ -3350,8 +3350,10 @@ export class Parser {
                     return;
     
                 case 'ObjectExpression':
+                    if (this.flags & Flags.ParenthesizedPattern) this.error(Errors.InvalidParenthesizedPattern);
                     params.type = 'ObjectPattern';
-                    // Fall through
+                
+                    // falls through
                 case 'ObjectPattern':
                     // ObjectPattern and ObjectExpression are isomorphic
                     for (let i = 0; i < params.properties.length; i++) {
@@ -3362,8 +3364,9 @@ export class Parser {
                     return;
     
                 case 'ArrayExpression':
+                    if (this.flags & Flags.ParenthesizedPattern) this.error(Errors.InvalidParenthesizedPattern);
                     params.type = 'ArrayPattern';
-                    // Fall through
+                    // falls through
     
                 case 'ArrayPattern':
                     for (let i = 0; i < params.elements.length; ++i) {
@@ -3965,14 +3968,14 @@ export class Parser {
                     // we got an LineTerminator. The 'ArrowFunctionExpression' will be parsed out in 'parseAssignmentExpression'
                     if (this.flags & Flags.LineTerminator) return id;
                     const expr = this.parseIdentifier(context);
-                    if (this.token === Token.Arrow) return this.parseArrowFunction(context & ~Context.Yield | Context.Await, pos, [expr]);
+                    if (this.token === Token.Arrow) return this.parseArrowFunction(context & ~Context.Yield | Context.AllowIn | Context.Await, pos, [expr]);
                     // Invalid: 'async abc'
                     this.throwUnexpectedToken();
     
                     // CoverCallExpressionAndAsyncArrowHead[Yield, Await]:
                 case Token.LeftParen:
                     // This could be either a CallExpression or the head of an async arrow function
-                    return this.parseAsyncArguments(context, pos, id, flags, isEscaped);
+                    return this.parseAsyncArguments(context | Context.AllowIn, pos, id, flags, isEscaped);
                 default:
                     // Async as Identifier
                     return id;
@@ -4755,20 +4758,21 @@ export class Parser {
     
         // ParenthesizedExpression[Yield, Await]:
         // CoverParenthesizedExpressionAndArrowParameterList[Yield, Await]:
-        private parseParenthesizedExpression(context: Context) {
+        private parseParenthesizedExpression(context: Context): ESTree.Expression {
     
             const pos = this.getLocations();
             this.expect(context, Token.LeftParen);
     
-            if (context & Context.ForStatement && hasMask(this.token, Token.BindingPattern)) {
-                this.error(Errors.InvalidLHSInForLoop);
+            if (context & Context.ForStatement) {
+                if (hasMask(this.token, Token.BindingPattern)) this.error(Errors.InvalidLHSInForLoop);
+                context & ~Context.ForStatement
             }
-    
+            
             let state = ParenthesizedState.None;
     
             if (this.parseOptional(context, Token.RightParen)) {
                 if (this.token === Token.Arrow) {
-                    return this.parseArrowFunction(context & ~(Context.Await | Context.Yield | Context.ForStatement), pos, []);
+                    return this.parseArrowFunction(context & ~(Context.Await | Context.Yield), pos, []);
                 }
                 this.error(Errors.MissingArrowAfterParentheses);
             }
@@ -4778,7 +4782,7 @@ export class Parser {
             if (this.token === Token.Ellipsis) {
                 expr = this.parseRestElement(context);
                 this.expect(context, Token.RightParen);
-                return this.parseArrowFunction(context & ~(Context.Await | Context.Yield | Context.ForStatement), pos, [expr]);
+                return this.parseArrowFunction(context & ~(Context.Await | Context.Yield), pos, [expr]);
             }
     
             const sequencePos = this.getLocations();
@@ -4792,7 +4796,9 @@ export class Parser {
             if (!(state & ParenthesizedState.Parenthesized) && this.token === Token.LeftParen) {
                 state |= ParenthesizedState.Parenthesized;
             }
-    
+            if (!(state & ParenthesizedState.Pattern) && hasMask(this.token, Token.BindingPattern))  {
+                state |= ParenthesizedState.Pattern;
+            }
             expr = this.parseAssignmentExpression(context);
     
             if (this.token === Token.Comma) {
@@ -4801,11 +4807,11 @@ export class Parser {
     
                 while (this.parseOptional(context, Token.Comma)) {
                     if (this.parseOptional(context, Token.RightParen)) {
-                        return this.parseArrowFunction(context & ~(Context.Await | Context.ForStatement), pos, expressions);
+                        return this.parseArrowFunction(context & ~(Context.Await | Context.Yield), pos, expressions);
                     } else if (this.token === Token.Ellipsis) {
                         expressions.push(this.parseRestElement(context));
                         this.expect(context, Token.RightParen);
-                        return this.parseArrowFunction(context & ~(Context.Await | Context.ForStatement), pos, expressions);
+                        return this.parseArrowFunction(context & ~(Context.Await | Context.Yield), pos, expressions);
                     } else {
                         if (context & Context.Strict) {
                             const errPos = this.getLocations();
@@ -4819,7 +4825,7 @@ export class Parser {
                             state |= ParenthesizedState.Parenthesized;
                         }
     
-                        expressions.push(this.parseAssignmentExpression(context & ~Context.ForStatement));
+                        expressions.push(this.parseAssignmentExpression(context));
                     }
                 }
     
@@ -4842,6 +4848,8 @@ export class Parser {
     
             this.errorLocation = undefined;
     
+            if (state & ParenthesizedState.Pattern) this.flags |= Flags.ParenthesizedPattern;
+
             return expr;
         }
     

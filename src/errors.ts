@@ -105,7 +105,6 @@ export const enum Errors {
     InvalidAwaitInArrowParam,
     InvalidComplexBindingPattern,
     UnsupportedFeature,
-    UndeclaredBinding,
     BadUntaggedTemplate
 }
 

@@ -80,7 +80,7 @@ describe('TC39 - Parenthesized', () => {
     it('should fail on invalid lefthand side value', () => {
         expect(() => {
             parseScript('({x, y}) = {}')
-        }).to.not.throw('');
+        }).to.throw('');
     });
 
     it('should fail on "var {(a)} = 0"', () => {
