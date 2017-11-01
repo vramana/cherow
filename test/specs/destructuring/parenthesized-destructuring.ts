@@ -166,7 +166,7 @@ describe('TC39 - Parenthesized', () => {
         parseScript('let c = ({b}) = b;')
     }).to.throw('');
   });
-
+  
   it('should parse "({b} = b);"', () => {
     expect(parseScript(`({b} = b);`, {
         raw: true,

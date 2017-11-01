@@ -3905,7 +3905,7 @@ export class Parser {
                 this.errorLocation = pos;
                 this.flags |= Flags.SimpleParameterList;
             }
-    
+
             const left = this.parseBindingPatternOrIdentifier(context, pos);
     
             // Initializer[In, Yield] :
@@ -5290,6 +5290,7 @@ export class Parser {
             this.expect(context, Token.LeftBracket);
     
             const elements: (ESTree.Pattern | null)[] = [];
+            
             while (this.token !== Token.RightBracket) {
                 if (this.parseOptional(context, Token.Comma)) {
                     elements.push(null);

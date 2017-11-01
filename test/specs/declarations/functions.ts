@@ -222,8 +222,6 @@ describe('Declarations - Functions', () => {
         }).to.throw('');
       });
 
-
-
       it('should parse ES2016 strict directive correctly', () => {
         expect(parseScript(`function foo(a) { 'use strict'; }`, {
             raw: true

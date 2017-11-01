@@ -4666,61 +4666,388 @@ describe('Statements - For of', () => {
         "sourceType": "script"
     });
         });
-    
 
         it('should handle for of object pattern', () => {
-            expect(parseScript(`for ({x, y} of z);`)).to.eql({
-        "type": "Program",
-        "body": [
-            {
-                "type": "ForOfStatement",
-                "await": false,
-                "left": {
-                    "type": "ObjectPattern",
-                    "properties": [
+            expect(parseScript(`for ({x, y} of z);`, {
+                ranges: true,
+                locations: true,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 18,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 18
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ForOfStatement",
+                    "start": 0,
+                    "end": 18,
+                    "await": false,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 18
+                      }
+                    },
+                    "left": {
+                      "type": "ObjectPattern",
+                      "start": 5,
+                      "end": 11,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 5
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 11
+                        }
+                      },
+                      "properties": [
                         {
-                            "type": "Property",
-                            "key": {
-                                "type": "Identifier",
-                                "name": "x"
+                          "type": "Property",
+                          "start": 6,
+                          "end": 7,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 6
                             },
-                            "computed": false,
-                            "value": {
-                                "type": "Identifier",
-                                "name": "x"
+                            "end": {
+                              "line": 1,
+                              "column": 7
+                            }
+                          },
+                          "method": false,
+                          "shorthand": true,
+                          "computed": false,
+                          "key": {
+                            "type": "Identifier",
+                            "start": 6,
+                            "end": 7,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 6
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 7
+                              }
                             },
-                            "kind": "init",
-                            "method": false,
-                            "shorthand": true
+                            "name": "x"
+                          },
+                          "kind": "init",
+                          "value": {
+                            "type": "Identifier",
+                            "start": 6,
+                            "end": 7,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 6
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 7
+                              }
+                            },
+                            "name": "x"
+                          }
                         },
                         {
-                            "type": "Property",
-                            "key": {
-                                "type": "Identifier",
-                                "name": "y"
+                          "type": "Property",
+                          "start": 9,
+                          "end": 10,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 9
                             },
-                            "computed": false,
-                            "value": {
-                                "type": "Identifier",
-                                "name": "y"
+                            "end": {
+                              "line": 1,
+                              "column": 10
+                            }
+                          },
+                          "method": false,
+                          "shorthand": true,
+                          "computed": false,
+                          "key": {
+                            "type": "Identifier",
+                            "start": 9,
+                            "end": 10,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 9
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 10
+                              }
                             },
-                            "kind": "init",
-                            "method": false,
-                            "shorthand": true
+                            "name": "y"
+                          },
+                          "kind": "init",
+                          "value": {
+                            "type": "Identifier",
+                            "start": 9,
+                            "end": 10,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 9
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 10
+                              }
+                            },
+                            "name": "y"
+                          }
                         }
-                    ]
+                      ]
+                    },
+                    "right": {
+                      "type": "Identifier",
+                      "start": 15,
+                      "end": 16,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 15
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 16
+                        }
+                      },
+                      "name": "z"
+                    },
+                    "body": {
+                      "type": "EmptyStatement",
+                      "start": 17,
+                      "end": 18,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 17
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 18
+                        }
+                      }
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
+
+        it('should handle for of object pattern', () => {
+            expect(parseScript(`for ({x, y} of z);`, {
+                ranges: true,
+                locations: true,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 18,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 18
+                  }
                 },
-                "right": {
-                    "type": "Identifier",
-                    "name": "z"
-                },
-                "body": {
-                    "type": "EmptyStatement"
-                }
-            }
-        ],
-        "sourceType": "script"
-    });
+                "body": [
+                  {
+                    "type": "ForOfStatement",
+                    "start": 0,
+                    "end": 18,
+                    "await": false,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 18
+                      }
+                    },
+                    "left": {
+                      "type": "ObjectPattern",
+                      "start": 5,
+                      "end": 11,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 5
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 11
+                        }
+                      },
+                      "properties": [
+                        {
+                          "type": "Property",
+                          "start": 6,
+                          "end": 7,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 6
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 7
+                            }
+                          },
+                          "method": false,
+                          "shorthand": true,
+                          "computed": false,
+                          "key": {
+                            "type": "Identifier",
+                            "start": 6,
+                            "end": 7,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 6
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 7
+                              }
+                            },
+                            "name": "x"
+                          },
+                          "kind": "init",
+                          "value": {
+                            "type": "Identifier",
+                            "start": 6,
+                            "end": 7,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 6
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 7
+                              }
+                            },
+                            "name": "x"
+                          }
+                        },
+                        {
+                          "type": "Property",
+                          "start": 9,
+                          "end": 10,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 9
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 10
+                            }
+                          },
+                          "method": false,
+                          "shorthand": true,
+                          "computed": false,
+                          "key": {
+                            "type": "Identifier",
+                            "start": 9,
+                            "end": 10,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 9
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 10
+                              }
+                            },
+                            "name": "y"
+                          },
+                          "kind": "init",
+                          "value": {
+                            "type": "Identifier",
+                            "start": 9,
+                            "end": 10,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 9
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 10
+                              }
+                            },
+                            "name": "y"
+                          }
+                        }
+                      ]
+                    },
+                    "right": {
+                      "type": "Identifier",
+                      "start": 15,
+                      "end": 16,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 15
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 16
+                        }
+                      },
+                      "name": "z"
+                    },
+                    "body": {
+                      "type": "EmptyStatement",
+                      "start": 17,
+                      "end": 18,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 17
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 18
+                        }
+                      }
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
         });
     
 
