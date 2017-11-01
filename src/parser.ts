@@ -4034,22 +4034,20 @@ export class Parser {
             this.expect(context, Token.RightParen);
     
             if (this.token === Token.Arrow) {
+                if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
                 // async arrows cannot have a line terminator between "async" and the formals
                 if (flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
                 // Valid: 'async(a=await)=>12'. 
                 // Invalid: 'async(await)=>12'. 
                 if (this.flags & Flags.HaveSeenAwait) this.error(Errors.InvalidAwaitInArrowParam);
-                if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
                 if (state & ParenthesizedState.EvalOrArg) this.error(Errors.StrictParamName);
                 if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
                 if (state & ParenthesizedState.Await) this.error(Errors.InvalidAwaitInArrowParam);
                 if (state & ParenthesizedState.Trailing) this.error(Errors.UnexpectedComma);
-    
-                // Invalid: 'async[LineTerminator here] () => {}'
-                if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
                 return this.parseArrowFunction(context & ~Context.Yield | Context.Await, pos, args);
             }
-    
+            
+            // We are done, so unset the bitmask
             if (this.flags & Flags.HaveSeenAwait) this.flags &= ~Flags.HaveSeenAwait;
     
             this.errorLocation = undefined;
@@ -4525,7 +4523,6 @@ export class Parser {
     
         private parseObjectElement(context: Context): ESTree.Property {
             const pos = this.getLocations();
-    
             const token = this.token;
             const tokenValue = this.tokenValue;
             const isEscaped = !!(this.flags & Flags.HasUnicode);
@@ -4543,7 +4540,9 @@ export class Parser {
                         case Token.AsyncKeyword:
                             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
                             // Asynchronous Iteration - Stage 3 proposal
-                            if (!(this.flags & Flags.OptionsNext) && this.token === Token.Multiply) this.error(Errors.InvalidAsyncGenerator);
+                            if (!(this.flags & Flags.OptionsNext) && this.token === Token.Multiply) {
+                                this.error(Errors.InvalidAsyncGenerator);
+                            }
                             if (this.parseOptional(context, Token.Multiply)) state |= ObjectState.Yield;
                             state |= ObjectState.Async | ObjectState.Method;
                             break;
@@ -4551,7 +4550,6 @@ export class Parser {
                             state |= ObjectState.Get;
                             break;
                         case Token.SetKeyword:
-    
                             state |= ObjectState.Set;
                             break;
                         default: // ignore
@@ -4561,7 +4559,6 @@ export class Parser {
                     key = this.parsePropertyName(context);
     
                 } else {
-                    if (this.token === Token.LeftParen) state |= ObjectState.Method;
                     key = this.finishNode(pos, {
                         type: 'Identifier',
                         name: this.tokenValue
@@ -4569,9 +4566,11 @@ export class Parser {
                 }
 
             } else {
+
                 if (this.parseOptional(context, Token.Multiply)) {
                     state |= ObjectState.Yield | ObjectState.Method;
                 }
+
                 if (this.token === Token.LeftBracket) {
                     state |= ObjectState.Computed;
                 }
@@ -4608,34 +4607,31 @@ export class Parser {
                     break;
     
                 default:
-    
+                    
                     if (state & ObjectState.Async || !this.isIdentifier(context, token)) {
-                        this.error(Errors.UnexpectedToken, tokenDesc(token));
+                        this.throwUnexpectedToken();
                     }
-                    if (state & ObjectState.Yield) this.error(Errors.Unexpected);
-    
+                    if (context & Context.Yield && token === Token.YieldKeyword) {
+                        this.error(Errors.DisallowedInContext, tokenDesc(this.token));    
+                    }
+                    
                     if (token === Token.AwaitKeyword) {
-                        if (context & Context.Await) this.error(Errors.UnexpectedToken, tokenDesc(token));
+                        if (context & Context.Await) this.throwUnexpectedToken();
                         if (context & Context.InAsyncParameterList) {
                             this.errorLocation = this.getLocations();
                             this.flags |= Flags.HaveSeenAwait;
                         }
                     }
-    
-                    // Note: It's a SyntaxError if the IdentifierName eval or the IdentifierName 
-                    // arguments occurs as a BindingIdentifier within strict mode code, but
-                    // 'arguments' and 'eval' are not reserved words and property shorthand 
-                    // syntax is not BindingIdentifier
+
                     if (context & (Context.ForStatement | Context.InParenthesis) &&
                         this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
                         this.error(Errors.UnexpectedReservedWord);
                     }
-    
+
                     state |= ObjectState.Shorthand;
     
                     if (this.token === Token.Assign) {
                         value = this.parseAssignmentPattern(context, pos, key);
-                        break;
                     } else {
                         value = key;
                     }
@@ -4655,7 +4651,7 @@ export class Parser {
         private parseMethodDefinition(context: Context, state: ObjectState): ESTree.FunctionExpression {
     
             const pos = this.getLocations();
-    
+            
             if (Context.Yield | Context.Await) context &= ~(Context.Yield | Context.Await);
     
             if (state & ObjectState.Yield && !(state & ObjectState.Get)) context |= Context.Yield;
@@ -5173,29 +5169,38 @@ export class Parser {
             });
         }
     
-        private parseBindingPatternOrIdentifier(context: Context, pos: Location) {
+        private parseBindingPatternOrIdentifier(
+            context: Context, 
+            pos: Location
+        ): ESTree.Identifier | ESTree.ObjectPattern {
+
             switch (this.token) {
+
                 case Token.LeftBracket:
                     return this.parseAssignmentElementList(context);
+
                 case Token.LeftBrace:
                     return this.ObjectAssignmentPattern(context, pos);
-                case Token.AwaitKeyword:
-                    if (context & (Context.Module | Context.Await)) this.throwUnexpectedToken();
-                    return this.parseBindingIdentifier(context);
+
                 case Token.YieldKeyword:
-                    this.errorLocation = pos;
-                    this.flags |= Flags.BindingPosition;
-                    if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                    if (context & Context.Yield) {
+                        this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                    }
                     if (context & Context.Strict) {
                         if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
                         this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                     }
-    
+
+                case Token.AwaitKeyword:
+                    if (context & (Context.Module | Context.Await)) this.throwUnexpectedToken();
                     return this.parseBindingIdentifier(context);
-                case Token.LetKeyword:
-                    if (context & Context.Strict && this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+
+                    case Token.LetKeyword:
+                    if (context & Context.Strict && this.flags & Flags.HasUnicode) {
+                        this.error(Errors.UnexpectedEscapedKeyword);
+                    }
                     if (context & Context.Lexical) this.error(Errors.LetInLexicalBinding);
-                    // falls through
+
                 default:
                     if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
                     return this.parseBindingIdentifier(context);

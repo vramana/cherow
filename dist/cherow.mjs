@@ -3791,6 +3791,8 @@ Parser.prototype.parseAsyncArguments = function parseAsyncArguments (context, po
     }
     this.expect(context, 16 /* RightParen */);
     if (this.token === 10 /* Arrow */) {
+        if (isEscaped)
+            { this.error(68 /* UnexpectedEscapedKeyword */); }
         // async arrows cannot have a line terminator between "async" and the formals
         if (flags & 1 /* LineTerminator */)
             { this.error(67 /* LineBreakAfterAsync */); }
@@ -3798,8 +3800,6 @@ Parser.prototype.parseAsyncArguments = function parseAsyncArguments (context, po
         // Invalid: 'async(await)=>12'. 
         if (this.flags & 512 /* HaveSeenAwait */)
             { this.error(103 /* InvalidAwaitInArrowParam */); }
-        if (isEscaped)
-            { this.error(68 /* UnexpectedEscapedKeyword */); }
         if (state & 1 /* EvalOrArg */)
             { this.error(82 /* StrictParamName */); }
         if (state & 4 /* Parenthesized */)
@@ -3808,11 +3808,9 @@ Parser.prototype.parseAsyncArguments = function parseAsyncArguments (context, po
             { this.error(103 /* InvalidAwaitInArrowParam */); }
         if (state & 8 /* Trailing */)
             { this.error(55 /* UnexpectedComma */); }
-        // Invalid: 'async[LineTerminator here] () => {}'
-        if (this.flags & 1 /* LineTerminator */)
-            { this.error(67 /* LineBreakAfterAsync */); }
         return this.parseArrowFunction(context & ~16 /* Yield */ | 32 /* Await */, pos, args);
     }
+    // We are done, so unset the bitmask
     if (this.flags & 512 /* HaveSeenAwait */)
         { this.flags &= ~512 /* HaveSeenAwait */; }
     this.errorLocation = undefined;
@@ -4250,8 +4248,9 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
                     if (this.flags & 1 /* LineTerminator */)
                         { this.error(67 /* LineBreakAfterAsync */); }
                     // Asynchronous Iteration - Stage 3 proposal
-                    if (!(this.flags & 1048576 /* OptionsNext */) && this.token === 2099763 /* Multiply */)
-                        { this.error(99 /* InvalidAsyncGenerator */); }
+                    if (!(this.flags & 1048576 /* OptionsNext */) && this.token === 2099763 /* Multiply */) {
+                        this.error(99 /* InvalidAsyncGenerator */);
+                    }
                     if (this.parseOptional(context, 2099763 /* Multiply */))
                         { state |= 1 /* Yield */; }
                     state |= 2 /* Async */ | 64 /* Method */;
@@ -4269,8 +4268,6 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
             key = this.parsePropertyName(context);
         }
         else {
-            if (this.token === 262155 /* LeftParen */)
-                { state |= 64 /* Method */; }
             key = this.finishNode(pos, {
                 type: 'Identifier',
                 name: this.tokenValue
@@ -4312,22 +4309,19 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
             break;
         default:
             if (state & 2 /* Async */ || !this.isIdentifier(context, token)) {
-                this.error(1 /* UnexpectedToken */, tokenDesc(token));
+                this.throwUnexpectedToken();
             }
-            if (state & 1 /* Yield */)
-                { this.error(0 /* Unexpected */); }
+            if (context & 16 /* Yield */ && token === 282730 /* YieldKeyword */) {
+                this.error(83 /* DisallowedInContext */, tokenDesc(this.token));
+            }
             if (token === 331885 /* AwaitKeyword */) {
                 if (context & 32 /* Await */)
-                    { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }
+                    { this.throwUnexpectedToken(); }
                 if (context & 256 /* InAsyncParameterList */) {
                     this.errorLocation = this.getLocations();
                     this.flags |= 512 /* HaveSeenAwait */;
                 }
             }
-            // Note: It's a SyntaxError if the IdentifierName eval or the IdentifierName 
-            // arguments occurs as a BindingIdentifier within strict mode code, but
-            // 'arguments' and 'eval' are not reserved words and property shorthand 
-            // syntax is not BindingIdentifier
             if (context & (524288 /* ForStatement */ | 64 /* InParenthesis */) &&
                 this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
                 this.error(76 /* UnexpectedReservedWord */);
@@ -4335,7 +4329,6 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
             state |= 8 /* Shorthand */;
             if (this.token === 1310749 /* Assign */) {
                 value = this.parseAssignmentPattern(context, pos, key);
-                break;
             }
             else {
                 value = key;
@@ -4810,27 +4803,25 @@ Parser.prototype.parseBindingPatternOrIdentifier = function parseBindingPatternO
             return this.parseAssignmentElementList(context);
         case 393228 /* LeftBrace */:
             return this.ObjectAssignmentPattern(context, pos);
-        case 331885 /* AwaitKeyword */:
-            if (context & (1 /* Module */ | 32 /* Await */))
-                { this.throwUnexpectedToken(); }
-            return this.parseBindingIdentifier(context);
         case 282730 /* YieldKeyword */:
-            this.errorLocation = pos;
-            this.flags |= 1024 /* BindingPosition */;
-            if (context & 16 /* Yield */)
-                { this.error(83 /* DisallowedInContext */, tokenDesc(this.token)); }
+            if (context & 16 /* Yield */) {
+                this.error(83 /* DisallowedInContext */, tokenDesc(this.token));
+            }
             if (context & 2 /* Strict */) {
                 if (this.flags & 2 /* HasUnicode */)
                     { this.error(68 /* UnexpectedEscapedKeyword */); }
                 this.error(83 /* DisallowedInContext */, tokenDesc(this.token));
             }
+        case 331885 /* AwaitKeyword */:
+            if (context & (1 /* Module */ | 32 /* Await */))
+                { this.throwUnexpectedToken(); }
             return this.parseBindingIdentifier(context);
         case 8671304 /* LetKeyword */:
-            if (context & 2 /* Strict */ && this.flags & 2 /* HasUnicode */)
-                { this.error(68 /* UnexpectedEscapedKeyword */); }
+            if (context & 2 /* Strict */ && this.flags & 2 /* HasUnicode */) {
+                this.error(68 /* UnexpectedEscapedKeyword */);
+            }
             if (context & 12582912 /* Lexical */)
                 { this.error(54 /* LetInLexicalBinding */); }
-        // falls through
         default:
             if (!this.isIdentifier(context, this.token))
                 { this.throwUnexpectedToken(); }

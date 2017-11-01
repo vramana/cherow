@@ -82,12 +82,6 @@ describe('Espressions - Object', () => {
 
     it('should fail on let param redeclaration', () => {
         expect(() => {
-            parseScript(`[x,,] = 1`);
-        }).to.not.throw();
-    });
-
-    it('should fail on let param redeclaration', () => {
-        expect(() => {
             parseScript(`f({x = 0})`);
         }).to.not.throw();
     });

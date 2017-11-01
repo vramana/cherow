@@ -16,7 +16,14 @@ describe('Expressions - Async Arrow function', () => {
             parseScript(`f = async ((x)) => x`);
         }).to.throw()
     });
-    
+
+    it('should fail on invalid parenthesized pattern', () => {
+      expect(() => {
+          parseScript(`async
+          () => {}`);
+      }).to.throw()
+  });
+
     it('should fail on arrow NSPL with USD', () => {
         expect(() => {
             parseScript(`async (x = 1) => {"use strict"}`);
