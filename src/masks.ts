@@ -48,7 +48,8 @@ export const enum Flags {
     Noctal                       = 1 << 12, // e.g. `0777`
     BigInt                       = 1 << 13, // e.g. `100n`
     SimpleParameterList          = 1 << 14,
-    ParenthesizedPattern         = 1 << 15, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
+    ParenthesizedPattern         = 1 << 15,
+
     /* Options */
     OptionsRanges                = 1 << 16, // Enable / disable "ranges"
     OptionsLoc                   = 1 << 17, // Enable / disable location tracking on the node

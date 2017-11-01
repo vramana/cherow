@@ -4485,6 +4485,7 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
         state |= 4 /* Parenthesized */;
     }
     if (!(state & 16 /* Pattern */) && hasMask(this.token, 131072 /* BindingPattern */)) {
+        this.errorLocation = sequencePos;
         state |= 16 /* Pattern */;
     }
     expr = this.parseAssignmentExpression(context);
@@ -4532,8 +4533,9 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
         return this.parseArrowFunction(context, pos, expr.type === 'SequenceExpression' ? expr.expressions : [expr]);
     }
     this.errorLocation = undefined;
-    if (state & 16 /* Pattern */)
-        { this.flags |= 32768 /* ParenthesizedPattern */; }
+    if (state & 16 /* Pattern */) {
+        this.flags |= 32768 /* ParenthesizedPattern */;
+    }
     return expr;
 };
 Parser.prototype.parseRegularExpression = function parseRegularExpression (context) {

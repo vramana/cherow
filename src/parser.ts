@@ -4796,7 +4796,9 @@ export class Parser {
             if (!(state & ParenthesizedState.Parenthesized) && this.token === Token.LeftParen) {
                 state |= ParenthesizedState.Parenthesized;
             }
+            
             if (!(state & ParenthesizedState.Pattern) && hasMask(this.token, Token.BindingPattern))  {
+                this.errorLocation = sequencePos;
                 state |= ParenthesizedState.Pattern;
             }
             expr = this.parseAssignmentExpression(context);
@@ -4848,7 +4850,9 @@ export class Parser {
     
             this.errorLocation = undefined;
     
-            if (state & ParenthesizedState.Pattern) this.flags |= Flags.ParenthesizedPattern;
+            if (state & ParenthesizedState.Pattern) {
+                this.flags |= Flags.ParenthesizedPattern;
+            }
 
             return expr;
         }

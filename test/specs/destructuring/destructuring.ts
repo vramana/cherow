@@ -35,7 +35,6 @@ describe('Destructuring - Destructuring', () => {
       }).to.throw();
   }); 
    
-   
     it('should fail on ""use strict"; ({ v: arguments } = obj)"', () => {
       expect(() => {
           parseScript('"use strict"; ({ v: arguments } = obj)');
@@ -46,6 +45,153 @@ describe('Destructuring - Destructuring', () => {
         expect(() => {
             parseScript('[...a, ] = c;');
         }).to.not.throw();
+    });
+
+    it('should fail on "(a = b) = {};"', () => {
+      expect(() => {
+          parseScript('(a = b) = {};');
+      }).to.not.throw();
+    });
+
+    it('should fail on "({ src: ([dest]) } = obj)"', () => {
+      expect(() => {
+          parseScript('({ src: ([dest]) } = obj)');
+      }).to.throw('');
+    });
+
+    // See: https://github.com/jquery/esprima/issues/1801
+    it('should fail on "({a}) = 0;"', () => {
+      expect(() => {
+          parseScript('({a}) = 0;');
+      }).to.throw('');
+    });
+    
+   // See: https://github.com/jquery/esprima/issues/1801
+    it('should fail on "([a]) = 0;"', () => {
+      expect(() => {
+          parseScript('([a]) = 0;');
+      }).to.throw('');
+    });
+    
+    it('should parse "(a["b"]) = {}"', () => {
+      expect(parseScript(`(a['b']) = {}`, {
+          ranges: true,
+          raw: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 13,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 13
+          }
+        },
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 13,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 13
+              }
+            },
+            "expression": {
+              "type": "AssignmentExpression",
+              "start": 0,
+              "end": 13,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 13
+                }
+              },
+              "operator": "=",
+              "left": {
+                "type": "MemberExpression",
+                "start": 1,
+                "end": 7,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 7
+                  }
+                },
+                "object": {
+                  "type": "Identifier",
+                  "start": 1,
+                  "end": 2,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 1
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 2
+                    }
+                  },
+                  "name": "a"
+                },
+                "property": {
+                  "type": "Literal",
+                  "start": 3,
+                  "end": 6,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 3
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 6
+                    }
+                  },
+                  "value": "b",
+                  "raw": "'b'"
+                },
+                "computed": true
+              },
+              "right": {
+                "type": "ObjectExpression",
+                "start": 11,
+                "end": 13,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 11
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 13
+                  }
+                },
+                "properties": []
+              }
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
     });
 
     it('should parse parenthesized member expr assignment', () => {
