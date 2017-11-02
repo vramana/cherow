@@ -105,7 +105,8 @@ export const enum Errors {
     InvalidAwaitInArrowParam,
     InvalidComplexBindingPattern,
     UnsupportedFeature,
-    BadUntaggedTemplate
+    BadUntaggedTemplate,
+    TemplateOctalLiteral
 }
 
 export const ErrorMessages: {
@@ -215,8 +216,8 @@ export const ErrorMessages: {
     [Errors.InvalidAwaitInArrowParam]: '\'await\' is not allowed inside an async arrow\'s parameter list',
     [Errors.InvalidComplexBindingPattern]: 'Complex binding patterns require an initialization value',
     [Errors.UnsupportedFeature]: '%0 isn\'t supported by default. Enable the \'%1\' option to use them',
-    [Errors.BadUntaggedTemplate]: 'Bad escape sequence in untagged template literal'
-    
+    [Errors.BadUntaggedTemplate]: 'Bad escape sequence in untagged template literal',
+    [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences'
 };
 
 function constructError(msg: string, column: number): Error {

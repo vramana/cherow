@@ -168,5 +168,6 @@ export const enum Escape {
     EightOrNine = -3,
     InvalidHex  = -4,
     OutOfRange  = -5,
+    TemplateOctalLiteral = -6,
 }
 

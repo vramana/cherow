@@ -9,7 +9,7 @@ import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, i
 import { Options, SavedState, Delegate, Location, EmitComments } from './interface';
 export class Parser {
     
-        // Holds the program to be parser
+        // The program to be parsed
         private readonly source: string;
     
         // Current position (end position of text of current token)
@@ -202,13 +202,7 @@ export class Parser {
         private nextChar(): Chars {
             return this.source.charCodeAt(this.index);
         }
-    
-        private readNext(err: number = Errors.UnterminatedString): Chars {
-            this.advance();
-            if (!this.hasNext()) this.error(err);
-            return this.nextChar();
-        }
-    
+   
         private storeRaw(start: number) {
             this.tokenRaw = this.source.slice(start, this.index);
         }
@@ -977,14 +971,14 @@ export class Parser {
         }
     
         private peekExtendedUnicodeEscape(): Chars {
-    
-            let ch = this.readNext(Errors.InvalidHexEscapeSequence);
+            this.advance();
+            let ch = this.nextChar();
             let code = 0;
     
             // '\u{DDDDDDDD}'
             if (ch === Chars.LeftBrace) { // {
     
-                ch = this.readNext(Errors.InvalidHexEscapeSequence);
+                ch = this.scanNext(ch, Errors.InvalidHexEscapeSequence);
     
                 // At least, one hex digit is required.
                 if (ch === Chars.RightBrace) {
@@ -999,7 +993,7 @@ export class Parser {
                     if (code > Chars.LastUnicodeChar) this.error(Errors.UnicodeOutOfRange);
     
                     // At least one digit is expected
-                    ch = this.readNext(Errors.InvalidHexEscapeSequence);
+                    ch = this.scanNext(ch, Errors.InvalidHexEscapeSequence);
                 }
     
                 return code;
@@ -1015,7 +1009,7 @@ export class Parser {
             if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
     
             for (let i = 0; i < 3; i++) {
-                ch = this.readNext(Errors.InvalidHexEscapeSequence);
+                ch = this.scanNext(ch, Errors.InvalidHexEscapeSequence);
                 const digit = toHex(ch);
                 if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
                 code = code << 4 | digit;
@@ -1196,7 +1190,8 @@ export class Parser {
                     switch (this.nextChar()) {
                         case Chars.Plus:
                         case Chars.Hyphen:
-                            this.readNext(Errors.UnexpectedTokenNumber);
+                            this.advance();
+                            if (!this.hasNext()) this.error(Errors.UnexpectedTokenNumber);
                         default: // ignore
                     }
     
@@ -1398,6 +1393,8 @@ export class Parser {
                     return;
                 case Escape.StrictOctal:
                     this.error(Errors.StrictOctalEscape);
+                case Escape.TemplateOctalLiteral:
+                    this.error(Errors.TemplateOctalLiteral);
                 case Escape.EightOrNine:
                     this.error(Errors.InvalidEightAndNine);
                 case Escape.InvalidHex:
@@ -1409,7 +1406,7 @@ export class Parser {
             }
         }
     
-        private scanEscape(context: Context, cp: Chars): Chars | Escape {
+        private scanEscape(context: Context, cp: Chars, isTemplate: boolean = false): Chars | Escape {
     
             switch (cp) {
                 case Chars.LowerB:
@@ -1455,7 +1452,9 @@ export class Parser {
                         let code = cp - Chars.Zero;
                         let index = this.index + 1;
                         let column = this.column + 1;
-    
+                        
+                        if (isTemplate && !(context & Context.TaggedTemplate)) return Escape.TemplateOctalLiteral;
+
                         if (index < this.source.length) {
                             let next = this.source.charCodeAt(index);
     
@@ -1493,6 +1492,7 @@ export class Parser {
                 case Chars.Six:
                 case Chars.Seven:
                     {
+                        if (isTemplate && !(context & Context.TaggedTemplate)) return Escape.TemplateOctalLiteral;
                         if (context & Context.Strict) return Escape.StrictOctal;
                         let code = cp - Chars.Zero;
                         const index = this.index + 1;
@@ -1616,7 +1616,7 @@ export class Parser {
                                 ret += fromCodePoint(ch);
                             } else {
                                 this.lastChar = ch;
-                                const code = this.scanEscape(context, ch);
+                                const code = this.scanEscape(context, ch, true);
     
                                 if (code >= 0) {
                                     ret += fromCodePoint(code as Chars);
@@ -1898,6 +1898,14 @@ export class Parser {
         private consumeSemicolon(context: Context) {
             if (!this.canConsumeSemicolon()) this.throwUnexpectedToken();
             if (this.token === Token.Semicolon) this.expect(context, Token.Semicolon);
+        }
+
+        private nextTokenIsAssign(context: Context) {
+            const savedState = this.saveState();
+            this.nextToken(context);
+            const next = this.token;
+            this.rewindState(savedState);
+            return next === Token.Assign;
         }
     
         // 'import', 'import.meta'
@@ -4046,7 +4054,7 @@ export class Parser {
                 if (state & ParenthesizedState.EvalOrArg) this.error(Errors.StrictParamName);
                 if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
                 if (state & ParenthesizedState.Await) this.error(Errors.InvalidAwaitInArrowParam);
-                if (state & ParenthesizedState.Trailing) this.error(Errors.UnexpectedComma);
+                if (state & ParenthesizedState.Trailing) this.throwUnexpectedToken();
                 return this.parseArrowFunction(context & ~Context.Yield | Context.Await, pos, args);
             }
             
@@ -4116,21 +4124,24 @@ export class Parser {
             return args;
         }
     
-        private parseMetaProperty(context: Context, meta: ESTree.Identifier, pos: Location): ESTree.MetaProperty {
-            const property = this.parseIdentifier(context);
+        private parseMetaProperty(
+            context: Context, 
+            meta: ESTree.Identifier, 
+            pos: Location
+        ): ESTree.MetaProperty {
             return this.finishNode(pos, {
                 meta,
                 type: 'MetaProperty',
-                property
+                property: this.parseIdentifier(context)
             });
         }
+
         private parseNewExpression(context: Context): ESTree.MetaProperty | ESTree.NewExpression {
     
             const pos = this.getLocations();
     
-            if (this.flags & Flags.HasUnicode) {
-                this.error(Errors.UnexpectedEscapedKeyword);
-            }
+            if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+            
             const id = this.parseIdentifier(context);
     
             switch (this.token) {
@@ -4151,6 +4162,7 @@ export class Parser {
                     // 'import'
                 case Token.ImportKeyword:
                     this.throwUnexpectedToken();
+
                 default:
     
                     return this.finishNode(pos, {
@@ -4160,14 +4172,7 @@ export class Parser {
                     });
             }
         }
-        private nextTokenIsAssign(context: Context) {
-            const savedState = this.saveState();
-            this.nextToken(context);
-            const next = this.token;
-            const line = this.line;
-            this.rewindState(savedState);
-            return next === Token.Assign;
-        }
+
         private parsePrimaryExpression(context: Context, pos: Location) {
     
             switch (this.token) {
@@ -4302,13 +4307,14 @@ export class Parser {
             const id = this.isIdentifier(context, this.token) ? this.parseIdentifier(context | Context.Strict) : null;
     
             if (this.parseOptional(context, Token.ExtendsKeyword)) {
-    
                 superClass = this.parseLeftHandSideExpression(context | Context.Strict, pos);
                 flags |= ObjectState.Heritage;
             }
-    
+
             classBody = this.parseClassBody(context | Context.Strict, flags);
+
             this.flags = savedFlags;
+
             return this.finishNode(pos, {
                 type: 'ClassExpression',
                 id,
@@ -4440,12 +4446,9 @@ export class Parser {
             }
     
             if (!(state & ObjectState.Modifiers) || (key && this.token === Token.LeftParen)) {
-                if (!(state & ObjectState.Yield)) {
-                    if (state & ObjectState.Heritage && state & ObjectState.HasConstructor) {
-                        context |= Context.Constructor;
-                    }
-                }
-    
+                if (state & ObjectState.Heritage && state & ObjectState.HasConstructor) context |= Context.Constructor;
+                
+
                 value = this.parseMethodDefinition(context | Context.Method, state);
                 state |= ObjectState.Method;
             }
