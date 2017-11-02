@@ -370,14 +370,6 @@ export class Parser {
                                     {
     
                                         if (!(this.flags & Flags.OptionsJSX)) return Token.LessThan;
-    
-                                        const index = this.index + 1;
-    
-                                        // Check that it's not a comment start.
-                                        if (index < this.source.length) {
-                                            next = this.source.charCodeAt(index);
-                                            if (next === Chars.Asterisk || next === Chars.Slash) break;
-                                        }
                                         this.advance();
                                         return Token.JSXClose;
                                     }
@@ -899,8 +891,6 @@ export class Parser {
     
         private scanSurrogate(context: Context, first: Chars): Token {
     
-            if (this.index + 1 >= this.source.length) this.error(Errors.Unexpected);
-    
             const surrogateTail = this.source.charCodeAt(this.index + 1);
     
             if (!isIdentifierStart(((first - 0x0d800) << 10) + (this.source.charCodeAt(this.index + 1) - 0x0dc00) + 0x010000)) {
@@ -936,13 +926,6 @@ export class Parser {
                             break;
                         default:
                             if (!isIdentifierPart(code)) break loop;
-                            if (code >= 0x0D800 && code <= 0x0DBFF) {
-                                this.advance();
-                                const surrogateTail = this.nextChar();
-                                code = ((code - 0x0d800) << 10) + (surrogateTail - 0x0dc00) + 0x010000;
-                                if (!isIdentifierPart(code)) this.error(Errors.Unexpected);
-                            }
-    
                             this.advance();
                     }
                 }
