@@ -598,6 +598,328 @@ describe('Statements - For', () => {
           });
     });
 
+    it('should parse complex with for and catch in function body"', () => {
+      expect(parseScript(`function a( head, tail )
+      {
+          const defs = [ head ].concat( extract( tail, 3 ) );
+      
+          return function() {
+              let errs;
+      
+              for ( const def of defs )
+              {
+                  args.save();
+                  try
+                  {
+                  }
+                  catch ( err )
+                  {
+                      errs = err;
+                  }
+              }
+      
+              throw errs;
+          };
+      }`, {
+          ranges: true,
+          raw: true,
+          next: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 487,
+        "body": [
+          {
+            "type": "FunctionDeclaration",
+            "start": 0,
+            "end": 487,
+            "id": {
+              "type": "Identifier",
+              "start": 9,
+              "end": 10,
+              "name": "a"
+            },
+            "generator": false,
+            "expression": false,
+            "async": false,
+            "params": [
+              {
+                "type": "Identifier",
+                "start": 12,
+                "end": 16,
+                "name": "head"
+              },
+              {
+                "type": "Identifier",
+                "start": 18,
+                "end": 22,
+                "name": "tail"
+              }
+            ],
+            "body": {
+              "type": "BlockStatement",
+              "start": 31,
+              "end": 487,
+              "body": [
+                {
+                  "type": "VariableDeclaration",
+                  "start": 43,
+                  "end": 94,
+                  "declarations": [
+                    {
+                      "type": "VariableDeclarator",
+                      "start": 49,
+                      "end": 93,
+                      "id": {
+                        "type": "Identifier",
+                        "start": 49,
+                        "end": 53,
+                        "name": "defs"
+                      },
+                      "init": {
+                        "type": "CallExpression",
+                        "start": 56,
+                        "end": 93,
+                        "callee": {
+                          "type": "MemberExpression",
+                          "start": 56,
+                          "end": 71,
+                          "object": {
+                            "type": "ArrayExpression",
+                            "start": 56,
+                            "end": 64,
+                            "elements": [
+                              {
+                                "type": "Identifier",
+                                "start": 58,
+                                "end": 62,
+                                "name": "head"
+                              }
+                            ]
+                          },
+                          "property": {
+                            "type": "Identifier",
+                            "start": 65,
+                            "end": 71,
+                            "name": "concat"
+                          },
+                          "computed": false
+                        },
+                        "arguments": [
+                          {
+                            "type": "CallExpression",
+                            "start": 73,
+                            "end": 91,
+                            "callee": {
+                              "type": "Identifier",
+                              "start": 73,
+                              "end": 80,
+                              "name": "extract"
+                            },
+                            "arguments": [
+                              {
+                                "type": "Identifier",
+                                "start": 82,
+                                "end": 86,
+                                "name": "tail"
+                              },
+                              {
+                                "type": "Literal",
+                                "start": 88,
+                                "end": 89,
+                                "value": 3,
+                                "raw": "3"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "kind": "const"
+                },
+                {
+                  "type": "ReturnStatement",
+                  "start": 112,
+                  "end": 479,
+                  "argument": {
+                    "type": "FunctionExpression",
+                    "start": 119,
+                    "end": 478,
+                    "id": null,
+                    "generator": false,
+                    "expression": false,
+                    "async": false,
+                    "params": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "start": 130,
+                      "end": 478,
+                      "body": [
+                        {
+                          "type": "VariableDeclaration",
+                          "start": 146,
+                          "end": 155,
+                          "declarations": [
+                            {
+                              "type": "VariableDeclarator",
+                              "start": 150,
+                              "end": 154,
+                              "id": {
+                                "type": "Identifier",
+                                "start": 150,
+                                "end": 154,
+                                "name": "errs"
+                              },
+                              "init": null
+                            }
+                          ],
+                          "kind": "let"
+                        },
+                        {
+                          "type": "ForOfStatement",
+                          "start": 177,
+                          "end": 433,
+                          "await": false,
+                          "left": {
+                            "type": "VariableDeclaration",
+                            "start": 183,
+                            "end": 192,
+                            "declarations": [
+                              {
+                                "type": "VariableDeclarator",
+                                "start": 189,
+                                "end": 192,
+                                "id": {
+                                  "type": "Identifier",
+                                  "start": 189,
+                                  "end": 192,
+                                  "name": "def"
+                                },
+                                "init": null
+                              }
+                            ],
+                            "kind": "const"
+                          },
+                          "right": {
+                            "type": "Identifier",
+                            "start": 196,
+                            "end": 200,
+                            "name": "defs"
+                          },
+                          "body": {
+                            "type": "BlockStatement",
+                            "start": 217,
+                            "end": 433,
+                            "body": [
+                              {
+                                "type": "ExpressionStatement",
+                                "start": 237,
+                                "end": 249,
+                                "expression": {
+                                  "type": "CallExpression",
+                                  "start": 237,
+                                  "end": 248,
+                                  "callee": {
+                                    "type": "MemberExpression",
+                                    "start": 237,
+                                    "end": 246,
+                                    "object": {
+                                      "type": "Identifier",
+                                      "start": 237,
+                                      "end": 241,
+                                      "name": "args"
+                                    },
+                                    "property": {
+                                      "type": "Identifier",
+                                      "start": 242,
+                                      "end": 246,
+                                      "name": "save"
+                                    },
+                                    "computed": false
+                                  },
+                                  "arguments": []
+                                }
+                              },
+                              {
+                                "type": "TryStatement",
+                                "start": 268,
+                                "end": 417,
+                                "block": {
+                                  "type": "BlockStatement",
+                                  "start": 290,
+                                  "end": 311,
+                                  "body": []
+                                },
+                                "handler": {
+                                  "type": "CatchClause",
+                                  "start": 330,
+                                  "end": 417,
+                                  "param": {
+                                    "type": "Identifier",
+                                    "start": 338,
+                                    "end": 341,
+                                    "name": "err"
+                                  },
+                                  "body": {
+                                    "type": "BlockStatement",
+                                    "start": 362,
+                                    "end": 417,
+                                    "body": [
+                                      {
+                                        "type": "ExpressionStatement",
+                                        "start": 386,
+                                        "end": 397,
+                                        "expression": {
+                                          "type": "AssignmentExpression",
+                                          "start": 386,
+                                          "end": 396,
+                                          "operator": "=",
+                                          "left": {
+                                            "type": "Identifier",
+                                            "start": 386,
+                                            "end": 390,
+                                            "name": "errs"
+                                          },
+                                          "right": {
+                                            "type": "Identifier",
+                                            "start": 393,
+                                            "end": 396,
+                                            "name": "err"
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                "finalizer": null
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "ThrowStatement",
+                          "start": 455,
+                          "end": 466,
+                          "argument": {
+                            "type": "Identifier",
+                            "start": 461,
+                            "end": 465,
+                            "name": "errs"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+
     it('should parse "for(var x = 0;;);"', () => {
         expect(parseScript(`for(var x = 0;;);`, {
             ranges: true,

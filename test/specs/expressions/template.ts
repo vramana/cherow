@@ -747,6 +747,483 @@ describe('Espressions - Template', () => {
             });
     });
 
+    it('should parse "`\\f`"', () => {
+        expect(parseScript('`\\f`', {
+            locations: true,
+            raw: true
+        })).to.eql({
+              "body": [
+                {
+                  "expression": {
+                    "expressions": [],
+                    "loc": {
+                      "end": {
+                        "column": 4,
+                        "line": 1,
+                      },
+                      "start": {
+                        "column": 0,
+                        "line": 1,
+                      }
+                    },
+                    "quasis": [
+                     {
+                        "loc": {
+                          "end": {
+                            "column": 4,
+                            "line": 1,
+                          },
+                          "start": {
+                           "column": 0,
+                            "line": 1,
+                          }
+                        },
+                        "tail": true,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "\f",
+                          "raw": "\\f",
+                        },
+                      },
+                    ],
+                   "type": "TemplateLiteral",
+                  },
+                  "loc": {
+                   "end": {
+                      "column": 4,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    },
+                  },
+                  "type": "ExpressionStatement",
+                },
+              ],
+              "loc": {
+                "end": {
+                  "column": 4,
+                  "line": 1,
+                },
+                "start": {
+                  "column": 0,
+                 "line": 1,
+                },
+              },
+              "sourceType": "script",
+              "type": "Program",
+            });
+    });
+
+    it('should parse "`\\r`"', () => {
+        expect(parseScript('`\\r`', {
+            locations: true,
+            raw: true
+        })).to.eql({
+              "body": [
+                {
+                  "expression": {
+                    "expressions": [],
+                    "loc": {
+                      "end": {
+                        "column": 4,
+                        "line": 1,
+                      },
+                      "start": {
+                       "column": 0,
+                        "line": 1,
+                      }
+                    },
+                    "quasis": [
+                      {
+                        "loc": {
+                          "end": {
+                            "column": 4,
+                            "line": 1,
+                          },
+                          "start": {
+                            "column": 0,
+                            "line": 1,
+                          },
+                        },
+                        "tail": true,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "\r",
+                          "raw": "\\r",
+                        }
+                      }
+                    ],
+                    "type": "TemplateLiteral"
+                  },
+                  "loc": {
+                    "end": {
+                      "column": 4,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                  "type": "ExpressionStatement",
+                },
+              ],
+              "loc": {
+                "end": {
+                  "column": 4,
+                  "line": 1,
+               },
+                "start": {
+                  "column": 0,
+                  "line": 1,
+                }
+              },
+              "sourceType": "script",
+              "type": "Program"
+            });
+    });
+
+    it('should parse "`abc`"', () => {
+        expect(parseScript('`abc`', {
+            locations: true,
+            raw: true
+        })).to.eql({
+              "body": [
+                {
+                  "expression": {
+                    "expressions": [],
+                    "loc": {
+                      "end": {
+                        "column": 5,
+                        "line": 1,
+                      },
+                      "start": {
+                        "column": 0,
+                       "line": 1,
+                      }
+                    },
+                    "quasis": [
+                      {
+                        "loc": {
+                          "end": {
+                            "column": 5,
+                            "line": 1,
+                          },
+                          "start": {
+                            "column": 0,
+                            "line": 1,
+                         }
+                        },
+                        "tail": true,
+                        "type": "TemplateElement",
+                       "value": {
+                          "cooked": "abc",
+                          "raw": "abc",
+                        }
+                      }
+                    ],
+                    "type": "TemplateLiteral"
+                  },
+                  "loc": {
+                    "end": {
+                      "column": 5,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "loc": {
+               "end": {
+                  "column": 5,
+                  "line": 1,
+                },
+                "start": {
+                  "column": 0,
+                  "line": 1
+               }
+              },
+              "sourceType": "script",
+              "type": "Program"
+            });
+    });
+
+    it('should parse "`123`"', () => {
+        expect(parseScript('`123`', {
+            locations: true,
+            raw: true
+        })).to.eql({
+              "body": [
+                {
+                  "expression": {
+                    "expressions": [],
+                    "loc": {
+                      "end": {
+                        "column": 5,
+                        "line": 1,
+                      },
+                      "start": {
+                        "column": 0,
+                        "line": 1,
+                      }
+                    },
+                    "quasis": [
+                      {
+                        "loc": {
+                          "end": {
+                            "column": 5,
+                           "line": 1,
+                          },
+                          "start": {
+                            "column": 0,
+                            "line": 1,
+                          }
+                        },
+                        "tail": true,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "123",
+                          "raw": "123",
+                        }
+                      }
+                    ],
+                   "type": "TemplateLiteral",
+                  },
+                  "loc": {
+                    "end": {
+                      "column": 5,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "loc": {
+                "end": {
+                  "column": 5,
+                  "line": 1,
+                },
+                "start": {
+                  "column": 0,
+                  "line": 1,
+                }
+              },
+              "sourceType": "script",
+              "type": "Program"
+            });
+    });
+
+    it('should parse "`"${0x401}"`"', () => {
+        expect(parseScript('`"${0x401}"`', {
+            locations: true,
+            raw: true
+        })).to.eql({
+              "body": [
+                {
+                  "expression": {
+                    "expressions": [
+                      {
+                        "loc": {
+                          "end": {
+                            "column": 9,
+                            "line": 1
+                          },
+                          "start": {
+                            "column": 4,
+                           "line": 1,
+                          }
+                       },
+                        "raw": "0x401",
+                        "type": "Literal",
+                        "value": 1025,
+                      }
+                    ],
+                    "loc": {
+                      "end": {
+                        "column": 12,
+                        "line": 1,
+                      },
+                      "start": {
+                       "column": 0,
+                        "line": 1,
+                      }
+                    },
+                    "quasis": [
+                     {
+                        "loc": {
+                          "end": {
+                            "column": 9,
+                            "line": 1,
+                          },
+                          "start": {
+                            "column": 9,
+                            "line": 1,
+                          }
+                        },
+                        "tail": false,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "\"",
+                          "raw": "\"",
+                        }
+                      },
+                      {
+                        "loc": {
+                          "end": {
+                            "column": 12,
+                            "line": 1,
+                          },
+                          "start": {
+                            "column": 9,
+                            "line": 1,
+                          }
+                        },
+                        "tail": true,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "\"",
+                          "raw": "\"",
+                        }
+                      }
+                    ],
+                    "type": "TemplateLiteral"
+                  },
+                  "loc": {
+                    "end": {
+                      "column": 12,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "loc": {
+                "end": {
+                  "column": 12,
+                  "line": 1,
+                },
+                "start": {
+                  "column": 0,
+                  "line": 1,
+                }
+             },
+              "sourceType": "script",
+              "type": "Program"
+            });
+    });
+
+    it('should parse "`"\\${0x410}"`"', () => {
+        expect(parseScript('`"\\${0x410}"`', {
+            locations: false,
+            raw: true
+        })).to.eql({
+            "type": "Program",
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "expression": {
+                  "type": "TemplateLiteral",
+                  "expressions": [],
+                  "quasis": [
+                    {
+                      "type": "TemplateElement",
+                      "value": {
+                        "raw": "\"\\${0x410}\"",
+                        "cooked": "\"${0x410}\""
+                      },
+                      "tail": true
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
+    it('should parse "`\\u180E`"', () => {
+        expect(parseScript('`\\u180E`', {
+            locations: true,
+            raw: true
+        })).to.eql({
+              "body": [
+                {
+                  "expression": {
+                    "expressions": [],
+                    "loc": {
+                      "end": {
+                        "column": 8,
+                        "line": 1,
+                      },
+                      "start": {
+                        "column": 0,
+                        "line": 1,
+                      }
+                   },
+                    "quasis": [
+                      {
+                       "loc": {
+                          "end": {
+                            "column": 8,
+                            "line": 1,
+                          },
+                          "start": {
+                            "column": 0,
+                            "line": 1,
+                          }
+                        },
+                        "tail": true,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "᠎",
+                          "raw": "\\u180E",
+                        }
+                      }
+                   ],
+                    "type": "TemplateLiteral"
+                  },
+                  "loc": {
+                    "end": {
+                      "column": 8,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                  "type": "ExpressionStatement",
+                }
+              ],
+              "loc": {
+                "end": {
+                 "column": 8,
+                  "line": 1,
+                },
+                "start": {
+                  "column": 0,
+                  "line": 1,
+                }
+              },
+              "sourceType": "script",
+              "type": "Program",
+            });
+    });
+
     it('should parse "foo`\\u{abcdx}`"', () => {
         expect(parseScript('foo`\\u{abcdx}`', {
             locations: true,

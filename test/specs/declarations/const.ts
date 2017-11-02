@@ -72,6 +72,221 @@ describe('Declarations - Const', () => {
         }).to.throw();
     });
 
+    it('should parse conditional', () => {
+      expect(parseScript(`const    
+      any = ( ...args ) => args.some( a => !!a ),
+      all = ( ...args ) => args.every( a => !!a );`, {
+          ranges: true,
+          raw: true,
+          v8: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 110,
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "start": 0,
+            "end": 110,
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "start": 16,
+                "end": 58,
+                "id": {
+                  "type": "Identifier",
+                  "start": 16,
+                  "end": 19,
+                  "name": "any"
+                },
+                "init": {
+                  "type": "ArrowFunctionExpression",
+                  "start": 22,
+                  "end": 58,
+                  "id": null,
+                  "generator": false,
+                  "expression": true,
+                  "async": false,
+                  "params": [
+                    {
+                      "type": "RestElement",
+                      "start": 24,
+                      "end": 31,
+                      "argument": {
+                        "type": "Identifier",
+                        "start": 27,
+                        "end": 31,
+                        "name": "args"
+                      }
+                    }
+                  ],
+                  "body": {
+                    "type": "CallExpression",
+                    "start": 37,
+                    "end": 58,
+                    "callee": {
+                      "type": "MemberExpression",
+                      "start": 37,
+                      "end": 46,
+                      "object": {
+                        "type": "Identifier",
+                        "start": 37,
+                        "end": 41,
+                        "name": "args"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "start": 42,
+                        "end": 46,
+                        "name": "some"
+                      },
+                      "computed": false
+                    },
+                    "arguments": [
+                      {
+                        "type": "ArrowFunctionExpression",
+                        "start": 48,
+                        "end": 56,
+                        "id": null,
+                        "generator": false,
+                        "expression": true,
+                        "async": false,
+                        "params": [
+                          {
+                            "type": "Identifier",
+                            "start": 48,
+                            "end": 49,
+                            "name": "a"
+                          }
+                        ],
+                        "body": {
+                          "type": "UnaryExpression",
+                          "start": 53,
+                          "end": 56,
+                          "operator": "!",
+                          "prefix": true,
+                          "argument": {
+                            "type": "UnaryExpression",
+                            "start": 54,
+                            "end": 56,
+                            "operator": "!",
+                            "prefix": true,
+                            "argument": {
+                              "type": "Identifier",
+                              "start": 55,
+                              "end": 56,
+                              "name": "a"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "VariableDeclarator",
+                "start": 66,
+                "end": 109,
+                "id": {
+                  "type": "Identifier",
+                  "start": 66,
+                  "end": 69,
+                  "name": "all"
+                },
+                "init": {
+                  "type": "ArrowFunctionExpression",
+                  "start": 72,
+                  "end": 109,
+                  "id": null,
+                  "generator": false,
+                  "expression": true,
+                  "async": false,
+                  "params": [
+                    {
+                      "type": "RestElement",
+                      "start": 74,
+                      "end": 81,
+                      "argument": {
+                        "type": "Identifier",
+                        "start": 77,
+                        "end": 81,
+                        "name": "args"
+                      }
+                    }
+                  ],
+                  "body": {
+                    "type": "CallExpression",
+                    "start": 87,
+                    "end": 109,
+                    "callee": {
+                      "type": "MemberExpression",
+                      "start": 87,
+                      "end": 97,
+                      "object": {
+                        "type": "Identifier",
+                        "start": 87,
+                        "end": 91,
+                        "name": "args"
+                      },
+                      "property": {
+                        "type": "Identifier",
+                        "start": 92,
+                        "end": 97,
+                        "name": "every"
+                      },
+                      "computed": false
+                    },
+                    "arguments": [
+                      {
+                        "type": "ArrowFunctionExpression",
+                        "start": 99,
+                        "end": 107,
+                        "id": null,
+                        "generator": false,
+                        "expression": true,
+                        "async": false,
+                        "params": [
+                          {
+                            "type": "Identifier",
+                            "start": 99,
+                            "end": 100,
+                            "name": "a"
+                          }
+                        ],
+                        "body": {
+                          "type": "UnaryExpression",
+                          "start": 104,
+                          "end": 107,
+                          "operator": "!",
+                          "prefix": true,
+                          "argument": {
+                            "type": "UnaryExpression",
+                            "start": 105,
+                            "end": 107,
+                            "operator": "!",
+                            "prefix": true,
+                            "argument": {
+                              "type": "Identifier",
+                              "start": 106,
+                              "end": 107,
+                              "name": "a"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "kind": "const"
+          }
+        ],
+        "sourceType": "script"
+      });
+  });
+
     it('should parse var without initializers in scope', () => {
       expect(parseScript(`const a = {
         b (dd ) { }
