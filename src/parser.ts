@@ -1492,8 +1492,14 @@ export class Parser {
                 case Chars.Six:
                 case Chars.Seven:
                     {
-                        if (isTemplate && !(context & Context.TaggedTemplate)) return Escape.TemplateOctalLiteral;
-                        if (context & Context.Strict) return Escape.StrictOctal;
+                        if (isTemplate && !(context & Context.TaggedTemplate)) {
+                            return Escape.TemplateOctalLiteral;
+                        }
+
+                        if (context & Context.Strict) {
+                            return Escape.StrictOctal;
+                        }
+                        
                         let code = cp - Chars.Zero;
                         const index = this.index + 1;
                         const column = this.column + 1;
