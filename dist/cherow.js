@@ -287,7 +287,7 @@ ErrorMessages[103 /* InvalidAwaitInArrowParam */] = '\'await\' is not allowed in
 ErrorMessages[104 /* InvalidComplexBindingPattern */] = 'Complex binding patterns require an initialization value';
 ErrorMessages[105 /* UnsupportedFeature */] = '%0 isn\'t supported by default. Enable the \'%1\' option to use them';
 ErrorMessages[106 /* BadUntaggedTemplate */] = 'Bad escape sequence in untagged template literal';
-ErrorMessages[107 /* TemplateOctalLiteral */] = 'Octal literals are not allowed in template strings.';
+ErrorMessages[107 /* TemplateOctalLiteral */] = 'Template literals may not contain octal escape sequences';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -1635,10 +1635,12 @@ Parser.prototype.scanEscape = function scanEscape (context, cp, isTemplate) {
         case 54 /* Six */:
         case 55 /* Seven */:
             {
-                if (isTemplate && !(context & 1048576 /* TaggedTemplate */))
-                    { return -6 /* TemplateOctalLiteral */; }
-                if (context & 2 /* Strict */)
-                    { return -2 /* StrictOctal */; }
+                if (isTemplate && !(context & 1048576 /* TaggedTemplate */)) {
+                    return -6 /* TemplateOctalLiteral */;
+                }
+                if (context & 2 /* Strict */) {
+                    return -2 /* StrictOctal */;
+                }
                 var code$1 = cp - 48;
                 var index$2 = this.index + 1;
                 var column$1 = this.column + 1;
@@ -3930,9 +3932,8 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
                 { return this.parseBigIntLiteral(context); }
         case 262147 /* StringLiteral */:
             return this.parseLiteral(context);
-        case 282730 /* YieldKeyword */:
         case 262145 /* Identifier */:
-            return this.parseIdentifier(context);
+            return this.parseIdentifier(context | 1048576 /* TaggedTemplate */);
         case 274519 /* FunctionKeyword */:
             return this.parseFunctionExpression(context & ~16 /* Yield */ | 64 /* InParenthesis */, pos);
         case 274526 /* ThisKeyword */:

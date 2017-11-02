@@ -82,14 +82,14 @@ describe('Declarations - Class', () => {
             parseScript(`class C { async *gen() { void yi\u0065ld; }}`, {
                 next: true
             });
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail if escaped yield as reserved keyword are used within generator function bodies as binding identifier', () => {
         expect(() => {
             parseScript(`class C { async *gen() { void yield; }}`, {
                 next: true
             });
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on await as binding identifier', () => {
         expect(() => {

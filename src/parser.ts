@@ -4186,9 +4186,8 @@ export class Parser {
                     if (this.flags & Flags.BigInt) return this.parseBigIntLiteral(context);
                 case Token.StringLiteral:
                     return this.parseLiteral(context);
-                case Token.YieldKeyword:
                 case Token.Identifier:
-                    return this.parseIdentifier(context);
+                    return this.parseIdentifier(context | Context.TaggedTemplate);
                 case Token.FunctionKeyword:
                     return this.parseFunctionExpression(context & ~Context.Yield | Context.InParenthesis, pos);
                 case Token.ThisKeyword:
