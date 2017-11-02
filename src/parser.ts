@@ -3444,9 +3444,9 @@ export class Parser {
                 //
                 //   a => {} /x/g;   // regular expression as a division
                 //
-                body = this.parseFunctionBody(context | Context.AllowIn);
+                body = this.parseFunctionBody(context & ~Context.InParenthesis | Context.AllowIn);
             } else {
-                body = this.parseAssignmentExpression(context | Context.AllowIn);
+                body = this.parseAssignmentExpression(context & ~Context.InParenthesis | Context.AllowIn);
                 expression = true;
             }
     
@@ -5213,7 +5213,8 @@ export class Parser {
                 }
             }
     
-            if (context & (Context.InParameter | Context.InParenthesis)) {
+            
+            if (context & Context.InParameter || context & Context.InParenthesis) {
                 // In a parameter list, we only check for duplicate params
                 // if inside a strict, method or await context
                 if (context & (Context.Strict | Context.Await | Context.Method)) {

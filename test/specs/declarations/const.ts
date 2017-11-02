@@ -72,7 +72,7 @@ describe('Declarations - Const', () => {
         }).to.throw();
     });
 
-    it('should parse conditional', () => {
+    it('should parse complex', () => {
       expect(parseScript(`const    
       any = ( ...args ) => args.some( a => !!a ),
       all = ( ...args ) => args.every( a => !!a );`, {

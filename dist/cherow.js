@@ -3309,10 +3309,10 @@ Parser.prototype.parseArrowFunction = function parseArrowFunction (context, pos,
         //
         //   a => {} /x/g;   // regular expression as a division
         //
-        body = this.parseFunctionBody(context | 4 /* AllowIn */);
+        body = this.parseFunctionBody(context & ~64 /* InParenthesis */ | 4 /* AllowIn */);
     }
     else {
-        body = this.parseAssignmentExpression(context | 4 /* AllowIn */);
+        body = this.parseAssignmentExpression(context & ~64 /* InParenthesis */ | 4 /* AllowIn */);
         expression = true;
     }
     this.exitFunctionScope(savedScope);
@@ -4833,7 +4833,7 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
             this.flags |= 1024 /* BindingPosition */;
         }
     }
-    if (context & (128 /* InParameter */ | 64 /* InParenthesis */)) {
+    if (context & 128 /* InParameter */ || context & 64 /* InParenthesis */) {
         // In a parameter list, we only check for duplicate params
         // if inside a strict, method or await context
         if (context & (2 /* Strict */ | 32 /* Await */ | 65536 /* Method */)) {
