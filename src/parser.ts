@@ -202,7 +202,7 @@ export class Parser {
         private nextChar(): Chars {
             return this.source.charCodeAt(this.index);
         }
-   
+    
         private storeRaw(start: number) {
             this.tokenRaw = this.source.slice(start, this.index);
         }
@@ -1452,9 +1452,9 @@ export class Parser {
                         let code = cp - Chars.Zero;
                         let index = this.index + 1;
                         let column = this.column + 1;
-                        
+    
                         if (isTemplate && !(context & Context.TaggedTemplate)) return Escape.TemplateOctalLiteral;
-
+    
                         if (index < this.source.length) {
                             let next = this.source.charCodeAt(index);
     
@@ -1495,11 +1495,11 @@ export class Parser {
                         if (isTemplate && !(context & Context.TaggedTemplate)) {
                             return Escape.TemplateOctalLiteral;
                         }
-
+    
                         if (context & Context.Strict) {
                             return Escape.StrictOctal;
                         }
-                        
+    
                         let code = cp - Chars.Zero;
                         const index = this.index + 1;
                         const column = this.column + 1;
@@ -1905,7 +1905,7 @@ export class Parser {
             if (!this.canConsumeSemicolon()) this.throwUnexpectedToken();
             if (this.token === Token.Semicolon) this.expect(context, Token.Semicolon);
         }
-
+    
         private nextTokenIsAssign(context: Context) {
             const savedState = this.saveState();
             this.nextToken(context);
@@ -3366,7 +3366,7 @@ export class Parser {
                 case 'ObjectExpression':
                     if (this.flags & Flags.ParenthesizedPattern) this.error(Errors.InvalidParenthesizedPattern);
                     params.type = 'ObjectPattern';
-                
+    
                     // falls through
                 case 'ObjectPattern':
                     // ObjectPattern and ObjectExpression are isomorphic
@@ -3919,7 +3919,7 @@ export class Parser {
                 this.errorLocation = pos;
                 this.flags |= Flags.SimpleParameterList;
             }
-
+    
             const left = this.parseBindingPatternOrIdentifier(context, pos);
     
             // Initializer[In, Yield] :
@@ -4063,7 +4063,7 @@ export class Parser {
                 if (state & ParenthesizedState.Trailing) this.throwUnexpectedToken();
                 return this.parseArrowFunction(context & ~Context.Yield | Context.Await, pos, args);
             }
-            
+    
             // We are done, so unset the bitmask
             if (this.flags & Flags.HaveSeenAwait) this.flags &= ~Flags.HaveSeenAwait;
     
@@ -4131,8 +4131,8 @@ export class Parser {
         }
     
         private parseMetaProperty(
-            context: Context, 
-            meta: ESTree.Identifier, 
+            context: Context,
+            meta: ESTree.Identifier,
             pos: Location
         ): ESTree.MetaProperty {
             return this.finishNode(pos, {
@@ -4141,13 +4141,13 @@ export class Parser {
                 property: this.parseIdentifier(context)
             });
         }
-
+    
         private parseNewExpression(context: Context): ESTree.MetaProperty | ESTree.NewExpression {
     
             const pos = this.getLocations();
     
             if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
-            
+    
             const id = this.parseIdentifier(context);
     
             switch (this.token) {
@@ -4168,7 +4168,7 @@ export class Parser {
                     // 'import'
                 case Token.ImportKeyword:
                     this.throwUnexpectedToken();
-
+    
                 default:
     
                     return this.finishNode(pos, {
@@ -4178,7 +4178,7 @@ export class Parser {
                     });
             }
         }
-
+    
         private parsePrimaryExpression(context: Context, pos: Location) {
     
             switch (this.token) {
@@ -4223,31 +4223,22 @@ export class Parser {
                 case Token.ThrowKeyword:
                     return this.parseThrowExpression(context);
                 case Token.AwaitKeyword:
-                    if (this.flags & Flags.HasUnicode) {
-                        this.error(Errors.UnexpectedReservedWord);
-                    }
-                    if (context & Context.Await) {
-                        this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                    }
+                    if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedReservedWord);
+    
+                    if (context & Context.Await) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+    
                     if (context & Context.Module) {
                         // Valid: 'await = 0;'
                         if (!this.nextTokenIsAssign(context)) this.throwUnexpectedToken();
                     }
                     return this.parseIdentifier(context);
                 case Token.LetKeyword:
-                    if (this.flags & Flags.LineTerminator) {
-                        this.throwUnexpectedToken();
-                    }
-                    // fall through
+                    if (this.flags & Flags.LineTerminator) this.throwUnexpectedToken();
+                    // falls through
                 case Token.LessThan:
-                    if (this.flags & Flags.OptionsJSX) {
-                        return this.parseJSXElement(context | Context.JSXChild);
-                    }
+                    if (this.flags & Flags.OptionsJSX) return this.parseJSXElement(context | Context.JSXChild);
                 default:
-    
-                    if (!this.isIdentifier(context, this.token)) {
-                        this.throwUnexpectedToken();
-                    }
+                    if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
                     return this.parseIdentifier(context);
             }
         }
@@ -4315,11 +4306,11 @@ export class Parser {
                 superClass = this.parseLeftHandSideExpression(context | Context.Strict, pos);
                 flags |= ObjectState.Heritage;
             }
-
+    
             classBody = this.parseClassBody(context | Context.Strict, flags);
-
+    
             this.flags = savedFlags;
-
+    
             return this.finishNode(pos, {
                 type: 'ClassExpression',
                 id,
@@ -4452,8 +4443,8 @@ export class Parser {
     
             if (!(state & ObjectState.Modifiers) || (key && this.token === Token.LeftParen)) {
                 if (state & ObjectState.Heritage && state & ObjectState.HasConstructor) context |= Context.Constructor;
-                
-
+    
+    
                 value = this.parseMethodDefinition(context | Context.Method, state);
                 state |= ObjectState.Method;
             }
@@ -4575,17 +4566,17 @@ export class Parser {
                         name: this.tokenValue
                     });
                 }
-
+    
             } else {
-
+    
                 if (this.parseOptional(context, Token.Multiply)) {
                     state |= ObjectState.Yield | ObjectState.Method;
                 }
-
+    
                 if (this.token === Token.LeftBracket) {
                     state |= ObjectState.Computed;
                 }
-
+    
                 key = this.parsePropertyName(context);
             }
     
@@ -4609,23 +4600,23 @@ export class Parser {
                         this.errorLocation = this.getLocations();
                         this.flags |= Flags.HaveSeenAwait;
                     }
-
+    
                     value = this.parseAssignmentExpression(context);
-        
+    
                     if (this.isEvalOrArgumentsIdentifier(context, (value as any).name)) {
                         this.error(Errors.UnexpectedStrictReserved);
                     }
                     break;
     
                 default:
-                    
+    
                     if (state & ObjectState.Async || !this.isIdentifier(context, token)) {
                         this.throwUnexpectedToken();
                     }
                     if (context & Context.Yield && token === Token.YieldKeyword) {
-                        this.error(Errors.DisallowedInContext, tokenDesc(this.token));    
+                        this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                     }
-                    
+    
                     if (token === Token.AwaitKeyword) {
                         if (context & Context.Await) this.throwUnexpectedToken();
                         if (context & Context.InAsyncParameterList) {
@@ -4633,12 +4624,12 @@ export class Parser {
                             this.flags |= Flags.HaveSeenAwait;
                         }
                     }
-
+    
                     if (context & (Context.ForStatement | Context.InParenthesis) &&
                         this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
                         this.error(Errors.UnexpectedReservedWord);
                     }
-
+    
                     state |= ObjectState.Shorthand;
     
                     if (this.token === Token.Assign) {
@@ -4662,7 +4653,7 @@ export class Parser {
         private parseMethodDefinition(context: Context, state: ObjectState): ESTree.FunctionExpression {
     
             const pos = this.getLocations();
-            
+    
             if (Context.Yield | Context.Await) context &= ~(Context.Yield | Context.Await);
     
             if (state & ObjectState.Yield && !(state & ObjectState.Get)) context |= Context.Yield;
@@ -4775,7 +4766,7 @@ export class Parser {
                 if (hasMask(this.token, Token.BindingPattern)) this.error(Errors.InvalidLHSInForLoop);
                 context & ~Context.ForStatement
             }
-            
+    
             let state = ParenthesizedState.None;
     
             if (this.parseOptional(context, Token.RightParen)) {
@@ -4804,8 +4795,8 @@ export class Parser {
             if (!(state & ParenthesizedState.Parenthesized) && this.token === Token.LeftParen) {
                 state |= ParenthesizedState.Parenthesized;
             }
-            
-            if (!(state & ParenthesizedState.Pattern) && hasMask(this.token, Token.BindingPattern))  {
+    
+            if (!(state & ParenthesizedState.Pattern) && hasMask(this.token, Token.BindingPattern)) {
                 this.errorLocation = sequencePos;
                 state |= ParenthesizedState.Pattern;
             }
@@ -4861,7 +4852,7 @@ export class Parser {
             if (state & ParenthesizedState.Pattern) {
                 this.flags |= Flags.ParenthesizedPattern;
             }
-
+    
             return expr;
         }
     
@@ -5045,9 +5036,6 @@ export class Parser {
         }
     
         private parseIdentifier(context: Context): ESTree.Identifier {
-            if (context & Context.Strict && !(context & Context.Method) && this.token === Token.YieldKeyword) {
-                this.throwUnexpectedToken();
-            }
             const name = this.tokenValue;
             const pos = this.getLocations();
             this.nextToken(context);
@@ -5190,18 +5178,18 @@ export class Parser {
         }
     
         private parseBindingPatternOrIdentifier(
-            context: Context, 
+            context: Context,
             pos: Location
         ): ESTree.Identifier | ESTree.ObjectPattern {
-
+    
             switch (this.token) {
-
+    
                 case Token.LeftBracket:
                     return this.parseAssignmentElementList(context);
-
+    
                 case Token.LeftBrace:
                     return this.ObjectAssignmentPattern(context, pos);
-
+    
                 case Token.YieldKeyword:
                     if (context & Context.Yield) {
                         this.error(Errors.DisallowedInContext, tokenDesc(this.token));
@@ -5210,17 +5198,17 @@ export class Parser {
                         if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
                         this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                     }
-
+    
                 case Token.AwaitKeyword:
                     if (context & (Context.Module | Context.Await)) this.throwUnexpectedToken();
                     return this.parseBindingIdentifier(context);
-
-                    case Token.LetKeyword:
+    
+                case Token.LetKeyword:
                     if (context & Context.Strict && this.flags & Flags.HasUnicode) {
                         this.error(Errors.UnexpectedEscapedKeyword);
                     }
                     if (context & Context.Lexical) this.error(Errors.LetInLexicalBinding);
-
+    
                 default:
                     if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
                     return this.parseBindingIdentifier(context);
@@ -5298,7 +5286,7 @@ export class Parser {
             this.expect(context, Token.LeftBracket);
     
             const elements: (ESTree.Pattern | null)[] = [];
-            
+    
             while (this.token !== Token.RightBracket) {
                 if (this.parseOptional(context, Token.Comma)) {
                     elements.push(null);
