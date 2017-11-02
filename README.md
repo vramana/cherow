@@ -26,7 +26,6 @@ It's safe to use in production.
 ## ESNext features
 
 `Stage 3` features support. These need to be enabled with the `next` option. 
-**Note** This implementations can change any time until they have reached `Stage 4`.
 
 - Import()
 - Asynchronous Iteration
@@ -35,11 +34,11 @@ It's safe to use in production.
 - BigInt
 - Regular Expression's new `DotAll` flag
 - Import.meta
-- Throw expressions (*Stage 2 proposal*)
+- Throw expressions
 
 ## V8 experimental features
 
-These need to be enabled with the `v8` option.
+These need to be enabled with the `v8` option, 
 
 - Do expressions
 
@@ -50,11 +49,11 @@ These need to be enabled with the `v8` option.
 * `delegate` - Enables token syntax delegate.
 * `globalReturn` - Allow return statement in global scope
 * `jsx` - Enables JSX
-* `locations` - Enables location tracking
+* `locations` - Adds a location object with start and end subobjects on the AST node  {*line, column*}.
 * `next` - Enables `ECMAScript Next` support and let you use proposals at `stage 3` or higher such as `Import()`
 * `raw` - Enables the raw property on literal nodes (*Esprima and Acorn feature*)
-* `ranges` - Enables the start and characters offsets on the AST node
-* `sourceType` - Enables parsing in module code
+* `ranges` - Adds a range property with the start and characters offsets on the AST node
+* `sourceType` - Indicate the mode the code should be parsed in. Can be either `script` or `module`.
 * `v8` - Enables V8 experimental features
 
 ## API
