@@ -989,8 +989,9 @@ Parser.prototype.scanToken = function scanToken (context) {
             default:
                 if (isValidIdentifierStart(first))
                     { return this$1.scanUnicodeIdentifier(context); }
-                if (first >= 0x0D800 && first <= 0x0DBFF)
-                    { return this$1.scanSurrogate(context, first); }
+                if (first >= 0xD800 && first <= 0xDFFF) {
+                    return this$1.scanSurrogate(context, first);
+                }
                 this$1.error(0 /* Unexpected */);
         }
     }
@@ -1104,13 +1105,12 @@ Parser.prototype.scanIdentifierOrKeyword = function scanIdentifierOrKeyword (con
     return 262145 /* Identifier */;
 };
 Parser.prototype.scanSurrogate = function scanSurrogate (context, first) {
-    var surrogateTail = this.source.charCodeAt(this.index + 1);
-    if (!isIdentifierStart(((first - 0x0d800) << 10) + (this.source.charCodeAt(this.index + 1) - 0x0dc00) + 0x010000)) {
-        this.error(0 /* Unexpected */);
-    }
+    var next = this.source.charCodeAt(this.index + 1);
+    if (!isIdentifierStart(((first - 0x0d800) << 10) + (next - 0x0dc00) + 0x010000))
+        { this.error(0 /* Unexpected */); }
     this.index += 2;
     this.column += 2;
-    this.tokenValue = this.scanIdentifier(context, String.fromCharCode(first) + String.fromCharCode(surrogateTail));
+    this.tokenValue = this.scanIdentifier(context, fromCodePoint(first) + fromCodePoint(next));
     return 262145 /* Identifier */;
 };
 Parser.prototype.scanUnicodeIdentifier = function scanUnicodeIdentifier (context) {
@@ -1133,8 +1133,12 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context, ret) {
                 start = this$1.index;
                 break;
             default:
-                if (!isIdentifierPart(code))
-                    { break loop; }
+                if (code >= 0xD800 && code <= 0xDFFF) {
+                    code = this$1.nextUnicodeChar();
+                }
+                else if (!isIdentifierPart(code)) {
+                    break loop;
+                }
                 this$1.advance();
         }
     }

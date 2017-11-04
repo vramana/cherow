@@ -758,7 +758,9 @@ export class Parser {
                         return this.scanIdentifierOrKeyword(context);
                     default:
                         if (isValidIdentifierStart(first)) return this.scanUnicodeIdentifier(context);
-                        if (first >= 0x0D800 && first <= 0x0DBFF) return this.scanSurrogate(context, first);
+                        if (first >= 0xD800 && first <= 0xDFFF) {
+                            return this.scanSurrogate(context, first);
+                        }
                         this.error(Errors.Unexpected);
                 }
             }
@@ -890,16 +892,13 @@ export class Parser {
         }
     
         private scanSurrogate(context: Context, first: Chars): Token {
+            const next = this.source.charCodeAt(this.index + 1);
     
-            const surrogateTail = this.source.charCodeAt(this.index + 1);
-    
-            if (!isIdentifierStart(((first - 0x0d800) << 10) + (this.source.charCodeAt(this.index + 1) - 0x0dc00) + 0x010000)) {
-                this.error(Errors.Unexpected);
-            }
+            if (!isIdentifierStart(((first - 0x0d800) << 10) + (next - 0x0dc00) + 0x010000)) this.error(Errors.Unexpected);
     
             this.index += 2;
             this.column += 2;
-            this.tokenValue = this.scanIdentifier(context, String.fromCharCode(first) + String.fromCharCode(surrogateTail));
+            this.tokenValue = this.scanIdentifier(context, fromCodePoint(first) + fromCodePoint(next));
     
             return Token.Identifier;
         }
@@ -925,7 +924,11 @@ export class Parser {
                             start = this.index;
                             break;
                         default:
-                            if (!isIdentifierPart(code)) break loop;
+                            if (code >= 0xD800 && code <= 0xDFFF) {
+                                code = this.nextUnicodeChar();
+                            } else if (!isIdentifierPart(code)) {
+                                break loop;
+                            }
                             this.advance();
                     }
                 }
