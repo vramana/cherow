@@ -38,7 +38,7 @@ describe('Espressions - Yield', () => {
       it('should fail on "function* fn() { (x = yield) => {}; }"', () => {
         expect(() => {
             parseScript('function* fn() { (x = yield) => {}; } ');
-        }).to.throw();
+        }).to.not.throw();
       });
 
       it('should fail on "function yield() { "use strict"; }"', () => {
@@ -80,19 +80,20 @@ describe('Espressions - Yield', () => {
       it('should fail on "+function* fn() { (x = 3 + a.b(yield) ** 2) => {};}"', () => {
         expect(() => {
             parseScript('+function* fn() { (x = 3 + a.b(yield) ** 2) => {};}');
-        }).to.throw();
+          }).to.not.throw();
       });
 
       it('should fail on "+function* fn() { (x = 3 + a.b(yield) ** 2) => {};}"', () => {
         expect(() => {
             parseScript('+function* fn() {  (x = yield fn) => {}; }');
-        }).to.throw();
+          }).to.not.throw();
       });
 
       it('should fail on "function* fn() { (a, b = 3, x = yield) => {}; }"', () => {
         expect(() => {
             parseScript('function* fn() { (a, b = 3, x = yield) => {}; }');
-        }).to.throw();
+          }).to.not.throw();
+
       });
 
       it('should fail on "function* fn() { (x = (yield) => {}) => {}; }"', () => {
@@ -104,7 +105,7 @@ describe('Espressions - Yield', () => {
       it('should fail on invalid yield arrow default', () => {
           expect(() => {
               parseScript('function* g() { (x = yield 42) => {} }');
-          }).to.throw();
+}).to.not.throw();
       });
   
       it('should fail on invalid yield generator arrow parameter', () => {

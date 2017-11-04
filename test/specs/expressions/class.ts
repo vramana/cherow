@@ -144,7 +144,359 @@ describe('Espressions - Class', () => {
                 parseScript(`(class A {async* foo() { }})`)
             }).to.throw()
         });
-    
+        
+        it('should parse "class B extends A { foo(a = super.foo()) { return a }}"', () => {
+            expect(parseScript(`(class Service extends Component.mixin(AsyncEmitter) {
+                *addEndpoint(name, handler) {
+                    yield this.emit("beforeEndpointAdded", name, handler, this);
+                    if (!this._endpoints[name]) {
+                        this._endpoints[name] = {};
+                        this._express.use("/" + name, (req, res, next) => {
+                            if (this._endpoints[name].handler)
+                                return this._endpoints[name].handler(req, res, next);
+                            else
+                                return next();
+                        });
+                    }
+                }
+            })`, {
+                ranges: false,
+                locations: false,
+                raw: true
+            })).to.eql({
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "ClassExpression",
+                            "id": {
+                                "type": "Identifier",
+                                "name": "Service"
+                            },
+                            "superClass": {
+                                "type": "CallExpression",
+                                "callee": {
+                                    "type": "MemberExpression",
+                                    "computed": false,
+                                    "object": {
+                                        "type": "Identifier",
+                                        "name": "Component"
+                                    },
+                                    "property": {
+                                        "type": "Identifier",
+                                        "name": "mixin"
+                                    }
+                                },
+                                "arguments": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "AsyncEmitter"
+                                    }
+                                ]
+                            },
+                            "body": {
+                                "type": "ClassBody",
+                                "body": [
+                                    {
+                                        "type": "MethodDefinition",
+                                        "key": {
+                                            "type": "Identifier",
+                                            "name": "addEndpoint"
+                                        },
+                                        "computed": false,
+                                        "value": {
+                                            "type": "FunctionExpression",
+                                            "id": null,
+                                            "params": [
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "name"
+                                                },
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "handler"
+                                                }
+                                            ],
+                                            "body": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                    {
+                                                        "type": "ExpressionStatement",
+                                                        "expression": {
+                                                            "type": "YieldExpression",
+                                                            "argument": {
+                                                                "type": "CallExpression",
+                                                                "callee": {
+                                                                    "type": "MemberExpression",
+                                                                    "computed": false,
+                                                                    "object": {
+                                                                        "type": "ThisExpression"
+                                                                    },
+                                                                    "property": {
+                                                                        "type": "Identifier",
+                                                                        "name": "emit"
+                                                                    }
+                                                                },
+                                                                "arguments": [
+                                                                    {
+                                                                        "type": "Literal",
+                                                                        "value": "beforeEndpointAdded",
+                                                                        "raw": "\"beforeEndpointAdded\""
+                                                                    },
+                                                                    {
+                                                                        "type": "Identifier",
+                                                                        "name": "name"
+                                                                    },
+                                                                    {
+                                                                        "type": "Identifier",
+                                                                        "name": "handler"
+                                                                    },
+                                                                    {
+                                                                        "type": "ThisExpression"
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "delegate": false
+                                                        }
+                                                    },
+                                                    {
+                                                        "type": "IfStatement",
+                                                        "test": {
+                                                            "type": "UnaryExpression",
+                                                            "operator": "!",
+                                                            "argument": {
+                                                                "type": "MemberExpression",
+                                                                "computed": true,
+                                                                "object": {
+                                                                    "type": "MemberExpression",
+                                                                    "computed": false,
+                                                                    "object": {
+                                                                        "type": "ThisExpression"
+                                                                    },
+                                                                    "property": {
+                                                                        "type": "Identifier",
+                                                                        "name": "_endpoints"
+                                                                    }
+                                                                },
+                                                                "property": {
+                                                                    "type": "Identifier",
+                                                                    "name": "name"
+                                                                }
+                                                            },
+                                                            "prefix": true
+                                                        },
+                                                        "consequent": {
+                                                            "type": "BlockStatement",
+                                                            "body": [
+                                                                {
+                                                                    "type": "ExpressionStatement",
+                                                                    "expression": {
+                                                                        "type": "AssignmentExpression",
+                                                                        "operator": "=",
+                                                                        "left": {
+                                                                            "type": "MemberExpression",
+                                                                            "computed": true,
+                                                                            "object": {
+                                                                                "type": "MemberExpression",
+                                                                                "computed": false,
+                                                                                "object": {
+                                                                                    "type": "ThisExpression"
+                                                                                },
+                                                                                "property": {
+                                                                                    "type": "Identifier",
+                                                                                    "name": "_endpoints"
+                                                                                }
+                                                                            },
+                                                                            "property": {
+                                                                                "type": "Identifier",
+                                                                                "name": "name"
+                                                                            }
+                                                                        },
+                                                                        "right": {
+                                                                            "type": "ObjectExpression",
+                                                                            "properties": []
+                                                                        }
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "type": "ExpressionStatement",
+                                                                    "expression": {
+                                                                        "type": "CallExpression",
+                                                                        "callee": {
+                                                                            "type": "MemberExpression",
+                                                                            "computed": false,
+                                                                            "object": {
+                                                                                "type": "MemberExpression",
+                                                                                "computed": false,
+                                                                                "object": {
+                                                                                    "type": "ThisExpression"
+                                                                                },
+                                                                                "property": {
+                                                                                    "type": "Identifier",
+                                                                                    "name": "_express"
+                                                                                }
+                                                                            },
+                                                                            "property": {
+                                                                                "type": "Identifier",
+                                                                                "name": "use"
+                                                                            }
+                                                                        },
+                                                                        "arguments": [
+                                                                            {
+                                                                                "type": "BinaryExpression",
+                                                                                "operator": "+",
+                                                                                "left": {
+                                                                                    "type": "Literal",
+                                                                                    "value": "/",
+                                                                                    "raw": "\"/\""
+                                                                                },
+                                                                                "right": {
+                                                                                    "type": "Identifier",
+                                                                                    "name": "name"
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                "type": "ArrowFunctionExpression",
+                                                                                "id": null,
+                                                                                "params": [
+                                                                                    {
+                                                                                        "type": "Identifier",
+                                                                                        "name": "req"
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "Identifier",
+                                                                                        "name": "res"
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "Identifier",
+                                                                                        "name": "next"
+                                                                                    }
+                                                                                ],
+                                                                                "body": {
+                                                                                    "type": "BlockStatement",
+                                                                                    "body": [
+                                                                                        {
+                                                                                            "type": "IfStatement",
+                                                                                            "test": {
+                                                                                                "type": "MemberExpression",
+                                                                                                "computed": false,
+                                                                                                "object": {
+                                                                                                    "type": "MemberExpression",
+                                                                                                    "computed": true,
+                                                                                                    "object": {
+                                                                                                        "type": "MemberExpression",
+                                                                                                        "computed": false,
+                                                                                                        "object": {
+                                                                                                            "type": "ThisExpression"
+                                                                                                        },
+                                                                                                        "property": {
+                                                                                                            "type": "Identifier",
+                                                                                                            "name": "_endpoints"
+                                                                                                        }
+                                                                                                    },
+                                                                                                    "property": {
+                                                                                                        "type": "Identifier",
+                                                                                                        "name": "name"
+                                                                                                    }
+                                                                                                },
+                                                                                                "property": {
+                                                                                                    "type": "Identifier",
+                                                                                                    "name": "handler"
+                                                                                                }
+                                                                                            },
+                                                                                            "consequent": {
+                                                                                                "type": "ReturnStatement",
+                                                                                                "argument": {
+                                                                                                    "type": "CallExpression",
+                                                                                                    "callee": {
+                                                                                                        "type": "MemberExpression",
+                                                                                                        "computed": false,
+                                                                                                        "object": {
+                                                                                                            "type": "MemberExpression",
+                                                                                                            "computed": true,
+                                                                                                            "object": {
+                                                                                                                "type": "MemberExpression",
+                                                                                                                "computed": false,
+                                                                                                                "object": {
+                                                                                                                    "type": "ThisExpression"
+                                                                                                                },
+                                                                                                                "property": {
+                                                                                                                    "type": "Identifier",
+                                                                                                                    "name": "_endpoints"
+                                                                                                                }
+                                                                                                            },
+                                                                                                            "property": {
+                                                                                                                "type": "Identifier",
+                                                                                                                "name": "name"
+                                                                                                            }
+                                                                                                        },
+                                                                                                        "property": {
+                                                                                                            "type": "Identifier",
+                                                                                                            "name": "handler"
+                                                                                                        }
+                                                                                                    },
+                                                                                                    "arguments": [
+                                                                                                        {
+                                                                                                            "type": "Identifier",
+                                                                                                            "name": "req"
+                                                                                                        },
+                                                                                                        {
+                                                                                                            "type": "Identifier",
+                                                                                                            "name": "res"
+                                                                                                        },
+                                                                                                        {
+                                                                                                            "type": "Identifier",
+                                                                                                            "name": "next"
+                                                                                                        }
+                                                                                                    ]
+                                                                                                }
+                                                                                            },
+                                                                                            "alternate": {
+                                                                                                "type": "ReturnStatement",
+                                                                                                "argument": {
+                                                                                                    "type": "CallExpression",
+                                                                                                    "callee": {
+                                                                                                        "type": "Identifier",
+                                                                                                        "name": "next"
+                                                                                                    },
+                                                                                                    "arguments": []
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                "generator": false,
+                                                                                "expression": false,
+                                                                                "async": false
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                }
+                                                            ]
+                                                        },
+                                                        "alternate": null
+                                                    }
+                                                ]
+                                            },
+                                            "generator": true,
+                                            "expression": false,
+                                            "async": false
+                                        },
+                                        "kind": "method",
+                                        "static": false
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script"
+            });
+        });
+  
+        
+
         it('should parse "class B extends A { foo(a = super.foo()) { return a }}"', () => {
             expect(parseScript(`class B extends A { foo(a = super.foo()) { return a }}`, {
                 ranges: true

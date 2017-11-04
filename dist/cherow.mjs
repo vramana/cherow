@@ -3117,10 +3117,6 @@ Parser.prototype.parseExpression = function parseExpression (context, pos) {
     });
 };
 Parser.prototype.parseYieldExpression = function parseYieldExpression (context, pos) {
-    if (context & 64 /* InParenthesis */) {
-        this.errorLocation = pos;
-        this.flags |= 256 /* HaveSeenYield */;
-    }
     this.expect(context, 282730 /* YieldKeyword */);
     var argument = null;
     var delegate = false;
@@ -3274,6 +3270,7 @@ Parser.prototype.parseArrowFunction = function parseArrowFunction (context, pos,
     if (this.flags & 1 /* LineTerminator */)
         { this.error(67 /* LineBreakAfterAsync */); }
     this.expect(context, 10 /* Arrow */);
+    context &= ~16 /* Yield */;
     // Unsetting the 'AllowCall' mask here, let the parser fail correctly
     // if a non-simple arrow are followed by a call expression.
     //
@@ -4441,6 +4438,11 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
         }
         this.error(69 /* MissingArrowAfterParentheses */);
     }
+    // Create a lexical scope node around the whole ForStatement
+    var blockScope = this.blockScope;
+    if (blockScope !== undefined)
+        { this.parentScope = blockScope; }
+    this.blockScope = undefined;
     var expr;
     if (this.token === 14 /* Ellipsis */) {
         expr = this.parseRestElement(context);
