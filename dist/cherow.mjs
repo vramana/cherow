@@ -4840,7 +4840,7 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
     if (context & 128 /* InParameter */ || context & 64 /* InParenthesis */) {
         // In a parameter list, we only check for duplicate params
         // if inside a strict, method or await context
-        if (context & (2 /* Strict */ | 32 /* Await */ | 65536 /* Method */)) {
+        if (context & (2 /* Strict */ | 32 /* Await */) && !(context & 65536 /* Method */)) {
             this.addFunctionArg(name);
         }
     }

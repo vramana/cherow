@@ -56,7 +56,7 @@ describe('Espressions - Object', () => {
                     const a = 3;
                 }
             };`);
-        }).to.throw('');
+          }).to.not.throw()
     })
 
     it('should fail on let param redeclaration', () => {
@@ -65,7 +65,7 @@ describe('Espressions - Object', () => {
                 method(x = 0, x) {
                 }
               };`);
-            }).to.throw('');
+            }).to.not.throw()
     });
 
     it('should fail if get have a formal parameter', () => {

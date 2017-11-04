@@ -5226,7 +5226,7 @@ export class Parser {
             if (context & Context.InParameter || context & Context.InParenthesis) {
                 // In a parameter list, we only check for duplicate params
                 // if inside a strict, method or await context
-                if (context & (Context.Strict | Context.Await | Context.Method)) {
+                if (context & (Context.Strict | Context.Await) && !(context & Context.Method)) {
                     this.addFunctionArg(name);
                 }
             } else {

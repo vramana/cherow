@@ -81,7 +81,7 @@ describe('Expressions - Async Object', () => {
             parseScript(`({
                 async foo(a, a) { }
               })`, { next: true});
-     }).to.throw()
+     }).to.not.throw()
     });
 
     it('should fail if FormalParameters contains eval in strict mode', () => {

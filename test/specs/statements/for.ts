@@ -599,6 +599,140 @@ describe('Statements - For', () => {
     });
 
     it('should parse complex with for and catch in function body"', () => {
+      expect(parseScript(`(class ServiceApi extends Component.mixin(AsyncEmitter) {
+        *initialize() {
+            for (let v in apiDesc) { }
+            for (let v in this._api) { }
+        }
+    })`, {
+          ranges: false,
+          raw: true,
+          next: true
+      })).to.eql({
+        "type": "Program",
+        "body": [
+            {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "ClassExpression",
+                    "id": {
+                        "type": "Identifier",
+                        "name": "ServiceApi"
+                    },
+                    "superClass": {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": {
+                                "type": "Identifier",
+                                "name": "Component"
+                            },
+                            "property": {
+                                "type": "Identifier",
+                                "name": "mixin"
+                            }
+                        },
+                        "arguments": [
+                            {
+                                "type": "Identifier",
+                                "name": "AsyncEmitter"
+                            }
+                        ]
+                    },
+                    "body": {
+                        "type": "ClassBody",
+                        "body": [
+                            {
+                                "type": "MethodDefinition",
+                                "key": {
+                                    "type": "Identifier",
+                                    "name": "initialize"
+                                },
+                                "computed": false,
+                                "value": {
+                                    "type": "FunctionExpression",
+                                    "id": null,
+                                    "params": [],
+                                    "body": {
+                                        "type": "BlockStatement",
+                                        "body": [
+                                            {
+                                                "type": "ForInStatement",
+                                                "left": {
+                                                    "type": "VariableDeclaration",
+                                                    "declarations": [
+                                                        {
+                                                            "type": "VariableDeclarator",
+                                                            "id": {
+                                                                "type": "Identifier",
+                                                                "name": "v"
+                                                            },
+                                                            "init": null
+                                                        }
+                                                    ],
+                                                    "kind": "let"
+                                                },
+                                                "right": {
+                                                    "type": "Identifier",
+                                                    "name": "apiDesc"
+                                                },
+                                                "body": {
+                                                    "type": "BlockStatement",
+                                                    "body": []
+                                                }
+                                            },
+                                            {
+                                                "type": "ForInStatement",
+                                                "left": {
+                                                    "type": "VariableDeclaration",
+                                                    "declarations": [
+                                                        {
+                                                            "type": "VariableDeclarator",
+                                                            "id": {
+                                                                "type": "Identifier",
+                                                                "name": "v"
+                                                            },
+                                                            "init": null
+                                                        }
+                                                    ],
+                                                    "kind": "let"
+                                                },
+                                                "right": {
+                                                    "type": "MemberExpression",
+                                                    "computed": false,
+                                                    "object": {
+                                                        "type": "ThisExpression"
+                                                    },
+                                                    "property": {
+                                                        "type": "Identifier",
+                                                        "name": "_api"
+                                                    }
+                                                },
+                                                "body": {
+                                                    "type": "BlockStatement",
+                                                    "body": []
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "generator": true,
+                                    "expression": false,
+                                    "async": false
+                                },
+                                "kind": "method",
+                                "static": false
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        "sourceType": "script"
+    });
+    });
+
+    it('should parse complex with for and catch in function body"', () => {
       expect(parseScript(`function a( head, tail )
       {
           const defs = [ head ].concat( extract( tail, 3 ) );
