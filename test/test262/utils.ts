@@ -122,10 +122,11 @@ export const getTests = (testDir: any, shouldSkip: any) => {
 export const runTest = (test: any, parse: any) => {
     
   if (test.skip) return test
-  const sourceType = test.isModule ? "module" : "script";
+  const sourceType = test.isModule ? 'module' : 'script';
+  const next = true;
 
   try {
-    parse(test.content, { sourceType });
+    parse(test.content, { sourceType, next });
     test.actualError = false;
   } catch (err) {
     test.actualError = true;

@@ -1,5 +1,16 @@
 ## Test262 test runner
 
+Programs can be skipped in the whitelist file, but none are skipped for now!
+
+**Postive positive**
+
+ - 50152 valid programs parsed without error
+ - 3488 invalid programs produced a parsing error
+
+ **Negative results**
+
+ - 342 invalid programs did not produce a parsing error
+
 #### How to
 
 - Install ts-node global
