@@ -4446,6 +4446,7 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
     }
     // Create a lexical scope node around the whole ForStatement
     var blockScope = this.blockScope;
+    var parentScope = this.parentScope;
     if (blockScope !== undefined)
         { this.parentScope = blockScope; }
     this.blockScope = undefined;
@@ -4503,6 +4504,9 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
     if (!(this.flags & 8 /* AllowCall */))
         { this.flags |= 8 /* AllowCall */; }
     this.expect(context, 16 /* RightParen */);
+    this.blockScope = blockScope;
+    if (blockScope !== undefined)
+        { this.parentScope = parentScope; }
     if (this.token === 10 /* Arrow */) {
         if (this.flags & 256 /* HaveSeenYield */)
             { this.error(102 /* InvalidArrowYieldParam */); }

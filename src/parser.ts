@@ -3243,7 +3243,7 @@ export class Parser {
             context: Context,
             pos: Location
         ): ESTree.YieldExpression {
-        
+    
             this.expect(context, Token.YieldKeyword);
     
             let argument: ESTree.Expression | null = null;
@@ -3407,9 +3407,9 @@ export class Parser {
             if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
     
             this.expect(context, Token.Arrow);
-                
+    
             context &= ~Context.Yield;
-
+    
             // Unsetting the 'AllowCall' mask here, let the parser fail correctly
             // if a non-simple arrow are followed by a call expression.
             //
@@ -4755,14 +4755,14 @@ export class Parser {
                 }
                 this.error(Errors.MissingArrowAfterParentheses);
             }
-       // Create a lexical scope node around the whole ForStatement
-       const blockScope = this.blockScope;
-       const parentScope = this.parentScope;
-
-       if (blockScope !== undefined) this.parentScope = blockScope;
-
-       this.blockScope = undefined;
-
+            // Create a lexical scope node around the whole ForStatement
+            const blockScope = this.blockScope;
+            const parentScope = this.parentScope;
+    
+            if (blockScope !== undefined) this.parentScope = blockScope;
+    
+            this.blockScope = undefined;
+    
             let expr: ESTree.Expression;
     
             if (this.token === Token.Ellipsis) {
@@ -4826,6 +4826,9 @@ export class Parser {
             if (!(this.flags & Flags.AllowCall)) this.flags |= Flags.AllowCall;
     
             this.expect(context, Token.RightParen);
+    
+            this.blockScope = blockScope;
+            if (blockScope !== undefined) this.parentScope = parentScope;
     
             if (this.token === Token.Arrow) {
                 if (this.flags & Flags.HaveSeenYield) this.error(Errors.InvalidArrowYieldParam);
