@@ -2,7 +2,7 @@
 
 Programs can be skipped in the whitelist file, but none are skipped for now!
 
-**Postive positive**
+**Postive results**
 
  - 50152 valid programs parsed without error
  - 3488 invalid programs produced a parsing error
