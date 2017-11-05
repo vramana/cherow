@@ -13,8 +13,7 @@ Programs can be skipped in the whitelist file, but none are skipped for now!
 
 #### How to
 
-- Install ts-node global
-- Type `ts-node run` on the CMD when you are in the `/test/test262 folder`
+- Type `node run` on the CMD when you are in the `/test/test262 folder`
 
 ### Credits
 

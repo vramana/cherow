@@ -1,11 +1,7 @@
-/**
- * Some of the code in this file are "extracted" from  a MIT-licensed test runner implemented 
- * by Mike Pennisi for the babel project.
- */
-
-import { relative, join } from 'path';
+"use strict";
 
 const fs = require("graceful-fs");
+const path = require("path");
 const promisify = require("util.promisify");
 const pfs = {
   readFile: promisify(fs.readFile),
@@ -20,9 +16,9 @@ const onlyStrictPattern = /^\s*-\s*onlyStrict\s*$|^\s*flags\s*:.*\bonlyStrict\b/
 const rawPattern = /^\s*-\s*raw\s*$|^\s*flags\s*:.*\braw\b/m;
 const testNamePattern = /^(?!.*_FIXTURE).*\.[jJ][sS]$/;
 
-function flatten(array: any) {
-  const flattened: any = [];
-  array.forEach((element: any) => {
+function flatten(array) {
+  const flattened = [];
+  array.forEach(function(element) {
     if (Array.isArray(element)) {
       flattened.push.apply(flattened, element);
     } else {
@@ -32,24 +28,24 @@ function flatten(array: any) {
   return flattened;
 }
 
-function hasEarlyError(src: any) {
+function hasEarlyError(src) {
   return !!(
     src.match(/^\s*negative:\s*$/m) && src.match(/^\s+phase:\s*early\s*$/m)
   );
 }
 
-function readDirDeep(dirName: any) {
-  return pfs.readdir(dirName).then((contents: any) => {
+function readDirDeep(dirName) {
+  return pfs.readdir(dirName).then(function(contents) {
     return Promise.all(
-      contents.map((name: any) => {
-        return findTests(join(dirName, name));
+      contents.map(function(name) {
+        return findTests(path.join(dirName, name));
       })
     ).then(flatten);
   });
 }
 
-function findTests(name: any) {
-  return pfs.stat(name).then((stat: any) => {
+function findTests(name) {
+  return pfs.stat(name).then(function(stat) {
     if (stat.isDirectory()) {
       return readDirDeep(name);
     }
@@ -58,17 +54,17 @@ function findTests(name: any) {
   });
 }
 
-function readTest(fileName: any, testDir: any, shouldSkip: any) {
+function readTest(fileName, testDir, shouldSkip) {
   if (!testNamePattern.test(fileName)) {
     return Promise.resolve([]);
   }
 
-  return pfs.readFile(fileName, "utf-8").then((contents: any) => {
-    return makeScenarios(relative(testDir, fileName), contents, shouldSkip(contents));
+  return pfs.readFile(fileName, "utf-8").then(function(contents) {
+    return makeScenarios(path.relative(testDir, fileName), contents, shouldSkip(contents));
   });
 }
 
-function makeScenarios(fileName: any, testContent: any, skip: any) {
+function makeScenarios(fileName, testContent, skip) {
   const scenarios = [];
   const base = {
     fileName: fileName,
@@ -107,11 +103,11 @@ function makeScenarios(fileName: any, testContent: any, skip: any) {
   return scenarios;
 }
 
-export const getTests = (testDir: any, shouldSkip: any) => {
+exports.getTests = function(testDir, shouldSkip) {
   return findTests(testDir)
-    .then((testPaths: any) => {
+    .then(function(testPaths) {
       return Promise.all(
-        testPaths.map((path: any) => {
+        testPaths.map(function(path) {
           return readTest(path, testDir, shouldSkip);
         })
       );
@@ -119,12 +115,11 @@ export const getTests = (testDir: any, shouldSkip: any) => {
     .then(flatten);
 };
 
-export const runTest = (test: any, parse: any) => {
-    
+exports.runTest = function(test, parse) {
+  
   if (test.skip) return test
-  const sourceType = test.isModule ? 'module' : 'script';
+  const sourceType = test.isModule ? "module" : "script";
   const next = true;
-
   try {
     parse(test.content, { sourceType, next });
     test.actualError = false;
@@ -135,12 +130,12 @@ export const runTest = (test: any, parse: any) => {
   return test;
 };
 
-export const interpret = (results: any, whitelist: any) => {
-  whitelist = whitelist.reduce((res: any, v: any) => {
+exports.interpret = function(results, whitelist) {
+  whitelist = whitelist.reduce((res, v) => {
     res[v] = true
     return res
   }, {})
-  const summary: any = {
+  const summary = {
     passed: true,
     allowed: {
       success: [],
@@ -158,8 +153,8 @@ export const interpret = (results: any, whitelist: any) => {
     skipped: []
   };
 
-  results.forEach((result: any) => {
-    let classification: any, isAllowed: any;
+  results.forEach(function(result) {
+    let classification, isAllowed;
     const inWhitelist = result.id in whitelist;
     delete whitelist[result.id];
 

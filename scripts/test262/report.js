@@ -1,7 +1,7 @@
 const utils = require("./utils");
 const chalk = require("chalk");
 
-export const report = (results: any, whitelist: any) => {
+module.exports = (results, whitelist) => {
   const summary = utils.interpret(results, whitelist);
   const goodnews = [
     summary.allowed.success.length + " valid programs parsed without error",
@@ -16,8 +16,8 @@ export const report = (results: any, whitelist: any) => {
     summary.skipped.length +
       " programs were skipped"
   ];
-  const badnews: any = [];
-  const badnewsDetails: any = [];
+  const badnews = [];
+  const badnewsDetails = [];
 
   void [
     {
@@ -48,7 +48,7 @@ export const report = (results: any, whitelist: any) => {
       tests: summary.unrecognized,
       label: "non-existent programs specified in the whitelist file",
     },
-  ].forEach(function({ tests, label }: any) {
+  ].forEach(function({ tests, label }) {
     if (!tests.length) {
       return;
     }
@@ -58,7 +58,7 @@ export const report = (results: any, whitelist: any) => {
     badnews.push(desc);
     badnewsDetails.push(desc + ":");
     badnewsDetails.push(
-      ...tests.map(function(test: any) {
+      ...tests.map(function(test) {
         return test.id || test;
       })
     );
@@ -73,7 +73,7 @@ export const report = (results: any, whitelist: any) => {
     console.log(chalk.red(badnews.join("\n").replace(/^/gm, " ✘ ")));
     console.log("");
     console.log("Details:");
-    //console.log(badnewsDetails.join("\n").replace(/^/gm, "   "));
+    // console.log(badnewsDetails.join("\n").replace(/^/gm, "   "));
   }
 
   process.exitCode = summary.passed ? 0 : 1;
