@@ -2696,7 +2696,7 @@ export class Parser {
             let kind = '';
             let body;
             let test = null;
-            const token = this.token;
+            let token = this.token;
             let state = IterationState.None;
     
             // Asynchronous Iteration - Stage 3 proposal
@@ -2717,40 +2717,33 @@ export class Parser {
             this.blockScope = undefined;
     
             this.expect(context, Token.LeftParen);
-    
+
+            token = this.token;
+
             if (this.token !== Token.Semicolon) {
     
-                switch (this.token) {
-                    case Token.LetKeyword:
-                        if (!this.isLexical(context)) break;
-                        context |= Context.Let | Context.AllowIn;
-                        state |= IterationState.Let;
-                        break;
-                    case Token.VarKeyword:
-                        state |= IterationState.Var;
-                        break;
-                    case Token.ConstKeyword:
-                        context |= Context.Const | Context.AllowIn;
-                        state |= IterationState.Const;
-                        break;
-                    default:
-                        // ignore
-                }
-    
-                if (state & (IterationState.Lexical | IterationState.Var)) {
                     const startIndex = this.getLocations();
-                    kind = tokenDesc(this.token);
-                    this.nextToken(context);
-                    declarations = this.parseVariableDeclarationList(context | Context.ForStatement);
     
-                    init = this.finishNode(startIndex, {
-                        type: 'VariableDeclaration',
-                        declarations,
-                        kind
-                    });
-                } else {
-                    init = this.parseExpression(context & ~Context.AllowIn | Context.ForStatement, pos);
-                }
+                    if (this.isLexical(context) && this.parseOptional(context, Token.LetKeyword)) {
+                        state |= IterationState.Let;
+                        declarations = this.parseVariableDeclarationList(context | (Context.Let | Context.AllowIn | Context.ForStatement));
+                    } else if (this.parseOptional(context, Token.VarKeyword)) {
+                        state |= IterationState.Var;
+                        declarations = this.parseVariableDeclarationList(context | Context.ForStatement);
+                    } else if (this.parseOptional(context, Token.ConstKeyword)) {
+                        state |= IterationState.Const;
+                        declarations = this.parseVariableDeclarationList(context | (Context.Const | Context.AllowIn | Context.ForStatement));
+                    } else {
+                        init = this.parseExpression(context & ~Context.AllowIn | Context.ForStatement, pos);
+                    }
+        
+                    if (state & (IterationState.Lexical | IterationState.Var)) {
+                        init = this.finishNode(startIndex, {
+                            type: 'VariableDeclaration',
+                            declarations,
+                            kind: tokenDesc(token)
+                        });
+                    }
             }
     
             this.flags = savedFlag;
@@ -3396,7 +3389,7 @@ export class Parser {
                     // Fall through
     
                 default:
-                   this.throwUnexpectedToken();
+                    this.throwUnexpectedToken();
             }
         }
     

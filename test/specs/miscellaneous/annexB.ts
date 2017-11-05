@@ -409,7 +409,7 @@ describe('Miscellaneous - AnnexB semantics', () => {
     });
     });
 
-    it.skip('should parse block declaration function skipping early error in for of', () => {
+    it('should parse block declaration function skipping early error in for of', () => {
       expect(parseScript('for (let f of [0]) { { function f() {  } } }', {
           ranges: true,
           raw: true,
@@ -619,7 +619,7 @@ describe('Miscellaneous - AnnexB semantics', () => {
       });
     });
 
-    it.skip('should parse block statemdeclaration skipping early error in for statement', () => {
+    it('should parse block statemdeclaration skipping early error in for statement', () => {
       expect(parseScript('for (let f; ; ) { { function f() {  } } break; }', {
           ranges: true,
           raw: true,
@@ -1846,7 +1846,7 @@ describe('Miscellaneous - AnnexB semantics', () => {
       });
     });
 
-    it.skip('should skip early error in switch function for in', () => {
+    it('should skip early error in switch function for in', () => {
       expect(parseScript('for (let f in { key: 0 }) { switch (1) { default: function f() {  } } }', {
           ranges: true,
           raw: true,

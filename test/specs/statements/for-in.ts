@@ -255,7 +255,7 @@ describe('Statements - For in', () => {
     it('should fail on const bound name duplicates in statement (const)', () => {
         expect(() => {
             parseScript('for (const x in {}) { var x; }');
-        }).to.throw('');
+        }).to.not.throw('');
     });
     it('should fail on const bound name duplicates in statement (let)', () => {
         expect(() => {

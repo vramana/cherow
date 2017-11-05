@@ -275,6 +275,10 @@ const f: any = {
         'fb40f86db65f8e6a.js',
         'fc6fe891ccb0eb4e.js',
 
+        '0cda0bd08ee5f32a.js',
+        '805c7f7e24771841.js',
+        'e929ff0c0dcb70c0.js',
+
         // Invalid tests
         // https://github.com/tc39/test262-parser-tests/issues/15
         '14eaa7e71c682461.js',

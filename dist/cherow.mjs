@@ -2661,7 +2661,6 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
     this.expect(context, 12374 /* ForKeyword */);
     var init = null;
     var declarations = null;
-    var kind = '';
     var body;
     var test = null;
     var token = this.token;
@@ -2681,36 +2680,30 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
         { this.parentScope = blockScope; }
     this.blockScope = undefined;
     this.expect(context, 262155 /* LeftParen */);
+    token = this.token;
     if (this.token !== 17 /* Semicolon */) {
-        switch (this.token) {
-            case 8671304 /* LetKeyword */:
-                if (!this.isLexical(context))
-                    { break; }
-                context |= 4194304 /* Let */ | 4 /* AllowIn */;
-                state |= 4 /* Let */;
-                break;
-            case 8663111 /* VarKeyword */:
-                state |= 1 /* Var */;
-                break;
-            case 8663113 /* ConstKeyword */:
-                context |= 8388608 /* Const */ | 4 /* AllowIn */;
-                state |= 2 /* Const */;
-                break;
-            default:
+        var startIndex = this.getLocations();
+        if (this.isLexical(context) && this.parseOptional(context, 8671304 /* LetKeyword */)) {
+            state |= 4 /* Let */;
+            declarations = this.parseVariableDeclarationList(context | (4194304 /* Let */ | 4 /* AllowIn */ | 524288 /* ForStatement */));
         }
-        if (state & (6 /* Lexical */ | 1 /* Var */)) {
-            var startIndex = this.getLocations();
-            kind = tokenDesc(this.token);
-            this.nextToken(context);
+        else if (this.parseOptional(context, 8663111 /* VarKeyword */)) {
+            state |= 1 /* Var */;
             declarations = this.parseVariableDeclarationList(context | 524288 /* ForStatement */);
-            init = this.finishNode(startIndex, {
-                type: 'VariableDeclaration',
-                declarations: declarations,
-                kind: kind
-            });
+        }
+        else if (this.parseOptional(context, 8663113 /* ConstKeyword */)) {
+            state |= 2 /* Const */;
+            declarations = this.parseVariableDeclarationList(context | (8388608 /* Const */ | 4 /* AllowIn */ | 524288 /* ForStatement */));
         }
         else {
             init = this.parseExpression(context & ~4 /* AllowIn */ | 524288 /* ForStatement */, pos);
+        }
+        if (state & (6 /* Lexical */ | 1 /* Var */)) {
+            init = this.finishNode(startIndex, {
+                type: 'VariableDeclaration',
+                declarations: declarations,
+                kind: tokenDesc(token)
+            });
         }
     }
     this.flags = savedFlag;
