@@ -37,5 +37,5 @@ export const run = (testDir: string, parse: any, shouldSkip: any) => {
         },
         (testContent: string) => 
         (testContent.match(/^features: \[.*\b(regexp-named-groups|class-fields|regexp-unicode-property-escapes|regexp-lookbehind)\b.*\]$/m))).then((results: any) =>
-         report(results, readFileSync('./test/test262/whitelist', 'utf8').split('\n').filter((v: string) => 
+         report(results, readFileSync('./scripts/test262/whitelist', 'utf8').split('\n').filter((v: string) => 
          v)));
