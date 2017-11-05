@@ -73,7 +73,7 @@ export const report = (results: any, whitelist: any) => {
     console.log(chalk.red(badnews.join("\n").replace(/^/gm, " ✘ ")));
     console.log("");
     console.log("Details:");
- //   console.log(badnewsDetails.join("\n").replace(/^/gm, "   "));
+    //console.log(badnewsDetails.join("\n").replace(/^/gm, "   "));
   }
 
   process.exitCode = summary.passed ? 0 : 1;

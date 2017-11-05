@@ -2765,7 +2765,7 @@ export class Parser {
                         // Only a single variable declaration is allowed in a for of statement
                         if (declarations && declarations[0].init != null) this.error(Errors.InvalidVarInitForOf);
                     } else {
-                        this.reinterpretAsPattern(context, init);
+                        this.reinterpretAsPattern(context | Context.ForStatement, init);
                         if (!isValidDestructuringAssignmentTarget(init)) this.error(Errors.InvalidLHSInForLoop);
                     }
     
@@ -3353,7 +3353,7 @@ export class Parser {
                     // ObjectPattern and ObjectExpression are isomorphic
                     for (let i = 0; i < params.properties.length; i++) {
                         const property = params.properties[i];
-                        if (property.kind !== 'init') this.throwUnexpectedToken();
+                        if (!(context & Context.ForStatement) && property.kind !== 'init') this.throwUnexpectedToken();
                         this.reinterpretAsPattern(context, property.type === 'SpreadElement' ? property : property.value);
                     }
                     return;
@@ -3396,7 +3396,7 @@ export class Parser {
                     // Fall through
     
                 default:
-                    this.throwUnexpectedToken();
+                   this.throwUnexpectedToken();
             }
         }
     

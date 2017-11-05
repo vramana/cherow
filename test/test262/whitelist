@@ -1,9 +1,0 @@
-# This file lists tests that are known to produce incorrect results when parsed
-# with Cherow:
-#
-# - Tests that are expected to parse successfully but for which Cherow reports
-#   a syntax error
-# - Tests that contain invalid syntax but for which Cherow reports no syntax
-#   error
-#
-# Entries should be removed incrementally as Cherow is improved.

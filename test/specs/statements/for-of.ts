@@ -5321,4 +5321,205 @@ describe('Statements - For of', () => {
             
         });
 
+        it('should parse "for ({...rest} of ["foo"]) {}"', () => {
+            expect(parseScript(`for ({...rest} of ["foo"]) {}`, {
+                ranges: true,
+                raw: true,
+                next: true,
+                v8: true
+            })).to.eql({
+                  "body": [
+                    {
+                      "await": false,
+                      "body": {
+                       "body": [],
+                        "end": 29,
+                        "start": 27,
+                        "type": "BlockStatement",
+                      },
+                      "end": 29,
+                      "left": {
+                        "end": 14,
+                        "properties": [
+                          {
+                            "argument": {
+                              "end": 13,
+                              "name": "rest",
+                              "start": 9,
+                              "type": "Identifier",
+                            },
+                            "end": 13,
+                            "start": 6,
+                            "type": "RestElement",
+                          }
+                       ],
+                        "start": 5,
+                       "type": "ObjectPattern",
+                      },
+                      "right": {
+                        "elements": [
+                          {
+                           "end": 24,
+                            "raw": "\"foo\"",
+                            "start": 19,
+                            "type": "Literal",
+                            "value": "foo",
+                          }
+                        ],
+                        "end": 25,
+                        "start": 18,
+                        "type": "ArrayExpression",
+                      },
+                      "start": 0,
+                      "type": "ForOfStatement",
+                    }
+                  ],
+                  "end": 29,
+                  "sourceType": "script",
+                  "start": 0,
+                  "type": "Program"
+                });
+        });
+
+        it('should parse conditional', () => {
+            expect(parseScript(`async function * fn() { for await ({...rest} of [51]) {  } }`, {
+                ranges: true,
+                raw: true,
+                next: true,
+                v8: true
+            })).to.eql({
+                  "body": [
+                    {
+                      "async": true,
+                      "body": {
+                        "body": [
+                          {
+                            "await": true,
+                            "body": {
+                             "body": [],
+                              "end": 58,
+                              "start": 54,
+                              "type": "BlockStatement",
+                            },
+                            "end": 58,
+                            "left": {
+                              "end": 44,
+                              "properties": [
+                                {
+                                  "argument": {
+                                    "end": 43,
+                                    "name": "rest",
+                                    "start": 39,
+                                    "type": "Identifier",
+                                  },
+                                  "end": 43,
+                                  "start": 36,
+                                  "type": "RestElement",
+                                },
+                              ],
+                              "start": 35,
+                              "type": "ObjectPattern",
+                            },
+                            "right": {
+                              "elements": [
+                                {
+                                  "end": 51,
+                                  "raw": "51",
+                                  "start": 49,
+                                  "type": "Literal",
+                                  "value": 51,
+                                }
+                              ],
+                              "end": 52,
+                              "start": 48,
+                              "type": "ArrayExpression",
+                            },
+                           "start": 24,
+                            "type": "ForOfStatement",
+                          },
+                        ],
+                        "end": 60,
+                        "start": 22,
+                        "type": "BlockStatement",
+                      },
+                      "end": 60,
+                      "expression": false,
+                      "generator": true,
+                      "id": {
+                        "end": 19,
+                        "name": "fn",
+                        "start": 17,
+                        "type": "Identifier",
+                      },
+                      "params": [],
+                      "start": 0,
+                      "type": "FunctionDeclaration",
+                    }
+                  ],
+                  "end": 60,
+                  "sourceType": "script",
+                  "start": 0,
+                  "type": "Program"
+                });
+        });
+
+        it('should parse conditional', () => {
+            expect(parseScript(`for ({...rest} of [undefined]) {}`, {
+                ranges: true,
+                raw: true,
+                next: true,
+                v8: true
+            })).to.eql({
+                  "body": [
+                    {
+                      "await": false,
+                      "body": {
+                        "body": [],
+                        "end": 33,
+                       "start": 31,
+                        "type": "BlockStatement",
+                      },
+                      "end": 33,
+                      "left": {
+                        "end": 14,
+                        "properties": [
+                          {
+                            "argument": {
+                              "end": 13,
+                              "name": "rest",
+                              "start": 9,
+                              "type": "Identifier",
+                            },
+                            "end": 13,
+                           "start": 6,
+                            "type": "RestElement",
+                          },
+                        ],
+                        "start": 5,
+                        "type": "ObjectPattern",
+                      },
+                      "right": {
+                        "elements": [
+                          {
+                            "end": 28,
+                            "name": "undefined",
+                            "start": 19,
+                            "type": "Identifier",
+                          },
+                        ],
+                        "end": 29,
+                        "start": 18,
+                        "type": "ArrayExpression",
+                      },
+                      "start": 0,
+                      "type": "ForOfStatement",
+                    },
+                  ],
+                  "end": 33,
+                  "sourceType": "script",
+                  "start": 0,
+                  "type": "Program",
+                });
+        });
+
     });
