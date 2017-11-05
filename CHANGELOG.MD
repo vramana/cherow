@@ -52,3 +52,7 @@
 
 *2017-10-24: Version 0.10.5*
 - Implemented JSX fragment support
+
+*2017-11-5: Version 0.12.0*
+- Added Test262 test runner
+- Fixed several bugs

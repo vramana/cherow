@@ -1,4 +1,4 @@
-## Test262 test runner
+# Test262 test runner
 
 Programs can be skipped in the whitelist file, but none are skipped for now!
 
@@ -11,9 +11,21 @@ Programs can be skipped in the whitelist file, but none are skipped for now!
 
  - 344 invalid programs did not produce a parsing error
 
-#### How to
+### How to
 
 - Type `node run` on the CMD when you are in the `/test/test262 folder`
+
+## Important
+The rest results are not so bad as they may look like. Some of the tests that can't parse, are actually parsing! Just try example this test in the online demo and they all pass! So the amount of tests that doesn't pass is incorrect.
+
+- language\expressions\class\gen-method-static-yield-spread-obj.js
+- language\expressions\class\gen-method-static-yield-spread-obj.js
+- language\expressions\class\gen-method-yield-spread-obj.js
+- language\function-code\switch-case-decl-strict.js
+- language/statements/try/scope-catch-block-lex-close.js
+- language\statements\for-of\dstr-obj-rest-put-const.js
+*.. and many more*
+
 
 ### Credits
 

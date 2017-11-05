@@ -4404,7 +4404,7 @@ Parser.prototype.parseArrayInitializer = function parseArrayInitializer (context
                 this$1.errorLocation = this$1.getLocations();
             }
             // Invalid: 'function* f() { [yield {a = 0}]; }'
-            if (context & 16 /* Yield */ && this$1.flags & 4 /* InFunctionBody */ && this$1.token === 282730 /* YieldKeyword */) {
+            if (context & 16 /* Yield */ && !(context & 65536 /* Method */) && this$1.flags & 4 /* InFunctionBody */ && this$1.token === 282730 /* YieldKeyword */) {
                 this$1.error(78 /* InvalidShorthandAssignment */);
             }
             elements.push(this$1.parseAssignmentExpression(context | 4 /* AllowIn */));

@@ -4716,7 +4716,7 @@ export class Parser {
                     }
     
                     // Invalid: 'function* f() { [yield {a = 0}]; }'
-                    if (context & Context.Yield && this.flags & Flags.InFunctionBody && this.token === Token.YieldKeyword) {
+                    if (context & Context.Yield && !(context & Context.Method) && this.flags & Flags.InFunctionBody && this.token === Token.YieldKeyword) {
                         this.error(Errors.InvalidShorthandAssignment);
                     }
     

@@ -5463,6 +5463,67 @@ describe('Statements - For of', () => {
                 });
         });
 
+        
+        it('should parse conditional', () => {
+            expect(parseScript(`for ({...rest} of ["foo"]) {}`, {
+                ranges: true,
+                raw: true,
+                next: true,
+                v8: true
+            })).to.eql({
+                  "body": [
+                    {
+                      "await": false,
+                      "body": {
+                        "body": [],
+                        "end": 29,
+                       "start": 27,
+                        "type": "BlockStatement"
+                      },
+                      "end": 29,
+                      "left": {
+                        "end": 14,
+                        "properties": [
+                          {
+                            "argument": {
+                              "end": 13,
+                              "name": "rest",
+                              "start": 9,
+                              "type": "Identifier",
+                            },
+                            "end": 13,
+                            "start": 6,
+                            "type": "RestElement",
+                          },
+                        ],
+                        "start": 5,
+                        "type": "ObjectPattern",
+                      },
+                      "right": {
+                        "elements": [
+                          {
+                            "end": 24,
+                            "raw": "\"foo\"",
+                            "start": 19,
+                            "type": "Literal",
+                            "value": "foo",
+                          }
+                        ],
+                        "end": 25,
+                        "start": 18,
+                        "type": "ArrayExpression",
+                      },
+                      "start": 0,
+                      "type": "ForOfStatement",
+                    },
+                  ],
+                  "end": 29,
+                  "sourceType": "script",
+                  "start": 0,
+                  "type": "Program",
+                });
+        });
+
         it('should parse conditional', () => {
             expect(parseScript(`for ({...rest} of [undefined]) {}`, {
                 ranges: true,

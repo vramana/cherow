@@ -38,4 +38,3 @@ const run = (testDir, parse, shouldSkip) => {
         })
 
     }, testContent => (testContent.match(/^features: \[.*\b(regexp-named-groups|class-fields|regexp-unicode-property-escapes|regexp-lookbehind)\b.*\]$/m))).then((results) => report(results, []))
-

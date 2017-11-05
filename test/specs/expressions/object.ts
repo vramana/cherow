@@ -563,6 +563,218 @@ describe('Espressions - Object', () => {
             };`);
         }).to.throw();
     });
+    
+    it('should parse computed values as accessor property names (hexadecimal) ', () => {
+      expect(parseScript(`var obj = { *g2() { [yield] },  };`, {
+          raw: true,
+          ranges: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 34,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 34
+          }
+        },
+        "body": [
+          {
+            "type": "VariableDeclaration",
+            "start": 0,
+            "end": 34,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 34
+              }
+            },
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "start": 4,
+                "end": 33,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 4
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 33
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 4,
+                  "end": 7,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 4
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 7
+                    }
+                  },
+                  "name": "obj"
+                },
+                "init": {
+                  "type": "ObjectExpression",
+                  "start": 10,
+                  "end": 33,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 10
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 33
+                    }
+                  },
+                  "properties": [
+                    {
+                      "type": "Property",
+                      "start": 12,
+                      "end": 29,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 12
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 29
+                        }
+                      },
+                      "method": true,
+                      "shorthand": false,
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 13,
+                        "end": 15,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 13
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 15
+                          }
+                        },
+                        "name": "g2"
+                      },
+                      "kind": "init",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 15,
+                        "end": 29,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 15
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 29
+                          }
+                        },
+                        "id": null,
+                        "generator": true,
+                        "expression": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 18,
+                          "end": 29,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 18
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 29
+                            }
+                          },
+                          "body": [
+                            {
+                              "type": "ExpressionStatement",
+                              "start": 20,
+                              "end": 27,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 20
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 27
+                                }
+                              },
+                              "expression": {
+                                "type": "ArrayExpression",
+                                "start": 20,
+                                "end": 27,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 20
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 27
+                                  }
+                                },
+                                "elements": [
+                                  {
+                                    "type": "YieldExpression",
+                                    "start": 21,
+                                    "end": 26,
+                                    "loc": {
+                                      "start": {
+                                        "line": 1,
+                                        "column": 21
+                                      },
+                                      "end": {
+                                        "line": 1,
+                                        "column": 26
+                                      }
+                                    },
+                                    "delegate": false,
+                                    "argument": null
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "kind": "var"
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
 
     it('should parse computed values as accessor property names (hexadecimal) ', () => {
         expect(parseScript(`var obj = {

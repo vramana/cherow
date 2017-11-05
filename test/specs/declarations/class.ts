@@ -364,6 +364,719 @@ describe('Declarations - Class', () => {
           });
     });
 
+      // See Esprma issue. "https://github.com/jquery/esprima/issues/1785"
+      it('should parse yield witin generator function bodies', () => {
+        expect(parseScript(`class A {
+            *g1() { (yield) }
+            *g2() { [yield] }
+            *g3() { {yield} }
+            *g4() { yield, yield; }
+            *g5() { (yield) ? yield : yield; }
+          }`, {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 194,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 7,
+                "column": 11
+              }
+            },
+            "body": [
+              {
+                "type": "ClassDeclaration",
+                "start": 0,
+                "end": 194,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 7,
+                    "column": 11
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 6,
+                  "end": 7,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 6
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 7
+                    }
+                  },
+                  "name": "A"
+                },
+                "superClass": null,
+                "body": {
+                  "type": "ClassBody",
+                  "start": 8,
+                  "end": 194,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 8
+                    },
+                    "end": {
+                      "line": 7,
+                      "column": 11
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "MethodDefinition",
+                      "start": 22,
+                      "end": 39,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 12
+                        },
+                        "end": {
+                          "line": 2,
+                          "column": 29
+                        }
+                      },
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 23,
+                        "end": 25,
+                        "loc": {
+                          "start": {
+                            "line": 2,
+                            "column": 13
+                          },
+                          "end": {
+                            "line": 2,
+                            "column": 15
+                          }
+                        },
+                        "name": "g1"
+                      },
+                      "static": false,
+                      "kind": "method",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 25,
+                        "end": 39,
+                        "loc": {
+                          "start": {
+                            "line": 2,
+                            "column": 15
+                          },
+                          "end": {
+                            "line": 2,
+                            "column": 29
+                          }
+                        },
+                        "id": null,
+                        "generator": true,
+                        "expression": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 28,
+                          "end": 39,
+                          "loc": {
+                            "start": {
+                              "line": 2,
+                              "column": 18
+                            },
+                            "end": {
+                              "line": 2,
+                              "column": 29
+                            }
+                          },
+                          "body": [
+                            {
+                              "type": "ExpressionStatement",
+                              "start": 30,
+                              "end": 37,
+                              "loc": {
+                                "start": {
+                                  "line": 2,
+                                  "column": 20
+                                },
+                                "end": {
+                                  "line": 2,
+                                  "column": 27
+                                }
+                              },
+                              "expression": {
+                                "type": "YieldExpression",
+                                "start": 31,
+                                "end": 36,
+                                "loc": {
+                                  "start": {
+                                    "line": 2,
+                                    "column": 21
+                                  },
+                                  "end": {
+                                    "line": 2,
+                                    "column": 26
+                                  }
+                                },
+                                "delegate": false,
+                                "argument": null
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "type": "MethodDefinition",
+                      "start": 52,
+                      "end": 69,
+                      "loc": {
+                        "start": {
+                          "line": 3,
+                          "column": 12
+                        },
+                        "end": {
+                          "line": 3,
+                          "column": 29
+                        }
+                      },
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 53,
+                        "end": 55,
+                        "loc": {
+                          "start": {
+                            "line": 3,
+                            "column": 13
+                          },
+                          "end": {
+                            "line": 3,
+                            "column": 15
+                          }
+                        },
+                        "name": "g2"
+                      },
+                      "static": false,
+                      "kind": "method",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 55,
+                        "end": 69,
+                        "loc": {
+                          "start": {
+                            "line": 3,
+                            "column": 15
+                          },
+                          "end": {
+                            "line": 3,
+                            "column": 29
+                          }
+                        },
+                        "id": null,
+                        "generator": true,
+                        "expression": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 58,
+                          "end": 69,
+                          "loc": {
+                            "start": {
+                              "line": 3,
+                              "column": 18
+                            },
+                            "end": {
+                              "line": 3,
+                              "column": 29
+                            }
+                          },
+                          "body": [
+                            {
+                              "type": "ExpressionStatement",
+                              "start": 60,
+                              "end": 67,
+                              "loc": {
+                                "start": {
+                                  "line": 3,
+                                  "column": 20
+                                },
+                                "end": {
+                                  "line": 3,
+                                  "column": 27
+                                }
+                              },
+                              "expression": {
+                                "type": "ArrayExpression",
+                                "start": 60,
+                                "end": 67,
+                                "loc": {
+                                  "start": {
+                                    "line": 3,
+                                    "column": 20
+                                  },
+                                  "end": {
+                                    "line": 3,
+                                    "column": 27
+                                  }
+                                },
+                                "elements": [
+                                  {
+                                    "type": "YieldExpression",
+                                    "start": 61,
+                                    "end": 66,
+                                    "loc": {
+                                      "start": {
+                                        "line": 3,
+                                        "column": 21
+                                      },
+                                      "end": {
+                                        "line": 3,
+                                        "column": 26
+                                      }
+                                    },
+                                    "delegate": false,
+                                    "argument": null
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "type": "MethodDefinition",
+                      "start": 82,
+                      "end": 99,
+                      "loc": {
+                        "start": {
+                          "line": 4,
+                          "column": 12
+                        },
+                        "end": {
+                          "line": 4,
+                          "column": 29
+                        }
+                      },
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 83,
+                        "end": 85,
+                        "loc": {
+                          "start": {
+                            "line": 4,
+                            "column": 13
+                          },
+                          "end": {
+                            "line": 4,
+                            "column": 15
+                          }
+                        },
+                        "name": "g3"
+                      },
+                      "static": false,
+                      "kind": "method",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 85,
+                        "end": 99,
+                        "loc": {
+                          "start": {
+                            "line": 4,
+                            "column": 15
+                          },
+                          "end": {
+                            "line": 4,
+                            "column": 29
+                          }
+                        },
+                        "id": null,
+                        "generator": true,
+                        "expression": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 88,
+                          "end": 99,
+                          "loc": {
+                            "start": {
+                              "line": 4,
+                              "column": 18
+                            },
+                            "end": {
+                              "line": 4,
+                              "column": 29
+                            }
+                          },
+                          "body": [
+                            {
+                              "type": "BlockStatement",
+                              "start": 90,
+                              "end": 97,
+                              "loc": {
+                                "start": {
+                                  "line": 4,
+                                  "column": 20
+                                },
+                                "end": {
+                                  "line": 4,
+                                  "column": 27
+                                }
+                              },
+                              "body": [
+                                {
+                                  "type": "ExpressionStatement",
+                                  "start": 91,
+                                  "end": 96,
+                                  "loc": {
+                                    "start": {
+                                      "line": 4,
+                                      "column": 21
+                                    },
+                                    "end": {
+                                      "line": 4,
+                                      "column": 26
+                                    }
+                                  },
+                                  "expression": {
+                                    "type": "YieldExpression",
+                                    "start": 91,
+                                    "end": 96,
+                                    "loc": {
+                                      "start": {
+                                        "line": 4,
+                                        "column": 21
+                                      },
+                                      "end": {
+                                        "line": 4,
+                                        "column": 26
+                                      }
+                                    },
+                                    "delegate": false,
+                                    "argument": null
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "type": "MethodDefinition",
+                      "start": 112,
+                      "end": 135,
+                      "loc": {
+                        "start": {
+                          "line": 5,
+                          "column": 12
+                        },
+                        "end": {
+                          "line": 5,
+                          "column": 35
+                        }
+                      },
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 113,
+                        "end": 115,
+                        "loc": {
+                          "start": {
+                            "line": 5,
+                            "column": 13
+                          },
+                          "end": {
+                            "line": 5,
+                            "column": 15
+                          }
+                        },
+                        "name": "g4"
+                      },
+                      "static": false,
+                      "kind": "method",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 115,
+                        "end": 135,
+                        "loc": {
+                          "start": {
+                            "line": 5,
+                            "column": 15
+                          },
+                          "end": {
+                            "line": 5,
+                            "column": 35
+                          }
+                        },
+                        "id": null,
+                        "generator": true,
+                        "expression": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 118,
+                          "end": 135,
+                          "loc": {
+                            "start": {
+                              "line": 5,
+                              "column": 18
+                            },
+                            "end": {
+                              "line": 5,
+                              "column": 35
+                            }
+                          },
+                          "body": [
+                            {
+                              "type": "ExpressionStatement",
+                              "start": 120,
+                              "end": 133,
+                              "loc": {
+                                "start": {
+                                  "line": 5,
+                                  "column": 20
+                                },
+                                "end": {
+                                  "line": 5,
+                                  "column": 33
+                                }
+                              },
+                              "expression": {
+                                "type": "SequenceExpression",
+                                "start": 120,
+                                "end": 132,
+                                "loc": {
+                                  "start": {
+                                    "line": 5,
+                                    "column": 20
+                                  },
+                                  "end": {
+                                    "line": 5,
+                                    "column": 32
+                                  }
+                                },
+                                "expressions": [
+                                  {
+                                    "type": "YieldExpression",
+                                    "start": 120,
+                                    "end": 125,
+                                    "loc": {
+                                      "start": {
+                                        "line": 5,
+                                        "column": 20
+                                      },
+                                      "end": {
+                                        "line": 5,
+                                        "column": 25
+                                      }
+                                    },
+                                    "delegate": false,
+                                    "argument": null
+                                  },
+                                  {
+                                    "type": "YieldExpression",
+                                    "start": 127,
+                                    "end": 132,
+                                    "loc": {
+                                      "start": {
+                                        "line": 5,
+                                        "column": 27
+                                      },
+                                      "end": {
+                                        "line": 5,
+                                        "column": 32
+                                      }
+                                    },
+                                    "delegate": false,
+                                    "argument": null
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "type": "MethodDefinition",
+                      "start": 148,
+                      "end": 182,
+                      "loc": {
+                        "start": {
+                          "line": 6,
+                          "column": 12
+                        },
+                        "end": {
+                          "line": 6,
+                          "column": 46
+                        }
+                      },
+                      "computed": false,
+                      "key": {
+                        "type": "Identifier",
+                        "start": 149,
+                        "end": 151,
+                        "loc": {
+                          "start": {
+                            "line": 6,
+                            "column": 13
+                          },
+                          "end": {
+                            "line": 6,
+                            "column": 15
+                          }
+                        },
+                        "name": "g5"
+                      },
+                      "static": false,
+                      "kind": "method",
+                      "value": {
+                        "type": "FunctionExpression",
+                        "start": 151,
+                        "end": 182,
+                        "loc": {
+                          "start": {
+                            "line": 6,
+                            "column": 15
+                          },
+                          "end": {
+                            "line": 6,
+                            "column": 46
+                          }
+                        },
+                        "id": null,
+                        "generator": true,
+                        "expression": false,
+                        "async": false,
+                        "params": [],
+                        "body": {
+                          "type": "BlockStatement",
+                          "start": 154,
+                          "end": 182,
+                          "loc": {
+                            "start": {
+                              "line": 6,
+                              "column": 18
+                            },
+                            "end": {
+                              "line": 6,
+                              "column": 46
+                            }
+                          },
+                          "body": [
+                            {
+                              "type": "ExpressionStatement",
+                              "start": 156,
+                              "end": 180,
+                              "loc": {
+                                "start": {
+                                  "line": 6,
+                                  "column": 20
+                                },
+                                "end": {
+                                  "line": 6,
+                                  "column": 44
+                                }
+                              },
+                              "expression": {
+                                "type": "ConditionalExpression",
+                                "start": 156,
+                                "end": 179,
+                                "loc": {
+                                  "start": {
+                                    "line": 6,
+                                    "column": 20
+                                  },
+                                  "end": {
+                                    "line": 6,
+                                    "column": 43
+                                  }
+                                },
+                                "test": {
+                                  "type": "YieldExpression",
+                                  "start": 157,
+                                  "end": 162,
+                                  "loc": {
+                                    "start": {
+                                      "line": 6,
+                                      "column": 21
+                                    },
+                                    "end": {
+                                      "line": 6,
+                                      "column": 26
+                                    }
+                                  },
+                                  "delegate": false,
+                                  "argument": null
+                                },
+                                "consequent": {
+                                  "type": "YieldExpression",
+                                  "start": 166,
+                                  "end": 171,
+                                  "loc": {
+                                    "start": {
+                                      "line": 6,
+                                      "column": 30
+                                    },
+                                    "end": {
+                                      "line": 6,
+                                      "column": 35
+                                    }
+                                  },
+                                  "delegate": false,
+                                  "argument": null
+                                },
+                                "alternate": {
+                                  "type": "YieldExpression",
+                                  "start": 174,
+                                  "end": 179,
+                                  "loc": {
+                                    "start": {
+                                      "line": 6,
+                                      "column": 38
+                                    },
+                                    "end": {
+                                      "line": 6,
+                                      "column": 43
+                                    }
+                                  },
+                                  "delegate": false,
+                                  "argument": null
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
+
     // See Esprma issue. "https://github.com/jquery/esprima/issues/1785"
     it('should parse "class a extends b { constructor(c = super()){} }"', () => {
         expect(parseScript(`class a extends b { constructor(c = super()){} }`, {
