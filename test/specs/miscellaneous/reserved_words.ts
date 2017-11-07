@@ -48,6 +48,27 @@ describe('Miscellaneous - Reserved words', () => {
         });
 
 
+        it('should fail on invalid use of escaped / non-escaped keyword as identifier - debugger', () => {
+            expect(() => {
+                parseScript('(function(){function debugger(){}})();');
+            }).to.throw();
+        });
+
+        
+        it('should fail on invalid use of escaped / non-escaped keyword as identifier - const', () => {
+            expect(() => {
+                parseScript('(function(){function \\u0063onst(){}})()');
+            }).to.throw();
+        });
+
+        
+        it('should fail on invalid use of escaped / non-escaped keyword as identifier - typeof', () => {
+            expect(() => {
+                parseScript('(function(){function debugger(){}})();');
+            }).to.throw();
+        });
+
+        
         it('should fail on invalid use of escaped / non-escaped keyword as identifier - typeof', () => {
             expect(() => {
                 parseScript('(function(){function debugger(){}})();');

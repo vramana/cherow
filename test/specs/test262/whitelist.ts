@@ -2,40 +2,12 @@ const f: any = {
     // Note: 'pass' and 'explicit' tests fails because there exist
     // no surrogate pair implementation *yet*
     pass: [
-        '046a0bb70d03d0cc.js',
-        '08358cb4732d8ce1.js',
-        '08a39e4289b0c3f3.js',
         '110fa1efdd0868b8.js',
-        '300a638d978d0f2c.js',
-        '3dbb6e166b14a6c0.js',
-        '44f31660bd715f05.js',
-        '5203633f36fbe544.js',
-        '58cb05d17f7ec010.js',
-        'abd5e4aa1a9f99ba.js',
-        'ed32642380a6e603.js',
-        '5203633f36fbe544.js',
-        '58cb05d17f7ec010.js',
-        'a62c6323a3696fa8.js',
-
-
+         '3dbb6e166b14a6c0.js',
+         'a62c6323a3696fa8.js',
     ],
     explicit: [
-        'f7f611e6fdb5b9fc.js',
-        '046a0bb70d03d0cc.js',
-        '08358cb4732d8ce1.js',
-        '479332b63ff26de1.js',
-        '08a39e4289b0c3f3.js',
-        '110fa1efdd0868b8.js',
-        '300a638d978d0f2c.js',
-        '44f31660bd715f05.js',
-        '5203633f36fbe544.js',
-        '58cb05d17f7ec010.js',
-        '596746323492fbfd.js',
-        'abd5e4aa1a9f99ba.js',
-        'c85fbdb8c97e0534.js',
-        'dafb7abe5b9b44f5.js',
-        'eaee2c64dfc46b6a.js',
-        'ed32642380a6e603.js',
+         '110fa1efdd0868b8.js',
     ],
     fail: [
         '03d13b6c40f6aaea.js',

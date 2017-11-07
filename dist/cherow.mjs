@@ -593,6 +593,8 @@ Parser.prototype.scanToken = function scanToken (context) {
             case 8287 /* MathematicalSpace */:
             case 12288 /* IdeographicSpace */:
             case 65279 /* ZeroWidthNoBreakSpace */:
+            case 8204 /* ZeroWidthJoiner */:
+            case 8205 /* ZeroWidthNonJoiner */:
                 this$1.advance();
                 continue;
             // `/`, `/=`, `/>`

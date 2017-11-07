@@ -317,16 +317,18 @@ export class Parser {
                     case Chars.MathematicalSpace:
                     case Chars.IdeographicSpace:
                     case Chars.ZeroWidthNoBreakSpace:
+                    case Chars.ZeroWidthJoiner:
+                    case Chars.ZeroWidthNonJoiner:
                         this.advance();
                         continue;
-    
+
                         // `/`, `/=`, `/>`
                     case Chars.Slash:
                         {
                             this.advance();
-    
+
                             const next = this.nextChar();
-    
+
                             if (this.consume(Chars.Slash)) {
                                 this.skipComments(state | Scanner.SingleLine);
                                 continue;

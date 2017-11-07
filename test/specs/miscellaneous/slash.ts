@@ -5,7 +5,6 @@ const expect = chai.expect;
 
 // A number of slash-disambiguation corner cases
 describe('Miscellaneous - Slash', () => {
-
     it('should parse global return slash', () => {
         expect(parseScript(`return {} / 2`, {
             ranges: true,
