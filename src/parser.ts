@@ -4098,6 +4098,9 @@ export class Parser {
             // Disallow SpreadElement inside dynamic import
             if (context & Context.Import) this.throwUnexpectedToken();
             this.expect(context, Token.Ellipsis);
+            if (this.isEvalOrArgumentsIdentifier(context, this.tokenValue)) {
+                this.error(Errors.UnexpectedStrictReserved);
+            }
             const arg = this.parseAssignmentExpression(context);
             return this.finishNode(pos, {
                 type: 'SpreadElement',
@@ -4430,7 +4433,12 @@ export class Parser {
                     default: // ignore
                 }
     
+                if (state & ObjectState.Static && this.tokenValue === 'prototype') {
+                    this.error(Errors.StaticPrototype);
+                }
+                
                 key = this.parsePropertyName(context);
+                
                 value = this.parseMethodDefinition(context | Context.Method, state);
             }
     

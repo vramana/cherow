@@ -184,7 +184,7 @@ const f: any = {
         'ba2bfa1952f3e537.module.js',
         'c211e5a7799f20ad.js',
         'c33da51b85893244.module.js',
-        'c43fab38afd5044c.js',
+
         'c570b0dab9ed058c.js',
         'c5e8b0c5093b4520.js',
         'c64846422c8fcb25.js',
@@ -206,26 +206,16 @@ const f: any = {
         'e6bf6eec9bccde06.module.js',
         'e777215433af6809.module.js',
         'e8f3bbd8830b5338.js',
-        'ee3bf6b50e45aa94.js',
-        'efe0e7dcea3c9e78.js',
-        'f086abdecf788fdc.js',
         'f25183676693850d.js',
         'f7c0a2c1dc2907b9.js',
         'f7f9bb74dc8d96ac.module.js',
-        'f87eda3e920311ce.js',
         'f89017fd3f793d0d.js',
         'f9e0efceb5690fdd.module.js',
         'fa56fc427be3e801.module.js',
         'fb40f86db65f8e6a.js',
-
         '0cda0bd08ee5f32a.js',
         '805c7f7e24771841.js',
         'e929ff0c0dcb70c0.js',
-
-        // Invalid tests
-        // https://github.com/tc39/test262-parser-tests/issues/15
-        '14eaa7e71c682461.js',
-        'aca911e336954a5b.js',
     ]
 };
 

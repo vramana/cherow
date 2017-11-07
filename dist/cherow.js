@@ -3873,6 +3873,9 @@ Parser.prototype.parseSpreadElement = function parseSpreadElement (context) {
     if (context & 32768 /* Import */)
         { this.throwUnexpectedToken(); }
     this.expect(context, 14 /* Ellipsis */);
+    if (this.isEvalOrArgumentsIdentifier(context, this.tokenValue)) {
+        this.error(81 /* UnexpectedStrictReserved */);
+    }
     var arg = this.parseAssignmentExpression(context);
     return this.finishNode(pos, {
         type: 'SpreadElement',
@@ -4156,6 +4159,9 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                 state |= 128 /* HasConstructor */;
                 break;
             default: // ignore
+        }
+        if (state & 512 /* Static */ && this.tokenValue === 'prototype') {
+            this.error(63 /* StaticPrototype */);
         }
         key = this.parsePropertyName(context);
         value = this.parseMethodDefinition(context | 131072 /* Method */, state);
