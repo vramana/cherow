@@ -24,7 +24,7 @@ export const enum Context {
     ForStatement           = 1 << 20,  // If node was parsed in a for / for - in / for -of context
     TaggedTemplate         = 1 << 21,  // 
     Labelled               = 1 << 22,  // 
-    Iteration                   = 1 << 23,  // 
+    Iteration              = 1 << 23,  // 
     LocationTracking       = 1 << 24,
     Let                    = 1 << 25,  // Variable declaration
     Const                  = 1 << 26,  // Variable declaration
@@ -102,7 +102,8 @@ export const enum ParenthesizedState {
     Await           = 1 << 1, // If async arrow contains 'await'
     Parenthesized   = 1 << 2, // Tracks invalid parenthesized pattern
     Trailing        = 1 << 3, // Tracks trailing commas
-    Pattern         = 1 << 4, // Tracks trailing commas
+    Pattern         = 1 << 4, 
+    FutureReserved        = 1 << 5, 
 }
 
 // Flags used by both object expression and class decl / expr

@@ -8,19 +8,19 @@ describe('Espressions - Super', () => {
             it(`should fail on "!{ a() { !function* (a = super.b()){} } };"`, () => {
                 expect(() => {
                     parseScript(`class a extends b { c() { function* d(c = super.e()){} } }`);
-                }).to.not.throw();
+                }).to.throw();
             });
 
             it(`should fail on "!{ a() { !function* (a = super.b()){} } };"`, () => {
                 expect(() => {
                     parseScript(`!{ a() { !function* (a = super.b()){} } };`);
-                }).to.not.throw();
+                }).to.throw();
             });
 
             it(`should fail on "class a extends b { c() { !function* (c = super.d()){} } }"`, () => {
                 expect(() => {
                     parseScript(`class a extends b { c() { !function* (c = super.d()){} } }`);
-                }).to.not.throw();
+                }).to.throw();
             });
 
             it(`should fail on "function* a(b){ super.c }"`, () => {
@@ -81,19 +81,19 @@ it(`should fail on "({super: 1})"`, () => {
             it(`should fail on "!{ a() { !function* (){ super.b(); } } };"`, () => {
                 expect(() => {
                     parseScript(`!{ a() { !function* (){ super.b(); } } };`);
-                }).to.not.throw();
+                }).to.throw();
             });
 
             it(`should fail on "class a extends b { c() { function* d(){ super.e(); } } }"`, () => {
                 expect(() => {
                     parseScript(`class a extends b { c() { function* d(){ super.e(); } } }`);
-                }).to.not.throw();
+                }).to.throw();
             });
 
             it(`should fail on "class a extends b { c() { !function* (){ super.d(); } } }"`, () => {
                 expect(() => {
                     parseScript(`class a extends b { c() { !function* (){ super.d(); } } }`);
-                }).to.not.throw();
+                }).to.throw();
             });
 
             it('should fail on "class A extends B { *g1() { return super() } }}"', () => {

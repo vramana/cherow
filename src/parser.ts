@@ -3012,8 +3012,8 @@ export class Parser {
             const pos = this.getLocations();
     
             const parentContext = context;
-    
-            context &= ~(Context.Await | Context.Yield);
+
+            context &= ~(Context.Await | Context.Yield | Context.Method);
     
             if (this.parseOptional(context, Token.AsyncKeyword)) context |= Context.Await;
     
@@ -3833,7 +3833,7 @@ export class Parser {
         private parseFunctionExpression(context: Context, pos: Location): ESTree.FunctionExpression {
     
             this.expect(context, Token.FunctionKeyword);
-    
+            
             if (this.token === Token.Multiply) {
                 // If we are in the 'await' context. Check if the 'Next' option are set
                 // and allow us to use async generators. If not, throw a decent error message if this isn't the case
@@ -3964,8 +3964,7 @@ export class Parser {
                     // The specs says "async[no LineTerminator here]", so just return an plain identifier in case
                     // we got an LineTerminator. The 'FunctionExpression' will be parsed out in 'parsePrimaryExpression'
                     if (this.flags & Flags.LineTerminator) return id;
-                    return this.parseFunctionExpression(context & ~Context.Yield | Context.Await, pos);
-    
+                    return this.parseFunctionExpression(context & ~(Context.Yield | Context.Method) | Context.Await, pos);
                     // 'AsyncArrowFunction[In, Yield, Await]'
                 case Token.YieldKeyword:
                 case Token.Identifier:
@@ -4079,6 +4078,7 @@ export class Parser {
                 this.labelSet = undefined;
                 const savedFlags = this.flags;
                 this.flags |= Flags.InFunctionBody;
+               
                 this.flags &= ~(Flags.Switch | Flags.Break | Flags.Iteration);
                 body = this.parseStatementList(context & ~Context.Lexical, Token.RightBrace);
                 this.labelSet = previousLabelSet;
@@ -4185,7 +4185,7 @@ export class Parser {
                 case Token.Identifier:
                     return this.parseIdentifier(context | Context.TaggedTemplate);
                 case Token.FunctionKeyword:
-                    return this.parseFunctionExpression(context & ~Context.Yield | Context.InParenthesis, pos);
+                    return this.parseFunctionExpression(context & ~(Context.Yield  | Context.Method) | Context.InParenthesis, pos);
                 case Token.ThisKeyword:
                     return this.parseThisExpression(context);
                 case Token.NullKeyword:
@@ -4807,6 +4807,12 @@ export class Parser {
                 this.errorLocation = pos;
                 state |= ParenthesizedState.EvalOrArg;
             }
+
+            if (!(state & ParenthesizedState.FutureReserved) && hasMask(this.token, Token.FutureReserved)) {
+                this.errorLocation = pos;
+                state |= ParenthesizedState.FutureReserved;
+            }
+            
             expr = this.parseAssignmentExpression(context);
     
             if (this.token === Token.Comma) {
@@ -4833,7 +4839,10 @@ export class Parser {
                             this.errorLocation = this.getLocations();
                             state |= ParenthesizedState.Parenthesized;
                         }
-    
+                        if (!(state & ParenthesizedState.FutureReserved) && hasMask(this.token, Token.FutureReserved)) {
+                            this.errorLocation = pos;
+                            state |= ParenthesizedState.FutureReserved;
+                        }
                         expressions.push(this.parseAssignmentExpression(context));
                     }
                 }
@@ -4849,7 +4858,7 @@ export class Parser {
             this.expect(context, Token.RightParen);
     
             if (this.token === Token.Arrow) {
-                
+                if (state & ParenthesizedState.FutureReserved) this.flags |= Flags.BindingPosition;
                 if (this.flags & Flags.HaveSeenYield) this.error(Errors.InvalidArrowYieldParam);
                 if (state & ParenthesizedState.EvalOrArg) {
                     if (context & Context.Strict) this.error(Errors.StrictParamName);

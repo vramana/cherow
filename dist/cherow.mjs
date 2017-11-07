@@ -2917,7 +2917,7 @@ Parser.prototype.parseEmptyStatement = function parseEmptyStatement (context) {
 Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (context) {
     var pos = this.getLocations();
     var parentContext = context;
-    context &= ~(32 /* Await */ | 16 /* Yield */);
+    context &= ~(32 /* Await */ | 16 /* Yield */ | 131072 /* Method */);
     if (this.parseOptional(context, 69740 /* AsyncKeyword */))
         { context |= 32 /* Await */; }
     this.expect(context, 274519 /* FunctionKeyword */);
@@ -3745,7 +3745,7 @@ Parser.prototype.parseAsyncFunctionExpression = function parseAsyncFunctionExpre
             // we got an LineTerminator. The 'FunctionExpression' will be parsed out in 'parsePrimaryExpression'
             if (this.flags & 1 /* LineTerminator */)
                 { return id; }
-            return this.parseFunctionExpression(context & ~16 /* Yield */ | 32 /* Await */, pos);
+            return this.parseFunctionExpression(context & ~(16 /* Yield */ | 131072 /* Method */) | 32 /* Await */, pos);
         // 'AsyncArrowFunction[In, Yield, Await]'
         case 282730 /* YieldKeyword */:
         case 262145 /* Identifier */:
@@ -3937,7 +3937,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 262145 /* Identifier */:
             return this.parseIdentifier(context | 2097152 /* TaggedTemplate */);
         case 274519 /* FunctionKeyword */:
-            return this.parseFunctionExpression(context & ~16 /* Yield */ | 64 /* InParenthesis */, pos);
+            return this.parseFunctionExpression(context & ~(16 /* Yield */ | 131072 /* Method */) | 64 /* InParenthesis */, pos);
         case 274526 /* ThisKeyword */:
             return this.parseThisExpression(context);
         case 274439 /* NullKeyword */:
@@ -4494,6 +4494,10 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
         this.errorLocation = pos;
         state |= 1 /* EvalOrArg */;
     }
+    if (!(state & 32 /* FutureReserved */) && hasMask(this.token, 20480 /* FutureReserved */)) {
+        this.errorLocation = pos;
+        state |= 32 /* FutureReserved */;
+    }
     expr = this.parseAssignmentExpression(context);
     if (this.token === 18 /* Comma */) {
         var expressions = [expr];
@@ -4520,6 +4524,10 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
                     this$1.errorLocation = this$1.getLocations();
                     state |= 4 /* Parenthesized */;
                 }
+                if (!(state & 32 /* FutureReserved */) && hasMask(this$1.token, 20480 /* FutureReserved */)) {
+                    this$1.errorLocation = pos;
+                    state |= 32 /* FutureReserved */;
+                }
                 expressions.push(this$1.parseAssignmentExpression(context));
             }
         }
@@ -4532,6 +4540,8 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
         { this.flags |= 8 /* AllowCall */; }
     this.expect(context, 16 /* RightParen */);
     if (this.token === 10 /* Arrow */) {
+        if (state & 32 /* FutureReserved */)
+            { this.flags |= 1024 /* BindingPosition */; }
         if (this.flags & 256 /* HaveSeenYield */)
             { this.error(103 /* InvalidArrowYieldParam */); }
         if (state & 1 /* EvalOrArg */) {

@@ -28,6 +28,7 @@ describe('Block scope - For In', () => {
             parseScript('"use strict"; if (true) function g() {}');
         }).to.throw();
     });
+    
 
     it('should parse with mixed values in iteration', () => {
         expect(parseScript(`function fn(x) {

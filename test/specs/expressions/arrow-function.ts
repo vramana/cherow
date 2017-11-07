@@ -30,6 +30,19 @@ describe('Expressions - Arrow function', () => {
             }).to.throw()
         });
 
+        it('should fail on future reserved word before comma in formal param', () => {
+            expect(() => {
+                parseScript(`(esprima, package) => {'use strict'}`);
+            }).to.throw()
+        });
+
+        it('should fail on future reserved word before comma in formal param', () => {
+            expect(() => {
+                parseScript(`async(esprima, package) => {'use strict'}`);
+            }).to.throw()
+        });
+
+
         it('should fail on ASI restricton invalid', () => {
             expect(() => {
                 parseScript(`foo = ()
