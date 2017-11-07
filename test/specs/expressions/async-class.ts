@@ -17,6 +17,12 @@ describe('Expressions - Async Class', () => {
             }).to.throw()
         });
 
+        it('should disallow computed async', () => {
+            expect(() => {
+                parseScript(`class A { ["async"] a() {} }`);
+            }).to.throw()
+        });
+
         it('should fail on invalid async class setter', () => {
             expect(() => {
                 parseScript(`class A {async set foo(value) { }};`);

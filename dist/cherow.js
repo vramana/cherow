@@ -112,7 +112,7 @@ var KeywordDescTable = [
     'as', 'async', 'await', 'constructor', 'get', 'set', 'from', 'of',
     'enum',
     /* JSX */
-    'JSXText'
+    'JSXText', '#'
 ];
 /**
  * The conversion function between token and its string description/representation.
@@ -678,13 +678,14 @@ Parser.prototype.scanToken = function scanToken (context) {
             // `#`
             case 35 /* Hash */:
                 {
+                    this$1.advance();
                     if (state & 4 /* LineStart */ &&
-                        this$1.source.charCodeAt(this$1.index + 1) === 33 /* Exclamation */) {
-                        this$1.index += 2;
-                        this$1.column += 2;
+                        this$1.nextChar() === 33 /* Exclamation */) {
+                        this$1.advance();
                         this$1.skipComments(state);
                         continue;
                     }
+                    return 117 /* Hash */;
                 }
             // `{`
             case 123 /* LeftBrace */:
@@ -1003,7 +1004,7 @@ Parser.prototype.scanToken = function scanToken (context) {
     return 0 /* EndOfSource */;
 };
 /**
- * Skips single line, shebang and multiline comments
+ * Skips single line, hashbang and multiline comments
  *
  * @param state Scanner
  */
@@ -1011,7 +1012,7 @@ Parser.prototype.skipComments = function skipComments (state) {
         var this$1 = this;
 
     var start = this.index;
-    // It's only pre-closed for shebang and single line comments
+    // It's only pre-closed for hashbang and single line comments
     if (!(state & 8 /* MultiLine */))
         { state |= 32 /* Closed */; }
     loop: while (this.hasNext()) {

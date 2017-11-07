@@ -158,7 +158,10 @@ export const enum Token {
     EnumKeyword        = 115 | Reserved,
 
     /** JSX */
-    JSXText            = 116
+    JSXText            = 116,
+
+    /** State 3 proposals */
+    Hash               = 117,
 }
 
 const KeywordDescTable = [
@@ -203,7 +206,9 @@ const KeywordDescTable = [
 
     /* JSX */
 
-    'JSXText'
+    'JSXText', '#'
+
+
 ];
 
 /**

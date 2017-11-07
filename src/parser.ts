@@ -402,13 +402,14 @@ export class Parser {
                         // `#`
                     case Chars.Hash:
                         {
+                            this.advance();
                             if (state & Scanner.LineStart &&
-                                this.source.charCodeAt(this.index + 1) === Chars.Exclamation) {
-                                this.index += 2;
-                                this.column += 2;
-                                this.skipComments(state);
+                                this.nextChar() === Chars.Exclamation) {
+                                    this.advance();
+                                    this.skipComments(state);
                                 continue;
                             }
+                            return Token.Hash;
                         }
     
                         // `{`
@@ -769,7 +770,7 @@ export class Parser {
         }
     
         /**
-         * Skips single line, shebang and multiline comments
+         * Skips single line, hashbang and multiline comments
          *
          * @param state Scanner
          */
@@ -777,7 +778,7 @@ export class Parser {
     
             const start = this.index;
     
-            // It's only pre-closed for shebang and single line comments
+            // It's only pre-closed for hashbang and single line comments
             if (!(state & Scanner.MultiLine)) state |= Scanner.Closed;
     
             loop:
@@ -4334,7 +4335,7 @@ export class Parser {
                 body
             });
         }
-    
+
         private parseClassElement(context: Context, state: ObjectState): ESTree.MethodDefinition {
             const pos = this.getLocations();
             let key = null;
@@ -4346,9 +4347,9 @@ export class Parser {
     
             if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
             if (this.tokenValue === 'constructor') state |= ObjectState.HasConstructor;
-    
+     
             key = this.parsePropertyName(context & ~Context.Strict);
-    
+   
             // cannot use 'await' inside async functions.
             if (context & Context.Await && this.flags & Flags.InFunctionBody && this.token === Token.AwaitKeyword) {
                 this.error(Errors.InvalidAwaitInArrowParam);

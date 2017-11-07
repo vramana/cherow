@@ -18,7 +18,7 @@ It's safe to use in production.
 - Handle all early errors
 - Stage 3 proposals 
 - Support for [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), a syntax extension for React
-- Skips shebang comment nodes by default
+- Skips hashbang comment nodes by default
 - Optimized for handheld devices
 - Optional tracking of syntax node location (index-based and line-column)
 - 5700 unit tests
@@ -96,7 +96,7 @@ cherow.parseScript('const fooBar = 123;', { ranges: true, raw: true, next: true}
 
 ## Comments
 
-Single line, multiline and HTML comments are supported, and can be collected as well. Shebang comment nodes (`#!foo`) are
+Single line, multiline and HTML comments are supported, and can be collected as well. Hashbang comment nodes (`#!foo`) are
 skipped by default, and can't be collected.
 
 ### Comment collecting
