@@ -4240,21 +4240,30 @@ export class Parser {
         }
     
         private parseClassDeclaration(context: Context): ESTree.ClassDeclaration {
+           return this.parseClass(context, false) as ESTree.ClassDeclaration;
+        }
+
+        private parseClassExpression(context: Context): ESTree.ClassExpression {
+            return this.parseClass(context, true) as ESTree.ClassExpression;
+        }
+    
+        private parseClass(context: Context, expr: boolean): ESTree.ClassDeclaration | ESTree.ClassExpression {
     
             const pos = this.getLocations();
     
             this.expect(context, Token.ClassKeyword);
+
     
             let superClass: ESTree.Expression | null = null;
-            let id = null;
             let classBody;
             let flags = ObjectState.None;
             const savedFlags = this.flags;
-    
+            let id = null;
+
             if (this.isIdentifier(context, this.token)) {
                 const name = this.tokenValue;
     
-                if (context & Context.TopLevel) {
+                if (context & Context.TopLevel && !expr) {
                     if (!this.initBlockScope() && (
                             this.blockScope !== this.functionScope && this.blockScope[name] ||
                             this.blockScope[name] === ScopeMasks.NonShadowable
@@ -4263,12 +4272,13 @@ export class Parser {
                     }
                     this.blockScope[name] = ScopeMasks.Shadowable;
                 }
-                id = this.parseBindingIdentifier(context | Context.Strict);
+                id = expr ? this.parseIdentifier(context | Context.Strict) : this.parseBindingIdentifier(context | Context.Strict);
                 // Valid: `export default class {};`
                 // Invalid: `class {};`
-            } else if (!(context & Context.OptionalIdentifier)) {
+            } else if (!expr && !(context & Context.OptionalIdentifier)) {
                 this.error(Errors.UnNamedClassStmt);
             }
+    
     
             if (this.parseOptional(context, Token.ExtendsKeyword)) {
                 superClass = this.parseLeftHandSideExpression(context & ~Context.OptionalIdentifier | Context.Strict, pos);
@@ -4278,37 +4288,9 @@ export class Parser {
             classBody = this.parseClassBody(context | Context.Strict, flags);
     
             this.flags = savedFlags;
-            return this.finishNode(pos, {
-                type: 'ClassDeclaration',
-                id,
-                superClass,
-                body: classBody
-            });
-        }
-    
-        private parseClassExpression(context: Context): ESTree.ClassExpression {
-    
-            const pos = this.getLocations();
-    
-            this.expect(context, Token.ClassKeyword);
-    
-            let superClass: ESTree.Expression | null = null;
-            let classBody;
-            let flags = ObjectState.None;
-            const savedFlags = this.flags;
-            const id = this.isIdentifier(context, this.token) ? this.parseIdentifier(context | Context.Strict) : null;
-    
-            if (this.parseOptional(context, Token.ExtendsKeyword)) {
-                superClass = this.parseLeftHandSideExpression(context | Context.Strict, pos);
-                flags |= ObjectState.Heritage;
-            }
-    
-            classBody = this.parseClassBody(context | Context.Strict, flags);
-    
-            this.flags = savedFlags;
     
             return this.finishNode(pos, {
-                type: 'ClassExpression',
+                type: expr ? 'ClassExpression' : 'ClassDeclaration',
                 id,
                 superClass,
                 body: classBody

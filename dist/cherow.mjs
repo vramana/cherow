@@ -3995,27 +3995,33 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
     }
 };
 Parser.prototype.parseClassDeclaration = function parseClassDeclaration (context) {
+    return this.parseClass(context, false);
+};
+Parser.prototype.parseClassExpression = function parseClassExpression (context) {
+    return this.parseClass(context, true);
+};
+Parser.prototype.parseClass = function parseClass (context, expr) {
     var pos = this.getLocations();
     this.expect(context, 274509 /* ClassKeyword */);
     var superClass = null;
-    var id = null;
     var classBody;
     var flags = 0;
     var savedFlags = this.flags;
+    var id = null;
     if (this.isIdentifier(context, this.token)) {
         var name = this.tokenValue;
-        if (context & 1024 /* TopLevel */) {
+        if (context & 1024 /* TopLevel */ && !expr) {
             if (!this.initBlockScope() && (this.blockScope !== this.functionScope && this.blockScope[name] ||
                 this.blockScope[name] === 2 /* NonShadowable */)) {
                 this.error(72 /* DuplicateIdentifier */, name);
             }
             this.blockScope[name] = 1 /* Shadowable */;
         }
-        id = this.parseBindingIdentifier(context | 2 /* Strict */);
+        id = expr ? this.parseIdentifier(context | 2 /* Strict */) : this.parseBindingIdentifier(context | 2 /* Strict */);
         // Valid: `export default class {};`
         // Invalid: `class {};`
     }
-    else if (!(context & 65536 /* OptionalIdentifier */)) {
+    else if (!expr && !(context & 65536 /* OptionalIdentifier */)) {
         this.error(87 /* UnNamedClassStmt */);
     }
     if (this.parseOptional(context, 12372 /* ExtendsKeyword */)) {
@@ -4025,28 +4031,7 @@ Parser.prototype.parseClassDeclaration = function parseClassDeclaration (context
     classBody = this.parseClassBody(context | 2 /* Strict */, flags);
     this.flags = savedFlags;
     return this.finishNode(pos, {
-        type: 'ClassDeclaration',
-        id: id,
-        superClass: superClass,
-        body: classBody
-    });
-};
-Parser.prototype.parseClassExpression = function parseClassExpression (context) {
-    var pos = this.getLocations();
-    this.expect(context, 274509 /* ClassKeyword */);
-    var superClass = null;
-    var classBody;
-    var flags = 0;
-    var savedFlags = this.flags;
-    var id = this.isIdentifier(context, this.token) ? this.parseIdentifier(context | 2 /* Strict */) : null;
-    if (this.parseOptional(context, 12372 /* ExtendsKeyword */)) {
-        superClass = this.parseLeftHandSideExpression(context | 2 /* Strict */, pos);
-        flags |= 256 /* Heritage */;
-    }
-    classBody = this.parseClassBody(context | 2 /* Strict */, flags);
-    this.flags = savedFlags;
-    return this.finishNode(pos, {
-        type: 'ClassExpression',
+        type: expr ? 'ClassExpression' : 'ClassDeclaration',
         id: id,
         superClass: superClass,
         body: classBody
