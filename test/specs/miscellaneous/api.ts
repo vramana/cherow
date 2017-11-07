@@ -1,4 +1,4 @@
-import { parseScript, parseModule, parse } from '../../../src/cherow';
+import { parseScript, parseModule, parse, version } from '../../../src/cherow';
 import * as chai from 'chai';
 
 const expect = chai.expect;
@@ -22,6 +22,10 @@ describe('Miscellaneous - API', () => {
             parse('<head/>');
         }).to.throw();
     });
+
+    it('should extract version', () => {
+      expect(typeof version).to.eql('string');
+  });
 
     it('should parse correctly with the source option on location node', () => {
       expect(parseScript(`function f(){}`, {

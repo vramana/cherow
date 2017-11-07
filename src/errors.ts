@@ -110,7 +110,8 @@ export const enum Errors {
     TemplateOctalLiteral,
     InvalidForBindingInit,
     InvalidNestedContinue,
-    InvalidWithBody
+    InvalidWithBody,
+    InvalidGeneratorParam
 }
 
 export const ErrorMessages: {
@@ -225,8 +226,8 @@ export const ErrorMessages: {
     [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences',
     [Errors.InvalidForBindingInit]: 'Binding pattern appears without initializer in for statement init',
     [Errors.InvalidNestedContinue]: 'Continue statement must be nested within an iteration statement',
-    [Errors.InvalidWithBody]: 'The body of a with statement must not be a labeled function declaration'
-    
+    [Errors.InvalidWithBody]: 'The body of a with statement must not be a labeled function declaration',
+    [Errors.InvalidGeneratorParam]: 'Generator parameters must not contain yield expressions'
 };
 
 function constructError(msg: string, column: number): Error {

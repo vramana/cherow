@@ -93,7 +93,6 @@ describe('Espressions - Yield', () => {
         expect(() => {
             parseScript('function* fn() { (a, b = 3, x = yield) => {}; }');
           }).to.throw();
-
       });
 
       it('should fail on "function* fn() { (x = (yield) => {}) => {}; }"', () => {
@@ -256,6 +255,13 @@ describe('Espressions - Yield', () => {
                     parseScript(`"use strict"; function fn(x = yield) {}`);
                 }).to.throw();
                 });
+
+                
+            it('should fail on invalid parameter default strict', () => {
+              expect(() => {
+                  parseScript(`function* foo(a = 1 + (yield 2)) { }`);
+              }).to.throw();
+              });
 
 
                 it('should parse within for', () => {

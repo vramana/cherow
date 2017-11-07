@@ -286,6 +286,7 @@ ErrorMessages[108 /* TemplateOctalLiteral */] = 'Template literals may not conta
 ErrorMessages[109 /* InvalidForBindingInit */] = 'Binding pattern appears without initializer in for statement init';
 ErrorMessages[110 /* InvalidNestedContinue */] = 'Continue statement must be nested within an iteration statement';
 ErrorMessages[111 /* InvalidWithBody */] = 'The body of a with statement must not be a labeled function declaration';
+ErrorMessages[112 /* InvalidGeneratorParam */] = 'Generator parameters must not contain yield expressions';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -3161,8 +3162,13 @@ Parser.prototype.parseYieldExpression = function parseYieldExpression (context, 
 };
 Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression (context) {
     var pos = this.getLocations();
-    if (context & 16 /* Yield */ && this.token === 282730 /* YieldKeyword */)
-        { return this.parseYieldExpression(context, pos); }
+    if (context & 16 /* Yield */ && this.token === 282730 /* YieldKeyword */) {
+        // Invalid: 'function* foo(a = 1 + (yield 2)) { }'
+        if (context & 128 /* InParameter */ && !(this.flags & 4 /* InFunctionBody */)) {
+            this.error(112 /* InvalidGeneratorParam */);
+        }
+        return this.parseYieldExpression(context, pos);
+    }
     var token = this.token;
     var expr = this.parseConditionalExpression(context, pos);
     // If that's the case - parse out a arrow function with a single un-parenthesized parameter.
@@ -5390,5 +5396,7 @@ function parse(source, options) {
         ? this.parseModule(source, options)
         : this.parseScript(source, options);
 }
+// current version
+var version = '0.13.0';
 
-export { parseScript, parseModule, parse };
+export { parseScript, parseModule, parse, version };

@@ -3289,7 +3289,13 @@ export class Parser {
         private parseAssignmentExpression(context: Context): ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression {
     
             const pos = this.getLocations();
-            if (context & Context.Yield && this.token === Token.YieldKeyword) return this.parseYieldExpression(context, pos);
+            if (context & Context.Yield && this.token === Token.YieldKeyword) {
+                // Invalid: 'function* foo(a = 1 + (yield 2)) { }'
+                if (context & Context.InParameter && !(this.flags & Flags.InFunctionBody)) {
+                    this.error(Errors.InvalidGeneratorParam);
+                }
+                return this.parseYieldExpression(context, pos);
+            }
     
             const token = this.token;
             const tokenValue = this.tokenValue;
@@ -5166,7 +5172,7 @@ export class Parser {
             if (!this.parseOptional(context, Token.Assign)) return pattern;
     
             if (context & Context.InParameter) {
-    
+
                 switch (this.token) {
                     case Token.YieldKeyword:
                         if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));

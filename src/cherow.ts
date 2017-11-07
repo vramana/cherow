@@ -15,3 +15,6 @@ export function parse(source: string, options: Options = {}) {
             ? this.parseModule(source, options)
             : this.parseScript(source, options);
 }
+
+// current version
+export const version = '0.13.0';
