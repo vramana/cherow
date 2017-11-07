@@ -20,7 +20,7 @@ describe('Statements - For', () => {
     it('should fail on "for (var x; false; ) label1: label2: function f() {}"', () => {
         expect(() => {
             parseScript('for (var x; false; ) label1: label2: function f() {}');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should throw on "for({a=0};;);"', () => {
@@ -40,7 +40,7 @@ describe('Statements - For', () => {
     it('should fail on "for ( ; false; ) label1: label2: function f() {}"', () => {
         expect(() => {
             parseScript('for ( ; false; ) label1: label2: function f() {}');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "for (let x; false; ) { var x; }"', () => {
@@ -93,7 +93,7 @@ describe('Statements - For', () => {
     it('should fail on labeled statement', () => {
         expect(() => {
             parseScript('for (let xd; false; ) label1: label2: function f() {}');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on re-declare variables declared in the head', () => {

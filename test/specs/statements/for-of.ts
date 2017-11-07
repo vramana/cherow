@@ -101,13 +101,13 @@ describe('Statements - For of', () => {
         it('should fail on "for (x of []) label1: label2: function f() {}"', () => {
             expect(() => {
                 parseScript('for (x of []) label1: label2: function f() {}');
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on "for (var x of []) label1: label2: function f() {}"', () => {
             expect(() => {
                 parseScript('for (var x of []) label1: label2: function f() {}');
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on "for ( let of [] ) ;"', () => {
@@ -241,12 +241,12 @@ describe('Statements - For of', () => {
         it('should fail if labeled statement is true (Annex B semantic)', () => {
             expect(() => {
                 parseScript(`for (const x of []) label1: label2: function f() {}`);
-            }).to.not.throw();
+            }).to.throw();
         });
         it('should fail on labelled function statement var', () => {
             expect(() => {
                 parseScript(`for (var x of []) label1: label2: function f() {}`);
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail "for(let of 0);"', () => {

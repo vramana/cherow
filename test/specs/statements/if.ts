@@ -61,7 +61,7 @@ describe('Statement - If', () => {
     it('should fail on async generator declaration in statement position', () => {
         expect(() => {
             parseScript(`if (false) label1: label2: function foo() {}`)
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on async generator declaration in statement position', () => {
@@ -173,7 +173,7 @@ describe('Statement - If', () => {
     it("should fail on \"if (false) label1: label2: function test262() {}", () => {
         expect(() => {
             parseScript(`if (false) label1: label2: function test262() {}`)
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it("should fail if class declaration is in statement position", () => {
@@ -233,7 +233,7 @@ describe('Statement - If', () => {
     it("should fail if AsyncFunctionDeclaration is in statement position", () => {
         expect(() => {
             parseScript(`if (false) label1: label2: function test262() {} else ;`)
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it("should fail if  AnnexB extension are honored in strict mode (IfStatement without an else clause in the global scope)", () => {

@@ -34,6 +34,7 @@ export const enum Errors {
     InvalidVarInitForOf,
     InvalidLHSInForLoop,
     InvalidLHSInForIn,
+    InvalidLHSInForOf,
     StrictLHSAssignment,
     InvalidLHSInAssignment,
     MissingAsImportSpecifier,
@@ -106,7 +107,10 @@ export const enum Errors {
     InvalidComplexBindingPattern,
     UnsupportedFeature,
     BadUntaggedTemplate,
-    TemplateOctalLiteral
+    TemplateOctalLiteral,
+    InvalidForBindingInit,
+    InvalidNestedContinue,
+    InvalidWithBody
 }
 
 export const ErrorMessages: {
@@ -146,6 +150,7 @@ export const ErrorMessages: {
     [Errors.DeclarationMissingInitializer]: 'Missing = in %0 declaration',
     [Errors.InvalidLHSInForLoop]: 'Invalid left-hand side in for-loop',
     [Errors.InvalidVarInitForOf]: 'Invalid variable declaration in for-of statement',
+    [Errors.InvalidLHSInForOf]: 'Invalid left-hand side in for-of',
     [Errors.InvalidLHSInForIn]: 'Invalid left-hand side in for-in',
     [Errors.StrictLHSAssignment]: 'Eval or arguments can\'t be assigned to in strict mode code',
     [Errors.InvalidLHSInAssignment]: 'Invalid left-hand side in assignment',
@@ -217,7 +222,11 @@ export const ErrorMessages: {
     [Errors.InvalidComplexBindingPattern]: 'Complex binding patterns require an initialization value',
     [Errors.UnsupportedFeature]: '%0 isn\'t supported by default. Enable the \'%1\' option to use them',
     [Errors.BadUntaggedTemplate]: 'Bad escape sequence in untagged template literal',
-    [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences'
+    [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences',
+    [Errors.InvalidForBindingInit]: 'Binding pattern appears without initializer in for statement init',
+    [Errors.InvalidNestedContinue]: 'Continue statement must be nested within an iteration statement',
+    [Errors.InvalidWithBody]: 'The body of a with statement must not be a labeled function declaration'
+    
 };
 
 function constructError(msg: string, column: number): Error {

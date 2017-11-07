@@ -74,10 +74,10 @@ describe('Espressions - Object', () => {
         }).to.throw();
     });
 
-    it('should fail on let param redeclaration', () => {
+    it('should fail on "obj = {x = 0}"', () => {
         expect(() => {
             parseScript(`obj = {x = 0}`);
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on let param redeclaration', () => {
@@ -223,17 +223,17 @@ describe('Espressions - Object', () => {
               });`, {
                 next: true
             });
-        }).to.not.throw();
+          }).to.not.throw();
     });
 
-    it('should fail on object method eval in formal paramater', () => {
+    it('should fail on object method eval in formal parameter', () => {
         expect(() => {
             parseScript(`"use strict"; ({
                 async foo(eval) { }
               })`, {
                 next: true
             });
-        }).to.throw();
+          }).to.throw();
     });
 
     it('should fail on  object method formals contains super call', () => {

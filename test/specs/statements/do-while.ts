@@ -38,7 +38,7 @@ describe('Statements - do-while', () => {
     it('should fail on labelled function statement', () => {
         expect(() => {
             parseScript(`do label1: label2: function f() {} while (false)`);
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail if expression in do-while iteration statement bracketed with braces', () => {

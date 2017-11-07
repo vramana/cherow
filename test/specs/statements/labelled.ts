@@ -58,44 +58,44 @@ describe('Statement - Labelled', () => {
     it('should fail on "if(0) label: function f(){}"', () => {
         expect(() => {
             parseScript(`if(0) label: function f(){}`)
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on "if(0) labelA: labelB: function f(){}"', () => {
         expect(() => {
             parseScript(`if(0) labelA: labelB: function f(){}`)
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on "if(0) label: function f(){} else ;"', () => {
         expect(() => {
             parseScript(`if(0) label: function f(){} else ;`)
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on "if(0) ; else label: function f(){}"', () => {
         expect(() => {
             parseScript(`if(0) ; else label: function f(){}`)
-        }).to.not.throw();
+        }).to.throw();
     });
-
+    
     it('should fail on "label: continue label;"', () => {
         expect(() => {
             parseScript(`label: continue label;`)
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on "label: if(0) continue label;"', () => {
         expect(() => {
             parseScript(`label: if(0) continue label;`)
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on "if(0) ; else label: function f(){}"', () => {
         expect(() => {
             parseScript(`if(0) ; else label: function f(){}`)
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "if(0) ; else label: function f(){}"', () => {
         expect(() => {
             parseScript(`if(0) ; else label: function f(){}`)
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on ""use strict"; implements:"abc";"', () => {

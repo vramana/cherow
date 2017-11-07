@@ -176,13 +176,13 @@ describe('Statements - For in', () => {
     it('should fail on "for (const x in {}) label1: label2: function f() {}"', () => {
         expect(() => {
             parseScript('for (const x in {}) label1: label2: function f() {}');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "for (let x in {}) label1: label2: function f() {}"', () => {
         expect(() => {
             parseScript('for (let x in {}) label1: label2: function f() {}');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on new line"', () => {
@@ -195,7 +195,7 @@ describe('Statements - For in', () => {
     it('should fail on "for (var x in {}) label1: label2: function f() {}"', () => {
         expect(() => {
             parseScript('for (var x in {}) label1: label2: function f() {}');
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should throw on unexpected number', () => {
@@ -364,8 +364,8 @@ describe('Statements - For in', () => {
 
     it(`should fail on "for (var a = 0 in {});"`, () => {
         expect(() => {
-            parseScript(`for (var a = 0 in {});`);
-        }).to.not.throw();
+            parseScript(`"use strict"; for (var a = 0 in {});`);
+        }).to.throw();
     });
 
     it(`should fail on "for (var [p]=0 in q);"`, () => {

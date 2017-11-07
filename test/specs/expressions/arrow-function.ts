@@ -22,8 +22,7 @@ describe('Expressions - Arrow function', () => {
                 parseScript(`f = ((x)) => x`);
             }).to.throw()
         });
-    
-
+        
         it('should fail on invalid parenless parameter', () => {
             expect(() => {
                 parseScript(`foo = x

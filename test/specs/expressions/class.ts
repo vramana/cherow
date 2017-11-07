@@ -495,8 +495,6 @@ describe('Espressions - Class', () => {
             });
         });
   
-        
-
         it('should parse "class B extends A { foo(a = super.foo()) { return a }}"', () => {
             expect(parseScript(`class B extends A { foo(a = super.foo()) { return a }}`, {
                 ranges: true
