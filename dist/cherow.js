@@ -502,7 +502,7 @@ Parser.prototype.scanNext = function scanNext (ch, err /* UnterminatedString */)
         if ( err === void 0 ) err = 3;
 
     this.advance();
-    if (ch & 0x10000)
+    if (ch & 65536 /* NonBMPMin */)
         { this.index++; }
     if (!this.hasNext())
         { this.error(err); }
@@ -511,14 +511,25 @@ Parser.prototype.scanNext = function scanNext (ch, err /* UnterminatedString */)
 Parser.prototype.nextUnicodeChar = function nextUnicodeChar () {
     var index = this.index;
     var hi = this.source.charCodeAt(index++);
-    if (hi < 0xd800 || hi > 0xdbff)
+    if (hi < 55296 /* LeadSurrogateMin */ || hi > 56319 /* LeadSurrogateMax */)
         { return hi; }
     if (index === this.source.length)
         { return hi; }
     var lo = this.source.charCodeAt(index);
-    if (lo < 0xdc00 || lo > 0xdfff)
+    if (lo < 56320 /* TrailSurrogateMin */ || lo > 57343 /* TrailSurrogateMax */)
         { return hi; }
-    return (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
+    return (hi & 0x3ff) << 10 | lo & 0x3ff | 65536 /* NonBMPMin */;
+};
+Parser.prototype.codePointAt = function codePointAt () {
+    var index = this.index;
+    var hi = this.source.charCodeAt(index);
+    if (hi < 55296 /* LeadSurrogateMin */ || hi > 56319 /* LeadSurrogateMax */)
+        { return hi; }
+    var lo = this.source.charCodeAt(index + 1);
+    if (lo < 56320 /* TrailSurrogateMin */ || lo > 57343 /* TrailSurrogateMax */)
+        { return hi; }
+    var a = hi & 0x3FF;
+    return 0x10000 + (a << 10) | lo & 0x3FF;
 };
 Parser.prototype.advance = function advance () {
     this.index++;
@@ -561,6 +572,8 @@ Parser.prototype.scanToken = function scanToken (context) {
         this$1.startColumn = this$1.column;
         this$1.startLine = this$1.line;
         var first = this$1.nextChar();
+        if (first >= 128)
+            { first = this$1.codePointAt(); }
         switch (first) {
             case 13 /* CarriageReturn */:
                 state |= 2 /* LastIsCR */ | 4 /* LineStart */;
@@ -997,9 +1010,6 @@ Parser.prototype.scanToken = function scanToken (context) {
             default:
                 if (isValidIdentifierStart(first))
                     { return this$1.scanUnicodeIdentifier(context); }
-                if (first >= 0xD800 && first <= 0xDFFF) {
-                    return this$1.scanSurrogate(context, first);
-                }
                 this$1.error(0 /* Unexpected */);
         }
     }
@@ -1109,25 +1119,16 @@ Parser.prototype.scanIdentifierOrKeyword = function scanIdentifierOrKeyword (con
     }
     return 262145 /* Identifier */;
 };
-Parser.prototype.scanSurrogate = function scanSurrogate (context, first) {
-    var next = this.source.charCodeAt(this.index + 1);
-    if (!isIdentifierStart(((first - 0x0d800) << 10) + (next - 0x0dc00) + 0x010000))
-        { this.error(0 /* Unexpected */); }
-    this.index += 2;
-    this.column += 2;
-    this.tokenValue = this.scanIdentifier(context, fromCodePoint(first) + fromCodePoint(next));
-    return 262145 /* Identifier */;
-};
 Parser.prototype.scanUnicodeIdentifier = function scanUnicodeIdentifier (context) {
     var ret = this.scanIdentifier(context);
     this.tokenValue = ret;
     return 262145 /* Identifier */;
 };
-Parser.prototype.scanIdentifier = function scanIdentifier (context, ret) {
+Parser.prototype.scanIdentifier = function scanIdentifier (context) {
         var this$1 = this;
-        if ( ret === void 0 ) ret = '';
 
     var start = this.index;
+    var ret = '';
     loop: while (this.hasNext()) {
         var code = this$1.nextChar();
         switch (code) {
@@ -1138,7 +1139,7 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context, ret) {
                 start = this$1.index;
                 break;
             default:
-                if (code >= 0xD800 && code <= 0xDFFF) {
+                if (code >= 55296 /* LeadSurrogateMin */ && code <= 57343 /* TrailSurrogateMax */) {
                     code = this$1.nextUnicodeChar();
                 }
                 else if (!isIdentifierPart(code)) {
@@ -1157,7 +1158,7 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context, ret) {
 Parser.prototype.peekUnicodeEscape = function peekUnicodeEscape () {
     this.advance();
     var code = this.peekExtendedUnicodeEscape();
-    if (code >= 0xd800 && code <= 0xdc00) {
+    if (code >= 55296 /* LeadSurrogateMin */ && code <= 56320 /* TrailSurrogateMin */) {
         this.error(98 /* UnexpectedSurrogate */);
     }
     if (!isvalidIdentifierContinue(code)) {
@@ -1490,9 +1491,9 @@ Parser.prototype.scanString = function scanString (context, quote) {
         var this$1 = this;
 
     var start = this.index;
-    var lastChar = this.lastChar;
     var ret = '';
-    var ch = this.scanNext(quote);
+    this.advance(); // Consume the quote
+    var ch = this.nextChar();
     while (ch !== quote) {
         switch (ch) {
             case 13 /* CarriageReturn */:
@@ -1506,7 +1507,6 @@ Parser.prototype.scanString = function scanString (context, quote) {
                     ret += fromCodePoint(ch);
                 }
                 else {
-                    this$1.lastChar = ch;
                     var code = this$1.scanEscape(context, ch);
                     if (code >= 0) {
                         ret += fromCodePoint(code);
@@ -1515,7 +1515,6 @@ Parser.prototype.scanString = function scanString (context, quote) {
                         this$1.handleStringError(code);
                     }
                     this$1.flags |= 2 /* HasUnicode */;
-                    ch = this$1.lastChar;
                 }
                 break;
             default:
@@ -1527,7 +1526,6 @@ Parser.prototype.scanString = function scanString (context, quote) {
     if (this.flags & 1048576 /* OptionsRaw */)
         { this.storeRaw(start); }
     this.tokenValue = ret;
-    this.lastChar = lastChar;
     return 262147 /* StringLiteral */;
 };
 Parser.prototype.handleStringError = function handleStringError (code) {
@@ -1655,11 +1653,11 @@ Parser.prototype.scanEscape = function scanEscape (context, cp, isTemplate) {
         // ASCII escapes
         case 120 /* LowerX */:
             {
-                var ch1 = this.lastChar = this.scanNext(cp);
+                var ch1 = this.scanNext(cp);
                 var hi = toHex(ch1);
                 if (hi < 0)
                     { return -4 /* InvalidHex */; }
-                var ch2 = this.lastChar = this.scanNext(ch1);
+                var ch2 = this.scanNext(ch1);
                 var lo = toHex(ch2);
                 if (lo < 0)
                     { return -4 /* InvalidHex */; }
@@ -1751,7 +1749,7 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
                     }
                     else if (code !== -1 /* Empty */ && context & 2097152 /* TaggedTemplate */) {
                         ret = null;
-                        ch = this$1.scanLooserTemplateSegment(this$1.lastChar);
+                        ch = this$1.scanLooserTemplateSegment();
                         if (ch < 0) {
                             ch = -ch;
                             tail = false;
@@ -1784,8 +1782,6 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
         ch = this$1.scanNext(ch, 80 /* UnterminatedTemplate */);
     }
     this.advance();
-    if (ch & 0x10000)
-        { this.index++; }
     this.tokenValue = ret;
     this.lastChar = lastChar;
     if (tail) {
@@ -1797,9 +1793,10 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
         return 262152 /* TemplateCont */;
     }
 };
-Parser.prototype.scanLooserTemplateSegment = function scanLooserTemplateSegment (ch) {
+Parser.prototype.scanLooserTemplateSegment = function scanLooserTemplateSegment () {
         var this$1 = this;
 
+    var ch = this.lastChar;
     while (ch !== 96 /* Backtick */) {
         switch (ch) {
             // '$'

@@ -150,4 +150,11 @@ export const enum Chars {
 
     LittleEndian = 0xffe,
     ByteOrderMark = 0xffef,
+
+    LeadSurrogateMin = 0xD800,
+    LeadSurrogateMax = 0xDBFF,
+    TrailSurrogateMin = 0xDC00,
+    TrailSurrogateMax = 0xDFFF,
+
+    NonBMPMin = 0x10000
 }

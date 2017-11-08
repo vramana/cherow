@@ -209,23 +209,33 @@ export class Parser {
     
         private scanNext(ch: Chars, err: Errors = Errors.UnterminatedString): Chars {
             this.advance();
-            if (ch & 0x10000) this.index++;
+            if (ch & Chars.NonBMPMin) this.index++;
             if (!this.hasNext()) this.error(err);
             return this.nextUnicodeChar();
         }
-    
+
         private nextUnicodeChar() {
             let index = this.index;
             const hi = this.source.charCodeAt(index++);
-    
-            if (hi < 0xd800 || hi > 0xdbff) return hi;
+
+            if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
             if (index === this.source.length) return hi;
             const lo = this.source.charCodeAt(index);
-    
-            if (lo < 0xdc00 || lo > 0xdfff) return hi;
-            return (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
+
+            if (lo < Chars.TrailSurrogateMin || lo > Chars.TrailSurrogateMax) return hi;
+            return (hi & 0x3ff) << 10 | lo & 0x3ff | Chars.NonBMPMin;
         }
 
+        private codePointAt(): Chars {
+            let index = this.index;
+            let hi = this.source.charCodeAt(index);
+            if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
+            const lo = this.source.charCodeAt(index + 1);
+            if (lo < Chars.TrailSurrogateMin || lo > Chars.TrailSurrogateMax) return hi;
+            const a = hi & 0x3FF;
+            return 0x10000 + (a << 10) | lo & 0x3FF;
+        }
+    
         private advance() {
             this.index++;
             this.column++;
@@ -257,6 +267,7 @@ export class Parser {
          *
          * @param context Context
          */
+
         private scanToken(context: Context): Token {
     
             this.flags &= ~(Flags.LineTerminator | Flags.HasUnicode);
@@ -273,8 +284,10 @@ export class Parser {
                 this.startColumn = this.column;
                 this.startLine = this.line;
     
-                const first = this.nextChar();
-    
+                let first = this.nextChar();
+
+                if (first >= 128) first = this.codePointAt()
+
                 switch (first) {
     
                     case Chars.CarriageReturn:
@@ -321,14 +334,14 @@ export class Parser {
                     case Chars.ZeroWidthNonJoiner:
                         this.advance();
                         continue;
-
+    
                         // `/`, `/=`, `/>`
                     case Chars.Slash:
                         {
                             this.advance();
-
+    
                             const next = this.nextChar();
-
+    
                             if (this.consume(Chars.Slash)) {
                                 this.skipComments(state | Scanner.SingleLine);
                                 continue;
@@ -407,8 +420,8 @@ export class Parser {
                             this.advance();
                             if (state & Scanner.LineStart &&
                                 this.nextChar() === Chars.Exclamation) {
-                                    this.advance();
-                                    this.skipComments(state);
+                                this.advance();
+                                this.skipComments(state);
                                 continue;
                             }
                             return Token.Hash;
@@ -761,9 +774,7 @@ export class Parser {
                         return this.scanIdentifierOrKeyword(context);
                     default:
                         if (isValidIdentifierStart(first)) return this.scanUnicodeIdentifier(context);
-                        if (first >= 0xD800 && first <= 0xDFFF) {
-                            return this.scanSurrogate(context, first);
-                        }
+    
                         this.error(Errors.Unexpected);
                 }
             }
@@ -889,29 +900,18 @@ export class Parser {
             }
             return Token.Identifier;
         }
-    
-        private scanSurrogate(context: Context, first: Chars): Token {
-            const next = this.source.charCodeAt(this.index + 1);
-    
-            if (!isIdentifierStart(((first - 0x0d800) << 10) + (next - 0x0dc00) + 0x010000)) this.error(Errors.Unexpected);
-    
-            this.index += 2;
-            this.column += 2;
-            this.tokenValue = this.scanIdentifier(context, fromCodePoint(first) + fromCodePoint(next));
-    
-            return Token.Identifier;
-        }
-    
+        
         private scanUnicodeIdentifier(context: Context): Token {
             const ret = this.scanIdentifier(context);
             this.tokenValue = ret;
             return Token.Identifier;
         }
     
-        private scanIdentifier(context: Context, ret = ''): string {
+        private scanIdentifier(context: Context): string {
     
             let start = this.index;
-    
+            let ret = '';
+
             loop:
                 while (this.hasNext()) {
                     let code = this.nextChar();
@@ -923,7 +923,7 @@ export class Parser {
                             start = this.index;
                             break;
                         default:
-                            if (code >= 0xD800 && code <= 0xDFFF) {
+                            if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMax) {
                                 code = this.nextUnicodeChar();
                             } else if (!isIdentifierPart(code)) {
                                 break loop;
@@ -943,7 +943,7 @@ export class Parser {
             this.advance();
             const code = this.peekExtendedUnicodeEscape();
     
-            if (code >= 0xd800 && code <= 0xdc00) {
+            if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMin) {
                 this.error(Errors.UnexpectedSurrogate);
             }
     
@@ -1324,10 +1324,12 @@ export class Parser {
     
         private scanString(context: Context, quote: number): Token {
             const start = this.index;
-            const lastChar = this.lastChar;
             let ret = '';
     
-            let ch = this.scanNext(quote);
+            this.advance(); // Consume the quote
+    
+            let ch = this.nextChar();
+    
             while (ch !== quote) {
                 switch (ch) {
                     case Chars.CarriageReturn:
@@ -1341,7 +1343,7 @@ export class Parser {
                         if (ch >= 128) {
                             ret += fromCodePoint(ch);
                         } else {
-                            this.lastChar = ch;
+    
                             const code = this.scanEscape(context, ch);
     
                             if (code >= 0) {
@@ -1351,8 +1353,6 @@ export class Parser {
                             }
     
                             this.flags |= Flags.HasUnicode;
-    
-                            ch = this.lastChar;
                         }
                         break;
     
@@ -1366,7 +1366,6 @@ export class Parser {
             this.advance(); // Consume the quote
             if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
             this.tokenValue = ret;
-            this.lastChar = lastChar;
             return Token.StringLiteral;
         }
     
@@ -1511,10 +1510,10 @@ export class Parser {
                     // ASCII escapes
                 case Chars.LowerX:
                     {
-                        const ch1 = this.lastChar = this.scanNext(cp);
+                        const ch1 = this.scanNext(cp);
                         const hi = toHex(ch1);
                         if (hi < 0) return Escape.InvalidHex;
-                        const ch2 = this.lastChar = this.scanNext(ch1);
+                        const ch2 = this.scanNext(ch1);
                         const lo = toHex(ch2);
                         if (lo < 0) return Escape.InvalidHex;
     
@@ -1613,7 +1612,7 @@ export class Parser {
                                     ret += fromCodePoint(code as Chars);
                                 } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
                                     ret = null;
-                                    ch = this.scanLooserTemplateSegment(this.lastChar);
+                                    ch = this.scanLooserTemplateSegment();
                                     if (ch < 0) {
                                         ch = -ch;
                                         tail = false;
@@ -1648,8 +1647,6 @@ export class Parser {
     
             this.advance();
     
-            if (ch & 0x10000) this.index++;
-    
             this.tokenValue = ret;
             this.lastChar = lastChar;
     
@@ -1662,10 +1659,14 @@ export class Parser {
             }
         }
     
-        private scanLooserTemplateSegment(ch: Chars): Chars {
+        private scanLooserTemplateSegment(): Chars {
+    
+            let ch: void | Chars = this.lastChar;
     
             while (ch !== Chars.Backtick) {
+    
                 switch (ch) {
+    
                     // '$'
                     case Chars.Dollar:
                         {
@@ -1701,7 +1702,7 @@ export class Parser {
                         // ignore
                 }
     
-                ch = this.scanNext(ch);
+                ch = this.scanNext(ch as Chars);
             }
     
             return ch;
@@ -2642,11 +2643,11 @@ export class Parser {
     
         private parseContinueStatement(context: Context): ESTree.ContinueStatement {
             const pos = this.getLocations();
-            
-            if(context & Context.Labelled && !(this.flags & Flags.Iteration)) this.error(Errors.InvalidNestedContinue)
-
+    
+            if (context & Context.Labelled && !(this.flags & Flags.Iteration)) this.error(Errors.InvalidNestedContinue)
+    
             this.expect(context, Token.ContinueKeyword);
-            
+    
             let label: ESTree.Identifier | null = null;
     
             if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
@@ -3010,7 +3011,7 @@ export class Parser {
             const pos = this.getLocations();
     
             const parentContext = context;
-
+    
             context &= ~(Context.Await | Context.Yield | Context.Method);
     
             if (this.parseOptional(context, Token.AsyncKeyword)) context |= Context.Await;
@@ -3118,7 +3119,7 @@ export class Parser {
     
                 this.labelSet[key] = true;
                 let body;
-                
+    
                 switch (this.token) {
                     case Token.FunctionKeyword:
                         if (context & Context.Iteration) this.error(Errors.InvalidWithBody);
@@ -3263,7 +3264,7 @@ export class Parser {
             context: Context,
             pos: Location
         ): ESTree.YieldExpression {
-
+    
             this.expect(context, Token.YieldKeyword);
     
             let argument: ESTree.Expression | null = null;
@@ -3831,7 +3832,7 @@ export class Parser {
         private parseFunctionExpression(context: Context, pos: Location): ESTree.FunctionExpression {
     
             this.expect(context, Token.FunctionKeyword);
-            
+    
             if (this.token === Token.Multiply) {
                 // If we are in the 'await' context. Check if the 'Next' option are set
                 // and allow us to use async generators. If not, throw a decent error message if this isn't the case
@@ -4076,7 +4077,7 @@ export class Parser {
                 this.labelSet = undefined;
                 const savedFlags = this.flags;
                 this.flags |= Flags.InFunctionBody;
-               
+    
                 this.flags &= ~(Flags.Switch | Flags.Break | Flags.Iteration);
                 body = this.parseStatementList(context & ~Context.Lexical, Token.RightBrace);
                 this.labelSet = previousLabelSet;
@@ -4183,7 +4184,7 @@ export class Parser {
                 case Token.Identifier:
                     return this.parseIdentifier(context | Context.TaggedTemplate);
                 case Token.FunctionKeyword:
-                    return this.parseFunctionExpression(context & ~(Context.Yield  | Context.Method) | Context.InParenthesis, pos);
+                    return this.parseFunctionExpression(context & ~(Context.Yield | Context.Method) | Context.InParenthesis, pos);
                 case Token.ThisKeyword:
                     return this.parseThisExpression(context);
                 case Token.NullKeyword:
@@ -4238,9 +4239,9 @@ export class Parser {
         }
     
         private parseClassDeclaration(context: Context): ESTree.ClassDeclaration {
-           return this.parseClass(context, false) as ESTree.ClassDeclaration;
+            return this.parseClass(context, false) as ESTree.ClassDeclaration;
         }
-
+    
         private parseClassExpression(context: Context): ESTree.ClassExpression {
             return this.parseClass(context, true) as ESTree.ClassExpression;
         }
@@ -4250,14 +4251,14 @@ export class Parser {
             const pos = this.getLocations();
     
             this.expect(context, Token.ClassKeyword);
-
+    
     
             let superClass: ESTree.Expression | null = null;
             let classBody;
             let flags = ObjectState.None;
             const savedFlags = this.flags;
             let id = null;
-
+    
             if (this.isIdentifier(context, this.token)) {
                 const name = this.tokenValue;
     
@@ -4318,7 +4319,7 @@ export class Parser {
                 body
             });
         }
-
+    
         private parseClassElement(context: Context, state: ObjectState): ESTree.MethodDefinition {
             const pos = this.getLocations();
             let key = null;
@@ -4330,9 +4331,9 @@ export class Parser {
     
             if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
             if (this.tokenValue === 'constructor') state |= ObjectState.HasConstructor;
-     
+    
             key = this.parsePropertyName(context & ~Context.Strict);
-   
+    
             // cannot use 'await' inside async functions.
             if (context & Context.Await && this.flags & Flags.InFunctionBody && this.token === Token.AwaitKeyword) {
                 this.error(Errors.InvalidAwaitInArrowParam);
@@ -4416,9 +4417,9 @@ export class Parser {
                 if (state & ObjectState.Static && this.tokenValue === 'prototype') {
                     this.error(Errors.StaticPrototype);
                 }
-                
+    
                 key = this.parsePropertyName(context);
-                
+    
                 value = this.parseMethodDefinition(context | Context.Method, state);
             }
     
@@ -4787,12 +4788,12 @@ export class Parser {
                 this.errorLocation = pos;
                 state |= ParenthesizedState.EvalOrArg;
             }
-
+    
             if (!(state & ParenthesizedState.FutureReserved) && hasMask(this.token, Token.FutureReserved)) {
                 this.errorLocation = pos;
                 state |= ParenthesizedState.FutureReserved;
             }
-            
+    
             expr = this.parseAssignmentExpression(context);
     
             if (this.token === Token.Comma) {
@@ -5170,7 +5171,7 @@ export class Parser {
             if (!this.parseOptional(context, Token.Assign)) return pattern;
     
             if (context & Context.InParameter) {
-
+    
                 switch (this.token) {
                     case Token.YieldKeyword:
                         if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
