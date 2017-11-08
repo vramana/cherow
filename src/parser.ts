@@ -1,6 +1,6 @@
 import { Chars } from './chars';
 import * as ESTree from './estree';
-import { hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isPrologueDirective } from './common';
+import { hasOwn, toHex, fromCodePoint, hasMask, isPrologueDirective } from './common';
 import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget } from './validate';
 import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, Scanner, ParenthesizedState, IterationState, NumberState, ArrayState, Escape } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
@@ -699,6 +699,7 @@ export class Parser {
     
                         // '\uVar', `\u{N}var`
                     case Chars.Backslash:
+
                         // `A`...`Z`
                     case Chars.UpperA:
                     case Chars.UpperB:
@@ -1247,6 +1248,7 @@ export class Parser {
                 while (this.hasNext()) {
                     const code = this.nextChar();
                     switch (code) {
+
                         case Chars.LowerG:
                             if (mask & RegexFlags.Global) this.error(Errors.DuplicateRegExpFlag, 'g');
                             mask |= RegexFlags.Global;
@@ -1297,12 +1299,47 @@ export class Parser {
                 flags
             };
     
-            this.tokenValue = tryCreate(pattern, flags);
+            this.tokenValue = this.testRegExp(pattern, flags, mask);
     
             if (this.flags & Flags.OptionsRaw) this.storeRaw(this.startIndex);
     
             return Token.RegularExpression;
         }
+
+        private testRegExp(pattern: string, flags: string, mask: RegexFlags): RegExp | null {
+                    const astralSubstitute = '\uFFFF';
+                    let tmp = pattern;
+                    const self = this;
+
+                    if (mask & RegexFlags.Unicode) {
+                        tmp = tmp.replace(/\\u\{([0-9a-fA-F]+)\}|\\u([a-fA-F0-9]{4})/g, ($0, $1, $2) => {
+                                const codePoint = parseInt($1 || $2, 16);
+                                if (codePoint > Chars.LastUnicodeChar) this.error(Errors.UnicodeOutOfRange);
+                                if (codePoint <= 0xFFFF) return String.fromCharCode(codePoint);
+                                return astralSubstitute;
+                            }).replace(
+                            /[\uD800-\uDBFF][\uDC00-\uDFFF]/g,
+                            astralSubstitute
+                            );
+                    }
+            
+                    // First, detect invalid regular expressions.
+                    try {
+                        RegExp(tmp);
+                    } catch (e) {
+                        this.error(Errors.UnexpectedTokenRegExp);
+                    }
+            
+                    // Return a regular expression object for this pattern-flag pair, or
+                    // `null` in case the current environment doesn't support the flags it
+                    // uses.
+                    try {
+                        return new RegExp(pattern, flags);
+                    } catch (exception) {
+                        /* istanbul ignore next */
+                        return null;
+                    }
+            }
     
         private scanString(context: Context, quote: number): Token {
             const start = this.index;

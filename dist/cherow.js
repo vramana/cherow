@@ -12,14 +12,6 @@ function isPrologueDirective(node) {
 function hasMask(mask, flags) {
     return (mask & flags) === flags;
 }
-function tryCreate(pattern, flags) {
-    try {
-        return new RegExp(pattern, flags);
-    }
-    catch (e) {
-        return null;
-    }
-}
 function fromCodePoint(codePoint) {
     if (codePoint <= 0xFFFF)
         { return String.fromCharCode(codePoint); }
@@ -1420,29 +1412,29 @@ Parser.prototype.scanRegularExpression = function scanRegularExpression () {
         var code = this$1.nextChar();
         switch (code) {
             case 103 /* LowerG */:
-                if (mask & 1 /* Global */)
+                if (mask & 2 /* Global */)
                     { this$1.error(11 /* DuplicateRegExpFlag */, 'g'); }
-                mask |= 1 /* Global */;
+                mask |= 2 /* Global */;
                 break;
             case 105 /* LowerI */:
-                if (mask & 16 /* IgnoreCase */)
+                if (mask & 1 /* IgnoreCase */)
                     { this$1.error(11 /* DuplicateRegExpFlag */, 'i'); }
-                mask |= 16 /* IgnoreCase */;
+                mask |= 1 /* IgnoreCase */;
                 break;
             case 109 /* LowerM */:
-                if (mask & 8 /* Multiline */)
+                if (mask & 4 /* Multiline */)
                     { this$1.error(11 /* DuplicateRegExpFlag */, 'm'); }
-                mask |= 8 /* Multiline */;
+                mask |= 4 /* Multiline */;
                 break;
             case 117 /* LowerU */:
-                if (mask & 2 /* Unicode */)
+                if (mask & 8 /* Unicode */)
                     { this$1.error(11 /* DuplicateRegExpFlag */, 'u'); }
-                mask |= 2 /* Unicode */;
+                mask |= 8 /* Unicode */;
                 break;
             case 121 /* LowerY */:
-                if (mask & 4 /* Sticky */)
+                if (mask & 16 /* Sticky */)
                     { this$1.error(11 /* DuplicateRegExpFlag */, 'y'); }
-                mask |= 4 /* Sticky */;
+                mask |= 16 /* Sticky */;
                 break;
             // Stage 3 proposal
             case 115 /* LowerS */:
@@ -1466,10 +1458,43 @@ Parser.prototype.scanRegularExpression = function scanRegularExpression () {
         pattern: pattern,
         flags: flags
     };
-    this.tokenValue = tryCreate(pattern, flags);
+    this.tokenValue = this.testRegExp(pattern, flags, mask);
     if (this.flags & 1048576 /* OptionsRaw */)
         { this.storeRaw(this.startIndex); }
     return 262148 /* RegularExpression */;
+};
+Parser.prototype.testRegExp = function testRegExp (pattern, flags, mask) {
+        var this$1 = this;
+
+    var astralSubstitute = '\uFFFF';
+    var tmp = pattern;
+    if (mask & 8 /* Unicode */) {
+        tmp = tmp.replace(/\\u\{([0-9a-fA-F]+)\}|\\u([a-fA-F0-9]{4})/g, function ($0, $1, $2) {
+            var codePoint = parseInt($1 || $2, 16);
+            if (codePoint > 1114111 /* LastUnicodeChar */)
+                { this$1.error(5 /* UnicodeOutOfRange */); }
+            if (codePoint <= 0xFFFF)
+                { return String.fromCharCode(codePoint); }
+            return astralSubstitute;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, astralSubstitute);
+    }
+    // First, detect invalid regular expressions.
+    try {
+        
+    }
+    catch (e) {
+        this.error(12 /* UnexpectedTokenRegExp */);
+    }
+    // Return a regular expression object for this pattern-flag pair, or
+    // `null` in case the current environment doesn't support the flags it
+    // uses.
+    try {
+        return new RegExp(pattern, flags);
+    }
+    catch (exception) {
+        /* istanbul ignore next */
+        return null;
+    }
 };
 Parser.prototype.scanString = function scanString (context, quote) {
         var this$1 = this;

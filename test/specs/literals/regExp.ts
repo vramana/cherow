@@ -655,13 +655,13 @@ describe('Literals - RegExp', () => {
     it('should fail on invalid non empty class ranges no dash a', () => {
         expect(() => {
             parseScript(`/[\d-a]/u;`)
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on invalid non empty class ranges no dash ab', () => {
         expect(() => {
             parseScript(`/[\s-\d]/u;`)
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on invalid legacy octal escape', () => {
@@ -727,7 +727,7 @@ describe('Literals - RegExp', () => {
     it('should fail on invalid braced quantifier exact', () => {
         expect(() => {
             parseScript(`/{2}/;`)
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should parse unicode astral', () => {

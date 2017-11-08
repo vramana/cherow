@@ -103,8 +103,8 @@ export const enum ParenthesizedState {
     Await           = 1 << 1, // If async arrow contains 'await'
     Parenthesized   = 1 << 2, // Tracks invalid parenthesized pattern
     Trailing        = 1 << 3, // Tracks trailing commas
-    Pattern         = 1 << 4, 
-    FutureReserved        = 1 << 5, 
+    Pattern         = 1 << 4,
+    FutureReserved  = 1 << 5,
 }
 
 // Flags used by both object expression and class decl / expr
@@ -154,13 +154,13 @@ export const enum RegExpState {
 
 // Spidermonkey values
 export const enum RegexFlags {
-    None = 0x00,
-    Global = 0x01,
-    Unicode = 0x02,
-    Sticky = 0x04,
-    Multiline = 0x08,
-    IgnoreCase = 0x10,
-    DotAll = 0x20,
+    None = 0,
+    IgnoreCase = 1 << 0,
+    Global     = 1 << 1,
+    Multiline  = 1 << 2,
+    Unicode    = 1 << 3,
+    Sticky     = 1 << 4,
+    DotAll     = 1 << 5,
 }
 
 export const enum ScopeMasks {

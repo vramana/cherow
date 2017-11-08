@@ -17,14 +17,6 @@ export function hasMask(mask: number, flags: number) {
     return (mask & flags) === flags;
 }
 
-export function tryCreate(pattern: string, flags: string) {
-    try {
-        return new RegExp(pattern, flags);
-    } catch (e) {
-        return null;
-    }
-}
-
 export function fromCodePoint(codePoint: Chars): string {
     if (codePoint <= 0xFFFF) return String.fromCharCode(codePoint);
     return String.fromCharCode(((codePoint - 0x10000) >> 10) + 0x0D800, ((codePoint - 0x10000) & (1024 - 1)) + 0x0DC00);
