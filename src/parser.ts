@@ -213,27 +213,15 @@ export class Parser {
             if (!this.hasNext()) this.error(err);
             return this.nextUnicodeChar();
         }
-
-        private nextUnicodeChar() {
-            let index = this.index;
-            const hi = this.source.charCodeAt(index++);
-
-            if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
-            if (index === this.source.length) return hi;
-            const lo = this.source.charCodeAt(index);
-
-            if (lo < Chars.TrailSurrogateMin || lo > Chars.TrailSurrogateMax) return hi;
-            return (hi & 0x3ff) << 10 | lo & 0x3ff | Chars.NonBMPMin;
-        }
-
-        private codePointAt(): Chars {
+    
+        private nextUnicodeChar(): Chars {
             let index = this.index;
             let hi = this.source.charCodeAt(index);
             if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
             const lo = this.source.charCodeAt(index + 1);
             if (lo < Chars.TrailSurrogateMin || lo > Chars.TrailSurrogateMax) return hi;
             const a = hi & 0x3FF;
-            return 0x10000 + (a << 10) | lo & 0x3FF;
+            return Chars.NonBMPMin + (a << 10) | lo & 0x3FF;
         }
     
         private advance() {
@@ -267,7 +255,7 @@ export class Parser {
          *
          * @param context Context
          */
-
+    
         private scanToken(context: Context): Token {
     
             this.flags &= ~(Flags.LineTerminator | Flags.HasUnicode);
@@ -285,9 +273,9 @@ export class Parser {
                 this.startLine = this.line;
     
                 let first = this.nextChar();
-
-                if (first >= 128) first = this.codePointAt()
-
+    
+                if (first >= 128) first = this.nextUnicodeChar()
+    
                 switch (first) {
     
                     case Chars.CarriageReturn:
@@ -900,7 +888,7 @@ export class Parser {
             }
             return Token.Identifier;
         }
-        
+    
         private scanUnicodeIdentifier(context: Context): Token {
             const ret = this.scanIdentifier(context);
             this.tokenValue = ret;
@@ -911,7 +899,7 @@ export class Parser {
     
             let start = this.index;
             let ret = '';
-
+    
             loop:
                 while (this.hasNext()) {
                     let code = this.nextChar();
