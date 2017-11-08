@@ -699,7 +699,7 @@ export class Parser {
     
                         // '\uVar', `\u{N}var`
                     case Chars.Backslash:
-
+    
                         // `A`...`Z`
                     case Chars.UpperA:
                     case Chars.UpperB:
@@ -727,14 +727,8 @@ export class Parser {
                     case Chars.UpperX:
                     case Chars.UpperY:
                     case Chars.UpperZ:
-    
-                        // '$'
                     case Chars.Dollar:
-    
-                        // '_'
                     case Chars.Underscore:
-    
-                        //  `a`...`z`
                     case Chars.LowerA:
                     case Chars.LowerB:
                     case Chars.LowerC:
@@ -763,7 +757,9 @@ export class Parser {
                     case Chars.LowerZ:
                         return this.scanIdentifier(context, state);
                     default:
-                        if (isValidIdentifierStart(first)) return this.scanIdentifier(context, state);
+                        if (isValidIdentifierStart(first)) {
+                            return this.scanIdentifier(context, state);
+                        }
     
                         this.error(Errors.Unexpected);
                 }
@@ -855,7 +851,7 @@ export class Parser {
                 }
     
                 if (typeof this.comments === 'function') {
-                    this.comments(type, value, commentStart as any, commentEnd as any, loc);
+                    this.comments(type, value, commentStart as number, commentEnd as number, loc);
                 } else if (Array.isArray(this.comments)) {
     
                     const node: any = {
@@ -899,12 +895,12 @@ export class Parser {
                             this.advance();
                     }
                 }
-
+    
             if (start < this.index) ret += this.source.slice(start, this.index);
-
+    
             const len = ret.length;
             this.tokenValue = ret;
-
+    
             // Reserved words are between 2 and 11 characters long and start with a lowercase letter
             if (len >= 2 && len <= 11) {
                 const ch = ret.charCodeAt(0);
@@ -915,10 +911,10 @@ export class Parser {
                     }
                 }
             }
-
+    
             return Token.Identifier;
         }
-
+    
         /**
          * Peek unicode escape
          */
@@ -1248,7 +1244,7 @@ export class Parser {
                 while (this.hasNext()) {
                     const code = this.nextChar();
                     switch (code) {
-
+    
                         case Chars.LowerG:
                             if (mask & RegexFlags.Global) this.error(Errors.DuplicateRegExpFlag, 'g');
                             mask |= RegexFlags.Global;
@@ -1305,41 +1301,41 @@ export class Parser {
     
             return Token.RegularExpression;
         }
-
+    
         private testRegExp(pattern: string, flags: string, mask: RegexFlags): RegExp | null {
-                    const astralSubstitute = '\uFFFF';
-                    let tmp = pattern;
-                    const self = this;
-
-                    if (mask & RegexFlags.Unicode) {
-                        tmp = tmp.replace(/\\u\{([0-9a-fA-F]+)\}|\\u([a-fA-F0-9]{4})/g, ($0, $1, $2) => {
-                                const codePoint = parseInt($1 || $2, 16);
-                                if (codePoint > Chars.LastUnicodeChar) this.error(Errors.UnicodeOutOfRange);
-                                if (codePoint <= 0xFFFF) return String.fromCharCode(codePoint);
-                                return astralSubstitute;
-                            }).replace(
-                            /[\uD800-\uDBFF][\uDC00-\uDFFF]/g,
-                            astralSubstitute
-                            );
-                    }
-            
-                    // First, detect invalid regular expressions.
-                    try {
-                        RegExp(tmp);
-                    } catch (e) {
-                        this.error(Errors.UnexpectedTokenRegExp);
-                    }
-            
-                    // Return a regular expression object for this pattern-flag pair, or
-                    // `null` in case the current environment doesn't support the flags it
-                    // uses.
-                    try {
-                        return new RegExp(pattern, flags);
-                    } catch (exception) {
-                        /* istanbul ignore next */
-                        return null;
-                    }
+            const astralSubstitute = '\uFFFF';
+            let tmp = pattern;
+            const self = this;
+    
+            if (mask & RegexFlags.Unicode) {
+                tmp = tmp.replace(/\\u\{([0-9a-fA-F]+)\}|\\u([a-fA-F0-9]{4})/g, ($0, $1, $2) => {
+                    const codePoint = parseInt($1 || $2, 16);
+                    if (codePoint > Chars.LastUnicodeChar) this.error(Errors.UnicodeOutOfRange);
+                    if (codePoint <= 0xFFFF) return String.fromCharCode(codePoint);
+                    return astralSubstitute;
+                }).replace(
+                    /[\uD800-\uDBFF][\uDC00-\uDFFF]/g,
+                    astralSubstitute
+                );
             }
+    
+            // First, detect invalid regular expressions.
+            try {
+                RegExp(tmp);
+            } catch (e) {
+                this.error(Errors.UnexpectedTokenRegExp);
+            }
+    
+            // Return a regular expression object for this pattern-flag pair, or
+            // `null` in case the current environment doesn't support the flags it
+            // uses.
+            try {
+                return new RegExp(pattern, flags);
+            } catch (exception) {
+                /* istanbul ignore next */
+                return null;
+            }
+        }
     
         private scanString(context: Context, quote: number): Token {
             const start = this.index;
@@ -1888,27 +1884,22 @@ export class Parser {
             return this.isEvalOrArguments(value);
         }
     
-        private canConsumeSemicolon(): boolean {
-    
-            // Bail out quickly if we have seen a LineTerminator
-            if (this.flags & Flags.LineTerminator) return true;
-    
-            switch (this.token) {
-                case Token.Semicolon:
-                case Token.RightBrace:
-                case Token.EndOfSource:
-                    return true;
-                default:
-                    return false;
-            }
-        }
     
         /**
          * Consume a semicolon between tokens, optionally inserting it if necessary.
          */
         private consumeSemicolon(context: Context) {
-            if (!this.canConsumeSemicolon()) this.throwUnexpectedToken();
-            if (this.token === Token.Semicolon) this.expect(context, Token.Semicolon);
+    
+            switch (this.token) {
+                case Token.Semicolon:
+                    this.expect(context, Token.Semicolon);
+                case Token.RightBrace:
+                case Token.EndOfSource:
+                    break;
+                default:
+                    if (this.flags & Flags.LineTerminator) break;
+                    this.throwUnexpectedToken();
+            }
         }
     
         private nextTokenIsAssign(context: Context) {
@@ -3102,6 +3093,21 @@ export class Parser {
             });
         }
     
+        private canParseArgument(): boolean {
+    
+            // Bail out quickly if we have seen a LineTerminator
+            if (this.flags & Flags.LineTerminator) return false;
+    
+            switch (this.token) {
+                case Token.Semicolon:
+                case Token.RightBrace:
+                case Token.EndOfSource:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+    
         private parseReturnStatement(context: Context): ESTree.ReturnStatement {
             const pos = this.getLocations();
     
@@ -3111,7 +3117,7 @@ export class Parser {
     
             let argument: ESTree.Expression | null = null;
     
-            if (!this.canConsumeSemicolon()) {
+            if (this.canParseArgument()) {
                 argument = this.parseExpression(context | Context.AllowIn, pos);
             }
     
