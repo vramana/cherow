@@ -1,10 +1,7 @@
 const f: any = {
-    // Note: 'pass' and 'explicit' tests fails because there exist
-    // no surrogate pair implementation *yet*
     pass: [
         '110fa1efdd0868b8.js',
-         '3dbb6e166b14a6c0.js',
-         'a62c6323a3696fa8.js',
+        'a62c6323a3696fa8.js',
     ],
     explicit: [
          '110fa1efdd0868b8.js',

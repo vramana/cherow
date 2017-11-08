@@ -1098,9 +1098,6 @@ Parser.prototype.skipComments = function skipComments (state) {
 };
 Parser.prototype.scanIdentifierOrKeyword = function scanIdentifierOrKeyword (context) {
     var ret = this.scanIdentifier(context);
-    if (this.flags & 2 /* HasUnicode */ && ret === 'target') {
-        this.error(69 /* UnexpectedEscapedKeyword */);
-    }
     var len = ret.length;
     this.tokenValue = ret;
     // Reserved words are between 2 and 11 characters long and start with a lowercase letter

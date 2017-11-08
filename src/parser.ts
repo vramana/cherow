@@ -225,7 +225,7 @@ export class Parser {
             if (lo < 0xdc00 || lo > 0xdfff) return hi;
             return (hi & 0x3ff) << 10 | lo & 0x3ff | 0x10000;
         }
-    
+
         private advance() {
             this.index++;
             this.column++;
@@ -876,10 +876,6 @@ export class Parser {
     
         private scanIdentifierOrKeyword(context: Context): Token {
             const ret = this.scanIdentifier(context);
-    
-            if (this.flags & Flags.HasUnicode && ret === 'target') {
-                this.error(Errors.UnexpectedEscapedKeyword);
-            }
     
             const len = ret.length;
             this.tokenValue = ret;

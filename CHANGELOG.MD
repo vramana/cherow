@@ -56,3 +56,8 @@
 *2017-11-5: Version 0.12.0*
 - Added Test262 test runner
 - Fixed several bugs
+
+*2017-11-8: Version 0.13.0*
+- Passes all "pass" and "pass-explicit" Test262-parser tests
+- Passes all Test262 tests
+
