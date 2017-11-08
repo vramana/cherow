@@ -2,7 +2,7 @@ import { Chars } from './chars';
 import * as ESTree from './estree';
 import { hasOwn, toHex, tryCreate, fromCodePoint, hasMask, isPrologueDirective } from './common';
 import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget } from './validate';
-import { Flags, Context, RegExpState, RegExpFlag, ScopeMasks, ObjectState, Scanner, ParenthesizedState, IterationState, NumberState, ArrayState, Escape } from './masks';
+import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, Scanner, ParenthesizedState, IterationState, NumberState, ArrayState, Escape } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
@@ -1241,42 +1241,42 @@ export class Parser {
     
             const flagsStart = this.index;
     
-            let mask = RegExpFlag.None;
+            let mask = RegexFlags.None;
     
             loop:
                 while (this.hasNext()) {
                     const code = this.nextChar();
                     switch (code) {
                         case Chars.LowerG:
-                            if (mask & RegExpFlag.Global) this.error(Errors.DuplicateRegExpFlag, 'g');
-                            mask |= RegExpFlag.Global;
+                            if (mask & RegexFlags.Global) this.error(Errors.DuplicateRegExpFlag, 'g');
+                            mask |= RegexFlags.Global;
                             break;
     
                         case Chars.LowerI:
-                            if (mask & RegExpFlag.IgnoreCase) this.error(Errors.DuplicateRegExpFlag, 'i');
-                            mask |= RegExpFlag.IgnoreCase;
+                            if (mask & RegexFlags.IgnoreCase) this.error(Errors.DuplicateRegExpFlag, 'i');
+                            mask |= RegexFlags.IgnoreCase;
                             break;
     
                         case Chars.LowerM:
-                            if (mask & RegExpFlag.Multiline) this.error(Errors.DuplicateRegExpFlag, 'm');
-                            mask |= RegExpFlag.Multiline;
+                            if (mask & RegexFlags.Multiline) this.error(Errors.DuplicateRegExpFlag, 'm');
+                            mask |= RegexFlags.Multiline;
                             break;
     
                         case Chars.LowerU:
-                            if (mask & RegExpFlag.Unicode) this.error(Errors.DuplicateRegExpFlag, 'u');
-                            mask |= RegExpFlag.Unicode;
+                            if (mask & RegexFlags.Unicode) this.error(Errors.DuplicateRegExpFlag, 'u');
+                            mask |= RegexFlags.Unicode;
                             break;
     
                         case Chars.LowerY:
-                            if (mask & RegExpFlag.Sticky) this.error(Errors.DuplicateRegExpFlag, 'y');
-                            mask |= RegExpFlag.Sticky;
+                            if (mask & RegexFlags.Sticky) this.error(Errors.DuplicateRegExpFlag, 'y');
+                            mask |= RegexFlags.Sticky;
                             break;
     
                             // Stage 3 proposal
                         case Chars.LowerS:
                             if (this.flags & Flags.OptionsNext) {
-                                if (mask & RegExpFlag.DotAll) this.error(Errors.DuplicateRegExpFlag, 's');
-                                mask |= RegExpFlag.DotAll;
+                                if (mask & RegexFlags.DotAll) this.error(Errors.DuplicateRegExpFlag, 's');
+                                mask |= RegexFlags.DotAll;
                                 break;
                             }
     

@@ -26,8 +26,9 @@ export const enum Context {
     Labelled               = 1 << 22,  // 
     Iteration              = 1 << 23,  // 
     LocationTracking       = 1 << 24,
-    Let                    = 1 << 25,  // Variable declaration
-    Const                  = 1 << 26,  // Variable declaration
+    Expression             = 1 << 25,
+    Let                    = 1 << 26,  // Variable declaration
+    Const                  = 1 << 27,  // Variable declaration
 
 
     // An Lexical declaration can be either 'const¨' or 'let
@@ -152,7 +153,7 @@ export const enum RegExpState {
 }
 
 // Spidermonkey values
-export const enum RegExpFlag {
+export const enum RegexFlags {
     None = 0x00,
     Global = 0x01,
     Unicode = 0x02,
