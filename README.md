@@ -218,7 +218,7 @@ Read our guidelines [here](CONTRIBUTING.md)
 
 The following license (ISC License), unless otherwise stated:
 
-Copyright (c) 2017 and later, KFlashand others.
+Copyright (c) 2017 and later, KFlash and others.
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
 
