@@ -274,6 +274,8 @@ export class Parser {
     
                 let first = this.nextChar();
     
+                // Chars not in the range 0..127 are rare.  Getting them out of the way
+                // early allows subsequent checking to be faster.
                 if (first >= 128) first = this.nextUnicodeChar()
     
                 switch (first) {
@@ -697,7 +699,7 @@ export class Parser {
     
                         // '\uVar', `\u{N}var`
                     case Chars.Backslash:
-    
+                        state |= Scanner.HasUnicode;
                         // `A`...`Z`
                     case Chars.UpperA:
                     case Chars.UpperB:
@@ -759,9 +761,9 @@ export class Parser {
                     case Chars.LowerX:
                     case Chars.LowerY:
                     case Chars.LowerZ:
-                        return this.scanIdentifierOrKeyword(context);
+                        return this.scanIdentifier(context, state);
                     default:
-                        if (isValidIdentifierStart(first)) return this.scanUnicodeIdentifier(context);
+                        if (isValidIdentifierStart(first)) return this.scanIdentifier(context, state);
     
                         this.error(Errors.Unexpected);
                 }
@@ -873,29 +875,7 @@ export class Parser {
             }
         }
     
-        private scanIdentifierOrKeyword(context: Context): Token {
-            const ret = this.scanIdentifier(context);
-    
-            const len = ret.length;
-            this.tokenValue = ret;
-    
-            // Reserved words are between 2 and 11 characters long and start with a lowercase letter
-            if (len >= 2 && len <= 11) {
-                const token = descKeyword(ret);
-                if (token > 0) {
-                    return token;
-                }
-            }
-            return Token.Identifier;
-        }
-    
-        private scanUnicodeIdentifier(context: Context): Token {
-            const ret = this.scanIdentifier(context);
-            this.tokenValue = ret;
-            return Token.Identifier;
-        }
-    
-        private scanIdentifier(context: Context): string {
+        private scanIdentifier(context: Context, state: Scanner): Token {
     
             let start = this.index;
             let ret = '';
@@ -919,11 +899,26 @@ export class Parser {
                             this.advance();
                     }
                 }
-    
+
             if (start < this.index) ret += this.source.slice(start, this.index);
-            return ret;
+
+            const len = ret.length;
+            this.tokenValue = ret;
+
+            // Reserved words are between 2 and 11 characters long and start with a lowercase letter
+            if (len >= 2 && len <= 11) {
+                const ch = ret.charCodeAt(0);
+                if (ch >= Chars.LowerA && ch <= Chars.LowerZ) {
+                    const token = descKeyword(ret);
+                    if (token > 0) {
+                        return token;
+                    }
+                }
+            }
+
+            return Token.Identifier;
         }
-    
+
         /**
          * Peek unicode escape
          */
@@ -4189,7 +4184,7 @@ export class Parser {
                 case Token.SuperKeyword:
                     return this.parseSuper(context);
                 case Token.ClassKeyword:
-                    return this.parseClassExpression(context);
+                    return this.parseClassExpression(context | Context.Expression);
                 case Token.LeftBrace:
                     return this.parseObjectExpression(context);
                 case Token.TemplateTail:
@@ -4240,7 +4235,6 @@ export class Parser {
     
             this.expect(context, Token.ClassKeyword);
     
-    
             let superClass: ESTree.Expression | null = null;
             let classBody;
             let flags = ObjectState.None;
@@ -4272,7 +4266,7 @@ export class Parser {
                 flags |= ObjectState.Heritage;
             }
     
-            classBody = this.parseClassBody(context | Context.Strict, flags);
+            classBody = this.parseClassBody(context & ~Context.Expression | Context.Strict, flags);
     
             this.flags = savedFlags;
     
