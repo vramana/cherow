@@ -201,26 +201,14 @@ This because of the `Asynchronous Iteration` implementation.
 
 ## Bug reporting
 
-If you find a bug or another issue, don't hesitate to report it and we will try our best to solve the issue within short time. I know how irritating it can be if you are writing code and encounter bugs in your dependencies. And even more frustrating if you need to wait weeks or days.
+If you caught a bug, don't hesitate to report it in the issue tracker. From the moment I respond to you, it will take maximum 30 minutes before the bug is fixed. 
+Note that I will try to respond to you within one hour. Sometimes it can take a bit longer. I'm not allways online. And if I find out it 
+will take more then 30 minutes to solve your issue, you will be notified. 
 
-So from the moment I respond to you, it will take maximum 30 minutes before the bug is fixed. For other issues the same response time. If it take longer time to fix. You will be notified.
-
-I will try to respond to you within one hour. Sometimes it can take a bit longer. I'm not allways online.
+I know how irritating it can be if you are writing code and encounter bugs in your dependencies. And even more frustrating if you need to wait weeks or days.
 
 ## Contribution
 
- You are welcome to contribute. As a golden rule - always run benchmarks to verify that you haven't created any
- bottlenecks or did something that you shouldn't.
+If you feel something could've been done better, please do feel free to file a pull request with the changes.
 
 Read our guidelines [here](CONTRIBUTING.md)
-
-## License
-
-The following license (ISC License), unless otherwise stated:
-
-Copyright (c) 2017 and later, KFlash and others.
-
-Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
