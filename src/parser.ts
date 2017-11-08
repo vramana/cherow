@@ -699,7 +699,6 @@ export class Parser {
     
                         // '\uVar', `\u{N}var`
                     case Chars.Backslash:
-                        state |= Scanner.HasUnicode;
                         // `A`...`Z`
                     case Chars.UpperA:
                     case Chars.UpperB:
