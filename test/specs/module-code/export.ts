@@ -36,7 +36,7 @@ describe('Module - Export', () => {
   it('should fail on early export global', () => {
       expect(() => {
         parseModule(`export { Number };`);
-    }).to.not.throw();
+    }).to.throw();
 
     });
 
@@ -87,7 +87,7 @@ describe('Module - Export', () => {
     it('should fail on early export global', () => {
       expect(() => {
         parseModule(`export { x, x };`);
-      }).to.not.throw();
+      }).to.throw();
 
     });
 

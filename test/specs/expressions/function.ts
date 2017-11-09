@@ -67,13 +67,17 @@ describe('Espressions - Function', () => {
       }).to.throw('');
   });
 
-
   it('should fail on "(function((a)){})"', () => {
     expect(() => {
         parseScript(`(function(a){ let a; })`)
     }).to.throw('');
 });
 
+it('should fail on "(function ({ a(){} }) {})"', () => {
+  expect(() => {
+      parseScript(`(function ({ a(){} }) {})`)
+  }).to.throw('');
+});
 
   it('should fail on "use strict; (function({a: x}, {b: x}){})"', () => {
     expect(() => {

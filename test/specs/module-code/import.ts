@@ -22,7 +22,12 @@ describe('Import', () => {
               parseModule('import { x as arguments } from "./cherow.js";');
           }).to.throw();
       });
-  
+      
+      it('should fail on duplicates', () => {
+        expect(() => {
+            parseModule('import {bar, bar} from "foo";"');
+        }).to.throw();
+    });
       it('should fail on invalid import keyword module', () => {
         expect(() => {
             parseModule('import { for } from "iteration"');

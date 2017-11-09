@@ -112,7 +112,8 @@ export const enum Errors {
     InvalidNestedContinue,
     InvalidWithBody,
     InvalidGeneratorParam,
-    DefaultRestParameter
+    DefaultRestParameter,
+    IllegalArrowFuncParamList
 }
 
 export const ErrorMessages: {
@@ -228,7 +229,8 @@ export const ErrorMessages: {
     [Errors.InvalidForBindingInit]: 'Binding pattern appears without initializer in for statement init',
     [Errors.InvalidNestedContinue]: 'Continue statement must be nested within an iteration statement',
     [Errors.InvalidWithBody]: 'The body of a with statement must not be a labeled function declaration',
-    [Errors.InvalidGeneratorParam]: 'Generator parameters must not contain yield expressions'
+    [Errors.InvalidGeneratorParam]: 'Generator parameters must not contain yield expressions',
+    [Errors.IllegalArrowFuncParamList]: 'Illegal arrow function parameter list'
 };
 
 function constructError(msg: string, column: number): Error {

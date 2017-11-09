@@ -861,7 +861,7 @@ export class Parser {
                         end: commentEnd,
                         loc
                     };
-
+    
                     this.comments.push(node);
                 }
             }
@@ -1845,7 +1845,7 @@ export class Parser {
             return node;
         }
     
-        private parseOptional(context: Context, t: Token): boolean {
+        private parseEventually(context: Context, t: Token): boolean {
             if (this.token !== t) return false;
             this.nextToken(context);
             return true;
@@ -1859,7 +1859,7 @@ export class Parser {
         private isEvalOrArguments(value: string): boolean {
             return value === 'eval' || value === 'arguments';
         }
-   
+    
         /**
          * Consume a semicolon between tokens, optionally inserting it if necessary.
          */
@@ -1915,12 +1915,12 @@ export class Parser {
     
         private isIdentifier(context: Context, t: Token): boolean {
             if (context & Context.Strict) {
-                if (context & Context.Module)  {
+                if (context & Context.Module) {
                     if (t === Token.AwaitKeyword) return false;
                 }
-                return t === Token.Identifier || hasMask(t, Token.Contextual);    
+                return t === Token.Identifier || hasMask(t, Token.Contextual);
             }
-
+    
             return t === Token.Identifier || hasMask(t, Token.Contextual) || hasMask(t, Token.FutureReserved);
         }
     
@@ -2015,9 +2015,13 @@ export class Parser {
                     // and
                     // 'export' ExportClause FromClause ';'
                     //
+    
+                    const savedScope = this.enterFunctionScope();
+    
                     this.expect(context, Token.LeftBrace);
     
                     while (this.token !== Token.RightBrace) {
+    
                         if (hasMask(this.token, Token.Reserved)) isExportedReservedWord = true;
                         specifiers.push(this.parseExportSpecifier(context));
                         // Invalid: 'export {a,,b}'
@@ -2025,6 +2029,7 @@ export class Parser {
                     }
     
                     this.expect(context, Token.RightBrace);
+                    this.exitFunctionScope(savedScope);
     
                     if (this.token === Token.FromKeyword) {
                         // Note:  The `from` contextual keyword must not contain Unicode escape sequences.
@@ -2087,7 +2092,7 @@ export class Parser {
     
         private parseExportSpecifier(context: Context): ESTree.ExportSpecifier {
             const pos = this.getLocations();
-    
+            if (this.token === Token.Identifier) this.addBlockName(this.tokenValue);
             const local = this.parseIdentifierName(context, this.token);
     
             let exported = local;
@@ -2171,10 +2176,10 @@ export class Parser {
             //  ImportedDefaultBinding, NamedImports
             this.expect(context, Token.LeftBrace);
     
-            while (!this.parseOptional(context, Token.RightBrace)) {
+            while (!this.parseEventually(context, Token.RightBrace)) {
                 // only accepts identifiers or keywords
                 specifiers.push(this.parseImportSpecifier(context));
-                this.parseOptional(context, Token.Comma);
+                this.parseEventually(context, Token.Comma);
             }
         }
     
@@ -2252,7 +2257,7 @@ export class Parser {
                     {
                         const tokenValue = this.tokenValue;
                         specifiers.push(this.parseImportDefaultSpecifier(context));
-                        if (this.parseOptional(context, Token.Comma)) {
+                        if (this.parseEventually(context, Token.Comma)) {
                             switch (this.token) {
                                 case Token.Multiply:
                                     // import foo, * as foo
@@ -2448,21 +2453,26 @@ export class Parser {
             const pos = this.getLocations();
             const body: ESTree.Statement[] = [];
             this.expect(context, Token.LeftBrace);
-            const blockScope = this.blockScope;
-            const parentScope = this.parentScope;
-            if (blockScope != null) this.parentScope = blockScope;
-            this.blockScope = context & Context.IfClause ? blockScope : undefined;
-            const flag = this.flags;
+
+            if (this.token !== Token.RightBrace) {
+                const blockScope = this.blockScope;
+                const parentScope = this.parentScope;
+                if (blockScope != null) this.parentScope = blockScope;
+                this.blockScope = context & Context.IfClause ? blockScope : undefined;
+                const flag = this.flags;
     
-            while (this.token !== Token.RightBrace) {
-                body.push(this.parseStatementListItem(context | Context.TopLevel));
+                while (this.token !== Token.RightBrace) {
+                    body.push(this.parseStatementListItem(context | Context.TopLevel));
+                }
+
+                this.flags = flag;
+
+                this.blockScope = blockScope;
+                if (parentScope != null) this.parentScope = parentScope;
             }
-            this.flags = flag;
+    
             this.expect(context, Token.RightBrace);
     
-    
-            this.blockScope = blockScope;
-            if (parentScope != null) this.parentScope = parentScope;
             return this.finishNode(pos, {
                 type: 'BlockStatement',
                 body
@@ -2484,7 +2494,7 @@ export class Parser {
                 handler = this.parseCatchClause(context);
             }
     
-            if (this.parseOptional(context, Token.FinallyKeyword)) {
+            if (this.parseEventually(context, Token.FinallyKeyword)) {
                 finalizer = this.parseBlockStatement(context);
             }
     
@@ -2561,11 +2571,10 @@ export class Parser {
             this.expect(context, Token.LeftParen);
             const object = this.parseExpression(context | Context.AllowIn, pos);
             this.expect(context, Token.RightParen);
-            const body = this.parseStatement(context & ~Context.TopLevel | Context.Iteration);
             return this.finishNode(pos, {
                 type: 'WithStatement',
                 object,
-                body
+                body: this.parseStatement(context & ~Context.TopLevel | Context.Iteration)
             });
         }
     
@@ -2613,7 +2622,7 @@ export class Parser {
             const test = this.parseExpression(context & ~Context.TopLevel | Context.AllowIn, pos);
     
             this.expect(context, Token.RightParen);
-            this.parseOptional(context, Token.Semicolon);
+            this.parseEventually(context, Token.Semicolon);
     
             return this.finishNode(pos, {
                 type: 'DoWhileStatement',
@@ -2686,7 +2695,7 @@ export class Parser {
             let state = IterationState.None;
     
             // Asynchronous Iteration - Stage 3 proposal
-            if (context & Context.Await && this.parseOptional(context, Token.AwaitKeyword)) {
+            if (context & Context.Await && this.parseEventually(context, Token.AwaitKeyword)) {
                 // Throw " Unexpected token 'await'" if the option 'next' flag isn't set
                 if (!(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(token));
                 state |= IterationState.Await;
@@ -2710,13 +2719,13 @@ export class Parser {
     
                 const startIndex = this.getLocations();
     
-                if (this.isLexical(context) && this.parseOptional(context, Token.LetKeyword)) {
+                if (this.isLexical(context) && this.parseEventually(context, Token.LetKeyword)) {
                     state |= IterationState.Let;
                     declarations = this.parseVariableDeclarationList(context | (Context.Let | Context.AllowIn | Context.ForStatement));
-                } else if (this.parseOptional(context, Token.VarKeyword)) {
+                } else if (this.parseEventually(context, Token.VarKeyword)) {
                     state |= IterationState.Var;
                     declarations = this.parseVariableDeclarationList(context | Context.ForStatement);
-                } else if (this.parseOptional(context, Token.ConstKeyword)) {
+                } else if (this.parseEventually(context, Token.ConstKeyword)) {
                     state |= IterationState.Const;
                     declarations = this.parseVariableDeclarationList(context | (Context.Const | Context.AllowIn | Context.ForStatement));
                 } else {
@@ -2739,7 +2748,7 @@ export class Parser {
                 // 'of'
                 case Token.OfKeyword:
                     if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
-                    this.parseOptional(context, Token.OfKeyword);
+                    this.parseEventually(context, Token.OfKeyword);
                     if (state & IterationState.Variable) {
                         // Only a single variable declaration is allowed in a for of statement
                         if (declarations && declarations[0].init != null) this.error(Errors.InvalidVarInitForOf);
@@ -2854,7 +2863,7 @@ export class Parser {
     
             let alternate: ESTree.Statement | null = null;
     
-            if (this.parseOptional(context, Token.ElseKeyword)) alternate = this.parseIfStatementChild(context);
+            if (this.parseEventually(context, Token.ElseKeyword)) alternate = this.parseIfStatementChild(context);
     
             this.flags = savedFlag;
     
@@ -2995,7 +3004,7 @@ export class Parser {
     
             context &= ~(Context.Await | Context.Yield | Context.Method);
     
-            if (this.parseOptional(context, Token.AsyncKeyword)) context |= Context.Await;
+            if (this.parseEventually(context, Token.AsyncKeyword)) context |= Context.Await;
     
             this.expect(context, Token.FunctionKeyword);
     
@@ -3175,7 +3184,7 @@ export class Parser {
         private parseVariableDeclarationList(context: Context): ESTree.VariableDeclarator[] {
             const list: ESTree.VariableDeclarator[] = [this.parseVariableDeclaration(context)];
             if (this.token !== Token.Comma) return list;
-            while (this.parseOptional(context, Token.Comma)) list.push(this.parseVariableDeclaration(context));
+            while (this.parseEventually(context, Token.Comma)) list.push(this.parseVariableDeclaration(context));
             return list;
         }
     
@@ -3208,7 +3217,7 @@ export class Parser {
     
                     if (!this.isInOrOfKeyword(this.token)) {
     
-                        if (this.parseOptional(context, Token.Assign)) {
+                        if (this.parseEventually(context, Token.Assign)) {
                             init = this.parseAssignmentExpression(context & ~Context.Lexical);
                         } else {
                             this.error(Errors.DeclarationMissingInitializer, 'const');
@@ -3219,7 +3228,7 @@ export class Parser {
                     init = this.parseAssignmentExpression(context & ~Context.Lexical);
                 }
             } else {
-                if (this.parseOptional(context, Token.Assign)) {
+                if (this.parseEventually(context, Token.Assign)) {
                     init = this.parseAssignmentExpression(context);
                     if (context & Context.ForStatement) {
                         if (this.token === Token.InKeyword) {
@@ -3245,7 +3254,7 @@ export class Parser {
             if (this.token !== Token.Comma) return expr;
     
             const expressions: ESTree.Expression[] = [expr];
-            while (this.parseOptional(context, Token.Comma)) {
+            while (this.parseEventually(context, Token.Comma)) {
                 expressions.push(this.parseAssignmentExpression(context));
             }
     
@@ -3266,7 +3275,7 @@ export class Parser {
             let delegate = false;
     
             if (!(this.flags & Flags.LineTerminator)) {
-                delegate = this.parseOptional(context, Token.Multiply);
+                delegate = this.parseEventually(context, Token.Multiply);
                 if (delegate) {
                     argument = this.parseAssignmentExpression(context);
                 } else if (hasMask(this.token, Token.ExpressionStart)) {
@@ -3323,6 +3332,8 @@ export class Parser {
                     if (!(context & Context.InParameter)) this.reinterpretAsPattern(context, expr);
                 } else if (!isValidSimpleAssignmentTarget(expr)) {
                     this.error(Errors.InvalidLHSInAssignment);
+                } else if (context & Context.InParenthesis) {
+                    this.flags |= Flags.Operator;
                 }
     
                 this.nextToken(context);
@@ -3480,7 +3491,7 @@ export class Parser {
     
         private parseConditionalExpression(context: Context, pos: Location) {
             const expr = this.parseBinaryExpression(context, 0, pos);
-            if (!this.parseOptional(context, Token.QuestionMark)) return expr;
+            if (!this.parseEventually(context, Token.QuestionMark)) return expr;
             const consequent = this.parseAssignmentExpression(context | Context.AllowIn);
             this.expect(context, Token.Colon);
             const alternate = this.parseAssignmentExpression(context);
@@ -3601,7 +3612,7 @@ export class Parser {
                 this.nextToken(context);
     
                 expr = this.parseLeftHandSideExpression(context, pos);
-
+    
                 if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                     this.error(Errors.StrictLHSPrefix);
                 } else if (!isValidSimpleAssignmentTarget(expr)) this.error(Errors.InvalidLHSInAssignment);
@@ -3893,7 +3904,7 @@ export class Parser {
                         this.flags |= Flags.SimpleParameterList;
                     }
                     result.push(this.parseRestElement(context));
-                    this.parseOptional(context, Token.Comma);
+                    this.parseEventually(context, Token.Comma);
                     break;
                 }
     
@@ -3918,14 +3929,12 @@ export class Parser {
             if (this.token !== Token.Identifier) {
                 this.errorLocation = pos;
                 this.flags |= Flags.SimpleParameterList;
-            } else {
-                if (this.isEvalOrArguments(this.tokenValue)) {
-                    if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
-                    this.errorLocation = pos;
-                    this.flags |= Flags.BindingPosition;
-                } 
+            } else if (this.isEvalOrArguments(this.tokenValue)) {
+                if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
+                this.errorLocation = pos;
+                this.flags |= Flags.BindingPosition;
             }
-
+    
             return this.parseAssignmentPattern(context, pos);
         }
     
@@ -4031,6 +4040,7 @@ export class Parser {
             this.expect(context, Token.RightParen);
     
             if (this.token === Token.Arrow) {
+    
                 if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
                 // async arrows cannot have a line terminator between "async" and the formals
                 if (flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
@@ -4269,7 +4279,7 @@ export class Parser {
             }
     
     
-            if (this.parseOptional(context, Token.ExtendsKeyword)) {
+            if (this.parseEventually(context, Token.ExtendsKeyword)) {
                 superClass = this.parseLeftHandSideExpression(context & ~Context.OptionalIdentifier | Context.Strict, pos);
                 flags |= ObjectState.Heritage;
             }
@@ -4295,7 +4305,7 @@ export class Parser {
     
             while (this.token !== Token.RightBrace) {
     
-                if (!this.parseOptional(context, Token.Semicolon)) {
+                if (!this.parseEventually(context, Token.Semicolon)) {
                     const node: ESTree.MethodDefinition | ESTree.Property = this.parseClassElement(context, flags);
                     body.push(node);
                     if (node.kind === 'constructor') context |= Context.HasConstructor;
@@ -4317,7 +4327,7 @@ export class Parser {
             let token = this.token;
             let tokenValue = this.tokenValue;
             const isEscaped = !!(this.flags & Flags.HasUnicode);
-            if (this.parseOptional(context, Token.Multiply)) state |= ObjectState.Yield;
+            if (this.parseEventually(context, Token.Multiply)) state |= ObjectState.Yield;
     
             if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
             if (this.tokenValue === 'constructor') state |= ObjectState.HasConstructor;
@@ -4337,7 +4347,7 @@ export class Parser {
                     token = this.token;
                     state |= ObjectState.Static;
     
-                    if (this.parseOptional(context, Token.Multiply)) {
+                    if (this.parseEventually(context, Token.Multiply)) {
                         state |= ObjectState.Yield;
                     } else {
                         if (token === Token.LeftBracket) state |= ObjectState.Computed;
@@ -4358,7 +4368,7 @@ export class Parser {
                             this.error(Errors.InvalidAsyncGenerator);
                         }
                         // Async generator
-                        if (this.parseOptional(context, Token.Multiply)) state |= ObjectState.Yield;
+                        if (this.parseEventually(context, Token.Multiply)) state |= ObjectState.Yield;
                         // Invalid: `class X { async static f() {} }`
                         if (this.token === Token.StaticKeyword) this.error(Errors.InvalidMethod);
                         key = this.parsePropertyName(context);
@@ -4517,7 +4527,7 @@ export class Parser {
                             if (!(this.flags & Flags.OptionsNext) && this.token === Token.Multiply) {
                                 this.error(Errors.InvalidAsyncGenerator);
                             }
-                            if (this.parseOptional(context, Token.Multiply)) state |= ObjectState.Yield;
+                            if (this.parseEventually(context, Token.Multiply)) state |= ObjectState.Yield;
                             state |= ObjectState.Async | ObjectState.Method;
                             break;
                         case Token.GetKeyword:
@@ -4545,7 +4555,7 @@ export class Parser {
     
             } else {
     
-                if (this.parseOptional(context, Token.Multiply)) {
+                if (this.parseEventually(context, Token.Multiply)) {
                     state |= ObjectState.Yield | ObjectState.Method;
                 }
     
@@ -4588,11 +4598,11 @@ export class Parser {
                     if (state & ObjectState.Async || !this.isIdentifier(context, token)) {
                         this.throwUnexpectedToken();
                     }
-
+    
                     if (context & Context.Yield && token === Token.YieldKeyword) {
                         this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                     }
-                    
+    
                     if (token === Token.AwaitKeyword) {
                         if (context & Context.Await) this.throwUnexpectedToken();
                         if (context & Context.InAsyncParameterList) {
@@ -4602,7 +4612,7 @@ export class Parser {
                     }
     
                     if (context & (Context.ForStatement | Context.InParenthesis) &&
-                    context & Context.Strict && this.isEvalOrArguments(tokenValue)) {
+                        context & Context.Strict && this.isEvalOrArguments(tokenValue)) {
                         this.error(Errors.UnexpectedReservedWord);
                     }
     
@@ -4696,7 +4706,7 @@ export class Parser {
             const elements = [];
             let state = ArrayState.None;
             while (this.token !== Token.RightBracket) {
-                if (this.parseOptional(context, Token.Comma)) {
+                if (this.parseEventually(context, Token.Comma)) {
                     elements.push(null);
                 } else if (this.token === Token.Ellipsis) {
                     state |= ArrayState.Spread;
@@ -4748,7 +4758,7 @@ export class Parser {
     
             let state = ParenthesizedState.None;
     
-            if (this.parseOptional(context, Token.RightParen)) {
+            if (this.parseEventually(context, Token.RightParen)) {
                 if (this.token === Token.Arrow) {
                     return this.parseArrowFunctionExpression(context & ~(Context.Await | Context.Yield), pos, []);
                 }
@@ -4795,7 +4805,7 @@ export class Parser {
     
                 const expressions: ESTree.Expression[] = [expr];
     
-                while (this.parseOptional(context, Token.Comma)) {
+                while (this.parseEventually(context, Token.Comma)) {
                     if (this.token === Token.RightParen) {
                         const token = this.token;
                         this.expect(context, Token.RightParen);
@@ -4839,6 +4849,7 @@ export class Parser {
             this.expect(context, Token.RightParen);
     
             if (this.token === Token.Arrow) {
+                if (this.flags & Flags.Operator) this.error(Errors.IllegalArrowFuncParamList);
                 if (state & ParenthesizedState.FutureReserved) this.flags |= Flags.BindingPosition;
                 if (this.flags & Flags.HaveSeenYield) this.error(Errors.InvalidArrowYieldParam);
                 if (state & ParenthesizedState.EvalOrArg) {
@@ -5168,7 +5179,7 @@ export class Parser {
             pattern: any = this.parseBindingPatternOrIdentifier(context, pos)
         ): ESTree.AssignmentPattern {
     
-            if (!this.parseOptional(context, Token.Assign)) return pattern;
+            if (!this.parseEventually(context, Token.Assign)) return pattern;
     
             if (context & Context.InParameter) {
     
@@ -5235,11 +5246,11 @@ export class Parser {
             if (this.isEvalOrArguments(name)) {
                 if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
             }
-
+    
             if (context & Context.InParameter && context & (Context.Strict | Context.Await)) {
                 this.addFunctionArg(name);
             }
-
+    
             this.addVarOrBlock(context, name);
     
             this.nextToken(context);
@@ -5290,7 +5301,7 @@ export class Parser {
             const elements: (ESTree.Pattern | null)[] = [];
     
             while (this.token !== Token.RightBracket) {
-                if (this.parseOptional(context, Token.Comma)) {
+                if (this.parseEventually(context, Token.Comma)) {
                     elements.push(null);
                 } else {
                     if (this.token === Token.Ellipsis) {
@@ -5341,7 +5352,7 @@ export class Parser {
                 } else {
                     properties.push(this.parseAssignmentProperty(context));
                 }
-                if (this.token !== Token.RightBrace) this.parseOptional(context, Token.Comma);
+                if (this.token !== Token.RightBrace) this.parseEventually(context, Token.Comma);
             }
     
             this.expect(context, Token.RightBrace);
@@ -5384,7 +5395,7 @@ export class Parser {
                     name: tokenValue
                 });
     
-                if (this.parseOptional(context, Token.Colon)) {
+                if (this.parseEventually(context, Token.Colon)) {
     
                     value = this.parseAssignmentPattern(context);
                 } else {
@@ -5833,7 +5844,7 @@ export class Parser {
             if (this.token === Token.Colon) return this.parseJSXNamespacedName(context, expression, pos);
     
             // Member expression
-            while (this.parseOptional(context, Token.Period)) {
+            while (this.parseEventually(context, Token.Period)) {
                 expression = this.parseJSXMemberExpression(context, expression, pos);
             }
     

@@ -11,6 +11,12 @@ describe('Espressions - Class', () => {
         }).to.throw();
     });
 
+    it('should fail if rest parameter has an initializer', () => {
+        expect(() => {
+            parseScript(`(class { *static x() {} })`);
+        }).to.not.throw();
+    });
+
         it('should fail if rest parameter has an initializer', () => {
             expect(() => {
                 parseScript(`var C = class { static async method(...x = []) {});`);
@@ -2995,6 +3001,151 @@ describe('Espressions - Class', () => {
             });
         });
        
+        it('should parse "(class { *static() {} })"', () => {
+            expect(parseScript(`(class { *static() {} })`, {
+                raw: true,
+                next: true,
+                locations: true,
+                ranges: true
+            })).to.eql({
+                "type": "Program",
+                "start": 0,
+                "end": 24,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 24
+                  }
+                },
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 0,
+                    "end": 24,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 24
+                      }
+                    },
+                    "expression": {
+                      "type": "ClassExpression",
+                      "start": 1,
+                      "end": 23,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 1
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 23
+                        }
+                      },
+                      "id": null,
+                      "superClass": null,
+                      "body": {
+                        "type": "ClassBody",
+                        "start": 7,
+                        "end": 23,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 7
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 23
+                          }
+                        },
+                        "body": [
+                          {
+                            "type": "MethodDefinition",
+                            "start": 9,
+                            "end": 21,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 9
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 21
+                              }
+                            },
+                            "computed": false,
+                            "key": {
+                              "type": "Identifier",
+                              "start": 10,
+                              "end": 16,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 10
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 16
+                                }
+                              },
+                              "name": "static"
+                            },
+                            "static": false,
+                            "kind": "method",
+                            "value": {
+                              "type": "FunctionExpression",
+                              "start": 16,
+                              "end": 21,
+                              "loc": {
+                                "start": {
+                                  "line": 1,
+                                  "column": 16
+                                },
+                                "end": {
+                                  "line": 1,
+                                  "column": 21
+                                }
+                              },
+                              "id": null,
+                              "generator": true,
+                              "expression": false,
+                              "async": false,
+                              "params": [],
+                              "body": {
+                                "type": "BlockStatement",
+                                "start": 19,
+                                "end": 21,
+                                "loc": {
+                                  "start": {
+                                    "line": 1,
+                                    "column": 19
+                                  },
+                                  "end": {
+                                    "line": 1,
+                                    "column": 21
+                                  }
+                                },
+                                "body": []
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "sourceType": "script"
+              });
+        });
+
         it('should parse bindingElement with array binding pattern', () => {
             expect(parseScript(`var C = class {
                 method([[...x] = values]) {

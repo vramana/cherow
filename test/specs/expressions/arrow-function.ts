@@ -17,6 +17,12 @@ describe('Expressions - Arrow function', () => {
             }).to.throw()
         });
 
+        it('should fail on invalid operator used for specifying default value', () => {
+            expect(() => {
+                parseScript(`(localVar |= defaultValue) => {}`);
+            }).to.throw()
+        });
+
         it('should fail on invalid parenthesized pattern', () => {
             expect(() => {
                 parseScript(`f = ((x)) => x`);
