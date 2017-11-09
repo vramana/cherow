@@ -3700,15 +3700,14 @@ Parser.prototype.parseFormalParameter = function parseFormalParameter (context) 
     this.flags &= ~16384 /* SimpleParameterList */;
     if (this.token !== 262145 /* Identifier */) {
         this.errorLocation = pos;
+        // Invalid: 'function a([], []) {"use strict";}'
         this.flags |= 16384 /* SimpleParameterList */;
     }
-    else {
-        if (this.isEvalOrArguments(this.tokenValue)) {
-            if (context & 2 /* Strict */)
-                { this.error(36 /* StrictLHSAssignment */); }
-            this.errorLocation = pos;
-            this.flags |= 1024 /* BindingPosition */;
-        }
+    else if (this.isEvalOrArguments(this.tokenValue)) {
+        if (context & 2 /* Strict */)
+            { this.error(36 /* StrictLHSAssignment */); }
+        this.errorLocation = pos;
+        this.flags |= 1024 /* BindingPosition */;
     }
     return this.parseAssignmentPattern(context, pos);
 };
@@ -4859,14 +4858,21 @@ Parser.prototype.parseBindingPatternOrIdentifier = function parseBindingPatternO
 Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (context) {
     var pos = this.getLocations();
     var name = this.tokenValue;
+    var token = this.token;
     if (this.isEvalOrArguments(name)) {
         if (context & 2 /* Strict */)
             { this.error(36 /* StrictLHSAssignment */); }
     }
-    if (context & 128 /* InParameter */ && context & (2 /* Strict */ | 32 /* Await */)) {
-        this.addFunctionArg(name);
+    if (context & 128 /* InParameter */) {
+        // In a parameter list, we only check for duplicate params
+        // if inside a strict, method or await context
+        if (context & (2 /* Strict */ | 32 /* Await */)) {
+            this.addFunctionArg(name);
+        }
     }
-    this.addVarOrBlock(context, name);
+    else {
+        this.addVarOrBlock(context, name);
+    }
     this.nextToken(context);
     return this.finishNode(pos, {
         type: 'Identifier',
