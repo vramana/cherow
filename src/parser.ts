@@ -6,7 +6,7 @@ import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, Scann
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
-import { Options, SavedState, Delegate, Location, EmitComments } from './interface';
+import { Options, SavedState, Location, EmitComments } from './interface';
 export class Parser {
     
         // The program to be parsed
@@ -57,7 +57,6 @@ export class Parser {
         private functionScope: any;
         private errorLocation: void | Location;
         private comments: EmitComments;
-        private delegate: any;
         private locSource: void | string;
         private lastChar: void | Chars;
         private firstProto: void | boolean;
@@ -91,13 +90,11 @@ export class Parser {
             this.blockScope = undefined;
             this.parentScope = undefined;
             this.comments = undefined;
-            this.delegate = undefined;
             this.lastChar = undefined;
             this.firstProto = undefined;
     
             if (options.next) this.flags |= Flags.OptionsNext;
             if (options.comments) this.flags |= Flags.OptionsComments;
-            if (options.delegate) this.flags |= Flags.OptionsDelegate;
             if (options.jsx) this.flags |= Flags.OptionsJSX;
             if (options.locations) this.flags |= Flags.OptionsLoc;
             if (options.source) this.flags |= Flags.OptionsSource;
@@ -108,7 +105,6 @@ export class Parser {
             if (options.v8) this.flags |= Flags.OptionsV8;
     
             if (this.flags & Flags.OptionsComments) this.comments = options.comments;
-            if (this.flags & Flags.OptionsDelegate) this.delegate = options.delegate;
             if (this.flags & (Flags.OptionsLoc | Flags.OptionsSource)) this.locSource = String(options.source);
         }
     
@@ -865,11 +861,7 @@ export class Parser {
                         end: commentEnd,
                         loc
                     };
-    
-                    if (this.flags & Flags.OptionsDelegate) {
-                        this.delegate(node, commentStart, commentEnd, loc);
-                    }
-    
+
                     this.comments.push(node);
                 }
             }
@@ -1850,23 +1842,6 @@ export class Parser {
                 }
             }
     
-            if (this.flags & Flags.OptionsDelegate) {
-                const metadata = {
-                    start: {
-                        line: loc.line,
-                        column: loc.column,
-                        offset: loc.index
-                    },
-                    end: {
-                        line: this.lastLine,
-                        column: this.lastColumn,
-                        offset: this.lastIndex
-                    }
-                };
-    
-                this.delegate(node, loc.start, this.lastIndex, metadata);
-            }
-    
             return node;
         }
     
@@ -1939,7 +1914,13 @@ export class Parser {
         }
     
         private isIdentifier(context: Context, t: Token): boolean {
-            if (context & Context.Strict) return t === Token.Identifier || hasMask(t, Token.Contextual);
+            if (context & Context.Strict) {
+                if (context & Context.Module)  {
+                    if (t === Token.AwaitKeyword) return false;
+                }
+                return t === Token.Identifier || hasMask(t, Token.Contextual);    
+            }
+
             return t === Token.Identifier || hasMask(t, Token.Contextual) || hasMask(t, Token.FutureReserved);
         }
     
@@ -3045,7 +3026,6 @@ export class Parser {
                         if (parentContext & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(token));
                         break;
                     case Token.AwaitKeyword:
-                        if (context & Context.Module) this.throwUnexpectedToken();
                         // 'await' is forbidden only in async function bodies (but not in child functions) and module code.
                         if (context & Context.Await && this.flags & Flags.InFunctionBody) this.error(Errors.DisallowedInContext, tokenDesc(token));
                     default: // ignore
@@ -3327,11 +3307,6 @@ export class Parser {
                     if (expr.type !== 'Identifier') this.throwUnexpectedToken();
                     // Invalid: 'package => { "use strict"}"'
                     if (hasMask(token, Token.FutureReserved)) {
-                        // Note: We track the error location here. Let say we are parsing 'package => { "use strict"}".
-                        // In this case the reported error location will be "index: 7, lineNumber 1". "7" is the
-                        // last character in the reserved word "package". So we record it from there and report it
-                        // as invalid. Maybe wrong? It can be adjusted! But in RL we don't know if a word is wrong or not
-                        // before we have read it, so this was designed from that logic.
                         if (!this.errorLocation) this.errorLocation = this.getLocations();
                         this.flags |= Flags.BindingPosition;
                     }
@@ -3343,9 +3318,9 @@ export class Parser {
                 const operator = this.token;
                 if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                     this.error(Errors.StrictLHSAssignment);
-                } else if (!(context & Context.InParameter) && this.token === Token.Assign) {
+                } else if (this.token === Token.Assign) {
                     context |= Context.Assignment;
-                    this.reinterpretAsPattern(context, expr);
+                    if (!(context & Context.InParameter)) this.reinterpretAsPattern(context, expr);
                 } else if (!isValidSimpleAssignmentTarget(expr)) {
                     this.error(Errors.InvalidLHSInAssignment);
                 }
@@ -3862,7 +3837,6 @@ export class Parser {
                 const token = this.token;
                 if (!this.isIdentifier(context, token)) this.throwUnexpectedToken();
                 if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.StrictLHSAssignment);
-    
                 switch (token) {
                     case Token.AwaitKeyword:
                     case Token.YieldKeyword:
@@ -3872,6 +3846,7 @@ export class Parser {
                         break;
                     default: // ignore
                 }
+    
     
                 id = this.parseIdentifier(context);
             }
@@ -4612,10 +4587,11 @@ export class Parser {
                     if (state & ObjectState.Async || !this.isIdentifier(context, token)) {
                         this.throwUnexpectedToken();
                     }
+
                     if (context & Context.Yield && token === Token.YieldKeyword) {
                         this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                     }
-    
+                    
                     if (token === Token.AwaitKeyword) {
                         if (context & Context.Await) this.throwUnexpectedToken();
                         if (context & Context.InAsyncParameterList) {
@@ -4691,7 +4667,7 @@ export class Parser {
     
             this.expect(context, Token.Ellipsis);
             const argument = this.parseBindingPatternOrIdentifier(context, pos);
-            if (this.token === Token.Assign) this.throwUnexpectedToken();
+            if (this.token === Token.Assign) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             if (this.token !== Token.RightParen) this.error(Errors.ParameterAfterRestParameter);
             return this.finishNode(pos, {
                 type: 'RestElement',

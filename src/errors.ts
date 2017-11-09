@@ -111,7 +111,8 @@ export const enum Errors {
     InvalidForBindingInit,
     InvalidNestedContinue,
     InvalidWithBody,
-    InvalidGeneratorParam
+    InvalidGeneratorParam,
+    DefaultRestParameter
 }
 
 export const ErrorMessages: {

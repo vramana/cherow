@@ -46,7 +46,6 @@ These need to be enabled with the `v8` option,
 
 * `comments` - Enables option to collect comments. Optional; Either array or function.
 * `directives` - Enables the [`ESTree`](https://github.com/estree/estree/blob/1da8e603237144f44710360f8feb7a9977e905e0/es5.md#directive) directive node.
-* `delegate` - Enables token syntax delegate.
 * `globalReturn` - Allow return statement in global scope
 * `jsx` - Enables JSX
 * `locations` - Adds a location object with start and end subobjects on the AST node  {*line, column*}.
@@ -136,34 +135,6 @@ cherow.parseScript('// foo',
 );
 
 ```
-
-## Syntax delegate
-
-Cherow can invoke a callback function for each syntax node ( *as the node is constructed*) by setting the `delegate` option.
-This callback function have 4 arguments, the node object itself, start and end ranges and the node metadata. The metadata contains the start 
-and end location of the node. 
-
-An example illustrating the delegate is the following:
-
-```js
-    parseScript('let x = 42; // answer', { delegate: function(node, start, end, metadata) {
-         console.log(node.type);
-    }})
-```
-
-An example illustrating how to collect literal nodes:
-
-```js
-    let list = [];
-    parseScript('answer = 42', { delegate: function(node, start, end, metadata) {
-         if (node.type === 'Literal') {
-                list.push(node);
-            }
-    }})
-```
-
-*Note:* Unlike comments - delegate only accepts a callback function, and not an array.
-
 
 ## Acorn and Esprima differences
 

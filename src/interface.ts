@@ -7,7 +7,6 @@ export interface Options {
     ranges?: boolean;
     locations?: boolean;
     comments?: EmitComments;
-    delegate?: Delegate;
     loc?: boolean;
     raw?: boolean;
     directives?: boolean;
@@ -46,9 +45,3 @@ export interface Location {
 export type EmitComments = void | Comment[] | (
     (type: string, value: string, start: number, end: number, loc: any) => void
 );
-
-export type Delegate = void | (
-    (node: any, start: number, end: number, loc: any) => void
-);
-
-

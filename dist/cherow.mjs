@@ -366,15 +366,12 @@ var Parser = function Parser(source, options) {
     this.blockScope = undefined;
     this.parentScope = undefined;
     this.comments = undefined;
-    this.delegate = undefined;
     this.lastChar = undefined;
     this.firstProto = undefined;
     if (options.next)
         { this.flags |= 2097152 /* OptionsNext */; }
     if (options.comments)
         { this.flags |= 8388608 /* OptionsComments */; }
-    if (options.delegate)
-        { this.flags |= 16777216 /* OptionsDelegate */; }
     if (options.jsx)
         { this.flags |= 524288 /* OptionsJSX */; }
     if (options.locations)
@@ -393,8 +390,6 @@ var Parser = function Parser(source, options) {
         { this.flags |= 33554432 /* OptionsV8 */; }
     if (this.flags & 8388608 /* OptionsComments */)
         { this.comments = options.comments; }
-    if (this.flags & 16777216 /* OptionsDelegate */)
-        { this.delegate = options.delegate; }
     if (this.flags & (131072 /* OptionsLoc */ | 262144 /* OptionsSource */))
         { this.locSource = String(options.source); }
 };
@@ -1076,9 +1071,6 @@ Parser.prototype.skipComments = function skipComments (state) {
                 end: commentEnd,
                 loc: loc
             };
-            if (this.flags & 16777216 /* OptionsDelegate */) {
-                this.delegate(node, commentStart, commentEnd, loc);
-            }
             this.comments.push(node);
         }
     }
@@ -1950,21 +1942,6 @@ Parser.prototype.finishNode = function finishNode (loc, node) {
             node.loc.source = this.locSource;
         }
     }
-    if (this.flags & 16777216 /* OptionsDelegate */) {
-        var metadata = {
-            start: {
-                line: loc.line,
-                column: loc.column,
-                offset: loc.index
-            },
-            end: {
-                line: this.lastLine,
-                column: this.lastColumn,
-                offset: this.lastIndex
-            }
-        };
-        this.delegate(node, loc.start, this.lastIndex, metadata);
-    }
     return node;
 };
 Parser.prototype.parseOptional = function parseOptional (context, t) {
@@ -2030,8 +2007,13 @@ Parser.prototype.isLexical = function isLexical (context) {
     }
 };
 Parser.prototype.isIdentifier = function isIdentifier (context, t) {
-    if (context & 2 /* Strict */)
-        { return t === 262145 /* Identifier */ || hasMask(t, 69632 /* Contextual */); }
+    if (context & 2 /* Strict */) {
+        if (context & 1 /* Module */) {
+            if (t === 331885 /* AwaitKeyword */)
+                { return false; }
+        }
+        return t === 262145 /* Identifier */ || hasMask(t, 69632 /* Contextual */);
+    }
     return t === 262145 /* Identifier */ || hasMask(t, 69632 /* Contextual */) || hasMask(t, 20480 /* FutureReserved */);
 };
 Parser.prototype.isIdentifierOrKeyword = function isIdentifierOrKeyword (t) {
@@ -2934,8 +2916,6 @@ Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (c
                     { this.error(84 /* DisallowedInContext */, tokenDesc(token)); }
                 break;
             case 331885 /* AwaitKeyword */:
-                if (context & 1 /* Module */)
-                    { this.throwUnexpectedToken(); }
                 // 'await' is forbidden only in async function bodies (but not in child functions) and module code.
                 if (context & 32 /* Await */ && this.flags & 4 /* InFunctionBody */)
                     { this.error(84 /* DisallowedInContext */, tokenDesc(token)); }
@@ -3189,11 +3169,6 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
                 { this.throwUnexpectedToken(); }
             // Invalid: 'package => { "use strict"}"'
             if (hasMask(token, 20480 /* FutureReserved */)) {
-                // Note: We track the error location here. Let say we are parsing 'package => { "use strict"}".
-                // In this case the reported error location will be "index: 7, lineNumber 1". "7" is the
-                // last character in the reserved word "package". So we record it from there and report it
-                // as invalid. Maybe wrong? It can be adjusted! But in RL we don't know if a word is wrong or not
-                // before we have read it, so this was designed from that logic.
                 if (!this.errorLocation)
                     { this.errorLocation = this.getLocations(); }
                 this.flags |= 1024 /* BindingPosition */;
@@ -3206,9 +3181,10 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
         if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name)) {
             this.error(36 /* StrictLHSAssignment */);
         }
-        else if (!(context & 128 /* InParameter */) && this.token === 1310749 /* Assign */) {
+        else if (this.token === 1310749 /* Assign */) {
             context |= 8192 /* Assignment */;
-            this.reinterpretAsPattern(context, expr);
+            if (!(context & 128 /* InParameter */))
+                { this.reinterpretAsPattern(context, expr); }
         }
         else if (!isValidSimpleAssignmentTarget(expr)) {
             this.error(37 /* InvalidLHSInAssignment */);
@@ -4384,7 +4360,7 @@ Parser.prototype.parseRestElement = function parseRestElement (context) {
     this.expect(context, 14 /* Ellipsis */);
     var argument = this.parseBindingPatternOrIdentifier(context, pos);
     if (this.token === 1310749 /* Assign */)
-        { this.throwUnexpectedToken(); }
+        { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
     if (this.token !== 16 /* RightParen */)
         { this.error(27 /* ParameterAfterRestParameter */); }
     return this.finishNode(pos, {
