@@ -4,12 +4,12 @@ Programs can be skipped in the whitelist file, but none are skipped for now!
 
 **Postive results**
 
- - 50231 valid programs parsed without error
- - 3486 invalid programs produced a parsing error
+ - 50062 valid programs parsed without error
+ - 3546 invalid programs produced a parsing error
 
  **Negative results**
 
- - 344 invalid programs did not produce a parsing error
+ - 284 invalid programs did not produce a parsing error
 
 ### How to
 
