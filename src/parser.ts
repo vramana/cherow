@@ -259,7 +259,7 @@ export class Parser {
         private scanToken(context: Context): Token {
     
             this.flags &= ~(Flags.LineTerminator | Flags.HasUnicode);
-
+    
             if (!(context & Context.Strict) && this.flags & Flags.HasStrictDirective) {
                 context |= Context.Strict;
             }
@@ -683,7 +683,7 @@ export class Parser {
     
                             const nextChar = this.source.charCodeAt(index);
     
-                            if (index < this.source.length && nextChar >= Chars.Zero && nextChar <= Chars.Seven) {
+                            if (index < this.source.length && nextChar >= Chars.Zero && nextChar <= Chars.Nine) {
                                 return this.scanNumberLiteral(context);
                             }
                         }
@@ -1000,18 +1000,20 @@ export class Parser {
             let isDecimal = false;
     
             while (this.hasNext()) {
-                ch = this.nextChar();
                 if (!isDecimal && ch >= Chars.Eight) isDecimal = true;
                 if (!(Chars.Zero <= ch && ch <= Chars.Nine)) break;
-                code = code * 8 + (ch - 48);
                 this.advance();
+                code = code * 8 + (ch - 48);
+                ch = this.nextChar();
             }
+    
+            if (isDecimal && ch === Chars.Period) this.advanceAndSkipDigits();
     
             if (this.flags & Flags.OptionsNext && this.consume(Chars.LowerN)) this.flags |= Flags.BigInt;
     
             if (this.flags & Flags.OptionsRaw) this.storeRaw(this.startIndex);
     
-            this.tokenValue = isDecimal ? parseInt(this.source.slice(this.startIndex, this.index), 10) : code;
+            this.tokenValue = isDecimal ? parseFloat(this.source.slice(this.startIndex, this.index)) : code;
             return Token.NumericLiteral;
         }
     
@@ -1882,13 +1884,7 @@ export class Parser {
         private isEvalOrArguments(value: string): boolean {
             return value === 'eval' || value === 'arguments';
         }
-    
-        private isEvalOrArgumentsIdentifier(context: Context, value: string): boolean {
-            if (!(context & Context.Strict)) return false;
-            return this.isEvalOrArguments(value);
-        }
-    
-    
+   
         /**
          * Consume a semicolon between tokens, optionally inserting it if necessary.
          */
@@ -1931,15 +1927,10 @@ export class Parser {
             const next = this.token;
             this.rewindState(savedState);
     
-            if (next === Token.Identifier) return true;
-    
-            // Fast path for '{}' / '[];
             if (hasMask(next, Token.BindingPattern)) return true;
     
             switch (next) {
-                case Token.LeftBrace:
                 case Token.Identifier:
-                case Token.LeftBracket:
                 case Token.YieldKeyword:
                     return true;
                 default:
@@ -1948,13 +1939,8 @@ export class Parser {
         }
     
         private isIdentifier(context: Context, t: Token): boolean {
-            if (context & Context.Strict) {
-                if (context & Context.Module) {
-                    if ((t & Token.FutureReserved) === Token.FutureReserved) this.error(Errors.UnexpectedStrictReserved);
-                }
-                return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual;
-            }
-            return t === Token.Identifier || (t & Token.Contextual) === Token.Contextual || (t & Token.FutureReserved) === Token.FutureReserved;
+            if (context & Context.Strict) return t === Token.Identifier || hasMask(t, Token.Contextual);
+            return t === Token.Identifier || hasMask(t, Token.Contextual) || hasMask(t, Token.FutureReserved);
         }
     
         private isIdentifierOrKeyword(t: Token): boolean | number {
@@ -3355,7 +3341,7 @@ export class Parser {
     
             if (hasMask(this.token, Token.AssignOperator)) {
                 const operator = this.token;
-                if (this.isEvalOrArgumentsIdentifier(context, (expr as ESTree.Identifier).name)) {
+                if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                     this.error(Errors.StrictLHSAssignment);
                 } else if (!(context & Context.InParameter) && this.token === Token.Assign) {
                     context |= Context.Assignment;
@@ -3640,8 +3626,8 @@ export class Parser {
                 this.nextToken(context);
     
                 expr = this.parseLeftHandSideExpression(context, pos);
-    
-                if (this.isEvalOrArgumentsIdentifier(context, (expr as ESTree.Identifier).name)) {
+
+                if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                     this.error(Errors.StrictLHSPrefix);
                 } else if (!isValidSimpleAssignmentTarget(expr)) this.error(Errors.InvalidLHSInAssignment);
     
@@ -3660,7 +3646,7 @@ export class Parser {
                 // The identifier eval or arguments may not appear as the LeftHandSideExpression of an
                 // Assignment operator(12.15) or of a PostfixExpression or as the UnaryExpression
                 // operated upon by a Prefix Increment(12.4.6) or a Prefix Decrement(12.4.7) operator.
-                if (this.isEvalOrArgumentsIdentifier(context, (expr as ESTree.Identifier).name)) {
+                if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                     this.error(Errors.StrictLHSPostfix);
                 }
     
@@ -3713,7 +3699,7 @@ export class Parser {
             });
         }
     
-        private parseImport(context: Context, pos: Location) {
+        private parseImportCall(context: Context, pos: Location) {
             const id = this.parseIdentifier(context);
     
             switch (this.token) {
@@ -3753,7 +3739,7 @@ export class Parser {
                         this.throwUnexpectedToken();
                     }
                     context |= Context.Import;
-                    expr = this.parseImport(context, pos);
+                    expr = this.parseImportCall(context | Context.AllowIn, pos);
                     break;
     
                 default:
@@ -3875,7 +3861,7 @@ export class Parser {
             if (this.token !== Token.LeftParen) {
                 const token = this.token;
                 if (!this.isIdentifier(context, token)) this.throwUnexpectedToken();
-                if (this.isEvalOrArgumentsIdentifier(context, this.tokenValue)) this.error(Errors.StrictLHSAssignment);
+                if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) this.error(Errors.StrictLHSAssignment);
     
                 switch (token) {
                     case Token.AwaitKeyword:
@@ -4126,7 +4112,7 @@ export class Parser {
             // Disallow SpreadElement inside dynamic import
             if (context & Context.Import) this.throwUnexpectedToken();
             this.expect(context, Token.Ellipsis);
-            if (this.isEvalOrArgumentsIdentifier(context, this.tokenValue)) {
+            if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) {
                 this.error(Errors.UnexpectedStrictReserved);
             }
             const arg = this.parseAssignmentExpression(context);
@@ -4616,7 +4602,7 @@ export class Parser {
     
                     value = this.parseAssignmentExpression(context);
     
-                    if (this.isEvalOrArgumentsIdentifier(context, (value as any).name)) {
+                    if (context & Context.Strict && this.isEvalOrArguments((value as any).name)) {
                         this.error(Errors.UnexpectedStrictReserved);
                     }
                     break;
@@ -4639,7 +4625,7 @@ export class Parser {
                     }
     
                     if (context & (Context.ForStatement | Context.InParenthesis) &&
-                        this.isEvalOrArgumentsIdentifier(context, tokenValue)) {
+                    context & Context.Strict && this.isEvalOrArguments(tokenValue)) {
                         this.error(Errors.UnexpectedReservedWord);
                     }
     
