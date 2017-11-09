@@ -56,7 +56,7 @@ describe('Espressions - Object', () => {
                     const a = 3;
                 }
             };`);
-          }).to.not.throw()
+          }).to.throw()
     })
 
     it('should fail on let param redeclaration', () => {
