@@ -3917,14 +3917,15 @@ export class Parser {
             this.flags &= ~Flags.SimpleParameterList;
             if (this.token !== Token.Identifier) {
                 this.errorLocation = pos;
-                // Invalid: 'function a([], []) {"use strict";}'
                 this.flags |= Flags.SimpleParameterList;
-            } else if (this.isEvalOrArguments(this.tokenValue)) {
-                if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
-                this.errorLocation = pos;
-                this.flags |= Flags.BindingPosition;
+            } else {
+                if (this.isEvalOrArguments(this.tokenValue)) {
+                    if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
+                    this.errorLocation = pos;
+                    this.flags |= Flags.BindingPosition;
+                } 
             }
-    
+
             return this.parseAssignmentPattern(context, pos);
         }
     
@@ -5230,21 +5231,16 @@ export class Parser {
             const pos = this.getLocations();
     
             const name = this.tokenValue;
-            const token = this.token;
     
             if (this.isEvalOrArguments(name)) {
                 if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
             }
-    
-            if (context & Context.InParameter) {
-                // In a parameter list, we only check for duplicate params
-                // if inside a strict, method or await context
-                if (context & (Context.Strict | Context.Await)) {
-                    this.addFunctionArg(name);
-                }
-            } else {
-                this.addVarOrBlock(context, name);
+
+            if (context & Context.InParameter && context & (Context.Strict | Context.Await)) {
+                this.addFunctionArg(name);
             }
+
+            this.addVarOrBlock(context, name);
     
             this.nextToken(context);
     
