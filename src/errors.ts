@@ -128,7 +128,7 @@ export const ErrorMessages: {
     [Errors.InvalidEightAndNine]: 'Escapes \\8 or \\9 are not syntactically valid escapes',
     [Errors.StrictOctalLiteral]: 'Octal literals are not allowed in strict mode',
     [Errors.MissingShebangExclamation]: 'Missing exclamation in shebang',
-    [Errors.DuplicateRegExpFlag]: 'Duplicate flags supplied to RegExp constructor %0',
+    [Errors.DuplicateRegExpFlag]: 'Duplicate regular expression flag %0',
     [Errors.UnexpectedTokenRegExp]: 'Unexpected regular expression',
     [Errors.UnexpectedTokenRegExpFlag]: 'Unexpected regular expression flag',
     [Errors.BadImportCallArity]: 'Dynamic import must have one specifier as an argument',

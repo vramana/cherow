@@ -185,7 +185,7 @@ ErrorMessages[7 /* StrictOctalEscape */] = 'Octal escapes are not allowed in str
 ErrorMessages[8 /* InvalidEightAndNine */] = 'Escapes \\8 or \\9 are not syntactically valid escapes';
 ErrorMessages[9 /* StrictOctalLiteral */] = 'Octal literals are not allowed in strict mode';
 ErrorMessages[10 /* MissingShebangExclamation */] = 'Missing exclamation in shebang';
-ErrorMessages[11 /* DuplicateRegExpFlag */] = 'Duplicate flags supplied to RegExp constructor %0';
+ErrorMessages[11 /* DuplicateRegExpFlag */] = 'Duplicate regular expression flag %0';
 ErrorMessages[12 /* UnexpectedTokenRegExp */] = 'Unexpected regular expression';
 ErrorMessages[13 /* UnexpectedTokenRegExpFlag */] = 'Unexpected regular expression flag';
 ErrorMessages[14 /* BadImportCallArity */] = 'Dynamic import must have one specifier as an argument';
@@ -957,11 +957,8 @@ Parser.prototype.scanToken = function scanToken (context) {
             case 88 /* UpperX */:
             case 89 /* UpperY */:
             case 90 /* UpperZ */:
-            // '$'
             case 36 /* Dollar */:
-            // '_'
             case 95 /* Underscore */:
-            //  `a`...`z`
             case 97 /* LowerA */:
             case 98 /* LowerB */:
             case 99 /* LowerC */:
@@ -990,8 +987,9 @@ Parser.prototype.scanToken = function scanToken (context) {
             case 122 /* LowerZ */:
                 return this$1.scanIdentifier(context, state);
             default:
-                if (isValidIdentifierStart(first))
-                    { return this$1.scanIdentifier(context, state); }
+                if (isValidIdentifierStart(first)) {
+                    return this$1.scanIdentifier(context, state);
+                }
                 this$1.error(0 /* Unexpected */);
         }
     }
@@ -1989,27 +1987,21 @@ Parser.prototype.isEvalOrArgumentsIdentifier = function isEvalOrArgumentsIdentif
         { return false; }
     return this.isEvalOrArguments(value);
 };
-Parser.prototype.canConsumeSemicolon = function canConsumeSemicolon () {
-    // Bail out quickly if we have seen a LineTerminator
-    if (this.flags & 1 /* LineTerminator */)
-        { return true; }
-    switch (this.token) {
-        case 17 /* Semicolon */:
-        case 15 /* RightBrace */:
-        case 0 /* EndOfSource */:
-            return true;
-        default:
-            return false;
-    }
-};
 /**
  * Consume a semicolon between tokens, optionally inserting it if necessary.
  */
 Parser.prototype.consumeSemicolon = function consumeSemicolon (context) {
-    if (!this.canConsumeSemicolon())
-        { this.throwUnexpectedToken(); }
-    if (this.token === 17 /* Semicolon */)
-        { this.expect(context, 17 /* Semicolon */); }
+    switch (this.token) {
+        case 17 /* Semicolon */:
+            this.expect(context, 17 /* Semicolon */);
+        case 15 /* RightBrace */:
+        case 0 /* EndOfSource */:
+            break;
+        default:
+            if (this.flags & 1 /* LineTerminator */)
+                { break; }
+            this.throwUnexpectedToken();
+    }
 };
 Parser.prototype.nextTokenIsAssign = function nextTokenIsAssign (context) {
     var savedState = this.saveState();
@@ -2989,13 +2981,26 @@ Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (c
         id: id
     });
 };
+Parser.prototype.canParseArgument = function canParseArgument () {
+    // Bail out quickly if we have seen a LineTerminator
+    if (this.flags & 1 /* LineTerminator */)
+        { return false; }
+    switch (this.token) {
+        case 17 /* Semicolon */:
+        case 15 /* RightBrace */:
+        case 0 /* EndOfSource */:
+            return false;
+        default:
+            return true;
+    }
+};
 Parser.prototype.parseReturnStatement = function parseReturnStatement (context) {
     var pos = this.getLocations();
     if (!(this.flags & 67108868 /* GlobalReturn */))
         { this.error(19 /* IllegalReturn */); }
     this.expect(context, 12379 /* ReturnKeyword */);
     var argument = null;
-    if (!this.canConsumeSemicolon()) {
+    if (this.canParseArgument()) {
         argument = this.parseExpression(context | 4 /* AllowIn */, pos);
     }
     this.consumeSemicolon(context);
@@ -4271,6 +4276,9 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
             if (this.token === 393235 /* LeftBracket */)
                 { state |= 4 /* Computed */; }
             key = this.parsePropertyName(context);
+            if (state & 113 /* Modifiers */ && this.token !== 262155 /* LeftParen */) {
+                this.throwUnexpectedToken();
+            }
         }
         else {
             key = this.finishNode(pos, {
@@ -4498,8 +4506,13 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
     if (this.token === 18 /* Comma */) {
         var expressions = [expr];
         while (this.parseOptional(context, 18 /* Comma */)) {
-            if (this$1.parseOptional(context, 16 /* RightParen */)) {
-                return this$1.parseArrowFunctionExpression(context & ~(32 /* Await */ | 16 /* Yield */), pos, expressions);
+            if (this$1.token === 16 /* RightParen */) {
+                var token = this$1.token;
+                this$1.expect(context, 16 /* RightParen */);
+                if (this$1.token === 10 /* Arrow */) {
+                    return this$1.parseArrowFunctionExpression(context & ~(32 /* Await */ | 16 /* Yield */), pos, expressions);
+                }
+                this$1.error(1 /* UnexpectedToken */, tokenDesc(token));
             }
             else if (this$1.token === 14 /* Ellipsis */) {
                 expressions.push(this$1.parseRestElement(context));

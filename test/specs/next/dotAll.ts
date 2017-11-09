@@ -16,7 +16,7 @@ describe('Next - DotAll', () => {
             parseScript(`/./ss;`, {
                 next: true
             });
-        }).to.throw('Duplicate flags supplied to RegExp constructor s');
+        }).to.throw('Duplicate regular expression flag s');
     });
 
 });

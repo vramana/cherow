@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "0.13.0",
+  "version": "0.13.3",
   "description": "Fast, standard-compliant ECMAScript parser written in ECMAScript",
   "main": "dist/cherow.js",
   "author": "KFlash",
@@ -13,12 +13,22 @@
   "bugs": {
     "url": "https://github.com/cherow/cherow/issues"
   },
-  "keywords": [],
+  "keywords": [
+    "parsing",
+    "ecmascript",
+    "typescript",
+    "parser",
+    "performance",
+    "mobile",
+    "estree",
+    "ast"
+  ],
   "files": [
     "dist",
     "CODE_OF_CONDUCT.md",
     "CONTRIBUTING.md",
     "README.md",
+    "LICENSE.md",
     "BENCHMARK.md"
   ],
   "scripts": {
@@ -44,19 +54,19 @@
     "@types/node": "^8.0.46",
     "chai": "^4.1.2",
     "coveralls": "^3.0.0",
-    "cross-env": "^5.0.5",
+    "cross-env": "^5.1.1",
     "graceful-fs": "^4.1.11",
     "mocha": "^4.0.1",
     "nyc": "^11.2.1",
     "rimraf": "^2.6.2",
-    "rollup": "^0.50.0",
-    "rollup-plugin-buble": "^0.16.0",
+    "rollup": "^0.51.1",
+    "rollup-plugin-buble": "^0.17.0",
     "rollup-plugin-uglify": "2.0.1",
     "test262": "git+https://github.com/tc39/test262.git",
     "test262-parser-tests": "0.0.3",
     "ts-node": "^3.3.0",
-    "tslint": "5.7.0",
-    "typescript": "^2.5.3",
+    "tslint": "5.8.0",
+    "typescript": "^2.6.1",
     "util.promisify": "^1.0.0"
   },
   "nyc": {
@@ -67,9 +77,5 @@
     "exclude": [
       "build/test/**/*.*"
     ]
-  },
-  "dependencies": {
-    "chalk": "^2.3.0",
-    "util.promisify": "^1.0.0"
   }
 }

@@ -21,19 +21,19 @@ describe('Literals - RegExp', () => {
     it('should fail on early error duplicate flag', () => {
         expect(() => {
             parseScript(`/./gig;`)
-        }).to.throw('Duplicate flags supplied to RegExp constructor g');
+        }).to.throw(' Duplicate regular expression flag g');
     });
 
     it('should fail on early error duplicate flag', () => {
         expect(() => {
             parseScript(`/./mm;`)
-        }).to.throw('Duplicate flags supplied to RegExp constructor m');
+        }).to.throw(' Duplicate regular expression flag m');
     });
 
     it('should fail on duplicate "dotAll" flags', () => {
         expect(() => {
             parseScript(`/./sis`, { next: true})
-        }).to.throw('Duplicate flags supplied to RegExp constructor s');
+        }).to.throw(' Duplicate regular expression flag s');
     });
     it('should throw if \\ or / is incorrect', () => {
         expect(() => {
@@ -703,25 +703,25 @@ describe('Literals - RegExp', () => {
     it('should fail on early error duplicate flag', () => {
         expect(() => {
             parseScript(`/./gig;`)
-        }).to.throw('Duplicate flags supplied to RegExp constructor g');
+        }).to.throw(' Duplicate regular expression flag g');
     });
 
     it('should fail on multiple duplicate flag', () => {
         expect(() => {
             parseScript(`/./gmgugimyg;`)
-        }).to.throw('Duplicate flags supplied to RegExp constructor g');
+        }).to.throw(' Duplicate regular expression flag g');
     });
 
     it('should fail on multiple unicode flag', () => {
         expect(() => {
             parseScript(`/./uu;`)
-        }).to.throw('Duplicate flags supplied to RegExp constructor u');
+        }).to.throw(' Duplicate regular expression flag u');
     });
 
     it('should fail on multiple unicode flag', () => {
         expect(() => {
             parseScript(`/./yy;`)
-        }).to.throw('Duplicate flags supplied to RegExp constructor y');
+        }).to.throw(' Duplicate regular expression flag y');
     });
 
     it('should fail on invalid braced quantifier exact', () => {

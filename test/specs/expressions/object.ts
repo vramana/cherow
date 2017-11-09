@@ -215,7 +215,18 @@ describe('Espressions - Object', () => {
         }).to.throw('');
     });
 
-    
+    it('should fail on object method with missing parenthesis - get', () => {
+        expect(() => {
+            parseScript(`({get a: 12})`);
+        }).to.throw('');
+    });
+
+    it('should fail on object method with missing parenthesis - set', () => {
+      expect(() => {
+        parseScript(`({set a: 12})`);
+      }).to.throw('');
+    });
+
     it('should fail on object method NSPL with USD', () => {
         expect(() => {
             parseScript(`({

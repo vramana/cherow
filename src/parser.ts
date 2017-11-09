@@ -4564,8 +4564,12 @@ export class Parser {
                     }
     
                     if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
+                    
                     key = this.parsePropertyName(context);
-    
+
+                    if (state & ObjectState.Modifiers && this.token !== Token.LeftParen) {
+                        this.throwUnexpectedToken();
+                    }
                 } else {
                     key = this.finishNode(pos, {
                         type: 'Identifier',
@@ -4825,8 +4829,13 @@ export class Parser {
                 const expressions: ESTree.Expression[] = [expr];
     
                 while (this.parseOptional(context, Token.Comma)) {
-                    if (this.parseOptional(context, Token.RightParen)) {
-                        return this.parseArrowFunctionExpression(context & ~(Context.Await | Context.Yield), pos, expressions);
+                    if (this.token === Token.RightParen) {
+                        const token = this.token;
+                        this.expect(context, Token.RightParen);
+                        if (this.token === Token.Arrow) {
+                            return this.parseArrowFunctionExpression(context & ~(Context.Await | Context.Yield), pos, expressions);
+                        } 
+                        this.error(Errors.UnexpectedToken, tokenDesc(token));
                     } else if (this.token === Token.Ellipsis) {
                         expressions.push(this.parseRestElement(context));
                         this.expect(context, Token.RightParen);
