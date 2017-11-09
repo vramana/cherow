@@ -5,6 +5,67 @@ const expect = chai.expect;
 
 describe('Literal - Numeric', () => {
 
+    it('09.0', () => {
+        expect(parseScript('09.0', {
+            ranges: true,
+            raw: true,
+            locations: true
+        })).to.eql({
+            "type": "Program",
+            "body": [{
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "Literal",
+                    "value": 9,
+                    "start": 0,
+                    "end": 4,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 4
+                        }
+                    },
+                    "raw": "09.0"
+                },
+                "start": 0,
+                "end": 4,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 4
+                    }
+                }
+            }],
+            "sourceType": "script",
+            "start": 0,
+            "end": 4,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 4
+                }
+            }
+        });
+    });
+    it('should fail "07.5"', () => {
+        expect(() => {
+            parseScript('const t = 2.34e-;const b = 4.3e--3;')
+        }).to.throw('');
+    });
+
+
     it('should fail "const t = 2.34e-;const b = 4.3e--3;"', () => {
             expect(() => {
                 parseScript('const t = 2.34e-;const b = 4.3e--3;')
@@ -104,7 +165,7 @@ describe('Literal - Numeric', () => {
         it('should fail on invalid non octal decimal literal ( strict)', () => {
             expect(() => {
                 parseScript('"use strict"; 08;')
-            }).to.not.throw();
+            }).to.throw();
         });
         
         describe('ExponentPart :: ExponentIndicator ( /+/-) 0 DecimalDigits is allowed', () => {
@@ -2133,7 +2194,7 @@ describe('Literal - Numeric', () => {
             it('should fail on binary invalid unicode escape sequence', () => {
                 expect(() => {
                     parseScript('"use strict"; 09')
-                }).to.not.throw();
+                }).to.throw();
             });
     
             it('should fail on binary invalid unicode escape sequence', () => {

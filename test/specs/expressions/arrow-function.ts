@@ -4845,84 +4845,88 @@ describe('Expressions - Arrow function', () => {
                 "start": 0,
                 "end": 10,
                 "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
-                    },
-                    "end": {
-                        "line": 1,
-                        "column": 10
-                    }
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 10
+                  }
                 },
-                "body": [{
+                "body": [
+                  {
                     "type": "ExpressionStatement",
                     "start": 0,
                     "end": 10,
                     "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 0
-                        },
-                        "end": {
-                            "line": 1,
-                            "column": 10
-                        }
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 10
+                      }
                     },
                     "expression": {
-                        "type": "ArrowFunctionExpression",
-                        "start": 0,
-                        "end": 9,
-                        "loc": {
+                      "type": "ArrowFunctionExpression",
+                      "start": 0,
+                      "end": 9,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 0
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 9
+                        }
+                      },
+                      "id": null,
+                      "generator": false,
+                      "expression": true,
+                      "async": false,
+                      "params": [
+                        {
+                          "type": "Identifier",
+                          "start": 1,
+                          "end": 2,
+                          "loc": {
                             "start": {
-                                "line": 1,
-                                "column": 0
+                              "line": 1,
+                              "column": 1
                             },
                             "end": {
-                                "line": 1,
-                                "column": 9
+                              "line": 1,
+                              "column": 2
                             }
-                        },
-                        "id": null,
-                        "generator": false,
-                        "expression": true,
-                        "async": false,
-                        "params": [{
-                            "type": "Identifier",
-                            "start": 1,
-                            "end": 2,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 1
-                                },
-                                "end": {
-                                    "line": 1,
-                                    "column": 2
-                                }
-                            },
-                            "name": "a"
-                        }],
-                        "body": {
-                            "type": "Literal",
-                            "start": 7,
-                            "end": 9,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 7
-                                },
-                                "end": {
-                                    "line": 1,
-                                    "column": 9
-                                }
-                            },
-                            "value": 0,
-                            "raw": "00"
+                          },
+                          "name": "a"
                         }
+                      ],
+                      "body": {
+                        "type": "Literal",
+                        "start": 7,
+                        "end": 9,
+                        "loc": {
+                          "start": {
+                            "line": 1,
+                            "column": 7
+                          },
+                          "end": {
+                            "line": 1,
+                            "column": 9
+                          }
+                        },
+                        "value": 0,
+                        "raw": "00"
+                      }
                     }
-                }],
+                  }
+                ],
                 "sourceType": "script"
-            });
+              });
         });
     
         it('should parse single param parens', () => {
