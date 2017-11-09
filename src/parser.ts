@@ -259,9 +259,7 @@ export class Parser {
         private scanToken(context: Context): Token {
     
             this.flags &= ~(Flags.LineTerminator | Flags.HasUnicode);
-    
-            // The 'HasStrictDirective' mask is only set if we got a strict directive.
-            // E.g. "use strict"; 08;
+
             if (!(context & Context.Strict) && this.flags & Flags.HasStrictDirective) {
                 context |= Context.Strict;
             }
