@@ -260,6 +260,12 @@ export class Parser {
     
             this.flags &= ~(Flags.LineTerminator | Flags.HasUnicode);
     
+            // The 'HasStrictDirective' mask is only set if we got a strict directive.
+            // E.g. "use strict"; 08;
+            if (!(context & Context.Strict) && this.flags & Flags.HasStrictDirective) {
+                context |= Context.Strict;
+            }
+    
             this.lastIndex = this.index;
             this.lastColumn = this.column;
             this.lastLine = this.line;
@@ -4564,9 +4570,9 @@ export class Parser {
                     }
     
                     if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
-                    
+    
                     key = this.parsePropertyName(context);
-
+    
                     if (state & ObjectState.Modifiers && this.token !== Token.LeftParen) {
                         this.throwUnexpectedToken();
                     }
@@ -4834,7 +4840,7 @@ export class Parser {
                         this.expect(context, Token.RightParen);
                         if (this.token === Token.Arrow) {
                             return this.parseArrowFunctionExpression(context & ~(Context.Await | Context.Yield), pos, expressions);
-                        } 
+                        }
                         this.error(Errors.UnexpectedToken, tokenDesc(token));
                     } else if (this.token === Token.Ellipsis) {
                         expressions.push(this.parseRestElement(context));
