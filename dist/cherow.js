@@ -2649,7 +2649,6 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
     var declarations = null;
     var body;
     var test = null;
-    var token = this.token;
     var awaitToken = !!(context & 32 /* Await */) && this.parseEventually(context, 331885 /* AwaitKeyword */);
     var savedFlag = this.flags;
     // Create a lexical scope node around the whole ForStatement
@@ -2659,11 +2658,11 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
         { this.parentScope = blockScope; }
     this.blockScope = undefined;
     this.expect(context, 262155 /* LeftParen */);
-    token = this.token;
-    var startExpression = false;
+    var token = this.token;
     if (this.token !== 17 /* Semicolon */) {
         if (hasMask(this.token, 8650752 /* VarDeclStart */)) {
             var startIndex = this.getLocations();
+            var kind = tokenDesc(this.token);
             if (this.parseEventually(context, 8663111 /* VarKeyword */)) {
                 declarations = this.parseVariableDeclarationList(context & ~4 /* AllowIn */ | 1048576 /* ForStatement */);
             }
@@ -2677,11 +2676,10 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
                 init = this.parseExpression(context & ~4 /* AllowIn */ | 1048576 /* ForStatement */, pos);
             }
             if (declarations) {
-                startExpression = true;
                 init = this.finishNode(startIndex, {
                     type: 'VariableDeclaration',
                     declarations: declarations,
-                    kind: tokenDesc(token)
+                    kind: kind
                 });
             }
         }
@@ -2694,8 +2692,8 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
     if (this.parseEventually(context, 69746 /* OfKeyword */)) {
         if (awaitToken && !(this.flags & 4194304 /* OptionsNext */))
             { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }
-        if (startExpression) {
-            if (declarations && declarations[0].init != null)
+        if (declarations) {
+            if (declarations[0].init != null)
                 { this.error(32 /* InvalidVarInitForOf */); }
         }
         else {
@@ -2705,6 +2703,9 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
         }
         var right = this.parseAssignmentExpression(context);
         this.expect(context, 16 /* RightParen */);
+        this.blockScope = blockScope;
+        if (blockScope !== undefined)
+            { this.parentScope = parentScope; }
         this.flags |= 32 /* Iteration */;
         body = this.parseStatement(context & ~1024 /* TopLevel */ | 1048576 /* ForStatement */);
         this.flags = savedFlag;
@@ -2717,10 +2718,10 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
         });
     }
     if (awaitToken)
-        { this.error(0 /* Unexpected */); }
+        { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }
     if (this.parseEventually(context, 2111281 /* InKeyword */)) {
-        if (startExpression) {
-            if (declarations && declarations.length !== 1)
+        if (declarations) {
+            if (declarations.length !== 1)
                 { this.error(0 /* Unexpected */); }
         }
         else {
@@ -2728,6 +2729,9 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
         }
         test = this.parseExpression(context, pos);
         this.expect(context, 16 /* RightParen */);
+        this.blockScope = blockScope;
+        if (blockScope !== undefined)
+            { this.parentScope = parentScope; }
         this.flags |= 32 /* Iteration */;
         body = this.parseStatement(context & ~1024 /* TopLevel */ | 1048576 /* ForStatement */);
         this.flags = savedFlag;
@@ -2740,19 +2744,18 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
     }
     var update = null;
     this.expect(context, 17 /* Semicolon */);
-    if (this.token !== 17 /* Semicolon */ && this.token !== 16 /* RightParen */) {
-        test = this.parseExpression(context, pos);
-    }
+    if (this.token !== 17 /* Semicolon */)
+        { test = this.parseExpression(context, pos); }
     this.expect(context, 17 /* Semicolon */);
     if (this.token !== 16 /* RightParen */)
         { update = this.parseExpression(context, pos); }
     this.expect(context, 16 /* RightParen */);
-    this.flags |= 32 /* Iteration */;
-    body = this.parseStatement(context & ~1024 /* TopLevel */ | 1048576 /* ForStatement */);
-    this.flags = savedFlag;
     this.blockScope = blockScope;
     if (blockScope !== undefined)
         { this.parentScope = parentScope; }
+    this.flags |= 32 /* Iteration */;
+    body = this.parseStatement(context & ~1024 /* TopLevel */ | 1048576 /* ForStatement */);
+    this.flags = savedFlag;
     return this.finishNode(pos, {
         type: 'ForStatement',
         body: body,

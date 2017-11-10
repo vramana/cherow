@@ -2689,13 +2689,10 @@ export class Parser {
     
             let init = null;
             let declarations = null;
-            let kind = '';
             let body;
             let test = null;
-            let token = this.token;
             
             const awaitToken = !!(context & Context.Await) && this.parseEventually(context, Token.AwaitKeyword);
-
             const savedFlag = this.flags;
     
             // Create a lexical scope node around the whole ForStatement
@@ -2708,13 +2705,12 @@ export class Parser {
     
             this.expect(context, Token.LeftParen);
     
-            token = this.token;
-    
-            let startExpression = false;
+            const token = this.token;
     
             if (this.token !== Token.Semicolon) {
                 if (hasMask(this.token, Token.VarDeclStart)) {
                     const startIndex = this.getLocations()
+                    const kind = tokenDesc(this.token);
                     if (this.parseEventually(context, Token.VarKeyword)) {
                         declarations = this.parseVariableDeclarationList(context & ~Context.AllowIn | Context.ForStatement);
                     } else if (this.parseEventually(context, Token.ConstKeyword)) {
@@ -2726,11 +2722,10 @@ export class Parser {
                     }
     
                     if (declarations) {
-                        startExpression = true;
                         init = this.finishNode(startIndex, {
                             type: 'VariableDeclaration',
                             declarations,
-                            kind: tokenDesc(token)
+                            kind
                         });
                     }
     
@@ -2745,8 +2740,8 @@ export class Parser {
                 
                 if (awaitToken && !(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(token));
     
-                if (startExpression) {
-                    if (declarations && declarations[0].init != null) this.error(Errors.InvalidVarInitForOf);
+                if (declarations) {
+                    if (declarations[0].init != null) this.error(Errors.InvalidVarInitForOf);
                 } else {
                     this.reinterpretAsPattern(context | Context.ForStatement, init);
                     if (!isValidDestructuringAssignmentTarget(init)) this.error(Errors.InvalidLHSInForLoop);
@@ -2755,6 +2750,10 @@ export class Parser {
                 const right = this.parseAssignmentExpression(context);
     
                 this.expect(context, Token.RightParen);
+
+                this.blockScope = blockScope;
+
+                if (blockScope !== undefined) this.parentScope = parentScope;
     
                 this.flags |= Flags.Iteration;
     
@@ -2771,12 +2770,12 @@ export class Parser {
                 });
             }
 
-            if (awaitToken) this.error(Errors.Unexpected);
+            if (awaitToken) this.error(Errors.UnexpectedToken, tokenDesc(token));
 
             if (this.parseEventually(context, Token.InKeyword)) {
 
-                if (startExpression) {
-                    if (declarations && declarations.length !== 1) this.error(Errors.Unexpected);
+                if (declarations) {
+                    if (declarations.length !== 1) this.error(Errors.Unexpected);
                 } else {
                     this.reinterpretAsPattern(context | Context.ForStatement, init);
                 }
@@ -2784,6 +2783,10 @@ export class Parser {
                 test = this.parseExpression(context, pos);
     
                 this.expect(context, Token.RightParen);
+                
+                this.blockScope = blockScope;
+                
+                if (blockScope !== undefined) this.parentScope = parentScope;
     
                 this.flags |= Flags.Iteration;
     
@@ -2802,16 +2805,18 @@ export class Parser {
             let update = null;
             
             this.expect(context, Token.Semicolon);
-    
-            if (this.token !== Token.Semicolon && this.token !== Token.RightParen) {
-                test = this.parseExpression(context, pos);
-            }
+            
+            if (this.token !== Token.Semicolon) test = this.parseExpression(context, pos);
     
             this.expect(context, Token.Semicolon);
     
             if (this.token !== Token.RightParen) update = this.parseExpression(context, pos);
     
             this.expect(context, Token.RightParen);
+
+            this.blockScope = blockScope;
+
+            if (blockScope !== undefined) this.parentScope = parentScope;
     
             this.flags |= Flags.Iteration;
     
@@ -2819,8 +2824,6 @@ export class Parser {
     
             this.flags = savedFlag;
     
-            this.blockScope = blockScope;
-            if (blockScope !== undefined) this.parentScope = parentScope;
     
             return this.finishNode(pos, {
                 type: 'ForStatement',
