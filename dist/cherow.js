@@ -1863,19 +1863,13 @@ Parser.prototype.scanJSXIdentifier = function scanJSXIdentifier (context) {
 Parser.prototype.parseModuleItemList = function parseModuleItemList (context) {
         var this$1 = this;
 
-    // ecma262/#prod-Module
-    // Module :
-    //ModuleBody?
-    //
-    // ecma262/#prod-ModuleItemList
-    // ModuleBody :
-    //   ModuleItem*
     var statements = [];
-    while (this.token !== 0 /* EndOfSource */) {
-        if (this$1.token !== 262147 /* StringLiteral */)
-            { break; }
-        var item = this$1.parseDirective(context);
-        statements.push(item);
+    // Note: Only enable the ESTree directive node for modules if the
+    // option are set for it. 
+    if (this.flags & 8388608 /* OptionsDirectives */) {
+        while (this.token === 262147 /* StringLiteral */) {
+            statements.push(this$1.parseDirective(context));
+        }
     }
     while (this.token !== 0 /* EndOfSource */) {
         statements.push(this$1.parseModuleItem(context));
@@ -1884,27 +1878,25 @@ Parser.prototype.parseModuleItemList = function parseModuleItemList (context) {
 };
 Parser.prototype.parseDirective = function parseDirective (context) {
     var pos = this.getLocations();
-    if (this.flags & 8388608 /* OptionsDirectives */) {
-        var expr = this.parseExpression(context, pos);
-        var directive = this.tokenRaw.slice(1, -1);
-        this.consumeSemicolon(context);
-        var node = this.finishNode(pos, {
-            type: 'ExpressionStatement',
-            expression: expr,
-            directive: directive
-        });
-        return node;
-    }
-    return context & 1 /* Module */ ? this.parseModuleItem(context) : this.parseStatementListItem(context);
+    var expr = this.parseExpression(context, pos);
+    var directive = this.tokenRaw.slice(1, -1);
+    this.consumeSemicolon(context);
+    var node = this.finishNode(pos, {
+        type: 'ExpressionStatement',
+        expression: expr,
+        directive: directive
+    });
+    return node;
 };
 Parser.prototype.parseStatementList = function parseStatementList (context, endToken) {
         var this$1 = this;
 
     var statements = [];
-    while (this.token !== endToken) {
-        if (this$1.token !== 262147 /* StringLiteral */)
-            { break; }
-        var item = this$1.parseDirective(context);
+    var enableDirectiveNode = !!(this.flags & 8388608 /* OptionsDirectives */);
+    while (this.token === 262147 /* StringLiteral */) {
+        var item = enableDirectiveNode ?
+            this$1.parseDirective(context) :
+            this$1.parseStatementListItem(context);
         statements.push(item);
         if (!isPrologueDirective(item))
             { break; }
@@ -2658,14 +2650,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
     var body;
     var test = null;
     var token = this.token;
-    var state = 0;
-    // Asynchronous Iteration - Stage 3 proposal
-    if (context & 32 /* Await */ && this.parseEventually(context, 331885 /* AwaitKeyword */)) {
-        // Throw " Unexpected token 'await'" if the option 'next' flag isn't set
-        if (!(this.flags & 4194304 /* OptionsNext */))
-            { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }
-        state |= 8 /* Await */;
-    }
+    var awaitToken = !!(context & 32 /* Await */) && this.parseEventually(context, 331885 /* AwaitKeyword */);
     var savedFlag = this.flags;
     // Create a lexical scope node around the whole ForStatement
     var blockScope = this.blockScope;
@@ -2675,109 +2660,106 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
     this.blockScope = undefined;
     this.expect(context, 262155 /* LeftParen */);
     token = this.token;
+    var startExpression = false;
     if (this.token !== 17 /* Semicolon */) {
-        var startIndex = this.getLocations();
-        if (this.isLexical(context) && this.parseEventually(context, 8671304 /* LetKeyword */)) {
-            state |= 4 /* Let */;
-            declarations = this.parseVariableDeclarationList(context | (67108864 /* Let */ | 4 /* AllowIn */ | 1048576 /* ForStatement */));
-        }
-        else if (this.parseEventually(context, 8663111 /* VarKeyword */)) {
-            state |= 1 /* Var */;
-            declarations = this.parseVariableDeclarationList(context | 1048576 /* ForStatement */);
-        }
-        else if (this.parseEventually(context, 8663113 /* ConstKeyword */)) {
-            state |= 2 /* Const */;
-            declarations = this.parseVariableDeclarationList(context | (134217728 /* Const */ | 4 /* AllowIn */ | 1048576 /* ForStatement */));
+        if (hasMask(this.token, 8650752 /* VarDeclStart */)) {
+            var startIndex = this.getLocations();
+            if (this.parseEventually(context, 8663111 /* VarKeyword */)) {
+                declarations = this.parseVariableDeclarationList(context & ~4 /* AllowIn */ | 1048576 /* ForStatement */);
+            }
+            else if (this.parseEventually(context, 8663113 /* ConstKeyword */)) {
+                declarations = this.parseVariableDeclarationList(context | 134217728 /* Const */ | 4 /* AllowIn */ | 1048576 /* ForStatement */);
+            }
+            else if (this.isLexical(context) && this.parseEventually(context, 8671304 /* LetKeyword */)) {
+                declarations = this.parseVariableDeclarationList(context | 67108864 /* Let */ | 4 /* AllowIn */ | 1048576 /* ForStatement */);
+            }
+            else {
+                init = this.parseExpression(context & ~4 /* AllowIn */ | 1048576 /* ForStatement */, pos);
+            }
+            if (declarations) {
+                startExpression = true;
+                init = this.finishNode(startIndex, {
+                    type: 'VariableDeclaration',
+                    declarations: declarations,
+                    kind: tokenDesc(token)
+                });
+            }
         }
         else {
             init = this.parseExpression(context & ~4 /* AllowIn */ | 1048576 /* ForStatement */, pos);
         }
-        if (state & (6 /* Lexical */ | 1 /* Var */)) {
-            init = this.finishNode(startIndex, {
-                type: 'VariableDeclaration',
-                declarations: declarations,
-                kind: tokenDesc(token)
-            });
+    }
+    if (this.flags & 2 /* HasUnicode */)
+        { this.error(69 /* UnexpectedEscapedKeyword */); }
+    if (this.parseEventually(context, 69746 /* OfKeyword */)) {
+        if (awaitToken && !(this.flags & 4194304 /* OptionsNext */))
+            { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }
+        if (startExpression) {
+            if (declarations && declarations[0].init != null)
+                { this.error(32 /* InvalidVarInitForOf */); }
         }
+        else {
+            this.reinterpretAsPattern(context | 1048576 /* ForStatement */, init);
+            if (!isValidDestructuringAssignmentTarget(init))
+                { this.error(33 /* InvalidLHSInForLoop */); }
+        }
+        var right = this.parseAssignmentExpression(context);
+        this.expect(context, 16 /* RightParen */);
+        this.flags |= 32 /* Iteration */;
+        body = this.parseStatement(context & ~1024 /* TopLevel */ | 1048576 /* ForStatement */);
+        this.flags = savedFlag;
+        return this.finishNode(pos, {
+            type: 'ForOfStatement',
+            body: body,
+            left: init,
+            right: right,
+            await: awaitToken
+        });
     }
+    if (awaitToken)
+        { this.error(0 /* Unexpected */); }
+    if (this.parseEventually(context, 2111281 /* InKeyword */)) {
+        if (startExpression) {
+            if (declarations && declarations.length !== 1)
+                { this.error(0 /* Unexpected */); }
+        }
+        else {
+            this.reinterpretAsPattern(context | 1048576 /* ForStatement */, init);
+        }
+        test = this.parseExpression(context, pos);
+        this.expect(context, 16 /* RightParen */);
+        this.flags |= 32 /* Iteration */;
+        body = this.parseStatement(context & ~1024 /* TopLevel */ | 1048576 /* ForStatement */);
+        this.flags = savedFlag;
+        return this.finishNode(pos, {
+            type: 'ForInStatement',
+            body: body,
+            left: init,
+            right: test
+        });
+    }
+    var update = null;
+    this.expect(context, 17 /* Semicolon */);
+    if (this.token !== 17 /* Semicolon */ && this.token !== 16 /* RightParen */) {
+        test = this.parseExpression(context, pos);
+    }
+    this.expect(context, 17 /* Semicolon */);
+    if (this.token !== 16 /* RightParen */)
+        { update = this.parseExpression(context, pos); }
+    this.expect(context, 16 /* RightParen */);
+    this.flags |= 32 /* Iteration */;
+    body = this.parseStatement(context & ~1024 /* TopLevel */ | 1048576 /* ForStatement */);
     this.flags = savedFlag;
-    switch (this.token) {
-        // 'of'
-        case 69746 /* OfKeyword */:
-            if (this.flags & 2 /* HasUnicode */)
-                { this.error(69 /* UnexpectedEscapedKeyword */); }
-            this.parseEventually(context, 69746 /* OfKeyword */);
-            if (state & 7 /* Variable */) {
-                // Only a single variable declaration is allowed in a for of statement
-                if (declarations && declarations[0].init != null)
-                    { this.error(32 /* InvalidVarInitForOf */); }
-            }
-            else {
-                this.reinterpretAsPattern(context | 1048576 /* ForStatement */, init);
-                if (!isValidDestructuringAssignmentTarget(init))
-                    { this.error(33 /* InvalidLHSInForLoop */); }
-            }
-            var right = this.parseAssignmentExpression(context);
-            this.expect(context, 16 /* RightParen */);
-            this.flags |= 32 /* Iteration */;
-            body = this.parseStatement(context & ~1024 /* TopLevel */ | 1048576 /* ForStatement */);
-            this.flags = savedFlag;
-            return this.finishNode(pos, {
-                type: 'ForOfStatement',
-                body: body,
-                left: init,
-                right: right,
-                await: !!(state & 8 /* Await */)
-            });
-        // 'in'
-        case 2111281 /* InKeyword */:
-            if (state & 7 /* Variable */) {
-                if (declarations && declarations.length !== 1)
-                    { this.error(0 /* Unexpected */); }
-            }
-            else {
-                this.reinterpretAsPattern(context | 1048576 /* ForStatement */, init);
-            }
-            if (state & 8 /* Await */)
-                { this.error(54 /* ForAwaitNotOf */); }
-            this.expect(context, 2111281 /* InKeyword */);
-            test = this.parseExpression(context, pos);
-            this.expect(context, 16 /* RightParen */);
-            this.flags |= 32 /* Iteration */;
-            body = this.parseStatement(context & ~1024 /* TopLevel */ | 1048576 /* ForStatement */);
-            this.flags = savedFlag;
-            return this.finishNode(pos, {
-                type: 'ForInStatement',
-                body: body,
-                left: init,
-                right: test
-            });
-        default:
-            if (state & 8 /* Await */)
-                { this.error(54 /* ForAwaitNotOf */); }
-            var update = null;
-            this.expect(context, 17 /* Semicolon */);
-            if (this.token !== 17 /* Semicolon */ && this.token !== 16 /* RightParen */) {
-                test = this.parseExpression(context, pos);
-            }
-            this.expect(context, 17 /* Semicolon */);
-            if (this.token !== 16 /* RightParen */)
-                { update = this.parseExpression(context, pos); }
-            this.expect(context, 16 /* RightParen */);
-            this.flags |= 32 /* Iteration */;
-            body = this.parseStatement(context & ~1024 /* TopLevel */ | 1048576 /* ForStatement */);
-            this.flags = savedFlag;
-            this.blockScope = blockScope;
-            if (blockScope !== undefined)
-                { this.parentScope = parentScope; }
-            return this.finishNode(pos, {
-                type: 'ForStatement',
-                body: body,
-                init: init,
-                test: test,
-                update: update
-            });
-    }
+    this.blockScope = blockScope;
+    if (blockScope !== undefined)
+        { this.parentScope = parentScope; }
+    return this.finishNode(pos, {
+        type: 'ForStatement',
+        body: body,
+        init: init,
+        test: test,
+        update: update
+    });
 };
 Parser.prototype.parseIfStatementChild = function parseIfStatementChild (context) {
     if (context & 2 /* Strict */ && this.token === 274519 /* FunctionKeyword */) {

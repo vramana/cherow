@@ -137,7 +137,7 @@ describe('Statements - For of', () => {
         it('should fail on escaped of', () => {
             expect(() => {
                 parseScript('for (var x o\\u0066 []) ;');
-            }).to.not.throw();
+            }).to.throw();
         });
     
         it('should fail on invalid rest element (nested array pattern) with initializer', () => {

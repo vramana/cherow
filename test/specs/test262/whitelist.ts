@@ -40,7 +40,7 @@ const f: any = {
         'db41a80ccf646002.js',
         'dc5864c9096ad0a8.js',
         'e3fbcf63d7e43ead.js',
-        'fd2a45941e114896.js',
+        'fd2a45941e114896.js'
     ],
     early: [
 
@@ -144,7 +144,7 @@ const f: any = {
         'fa56fc427be3e801.module.js',
         '0cda0bd08ee5f32a.js',
          '805c7f7e24771841.js',
-         'e929ff0c0dcb70c0.js'
+         'e929ff0c0dcb70c0.js',
     ]
 };
 

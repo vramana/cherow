@@ -214,10 +214,6 @@ describe('Statements - For in', () => {
         expect(() => { parseScript('for(({a}) in 0);')}).to.throw();
     });
 
-    it('should throw on "for(var a in b, c);"', () => {
-        expect(() => { parseScript('for(var a in b, c);')}).to.not.throw();
-    });
-
     it('should throw on "for (a = 0 in {});"', () => {
         expect(() => { parseScript('for (a = 0 in {});')}).to.throw();
     });
@@ -270,7 +266,7 @@ describe('Statements - For in', () => {
     it('should fail on invalid LHS assignment', () => {
         expect(() => {
             parseScript('for ((this) in {}) {}');
-        }).to.throw();
+          }).to.throw();
     });
     it('should fail on invalid LHS assignment', () => {
         expect(() => {
@@ -336,7 +332,7 @@ describe('Statements - For in', () => {
     it('should fail on "for(let ? b : c in 0);"', () => {
         expect(() => {
             parseScript('for(let ? b : c in 0);');
-        }).to.throw();
+          }).to.throw();
     });
 
     it('should fail on "for(([{}]) in 0);"', () => {

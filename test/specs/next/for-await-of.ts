@@ -35,6 +35,14 @@ describe('Next - For await of', () => {
 
     it("should fail if `yield` appears within the Initializer of an AssignmentElement outside of a generator function body", () => {
         expect(() => {
+            parseScript(`async function fn() { for await ([{ x }] in [[ , ]]) { } }`, {
+                next: true
+            })
+        }).to.throw();
+    });
+
+    it("should fail if `yield` appears within the Initializer of an AssignmentElement outside of a generator function body", () => {
+        expect(() => {
             parseScript(`"use strict"; async function fn() { for await ([[x[yield]]] of [[[]]]) }`, {
                 next: true
             })

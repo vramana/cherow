@@ -5,11 +5,11 @@ Programs can be skipped in the whitelist file, but none are skipped for now!
 **Postive results**
 
  - 50062 valid programs parsed without error
- - 3546 invalid programs produced a parsing error
+ - 3556 invalid programs produced a parsing error
 
  **Negative results**
 
- - 284 invalid programs did not produce a parsing error
+ - 274 invalid programs did not produce a parsing error
 
 ### How to
 
@@ -24,6 +24,7 @@ The rest results are not so bad as they may look like. Some of the tests that ca
 - language\function-code\switch-case-decl-strict.js
 - language/statements/try/scope-catch-block-lex-close.js
 - language\statements\for-of\dstr-obj-rest-put-const.js
+
 *.. and many more*
 
 

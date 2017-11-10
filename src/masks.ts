@@ -76,17 +76,6 @@ export const enum Flags {
     GlobalReturn = OptionsGlobalReturn |  InFunctionBody
 }
 
-// Flags used in 'ForStatement'
-export const enum IterationState {
-    None        = 0,
-    Var         = 1 << 0,
-    Const       = 1 << 1,
-    Let         = 1 << 2,
-    Await       = 1 << 3,
-    Lexical     = Const | Let,
-    Variable    = Var | Const | Let,
-}
-
 export const enum NumberState {
     None        = 0,
     Float       = 1 << 1, // e.g. `09.01`

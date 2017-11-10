@@ -2,7 +2,7 @@ import { Chars } from './chars';
 import * as ESTree from './estree';
 import { hasOwn, toHex, fromCodePoint, hasMask, isPrologueDirective } from './common';
 import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget } from './validate';
-import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, Scanner, ParenthesizedState, IterationState, NumberState, ArrayState, Escape } from './masks';
+import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, Scanner, ParenthesizedState, NumberState, ArrayState, Escape } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
@@ -1743,21 +1743,17 @@ export class Parser {
             }
         }
     
+    
         private parseModuleItemList(context: Context): ESTree.Statement[] {
-            // ecma262/#prod-Module
-            // Module :
-            //    ModuleBody?
-            //
-            // ecma262/#prod-ModuleItemList
-            // ModuleBody :
-            //   ModuleItem*
     
             const statements: ESTree.Statement[] = [];
     
-            while (this.token !== Token.EndOfSource) {
-                if (this.token !== Token.StringLiteral) break;
-                const item: ESTree.Statement = this.parseDirective(context);
-                statements.push(item);
+            // Note: Only enable the ESTree directive node for modules if the
+            // option are set for it. 
+            if (this.flags & Flags.OptionsDirectives) {
+                while (this.token === Token.StringLiteral) {
+                    statements.push(this.parseDirective(context));
+                }
             }
     
             while (this.token !== Token.EndOfSource) {
@@ -1767,33 +1763,36 @@ export class Parser {
             return statements;
         }
     
+    
         private parseDirective(context: Context): ESTree.ExpressionStatement {
             const pos = this.getLocations();
-            if (this.flags & Flags.OptionsDirectives) {
-                const expr = this.parseExpression(context, pos);
-                const directive = this.tokenRaw.slice(1, -1);
-                this.consumeSemicolon(context);
-                const node = this.finishNode(pos, {
-                    type: 'ExpressionStatement',
-                    expression: expr,
-                    directive
-                });
+            const expr = this.parseExpression(context, pos);
+            const directive = this.tokenRaw.slice(1, -1);
+            this.consumeSemicolon(context);
+            const node = this.finishNode(pos, {
+                type: 'ExpressionStatement',
+                expression: expr,
+                directive
+            });
     
-                return node;
-            }
-    
-            return context & Context.Module ? this.parseModuleItem(context) : this.parseStatementListItem(context);
+            return node;
         }
     
         private parseStatementList(context: Context, endToken: Token): ESTree.Statement[] {
     
             const statements: ESTree.Statement[] = [];
+            const enableDirectiveNode = !!(this.flags & Flags.OptionsDirectives);
     
-            while (this.token !== endToken) {
-                if (this.token !== Token.StringLiteral) break;
-                const item: ESTree.Statement = this.parseDirective(context);
+            while (this.token === Token.StringLiteral) {
+    
+                const item: ESTree.Statement = enableDirectiveNode ?
+                    this.parseDirective(context) :
+                    this.parseStatementListItem(context);
+    
                 statements.push(item);
+    
                 if (!isPrologueDirective(item)) break;
+    
                 if (this.flags & Flags.HasStrictDirective) {
                     if (this.flags & Flags.SimpleParameterList) this.error(Errors.IllegalUseStrict);
                     if (this.flags & Flags.BindingPosition) this.error(Errors.UnexpectedStrictReserved);
@@ -1807,6 +1806,7 @@ export class Parser {
     
             return statements;
         }
+    
     
         private getLocations(): Location {
             return {
@@ -2453,8 +2453,9 @@ export class Parser {
             const pos = this.getLocations();
             const body: ESTree.Statement[] = [];
             this.expect(context, Token.LeftBrace);
-
+    
             if (this.token !== Token.RightBrace) {
+               
                 const blockScope = this.blockScope;
                 const parentScope = this.parentScope;
                 if (blockScope != null) this.parentScope = blockScope;
@@ -2464,9 +2465,9 @@ export class Parser {
                 while (this.token !== Token.RightBrace) {
                     body.push(this.parseStatementListItem(context | Context.TopLevel));
                 }
-
+    
                 this.flags = flag;
-
+    
                 this.blockScope = blockScope;
                 if (parentScope != null) this.parentScope = parentScope;
             }
@@ -2680,7 +2681,7 @@ export class Parser {
             });
         }
     
-        private parseForStatement(context: Context): any {
+        private parseForStatement(context: Context): ESTree.ForOfStatement | ESTree.ForInStatement | ESTree.ForStatement {
     
             const pos = this.getLocations();
     
@@ -2692,15 +2693,9 @@ export class Parser {
             let body;
             let test = null;
             let token = this.token;
-            let state = IterationState.None;
-    
-            // Asynchronous Iteration - Stage 3 proposal
-            if (context & Context.Await && this.parseEventually(context, Token.AwaitKeyword)) {
-                // Throw " Unexpected token 'await'" if the option 'next' flag isn't set
-                if (!(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(token));
-                state |= IterationState.Await;
-            }
-    
+            
+            const awaitToken = !!(context & Context.Await) && this.parseEventually(context, Token.AwaitKeyword);
+
             const savedFlag = this.flags;
     
             // Create a lexical scope node around the whole ForStatement
@@ -2715,131 +2710,125 @@ export class Parser {
     
             token = this.token;
     
+            let startExpression = false;
+    
             if (this.token !== Token.Semicolon) {
+                if (hasMask(this.token, Token.VarDeclStart)) {
+                    const startIndex = this.getLocations()
+                    if (this.parseEventually(context, Token.VarKeyword)) {
+                        declarations = this.parseVariableDeclarationList(context & ~Context.AllowIn | Context.ForStatement);
+                    } else if (this.parseEventually(context, Token.ConstKeyword)) {
+                        declarations = this.parseVariableDeclarationList(context | Context.Const | Context.AllowIn | Context.ForStatement);
+                    } else if (this.isLexical(context) && this.parseEventually(context, Token.LetKeyword)) {
+                        declarations = this.parseVariableDeclarationList(context | Context.Let | Context.AllowIn | Context.ForStatement);
+                    } else {
+                        init = this.parseExpression(context & ~Context.AllowIn | Context.ForStatement, pos);
+                    }
     
-                const startIndex = this.getLocations();
+                    if (declarations) {
+                        startExpression = true;
+                        init = this.finishNode(startIndex, {
+                            type: 'VariableDeclaration',
+                            declarations,
+                            kind: tokenDesc(token)
+                        });
+                    }
     
-                if (this.isLexical(context) && this.parseEventually(context, Token.LetKeyword)) {
-                    state |= IterationState.Let;
-                    declarations = this.parseVariableDeclarationList(context | (Context.Let | Context.AllowIn | Context.ForStatement));
-                } else if (this.parseEventually(context, Token.VarKeyword)) {
-                    state |= IterationState.Var;
-                    declarations = this.parseVariableDeclarationList(context | Context.ForStatement);
-                } else if (this.parseEventually(context, Token.ConstKeyword)) {
-                    state |= IterationState.Const;
-                    declarations = this.parseVariableDeclarationList(context | (Context.Const | Context.AllowIn | Context.ForStatement));
                 } else {
                     init = this.parseExpression(context & ~Context.AllowIn | Context.ForStatement, pos);
                 }
-    
-                if (state & (IterationState.Lexical | IterationState.Var)) {
-                    init = this.finishNode(startIndex, {
-                        type: 'VariableDeclaration',
-                        declarations,
-                        kind: tokenDesc(token)
-                    });
-                }
             }
+    
+            if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+            
+            if (this.parseEventually(context, Token.OfKeyword)) {
+                
+                if (awaitToken && !(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(token));
+    
+                if (startExpression) {
+                    if (declarations && declarations[0].init != null) this.error(Errors.InvalidVarInitForOf);
+                } else {
+                    this.reinterpretAsPattern(context | Context.ForStatement, init);
+                    if (!isValidDestructuringAssignmentTarget(init)) this.error(Errors.InvalidLHSInForLoop);
+                }
+    
+                const right = this.parseAssignmentExpression(context);
+    
+                this.expect(context, Token.RightParen);
+    
+                this.flags |= Flags.Iteration;
+    
+                body = this.parseStatement(context & ~Context.TopLevel | Context.ForStatement);
+    
+                this.flags = savedFlag;
+    
+                return this.finishNode(pos, {
+                    type: 'ForOfStatement',
+                    body,
+                    left: init,
+                    right,
+                    await: awaitToken
+                });
+            }
+
+            if (awaitToken) this.error(Errors.Unexpected);
+
+            if (this.parseEventually(context, Token.InKeyword)) {
+
+                if (startExpression) {
+                    if (declarations && declarations.length !== 1) this.error(Errors.Unexpected);
+                } else {
+                    this.reinterpretAsPattern(context | Context.ForStatement, init);
+                }
+
+                test = this.parseExpression(context, pos);
+    
+                this.expect(context, Token.RightParen);
+    
+                this.flags |= Flags.Iteration;
+    
+                body = this.parseStatement(context & ~Context.TopLevel | Context.ForStatement);
+    
+                this.flags = savedFlag;
+    
+                return this.finishNode(pos, {
+                    type: 'ForInStatement',
+                    body,
+                    left: init,
+                    right: test
+                });
+            }
+    
+            let update = null;
+            
+            this.expect(context, Token.Semicolon);
+    
+            if (this.token !== Token.Semicolon && this.token !== Token.RightParen) {
+                test = this.parseExpression(context, pos);
+            }
+    
+            this.expect(context, Token.Semicolon);
+    
+            if (this.token !== Token.RightParen) update = this.parseExpression(context, pos);
+    
+            this.expect(context, Token.RightParen);
+    
+            this.flags |= Flags.Iteration;
+    
+            body = this.parseStatement(context & ~Context.TopLevel | Context.ForStatement);
     
             this.flags = savedFlag;
     
-            switch (this.token) {
+            this.blockScope = blockScope;
+            if (blockScope !== undefined) this.parentScope = parentScope;
     
-                // 'of'
-                case Token.OfKeyword:
-                    if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
-                    this.parseEventually(context, Token.OfKeyword);
-                    if (state & IterationState.Variable) {
-                        // Only a single variable declaration is allowed in a for of statement
-                        if (declarations && declarations[0].init != null) this.error(Errors.InvalidVarInitForOf);
-                    } else {
-                        this.reinterpretAsPattern(context | Context.ForStatement, init);
-                        if (!isValidDestructuringAssignmentTarget(init)) this.error(Errors.InvalidLHSInForLoop);
-                    }
-    
-                    const right = this.parseAssignmentExpression(context);
-    
-                    this.expect(context, Token.RightParen);
-    
-                    this.flags |= Flags.Iteration;
-    
-                    body = this.parseStatement(context & ~Context.TopLevel | Context.ForStatement);
-    
-                    this.flags = savedFlag;
-    
-                    return this.finishNode(pos, {
-                        type: 'ForOfStatement',
-                        body,
-                        left: init,
-                        right,
-                        await: !!(state & IterationState.Await)
-                    });
-    
-                    // 'in'
-                case Token.InKeyword:
-    
-                    if (state & IterationState.Variable) {
-                        if (declarations && declarations.length !== 1) this.error(Errors.Unexpected);
-                    } else {
-                        this.reinterpretAsPattern(context | Context.ForStatement, init);
-                    }
-    
-                    if (state & IterationState.Await) this.error(Errors.ForAwaitNotOf);
-    
-                    this.expect(context, Token.InKeyword);
-    
-                    test = this.parseExpression(context, pos);
-    
-                    this.expect(context, Token.RightParen);
-    
-                    this.flags |= Flags.Iteration;
-    
-                    body = this.parseStatement(context & ~Context.TopLevel | Context.ForStatement);
-    
-                    this.flags = savedFlag;
-    
-                    return this.finishNode(pos, {
-                        type: 'ForInStatement',
-                        body,
-                        left: init,
-                        right: test
-                    });
-    
-                default:
-    
-                    if (state & IterationState.Await) this.error(Errors.ForAwaitNotOf);
-    
-                    let update = null;
-    
-                    this.expect(context, Token.Semicolon);
-    
-                    if (this.token !== Token.Semicolon && this.token !== Token.RightParen) {
-                        test = this.parseExpression(context, pos);
-                    }
-    
-                    this.expect(context, Token.Semicolon);
-    
-                    if (this.token !== Token.RightParen) update = this.parseExpression(context, pos);
-    
-                    this.expect(context, Token.RightParen);
-    
-                    this.flags |= Flags.Iteration;
-    
-                    body = this.parseStatement(context & ~Context.TopLevel | Context.ForStatement);
-    
-                    this.flags = savedFlag;
-    
-                    this.blockScope = blockScope;
-                    if (blockScope !== undefined) this.parentScope = parentScope;
-    
-                    return this.finishNode(pos, {
-                        type: 'ForStatement',
-                        body,
-                        init,
-                        test,
-                        update
-                    });
-            }
+            return this.finishNode(pos, {
+                type: 'ForStatement',
+                body,
+                init,
+                test,
+                update
+            });
         }
     
         private parseIfStatementChild(context: Context): ESTree.Statement {
