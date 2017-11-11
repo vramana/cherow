@@ -2,8 +2,6 @@ import { Chars } from './chars';
 import { Statement, ExpressionStatement, Literal, Expression, Pattern } from './estree';
 import { Flags } from './masks';
 
-export const hasOwn = Object.prototype.hasOwnProperty;
-
 export function isPrologueDirective(node: Statement): node is ExpressionStatement & {
     expression: Literal & {
         value: string
@@ -19,7 +17,8 @@ export function hasMask(mask: number, flags: number) {
 
 export function fromCodePoint(codePoint: Chars): string {
     if (codePoint <= 0xFFFF) return String.fromCharCode(codePoint);
-    return String.fromCharCode(((codePoint - 0x10000) >> 10) + 0x0D800, ((codePoint - 0x10000) & (1024 - 1)) + 0x0DC00);
+    return String.fromCharCode(((codePoint - Chars.NonBMPMin) >> 10) +
+        Chars.LeadSurrogateMin, ((codePoint - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
 }
 
 export function toHex(code: Chars): number {

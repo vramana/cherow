@@ -1042,8 +1042,9 @@ Parser.prototype.skipComments = function skipComments (state) {
         { this.error(2 /* UnterminatedComment */); }
     if (state & 24 /* Collectable */ && this.flags & 8388608 /* OptionsComments */) {
         var loc = {};
-        var commentStart;
-        var commentEnd;
+        var commentStart = this.startIndex;
+        
+        var commentEnd = this.index;
         var type = state & 8 /* MultiLine */ ? 'Block' : 'Line';
         var value = this.source.slice(start, state & 8 /* MultiLine */ ? this.index - 2 : this.index);
         if (this.flags & 131072 /* OptionsLoc */) {
@@ -1058,14 +1059,10 @@ Parser.prototype.skipComments = function skipComments (state) {
                 }
             };
         }
-        if (this.flags & 65536 /* OptionsRanges */) {
-            commentStart = this.startIndex;
-            commentEnd = this.index;
-        }
         if (typeof this.comments === 'function') {
             this.comments(type, value, commentStart, commentEnd, loc);
         }
-        else if (Array.isArray(this.comments)) {
+        if (Array.isArray(this.comments)) {
             var node = {
                 type: type,
                 value: value,
@@ -1562,17 +1559,6 @@ Parser.prototype.scanEscape = function scanEscape (context, cp, isTemplate) {
         case 118 /* LowerV */:
             return 11 /* VerticalTab */;
         case 13 /* CarriageReturn */:
-            {
-                var index = this.index;
-                if (index < this.source.length) {
-                    var ch = this.source.charCodeAt(index);
-                    if (ch === 10 /* LineFeed */) {
-                        this.lastChar = ch;
-                        this.index = index + 1;
-                    }
-                }
-            }
-        // falls through
         case 10 /* LineFeed */:
         case 8232 /* LineSeparator */:
         case 8233 /* ParagraphSeparator */:
@@ -1586,36 +1572,34 @@ Parser.prototype.scanEscape = function scanEscape (context, cp, isTemplate) {
         case 51 /* Three */:
             {
                 var code = cp - 48;
-                var index$1 = this.index + 1;
+                var index = this.index + 1;
                 var column = this.column + 1;
                 if (isTemplate && !(context & 2097152 /* TaggedTemplate */))
                     { return -6 /* TemplateOctalLiteral */; }
-                if (index$1 < this.source.length) {
-                    var next = this.source.charCodeAt(index$1);
-                    if (next < 48 /* Zero */ || next > 55 /* Seven */) {
-                        if (code !== 0 && context & 2 /* Strict */)
-                            { return -2 /* StrictOctal */; }
-                    }
-                    else if (context & 2 /* Strict */) {
-                        return -2 /* StrictOctal */;
-                    }
-                    else {
-                        this.lastChar = next;
-                        code = (code << 3) | (next - 48 /* Zero */);
-                        index$1++;
-                        column++;
-                        if (index$1 < this.source.length) {
-                            next = this.source.charCodeAt(index$1);
-                            if (next >= 48 /* Zero */ && next <= 55 /* Seven */) {
-                                this.lastChar = next;
-                                code = (code << 3) | (next - 48 /* Zero */);
-                                index$1++;
-                                column++;
-                            }
+                var next = this.source.charCodeAt(index);
+                if (next < 48 /* Zero */ || next > 55 /* Seven */) {
+                    if (code !== 0 && context & 2 /* Strict */)
+                        { return -2 /* StrictOctal */; }
+                }
+                else if (context & 2 /* Strict */) {
+                    return -2 /* StrictOctal */;
+                }
+                else {
+                    this.lastChar = next;
+                    code = (code << 3) | (next - 48 /* Zero */);
+                    index++;
+                    column++;
+                    if (index < this.source.length) {
+                        next = this.source.charCodeAt(index);
+                        if (next >= 48 /* Zero */ && next <= 55 /* Seven */) {
+                            this.lastChar = next;
+                            code = (code << 3) | (next - 48 /* Zero */);
+                            index++;
+                            column++;
                         }
-                        this.index = index$1 - 1;
-                        this.column = column - 1;
                     }
+                    this.index = index - 1;
+                    this.column = column - 1;
                 }
                 return code;
             }
@@ -1631,16 +1615,14 @@ Parser.prototype.scanEscape = function scanEscape (context, cp, isTemplate) {
                     return -2 /* StrictOctal */;
                 }
                 var code$1 = cp - 48;
-                var index$2 = this.index + 1;
+                var index$1 = this.index + 1;
                 var column$1 = this.column + 1;
-                if (index$2 < this.source.length) {
-                    var next$1 = this.source.charCodeAt(index$2);
-                    if (next$1 >= 48 /* Zero */ && next$1 <= 55 /* Seven */) {
-                        code$1 = (code$1 << 3) | (next$1 - 48 /* Zero */);
-                        this.lastChar = next$1;
-                        this.index = index$2;
-                        this.column = column$1;
-                    }
+                var next$1 = this.source.charCodeAt(index$1);
+                if (next$1 >= 48 /* Zero */ && next$1 <= 55 /* Seven */) {
+                    code$1 = (code$1 << 3) | (next$1 - 48 /* Zero */);
+                    this.lastChar = next$1;
+                    this.index = index$1;
+                    this.column = column$1;
                 }
                 return code$1;
             }
@@ -1664,33 +1646,33 @@ Parser.prototype.scanEscape = function scanEscape (context, cp, isTemplate) {
         // UCS-2/Unicode escapes
         case 117 /* LowerU */:
             {
-                var ch$1 = this.lastChar = this.scanNext(cp);
-                if (ch$1 === 123 /* LeftBrace */) {
+                var ch = this.lastChar = this.scanNext(cp);
+                if (ch === 123 /* LeftBrace */) {
                     // \u{N}
-                    ch$1 = this.lastChar = this.scanNext(ch$1);
-                    var code$2 = toHex(ch$1);
+                    ch = this.lastChar = this.scanNext(ch);
+                    var code$2 = toHex(ch);
                     if (code$2 < 0)
                         { return -4 /* InvalidHex */; }
-                    ch$1 = this.lastChar = this.scanNext(ch$1);
-                    while (ch$1 !== 125 /* RightBrace */) {
-                        var digit = toHex(ch$1);
+                    ch = this.lastChar = this.scanNext(ch);
+                    while (ch !== 125 /* RightBrace */) {
+                        var digit = toHex(ch);
                         if (digit < 0)
                             { return -4 /* InvalidHex */; }
                         code$2 = code$2 << 4 | digit;
                         if (code$2 > 1114111 /* LastUnicodeChar */)
                             { return -5 /* OutOfRange */; }
-                        ch$1 = this$1.lastChar = this$1.scanNext(ch$1);
+                        ch = this$1.lastChar = this$1.scanNext(ch);
                     }
                     return code$2;
                 }
                 else {
                     // \uNNNN
-                    var code$3 = toHex(ch$1);
+                    var code$3 = toHex(ch);
                     if (code$3 < 0)
                         { return -4 /* InvalidHex */; }
                     for (var i = 0; i < 3; i++) {
-                        ch$1 = this$1.lastChar = this$1.scanNext(ch$1);
-                        var digit$1 = toHex(ch$1);
+                        ch = this$1.lastChar = this$1.scanNext(ch);
+                        var digit$1 = toHex(ch);
                         if (digit$1 < 0)
                             { return -4 /* InvalidHex */; }
                         code$3 = code$3 << 4 | digit$1;
@@ -2525,7 +2507,7 @@ Parser.prototype.parseCatchClause = function parseCatchClause (context) {
     var param = null;
     if (!(this.flags & 2097152 /* OptionsNext */) || this.token === 262155 /* LeftParen */) {
         this.expect(context, 262155 /* LeftParen */);
-        this.addCatchArg(this.tokenValue, 1 /* Shadowable */);
+        this.addCatchArg(this.tokenValue);
         param = this.parseBindingPatternOrIdentifier(context, pos);
         this.expect(context, 16 /* RightParen */);
     }

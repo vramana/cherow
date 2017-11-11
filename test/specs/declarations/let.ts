@@ -35,13 +35,13 @@ describe('Declarations - Let', () => {
               parseScript(`for (let let in {}) { }`);
           }).to.throw();
       });
-  
+      
       it('should fail on let in array pattern without initializer', () => {
           expect(() => {
               parseScript('let [x]');
           }).to.throw();
       });
-  
+
       it('should fail on let in object pattern without initializer', () => {
           expect(() => {
               parseScript('let {x}');

@@ -1904,45 +1904,6 @@ describe('Espressions - Template', () => {
     });
 
     it('should parse line terminator', () => {
-        expect(parseScript('var source = `\u{1F4AA}`;', {
-            ranges: false,
-            raw: true
-        })).to.eql({
-              "body": [
-                {
-                  "declarations": [
-                    {
-                      "id": {
-                        "name": "source",
-                        "type": "Identifier"
-                      },
-                      "init": {
-                        "expressions": [],
-                        "quasis": [
-                          {
-                            "tail": true,
-                            "type": "TemplateElement",
-                            "value": {
-                              "cooked": "💪",
-                              "raw": "💪"
-                            },
-                          },
-                        ],
-                        "type": "TemplateLiteral"
-                      },
-                      "type": "VariableDeclarator"
-                    }
-                  ],
-                  "kind": "var",
-                  "type": "VariableDeclaration"
-                }
-              ],
-              "sourceType": "script",
-              "type": "Program"
-            });
-    });
-
-    it('should parse line terminator', () => {
         expect(parseScript('var source = `\b`;', {
             ranges: false,
             raw: true

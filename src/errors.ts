@@ -116,7 +116,8 @@ export const enum Errors {
     InvalidGeneratorParam,
     DefaultRestParameter,
     IllegalArrowFuncParamList,
-    InvalidLetDeclBinding
+    InvalidLetDeclBinding,
+    ReservedKeyword
 }
 
 export const ErrorMessages: {
@@ -236,7 +237,9 @@ export const ErrorMessages: {
     [Errors.InvalidWithBody]: 'The body of a with statement must not be a labeled function declaration',
     [Errors.InvalidGeneratorParam]: 'Generator parameters must not contain yield expressions',
     [Errors.IllegalArrowFuncParamList]: 'Illegal arrow function parameter list',
-    [Errors.InvalidLetDeclBinding]: 'Lexical declarations must not have a binding named "let"'
+    [Errors.InvalidLetDeclBinding]: 'Lexical declarations must not have a binding named "let"',
+    [Errors.ReservedKeyword]: 'The keyword %0 is reserved'
+    
     
 
 };

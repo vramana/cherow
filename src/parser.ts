@@ -1,6 +1,6 @@
 import { Chars } from './chars';
 import * as ESTree from './estree';
-import { hasOwn, toHex, fromCodePoint, hasMask, isPrologueDirective } from './common';
+import { toHex, fromCodePoint, hasMask, isPrologueDirective } from './common';
 import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget } from './validate';
 import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, Scanner, ParenthesizedState, NumberState, ArrayState, Escape } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
@@ -5083,7 +5083,7 @@ export class Parser {
                     // Check `var` variables
                     this.blockScope[name] === ScopeMasks.Shadowable ||
                     // Check variables in current block only
-                    hasOwn.call(this.blockScope, name)
+                    Object.prototype.hasOwnProperty.call(this.blockScope, name)
                 )) {
                 this.error(Errors.DuplicateIdentifier, name);
             }
@@ -5172,7 +5172,7 @@ export class Parser {
         }
     
         private parseBindingIdentifier(context: Context): ESTree.Identifier {
-    
+         
             if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
     
             if (context & Context.Lexical && this.token === Token.LetKeyword) {
