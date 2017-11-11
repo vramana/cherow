@@ -106,13 +106,7 @@ describe('Statements - For in', () => {
             parseScript('for (var {a} = 0 in {});');
         }).to.throw();
     });
-
-    it('should fail "for ([...x, ...y] in [[]]) ;"', () => {
-        expect(() => {
-            parseScript('for ([...x, ...y] in [[]]) ;');
-        }).to.not.throw();
-    });
-
+   
     it('should fail on assignment rest element with an initializer', () => {
         expect(() => {
             parseScript('for ([...x = 1] in [[]]) ;');
@@ -183,13 +177,6 @@ describe('Statements - For in', () => {
         expect(() => {
             parseScript('for (let x in {}) label1: label2: function f() {}');
         }).to.throw();
-    });
-
-    it('should fail on new line"', () => {
-        expect(() => {
-            parseScript(`for (var x in null) let
-            [a] = 0;`);
-        }).to.not.throw('');
     });
 
     it('should fail on "for (var x in {}) label1: label2: function f() {}"', () => {
@@ -405,6 +392,214 @@ describe('Statements - For in', () => {
             parseScript(`for (var [p]=0 in q);`);
         }).to.throw();
     });
+
+  it('should parse for in inside function body', () => {
+    expect(parseScript(`(function(){
+      for (attr in attrs) {
+        }
+  }).call(this);`, {
+        ranges: true,
+        raw: true,
+        next: true,
+        locations: true
+    })).to.eql({
+      "type": "Program",
+      "start": 0,
+      "end": 67,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 0
+        },
+        "end": {
+          "line": 4,
+          "column": 16
+        }
+      },
+      "body": [
+        {
+          "type": "ExpressionStatement",
+          "start": 0,
+          "end": 67,
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 0
+            },
+            "end": {
+              "line": 4,
+              "column": 16
+            }
+          },
+          "expression": {
+            "type": "CallExpression",
+            "start": 0,
+            "end": 66,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 4,
+                "column": 15
+              }
+            },
+            "callee": {
+              "type": "MemberExpression",
+              "start": 0,
+              "end": 60,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 4,
+                  "column": 9
+                }
+              },
+              "object": {
+                "type": "FunctionExpression",
+                "start": 1,
+                "end": 54,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 1
+                  },
+                  "end": {
+                    "line": 4,
+                    "column": 3
+                  }
+                },
+                "id": null,
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 11,
+                  "end": 54,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 11
+                    },
+                    "end": {
+                      "line": 4,
+                      "column": 3
+                    }
+                  },
+                  "body": [
+                    {
+                      "type": "ForInStatement",
+                      "start": 19,
+                      "end": 50,
+                      "loc": {
+                        "start": {
+                          "line": 2,
+                          "column": 6
+                        },
+                        "end": {
+                          "line": 3,
+                          "column": 9
+                        }
+                      },
+                      "left": {
+                        "type": "Identifier",
+                        "start": 24,
+                        "end": 28,
+                        "loc": {
+                          "start": {
+                            "line": 2,
+                            "column": 11
+                          },
+                          "end": {
+                            "line": 2,
+                            "column": 15
+                          }
+                        },
+                        "name": "attr"
+                      },
+                      "right": {
+                        "type": "Identifier",
+                        "start": 32,
+                        "end": 37,
+                        "loc": {
+                          "start": {
+                            "line": 2,
+                            "column": 19
+                          },
+                          "end": {
+                            "line": 2,
+                            "column": 24
+                          }
+                        },
+                        "name": "attrs"
+                      },
+                      "body": {
+                        "type": "BlockStatement",
+                        "start": 39,
+                        "end": 50,
+                        "loc": {
+                          "start": {
+                            "line": 2,
+                            "column": 26
+                          },
+                          "end": {
+                            "line": 3,
+                            "column": 9
+                          }
+                        },
+                        "body": []
+                      }
+                    }
+                  ]
+                }
+              },
+              "property": {
+                "type": "Identifier",
+                "start": 56,
+                "end": 60,
+                "loc": {
+                  "start": {
+                    "line": 4,
+                    "column": 5
+                  },
+                  "end": {
+                    "line": 4,
+                    "column": 9
+                  }
+                },
+                "name": "call"
+              },
+              "computed": false
+            },
+            "arguments": [
+              {
+                "type": "ThisExpression",
+                "start": 61,
+                "end": 65,
+                "loc": {
+                  "start": {
+                    "line": 4,
+                    "column": 10
+                  },
+                  "end": {
+                    "line": 4,
+                    "column": 14
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "sourceType": "script"
+    });
+  });
 
     it('should parse "for ([...foo, bar].baz in qux);', () => {
       expect(parseScript(`for ([...foo, bar].baz in qux);`, {
