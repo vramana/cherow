@@ -1,12 +1,3 @@
-import { Chars } from './chars';
-import * as ESTree from './estree';
-import { hasOwn, toHex, fromCodePoint, hasMask, isPrologueDirective } from './common';
-import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget } from './validate';
-import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, Scanner, ParenthesizedState, NumberState, ArrayState, Escape } from './masks';
-import { Token, tokenDesc, descKeyword } from './token';
-import { createError, Errors } from './errors';
-import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
-import { Options, SavedState, Location, EmitComments } from './interface';
 export class Parser {
     
         // The program to be parsed
@@ -5197,31 +5188,26 @@ export class Parser {
                     return this.ObjectAssignmentPattern(context, pos);
     
                 case Token.YieldKeyword:
-                    if (context & Context.Yield) {
-                        this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                    }
-                    if (context & Context.Strict) {
-                        if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+                    if (context & (Context.Yield | Context.Strict)) {
                         this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                     }
     
                 case Token.AwaitKeyword:
                     if (context & (Context.Module | Context.Await)) this.throwUnexpectedToken();
-                    return this.parseBindingIdentifier(context);
-    
-                case Token.LetKeyword:
-                    if (context & Context.Strict) {
-                        this.error(Errors.InvalidStrictLexical);
-                    }
-                    if (context & Context.Lexical) this.error(Errors.LetInLexicalBinding);
     
                 default:
-                    if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
+    
                     return this.parseBindingIdentifier(context);
             }
         }
     
         private parseBindingIdentifier(context: Context): ESTree.Identifier {
+    
+            if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
+    
+            if (context & Context.Lexical && this.token === Token.LetKeyword) {
+                this.error(Errors.LetInLexicalBinding);
+            }
     
             const pos = this.getLocations();
     
