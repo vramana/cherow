@@ -1,3 +1,12 @@
+import { Chars } from './chars';
+import * as ESTree from './estree';
+import { hasOwn, toHex, fromCodePoint, hasMask, isPrologueDirective } from './common';
+import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget } from './validate';
+import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, Scanner, ParenthesizedState, NumberState, ArrayState, Escape } from './masks';
+import { Token, tokenDesc, descKeyword } from './token';
+import { createError, Errors } from './errors';
+import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
+import { Options, SavedState, Location, EmitComments } from './interface';
 export class Parser {
     
         // The program to be parsed
