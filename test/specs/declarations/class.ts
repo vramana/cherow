@@ -26,6 +26,13 @@ describe('Declarations - Class', () => {
         }).to.throw();
     });
 
+    
+    it('should fail on "class Foo { * }"', () => {
+      expect(() => {
+          parseScript(`class Foo { * }`);
+      }).to.throw();
+  });
+  
     it('should fail on invalid use of await as binding', () => {
         expect(() => {
             parseScript(`class C { async method() { var await;  }}`);

@@ -44,7 +44,7 @@ describe('Declarations - Let', () => {
   
       it('should fail on let in object pattern without initializer', () => {
           expect(() => {
-              parseScript('let [x]');
+              parseScript('let {x}');
           }).to.throw();
       });
   

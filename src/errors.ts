@@ -94,6 +94,7 @@ export const enum Errors {
     MissingInitializer,
     InvalidLabeledForOf,
     InvalidVarDeclInForIn,
+    InvalidVarDeclInForOf,
     InvalidNoctalInteger,
     InvalidRadix,
     UnexpectedTokenNumber,
@@ -152,7 +153,7 @@ export const ErrorMessages: {
     [Errors.StrictFunctionName]: 'Function name may not be eval or arguments in strict mode code',
     [Errors.UnexpectedNewTarget]: 'new.target only allowed within functions',
     [Errors.MetaNotInFunctionBody]: 'new.target only allowed within functions',
-    [Errors.DeclarationMissingInitializer]: 'Missing = in %0 declaration',
+    [Errors.DeclarationMissingInitializer]: 'Missing initializer in destructuring declaration',
     [Errors.InvalidLHSInForLoop]: 'Invalid left-hand side in for-loop',
     [Errors.InvalidVarInitForOf]: ' for-of loop variable declaration may not have an initializer',
     [Errors.InvalidVarInitForIn]: ' for-in loop variable declaration may not have an initializer',
@@ -214,6 +215,7 @@ export const ErrorMessages: {
     [Errors.MissingInitializer]: 'Missing initializer',
     [Errors.InvalidLabeledForOf]: 'The body of a for-of statement must not be a labeled function declaration',
     [Errors.InvalidVarDeclInForIn]: 'Invalid variable declaration in for-in statement',
+    [Errors.InvalidVarDeclInForOf]: 'Invalid variable declaration in for-in statement',
     [Errors.InvalidNoctalInteger]: 'Unexpected noctal integer literal',
     [Errors.InvalidRadix]: 'Expected number in radix',
     [Errors.UnexpectedTokenNumber]: 'Unexpected number',
@@ -234,7 +236,8 @@ export const ErrorMessages: {
     [Errors.InvalidWithBody]: 'The body of a with statement must not be a labeled function declaration',
     [Errors.InvalidGeneratorParam]: 'Generator parameters must not contain yield expressions',
     [Errors.IllegalArrowFuncParamList]: 'Illegal arrow function parameter list',
-    [Errors.InvalidLetDeclBinding]: 'Lexical declarations must not have a binding named "let"',
+    [Errors.InvalidLetDeclBinding]: 'Lexical declarations must not have a binding named "let"'
+    
 
 };
 

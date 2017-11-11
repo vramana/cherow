@@ -263,6 +263,235 @@ describe('Declarations - Functions', () => {
             parseModule(`function foo() {  const bar = function (abc, abc) {}  }`);
         }).to.throw('');
       });
+      
+      it('should parse pattern formal without reinterpet', () => {
+        expect(parseScript(`function a({a} = {a: 1}) {}`, {
+            raw: true,
+            ranges: true,
+            locations: true,
+        })).to.eql({
+            "type": "Program",
+            "start": 0,
+            "end": 27,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 27
+              }
+            },
+            "body": [
+              {
+                "type": "FunctionDeclaration",
+                "start": 0,
+                "end": 27,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 27
+                  }
+                },
+                "id": {
+                  "type": "Identifier",
+                  "start": 9,
+                  "end": 10,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 9
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 10
+                    }
+                  },
+                  "name": "a"
+                },
+                "generator": false,
+                "expression": false,
+                "async": false,
+                "params": [
+                  {
+                    "type": "AssignmentPattern",
+                    "start": 11,
+                    "end": 23,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 11
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 23
+                      }
+                    },
+                    "left": {
+                      "type": "ObjectPattern",
+                      "start": 11,
+                      "end": 14,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 11
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 14
+                        }
+                      },
+                      "properties": [
+                        {
+                          "type": "Property",
+                          "start": 12,
+                          "end": 13,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 12
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 13
+                            }
+                          },
+                          "method": false,
+                          "shorthand": true,
+                          "computed": false,
+                          "key": {
+                            "type": "Identifier",
+                            "start": 12,
+                            "end": 13,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 12
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 13
+                              }
+                            },
+                            "name": "a"
+                          },
+                          "kind": "init",
+                          "value": {
+                            "type": "Identifier",
+                            "start": 12,
+                            "end": 13,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 12
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 13
+                              }
+                            },
+                            "name": "a"
+                          }
+                        }
+                      ]
+                    },
+                    "right": {
+                      "type": "ObjectExpression",
+                      "start": 17,
+                      "end": 23,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 17
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 23
+                        }
+                      },
+                      "properties": [
+                        {
+                          "type": "Property",
+                          "start": 18,
+                          "end": 22,
+                          "loc": {
+                            "start": {
+                              "line": 1,
+                              "column": 18
+                            },
+                            "end": {
+                              "line": 1,
+                              "column": 22
+                            }
+                          },
+                          "method": false,
+                          "shorthand": false,
+                          "computed": false,
+                          "key": {
+                            "type": "Identifier",
+                            "start": 18,
+                            "end": 19,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 18
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 19
+                              }
+                            },
+                            "name": "a"
+                          },
+                          "value": {
+                            "type": "Literal",
+                            "start": 21,
+                            "end": 22,
+                            "loc": {
+                              "start": {
+                                "line": 1,
+                                "column": 21
+                              },
+                              "end": {
+                                "line": 1,
+                                "column": 22
+                              }
+                            },
+                            "value": 1,
+                            "raw": "1"
+                          },
+                          "kind": "init"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "body": {
+                  "type": "BlockStatement",
+                  "start": 25,
+                  "end": 27,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 25
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 27
+                    }
+                  },
+                  "body": []
+                }
+              }
+            ],
+            "sourceType": "script"
+          });
+    });
 
       it('should parse ES2016 strict directive correctly', () => {
         expect(parseScript(`function foo(a) { 'use strict'; }`, {
