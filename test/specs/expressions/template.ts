@@ -747,6 +747,75 @@ describe('Espressions - Template', () => {
             });
     });
 
+    it('should parse "`\\Ц`"', () => {
+        expect(parseScript('`\\Ц`', {
+            locations: true,
+            raw: true
+        })).to.eql({
+             "body": [
+                {
+                  "expression": {
+                    "expressions": [],
+                  "loc": {
+                      "end": {
+                        "column": 4,
+                        "line": 1,
+                      },
+                      "start": {
+                       "column": 0,
+                        "line": 1,
+                      }
+                    },
+                    "quasis": [
+                      {
+                        "loc": {
+                          "end": {
+                            "column": 4,
+                            "line": 1,
+                          },
+                          "start": {
+                            "column": 0,
+                            "line": 1,
+                          }
+                        },
+                        "tail": true,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "Ц",
+                          "raw": "\\Ц",
+                        }
+                      }
+                    ],
+                    "type": "TemplateLiteral",
+                 },
+                  "loc": {
+                    "end": {
+                      "column": 4,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "loc": {
+                "end": {
+                  "column": 4,
+                  "line": 1
+                },
+               "start": {
+                  "column": 0,
+                  "line": 1,
+                }
+              },
+              "sourceType": "script",
+              "type": "Program"
+            });
+    });
+
     it('should parse "`\\f`"', () => {
         expect(parseScript('`\\f`', {
             locations: true,

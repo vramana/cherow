@@ -315,7 +315,6 @@ describe('TC39 - String literals', () => {
         }).to.throw();
     });
 
-
     it('should fail  if missing single quote in module code', () => {
         expect(() => {
             parseModule(`'`)
@@ -696,7 +695,343 @@ describe('TC39 - String literals', () => {
             parseScript('"\\uAAA"')
         }).to.throw();
     });
-    // <!-- foo bar -->
+
+    it('should parse russian small - "\\а"', () => {
+        expect(parseScript(`"\\а"`, {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+              "body": [
+                {
+                  "end": 4,
+                  "expression": {
+                    "end": 4,
+                    "raw": "\"\\а\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "а",
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement"
+               }
+              ],
+              "end": 4,
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
+    it('should parse russian small - "\\ж"', () => {
+        expect(parseScript(`"\\ж"`, {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+              "body": [
+                {
+                  "end": 4,
+                  "expression": {
+                    "end": 4,
+                    "raw": "\"\\ж\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "ж",
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement"
+               }
+              ],
+              "end": 4,
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
+    it('should parse russian small - "\\б"', () => {
+        expect(parseScript(`"\\б"`, {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+              "body": [
+                {
+                  "end": 4,
+                  "expression": {
+                    "end": 4,
+                    "raw": "\"\\б\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "б",
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement"
+               }
+              ],
+              "end": 4,
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
+    it('should parse russian small - "\\д"', () => {
+        expect(parseScript(`"\\д"`, {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+              "body": [
+                {
+                  "end": 4,
+                  "expression": {
+                    "end": 4,
+                    "raw": "\"\\д\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "д",
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement"
+               }
+              ],
+              "end": 4,
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
+    it('should parse russian small - "\\ф"', () => {
+        expect(parseScript(`"\\ф"`, {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+              "body": [
+                {
+                  "end": 4,
+                  "expression": {
+                    "end": 4,
+                    "raw": "\"\\ф\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "ф",
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement"
+               }
+              ],
+              "end": 4,
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
+    it('should parse russian small - "\\ю"', () => {
+        expect(parseScript(`"\\ю"`, {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+              "body": [
+                {
+                  "end": 4,
+                  "expression": {
+                    "end": 4,
+                    "raw": "\"\\ю\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "ю",
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement"
+               }
+              ],
+              "end": 4,
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
+    it('should parse russian large - "\\З"', () => {
+        expect(parseScript(`"\\З"`, {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+              "body": [
+                {
+                  "end": 4,
+                  "expression": {
+                    "end": 4,
+                   "raw": "\"\\З\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "З",
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement",
+                },
+              ],
+              "end": 4,
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
+    it('should parse russian large - "\\С"', () => {
+        expect(parseScript(`"\\С"`, {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+              "body": [
+                {
+                  "end": 4,
+                  "expression": {
+                    "end": 4,
+                   "raw": "\"\\С\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "С",
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement",
+                },
+              ],
+              "end": 4,
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
+    it('should parse russian large - "\\Щ"', () => {
+        expect(parseScript(`"\\Щ"`, {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+              "body": [
+                {
+                  "end": 4,
+                  "expression": {
+                    "end": 4,
+                   "raw": "\"\\Щ\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "Щ",
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement",
+                },
+              ],
+              "end": 4,
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
+    it('should parse russian large - "\\Ь"', () => {
+        expect(parseScript(`"\\Ь"`, {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+              "body": [
+                {
+                  "end": 4,
+                  "expression": {
+                    "end": 4,
+                   "raw": "\"\\Ь\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "Ь",
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement",
+                },
+              ],
+              "end": 4,
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
+    it('should parse russian large - "\\Ц"', () => {
+        expect(parseScript(`"\\Ц"`, {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+              "body": [
+                {
+                  "end": 4,
+                  "expression": {
+                    "end": 4,
+                   "raw": "\"\\Ц\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "Ц",
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement",
+                },
+              ],
+              "end": 4,
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
+    it('should parse russian large - "\\s"', () => {
+        expect(parseScript(`"\\s"`, {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+              "body": [
+                {
+                  "end": 4,
+                  "expression": {
+                    "end": 4,
+                   "raw": "\"\\s\"",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": "s",
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement",
+                },
+              ],
+              "end": 4,
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            });
+    });
+
+      it('should parse "\\r\\n"', () => {
+        expect(parseScript(`"\\r\\n"`, {
+            ranges: true,
+            raw: true,
+        })).to.eql({
+            "type": "Program",
+            "end": 6,
+            "start": 0,
+            "body": [{
+                "type": "ExpressionStatement",
+                "end": 6,
+                "start": 0,
+                "expression": {
+                    "type": "Literal",
+                    "end": 6,
+                    "start": 0,
+                    "value": "\r\n",
+                    "raw": "\"\\r\\n\""
+                }
+            }],
+            "sourceType": "script"
+        })
+    });
+    
     it('should parse "\u0430"', () => {
         expect(parseScript(`"\\u0430"`, {
             ranges: true,

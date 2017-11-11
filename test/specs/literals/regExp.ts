@@ -24,6 +24,18 @@ describe('Literals - RegExp', () => {
         }).to.throw(' Duplicate regular expression flag g');
     });
 
+    it('should fail on regexp with line feed', () => {
+        expect(() => {
+            parseScript(`/\\n\\r`)
+        }).to.throw();
+    });
+
+    it('should fail on regexp with paragrap seperator', () => {
+        expect(() => {
+            parseScript(`/\\2028`)
+        }).to.throw();
+    });
+
     it('should fail on early error duplicate flag', () => {
         expect(() => {
             parseScript(`/./mm;`)

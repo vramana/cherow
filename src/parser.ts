@@ -825,8 +825,8 @@ export class Parser {
     
             if (state & Scanner.Collectable && this.flags & Flags.OptionsComments) {
                 let loc = {};
-                let commentStart;
-                let commentEnd;
+                let commentStart = this.startIndex;;
+                let commentEnd = this.index;
                 let type = state & Scanner.MultiLine ? 'Block' : 'Line';
                 let value = this.source.slice(start, state & Scanner.MultiLine ? this.index - 2 : this.index);
     
@@ -843,14 +843,11 @@ export class Parser {
                     };
                 }
     
-                if (this.flags & Flags.OptionsRanges) {
-                    commentStart = this.startIndex;
-                    commentEnd = this.index;
-                }
-    
                 if (typeof this.comments === 'function') {
                     this.comments(type, value, commentStart as number, commentEnd as number, loc);
-                } else if (Array.isArray(this.comments)) {
+                } 
+                
+                if (Array.isArray(this.comments)) {
     
                     const node: any = {
                         type,
@@ -1416,19 +1413,6 @@ export class Parser {
                     return Chars.VerticalTab;
     
                 case Chars.CarriageReturn:
-                    {
-                        const index = this.index;
-    
-                        if (index < this.source.length) {
-                            const ch = this.source.charCodeAt(index);
-    
-                            if (ch === Chars.LineFeed) {
-                                this.lastChar = ch;
-                                this.index = index + 1;
-                            }
-                        }
-                    }
-                    // falls through
                 case Chars.LineFeed:
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
@@ -1448,8 +1432,7 @@ export class Parser {
     
                         if (isTemplate && !(context & Context.TaggedTemplate)) return Escape.TemplateOctalLiteral;
     
-                        if (index < this.source.length) {
-                            let next = this.source.charCodeAt(index);
+                         let next = this.source.charCodeAt(index);
     
                             if (next < Chars.Zero || next > Chars.Seven) {
                                 if (code !== 0 && context & Context.Strict) return Escape.StrictOctal;
@@ -1475,7 +1458,6 @@ export class Parser {
                                 this.index = index - 1;
                                 this.column = column - 1;
                             }
-                        }
     
                         return code;
                     }
@@ -1497,7 +1479,6 @@ export class Parser {
                         const index = this.index + 1;
                         const column = this.column + 1;
     
-                        if (index < this.source.length) {
                             const next = this.source.charCodeAt(index);
     
                             if (next >= Chars.Zero && next <= Chars.Seven) {
@@ -1506,8 +1487,6 @@ export class Parser {
                                 this.index = index;
                                 this.column = column;
                             }
-                        }
-    
                         return code;
                     }
     
@@ -1738,7 +1717,7 @@ export class Parser {
                     return this.token;
             }
         }
-        
+
         private parseModuleItemList(context: Context): ESTree.Statement[] {
     
             const statements: ESTree.Statement[] = [];
@@ -2520,7 +2499,7 @@ export class Parser {
     
             if (!(this.flags & Flags.OptionsNext) || this.token === Token.LeftParen) {
                 this.expect(context, Token.LeftParen);
-                this.addCatchArg(this.tokenValue, ScopeMasks.Shadowable);
+                this.addCatchArg(this.tokenValue);
     
                 param = this.parseBindingPatternOrIdentifier(context, pos);
                 this.expect(context, Token.RightParen);
