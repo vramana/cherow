@@ -34,6 +34,7 @@ describe('Declarations - Const', () => {
             parseScript('const x = 1, y;');
         }).to.throw();
     });
+
     it('should fail if const declarations are mixed: with / without initialiser', () => {
         expect(() => {
             parseScript('const x, y = 1;');

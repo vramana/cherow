@@ -347,6 +347,14 @@ describe('Declarations - Functions', () => {
             });
     });
 
+    it('should fail let newline in function body', () => {
+        expect(() => { parseScript(`function f() {
+            let
+            await 0;
+        }`); }).to.throw();
+    });
+
+
     it('arguments" are not reserved word, but those can not be a BindingIdentifier.', () => {
         expect(parseScript(`function foo() { 'use strict'; return {arguments} }`, {
             ranges: true,

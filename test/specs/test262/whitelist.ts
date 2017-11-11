@@ -143,8 +143,8 @@ const f: any = {
         'f9e0efceb5690fdd.module.js',
         'fa56fc427be3e801.module.js',
         '0cda0bd08ee5f32a.js',
-         '805c7f7e24771841.js',
-         'e929ff0c0dcb70c0.js',
+        '805c7f7e24771841.js',
+        'e929ff0c0dcb70c0.js',
     ]
 };
 

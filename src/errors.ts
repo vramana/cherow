@@ -32,6 +32,7 @@ export const enum Errors {
     MetaNotInFunctionBody,
     DeclarationMissingInitializer,
     InvalidVarInitForOf,
+    InvalidVarInitForIn,
     InvalidLHSInForLoop,
     InvalidLHSInForIn,
     InvalidLHSInForOf,
@@ -113,7 +114,8 @@ export const enum Errors {
     InvalidWithBody,
     InvalidGeneratorParam,
     DefaultRestParameter,
-    IllegalArrowFuncParamList
+    IllegalArrowFuncParamList,
+    InvalidLetDeclBinding
 }
 
 export const ErrorMessages: {
@@ -152,7 +154,8 @@ export const ErrorMessages: {
     [Errors.MetaNotInFunctionBody]: 'new.target only allowed within functions',
     [Errors.DeclarationMissingInitializer]: 'Missing = in %0 declaration',
     [Errors.InvalidLHSInForLoop]: 'Invalid left-hand side in for-loop',
-    [Errors.InvalidVarInitForOf]: 'Invalid variable declaration in for-of statement',
+    [Errors.InvalidVarInitForOf]: ' for-of loop variable declaration may not have an initializer',
+    [Errors.InvalidVarInitForIn]: ' for-in loop variable declaration may not have an initializer',
     [Errors.InvalidLHSInForOf]: 'Invalid left-hand side in for-of',
     [Errors.InvalidLHSInForIn]: 'Invalid left-hand side in for-in',
     [Errors.StrictLHSAssignment]: 'Eval or arguments can\'t be assigned to in strict mode code',
@@ -230,7 +233,9 @@ export const ErrorMessages: {
     [Errors.InvalidNestedContinue]: 'Continue statement must be nested within an iteration statement',
     [Errors.InvalidWithBody]: 'The body of a with statement must not be a labeled function declaration',
     [Errors.InvalidGeneratorParam]: 'Generator parameters must not contain yield expressions',
-    [Errors.IllegalArrowFuncParamList]: 'Illegal arrow function parameter list'
+    [Errors.IllegalArrowFuncParamList]: 'Illegal arrow function parameter list',
+    [Errors.InvalidLetDeclBinding]: 'Lexical declarations must not have a binding named "let"',
+
 };
 
 function constructError(msg: string, column: number): Error {

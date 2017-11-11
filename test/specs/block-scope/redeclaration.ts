@@ -5,6 +5,14 @@ const expect = chai.expect;
 
 describe('Block scope - Redeclaration', () => {
 
+    it('should fail on redeclaration within block', () => {
+        expect(() => { parseScript('{ let f; function f() {} }'); }).to.throw();
+    });
+
+    it('should fail if attempt to redeclare let binding with var', () => {
+        expect(() => { parseScript('{ let f; var f; }'); }).to.throw();
+    });
+
     it('should fail on redeclaration with AsyncFunctionDeclaration (AsyncFunctionDeclaration in BlockStatement)', () => {
         expect(() => {
             parseScript('{ async function f() {} async function f() {} }');

@@ -17,6 +17,11 @@ describe('Statements - For', () => {
         }).to.throw();
     });
 
+    
+    it('should fail on let declarations with initialisers in statement positions ( for ( ;;) Statement )', () => {
+      expect(() => { parseScript('for (;false;) let x = 1;'); }).to.throw();
+  });
+
     it('should fail on "for (var x; false; ) label1: label2: function f() {}"', () => {
         expect(() => {
             parseScript('for (var x; false; ) label1: label2: function f() {}');

@@ -2354,6 +2354,7 @@ describe('Declarations - Lexical', () => {
             "sourceType": "script"
           });
     });
+
     it("should parse \"var static;\"", () => {
         expect(parseScript(`var static;`, {
             ranges: true

@@ -17,6 +17,14 @@ describe('Statements - do-while', () => {
         }).to.throw();
     });
 
+    it('should fail on let declarations with initialisers in statement positions ( do Statement while )', () => {
+      expect(() => { parseScript('do let x = 1; while (false)'); }).to.throw();
+  }); 
+
+  it('should fail on let declarations with initialisers in statement positions ( do Statement while ( Expression ) )', () => {
+    expect(() => { parseScript('do let x; while (false)'); }).to.throw();
+});
+
     it('should fail if async function declaration is in statement position`', () => {
         expect(() => {
             parseScript(`do async function f() {} while (false)`);

@@ -1899,6 +1899,7 @@ export class Parser {
             // or [.
             const savedState = this.saveState();
             this.nextToken(context);
+            if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
             const next = this.token;
             this.rewindState(savedState);
     
@@ -1915,6 +1916,7 @@ export class Parser {
     
         private isIdentifier(context: Context, t: Token): boolean {
             if (context & Context.Strict) {
+                if (t === Token.LetKeyword) this.error(Errors.InvalidStrictLexical);
                 if (context & Context.Module) {
                     if (t === Token.AwaitKeyword) return false;
                 }
@@ -2334,7 +2336,7 @@ export class Parser {
                 case Token.LetKeyword:
                     // If let follows identifier on the same line, it is an declaration. Parse it as a variable statement
                     if (this.isLexical(context)) {
-                        if (this.flags & Flags.HasUnicode) this.error(Errors.Unexpected);
+                        if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
                         return this.parseVariableStatement(context | Context.Let | Context.AllowIn);
                     }
                     return this.parseStatement(context & ~Context.TopLevel);
@@ -2455,7 +2457,7 @@ export class Parser {
             this.expect(context, Token.LeftBrace);
     
             if (this.token !== Token.RightBrace) {
-               
+    
                 const blockScope = this.blockScope;
                 const parentScope = this.parentScope;
                 if (blockScope != null) this.parentScope = blockScope;
@@ -2691,7 +2693,7 @@ export class Parser {
             let init: any = null;
             let body: ESTree.Statement;
             let test: ESTree.Expression | null = null;
-            
+    
             // Create a lexical scope node around the whole ForStatement
             const blockScope = this.blockScope;
             const parentScope = this.parentScope;
@@ -2705,9 +2707,9 @@ export class Parser {
             this.expect(context, Token.LeftParen);
     
             const token = this.token;
-            
+    
             context |= Context.ForStatement;
-
+    
             if (this.token !== Token.Semicolon) {
                 if (hasMask(this.token, Token.VarDeclStart)) {
                     const startIndex = this.getLocations()
@@ -2715,9 +2717,9 @@ export class Parser {
                     if (this.parseEventually(context, Token.VarKeyword)) {
                         declarations = this.parseVariableDeclarationList(context);
                     } else if (this.parseEventually(context, Token.ConstKeyword)) {
-                        declarations = this.parseVariableDeclarationList(context | Context.Const | Context.AllowIn);
+                        declarations = this.parseVariableDeclarationList(context | Context.Const);
                     } else if (this.isLexical(context) && this.parseEventually(context, Token.LetKeyword)) {
-                        declarations = this.parseVariableDeclarationList(context | Context.Let | Context.AllowIn);
+                        declarations = this.parseVariableDeclarationList(context | Context.Let);
                     } else {
                         init = this.parseExpression(context, pos);
                     }
@@ -2734,13 +2736,13 @@ export class Parser {
                     init = this.parseExpression(context & ~Context.AllowIn, pos);
                 }
             }
-
+    
             if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
-
+    
             this.flags |= Flags.Iteration;
-            
+    
             if (this.parseEventually(context, Token.OfKeyword)) {
-
+    
                 // State 3 proposal - Async Iteration
                 if (awaitToken && !(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(token));
     
@@ -2768,17 +2770,17 @@ export class Parser {
                     await: awaitToken
                 });
             }
-
+    
             if (awaitToken) this.error(Errors.UnexpectedToken, tokenDesc(token));
-
+    
             if (this.parseEventually(context, Token.InKeyword)) {
-
+    
                 if (declarations) {
                     if (declarations.length !== 1) this.error(Errors.Unexpected);
                 } else {
                     this.reinterpretAsPattern(context, init);
                 }
-
+    
                 test = this.parseExpression(context, pos);
                 this.expect(context, Token.RightParen);
                 this.blockScope = blockScope;
@@ -2796,14 +2798,14 @@ export class Parser {
             }
     
             let update = null;
-            
+    
             this.expect(context, Token.Semicolon);
-            
+    
             if (this.token !== Token.Semicolon) test = this.parseExpression(context, pos);
             this.expect(context, Token.Semicolon);
             if (this.token !== Token.RightParen) update = this.parseExpression(context, pos);
             this.expect(context, Token.RightParen);
-        this.blockScope = blockScope;
+            this.blockScope = blockScope;
             if (blockScope !== undefined) this.parentScope = parentScope;
             body = this.parseStatement(context & ~Context.TopLevel);
             this.flags = savedFlag;
@@ -3174,46 +3176,37 @@ export class Parser {
         }
     
         private parseVariableDeclaration(context: Context): ESTree.VariableDeclarator {
+    
             const pos = this.getLocations();
-            let init = null;
             const token = this.token;
-            const isBindingPattern = hasMask(token, Token.BindingPattern);
             const id = this.parseBindingPatternOrIdentifier(context, pos);
     
+            let init: ESTree.Expression | null = null;
     
-            // 'let', 'const'
-            if (context & Context.Lexical) {
+            if (hasMask(token, Token.BindingPattern)) {
     
-                if (context & Context.ForStatement && !this.isInOrOfKeyword(this.token)) {
-                    if (isBindingPattern && this.token !== Token.Assign) this.error(Errors.InvalidForBindingInit);
-                }
-    
-                if (context & Context.Const) {
-    
-                    if (!this.isInOrOfKeyword(this.token)) {
-    
-                        if (this.parseEventually(context, Token.Assign)) {
-                            init = this.parseAssignmentExpression(context & ~Context.Lexical);
-                        } else {
-                            this.error(Errors.DeclarationMissingInitializer, 'const');
-                        }
-                    }
-                } else if ((!(context & Context.ForStatement) && isBindingPattern) || this.token === Token.Assign) {
-                    this.expect(context, Token.Assign);
-                    init = this.parseAssignmentExpression(context & ~Context.Lexical);
-                }
-            } else {
                 if (this.parseEventually(context, Token.Assign)) {
                     init = this.parseAssignmentExpression(context);
-                    if (context & Context.ForStatement) {
+                    if (!(context & Context.Lexical) && context & Context.ForStatement) {
                         if (this.token === Token.InKeyword) {
-                            if (context & Context.Strict || isBindingPattern) {
-                                this.error(Errors.InvalidVarDeclInForIn);
-                            }
+                            this.error(Errors.InvalidVarDeclInForIn);
                         }
                     }
-                } else if (!(context & Context.ForStatement) && isBindingPattern) {
-                    this.error(Errors.InvalidComplexBindingPattern);
+                } else if (context & Context.Lexical) {
+                    if (!this.isInOrOfKeyword(this.token)) this.error(Errors.Unexpected)
+                } else {
+                    if (!(context & Context.ForStatement)) this.error(Errors.Unexpected);
+                }
+    
+            } else {
+    
+                if (this.parseEventually(context, Token.Assign)) {
+                    init = this.parseAssignmentExpression(context & ~Context.Lexical);
+                    if (context & Context.ForStatement && this.isInOrOfKeyword(this.token)) {
+                        if (context & (Context.Strict | Context.Lexical)) this.error(Errors.Unexpected);
+                    }
+                } else if (context & Context.Const && !this.isInOrOfKeyword(this.token)) {
+                    this.error(Errors.MissingInitializer, 'const');
                 }
             }
     
@@ -3882,11 +3875,11 @@ export class Parser {
                     this.parseEventually(context, Token.Comma);
                     break;
                 }
-                
+    
                 if (!(context & Context.Strict) && this.token !== Token.Identifier) {
                     context |= Context.Pattern;
                 }
-
+    
                 result.push(this.parseFormalParameter(context));
                 if (this.token !== Token.RightParen) this.expect(context, Token.Comma);
             }
@@ -3913,7 +3906,7 @@ export class Parser {
                 this.errorLocation = pos;
                 this.flags |= Flags.BindingPosition;
             }
-            
+    
             return this.parseAssignmentPattern(context, pos);
         }
     
@@ -4207,15 +4200,28 @@ export class Parser {
                         if (!this.nextTokenIsAssign(context)) this.throwUnexpectedToken();
                     }
                     return this.parseIdentifier(context);
-                case Token.LetKeyword:
-                    if (this.flags & Flags.LineTerminator) this.throwUnexpectedToken();
-                    // falls through
                 case Token.LessThan:
                     if (this.flags & Flags.OptionsJSX) return this.parseJSXElement(context | Context.JSXChild);
+                case Token.LetKeyword:
+                    return this.parseLet(context);
                 default:
                     if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
                     return this.parseIdentifier(context);
             }
+        }
+    
+        private parseLet(context: Context): ESTree.Identifier {
+            if (this.flags & Flags.LineTerminator) this.throwUnexpectedToken();
+            const name = this.tokenValue;
+            const pos = this.getLocations();
+            if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword)
+            if (context & Context.Strict) this.error(Errors.InvalidLetDeclBinding);
+            this.nextToken(context);
+            if (this.token === Token.LetKeyword) this.error(Errors.InvalidLetDeclBinding);
+            return this.finishNode(pos, {
+                type: 'Identifier',
+                name
+            });
         }
     
         private parseClassDeclaration(context: Context): ESTree.ClassDeclaration {
@@ -5031,7 +5037,6 @@ export class Parser {
             const name = this.tokenValue;
             const pos = this.getLocations();
             this.nextToken(context);
-    
             return this.finishNode(pos, {
                 type: 'Identifier',
                 name
@@ -5205,8 +5210,8 @@ export class Parser {
                     return this.parseBindingIdentifier(context);
     
                 case Token.LetKeyword:
-                    if (context & Context.Strict && this.flags & Flags.HasUnicode) {
-                        this.error(Errors.UnexpectedEscapedKeyword);
+                    if (context & Context.Strict) {
+                        this.error(Errors.InvalidStrictLexical);
                     }
                     if (context & Context.Lexical) this.error(Errors.LetInLexicalBinding);
     
@@ -5225,11 +5230,11 @@ export class Parser {
             if (this.isEvalOrArguments(name)) {
                 if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
             }
-
+    
             if (context & Context.InParameter && context & (Context.Strict | Context.Await | Context.Pattern)) {
                 this.addFunctionArg(name);
             }
-
+    
             this.addVarOrBlock(context, name);
     
             this.nextToken(context);

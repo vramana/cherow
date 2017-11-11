@@ -146,6 +146,14 @@ describe('Statement - If', () => {
         }).to.throw();
     });
 
+    it('should fail on let declarations with initialisers in statement positions ( if ( Expression ) Statement else Statement )', () => {
+        expect(() => { parseScript('if (true) {} else let x = 1;'); }).to.throw();
+    });
+
+    it('should fail on let declarations with initialisers in statement positions ( if ( Expression ) Statement )', () => {
+        expect(() => { parseScript('if (true) let x;'); }).to.throw();
+    });
+
     it('should fail on "function f(a){ super.b }"', () => {
         expect(() => {
             parseScript(`function f(a){ super.b }`)

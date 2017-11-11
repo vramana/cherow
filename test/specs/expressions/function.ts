@@ -19,6 +19,10 @@ describe('Espressions - Function', () => {
           }).to.throw('');
       });
 
+      it('should fail on redeclaration error within strict mode function inside non-strict code', () => {
+        expect(() => { parseScript('(function() { "use strict"; { let f; var f; } })'); }).to.throw();
+    });
+
       it('should fail on "function foo() { eval = 42; };"', () => {
           expect(() => {
               parseScript(`"use strict"; function foo() { eval = 42; };`)
