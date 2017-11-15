@@ -4065,6 +4065,8 @@ Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty 
     });
 };
 Parser.prototype.parsePrivateName = function parsePrivateName (context) {
+    if (context & 1 /* Module */)
+        { this.throwUnexpectedToken(); }
     var pos = this.getLocations();
     this.expect(context, 117 /* Hash */);
     return this.finishNode(pos, {
@@ -4077,7 +4079,8 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
 
     // Stage 3 Proposal - Class-fields
     if (this.flags & 4194304 /* OptionsNext */ && this.token === 117 /* Hash */) {
-        return this.parseClassPrivateProperty(context, state);
+        if (!(context & 1 /* Module */))
+            { return this.parseClassPrivateProperty(context, state); }
     }
     var pos = this.getLocations();
     var token = this.token;
@@ -4085,7 +4088,6 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     var count = 0;
     var key;
     var value;
-    //   if (hasMask(this.token, Token.Modifiers)) {
     loop: while (this.isIdentifierOrKeyword(token)) {
         switch (this$1.token) {
             case 16797801 /* StaticKeyword */:
@@ -5004,14 +5006,8 @@ Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (con
     var key;
     var value;
     if (this.isIdentifier(context, this.token)) {
-        pos = this.getLocations();
         var token = this.token;
-        var tokenValue = this.tokenValue;
         key = this.parsePropertyName(context);
-        var init = this.finishNode(pos, {
-            type: 'Identifier',
-            name: tokenValue
-        });
         if (this.parseEventually(context, 21 /* Colon */)) {
             value = this.parseAssignmentPattern(context);
         }
@@ -5021,25 +5017,29 @@ Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (con
                 this.error(85 /* DisallowedInContext */, tokenDesc(token));
             }
             if (this.token === 1310749 /* Assign */) {
-                value = this.parseAssignmentPattern(context, pos, init);
+                value = this.parseAssignmentPattern(context, pos, key);
             }
             else {
-                value = init;
+                value = key;
             }
         }
     }
     else {
-        if (this.token === 393235 /* LeftBracket */) {
-            state |= 4 /* Computed */;
-            this.expect(context, 393235 /* LeftBracket */);
-            if (context & 16 /* Yield */ && this.token === 282730 /* YieldKeyword */) {
-                this.error(85 /* DisallowedInContext */, tokenDesc(this.token));
-            }
-            key = this.parseAssignmentExpression(context | 4 /* AllowIn */);
-            this.expect(context, 20 /* RightBracket */);
-        }
-        else {
-            key = this.parsePropertyName(context);
+        switch (this.token) {
+            case 262145 /* Identifier */:
+                key = this.parseIdentifier(context);
+                break;
+            case 393235 /* LeftBracket */:
+                state |= 4 /* Computed */;
+                this.expect(context, 393235 /* LeftBracket */);
+                if (context & 16 /* Yield */ && this.token === 282730 /* YieldKeyword */) {
+                    this.error(85 /* DisallowedInContext */, tokenDesc(this.token));
+                }
+                key = this.parseAssignmentExpression(context | 4 /* AllowIn */);
+                this.expect(context, 20 /* RightBracket */);
+                break;
+            default:
+                key = this.parsePropertyName(context);
         }
         this.expect(context, 21 /* Colon */);
         value = this.parseAssignmentPattern(context);

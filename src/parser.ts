@@ -4335,6 +4335,7 @@ export class Parser {
         }
     
         private parsePrivateName(context: Context) {
+            if (context & Context.Module) this.throwUnexpectedToken();
             const pos = this.getLocations();
             this.expect(context, Token.Hash);
             return this.finishNode(pos, {
@@ -4347,7 +4348,7 @@ export class Parser {
     
             // Stage 3 Proposal - Class-fields
             if (this.flags & Flags.OptionsNext && this.token === Token.Hash) {
-                return this.parseClassPrivateProperty(context, state);
+                if ( !(context & Context.Module)) return this.parseClassPrivateProperty(context, state);
             }
     
             const pos = this.getLocations();
