@@ -28,6 +28,7 @@ It's safe to use in production.
 
 - Import()
 - Asynchronous Iteration
+- Class Fields
 - Rest/Spread Properties
 - Optional catch binding
 - BigInt

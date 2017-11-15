@@ -1,52 +1,15 @@
-import { parseScript, parseModule } from '../../../src/cherow';
-import * as chai from 'chai';
-
-const expect = chai.expect;
+import { pass, fail } from '../utils/test-utils';
 
 describe('Binding - Arrows', () => {
+  
+  fail('invalid rest in object pattern', '({a,...b}) => 0;');
+  fail('pattern without parenthesis', '({}=>0)');
+  fail('invalid nested param', '([[[[[[[[[[[[[[[[[[[[{a:b[0]}]]]]]]]]]]]]]]]]]]]])=>0;');
+  fail('invalid method in pattern', '({get a(){}}) => 0;');
+  fail('invalid member expression', '({a:b[0]})=>0');
+  fail('invalid dup param', '([a,[b],...b])=>0;');
 
-    it('should fail on invalid rest in object pattern', () => {
-        expect(() => {
-            parseScript('({a,...b}) => 0;')
-        }).to.throw()
-    });
-
-    it('should fail on invalid pattern without parenthesis"', () => {
-        expect(() => {
-            parseScript('({}=>0)')
-        }).to.throw()
-    });
-
-    it('should fail on invalid nested param', () => {
-        expect(() => {
-            parseScript('([[[[[[[[[[[[[[[[[[[[{a:b[0]}]]]]]]]]]]]]]]]]]]]])=>0;')
-        }).to.throw()
-    });
-
-    it('should fail on invalid method in pattern', () => {
-        expect(() => {
-            parseScript('({get a(){}}) => 0;')
-        }).to.throw()
-    });
-
-    it('should fail on invalid member expression', () => {
-        expect(() => {
-            parseScript('({a:b[0]})=>0')
-        }).to.throw()
-    });
-
-    it('should fail on invalid dup param', () => {
-        expect(() => {
-            parseScript('([a,[b],...b])=>0;')
-        }).to.throw()
-    });
-
-    it('should handle array binding pattern empty', () => {
-        expect(parseScript(`([])=>0;`, {
-            ranges: true,
-            raw: true,
-            locations: true
-        })).to.eql({
+  pass('should handle array binding pattern empty', `([])=>0;`, {
             "type": "Program",
             "start": 0,
             "end": 8,
@@ -133,14 +96,8 @@ describe('Binding - Arrows', () => {
             ],
             "sourceType": "script"
           });
-    });
 
-    it('should handle array binding pattern empty', () => {
-        expect(parseScript(`([a]) => [0];`, {
-            ranges: true,
-            raw: true,
-            locations: true
-        })).to.eql({
+    pass('should handle array binding pattern empty', `([a]) => [0];`, {
             "type": "Program",
             "start": 0,
             "end": 13,
@@ -261,14 +218,8 @@ describe('Binding - Arrows', () => {
             ],
             "sourceType": "script"
           });
-    });
 
-    it('should handle array binding pattern #2', () => {
-        expect(parseScript(`([a,b])=>0;`, {
-            ranges: true,
-            raw: true,
-            locations: true
-        })).to.eql({
+    pass('should handle array binding pattern #2', `([a,b])=>0;`, {
             "type": "Program",
             "start": 0,
             "end": 11,
@@ -388,14 +339,8 @@ describe('Binding - Arrows', () => {
             ],
             "sourceType": "script"
           });
-    });
 
-    it('should handle array binding pattern #3', () => {
-        expect(parseScript(`([a,...b])=>0;`, {
-            ranges: true,
-            raw: true,
-            locations: true
-        })).to.eql({
+    pass('should handle array binding pattern #3', `([a,...b])=>0;`, {
             "type": "Program",
             "start": 0,
             "end": 14,
@@ -530,14 +475,8 @@ describe('Binding - Arrows', () => {
             ],
             "sourceType": "script"
           });
-    });
 
-    it('should handle array binding pattern elison', () => {
-        expect(parseScript(`([,,])=>0`, {
-            ranges: true,
-            raw: true,
-            locations: true
-        })).to.eql({
+      pass('should handle array binding pattern elison', `([,,])=>0`, {
             "type": "Program",
             "start": 0,
             "end": 9,
@@ -627,14 +566,8 @@ describe('Binding - Arrows', () => {
             ],
             "sourceType": "script"
           });
-    });
 
-    it('should handle array binding pattern empty', () => {
-        expect(parseScript(`([[[[[[[[[[[[[[[[[[[[{a=b}]]]]]]]]]]]]]]]]]]]])=>0;`, {
-            ranges: true,
-            raw: true,
-            locations: true
-        })).to.eql({
+    pass('should handle array binding pattern empty', `([[[[[[[[[[[[[[[[[[[[{a=b}]]]]]]]]]]]]]]]]]]]])=>0;`, {
             "type": "Program",
             "start": 0,
             "end": 51,
@@ -1144,14 +1077,8 @@ describe('Binding - Arrows', () => {
             ],
             "sourceType": "script"
           });
-    });
 
-    it('should handle array binding pattern empty', () => {
-        expect(parseScript(`({a,b=b,a:c,[a]:[d]})=>0;`, {
-            ranges: true,
-            raw: true,
-            locations: true
-        })).to.eql({
+    pass('should handle array binding pattern empty', `({a,b=b,a:c,[a]:[d]})=>0;`, {
             "type": "Program",
             "start": 0,
             "end": 25,
@@ -1491,14 +1418,8 @@ describe('Binding - Arrows', () => {
             ],
             "sourceType": "script"
           });
-    });
 
-    it('should handle array binding pattern empty', () => {
-        expect(parseScript(`({})=>0;`, {
-            ranges: true,
-            raw: true,
-            locations: true
-        })).to.eql({
+    pass('should handle array binding pattern empty', `({})=>0;`, {
             "type": "Program",
             "start": 0,
             "end": 8,
@@ -1585,15 +1506,8 @@ describe('Binding - Arrows', () => {
             ],
             "sourceType": "script"
           });
-    });
-
     
-    it('should handle array binding pattern empty', () => {
-        expect(parseScript(`[a,a,,...a]=0;`, {
-            ranges: true,
-            raw: true,
-            locations: true
-        })).to.eql({
+      pass('should handle array binding pattern empty', `[a,a,,...a]=0;`, {
             "type": "Program",
             "start": 0,
             "end": 14,
@@ -1740,5 +1654,4 @@ describe('Binding - Arrows', () => {
             ],
             "sourceType": "script"
           });
-    });
 });

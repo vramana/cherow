@@ -15,10 +15,10 @@ export function hasMask(mask: number, flags: number) {
     return (mask & flags) === flags;
 }
 
-export function fromCodePoint(codePoint: Chars): string {
-    if (codePoint <= 0xFFFF) return String.fromCharCode(codePoint);
-    return String.fromCharCode(((codePoint - Chars.NonBMPMin) >> 10) +
-        Chars.LeadSurrogateMin, ((codePoint - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
+export function fromCodePoint(code: Chars): string {
+    if (code <= 0xFFFF) return String.fromCharCode(code);
+    return String.fromCharCode(((code - Chars.NonBMPMin) >> 10) +
+        Chars.LeadSurrogateMin, ((code - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
 }
 
 export function toHex(code: Chars): number {

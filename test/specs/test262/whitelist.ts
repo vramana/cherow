@@ -1,5 +1,11 @@
+
+// NOTE! This list may not be up to date. Some tests that are skipped will now fail correctly
+//
+// SECOND NOTE!  All ECMAScript tests that should parse, now parses. Doubled checked against Test262.
+
 const f: any = {
     pass: [
+        // Why? This parses just fine in the online demo
         '110fa1efdd0868b8.js',
         'a62c6323a3696fa8.js',
     ],
@@ -7,12 +13,10 @@ const f: any = {
         '110fa1efdd0868b8.js',
     ],
     fail: [
-       '03d13b6c40f6aaea.js',
-        '06272e1e03d6ced7.js',
+        '03d13b6c40f6aaea.js',
         '08bafe059b17ac92.js',
         '0ebf57bd8c051d27.js',
         '147fa078a7436e0e.js',
-        '14d6adc74d396c58.js',
         '15a6123f6b825c38.js',
         '1acada3c651821cf.js',
         '28520880d460c4f9.js',
@@ -20,23 +24,18 @@ const f: any = {
         '346316bef54d805a.js',
         '3bc2b27a7430f818.js',
         '3d3e6ce2b81a224d.js',
-        '4485930b35bf8cb6.js',
         '479332b63ff26de1.js',
         '4e885526e8dfaa12.js',
         '50a060984b757dc1.js',
         '7b876ca5139f1ca8.js',
         '8bf8438d0a686b4e.js',
         '90cd97db35a1a503.js',
-        '976b6247ca78ab51.js',
-        '9fa56398be8a1769.js',
         'a38011d2c010999e.js',
         'a5370cb0412d7c8a.js',
         'a9431906f263368d.js',
-        'ae0a7ac275bc9f5c.js',
         'bcde05eea9466dfd.js',
         'c045e273186c0644.js',
         'ca3dd7ea0b4626dd.js',
-        'd28e80d99f819136.js',
         'db41a80ccf646002.js',
         'dc5864c9096ad0a8.js',
         'e3fbcf63d7e43ead.js',
@@ -44,14 +43,14 @@ const f: any = {
     ],
     early: [
 
+        // Note! Most of this tests should fail correctly now, but the list will be
+        // updated again after refactoring of the parser
+
         '12956d61ed0275e7.js',
         '301abb5ba3b6506a.js',
         '3190762e2e329b66.js',
         '7958864040a4f3c1.js',
         '0049fa147d7edac0.js',
-        '156ba8b64a8720df.js',
-        '205ffca8d2d55725.js',
-        '86b8297085fecff2.js',
         'd33fac4370fa022c.js',
         '02ea8b2ade05bd70.js',
         '1179d3b7dbc0c804.module.js',
@@ -69,8 +68,6 @@ const f: any = {
         '2dd665419e3df66e.module.js',
         '32a3e279226eefa0.module.js',
         '33e8f35b568836ba.module.js',
-        '349c826f55163c71.js',
-        '36d9cc06fef55d8c.js',
         '3a29281d7d6fba5a.module.js',
         '3abbddaa6f253dec.js',
         '3c97613274574690.module.js',
@@ -80,14 +77,12 @@ const f: any = {
         '4e6529771ad3343f.module.js',
         '5127ca1fe7c943ba.module.js',
         '53699b3b15d7ce42.module.js',
-        '57326657ecdecd7f.js',
         '58bb4a3a2d717d4f.js',
         '5b0f82ab482ac359.module.js',
         '5d70672ca7ccc3ec.js',
         '5e601aa06b18557d.js',
         '63dfdc52eaf151e0.module.js',
         '6473f07239ed08ef.js',
-        '656ae090a367940a.module.js',
         '69a9f6b6e2fa6bf6.js',
         '69e9a9e7b0344a30.module.js',
         '6b97ba6642568d1c.js',
@@ -123,9 +118,9 @@ const f: any = {
         'c570b0dab9ed058c.js',
         'c64846422c8fcb25.js',
         'c82fcf7c29e24b40.module.js',
-         'cdceb01cec39f8d0.js',
-         'cf09b247aab59934.js',
-         'cf6241d836f7f9b1.js',
+        'cdceb01cec39f8d0.js',
+        'cf09b247aab59934.js',
+        'cf6241d836f7f9b1.js',
         'd070112b8eb9781e.module.js',
         'd33299b545e367a3.js',
         'd412cecc75edd30d.js',

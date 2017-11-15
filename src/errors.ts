@@ -117,7 +117,8 @@ export const enum Errors {
     DefaultRestParameter,
     IllegalArrowFuncParamList,
     InvalidLetDeclBinding,
-    ReservedKeyword
+    ReservedKeyword,
+    InvalidPrivateConstructor
 }
 
 export const ErrorMessages: {
@@ -171,7 +172,7 @@ export const ErrorMessages: {
     [Errors.AdjacentJSXElements]: 'Adjacent JSX elements must be wrapped in an enclosing tag',
     [Errors.InvalidBinaryDigit]: 'Invalid binary digit',
     [Errors.InvalidOctalDigit]: 'Invalid octal digit',
-    [Errors.StrictDelete]: 'Delete of an unqualified identifier in strict mode.',
+    [Errors.StrictDelete]: 'Identifier expressions must not be deleted in strict mode',
     [Errors.StrictLHSPrefix]: 'Prefix increment/decrement may not have eval or arguments operand in strict mode',
     [Errors.StrictLHSPostfix]: 'Postfix increment/decrement may not have eval or arguments operand in strict mode',
     [Errors.ExportDeclAtTopLevel]: 'Export declarations may only appear at top level of a module',
@@ -238,7 +239,8 @@ export const ErrorMessages: {
     [Errors.InvalidGeneratorParam]: 'Generator parameters must not contain yield expressions',
     [Errors.IllegalArrowFuncParamList]: 'Illegal arrow function parameter list',
     [Errors.InvalidLetDeclBinding]: 'Lexical declarations must not have a binding named "let"',
-    [Errors.ReservedKeyword]: 'The keyword %0 is reserved'
+    [Errors.ReservedKeyword]: 'The keyword %0 is reserved',
+    [Errors.InvalidPrivateConstructor]: 'Class constructor may not have a private field',
     
     
 

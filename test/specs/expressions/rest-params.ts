@@ -345,12 +345,12 @@ describe('Expressions - Rest parameters', () => {
                                 "argument": {
                                     "type": "ObjectPattern",
                                     "properties": [],
-                                    "start": 15,
+                                    "start": 18,
                                     "end": 20,
                                     "loc": {
                                         "start": {
                                             "line": 1,
-                                            "column": 15
+                                            "column": 18
                                         },
                                         "end": {
                                             "line": 1,

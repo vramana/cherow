@@ -1,37 +1,12 @@
-import { parseScript, parseModule, parse } from '../../../src/cherow';
-import * as chai from 'chai';
-
-const expect = chai.expect;
+import { fail, pass } from '../utils/test-utils';
 
 describe('Block scope - For In', () => {
 
-    it('should disallow multiple lexical bindings, with and without initializer', () => {
-        expect(() => {
-            parseScript('for (let x = 3, y in {}) { }');
-        }).to.throw();
-    });
+  fail('disallow multiple lexical bindings, with and without initializer', 'for (let x = 3, y in {}) { }');
+  fail('disallow multiple lexical bindings, with initializer', 'for (let x = 3, y = 4 in {}) { }');
+  fail('statement position if statement expression', '"use strict"; if (true) function g() {}');
 
-    it('should disallow multiple lexical bindings, with initializer', () => {
-        expect(() => {
-            parseScript('for (let x = 3, y = 4 in {}) { }');
-        }).to.throw();
-    });
-
-    it('should disallow multiple lexical bindings, without and with initializer', () => {
-        expect(() => {
-            parseScript('for (let x, y = 4 in {}) { }');
-        }).to.throw();
-    });
-
-    it('should fail on statement position if statement expression', () => {
-        expect(() => {
-            parseScript('"use strict"; if (true) function g() {}');
-        }).to.throw();
-    });
-    
-
-    it('should parse with mixed values in iteration', () => {
-        expect(parseScript(`function fn(x) {
+  pass('should parse with mixed values in iteration', `function fn(x) {
             let a = [];
             for (let p in x) {
             }
@@ -40,10 +15,6 @@ describe('Block scope - For In', () => {
               ++k;
             }
           }`, {
-            ranges: true,
-            raw: true,
-            locations: true
-        })).to.eql({
           "type": "Program",
           "start": 0,
           "end": 184,
@@ -504,5 +475,4 @@ describe('Block scope - For In', () => {
           ],
           "sourceType": "script"
         });
-    });
 });

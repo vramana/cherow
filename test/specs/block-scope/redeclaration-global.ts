@@ -1,16 +1,8 @@
-import { parseScript, parseModule, parse } from '../../../src/cherow';
-import * as chai from 'chai';
-
-const expect = chai.expect;
+import { pass } from '../utils/test-utils';
 
 describe('Block scope - Redeclaration global', () => {
 
-    it('should allow to declare function with function declaration', () => {
-        expect(parseScript(`function f() {}`, {
-            ranges: true,
-            raw: true,
-            locations: true
-        })).to.eql({
+  pass('should allow to declare function with function declaration', `function f() {}`, {
             "type": "Program",
             "start": 0,
             "end": 15,
@@ -79,14 +71,8 @@ describe('Block scope - Redeclaration global', () => {
             ],
             "sourceType": "script"
           });
-    });
 
-    it('should allow to declare var with function declaration', () => {
-        expect(parseScript(`var f; function f() {}`, {
-            ranges: true,
-            raw: true,
-            locations: true
-        })).to.eql({
+          pass('should allow to declare var with function declaration', `var f; function f() {}`, {
             "type": "Program",
             "start": 0,
             "end": 22,
@@ -205,14 +191,8 @@ describe('Block scope - Redeclaration global', () => {
             ],
             "sourceType": "script"
           });
-    });
 
-    it('should allow to declare function declaration with var', () => {
-        expect(parseScript(`function f() {} var f;`, {
-            ranges: true,
-            raw: true,
-            locations: true
-        })).to.eql({
+          pass('should allow to declare function declaration with var', `function f() {} var f;`, {
             "type": "Program",
             "start": 0,
             "end": 22,
@@ -331,5 +311,4 @@ describe('Block scope - Redeclaration global', () => {
             ],
             "sourceType": "script"
           });
-    });
 });

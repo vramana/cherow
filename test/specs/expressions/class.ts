@@ -14,7 +14,7 @@ describe('Espressions - Class', () => {
     it('should fail if rest parameter has an initializer', () => {
         expect(() => {
             parseScript(`(class { *static x() {} })`);
-        }).to.not.throw();
+        }).to.throw();
     });
 
         it('should fail if rest parameter has an initializer', () => {

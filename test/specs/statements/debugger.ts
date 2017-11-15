@@ -1,29 +1,40 @@
-import { parseScript, parseModule } from '../../../src/cherow';
-import * as chai from 'chai';
-
-const expect = chai.expect;
+import { fail, pass } from '../utils/test-utils';
 
 describe('Statements - Debugger', () => {
 
-    it('should fail if the `debugger` token occupy an expression position', () => {
-        expect(() => {
-            parseScript(`(debugger);`);
-        }).to.throw();
-    });
+   fail('`debugger` token occupy an expression position', '(debugger);');
 
-    it('should parse "debugger;"', () => {
-        expect(parseScript('debugger;', {
-            ranges: true
-        })).to.eql({
-            "body": [{
-                "end": 9,
-                "start": 0,
-                "type": "DebuggerStatement"
-            }],
-            "end": 9,
-            "sourceType": "script",
-            "start": 0,
-            "type": "Program"
-        });
+    pass('debugger;', 'debugger;', {
+        type: 'Program',
+        body: [
+            {
+                type: 'DebuggerStatement',
+                start: 0,
+                end: 9,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 9
+                    }
+                }
+            }
+        ],
+        sourceType: 'script',
+        start: 0,
+        end: 9,
+        loc: {
+            start: {
+                line: 1,
+                column: 0
+            },
+            end: {
+                line: 1,
+                column: 9
+            }
+        }
     });
 });

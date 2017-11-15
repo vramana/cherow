@@ -27,10 +27,9 @@ export const enum Context {
     Iteration              = 1 << 23,  // 
     LocationTracking       = 1 << 24,
     Expression             = 1 << 25,
-    Let                    = 1 << 26,  // Variable declaration
-    Const                  = 1 << 27,  // Variable declaration
-    Pattern                = 1 << 28,  // Variable declaration
-
+    Pattern                = 1 << 26,
+    Let                    = 1 << 27,  // Variable declaration
+    Const                  = 1 << 28,  // Variable declaration
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
@@ -49,26 +48,28 @@ export const enum Flags {
     HasPrototype                 = 1 << 7,
     HaveSeenYield                = 1 << 8,  // Used if we have seen a 'yield' token. E.g. in arrow formal param list
     HaveSeenAwait                = 1 << 9,  // Used if we have seen a 'await' token. E.g. in async arrow formal param list
-    BindingPosition              = 1 << 10, // Used if an "identifier" are used in binding position in strict mode
-    HasStrictDirective           = 1 << 11, // Only used if we have seen a "use strict"; directive
-    BigInt                       = 1 << 12, // e.g. `100n`
-    SimpleParameterList          = 1 << 13,
-    ParenthesizedPattern         = 1 << 14,
-    Operator                     = 1 << 15,
+    HaveSeenRest                 = 1 << 10,
+    BindingPosition              = 1 << 11, // Used if an "identifier" are used in binding position in strict mode
+    HasStrictDirective           = 1 << 12, // Only used if we have seen a "use strict"; directive
+    BigInt                       = 1 << 13, // e.g. `100n`
+    SimpleParameterList          = 1 << 14,
+    ParenthesizedPattern         = 1 << 15,
+    Operator                     = 1 << 16,
 
     /* Options */
-    OptionsRanges                = 1 << 16, // Enable / disable "ranges"
-    OptionsLoc                   = 1 << 17, // Enable / disable location tracking on the node
-    OptionsSource                = 1 << 18,
-    OptionsJSX                   = 1 << 19, // Enable / disable JSX extension
-    OptionsRaw                   = 1 << 20, // Enable / disable "raw" property on the node
-    OptionsNext                  = 1 << 21, // Enable / disable Stage 3 proposals
-    OptionsDirectives            = 1 << 22, // Enable / disable directives on the node
-    OptionsComments              = 1 << 23, // Enable / disable comment collecting
-    OptionsDelegate              = 1 << 24, // Enable / disable token syntax delegate
-    OptionsV8                    = 1 << 25, // Enable / disable V8 experimental features
-    OptionsGlobalReturn          = 1 << 26, // Allow return statement in global scope,
-    OptionsSourceType            = 1 << 27, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
+    OptionsRanges                = 1 << 17, // Enable / disable "ranges"
+    OptionsLoc                   = 1 << 18, // Enable / disable location tracking on the node
+    OptionsSource                = 1 << 19,
+    OptionsJSX                   = 1 << 20, // Enable / disable JSX extension
+    OptionsRaw                   = 1 << 21, // Enable / disable "raw" property on the node
+    OptionsNext                  = 1 << 22, // Enable / disable Stage 3 proposals
+    OptionsDirectives            = 1 << 23, // Enable / disable directives on the node
+    OptionsComments              = 1 << 24, // Enable / disable comment collecting
+    OptionsDelegate              = 1 << 25, // Enable / disable token syntax delegate
+    OptionsV8                    = 1 << 26, // Enable / disable V8 experimental features
+    OptionsGlobalReturn          = 1 << 27, // Allow return statement in global scope,
+    OptionsSourceType            = 1 << 28, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
+    OptionsTolerant              = 1 << 29,
 
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc,
@@ -95,6 +96,7 @@ export const enum ParenthesizedState {
     Trailing        = 1 << 3, // Tracks trailing commas
     Pattern         = 1 << 4,
     FutureReserved  = 1 << 5,
+    Yield  = 1 << 6,
 }
 
 // Flags used by both object expression and class decl / expr
@@ -110,10 +112,12 @@ export const enum ObjectState {
     HasConstructor  = 1 << 7,
     Heritage        = 1 << 8,
     Static          = 1 << 9,
-    Special         = 1 << 10,
-    Constructor     = 1 << 11,
+    Constructor     = 1 << 10,
+    Super           = 1 << 11,
+    Prototype       = 1 << 12,
     Accessors = Get | Set,
-    Modifiers = Accessors | Method | Yield
+    Modifiers = Accessors | Method | Yield,
+    Special = Accessors | Yield | Async
 }
 
 // A set of flags for  maintaining the internal state machine.

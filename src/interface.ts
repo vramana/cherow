@@ -14,6 +14,7 @@ export interface Options {
     flow?: boolean;
     source?: string;
     globalReturn?: boolean;
+    tolerant?: any;
     sourceType?: 'module' | 'script';
     v8?: boolean;
 }
