@@ -17,6 +17,7 @@ describe('"Next - "Class fields"', () => {
     fail('dangling semicolon', 'class Foo { x,y,; }');
     fail('comma separator methid', 'x, f() {}');
     fail('dangling comma', 'x,');
+    fail('dangling comma', '#x,;');
 
     pass('static private name', `var C = class { static #x() {}; }`, {
         "type": "Program",

@@ -3658,10 +3658,8 @@ Parser.prototype.parseParameterList = function parseParameterList (context, stat
     var result = [];
     while (this.token !== 16 /* RightParen */) {
         if (this$1.token === 14 /* Ellipsis */) {
-            if (this$1.token !== 262145 /* Identifier */) {
-                this$1.errorLocation = this$1.getLocations();
-                this$1.flags |= 16384 /* SimpleParameterList */;
-            }
+            this$1.errorLocation = this$1.getLocations();
+            this$1.flags |= 16384 /* SimpleParameterList */;
             if (state & 32 /* Set */)
                 { this$1.error(25 /* BadSetterRestParameter */); }
             result.push(this$1.parseRestElement(context));
@@ -3967,8 +3965,6 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
     }
 };
 Parser.prototype.parseLet = function parseLet (context) {
-    if (this.flags & 1 /* LineTerminator */)
-        { this.throwUnexpectedToken(); }
     var name = this.tokenValue;
     var pos = this.getLocations();
     if (this.flags & 2 /* HasUnicode */)
@@ -4066,10 +4062,7 @@ Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty 
     if (this.parseEventually(context, 1310749 /* Assign */)) {
         value = this.parseAssignmentExpression(context);
     }
-    if (this.parseEventually(context, 18 /* Comma */)) {
-        if (this.token === 17 /* Semicolon */)
-            { this.error(0 /* Unexpected */); }
-    }
+    this.parseEventually(context, 18 /* Comma */);
     return this.finishNode(pos, {
         type: 'PrivateProperty',
         key: key,
@@ -4168,8 +4161,6 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
         }
     }
     else if (this.token === 262146 /* NumericLiteral */) {
-        if (this.tokenValue === 'constructor')
-            { state |= 1024 /* Constructor */; }
         key = this.parseLiteral(context);
     }
     else if (this.token === 262147 /* StringLiteral */) {
@@ -4278,8 +4269,6 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
                     { break loop; }
                 if (state & 2 /* Async */)
                     { break loop; }
-                if (isEscaped)
-                    { this$1.error(70 /* UnexpectedEscapedKeyword */); }
                 state |= currentState = 2 /* Async */;
                 key = this$1.parseIdentifier(context);
                 count++;
@@ -4306,8 +4295,6 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
         key = this.parseIdentifier(context);
     }
     else if (this.token === 262146 /* NumericLiteral */) {
-        if (this.tokenValue === 'constructor')
-            { state |= 1024 /* Constructor */; }
         key = this.parseLiteral(context);
     }
     else if (this.token === 262147 /* StringLiteral */) {
@@ -4351,7 +4338,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
             }
             break;
         default:
-            if (state & 2 /* Async */ || !this.isIdentifier(context, token)) {
+            if (state & 51 /* Special */ || !this.isIdentifier(context, token)) {
                 this.throwUnexpectedToken();
             }
             if (context & 16 /* Yield */ && token === 282730 /* YieldKeyword */) {
@@ -4739,17 +4726,11 @@ Parser.prototype.parseIdentifier = function parseIdentifier (context) {
         name: name
     });
 };
-/****
- * Label
- */
 Parser.prototype.validateLabel = function validateLabel (name) {
     if (this.labelSet === undefined || !('@' + name in this.labelSet)) {
         this.error(76 /* UnknownLabel */, name);
     }
 };
-/****
- * Scope
- */
 // Fast path for catch arguments
 Parser.prototype.addCatchArg = function addCatchArg (name, type /* Shadowable */) {
         if ( type === void 0 ) type = 1;

@@ -12,6 +12,18 @@ describe('Espressions - Object', () => {
     });
     
     it('should fail on invalid cover initialized name', () => {
+      expect(() => {
+          parseScript(`({ set set})`);
+      }).to.throw('');
+    });
+    
+    it('should fail on invalid cover initialized name', () => {
+      expect(() => {
+          parseScript(`({ acorn esprima })`);
+      }).to.throw('');
+    });
+
+    it('should fail on invalid cover initialized name', () => {
         expect(() => {
             parseScript(`({ g\\u{65}t x(){} })`);
         }).to.throw('');
@@ -786,7 +798,135 @@ describe('Espressions - Object', () => {
         "sourceType": "script"
       });
     });
-
+    
+    it('should parse computed values as accessor property names (hexadecimal) ', () => {
+      expect(parseScript(`({ get async() {} });`, {
+          raw: true,
+          ranges: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 21,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 21
+          }
+        },
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 21,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 21
+              }
+            },
+            "expression": {
+              "type": "ObjectExpression",
+              "start": 1,
+              "end": 19,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 1
+                },
+                "end": {
+                  "line": 1,
+                  "column": 19
+                }
+              },
+              "properties": [
+                {
+                  "type": "Property",
+                  "start": 3,
+                  "end": 17,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 3
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 17
+                    }
+                  },
+                  "method": false,
+                  "shorthand": false,
+                  "computed": false,
+                  "key": {
+                    "type": "Identifier",
+                    "start": 7,
+                    "end": 12,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 7
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 12
+                      }
+                    },
+                    "name": "async"
+                  },
+                  "kind": "get",
+                  "value": {
+                    "type": "FunctionExpression",
+                    "start": 12,
+                    "end": 17,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 12
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 17
+                      }
+                    },
+                    "id": null,
+                    "generator": false,
+                    "expression": false,
+                    "async": false,
+                    "params": [],
+                    "body": {
+                      "type": "BlockStatement",
+                      "start": 15,
+                      "end": 17,
+                      "loc": {
+                        "start": {
+                          "line": 1,
+                          "column": 15
+                        },
+                        "end": {
+                          "line": 1,
+                          "column": 17
+                        }
+                      },
+                      "body": []
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
+    });
+  
     it('should parse computed values as accessor property names (hexadecimal) ', () => {
         expect(parseScript(`var obj = {
             get ['hex\x45scape']() {},

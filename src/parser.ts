@@ -3866,10 +3866,8 @@ export class Parser {
     
             while (this.token !== Token.RightParen) {
                 if (this.token === Token.Ellipsis) {
-                    if (this.token !== Token.Identifier) {
-                        this.errorLocation = this.getLocations();
-                        this.flags |= Flags.SimpleParameterList;
-                    }
+                    this.errorLocation = this.getLocations();
+                    this.flags |= Flags.SimpleParameterList;
                     if (state & ObjectState.Set) this.error(Errors.BadSetterRestParameter);
                     result.push(this.parseRestElement(context));
                     this.parseEventually(context, Token.Comma);
@@ -4213,7 +4211,6 @@ export class Parser {
         }
     
         private parseLet(context: Context): ESTree.Identifier {
-            if (this.flags & Flags.LineTerminator) this.throwUnexpectedToken();
             const name = this.tokenValue;
             const pos = this.getLocations();
             if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword)
@@ -4328,9 +4325,7 @@ export class Parser {
             if (this.parseEventually(context, Token.Assign)) {
                 value = this.parseAssignmentExpression(context);
             }
-            if (this.parseEventually(context, Token.Comma)) {
-                if (this.token === Token.Semicolon) this.error(Errors.Unexpected);
-            }
+            this.parseEventually(context, Token.Comma);
             return this.finishNode(pos, {
                 type: 'PrivateProperty',
                 key,
@@ -4431,7 +4426,6 @@ export class Parser {
                     return key;
                 }
             } else if (this.token === Token.NumericLiteral) {
-                if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
                 key = this.parseLiteral(context);
             } else if (this.token === Token.StringLiteral) {
                 if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
@@ -4539,7 +4533,6 @@ export class Parser {
                         case Token.AsyncKeyword:
                             if (state & ObjectState.Accessors) break loop;
                             if (state & ObjectState.Async) break loop;
-                            if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
                             state |= currentState = ObjectState.Async;
                             key = this.parseIdentifier(context);
                             count++;
@@ -4567,7 +4560,6 @@ export class Parser {
                 if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
                 key = this.parseIdentifier(context);
             } else if (this.token === Token.NumericLiteral) {
-                if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
                 key = this.parseLiteral(context);
             } else if (this.token === Token.StringLiteral) {
                 if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
@@ -4611,10 +4603,10 @@ export class Parser {
                     break;
                 default:
     
-                    if (state & ObjectState.Async || !this.isIdentifier(context, token)) {
+                    if (state & ObjectState.Special || !this.isIdentifier(context, token)) {
                         this.throwUnexpectedToken();
                     }
-    
+
                     if (context & Context.Yield && token === Token.YieldKeyword) {
                         this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                     }
@@ -4673,7 +4665,7 @@ export class Parser {
             });
         }
     
-        private parseThrowExpression(context: Context) {
+        private parseThrowExpression(context: Context): ESTree.ThrowStatement {
     
             if (!(this.flags & Flags.OptionsNext)) {
                 this.error(Errors.UnsupportedFeature, tokenDesc(this.token), 'next');
@@ -5052,20 +5044,12 @@ export class Parser {
             });
         }
     
-        /****
-         * Label
-         */
-    
         private validateLabel(name: string) {
             if (this.labelSet === undefined || !('@' + name in this.labelSet)) {
                 this.error(Errors.UnknownLabel, name);
             }
         }
-    
-        /****
-         * Scope
-         */
-    
+        
         // Fast path for catch arguments
         private addCatchArg(name: string, type: ScopeMasks = ScopeMasks.Shadowable) {
             this.initBlockScope();
