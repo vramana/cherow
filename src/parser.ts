@@ -4304,13 +4304,13 @@ export class Parser {
             });
         }
     
-        private parsePrivateProperty(context: Context, pos: Location, key: ESTree.Identifier) {
+        private parsePrivateProperty(context: Context, pos: Location | undefined, key: ESTree.Identifier) {
             let value: ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression | null = null;
             if (this.parseEventually(context, Token.Assign)) {
                 value = this.parseAssignmentExpression(context);
             }
             this.parseEventually(context, Token.Comma);
-            return this.finishNode(pos, {
+            return this.finishNode(pos as Location, {
                 type: 'ClassProperty',
                 key,
                 value,
@@ -4358,8 +4358,8 @@ export class Parser {
             let key;
             let value;
     
-            loop:
-                while (this.isIdentifierOrKeyword(token)) {
+            if (hasMask(this.token, Token.Modifiers)) {
+                loop: while (this.isIdentifierOrKeyword(token)) {
     
                     switch (this.token) {
     
@@ -4393,6 +4393,7 @@ export class Parser {
                             break loop;
                     }
                 }
+            }
     
             // Generator / Async Iterations ( Stage 3 proposal)
             if (this.token === Token.Multiply) {
@@ -4412,30 +4413,43 @@ export class Parser {
                 state |= ObjectState.Prototype;
             }
     
-            if (this.flags & Flags.OptionsNext && this.token === Token.Hash) {
-                key = this.parseClassPrivateProperty(context, state);
-                if (this.token !== Token.LeftParen) return key;
-            } else if (this.isIdentifier(context & ~Context.Strict, this.token)) {
-                if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
-                const propPos = this.getLocations();
-                key = this.parseIdentifier(context);
-                // Class fields ( Stage 3 proposal)
-                if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
-                    if (this.token === Token.Assign) key = this.parsePrivateProperty(context, propPos, key);
-                    this.parseEventually(context, Token.Comma);
-                    return key;
-                }
-            } else if (this.token === Token.NumericLiteral) {
-                key = this.parseLiteral(context);
-            } else if (this.token === Token.StringLiteral) {
-                if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
-                key = this.parseLiteral(context);
-            } else if (this.token === Token.LeftBracket) {
-                state |= ObjectState.Computed;
-                key = this.parseComputedPropertyName(context);
-            } else if (count && currentState !== ObjectState.Yield) {
-                state &= ~currentState;
-                count--;
+            switch (this.token) {
+                case Token.NumericLiteral:
+                case Token.StringLiteral:
+                    if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
+                    key = this.parseLiteral(context);
+                    break;
+                case Token.LeftBracket:
+                    state |= ObjectState.Computed;
+                    key = this.parseComputedPropertyName(context);
+                    break;
+                case Token.Hash:
+                    if (this.flags & Flags.OptionsNext) {
+                        key = this.parseClassPrivateProperty(context, state);
+                        if (this.token !== Token.LeftParen) return key;
+                        break;
+                    }
+                default:
+                    if (this.isIdentifier(context & ~Context.Strict, this.token)) {
+                        if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
+    
+                        // Stage 3 Proposal - Class-fields
+                        if (this.flags & Flags.OptionsNext) {
+                            const propPos = this.getLocations();
+                            key = this.parseIdentifier(context);
+                            // Class fields ( Stage 3 proposal)
+                            if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
+                                if (this.token === Token.Assign) key = this.parsePrivateProperty(context, propPos, key);
+                                this.parseEventually(context, Token.Comma);
+                                return key;
+                            }
+                        } else {
+                            key = this.parseIdentifier(context);
+                        }
+                    } else if (count && currentState !== ObjectState.Yield) {
+                        state &= ~currentState;
+                        count--;
+                    }
             }
     
             if (!key && state & ObjectState.Yield) {
@@ -4513,8 +4527,8 @@ export class Parser {
             let isEscaped = !!(this.flags & Flags.HasUnicode);
             const tokenValue = this.tokenValue;
     
-            loop:
-                while (this.isIdentifierOrKeyword(token)) {
+            if (hasMask(this.token, Token.Modifiers)) {
+                loop: while (this.isIdentifierOrKeyword(token)) {
     
                     switch (this.token) {
     
@@ -4541,7 +4555,7 @@ export class Parser {
                             break loop;
                     }
                 }
-    
+            }
             // Generator / Async Iterations ( Stage 3 proposal)
             if (this.token === Token.Multiply) {
                 if (state & ObjectState.Async && !(this.flags & Flags.OptionsNext)) {
@@ -4556,25 +4570,27 @@ export class Parser {
                 this.error(Errors.LineBreakAfterAsync);
             }
     
-            if (this.isIdentifierOrKeyword(this.token)) {
-                if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
-                key = this.parseIdentifier(context);
-            } else if (this.token === Token.NumericLiteral) {
-                key = this.parseLiteral(context);
-            } else if (this.token === Token.StringLiteral) {
-                if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
-                key = this.parseLiteral(context);
-            } else if (this.token === Token.LeftBracket) {
-                state |= ObjectState.Computed;
-                key = this.parseComputedPropertyName(context);
-            } else if (count && currentState !== ObjectState.Yield) {
-                state &= ~currentState;
-                count--;
+            switch (this.token) {
+                case Token.NumericLiteral:
+                case Token.StringLiteral:
+                    if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
+                    key = this.parseLiteral(context);
+                    break;
+                case Token.LeftBracket:
+                    state |= ObjectState.Computed;
+                    key = this.parseComputedPropertyName(context);
+                    break;
+                default:
+                    if (this.isIdentifierOrKeyword(this.token)) {
+                        if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
+                        key = this.parseIdentifier(context);
+                    } else if (count && currentState !== ObjectState.Yield) {
+                        state &= ~currentState;
+                        count--;
+                    }
             }
     
-            if (!key && state & ObjectState.Yield) {
-                this.error(Errors.UnexpectedToken, tokenDesc(token));
-            }
+            if (!key && state & ObjectState.Yield) this.error(Errors.UnexpectedToken, tokenDesc(token));
     
             switch (this.token) {
                 case Token.LeftParen:
@@ -4606,7 +4622,7 @@ export class Parser {
                     if (state & ObjectState.Special || !this.isIdentifier(context, token)) {
                         this.throwUnexpectedToken();
                     }
-
+    
                     if (context & Context.Yield && token === Token.YieldKeyword) {
                         this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                     }
@@ -4684,7 +4700,7 @@ export class Parser {
             this.expect(context, Token.LeftBracket);
             const elements = [];
             let state = ArrayState.None;
-
+    
             while (this.token !== Token.RightBracket) {
                 if (this.parseEventually(context, Token.Comma)) {
                     elements.push(null);
@@ -5048,7 +5064,7 @@ export class Parser {
                 this.error(Errors.UnknownLabel, name);
             }
         }
-        
+    
         // Fast path for catch arguments
         private addCatchArg(name: string, type: ScopeMasks = ScopeMasks.Shadowable) {
             this.initBlockScope();

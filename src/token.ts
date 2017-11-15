@@ -17,6 +17,7 @@ export const enum Token {
     BinaryOperator  = 1 << 21,
     UnaryOperator   = 1 << 22 | ExpressionStart,
     VarDeclStart    = 1 << 23 | ExpressionStart,
+    Modifiers       = 1 << 24,
 
     /* Node types */
     EndOfSource = 0, // Pseudo
@@ -142,16 +143,16 @@ export const enum Token {
     PrivateKeyword    = 102 | FutureReserved,
     ProtectedKeyword  = 103 | FutureReserved,
     PublicKeyword     = 104 | FutureReserved,
-    StaticKeyword     = 105 | FutureReserved,
+    StaticKeyword     = 105 | FutureReserved | Modifiers,
     YieldKeyword      = 106 | FutureReserved | ExpressionStart,
 
     /* Contextual keywords */
     AsKeyword          = 107 | Contextual,
-    AsyncKeyword       = 108 | Contextual,
+    AsyncKeyword       = 108 | Contextual | Modifiers,
     AwaitKeyword       = 109 | Contextual | ExpressionStart,
     ConstructorKeyword = 110 | Contextual,
-    GetKeyword         = 111 | Contextual,
-    SetKeyword         = 112 | Contextual,
+    GetKeyword         = 111 | Contextual | Modifiers,
+    SetKeyword         = 112 | Contextual | Modifiers,
     FromKeyword        = 113 | Contextual,
     OfKeyword          = 114 | Contextual,
 

@@ -116,7 +116,7 @@ function tokenDesc(token) {
 // interference.
 var DescKeywordTable = Object.create(null, {
     as: { value: 69739 /* AsKeyword */ },
-    async: { value: 69740 /* AsyncKeyword */ },
+    async: { value: 16846956 /* AsyncKeyword */ },
     await: { value: 331885 /* AwaitKeyword */ },
     break: { value: 12362 /* BreakKeyword */ },
     case: { value: 12363 /* CaseKeyword */ },
@@ -138,7 +138,7 @@ var DescKeywordTable = Object.create(null, {
     for: { value: 12374 /* ForKeyword */ },
     from: { value: 69745 /* FromKeyword */ },
     function: { value: 274519 /* FunctionKeyword */ },
-    get: { value: 69743 /* GetKeyword */ },
+    get: { value: 16846959 /* GetKeyword */ },
     if: { value: 12376 /* IfKeyword */ },
     implements: { value: 20579 /* ImplementsKeyword */ },
     import: { value: 274521 /* ImportKeyword */ },
@@ -154,8 +154,8 @@ var DescKeywordTable = Object.create(null, {
     protected: { value: 20583 /* ProtectedKeyword */ },
     public: { value: 20584 /* PublicKeyword */ },
     return: { value: 12379 /* ReturnKeyword */ },
-    set: { value: 69744 /* SetKeyword */ },
-    static: { value: 20585 /* StaticKeyword */ },
+    set: { value: 16846960 /* SetKeyword */ },
+    static: { value: 16797801 /* StaticKeyword */ },
     super: { value: 274524 /* SuperKeyword */ },
     switch: { value: 274525 /* SwitchKeyword */ },
     this: { value: 274526 /* ThisKeyword */ },
@@ -2034,7 +2034,7 @@ Parser.prototype.parseExportDefault = function parseExportDefault (context, pos)
             declaration = this.parseClassDeclaration(context | (65536 /* OptionalIdentifier */ | 1024 /* TopLevel */));
             break;
         // export default HoistableDeclaration[Default]
-        case 69740 /* AsyncKeyword */:
+        case 16846956 /* AsyncKeyword */:
             if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                 declaration = this.parseFunctionDeclaration(context | (65536 /* OptionalIdentifier */ | 1024 /* TopLevel */));
                 break;
@@ -2125,7 +2125,7 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
             declaration = this.parseFunctionDeclaration(context | 1024 /* TopLevel */);
             break;
         // export HoistableDeclaration
-        case 69740 /* AsyncKeyword */:
+        case 16846956 /* AsyncKeyword */:
             if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                 declaration = this.parseFunctionDeclaration(context | 1024 /* TopLevel */);
                 break;
@@ -2425,7 +2425,7 @@ Parser.prototype.parseStatement = function parseStatement (context) {
         // Both 'class' and 'function' are forbidden by lookahead restriction.
         case 282730 /* YieldKeyword */:
             return this.parseLabelledStatement(context);
-        case 69740 /* AsyncKeyword */:
+        case 16846956 /* AsyncKeyword */:
             // Here we do a quick lookahead so we just need to parse out the
             // 'AsyncFunctionDeclaration'. The 'parsePrimaryExpression' will do the
             // heavy work for us. I doubt this will cause any performance loss, but
@@ -2871,7 +2871,7 @@ Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (c
     var pos = this.getLocations();
     var parentContext = context;
     context &= ~(32 /* Await */ | 16 /* Yield */ | 131072 /* Method */);
-    if (this.parseEventually(context, 69740 /* AsyncKeyword */))
+    if (this.parseEventually(context, 16846956 /* AsyncKeyword */))
         { context |= 32 /* Await */; }
     this.expect(context, 274519 /* FunctionKeyword */);
     if (this.token === 2099763 /* Multiply */) {
@@ -3933,7 +3933,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 2361909 /* Divide */:
         case 1310757 /* DivideAssign */:
             return this.parseRegularExpression(context);
-        case 69740 /* AsyncKeyword */:
+        case 16846956 /* AsyncKeyword */:
             return this.parseAsyncFunctionExpression(context, pos);
         case 12369 /* DoKeyword */:
             return this.parseDoExpression(context);
@@ -4091,40 +4091,42 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     var count = 0;
     var key;
     var value;
-    loop: while (this.isIdentifierOrKeyword(token)) {
-        switch (this$1.token) {
-            case 20585 /* StaticKeyword */:
-                if (state & 512 /* Static */)
-                    { break loop; }
-                if (state & 2 /* Async */)
-                    { break loop; }
-                state |= currentState = 512 /* Static */;
-                key = this$1.parseIdentifier(context);
-                count++;
-                break;
-            case 69743 /* GetKeyword */:
-            case 69744 /* SetKeyword */:
-                if (state & 48 /* Accessors */)
-                    { break loop; }
-                if (state & 2 /* Async */)
-                    { break loop; }
-                state |= currentState = this$1.token === 69743 /* GetKeyword */ ?
-                    16 /* Get */ :
-                    32 /* Set */;
-                key = this$1.parseIdentifier(context);
-                count++;
-                break;
-            case 69740 /* AsyncKeyword */:
-                if (state & 48 /* Accessors */)
-                    { break loop; }
-                if (state & 2 /* Async */)
-                    { break loop; }
-                state |= currentState = 2 /* Async */;
-                key = this$1.parseIdentifier(context);
-                count++;
-                break;
-            default:
-                break loop;
+    if (hasMask(this.token, 16777216 /* Modifiers */)) {
+        loop: while (this.isIdentifierOrKeyword(token)) {
+            switch (this$1.token) {
+                case 16797801 /* StaticKeyword */:
+                    if (state & 512 /* Static */)
+                        { break loop; }
+                    if (state & 2 /* Async */)
+                        { break loop; }
+                    state |= currentState = 512 /* Static */;
+                    key = this$1.parseIdentifier(context);
+                    count++;
+                    break;
+                case 16846959 /* GetKeyword */:
+                case 16846960 /* SetKeyword */:
+                    if (state & 48 /* Accessors */)
+                        { break loop; }
+                    if (state & 2 /* Async */)
+                        { break loop; }
+                    state |= currentState = this$1.token === 16846959 /* GetKeyword */ ?
+                        16 /* Get */ :
+                        32 /* Set */;
+                    key = this$1.parseIdentifier(context);
+                    count++;
+                    break;
+                case 16846956 /* AsyncKeyword */:
+                    if (state & 48 /* Accessors */)
+                        { break loop; }
+                    if (state & 2 /* Async */)
+                        { break loop; }
+                    state |= currentState = 2 /* Async */;
+                    key = this$1.parseIdentifier(context);
+                    count++;
+                    break;
+                default:
+                    break loop;
+            }
         }
     }
     // Generator / Async Iterations ( Stage 3 proposal)
@@ -4142,39 +4144,48 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     if (this.tokenValue === 'prototype') {
         state |= 4096 /* Prototype */;
     }
-    if (this.flags & 4194304 /* OptionsNext */ && this.token === 117 /* Hash */) {
-        key = this.parseClassPrivateProperty(context, state);
-        if (this.token !== 262155 /* LeftParen */)
-            { return key; }
-    }
-    else if (this.isIdentifier(context & ~2 /* Strict */, this.token)) {
-        if (this.tokenValue === 'constructor')
-            { state |= 1024 /* Constructor */; }
-        var propPos = this.getLocations();
-        key = this.parseIdentifier(context);
-        // Class fields ( Stage 3 proposal)
-        if (this.flags & 4194304 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
-            if (this.token === 1310749 /* Assign */)
-                { key = this.parsePrivateProperty(context, propPos, key); }
-            this.parseEventually(context, 18 /* Comma */);
-            return key;
-        }
-    }
-    else if (this.token === 262146 /* NumericLiteral */) {
-        key = this.parseLiteral(context);
-    }
-    else if (this.token === 262147 /* StringLiteral */) {
-        if (this.tokenValue === 'constructor')
-            { state |= 1024 /* Constructor */; }
-        key = this.parseLiteral(context);
-    }
-    else if (this.token === 393235 /* LeftBracket */) {
-        state |= 4 /* Computed */;
-        key = this.parseComputedPropertyName(context);
-    }
-    else if (count && currentState !== 1 /* Yield */) {
-        state &= ~currentState;
-        count--;
+    switch (this.token) {
+        case 262146 /* NumericLiteral */:
+        case 262147 /* StringLiteral */:
+            if (this.tokenValue === 'constructor')
+                { state |= 1024 /* Constructor */; }
+            key = this.parseLiteral(context);
+            break;
+        case 393235 /* LeftBracket */:
+            state |= 4 /* Computed */;
+            key = this.parseComputedPropertyName(context);
+            break;
+        case 117 /* Hash */:
+            if (this.flags & 4194304 /* OptionsNext */) {
+                key = this.parseClassPrivateProperty(context, state);
+                if (this.token !== 262155 /* LeftParen */)
+                    { return key; }
+                break;
+            }
+        default:
+            if (this.isIdentifier(context & ~2 /* Strict */, this.token)) {
+                if (this.tokenValue === 'constructor')
+                    { state |= 1024 /* Constructor */; }
+                // Stage 3 Proposal - Class-fields
+                if (this.flags & 4194304 /* OptionsNext */) {
+                    var propPos = this.getLocations();
+                    key = this.parseIdentifier(context);
+                    // Class fields ( Stage 3 proposal)
+                    if (this.flags & 4194304 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
+                        if (this.token === 1310749 /* Assign */)
+                            { key = this.parsePrivateProperty(context, propPos, key); }
+                        this.parseEventually(context, 18 /* Comma */);
+                        return key;
+                    }
+                }
+                else {
+                    key = this.parseIdentifier(context);
+                }
+            }
+            else if (count && currentState !== 1 /* Yield */) {
+                state &= ~currentState;
+                count--;
+            }
     }
     if (!key && state & 1 /* Yield */) {
         this.error(1 /* UnexpectedToken */, tokenDesc(token));
@@ -4248,33 +4259,35 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
     var firstProto = this.firstProto;
     var isEscaped = !!(this.flags & 2 /* HasUnicode */);
     var tokenValue = this.tokenValue;
-    loop: while (this.isIdentifierOrKeyword(token)) {
-        switch (this$1.token) {
-            case 69743 /* GetKeyword */:
-            case 69744 /* SetKeyword */:
-                if (state & 48 /* Accessors */)
-                    { break loop; }
-                if (state & 2 /* Async */)
-                    { break loop; }
-                if (isEscaped)
-                    { this$1.error(70 /* UnexpectedEscapedKeyword */); }
-                state |= currentState = this$1.token === 69743 /* GetKeyword */ ?
-                    16 /* Get */ :
-                    32 /* Set */;
-                key = this$1.parseIdentifier(context);
-                count++;
-                break;
-            case 69740 /* AsyncKeyword */:
-                if (state & 48 /* Accessors */)
-                    { break loop; }
-                if (state & 2 /* Async */)
-                    { break loop; }
-                state |= currentState = 2 /* Async */;
-                key = this$1.parseIdentifier(context);
-                count++;
-                break;
-            default:
-                break loop;
+    if (hasMask(this.token, 16777216 /* Modifiers */)) {
+        loop: while (this.isIdentifierOrKeyword(token)) {
+            switch (this$1.token) {
+                case 16846959 /* GetKeyword */:
+                case 16846960 /* SetKeyword */:
+                    if (state & 48 /* Accessors */)
+                        { break loop; }
+                    if (state & 2 /* Async */)
+                        { break loop; }
+                    if (isEscaped)
+                        { this$1.error(70 /* UnexpectedEscapedKeyword */); }
+                    state |= currentState = this$1.token === 16846959 /* GetKeyword */ ?
+                        16 /* Get */ :
+                        32 /* Set */;
+                    key = this$1.parseIdentifier(context);
+                    count++;
+                    break;
+                case 16846956 /* AsyncKeyword */:
+                    if (state & 48 /* Accessors */)
+                        { break loop; }
+                    if (state & 2 /* Async */)
+                        { break loop; }
+                    state |= currentState = 2 /* Async */;
+                    key = this$1.parseIdentifier(context);
+                    count++;
+                    break;
+                default:
+                    break loop;
+            }
         }
     }
     // Generator / Async Iterations ( Stage 3 proposal)
@@ -4289,30 +4302,30 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
     if (state & 2 /* Async */ && this.flags & 1 /* LineTerminator */) {
         this.error(69 /* LineBreakAfterAsync */);
     }
-    if (this.isIdentifierOrKeyword(this.token)) {
-        if (this.tokenValue === 'constructor')
-            { state |= 1024 /* Constructor */; }
-        key = this.parseIdentifier(context);
+    switch (this.token) {
+        case 262146 /* NumericLiteral */:
+        case 262147 /* StringLiteral */:
+            if (this.tokenValue === 'constructor')
+                { state |= 1024 /* Constructor */; }
+            key = this.parseLiteral(context);
+            break;
+        case 393235 /* LeftBracket */:
+            state |= 4 /* Computed */;
+            key = this.parseComputedPropertyName(context);
+            break;
+        default:
+            if (this.isIdentifierOrKeyword(this.token)) {
+                if (this.tokenValue === 'constructor')
+                    { state |= 1024 /* Constructor */; }
+                key = this.parseIdentifier(context);
+            }
+            else if (count && currentState !== 1 /* Yield */) {
+                state &= ~currentState;
+                count--;
+            }
     }
-    else if (this.token === 262146 /* NumericLiteral */) {
-        key = this.parseLiteral(context);
-    }
-    else if (this.token === 262147 /* StringLiteral */) {
-        if (this.tokenValue === 'constructor')
-            { state |= 1024 /* Constructor */; }
-        key = this.parseLiteral(context);
-    }
-    else if (this.token === 393235 /* LeftBracket */) {
-        state |= 4 /* Computed */;
-        key = this.parseComputedPropertyName(context);
-    }
-    else if (count && currentState !== 1 /* Yield */) {
-        state &= ~currentState;
-        count--;
-    }
-    if (!key && state & 1 /* Yield */) {
-        this.error(1 /* UnexpectedToken */, tokenDesc(token));
-    }
+    if (!key && state & 1 /* Yield */)
+        { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }
     switch (this.token) {
         case 262155 /* LeftParen */:
             if (!(state & 48 /* Accessors */))

@@ -16,8 +16,320 @@ describe('Destructuring - Parenthesized', () => {
       fail('{b} = b;', '{b} = b;');
       fail('([b]) = b;', '([b]) = b;');
       fail('([{constructor(){}}] = b);', '([{constructor(){}}] = b);');
-  
-      pass('should parse "({b} = b);"', `({b} = b);`, {
+      
+      
+      pass('(a["b"]) = {} ', `(a['b']) = {} `, {
+        "type": "Program",
+        "body": [
+            {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "AssignmentExpression",
+                    "left": {
+                        "type": "MemberExpression",
+                        "object": {
+                            "type": "Identifier",
+                            "name": "a",
+                            "start": 1,
+                            "end": 2,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 1
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 2
+                                }
+                            }
+                        },
+                        "computed": true,
+                        "property": {
+                            "type": "Literal",
+                            "value": "b",
+                            "start": 3,
+                            "end": 6,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 3
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 6
+                                }
+                            },
+                            "raw": "'b'"
+                        },
+                        "start": 1,
+                        "end": 7,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 1
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 7
+                            }
+                        }
+                    },
+                    "operator": "=",
+                    "right": {
+                        "type": "ObjectExpression",
+                        "properties": [],
+                        "start": 11,
+                        "end": 13,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 11
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 13
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 13,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 13
+                        }
+                    }
+                },
+                "start": 0,
+                "end": 13,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 13
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 14,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 1,
+                "column": 14
+            }
+        }
+    });
+
+      pass('(a.b) = {}', `(a.b) = {}`, {
+        "type": "Program",
+        "body": [
+            {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "AssignmentExpression",
+                    "left": {
+                        "type": "MemberExpression",
+                        "object": {
+                            "type": "Identifier",
+                            "name": "a",
+                            "start": 1,
+                            "end": 2,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 1
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 2
+                                }
+                            }
+                        },
+                        "computed": false,
+                        "property": {
+                            "type": "Identifier",
+                            "name": "b",
+                            "start": 3,
+                            "end": 4,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 3
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 4
+                                }
+                            }
+                        },
+                        "start": 1,
+                        "end": 4,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 1
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 4
+                            }
+                        }
+                    },
+                    "operator": "=",
+                    "right": {
+                        "type": "ObjectExpression",
+                        "properties": [],
+                        "start": 8,
+                        "end": 10,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 8
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 10
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 10,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 10
+                        }
+                    }
+                },
+                "start": 0,
+                "end": 10,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 10
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 10,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 1,
+                "column": 10
+            }
+        }
+    });
+
+      pass('(a) = {}', `(a) = {}`, {
+        "type": "Program",
+        "body": [
+            {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "AssignmentExpression",
+                    "left": {
+                        "type": "Identifier",
+                        "name": "a",
+                        "start": 1,
+                        "end": 2,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 1
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 2
+                            }
+                        }
+                    },
+                    "operator": "=",
+                    "right": {
+                        "type": "ObjectExpression",
+                        "properties": [],
+                        "start": 6,
+                        "end": 8,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 6
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 8
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 8,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 8
+                        }
+                    }
+                },
+                "start": 0,
+                "end": 8,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 8
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 8,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 1,
+                "column": 8
+            }
+        }
+    });
+
+      pass('({b} = b);"', `({b} = b);`, {
           "type": "Program",
           "start": 0,
           "end": 10,
@@ -147,7 +459,7 @@ describe('Destructuring - Parenthesized', () => {
           "sourceType": "script"
       });
   
-      pass('should parse "({a, b} = {a: 1, b: 2});"', `({a, b} = {a: 1, b: 2});`, {
+      pass('({a, b} = {a: 1, b: 2});"', `({a, b} = {a: 1, b: 2});`, {
           "type": "Program",
           "start": 0,
           "end": 24,
@@ -433,7 +745,7 @@ describe('Destructuring - Parenthesized', () => {
           "sourceType": "script"
       });
   
-      pass('should parse "[a, b] = [1, 2] "', `[a, b] = [1, 2] `, {
+      pass('[a, b] = [1, 2] "', `[a, b] = [1, 2] `, {
           "type": "Program",
           "start": 0,
           "end": 16,
@@ -579,7 +891,7 @@ describe('Destructuring - Parenthesized', () => {
           "sourceType": "script"
       });
   
-      pass('should parse "[(a) = 0] = 1"', `[(a) = 0] = 1`, {
+      pass('[(a) = 0] = 1"', `[(a) = 0] = 1`, {
           "type": "Program",
           "start": 0,
           "end": 13,
@@ -707,7 +1019,7 @@ describe('Destructuring - Parenthesized', () => {
           "sourceType": "script"
       });
   
-      pass('should parse "[(a.b)] = 0"', `[(a.b)] = 0`, {
+      pass('[(a.b)] = 0"', `[(a.b)] = 0`, {
           "type": "Program",
           "start": 0,
           "end": 11,
@@ -835,7 +1147,7 @@ describe('Destructuring - Parenthesized', () => {
           "sourceType": "script"
       });
   
-      pass('should parse "[a = (b = c)] = 0"', `[a = (b = c)] = 0`, {
+      pass('[a = (b = c)] = 0"', `[a = (b = c)] = 0`, {
           "type": "Program",
           "start": 0,
           "end": 17,
@@ -995,7 +1307,7 @@ describe('Destructuring - Parenthesized', () => {
       });
   
   
-      pass('should parse "[(a = 0)]"', `[(a = 0)]`, {
+      pass('[(a = 0)]"', `[(a = 0)]`, {
           "type": "Program",
           "start": 0,
           "end": 9,
@@ -1091,7 +1403,7 @@ describe('Destructuring - Parenthesized', () => {
           "sourceType": "script"
       });
   
-      pass('should parse "({a:(b)} = 0)"', `({a:(b)} = 0)`, {
+      pass('({a:(b)} = 0)"', `({a:(b)} = 0)`, {
           "type": "Program",
           "start": 0,
           "end": 13,
@@ -1222,7 +1534,7 @@ describe('Destructuring - Parenthesized', () => {
           "sourceType": "script"
       });
   
-      pass('should parse "({a:(b) = 0} = 1)"', `({a:(b) = 0} = 1)`, {
+      pass('({a:(b) = 0} = 1)"', `({a:(b) = 0} = 1)`, {
           "type": "Program",
           "start": 0,
           "end": 17,
@@ -1385,7 +1697,7 @@ describe('Destructuring - Parenthesized', () => {
           "sourceType": "script"
       });
   
-      pass('should parse "({a:(b.c)} = 0)"', `({a:(b.c)} = 0)`, {
+      pass('({a:(b.c)} = 0)"', `({a:(b.c)} = 0)`, {
           "type": "Program",
           "start": 0,
           "end": 15,
@@ -1548,7 +1860,7 @@ describe('Destructuring - Parenthesized', () => {
           "sourceType": "script"
       });
   
-      pass('should parse "({a:(b = 0)})"', `({a:(b = 0)})`, {
+      pass('({a:(b = 0)})"', `({a:(b = 0)})`, {
           "type": "Program",
           "start": 0,
           "end": 13,
