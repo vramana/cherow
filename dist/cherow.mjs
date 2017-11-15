@@ -4545,8 +4545,6 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
     if (this.token === 10 /* Arrow */) {
         if (this.flags & 65536 /* Operator */)
             { this.error(116 /* IllegalArrowFuncParamList */); }
-        if (state & 64 /* Yield */)
-            { this.error(105 /* InvalidArrowYieldParam */); }
         if (state & 32 /* FutureReserved */)
             { this.flags |= 2048 /* BindingPosition */; }
         if (this.flags & 256 /* HaveSeenYield */)
@@ -4941,8 +4939,6 @@ Parser.prototype.parsePropertyName = function parsePropertyName (context) {
         case 262147 /* StringLiteral */:
         case 262146 /* NumericLiteral */:
             return this.parseLiteral(context);
-        case 393235 /* LeftBracket */:
-            return this.parseComputedPropertyName(context);
         default:
             return this.parseIdentifier(context);
     }

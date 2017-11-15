@@ -4684,7 +4684,7 @@ export class Parser {
             this.expect(context, Token.LeftBracket);
             const elements = [];
             let state = ArrayState.None;
-            let r = false;
+
             while (this.token !== Token.RightBracket) {
                 if (this.parseEventually(context, Token.Comma)) {
                     elements.push(null);
@@ -4839,7 +4839,6 @@ export class Parser {
     
             if (this.token === Token.Arrow) {
                 if (this.flags & Flags.Operator) this.error(Errors.IllegalArrowFuncParamList);
-                if (state & ParenthesizedState.Yield) this.error(Errors.InvalidArrowYieldParam);
                 if (state & ParenthesizedState.FutureReserved) this.flags |= Flags.BindingPosition;
                 if (this.flags & Flags.HaveSeenYield) this.error(Errors.InvalidArrowYieldParam);
                 if (state & ParenthesizedState.EvalOrArg) {
@@ -5296,8 +5295,6 @@ export class Parser {
                 case Token.StringLiteral:
                 case Token.NumericLiteral:
                     return this.parseLiteral(context);
-                case Token.LeftBracket:
-                    return this.parseComputedPropertyName(context);
                 default:
                     return this.parseIdentifier(context);
             }

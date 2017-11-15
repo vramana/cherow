@@ -61,3 +61,7 @@
 - Passes all "pass" and "pass-explicit" Test262-parser tests
 - Passes all Test262 tests
 
+*2017-11-15: Version 0.14.0*
+- Implemented class field support (Stage 3 proposal)
+- Improved performance
+

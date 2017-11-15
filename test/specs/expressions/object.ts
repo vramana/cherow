@@ -16,7 +16,8 @@ describe('Espressions - Object', () => {
           parseScript(`({ set set})`);
       }).to.throw('');
     });
-    
+
+
     it('should fail on invalid cover initialized name', () => {
       expect(() => {
           parseScript(`({ acorn esprima })`);
