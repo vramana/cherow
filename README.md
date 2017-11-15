@@ -26,15 +26,16 @@ It's safe to use in production.
 
 `Stage 3` features support. These need to be enabled with the `next` option. 
 
-- Import()
-- Asynchronous Iteration
-- Class Fields
-- Rest/Spread Properties
-- Optional catch binding
-- BigInt
-- Regular Expression's new `DotAll` flag
-- Import.meta
-- Throw expressions
+- [Import()](https://github.com/tc39/proposal-dynamic-import)
+- [Asynchronous Iteration](https://github.com/tc39/proposal-async-iteration)
+- [Class Fields](https://github.com/tc39/proposal-class-fields)
+- [Private methods and fields](https://github.com/tc39/proposal-private-methods)
+- [Rest/Spread Properties](https://github.com/tc39/proposal-object-rest-spread)
+- [Optional catch binding](https://github.com/tc39/proposal-optional-catch-binding)
+- [BigInt](https://github.com/tc39/proposal-bigint)
+- [Regexp dotall flag](https://github.com/tc39/proposal-regexp-dotall-flag)
+- [Import.meta](https://github.com/tc39/proposal-import-meta)
+- [Throw expressions](https://github.com/tc39/proposal-throw-expressions)
 
 ## V8 experimental features
 
