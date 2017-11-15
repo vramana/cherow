@@ -4358,7 +4358,7 @@ export class Parser {
             let key;
             let value;
     
-            if (hasMask(this.token, Token.Modifiers)) {
+         //   if (hasMask(this.token, Token.Modifiers)) {
                 loop: while (this.isIdentifierOrKeyword(token)) {
     
                     switch (this.token) {
@@ -4393,7 +4393,6 @@ export class Parser {
                             break loop;
                     }
                 }
-            }
     
             // Generator / Async Iterations ( Stage 3 proposal)
             if (this.token === Token.Multiply) {

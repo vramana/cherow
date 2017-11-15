@@ -4091,42 +4091,41 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     var count = 0;
     var key;
     var value;
-    if (hasMask(this.token, 16777216 /* Modifiers */)) {
-        loop: while (this.isIdentifierOrKeyword(token)) {
-            switch (this$1.token) {
-                case 16797801 /* StaticKeyword */:
-                    if (state & 512 /* Static */)
-                        { break loop; }
-                    if (state & 2 /* Async */)
-                        { break loop; }
-                    state |= currentState = 512 /* Static */;
-                    key = this$1.parseIdentifier(context);
-                    count++;
-                    break;
-                case 16846959 /* GetKeyword */:
-                case 16846960 /* SetKeyword */:
-                    if (state & 48 /* Accessors */)
-                        { break loop; }
-                    if (state & 2 /* Async */)
-                        { break loop; }
-                    state |= currentState = this$1.token === 16846959 /* GetKeyword */ ?
-                        16 /* Get */ :
-                        32 /* Set */;
-                    key = this$1.parseIdentifier(context);
-                    count++;
-                    break;
-                case 16846956 /* AsyncKeyword */:
-                    if (state & 48 /* Accessors */)
-                        { break loop; }
-                    if (state & 2 /* Async */)
-                        { break loop; }
-                    state |= currentState = 2 /* Async */;
-                    key = this$1.parseIdentifier(context);
-                    count++;
-                    break;
-                default:
-                    break loop;
-            }
+    //   if (hasMask(this.token, Token.Modifiers)) {
+    loop: while (this.isIdentifierOrKeyword(token)) {
+        switch (this$1.token) {
+            case 16797801 /* StaticKeyword */:
+                if (state & 512 /* Static */)
+                    { break loop; }
+                if (state & 2 /* Async */)
+                    { break loop; }
+                state |= currentState = 512 /* Static */;
+                key = this$1.parseIdentifier(context);
+                count++;
+                break;
+            case 16846959 /* GetKeyword */:
+            case 16846960 /* SetKeyword */:
+                if (state & 48 /* Accessors */)
+                    { break loop; }
+                if (state & 2 /* Async */)
+                    { break loop; }
+                state |= currentState = this$1.token === 16846959 /* GetKeyword */ ?
+                    16 /* Get */ :
+                    32 /* Set */;
+                key = this$1.parseIdentifier(context);
+                count++;
+                break;
+            case 16846956 /* AsyncKeyword */:
+                if (state & 48 /* Accessors */)
+                    { break loop; }
+                if (state & 2 /* Async */)
+                    { break loop; }
+                state |= currentState = 2 /* Async */;
+                key = this$1.parseIdentifier(context);
+                count++;
+                break;
+            default:
+                break loop;
         }
     }
     // Generator / Async Iterations ( Stage 3 proposal)
