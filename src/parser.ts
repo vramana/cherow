@@ -4358,41 +4358,41 @@ export class Parser {
             let key;
             let value;
     
-         //   if (hasMask(this.token, Token.Modifiers)) {
-                loop: while (this.isIdentifierOrKeyword(token)) {
+            loop: while (this.isIdentifierOrKeyword(token)) {
     
-                    switch (this.token) {
+                switch (this.token) {
     
-                        case Token.StaticKeyword:
-                            if (state & ObjectState.Static) break loop;
-                            if (state & ObjectState.Async) break loop;
-                            state |= currentState = ObjectState.Static;
-                            key = this.parseIdentifier(context);
-                            count++;
-                            break;
+                    case Token.StaticKeyword:
+                        if (state & ObjectState.Static) break loop;
+                        if (state & ObjectState.Async) break loop;
+                        state |= currentState = ObjectState.Static;
+                        key = this.parseIdentifier(context);
+                        count++;
+                        break;
     
-                        case Token.GetKeyword:
-                        case Token.SetKeyword:
-                            if (state & ObjectState.Accessors) break loop;
-                            if (state & ObjectState.Async) break loop;
-                            state |= currentState = this.token === Token.GetKeyword ?
-                                ObjectState.Get :
-                                ObjectState.Set;
-                            key = this.parseIdentifier(context);
-                            count++;
-                            break;
+                    case Token.GetKeyword:
+                    case Token.SetKeyword:
+                        if (state & ObjectState.Accessors) break loop;
+                        if (state & ObjectState.Async) break loop;
+                        state |= currentState = this.token === Token.GetKeyword ?
+                            ObjectState.Get :
+                            ObjectState.Set;
+                        key = this.parseIdentifier(context);
+                        count++;
+                        break;
     
-                        case Token.AsyncKeyword:
-                            if (state & ObjectState.Accessors) break loop;
-                            if (state & ObjectState.Async) break loop;
-                            state |= currentState = ObjectState.Async;
-                            key = this.parseIdentifier(context);
-                            count++;
-                            break;
-                        default:
-                            break loop;
-                    }
+                    case Token.AsyncKeyword:
+                        if (state & ObjectState.Accessors) break loop;
+                        if (state & ObjectState.Async) break loop;
+                        state |= currentState = ObjectState.Async;
+                        key = this.parseIdentifier(context);
+                        count++;
+                        break;
+                    default:
+                        break loop;
                 }
+            }
+    
     
             // Generator / Async Iterations ( Stage 3 proposal)
             if (this.token === Token.Multiply) {
@@ -5367,15 +5367,11 @@ export class Parser {
             let value;
     
             if (this.isIdentifier(context, this.token)) {
-                pos = this.getLocations();
+    
                 const token = this.token;
-                const tokenValue = this.tokenValue;
     
                 key = this.parsePropertyName(context);
-                const init = this.finishNode(pos, {
-                    type: 'Identifier',
-                    name: tokenValue
-                });
+    
     
                 if (this.parseEventually(context, Token.Colon)) {
     
@@ -5389,25 +5385,30 @@ export class Parser {
                     }
     
                     if (this.token === Token.Assign) {
-                        value = this.parseAssignmentPattern(context, pos, init);
+                        value = this.parseAssignmentPattern(context, pos, key);
                     } else {
-                        value = init;
+                        value = key;
                     }
                 }
     
             } else {
     
-                if (this.token === Token.LeftBracket) {
-                    state |= ObjectState.Computed;
-                    this.expect(context, Token.LeftBracket);
-                    if (context & Context.Yield && this.token === Token.YieldKeyword) {
-                        this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                    }
-                    key = this.parseAssignmentExpression(context | Context.AllowIn);
-                    this.expect(context, Token.RightBracket);
+                switch (this.token) {
+                    case Token.Identifier:
+                        key = this.parseIdentifier(context);
+                        break;
+                    case Token.LeftBracket:
+                        state |= ObjectState.Computed;
+                        this.expect(context, Token.LeftBracket);
+                        if (context & Context.Yield && this.token === Token.YieldKeyword) {
+                            this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                        }
+                        key = this.parseAssignmentExpression(context | Context.AllowIn);
+                        this.expect(context, Token.RightBracket);
+                        break;
     
-                } else {
-                    key = this.parsePropertyName(context);
+                    default:
+                        key = this.parsePropertyName(context);
                 }
     
                 this.expect(context, Token.Colon);
