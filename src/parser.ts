@@ -4328,17 +4328,37 @@ export class Parser {
         }
     
         private parseClassPrivateProperty(context: Context, state: ObjectState) {
+            
             const pos = this.getLocations();
             this.expect(context, Token.Hash);
-            if (this.token === Token.ConstructorKeyword) this.error(Errors.Unexpected);
-            if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedStrictReserved);
-            const key = this.token === Token.StringLiteral ? this.parseLiteral(context) : this.parseIdentifier(context);
+    
+            if (this.isEvalOrArguments(this.tokenValue)) {
+                this.error(Errors.UnexpectedStrictReserved);
+            }
+    
             let value: ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression | null = null;
+            let key: ESTree.Identifier | ESTree.Literal;
+    
+            switch (this.token) {
+
+                case Token.ConstructorKeyword:
+                    this.error(Errors.Unexpected);
+
+                case Token.StringLiteral:
+                    key = this.parseLiteral(context);
+                    break;
+
+                    default:
+                    key = this.parseIdentifier(context);
+            }
+    
             if (this.parseEventually(context, Token.Assign)) {
                 if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
                 value = this.parseAssignmentExpression(context | Context.Fields);
             }
+    
             this.parseEventually(context, Token.Comma);
+    
             return this.finishNode(pos, {
                 type: 'PrivateProperty',
                 key,
@@ -4380,7 +4400,7 @@ export class Parser {
             let value;
             let isEscaped = !!(this.flags & Flags.HasUnicode);
             let fieldPos;
-
+    
             loop: while (this.isIdentifierOrKeyword(token)) {
     
                 switch (this.token) {
@@ -4446,7 +4466,7 @@ export class Parser {
     
                     fieldPos = this.getLocations();
                     key = this.parseLiteral(context);
-
+    
                     // Stage 3 Proposal - Class-fields
                     if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
                         if (state & (ObjectState.Prototype | ObjectState.Constructor)) this.error(Errors.Unexpected);
@@ -4465,11 +4485,7 @@ export class Parser {
                     fieldPos = this.getLocations();
                     key = this.parseComputedPropertyName(context);
                     if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
-                        if (this.token === Token.Assign) {
-                            key = this.parsePrivateProperty(context | Context.Fields, fieldPos, key);
-                        }
-                        this.parseEventually(context, Token.Comma);
-                        return key;
+                        return this.parseClassFields(context, key, fieldPos);
                     }
                     break;
     
@@ -4479,7 +4495,7 @@ export class Parser {
                         if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
                         fieldPos = this.getLocations();
                         key = this.parseIdentifier(context);
-
+    
                         // Stage 3 Proposal - Class-fields
                         if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
                             if (state & (ObjectState.Prototype | ObjectState.Constructor)) this.error(Errors.Unexpected);

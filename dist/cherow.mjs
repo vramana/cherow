@@ -4067,12 +4067,20 @@ Parser.prototype.parsePrivateProperty = function parsePrivateProperty (context, 
 Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty (context, state) {
     var pos = this.getLocations();
     this.expect(context, 117 /* Hash */);
-    if (this.token === 69742 /* ConstructorKeyword */)
-        { this.error(0 /* Unexpected */); }
-    if (this.isEvalOrArguments(this.tokenValue))
-        { this.error(82 /* UnexpectedStrictReserved */); }
-    var key = this.token === 262147 /* StringLiteral */ ? this.parseLiteral(context) : this.parseIdentifier(context);
+    if (this.isEvalOrArguments(this.tokenValue)) {
+        this.error(82 /* UnexpectedStrictReserved */);
+    }
     var value = null;
+    var key;
+    switch (this.token) {
+        case 69742 /* ConstructorKeyword */:
+            this.error(0 /* Unexpected */);
+        case 262147 /* StringLiteral */:
+            key = this.parseLiteral(context);
+            break;
+        default:
+            key = this.parseIdentifier(context);
+    }
     if (this.parseEventually(context, 1310749 /* Assign */)) {
         if (this.isEvalOrArguments(this.tokenValue))
             { this.error(78 /* UnexpectedReservedWord */); }
@@ -4200,11 +4208,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
             fieldPos = this.getLocations();
             key = this.parseComputedPropertyName(context);
             if (this.flags & 4194304 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
-                if (this.token === 1310749 /* Assign */) {
-                    key = this.parsePrivateProperty(context | 268435456 /* Fields */, fieldPos, key);
-                }
-                this.parseEventually(context, 18 /* Comma */);
-                return key;
+                return this.parseClassFields(context, key, fieldPos);
             }
             break;
         default:
