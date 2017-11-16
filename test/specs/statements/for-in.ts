@@ -3,6 +3,7 @@ import { n, test, fail } from '../utils/test-utils';
 describe('Statements - For in', () => {
 
         fail('for(a in b) function c(){}', 'for(a in b) function c(){}');
+        fail('for(a in b) function c(){}', 'for ({...rest, b} in [{}');
         
         test('for([{a=0}] in b);', n('Program', {
             body: [{

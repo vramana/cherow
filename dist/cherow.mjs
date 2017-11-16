@@ -3207,8 +3207,6 @@ Parser.prototype.reinterpretAsPattern = function reinterpretAsPattern (context, 
             // ObjectPattern and ObjectExpression are isomorphic
             for (var i = 0; i < params.properties.length; i++) {
                 var property = params.properties[i];
-                if (!(context & 524288 /* ForStatement */) && property.kind !== 'init')
-                    { this$1.throwUnexpectedToken(); }
                 this$1.reinterpretAsPattern(context, property.type === 'SpreadElement' ? property : property.value);
             }
             return;
@@ -3831,6 +3829,11 @@ Parser.prototype.parseSpreadElement = function parseSpreadElement (context) {
     this.expect(context, 14 /* Ellipsis */);
     if (context & 2 /* Strict */ && this.isEvalOrArguments(this.tokenValue)) {
         this.error(82 /* UnexpectedStrictReserved */);
+    }
+    // Object rest element needs to be the last AssignmenProperty in 
+    // ObjectAssignmentPattern. (For..in statement)
+    if (context & 524288 /* ForStatement */ && this.token === 18 /* Comma */) {
+        this.error(0 /* Unexpected */);
     }
     var arg = this.parseAssignmentExpression(context);
     return this.finishNode(pos, {

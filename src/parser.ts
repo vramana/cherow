@@ -3321,7 +3321,7 @@ export class Parser {
         }
     
         private reinterpretAsPattern(context: Context, params: any) {
-    
+
             switch (params.type) {
                 case 'PrivateName':
                 case 'Identifier':
@@ -3333,13 +3333,12 @@ export class Parser {
                 case 'ObjectExpression':
                     if (this.flags & Flags.ParenthesizedPattern) this.error(Errors.InvalidParenthesizedPattern);
                     params.type = 'ObjectPattern';
-    
+                    
                     // falls through
                 case 'ObjectPattern':
                     // ObjectPattern and ObjectExpression are isomorphic
                     for (let i = 0; i < params.properties.length; i++) {
                         const property = params.properties[i];
-                        if (!(context & Context.ForStatement) && property.kind !== 'init') this.throwUnexpectedToken();
                         this.reinterpretAsPattern(context, property.type === 'SpreadElement' ? property : property.value);
                     }
                     return;
@@ -3367,12 +3366,14 @@ export class Parser {
                     return;
     
                 case 'SpreadElement':
+              
                     params.type = 'RestElement';
                     if (context & Context.ForStatement && params.argument.type === 'AssignmentExpression') {
                         this.error(Errors.InvalidLHSInForIn);
                     }
                     // Fall through
                 case 'RestElement':
+
                     this.reinterpretAsPattern(context, params.argument);
                     return;
     
@@ -4068,6 +4069,11 @@ export class Parser {
             this.expect(context, Token.Ellipsis);
             if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) {
                 this.error(Errors.UnexpectedStrictReserved);
+            }
+            // Object rest element needs to be the last AssignmenProperty in 
+            // ObjectAssignmentPattern. (For..in statement)
+            if (context & Context.ForStatement && this.token === Token.Comma) {
+                this.error(Errors.Unexpected);
             }
             const arg = this.parseAssignmentExpression(context);
             return this.finishNode(pos, {

@@ -35,14 +35,6 @@ describe('Next - Object rest spread', () => {
             }).to.throw('');
         });
 
-        it('should fail on "({ x, ...{ y, z } } = o)" to throw', () => {
-            expect(() => {
-                parseScript('({ x, ...{ y, z } } = o)', {
-                    next: true
-                });
-            }).to.throw();
-        });
-    
         it('should fail on "function test({...{a}}) {}" to throw', () => {
             expect(() => {
                 parseScript('function test({...{a}}) {}', {
@@ -51,49 +43,9 @@ describe('Next - Object rest spread', () => {
             }).to.throw();
         });
     
-        it('should fail on "({...{}} = {})" to throw', () => {
-            expect(() => {
-                parseScript('({...{}} = {})', {
-                    next: true
-                });
-            }).to.throw();
-        });
-    
         it('should fail on "function test({...{}}) {}" to throw', () => {
             expect(() => {
                 parseScript('function test({...{}}) {}', {
-                    next: true
-                });
-            }).to.throw();
-        });
-    
-        it('should fail on "({ x, ...{ y, z } } = o)" to throw', () => {
-            expect(() => {
-                parseScript('({ x, ...{ y, z } } = o)', {
-                    next: true
-                });
-            }).to.throw();
-        });
-    
-        it('should fail on "({ x, ...{ y, z } } = o)" to throw', () => {
-            expect(() => {
-                parseScript('({ x, ...{ y, z } } = o)', {
-                    next: true
-                });
-            }).to.throw();
-        });
-    
-        it('should fail on "({ x, ...{ y, z } } = o)" to throw', () => {
-            expect(() => {
-                parseScript('({ x, ...{ y, z } } = o)', {
-                    next: true
-                });
-            }).to.throw();
-        });
-    
-        it('should fail on "({...x = 1} = {})" to throw', () => {
-            expect(() => {
-                parseScript('({...x = 1} = {})', {
                     next: true
                 });
             }).to.throw();
@@ -115,14 +67,6 @@ describe('Next - Object rest spread', () => {
             }).to.throw();
         });
     
-        it('should fail on "({...[]} = {})" to throw', () => {
-            expect(() => {
-                parseScript('({...[]} = {})', {
-                    next: true
-                });
-            }).to.throw();
-        });
-    
         it('should fail on "var {...[]} = {}" to throw', () => {
             expect(() => {
                 parseScript('var {...[]} = {}', {
@@ -137,6 +81,231 @@ describe('Next - Object rest spread', () => {
                     next: true
                 });
             }).to.throw();
+        });
+
+        it('should parse "result = {...x} = { get v() { } };"', () => {
+            expect(parseScript('result = {...x} = { get v() { } };', {
+                next: true,
+                ranges: true,
+                raw: true,
+                locations: true
+            })).to.eql({
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "AssignmentExpression",
+                            "left": {
+                                "type": "Identifier",
+                                "name": "result",
+                                "start": 0,
+                                "end": 6,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 6
+                                    }
+                                }
+                            },
+                            "operator": "=",
+                            "right": {
+                                "type": "AssignmentExpression",
+                                "left": {
+                                    "type": "ObjectPattern",
+                                    "properties": [
+                                        {
+                                            "type": "RestElement",
+                                            "argument": {
+                                                "type": "Identifier",
+                                                "name": "x",
+                                                "start": 13,
+                                                "end": 14,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 13
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 14
+                                                    }
+                                                }
+                                            },
+                                            "start": 10,
+                                            "end": 14,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 10
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 14
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "start": 9,
+                                    "end": 15,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 9
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 15
+                                        }
+                                    }
+                                },
+                                "operator": "=",
+                                "right": {
+                                    "type": "ObjectExpression",
+                                    "properties": [
+                                        {
+                                            "type": "Property",
+                                            "key": {
+                                                "type": "Identifier",
+                                                "name": "v",
+                                                "start": 24,
+                                                "end": 25,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 24
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 25
+                                                    }
+                                                }
+                                            },
+                                            "value": {
+                                                "type": "FunctionExpression",
+                                                "params": [],
+                                                "body": {
+                                                    "type": "BlockStatement",
+                                                    "body": [],
+                                                    "start": 28,
+                                                    "end": 31,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 1,
+                                                            "column": 28
+                                                        },
+                                                        "end": {
+                                                            "line": 1,
+                                                            "column": 31
+                                                        }
+                                                    }
+                                                },
+                                                "async": false,
+                                                "generator": false,
+                                                "expression": false,
+                                                "id": null,
+                                                "start": 25,
+                                                "end": 31,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 25
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 31
+                                                    }
+                                                }
+                                            },
+                                            "kind": "get",
+                                            "computed": false,
+                                            "method": false,
+                                            "shorthand": false,
+                                            "start": 20,
+                                            "end": 31,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 20
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 31
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "start": 18,
+                                    "end": 33,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 18
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 33
+                                        }
+                                    }
+                                },
+                                "start": 9,
+                                "end": 33,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 9
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 33
+                                    }
+                                }
+                            },
+                            "start": 0,
+                            "end": 33,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 33
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 34,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 34
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 34,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 34
+                    }
+                }
+            });
         });
 
         it('should parse "obj = { then: 1, catch: 2 }"', () => {
