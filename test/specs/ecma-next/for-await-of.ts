@@ -19,6 +19,12 @@ describe('Next - For await of', () => {
         }).to.throw();
     });
 
+    it("should fail if 'next' option isn't set", () => {
+        expect(() => {
+            parseScript(`function f() { this.#x; }`, { next: true })
+        }).to.throw();
+    });
+
     it("should fail if for in", () => {
         expect(() => {
             parseScript(`async function fn() { for await ([[x[yield]]] in [[[]]]) }`)

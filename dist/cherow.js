@@ -3527,7 +3527,7 @@ Parser.prototype.parseMemberExpression = function parseMemberExpression (context
             case 13 /* Period */:
                 {
                     this$1.expect(context, 13 /* Period */);
-                    var property = this$1.flags & 4194304 /* OptionsNext */ && this$1.token === 117 /* Hash */ ?
+                    var property = this$1.flags & 4194304 /* OptionsNext */ && context & 65536 /* Method */ && this$1.token === 117 /* Hash */ ?
                         this$1.parsePrivateName(context) : this$1.parseIdentifierName(context, this$1.token);
                     if (context & 524288 /* ForStatement */ && this$1.token === 69746 /* OfKeyword */) {
                         this$1.errorLocation = pos;
@@ -4117,6 +4117,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     var count = 0;
     var key;
     var value;
+    var isEscaped = !!(this.flags & 2 /* HasUnicode */);
     loop: while (this.isIdentifierOrKeyword(token)) {
         switch (this$1.token) {
             case 16797801 /* StaticKeyword */:
@@ -4145,6 +4146,8 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                     { break loop; }
                 if (state & 2 /* Async */)
                     { break loop; }
+                if (isEscaped)
+                    { this$1.error(70 /* UnexpectedEscapedKeyword */); }
                 state |= currentState = 2 /* Async */;
                 key = this$1.parseIdentifier(context);
                 count++;
@@ -4203,9 +4206,6 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                         if (tokenValue === 'prototype')
                             { this.error(0 /* Unexpected */); }
                         if (this.token === 1310749 /* Assign */) {
-                            if (this.isEvalOrArguments(this.tokenValue)) {
-                                this.error(82 /* UnexpectedStrictReserved */);
-                            }
                             key = this.parsePrivateProperty(context | 268435456 /* Fields */, propPos, key);
                         }
                         this.parseEventually(context, 18 /* Comma */);

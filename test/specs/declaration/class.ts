@@ -7,8 +7,11 @@ describe('Declarations - Class', () => {
     fail('class a{ *() {} }', 'class a{ *() {} }');
     fail('class a{ get get a() {} }', 'class a{ get get a() {} }');
     fail('class a{ get async a() {} }', 'class a{ get async a() {} }');
+
     fail('class a{ async async a() {} }', 'class a{ async async a() {} }');
     
+    fail('class a { \\u0061sync* m(){} }', 'class a { \\u0061sync* m(){} }');
+
     fail('LineTerminator after async keyword', `class Foo {
         async 
         a() {}

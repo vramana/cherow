@@ -118,6 +118,7 @@ export const enum ObjectState {
     Constructor     = 1 << 10,
     Super           = 1 << 11,
     Prototype       = 1 << 12,
+    Delete       = 1 << 13,
     Accessors = Get | Set,
     Modifiers = Accessors | Method | Yield,
     Special = Accessors | Yield | Async

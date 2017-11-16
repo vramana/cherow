@@ -30,7 +30,8 @@ describe('"Next - "Class fields"', () => {
         #x;
         #x;
       }`);
-
+      
+    fail('private class fields early error with StringValue "#constructor"', 'function f() { this.#x; }');
     fail('private class fields early error with StringValue "#constructor"', '#constructor;');
     fail('`arguments` used in class field (ClassElementName PrivateName)', 'class C { #x = arguments; }');
     fail('`eval` used in class field (ClassElementName PrivateName)', 'class C { #x = eval; }');
@@ -56,155 +57,7 @@ describe('"Next - "Class fields"', () => {
       }`, true);
 
     fail('Early Error #8 (module code)', 'function f() { this.#x; }', true);
-
-      pass('in function body', `function f() { this.#x; }`, {
-        "type": "Program",
-        "body": [
-            {
-                "type": "FunctionDeclaration",
-                "params": [],
-                "body": {
-                    "type": "BlockStatement",
-                    "body": [
-                        {
-                            "type": "ExpressionStatement",
-                            "expression": {
-                                "type": "MemberExpression",
-                                "object": {
-                                    "type": "ThisExpression",
-                                    "start": 15,
-                                    "end": 19,
-                                    "loc": {
-                                        "start": {
-                                            "line": 1,
-                                            "column": 15
-                                        },
-                                        "end": {
-                                            "line": 1,
-                                            "column": 19
-                                        }
-                                    }
-                                },
-                                "computed": false,
-                                "property": {
-                                    "type": "PrivateName",
-                                    "id": {
-                                        "type": "Identifier",
-                                        "name": "x",
-                                        "start": 21,
-                                        "end": 22,
-                                        "loc": {
-                                            "start": {
-                                                "line": 1,
-                                                "column": 21
-                                            },
-                                            "end": {
-                                                "line": 1,
-                                                "column": 22
-                                            }
-                                        }
-                                    },
-                                    "start": 20,
-                                    "end": 22,
-                                    "loc": {
-                                        "start": {
-                                            "line": 1,
-                                            "column": 20
-                                        },
-                                        "end": {
-                                            "line": 1,
-                                            "column": 22
-                                        }
-                                    }
-                                },
-                                "start": 15,
-                                "end": 22,
-                                "loc": {
-                                    "start": {
-                                        "line": 1,
-                                        "column": 15
-                                    },
-                                    "end": {
-                                        "line": 1,
-                                        "column": 22
-                                    }
-                                }
-                            },
-                            "start": 15,
-                            "end": 23,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 15
-                                },
-                                "end": {
-                                    "line": 1,
-                                    "column": 23
-                                }
-                            }
-                        }
-                    ],
-                    "start": 13,
-                    "end": 25,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 13
-                        },
-                        "end": {
-                            "line": 1,
-                            "column": 25
-                        }
-                    }
-                },
-                "async": false,
-                "generator": false,
-                "expression": false,
-                "id": {
-                    "type": "Identifier",
-                    "name": "f",
-                    "start": 9,
-                    "end": 10,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 9
-                        },
-                        "end": {
-                            "line": 1,
-                            "column": 10
-                        }
-                    }
-                },
-                "start": 0,
-                "end": 25,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
-                    },
-                    "end": {
-                        "line": 1,
-                        "column": 25
-                    }
-                }
-            }
-        ],
-        "sourceType": "script",
-        "start": 0,
-        "end": 25,
-        "loc": {
-            "start": {
-                "line": 1,
-                "column": 0
-            },
-            "end": {
-                "line": 1,
-                "column": 25
-            }
-        }
-    });
-
+     
       pass('static private name', `var C = class { static #x() {}; }`, {
         "type": "Program",
         "body": [

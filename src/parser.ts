@@ -3710,7 +3710,7 @@ export class Parser {
                         {
     
                             this.expect(context, Token.Period);
-                            const property = this.flags & Flags.OptionsNext && this.token === Token.Hash ?
+                            const property = this.flags & Flags.OptionsNext && context & Context.Method && this.token === Token.Hash ?
                                 this.parsePrivateName(context) : this.parseIdentifierName(context, this.token);
                             if (context & Context.ForStatement && this.token === Token.OfKeyword) {
                                 this.errorLocation = pos;
@@ -4370,7 +4370,7 @@ export class Parser {
             let count = 0;
             let key;
             let value;
-    
+            let isEscaped = !!(this.flags & Flags.HasUnicode);
             loop: while (this.isIdentifierOrKeyword(token)) {
     
                 switch (this.token) {
@@ -4397,6 +4397,7 @@ export class Parser {
                     case Token.AsyncKeyword:
                         if (state & ObjectState.Accessors) break loop;
                         if (state & ObjectState.Async) break loop;
+                        if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
                         state |= currentState = ObjectState.Async;
                         key = this.parseIdentifier(context);
                         count++;
@@ -4455,9 +4456,6 @@ export class Parser {
                                 if (t === Token.ConstructorKeyword) this.error(Errors.Unexpected);
                                 if (tokenValue === 'prototype') this.error(Errors.Unexpected);
                                 if (this.token === Token.Assign) {
-                                    if (this.isEvalOrArguments(this.tokenValue)) {
-                                        this.error(Errors.UnexpectedStrictReserved);
-                                    }
                                     key = this.parsePrivateProperty(context | Context.Fields, propPos, key);
                                 }
                                 this.parseEventually(context, Token.Comma);
