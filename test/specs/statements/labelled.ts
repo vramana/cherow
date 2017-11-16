@@ -37,7 +37,7 @@ describe('Statement - Labelled', () => {
 
     it('should fail on "aw\\u0061it: 1;"', () => {
         expect(() => {
-            parseScript(`aw\\u0061it: 1;`)
+            parseScript(`"use strict"; aw\\u0061it: 1;`)
         }).to.throw();
     });
     it('should fail if use await keyword as label in strict mode"', () => {
@@ -51,15 +51,15 @@ describe('Statement - Labelled', () => {
         }).to.throw();
     });
 
-    it('should fail on escaped yield', () => {
+    it('should fail on escaped yield ( strict mode code)', () => {
         expect(() => {
-            parseScript(`yi\\u0065ld: 1;`)
+            parseScript(`"use strict"; yi\\u0065ld: 1;`)
         }).to.throw();
     });
 
-    it('should fail on escaped await', () => {
+    it('should fail on escaped await ( strict mode code)', () => {
       expect(() => {
-          parseScript(`aw\\u0061it: 1;`)
+          parseScript(`"use strict"; aw\\u0061it: 1;`)
       }).to.throw();
   });
 
@@ -191,6 +191,94 @@ describe('Statement - Labelled', () => {
         L: let // ASI
         {}`)
         }).to.throw();
+    });
+
+    it('should parse await as label in non-module code', () => {
+      expect(parseScript('yi\\u0065ld: 1;', {
+          ranges: true,
+          raw: true,
+          locations: true
+      })).to.eql({
+          "body": [
+            {
+              "body": {
+                "end": 14,
+               "expression": {
+                  "end": 13,
+                  "loc": {
+                    "end": {
+                      "column": 13,
+                    "line": 1,
+                    },
+                    "start": {
+                      "column": 12,
+                      "line": 1,
+                    }
+                  },
+                 "raw": "1",
+                  "start": 12,
+                  "type": "Literal",
+                  "value": 1,
+                },
+                "loc": {
+                  "end": {
+                    "column": 14,
+                    "line": 1,
+                  },
+                  "start": {
+                    "column": 12,
+                    "line": 1,
+                  },
+               },
+                "start": 12,
+                "type": "ExpressionStatement",
+              },
+              "end": 14,
+             "label": {
+                "end": 10,
+                "loc": {
+                 "end": {
+                    "column": 10,
+                    "line": 1,
+                  },
+                  "start": {
+                    "column": 0,
+                    "line": 1,
+                  },
+                },
+                "name": "yield",
+                "start": 0,
+                "type": "Identifier",
+              },
+              "loc": {
+                "end": {
+                  "column": 14,
+                  "line": 1,
+                },
+                "start": {
+                  "column": 0,
+                  "line": 1,
+                }
+              },
+              "start": 0,
+              "type": "LabeledStatement",
+            }
+          ],
+          "end": 14,
+          "loc": {
+            "end": {
+              "column": 14,
+              "line": 1,
+            },
+            "start": {
+              "column": 0,
+              "line": 1,
+            },
+          },
+          "sourceType": "script",
+          "start": 0,
+          "type": "Program"
+        });
     });
     
     

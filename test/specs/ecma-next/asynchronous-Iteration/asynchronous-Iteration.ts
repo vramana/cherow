@@ -287,7 +287,7 @@ describe('Next - Asynchronous Iteration', () => {
             parseScript(`(async function *() { void yield; });`, {
                 next: true
             })
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it("should fail if await used as label", () => {

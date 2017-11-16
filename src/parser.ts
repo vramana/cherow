@@ -914,12 +914,11 @@ export class Parser {
         private peekUnicodeEscape(): Chars {
             this.advance();
             const code = this.peekExtendedUnicodeEscape();
-    
             if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMin) {
                 this.error(Errors.UnexpectedSurrogate);
             }
     
-            if (!isvalidIdentifierContinue(code)) {
+            if (!isIdentifierPart(code)) {
                 this.error(Errors.InvalidUnicodeEscapeSequence);
             }
     
@@ -3076,14 +3075,13 @@ export class Parser {
         private parseLabelledStatement(context: Context): ESTree.LabeledStatement | ESTree.ExpressionStatement {
             const pos = this.getLocations();
             const token = this.token;
-            const isEscaped = !!(this.flags & Flags.HasUnicode);
+  
+            if (!(context & Context.Strict)) context |= Context.Labelled;
+
             const expr = this.parseExpression(context | Context.AllowIn, pos);
-    
+  
             if (this.token === Token.Colon && expr.type === 'Identifier') {
-                if (isEscaped) {
-                    if (token === Token.YieldKeyword) this.error(Errors.UnexpectedEscapedKeyword);
-                    if (token === Token.AwaitKeyword) this.error(Errors.UnexpectedEscapedKeyword);
-                }
+  
                 this.expect(context, Token.Colon);
     
                 const key = '@' + expr.name;
@@ -3685,7 +3683,7 @@ export class Parser {
                     break;
     
                 default:
-                    expr = this.parseMemberExpression(context, pos);
+                    expr = this.parseMemberExpression(context | Context.AllowIn, pos);
             }
     
             if (!(this.flags & Flags.AllowCall) && expr.type === 'ArrowFunctionExpression') {
@@ -4211,7 +4209,8 @@ export class Parser {
                 case Token.Hash:
                     if (context & Context.Method) return this.parsePrivateName(context);
                 case Token.YieldKeyword:
-                    if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+                    if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
+                    if (this.flags & Flags.HasUnicode && !(context & Context.Labelled) ) this.error(Errors.UnexpectedEscapedKeyword);
                 default:
                     if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
                     return this.parseIdentifier(context);
@@ -4737,15 +4736,9 @@ export class Parser {
                         state |= ArrayState.EvalArg;
                         this.errorLocation = this.getLocations();
                     }
-    
-                    // Invalid: 'function* f() { [yield {a = 0}]; }'
-                    if (context & Context.Yield && !(context & Context.Method) &&
-                        this.flags & Flags.InFunctionBody &&
-                        this.token === Token.YieldKeyword) {
-                        this.error(Errors.InvalidShorthandAssignment);
-                    }
-    
+                    
                     elements.push(this.parseAssignmentExpression(context | Context.AllowIn));
+
                     if (this.token !== Token.RightBracket) {
                         this.expect(context, Token.Comma);
                     }

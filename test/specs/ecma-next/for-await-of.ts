@@ -12,8 +12,9 @@ describe('Next - For await of', () => {
             })
         }).to.throw();
     });
-
-    it("should fail if 'next' option isn't set", () => {
+    
+        
+      it("should fail if 'next' option isn't set", () => {
         expect(() => {
             parseScript(`async function fn() { for await ([[x[yield]]] of [[[]]]) }`)
         }).to.throw();

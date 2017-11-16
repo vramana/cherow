@@ -1127,7 +1127,7 @@ Parser.prototype.peekUnicodeEscape = function peekUnicodeEscape () {
     if (code >= 55296 /* LeadSurrogateMin */ && code <= 56320 /* TrailSurrogateMin */) {
         this.error(100 /* UnexpectedSurrogate */);
     }
-    if (!isvalidIdentifierContinue(code)) {
+    if (!isIdentifierPart(code)) {
         this.error(6 /* InvalidUnicodeEscapeSequence */);
     }
     this.advance();
@@ -2961,15 +2961,10 @@ Parser.prototype.parseReturnStatement = function parseReturnStatement (context) 
 Parser.prototype.parseLabelledStatement = function parseLabelledStatement (context) {
     var pos = this.getLocations();
     var token = this.token;
-    var isEscaped = !!(this.flags & 2 /* HasUnicode */);
+    if (!(context & 2 /* Strict */))
+        { context |= 2097152 /* Labelled */; }
     var expr = this.parseExpression(context | 4 /* AllowIn */, pos);
     if (this.token === 21 /* Colon */ && expr.type === 'Identifier') {
-        if (isEscaped) {
-            if (token === 282730 /* YieldKeyword */)
-                { this.error(70 /* UnexpectedEscapedKeyword */); }
-            if (token === 331885 /* AwaitKeyword */)
-                { this.error(70 /* UnexpectedEscapedKeyword */); }
-        }
         this.expect(context, 21 /* Colon */);
         var key = '@' + expr.name;
         if (this.labelSet === undefined)
@@ -3504,7 +3499,7 @@ Parser.prototype.parseLeftHandSideExpression = function parseLeftHandSideExpress
             expr = this.parseImportCall(context | 4 /* AllowIn */, pos);
             break;
         default:
-            expr = this.parseMemberExpression(context, pos);
+            expr = this.parseMemberExpression(context | 4 /* AllowIn */, pos);
     }
     if (!(this.flags & 8 /* AllowCall */) && expr.type === 'ArrowFunctionExpression') {
         return expr;
@@ -3965,7 +3960,9 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
             if (context & 65536 /* Method */)
                 { return this.parsePrivateName(context); }
         case 282730 /* YieldKeyword */:
-            if (this.flags & 2 /* HasUnicode */)
+            if (context & 16 /* Yield */)
+                { this.error(85 /* DisallowedInContext */, tokenDesc(this.token)); }
+            if (this.flags & 2 /* HasUnicode */ && !(context & 2097152 /* Labelled */))
                 { this.error(70 /* UnexpectedEscapedKeyword */); }
         default:
             if (!this.isIdentifier(context, this.token))
@@ -4473,12 +4470,6 @@ Parser.prototype.parseArrayInitializer = function parseArrayInitializer (context
             if (this$1.isEvalOrArguments(this$1.tokenValue)) {
                 state |= 1 /* EvalArg */;
                 this$1.errorLocation = this$1.getLocations();
-            }
-            // Invalid: 'function* f() { [yield {a = 0}]; }'
-            if (context & 16 /* Yield */ && !(context & 65536 /* Method */) &&
-                this$1.flags & 4 /* InFunctionBody */ &&
-                this$1.token === 282730 /* YieldKeyword */) {
-                this$1.error(80 /* InvalidShorthandAssignment */);
             }
             elements.push(this$1.parseAssignmentExpression(context | 4 /* AllowIn */));
             if (this$1.token !== 20 /* RightBracket */) {

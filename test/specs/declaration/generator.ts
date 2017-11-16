@@ -22,6 +22,7 @@ describe('Declarations - Generator', () => {
   fail('function*g() { ({yield = 0} = 0); }', 'function*g() { ({yield = 0} = 0); }');
   fail('function*g() { var {yield = 0} = 0; }', 'function*g() { var {yield = 0} = 0; }');
   fail('function*g() { for ({yield = 0} in 0); }', 'function*g() { for ({yield = 0} in 0); }');
+  fail('var gen = function *g() { void yield; };', 'var gen = function *g() { void yield; };');
 
   pass('function* a(){({yield:a}=0)}', 'function* a(){({yield:a}=0)}', {
     "type": "Program",
