@@ -57,7 +57,239 @@ describe('"Next - "Class fields"', () => {
       }`, true);
 
     fail('Early Error #8 (module code)', 'function f() { this.#x; }', true);
-
+    
+    pass('ASI #5', `class C {
+        a = x
+        in
+        z
+        b = y
+        in
+        z
+      }`, {
+        "type": "Program",
+        "body": [
+            {
+                "type": "ClassDeclaration",
+                "id": {
+                    "type": "Identifier",
+                    "name": "C",
+                    "start": 6,
+                    "end": 7,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 6
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 7
+                        }
+                    }
+                },
+                "superClass": null,
+                "body": {
+                    "type": "ClassBody",
+                    "body": [
+                        {
+                            "type": "ClassProperty",
+                            "key": {
+                                "type": "Identifier",
+                                "name": "a",
+                                "start": 18,
+                                "end": 19,
+                                "loc": {
+                                    "start": {
+                                        "line": 2,
+                                        "column": 8
+                                    },
+                                    "end": {
+                                        "line": 2,
+                                        "column": 9
+                                    }
+                                }
+                            },
+                            "value": {
+                                "type": "BinaryExpression",
+                                "left": {
+                                    "type": "Identifier",
+                                    "name": "x",
+                                    "start": 22,
+                                    "end": 23,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 12
+                                        },
+                                        "end": {
+                                            "line": 2,
+                                            "column": 13
+                                        }
+                                    }
+                                },
+                                "right": {
+                                    "type": "Identifier",
+                                    "name": "z",
+                                    "start": 43,
+                                    "end": 44,
+                                    "loc": {
+                                        "start": {
+                                            "line": 4,
+                                            "column": 8
+                                        },
+                                        "end": {
+                                            "line": 4,
+                                            "column": 9
+                                        }
+                                    }
+                                },
+                                "operator": "in",
+                                "start": 22,
+                                "end": 44,
+                                "loc": {
+                                    "start": {
+                                        "line": 2,
+                                        "column": 12
+                                    },
+                                    "end": {
+                                        "line": 4,
+                                        "column": 9
+                                    }
+                                }
+                            },
+                            "start": 18,
+                            "end": 44,
+                            "loc": {
+                                "start": {
+                                    "line": 2,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 4,
+                                    "column": 9
+                                }
+                            }
+                        },
+                        {
+                            "type": "ClassProperty",
+                            "key": {
+                                "type": "Identifier",
+                                "name": "b",
+                                "start": 53,
+                                "end": 54,
+                                "loc": {
+                                    "start": {
+                                        "line": 5,
+                                        "column": 8
+                                    },
+                                    "end": {
+                                        "line": 5,
+                                        "column": 9
+                                    }
+                                }
+                            },
+                            "value": {
+                                "type": "BinaryExpression",
+                                "left": {
+                                    "type": "Identifier",
+                                    "name": "y",
+                                    "start": 57,
+                                    "end": 58,
+                                    "loc": {
+                                        "start": {
+                                            "line": 5,
+                                            "column": 12
+                                        },
+                                        "end": {
+                                            "line": 5,
+                                            "column": 13
+                                        }
+                                    }
+                                },
+                                "right": {
+                                    "type": "Identifier",
+                                    "name": "z",
+                                    "start": 78,
+                                    "end": 79,
+                                    "loc": {
+                                        "start": {
+                                            "line": 7,
+                                            "column": 8
+                                        },
+                                        "end": {
+                                            "line": 7,
+                                            "column": 9
+                                        }
+                                    }
+                                },
+                                "operator": "in",
+                                "start": 57,
+                                "end": 79,
+                                "loc": {
+                                    "start": {
+                                        "line": 5,
+                                        "column": 12
+                                    },
+                                    "end": {
+                                        "line": 7,
+                                        "column": 9
+                                    }
+                                }
+                            },
+                            "start": 53,
+                            "end": 79,
+                            "loc": {
+                                "start": {
+                                    "line": 5,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 7,
+                                    "column": 9
+                                }
+                            }
+                        }
+                    ],
+                    "start": 8,
+                    "end": 87,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 8
+                        },
+                        "end": {
+                            "line": 8,
+                            "column": 7
+                        }
+                    }
+                },
+                "start": 0,
+                "end": 87,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 8,
+                        "column": 7
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 87,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 8,
+                "column": 7
+            }
+        }
+    });
     
     pass('literal', `class C { 'a'; }`, {
         "type": "Program",

@@ -4328,7 +4328,7 @@ export class Parser {
         }
     
         private parseClassPrivateProperty(context: Context, state: ObjectState) {
-            
+
             const pos = this.getLocations();
             this.expect(context, Token.Hash);
     
@@ -4389,7 +4389,7 @@ export class Parser {
     
             // Stage 3 Proposal - Class-fields
             if (this.flags & Flags.OptionsNext && this.token === Token.Hash) {
-                if (!(context & Context.Module)) return this.parseClassPrivateProperty(context, state);
+                if (!(context & Context.Module)) return this.parseClassPrivateProperty(context | Context.AllowIn, state);
             }
     
             const pos = this.getLocations();
@@ -4470,7 +4470,7 @@ export class Parser {
                     // Stage 3 Proposal - Class-fields
                     if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
                         if (state & (ObjectState.Prototype | ObjectState.Constructor)) this.error(Errors.Unexpected);
-                        return this.parseClassFields(context | Context.Fields, key, fieldPos);
+                        return this.parseClassFields(context | Context.AllowIn | Context.Fields, key, fieldPos);
                     }
                     break;
     
@@ -4485,7 +4485,7 @@ export class Parser {
                     fieldPos = this.getLocations();
                     key = this.parseComputedPropertyName(context);
                     if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
-                        return this.parseClassFields(context, key, fieldPos);
+                        return this.parseClassFields(context | Context.AllowIn | Context.Fields, key, fieldPos);
                     }
                     break;
     
@@ -4499,7 +4499,7 @@ export class Parser {
                         // Stage 3 Proposal - Class-fields
                         if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
                             if (state & (ObjectState.Prototype | ObjectState.Constructor)) this.error(Errors.Unexpected);
-                            return this.parseClassFields(context, key, fieldPos);
+                            return this.parseClassFields(context | Context.AllowIn | Context.Fields, key, fieldPos);
                         }
                     } else if (count && currentState !== ObjectState.Yield) {
                         state &= ~currentState;

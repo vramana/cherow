@@ -4123,7 +4123,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     // Stage 3 Proposal - Class-fields
     if (this.flags & 4194304 /* OptionsNext */ && this.token === 117 /* Hash */) {
         if (!(context & 1 /* Module */))
-            { return this.parseClassPrivateProperty(context, state); }
+            { return this.parseClassPrivateProperty(context | 4 /* AllowIn */, state); }
     }
     var pos = this.getLocations();
     var token = this.token;
@@ -4199,7 +4199,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
             if (this.flags & 4194304 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
                 if (state & (4096 /* Prototype */ | 1024 /* Constructor */))
                     { this.error(0 /* Unexpected */); }
-                return this.parseClassFields(context | 268435456 /* Fields */, key, fieldPos);
+                return this.parseClassFields(context | 4 /* AllowIn */ | 268435456 /* Fields */, key, fieldPos);
             }
             break;
         case 117 /* Hash */:
@@ -4214,7 +4214,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
             fieldPos = this.getLocations();
             key = this.parseComputedPropertyName(context);
             if (this.flags & 4194304 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
-                return this.parseClassFields(context, key, fieldPos);
+                return this.parseClassFields(context | 4 /* AllowIn */ | 268435456 /* Fields */, key, fieldPos);
             }
             break;
         default:
@@ -4227,7 +4227,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                 if (this.flags & 4194304 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
                     if (state & (4096 /* Prototype */ | 1024 /* Constructor */))
                         { this.error(0 /* Unexpected */); }
-                    return this.parseClassFields(context, key, fieldPos);
+                    return this.parseClassFields(context | 4 /* AllowIn */ | 268435456 /* Fields */, key, fieldPos);
                 }
             }
             else if (count && currentState !== 1 /* Yield */) {
