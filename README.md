@@ -3,7 +3,9 @@
 [![Build Status](https://travis-ci.org/cherow/cherow.svg?branch=master)](https://travis-ci.org/cherow/cherow)
 [![Coverage Status](https://coveralls.io/repos/github/cherow/cherow/badge.svg?branch=master)](https://coveralls.io/github/cherow/cherow?branch=master)
 
-Cherow is a very fast, standards-compliant, self-hosted ECMAScript parser with high focus on both performance and stability.
+# Enigma
+
+A very fast, standards-compliant, self-hosted ECMAScript parser with high focus on both performance and stability.
 
 It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ecma-international.org/publications/standards/Ecma-262.htm) and should parse according to these specifications.
 
