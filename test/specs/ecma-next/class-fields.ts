@@ -18,6 +18,28 @@ describe('"Next - "Class fields"', () => {
     fail('comma separator methid', 'x, f() {}');
     fail('dangling comma', 'x,');
     fail('dangling comma', '#x,;');
+    fail('private field as constructor', 'class C { constructor; }');
+    fail('private field as static prototype', 'class C { static prototype; }');
+    fail('private field as static constructor', 'class C { static constructor; }');
+    fail('private field with arguments in arrow func body', 'class C { #x = () => arguments; }');
+    fail('private field with eval in arrow func body', 'class C { #x = () => eval; }');
+    fail('private name as constructor', 'class C { #constructor; }');
+    fail('static assign arguments', 'class C { static x = arguments; }');
+    fail('static assign eval', 'class C { static x = eval; }');
+    fail('duplicate private names', `class C {
+        #x;
+        #x;
+      }`);
+
+    fail('private class fields early error with StringValue "#constructor"', '#constructor;');
+    fail('`arguments` used in class field (ClassElementName PrivateName)', 'class C { #x = arguments; }');
+    fail('`eval` used in class field (ClassElementName PrivateName)', 'class C { #x = eval; }');
+    fail('private field assign arguments', 'class C { #x = arguments; }');
+    fail('private field assign eval', 'class C { #x = eval; }');
+    fail('`arguments` used in class field (private field, ternary expression)', 'class C { #x = false ? {} : arguments; }');
+    fail('`arguments` used in class field (private field, ternary expression)', 'class C { #x = false ? {} : eval; }');
+    fail('`arguments` used in class field (ternary expression)', 'class C { x = false ? {} : arguments;}');
+    fail('`eval` used in class field (ternary expression)', 'class C { x = false ? {} : eval }');
     fail('Early Error #1 (module code)', '#x,;', true);
     fail('Early Error #2 (module code)', 'class C { constructor() { this.#x; }  }', true);
     fail('Early Error #3 (module code)', 'class C { f() {  this.#x; }  }', true);

@@ -3292,6 +3292,9 @@ Parser.prototype.parseArrowFunctionExpression = function parseArrowFunctionExpre
         body = this.parseFunctionBody(context | 8 /* Arrow */);
     }
     else {
+        if (context & 268435456 /* Fields */ && this.isEvalOrArguments(this.tokenValue)) {
+            this.error(82 /* UnexpectedStrictReserved */);
+        }
         body = this.parseAssignmentExpression(context);
         expression = true;
     }
@@ -3312,6 +3315,9 @@ Parser.prototype.parseConditionalExpression = function parseConditionalExpressio
         { return expr; }
     var consequent = this.parseAssignmentExpression(context | 4 /* AllowIn */);
     this.expect(context, 21 /* Colon */);
+    if (context & 268435456 /* Fields */ && this.isEvalOrArguments(this.tokenValue)) {
+        this.error(82 /* UnexpectedStrictReserved */);
+    }
     var alternate = this.parseAssignmentExpression(context);
     return this.finishNode(pos, {
         type: 'ConditionalExpression',
@@ -4068,10 +4074,16 @@ Parser.prototype.parsePrivateProperty = function parsePrivateProperty (context, 
 Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty (context, state) {
     var pos = this.getLocations();
     this.expect(context, 117 /* Hash */);
+    if (this.token === 69742 /* ConstructorKeyword */)
+        { this.error(0 /* Unexpected */); }
+    if (this.isEvalOrArguments(this.tokenValue))
+        { this.error(82 /* UnexpectedStrictReserved */); }
     var key = this.parseIdentifier(context);
     var value = null;
     if (this.parseEventually(context, 1310749 /* Assign */)) {
-        value = this.parseAssignmentExpression(context);
+        if (this.isEvalOrArguments(this.tokenValue))
+            { this.error(78 /* UnexpectedReservedWord */); }
+        value = this.parseAssignmentExpression(context | 268435456 /* Fields */);
     }
     this.parseEventually(context, 18 /* Comma */);
     return this.finishNode(pos, {
@@ -4181,11 +4193,21 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                 // Stage 3 Proposal - Class-fields
                 if (this.flags & 4194304 /* OptionsNext */) {
                     var propPos = this.getLocations();
+                    var t = this.token;
+                    var tokenValue = this.tokenValue;
                     key = this.parseIdentifier(context);
                     // Class fields ( Stage 3 proposal)
                     if (this.flags & 4194304 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
-                        if (this.token === 1310749 /* Assign */)
-                            { key = this.parsePrivateProperty(context, propPos, key); }
+                        if (t === 69742 /* ConstructorKeyword */)
+                            { this.error(0 /* Unexpected */); }
+                        if (tokenValue === 'prototype')
+                            { this.error(0 /* Unexpected */); }
+                        if (this.token === 1310749 /* Assign */) {
+                            if (this.isEvalOrArguments(this.tokenValue)) {
+                                this.error(82 /* UnexpectedStrictReserved */);
+                            }
+                            key = this.parsePrivateProperty(context | 268435456 /* Fields */, propPos, key);
+                        }
                         this.parseEventually(context, 18 /* Comma */);
                         return key;
                     }

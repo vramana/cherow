@@ -29,6 +29,7 @@ export const enum Context {
     Pattern                = 1 << 25,
     Let                    = 1 << 26,  // Variable declaration
     Const                  = 1 << 27,  // Variable declaration
+    Fields                 = 1 << 28,  // Variable declaration
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,

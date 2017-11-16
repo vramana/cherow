@@ -2999,12 +2999,12 @@ export class Parser {
                         if (context & Context.Await && this.flags & Flags.InFunctionBody) this.error(Errors.DisallowedInContext, tokenDesc(token));
                     default: // ignore
                 }
-                
+    
                 // Can not use 'await' as identifier inside an async function
                 if (parentContext & Context.Await && this.token === Token.AwaitKeyword) {
                     this.error(Errors.InvalidAwaitInAsyncFunc);
                 }
-
+    
                 if (context & Context.TopLevel && !(context & Context.AnnexB)) {
                     if (!this.initBlockScope() && (
                             this.blockScope !== this.functionScope && this.blockScope[name] ||
@@ -3081,9 +3081,9 @@ export class Parser {
     
             if (this.token === Token.Colon && expr.type === 'Identifier') {
                 if (isEscaped) {
-                    if(token === Token.YieldKeyword) this.error(Errors.UnexpectedEscapedKeyword);
+                    if (token === Token.YieldKeyword) this.error(Errors.UnexpectedEscapedKeyword);
                     if (token === Token.AwaitKeyword) this.error(Errors.UnexpectedEscapedKeyword);
-                } 
+                }
                 this.expect(context, Token.Colon);
     
                 const key = '@' + expr.name;
@@ -3327,7 +3327,7 @@ export class Parser {
                 case 'PrivateName':
                 case 'Identifier':
                     if (context & Context.InArrowParameterList) {
-                            this.addFunctionArg(params.name);
+                        this.addFunctionArg(params.name);
                     }
                     return;
     
@@ -3414,15 +3414,18 @@ export class Parser {
     
             let body;
             let expression = false;
-
+    
             // Unset the necessary masks
             context &= ~(Context.InParenthesis | Context.Yield) | Context.AllowIn;
-
+    
             if (!(this.flags & Flags.InFunctionBody)) context |= Context.TopLevel;
     
             if (this.token === Token.LeftBrace) {
                 body = this.parseFunctionBody(context | Context.Arrow);
             } else {
+                if (context & Context.Fields && this.isEvalOrArguments(this.tokenValue)) {
+                    this.error(Errors.UnexpectedStrictReserved);
+                }
                 body = this.parseAssignmentExpression(context);
                 expression = true;
             }
@@ -3445,6 +3448,9 @@ export class Parser {
             if (!this.parseEventually(context, Token.QuestionMark)) return expr;
             const consequent = this.parseAssignmentExpression(context | Context.AllowIn);
             this.expect(context, Token.Colon);
+            if (context & Context.Fields && this.isEvalOrArguments(this.tokenValue)) {
+                this.error(Errors.UnexpectedStrictReserved);
+            }
             const alternate = this.parseAssignmentExpression(context);
             return this.finishNode(pos, {
                 type: 'ConditionalExpression',
@@ -4122,13 +4128,13 @@ export class Parser {
                         if (context & Context.Arrow && context & Context.TopLevel) this.error(Errors.NewTargetArrow);
                         if (!(this.flags & Flags.InFunctionBody)) this.error(Errors.MetaNotInFunctionBody);
                     }
-                    
+    
                     const meta = this.parseMetaProperty(context, id, pos);
-
+    
                     if (this.token === Token.Assign) {
                         this.error(Errors.InvalidLHSInAssignment);
                     }
-
+    
                     return meta;
     
                     // 'import'
@@ -4323,10 +4329,13 @@ export class Parser {
         private parseClassPrivateProperty(context: Context, state: ObjectState) {
             const pos = this.getLocations();
             this.expect(context, Token.Hash);
+            if (this.token === Token.ConstructorKeyword) this.error(Errors.Unexpected);
+            if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedStrictReserved);
             const key = this.parseIdentifier(context);
             let value: ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression | null = null;
             if (this.parseEventually(context, Token.Assign)) {
-                value = this.parseAssignmentExpression(context);
+                if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
+                value = this.parseAssignmentExpression(context | Context.Fields);
             }
             this.parseEventually(context, Token.Comma);
             return this.finishNode(pos, {
@@ -4351,7 +4360,7 @@ export class Parser {
     
             // Stage 3 Proposal - Class-fields
             if (this.flags & Flags.OptionsNext && this.token === Token.Hash) {
-                if ( !(context & Context.Module)) return this.parseClassPrivateProperty(context, state);
+                if (!(context & Context.Module)) return this.parseClassPrivateProperty(context, state);
             }
     
             const pos = this.getLocations();
@@ -4438,10 +4447,19 @@ export class Parser {
                         // Stage 3 Proposal - Class-fields
                         if (this.flags & Flags.OptionsNext) {
                             const propPos = this.getLocations();
+                            const t = this.token;
+                            const tokenValue = this.tokenValue;
                             key = this.parseIdentifier(context);
                             // Class fields ( Stage 3 proposal)
                             if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
-                                if (this.token === Token.Assign) key = this.parsePrivateProperty(context, propPos, key);
+                                if (t === Token.ConstructorKeyword) this.error(Errors.Unexpected);
+                                if (tokenValue === 'prototype') this.error(Errors.Unexpected);
+                                if (this.token === Token.Assign) {
+                                    if (this.isEvalOrArguments(this.tokenValue)) {
+                                        this.error(Errors.UnexpectedStrictReserved);
+                                    }
+                                    key = this.parsePrivateProperty(context | Context.Fields, propPos, key);
+                                }
                                 this.parseEventually(context, Token.Comma);
                                 return key;
                             }
