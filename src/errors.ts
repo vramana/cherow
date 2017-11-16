@@ -118,7 +118,9 @@ export const enum Errors {
     IllegalArrowFuncParamList,
     InvalidLetDeclBinding,
     ReservedKeyword,
-    InvalidPrivateConstructor
+    InvalidPrivateConstructor,
+    InvalidAwaitInAsyncFunc,
+    NewTargetArrow
 }
 
 export const ErrorMessages: {
@@ -241,9 +243,9 @@ export const ErrorMessages: {
     [Errors.InvalidLetDeclBinding]: 'Lexical declarations must not have a binding named "let"',
     [Errors.ReservedKeyword]: 'The keyword %0 is reserved',
     [Errors.InvalidPrivateConstructor]: 'Class constructor may not have a private field',
+    [Errors.InvalidAwaitInAsyncFunc]: 'Can not use await as identifier inside an async function',
+    [Errors.NewTargetArrow]: 'new.target must be within function (but not arrow expression) code',
     
-    
-
 };
 
 function constructError(msg: string, column: number): Error {

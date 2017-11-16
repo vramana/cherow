@@ -21,6 +21,8 @@ describe('Statement - For', () => {
       fail('for (let xd; false; ) label1: label2: function f() {}', 'for (let xd; false; ) label1: label2: function f() {}');
       fail('for ( ; false; ) function* g() {}', 'for ( ; false; ) function* g() {}');
       fail('for(;;) function a(){}', 'for(;;) function a(){}');
+    //  fail('"use strict"; for ([arguments] of [[]]) ;', '"use strict"; for ([arguments] of [[]]) ;');
+    //  fail('"use strict"; for ([arguments] in [[]]) ;', '"use strict"; for ([arguments] in [[]]) ;');
      
       pass('should parse "for (let in a) {}"', `for (let in a) {}`, {
           "type": "Program",

@@ -11,6 +11,12 @@ describe('Generators', () => {
     }).to.throw('');
 });
 
+it('should fail if yield are used as parameter', () => {
+  expect(() => {
+      parseScript(`function* f(x = 0, x) {}`)
+  }).to.throw('');
+});
+
 it('should fail on yield weak binding', () => {
   expect(() => {
       parseScript(`var g = function*() { yield 3 + yield 4; };`)

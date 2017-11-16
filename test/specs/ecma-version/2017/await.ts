@@ -107,7 +107,18 @@ describe('Expressions - Await', () => {
       expect(() => {
           parseModule(`async(e=await)=>l`);
       }).to.throw()
-  })
+  });
+
+  it('should fail on await assign in async parrow param list (module code)', () => {
+    expect(() => {
+        parseScript(`async function foo() {
+          function await() {
+          }
+        }`);
+    }).to.throw()
+});
+
+  
 
     it('should parse await in generator', () => {
         expect(parseScript(`function* foo(await) { yield await; };`, {

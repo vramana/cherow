@@ -291,6 +291,8 @@ ErrorMessages[116 /* IllegalArrowFuncParamList */] = 'Illegal arrow function par
 ErrorMessages[117 /* InvalidLetDeclBinding */] = 'Lexical declarations must not have a binding named "let"';
 ErrorMessages[118 /* ReservedKeyword */] = 'The keyword %0 is reserved';
 ErrorMessages[119 /* InvalidPrivateConstructor */] = 'Class constructor may not have a private field';
+ErrorMessages[120 /* InvalidAwaitInAsyncFunc */] = 'Can not use await as identifier inside an async function';
+ErrorMessages[121 /* NewTargetArrow */] = 'new.target must be within function (but not arrow expression) code';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -2618,7 +2620,7 @@ Parser.prototype.parseBreakStatement = function parseBreakStatement (context) {
         label = this.parseIdentifierName(context, this.token);
         this.validateLabel(label.name);
     }
-    if (!label && !(this.flags & (16 /* Break */ | 32 /* Iteration */))) {
+    if (!label && !(this.flags & (64 /* Switch */ | 32 /* Iteration */))) {
         this.error(17 /* IllegalBreak */);
     }
     this.consumeSemicolon(context);
@@ -2904,6 +2906,10 @@ Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (c
                     { this.error(85 /* DisallowedInContext */, tokenDesc(token)); }
             default: // ignore
         }
+        // Can not use 'await' as identifier inside an async function
+        if (parentContext & 32 /* Await */ && this.token === 331885 /* AwaitKeyword */) {
+            this.error(120 /* InvalidAwaitInAsyncFunc */);
+        }
         if (context & 1024 /* TopLevel */ && !(context & 4096 /* AnnexB */)) {
             if (!this.initBlockScope() && (this.blockScope !== this.functionScope && this.blockScope[name] ||
                 this.blockScope[name] === 2 /* NonShadowable */)) {
@@ -3144,7 +3150,7 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
     var expr = this.parseConditionalExpression(context, pos);
     // If that's the case - parse out a arrow function with a single un-parenthesized parameter.
     // An async one, will be parsed out in 'parsePrimaryExpression'
-    if (this.token === 10 /* Arrow */ && (this.isIdentifier(context | 8 /* SimpleArrow */, token))) {
+    if (this.token === 10 /* Arrow */ && (this.isIdentifier(context | 8 /* Arrow */, token))) {
         if (!(this.flags & 1 /* LineTerminator */)) {
             if (this.isEvalOrArguments(expr.name)) {
                 if (context & 2 /* Strict */)
@@ -3158,7 +3164,7 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
                 this.errorLocation = this.getLocations();
                 this.flags |= 2048 /* BindingPosition */;
             }
-            return this.parseArrowFunctionExpression(context & ~(32 /* Await */) | 8 /* SimpleArrow */, pos, [expr]);
+            return this.parseArrowFunctionExpression(context & ~(32 /* Await */) | 8 /* Arrow */, pos, [expr]);
         }
     }
     if (hasMask(this.token, 1310720 /* AssignOperator */)) {
@@ -3272,7 +3278,7 @@ Parser.prototype.parseArrowFunctionExpression = function parseArrowFunctionExpre
         { this.flags &= ~8 /* AllowCall */; }
     var savedScope = this.enterFunctionScope();
     // A 'simple arrow' is just a plain identifier and doesn't have any param list.
-    if (!(context & 8 /* SimpleArrow */)) {
+    if (!(context & 8 /* Arrow */)) {
         for (var i in params)
             { this$1.reinterpretAsPattern(context | 512 /* InArrowParameterList */, params[i]); }
     }
@@ -3280,21 +3286,10 @@ Parser.prototype.parseArrowFunctionExpression = function parseArrowFunctionExpre
     var expression = false;
     // Unset the necessary masks
     context &= ~(64 /* InParenthesis */ | 16 /* Yield */) | 4 /* AllowIn */;
+    if (!(this.flags & 4 /* InFunctionBody */))
+        { context |= 1024 /* TopLevel */; }
     if (this.token === 393228 /* LeftBrace */) {
-        // An arrow function could be a non-trailing member of a comma
-        // expression or a semicolon terminating a full expression. In this
-        // cases this productions are valid:
-        //
-        //   a => {}, b;
-        //   (a => {}), b;
-        //
-        // However. If the arrow function ends a statement, ASI permits the
-        // next token to start an expression statement wich makes
-        // this production invalid:
-        //
-        //   a => {} /x/g;   // regular expression as a division
-        //
-        body = this.parseFunctionBody(context);
+        body = this.parseFunctionBody(context | 8 /* Arrow */);
     }
     else {
         body = this.parseAssignmentExpression(context);
@@ -3884,10 +3879,16 @@ Parser.prototype.parseNewExpression = function parseNewExpression (context) {
                     { this.error(30 /* MetaNotInFunctionBody */); }
                 if (context & 128 /* InParameter */)
                     { return this.parseMetaProperty(context, id, pos); }
+                if (context & 8 /* Arrow */ && context & 1024 /* TopLevel */)
+                    { this.error(121 /* NewTargetArrow */); }
                 if (!(this.flags & 4 /* InFunctionBody */))
                     { this.error(30 /* MetaNotInFunctionBody */); }
             }
-            return this.parseMetaProperty(context, id, pos);
+            var meta = this.parseMetaProperty(context, id, pos);
+            if (this.token === 1310749 /* Assign */) {
+                this.error(38 /* InvalidLHSInAssignment */);
+            }
+            return meta;
         // 'import'
         case 274521 /* ImportKeyword */:
             this.throwUnexpectedToken();
@@ -4894,7 +4895,7 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
         if (context & 2 /* Strict */)
             { this.error(37 /* StrictLHSAssignment */); }
     }
-    if (context & 128 /* InParameter */ && context & (2 /* Strict */ | 32 /* Await */ | 33554432 /* Pattern */)) {
+    if (context & 128 /* InParameter */ && context & (2 /* Strict */ | 48 /* YieldAwait */ | 33554432 /* Pattern */)) {
         this.addFunctionArg(name);
     }
     this.addVarOrBlock(context, name);

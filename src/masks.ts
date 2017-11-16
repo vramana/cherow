@@ -4,7 +4,7 @@ export const enum Context {
     Module                 = 1 << 0,   // If node was parsed in module code
     Strict                 = 1 << 1,   // If node was parsed in strict mode
     AllowIn                = 1 << 2,   // If node was parsed in a context where 'in-expressions' are allowed
-    SimpleArrow            = 1 << 3,   // If node was parsed in a arrow context as plain identifier
+    Arrow            = 1 << 3,   // If node was parsed in a arrow context as plain identifier
     Yield                  = 1 << 4,   // If node was parsed in the 'yield' context created when parsing a generator
     Await                  = 1 << 5,   // If node was parsed in the 'await' context created when parsing an async function
     InParenthesis          = 1 << 6,   // If node was parsed in a parenthesized expression context
@@ -29,10 +29,12 @@ export const enum Context {
     Pattern                = 1 << 25,
     Let                    = 1 << 26,  // Variable declaration
     Const                  = 1 << 27,  // Variable declaration
-    HasPrototype           = 1 << 28,  // Variable declaration
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
+
+    YieldAwait = Yield | Await
+    
 }
 
 // Mutable parser flags

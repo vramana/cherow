@@ -4,8 +4,14 @@ import * as chai from 'chai';
 const expect = chai.expect;
 
 describe('Espressions - New target', () => {
-
-    it("should fail on escaped target", () => {
+    
+      it("should fail on escaped target", () => {
+        expect(() => {
+            parseScript("function f() { new.target = 1;  }");
+        }).to.throw();
+    });
+    
+      it("should fail on escaped target", () => {
         expect(() => {
             parseScript("function f() { new.t\\u0061rget; }");
         }).to.not.throw();
@@ -16,6 +22,22 @@ describe('Espressions - New target', () => {
           parseScript("function f() {  n\\u0065w.target; }");
       }).to.throw();
   });
+
+  it("should fail on new.target in arrow function body (global)", () => {
+    expect(() => {
+        parseScript("() => { new.target; };");
+    }).to.throw();
+});
+  
+  
+  it("should fail on escaped new", () => {
+    expect(() => {
+        parseScript(`var x=1;
+        break LABEL;
+        var y=2;`);
+    }).to.throw('');
+});
+
 
     it("should fail on \"function f() { new.anythingElse; }\"", () => {
         expect(() => {

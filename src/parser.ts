@@ -2645,7 +2645,7 @@ export class Parser {
                 this.validateLabel(label.name);
             }
     
-            if (!label && !(this.flags & (Flags.Break | Flags.Iteration))) {
+            if (!label && !(this.flags & (Flags.Switch | Flags.Iteration))) {
                 this.error(Errors.IllegalBreak);
             }
     
@@ -2999,7 +2999,12 @@ export class Parser {
                         if (context & Context.Await && this.flags & Flags.InFunctionBody) this.error(Errors.DisallowedInContext, tokenDesc(token));
                     default: // ignore
                 }
-    
+                
+                // Can not use 'await' as identifier inside an async function
+                if (parentContext & Context.Await && this.token === Token.AwaitKeyword) {
+                    this.error(Errors.InvalidAwaitInAsyncFunc);
+                }
+
                 if (context & Context.TopLevel && !(context & Context.AnnexB)) {
                     if (!this.initBlockScope() && (
                             this.blockScope !== this.functionScope && this.blockScope[name] ||
@@ -3267,7 +3272,7 @@ export class Parser {
             const expr = this.parseConditionalExpression(context, pos);
             // If that's the case - parse out a arrow function with a single un-parenthesized parameter.
             // An async one, will be parsed out in 'parsePrimaryExpression'
-            if (this.token === Token.Arrow && (this.isIdentifier(context | Context.SimpleArrow, token))) {
+            if (this.token === Token.Arrow && (this.isIdentifier(context | Context.Arrow, token))) {
     
                 if (!(this.flags & Flags.LineTerminator)) {
                     if (this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
@@ -3280,7 +3285,7 @@ export class Parser {
                         this.errorLocation = this.getLocations();
                         this.flags |= Flags.BindingPosition;
                     }
-                    return this.parseArrowFunctionExpression(context & ~(Context.Await) | Context.SimpleArrow, pos, [expr]);
+                    return this.parseArrowFunctionExpression(context & ~(Context.Await) | Context.Arrow, pos, [expr]);
                 }
             }
     
@@ -3403,31 +3408,20 @@ export class Parser {
             const savedScope = this.enterFunctionScope();
     
             // A 'simple arrow' is just a plain identifier and doesn't have any param list.
-            if (!(context & Context.SimpleArrow)) {
+            if (!(context & Context.Arrow)) {
                 for (const i in params) this.reinterpretAsPattern(context | Context.InArrowParameterList, params[i]);
             }
     
             let body;
             let expression = false;
-    
+
             // Unset the necessary masks
             context &= ~(Context.InParenthesis | Context.Yield) | Context.AllowIn;
+
+            if (!(this.flags & Flags.InFunctionBody)) context |= Context.TopLevel;
     
             if (this.token === Token.LeftBrace) {
-                // An arrow function could be a non-trailing member of a comma
-                // expression or a semicolon terminating a full expression. In this
-                // cases this productions are valid:
-                //
-                //   a => {}, b;
-                //   (a => {}), b;
-                //
-                // However. If the arrow function ends a statement, ASI permits the
-                // next token to start an expression statement wich makes
-                // this production invalid:
-                //
-                //   a => {} /x/g;   // regular expression as a division
-                //
-                body = this.parseFunctionBody(context);
+                body = this.parseFunctionBody(context | Context.Arrow);
             } else {
                 body = this.parseAssignmentExpression(context);
                 expression = true;
@@ -4125,10 +4119,17 @@ export class Parser {
                     if (this.token === Token.Identifier) {
                         if (this.tokenValue !== 'target') this.error(Errors.MetaNotInFunctionBody);
                         if (context & Context.InParameter) return this.parseMetaProperty(context, id, pos);
+                        if (context & Context.Arrow && context & Context.TopLevel) this.error(Errors.NewTargetArrow);
                         if (!(this.flags & Flags.InFunctionBody)) this.error(Errors.MetaNotInFunctionBody);
                     }
-    
-                    return this.parseMetaProperty(context, id, pos);
+                    
+                    const meta = this.parseMetaProperty(context, id, pos);
+
+                    if (this.token === Token.Assign) {
+                        this.error(Errors.InvalidLHSInAssignment);
+                    }
+
+                    return meta;
     
                     // 'import'
                 case Token.ImportKeyword:
@@ -5230,7 +5231,7 @@ export class Parser {
                 if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
             }
     
-            if (context & Context.InParameter && context & (Context.Strict | Context.Await | Context.Pattern)) {
+            if (context & Context.InParameter && context & (Context.Strict | Context.YieldAwait | Context.Pattern)) {
                 this.addFunctionArg(name);
             }
     
