@@ -6093,5 +6093,4 @@ describe('"Next - "Class fields"', () => {
             }
         }
     });
-
 });

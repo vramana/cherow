@@ -17,7 +17,24 @@ describe('Espressions - Object', () => {
       }).to.throw('');
     });
 
-
+    it('should fail on escaped yield method', () => {
+      expect(() => {
+          parseScript(`({
+            \\u0061sync m(){}
+          });`);
+      }).to.throw('');
+    });
+    
+   it('should fail on invalid cover initialized name', () => {
+      expect(() => {
+          parseScript(`var obj = {
+            *method() {
+              void yi\\u0065ld;
+            }
+          };`);
+      }).to.throw('');
+    });
+    
     it('should fail on invalid cover initialized name', () => {
       expect(() => {
           parseScript(`({ acorn esprima })`);

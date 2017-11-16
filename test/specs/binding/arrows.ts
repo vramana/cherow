@@ -8,7 +8,9 @@ describe('Binding - Arrows', () => {
   fail('invalid method in pattern', '({get a(){}}) => 0;');
   fail('invalid member expression', '({a:b[0]})=>0');
   fail('invalid dup param', '([a,[b],...b])=>0;');
-
+  
+  fail('async(x = await) => {  }', 'async(x = await) => {  }');
+  
   pass('should handle array binding pattern empty', `([])=>0;`, {
             "type": "Program",
             "start": 0,

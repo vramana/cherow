@@ -1219,7 +1219,7 @@ export class Parser {
                             case Chars.LineFeed:
                             case Chars.LineSeparator:
                             case Chars.ParagraphSeparator:
-                                return this.token;
+                                this.error(Errors.UnexpectedTokenRegExp);
                             default: // ignore
                         }
                     }
@@ -1372,7 +1372,7 @@ export class Parser {
             }
     
             this.advance(); // Consume the quote
-            if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
+            if (this.flags & (Flags.OptionsRaw | Flags.OptionsDirectives)) this.storeRaw(start);
             this.tokenValue = ret;
             return Token.StringLiteral;
         }
@@ -1738,7 +1738,6 @@ export class Parser {
     
             return statements;
         }
-    
     
         private parseDirective(context: Context): ESTree.ExpressionStatement {
             const pos = this.getLocations();
@@ -2392,6 +2391,7 @@ export class Parser {
                     // Both 'class' and 'function' are forbidden by lookahead restriction.
     
                 case Token.YieldKeyword:
+                case Token.AwaitKeyword:
                     return this.parseLabelledStatement(context);
                 case Token.AsyncKeyword:
                     // Here we do a quick lookahead so we just need to parse out the
@@ -3071,10 +3071,14 @@ export class Parser {
         private parseLabelledStatement(context: Context): ESTree.LabeledStatement | ESTree.ExpressionStatement {
             const pos = this.getLocations();
             const token = this.token;
+            const isEscaped = !!(this.flags & Flags.HasUnicode);
             const expr = this.parseExpression(context | Context.AllowIn, pos);
     
             if (this.token === Token.Colon && expr.type === 'Identifier') {
-    
+                if (isEscaped) {
+                    if(token === Token.YieldKeyword) this.error(Errors.UnexpectedEscapedKeyword);
+                    if (token === Token.AwaitKeyword) this.error(Errors.UnexpectedEscapedKeyword);
+                } 
                 this.expect(context, Token.Colon);
     
                 const key = '@' + expr.name;
@@ -3285,7 +3289,6 @@ export class Parser {
                 if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                     this.error(Errors.StrictLHSAssignment);
                 } else if (this.token === Token.Assign) {
-                    context |= Context.Assignment;
                     if (this.flags & Flags.HaveSeenRest) this.error(Errors.InvalidLHSInAssignment);
                     // Note: A functions arameter list is already parsed as pattern, so no need to reinterpret
                     if (!(context & Context.InParameter)) this.reinterpretAsPattern(context, expr);
@@ -3319,13 +3322,7 @@ export class Parser {
                 case 'PrivateName':
                 case 'Identifier':
                     if (context & Context.InArrowParameterList) {
-                        if (context & Context.Await) {
-                            // Duplicate param validation are only done in "strict mode" for
-                            // async arrow functions
-                            if (context & Context.Strict) this.addFunctionArg(params.name);
-                        } else {
                             this.addFunctionArg(params.name);
-                        }
                     }
                     return;
     
@@ -3863,7 +3860,7 @@ export class Parser {
     
             this.expect(context, Token.LeftParen);
             const result = [];
-    
+            this.flags &= ~Flags.SimpleParameterList;
             while (this.token !== Token.RightParen) {
                 if (this.token === Token.Ellipsis) {
                     this.errorLocation = this.getLocations();
@@ -3930,6 +3927,8 @@ export class Parser {
     
                 // 'parseAsyncFunctionExpression'
                 case Token.FunctionKeyword:
+                    //  The `async` contextual keyword must not contain Unicode escape sequences
+                    if (isEscaped) this.error(Errors.Unexpected);
                     // The specs says "async[no LineTerminator here]", so just return an plain identifier in case
                     // we got an LineTerminator. The 'FunctionExpression' will be parsed out in 'parsePrimaryExpression'
                     if (this.flags & Flags.LineTerminator) return id;
@@ -3997,7 +3996,7 @@ export class Parser {
                         this.errorLocation = this.getLocations();
                         state |= ParenthesizedState.Parenthesized;
                     }
-                    args.push(this.parseAssignmentExpression(context | Context.InAsyncParameterList));
+                    args.push(this.parseAssignmentExpression(context | Context.InAsyncArgs));
                 }
     
                 if (this.token === Token.RightParen) break;
@@ -4190,7 +4189,7 @@ export class Parser {
                     return this.parseThrowExpression(context);
                 case Token.AwaitKeyword:
                     if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedReservedWord);
-    
+                    if (context & Context.InAsyncArgs) this.flags |= Flags.HaveSeenAwait;
                     if (context & Context.Await) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
     
                     if (context & Context.Module) {
@@ -4204,6 +4203,8 @@ export class Parser {
                     if (this.flags & Flags.OptionsJSX) return this.parseJSXElement(context | Context.JSXChild);
                 case Token.Hash:
                     if (context & Context.Method) return this.parsePrivateName(context);
+                case Token.YieldKeyword:
+                    if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
                 default:
                     if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
                     return this.parseIdentifier(context);
@@ -4216,6 +4217,7 @@ export class Parser {
             if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword)
             if (context & Context.Strict) this.error(Errors.InvalidLetDeclBinding);
             this.nextToken(context);
+            if (this.flags & Flags.LineTerminator && !(this.flags & Flags.Iteration)) this.error(Errors.Unexpected);
             if (this.token === Token.LetKeyword) this.error(Errors.InvalidLetDeclBinding);
             return this.finishNode(pos, {
                 type: 'Identifier',
@@ -4394,7 +4396,6 @@ export class Parser {
                 }
             }
     
-    
             // Generator / Async Iterations ( Stage 3 proposal)
             if (this.token === Token.Multiply) {
                 if (state & ObjectState.Async && !(this.flags & Flags.OptionsNext)) {
@@ -4547,6 +4548,7 @@ export class Parser {
                         case Token.AsyncKeyword:
                             if (state & ObjectState.Accessors) break loop;
                             if (state & ObjectState.Async) break loop;
+                            if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
                             state |= currentState = ObjectState.Async;
                             key = this.parseIdentifier(context);
                             count++;
@@ -4606,7 +4608,7 @@ export class Parser {
                     }
                     this.expect(context, Token.Colon);
     
-                    if (context & Context.InAsyncParameterList && this.token === Token.AwaitKeyword) {
+                    if (context & Context.InAsyncArgs && this.token === Token.AwaitKeyword) {
                         this.errorLocation = this.getLocations();
                         this.flags |= Flags.HaveSeenAwait;
                     }
@@ -4629,7 +4631,7 @@ export class Parser {
     
                     if (token === Token.AwaitKeyword) {
                         if (context & Context.Await) this.throwUnexpectedToken();
-                        if (context & Context.InAsyncParameterList) {
+                        if (context & Context.InAsyncArgs) {
                             this.errorLocation = this.getLocations();
                             this.flags |= Flags.HaveSeenAwait;
                         }
@@ -4642,9 +4644,6 @@ export class Parser {
                     state |= ObjectState.Shorthand
     
                     if (this.token === Token.Assign) {
-                        if (context & Context.Assignment) {
-                            this.error(Errors.InvalidShorthandAssignment);
-                        }
                         value = this.parseAssignmentPattern(context, pos, key);
                     } else {
                         value = key;

@@ -39,7 +39,8 @@ const f: any = {
         'db41a80ccf646002.js',
         'dc5864c9096ad0a8.js',
         'e3fbcf63d7e43ead.js',
-        'fd2a45941e114896.js'
+        'fd2a45941e114896.js',
+        'c0ad1c20e662c8ed.js',
     ],
     early: [
 

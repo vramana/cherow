@@ -82,6 +82,25 @@ describe('Miscellaneous - Directive prologue', () => {
             });
     });
 
+    it('should parse bare bone use strict directive', () => {
+        expect(parseScript('"use strict";', {
+            directives: true
+        })).to.eql({
+              "body": [
+                {
+                  "directive": "use strict",
+                  "expression": {
+                    "type": "Literal",
+                    "value": "use strict",
+                  },
+                 "type": "ExpressionStatement",
+                },
+              ],
+              "sourceType": "script",
+              "type": "Program",
+            });
+    });
+
     it('should parse hexadecimal directive', () => {
         expect(parseScript('"\\x61"', {
             locations: true,

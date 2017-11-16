@@ -9,27 +9,27 @@ export const enum Context {
     Await                  = 1 << 5,   // If node was parsed in the 'await' context created when parsing an async function
     InParenthesis          = 1 << 6,   // If node was parsed in a parenthesized expression context
     InParameter            = 1 << 7,   // If node was parsed in the formal list of an function
-    InAsyncParameterList   = 1 << 8,   // If node was parsed in the formal list of an async arrow function
+    InAsyncArgs            = 1 << 8,   // If node was parsed in the formal list of an async arrow function
     InArrowParameterList   = 1 << 9,   // If node was parsed in the formal list of an arrow function
     TopLevel               = 1 << 10,  // If node was parsed at the TopLevel
     IfClause               = 1 << 11,  // If node was parsed in a if statement (early error related)
     AnnexB                 = 1 << 12,  // If node was parsed in the 'if statement' with the AnnexB semtantic
-    Assignment             = 1 << 13,  
-    JSXChild               = 1 << 14,  // If node was parsed in a JSX context and has JSX children
-    Import                 = 1 << 15,  // Module ( strict and non-strict)
-    OptionalIdentifier     = 1 << 16,  // Optional identifier for export of either anonymous class or function declaration
-    Method                 = 1 << 17,  // If node was parsed in a object / class method definition context
-    HasConstructor         = 1 << 18,  // If node was parsed inside Class and allow super
-    Constructor            = 1 << 19,  // Class declaration / expression
-    ForStatement           = 1 << 20,  // If node was parsed in a for / for - in / for -of context
-    TaggedTemplate         = 1 << 21,  // 
-    Labelled               = 1 << 22,  // 
-    Iteration              = 1 << 23,  // 
-    LocationTracking       = 1 << 24,
-    Expression             = 1 << 25,
-    Pattern                = 1 << 26,
-    Let                    = 1 << 27,  // Variable declaration
-    Const                  = 1 << 28,  // Variable declaration
+    JSXChild               = 1 << 13,  // If node was parsed in a JSX context and has JSX children
+    Import                 = 1 << 14,  // Module ( strict and non-strict)
+    OptionalIdentifier     = 1 << 15,  // Optional identifier for export of either anonymous class or function declaration
+    Method                 = 1 << 16,  // If node was parsed in a object / class method definition context
+    HasConstructor         = 1 << 17,  // If node was parsed inside Class and allow super
+    Constructor            = 1 << 18,  // Class declaration / expression
+    ForStatement           = 1 << 19,  // If node was parsed in a for / for - in / for -of context
+    TaggedTemplate         = 1 << 20,  // 
+    Labelled               = 1 << 21,  // 
+    Iteration              = 1 << 22,  // 
+    LocationTracking       = 1 << 23,
+    Expression             = 1 << 24,
+    Pattern                = 1 << 25,
+    Let                    = 1 << 26,  // Variable declaration
+    Const                  = 1 << 27,  // Variable declaration
+    HasPrototype           = 1 << 28,  // Variable declaration
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
@@ -70,7 +70,7 @@ export const enum Flags {
     OptionsGlobalReturn          = 1 << 27, // Allow return statement in global scope,
     OptionsSourceType            = 1 << 28, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
     OptionsTolerant              = 1 << 29,
-    ParenthesizedAssignment       = 1 << 30,
+    Block                        = 1 << 30,
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc,
 

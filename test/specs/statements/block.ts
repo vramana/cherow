@@ -3,8 +3,14 @@ import { fail, pass } from '../utils/test-utils';
 describe('Statement - Block', () => {
   
       fail('BlockStatement exist inside of expression', 'y={__func;}();');
-      fail('BlockStatement exist inside of expression', 'y={x;};');
   
+      fail('BlockStatement exist inside of expression', 'y={x;};');
+      
+      fail('labelled let inside BlockStatement', `{
+        L: let
+        [a] = 0;
+    }`);
+
       pass('should parse "{ foo }"', `{ foo }`, {
           "type": "Program",
           "start": 0,

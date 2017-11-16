@@ -13,6 +13,12 @@ describe('Expressions - Async function', () => {
         }).to.not.throw()
     });
 
+    it('should fail on escaped async function', () => {
+        expect(() => {
+            parseScript(`void \\u0061sync function f(){}`);
+        }).to.throw()
+    });
+
     it('should fail on invalid nested async', () => {
         expect(() => {
             parseScript(`async function wrap() { async function await() { } };`);

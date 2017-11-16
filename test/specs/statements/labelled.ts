@@ -17,6 +17,12 @@ describe('Statement - Labelled', () => {
         }).to.throw();
     });
 
+    it('should fail on await as label in module code', () => {
+      expect(() => {
+          parseModule(`await: 1`)
+      }).to.throw();
+    });
+
     it('should fail on labelled let', () => {
         expect(() => {
             parseScript(`foo: let bar;`)
@@ -44,6 +50,18 @@ describe('Statement - Labelled', () => {
             parseModule(`label: async function* g() {}`)
         }).to.throw();
     });
+
+    it('should fail on escaped yield', () => {
+        expect(() => {
+            parseScript(`yi\\u0065ld: 1;`)
+        }).to.throw();
+    });
+
+    it('should fail on escaped await', () => {
+      expect(() => {
+          parseScript(`aw\\u0061it: 1;`)
+      }).to.throw();
+  });
 
     it('should fail if Lexical declaration (const) used in statement position"', () => {
         expect(() => {
@@ -173,6 +191,95 @@ describe('Statement - Labelled', () => {
         L: let // ASI
         {}`)
         }).to.throw();
+    });
+    
+    
+    it('should parse await as label in non-module code', () => {
+      expect(parseScript('await: 1;', {
+          ranges: true,
+          raw: true,
+          locations: true
+      })).to.eql({
+        "type": "Program",
+        "start": 0,
+        "end": 9,
+        "loc": {
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 9
+          }
+        },
+        "body": [
+          {
+            "type": "LabeledStatement",
+            "start": 0,
+            "end": 9,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 9
+              }
+            },
+            "body": {
+              "type": "ExpressionStatement",
+              "start": 7,
+              "end": 9,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 7
+                },
+                "end": {
+                  "line": 1,
+                  "column": 9
+                }
+              },
+              "expression": {
+                "type": "Literal",
+                "start": 7,
+                "end": 8,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 7
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 8
+                  }
+                },
+                "value": 1,
+                "raw": "1"
+              }
+            },
+            "label": {
+              "type": "Identifier",
+              "start": 0,
+              "end": 5,
+              "loc": {
+                "start": {
+                  "line": 1,
+                  "column": 0
+                },
+                "end": {
+                  "line": 1,
+                  "column": 5
+                }
+              },
+              "name": "await"
+            }
+          }
+        ],
+        "sourceType": "script"
+      });
     });
 
     it('should parse valid labeleld var"', () => {

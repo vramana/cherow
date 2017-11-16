@@ -21,7 +21,7 @@ describe('Statement - For', () => {
       fail('for (let xd; false; ) label1: label2: function f() {}', 'for (let xd; false; ) label1: label2: function f() {}');
       fail('for ( ; false; ) function* g() {}', 'for ( ; false; ) function* g() {}');
       fail('for(;;) function a(){}', 'for(;;) function a(){}');
-  
+     
       pass('should parse "for (let in a) {}"', `for (let in a) {}`, {
           "type": "Program",
           "start": 0,
