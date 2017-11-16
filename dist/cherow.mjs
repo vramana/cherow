@@ -2990,7 +2990,7 @@ Parser.prototype.parseLabelledStatement = function parseLabelledStatement (conte
                 body = this.parseFunctionDeclaration(context & ~4194304 /* Iteration */ | 4096 /* AnnexB */ | 1024 /* TopLevel */);
                 break;
             default:
-                body = this.parseStatement(context | 1024 /* TopLevel */ | 2097152 /* Labelled */);
+                body = this.parseStatement(context | 1024 /* TopLevel */);
         }
         this.labelSet[key] = false;
         return this.finishNode(pos, {
@@ -3939,7 +3939,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 12383 /* ThrowKeyword */:
             return this.parseThrowExpression(context);
         case 331885 /* AwaitKeyword */:
-            if (this.flags & 2 /* HasUnicode */)
+            if (!(context & 2097152 /* Labelled */) && this.flags & 2 /* HasUnicode */)
                 { this.error(78 /* UnexpectedReservedWord */); }
             if (context & 256 /* InAsyncArgs */)
                 { this.flags |= 512 /* HaveSeenAwait */; }
@@ -4053,6 +4053,8 @@ Parser.prototype.parseClassBody = function parseClassBody (context, flags) {
 Parser.prototype.parsePrivateProperty = function parsePrivateProperty (context, pos, key) {
     var value = null;
     if (this.parseEventually(context, 1310749 /* Assign */)) {
+        if (this.isEvalOrArguments(this.tokenValue))
+            { this.error(78 /* UnexpectedReservedWord */); }
         value = this.parseAssignmentExpression(context);
     }
     this.parseEventually(context, 18 /* Comma */);
@@ -4069,7 +4071,7 @@ Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty 
         { this.error(0 /* Unexpected */); }
     if (this.isEvalOrArguments(this.tokenValue))
         { this.error(82 /* UnexpectedStrictReserved */); }
-    var key = this.parseIdentifier(context);
+    var key = this.token === 262147 /* StringLiteral */ ? this.parseLiteral(context) : this.parseIdentifier(context);
     var value = null;
     if (this.parseEventually(context, 1310749 /* Assign */)) {
         if (this.isEvalOrArguments(this.tokenValue))
@@ -4094,6 +4096,13 @@ Parser.prototype.parsePrivateName = function parsePrivateName (context) {
         id: this.parseIdentifierName(context, this.token),
     });
 };
+Parser.prototype.parseClassFields = function parseClassFields (context, key, pos) {
+    if (this.token === 1310749 /* Assign */) {
+        key = this.parsePrivateProperty(context | 268435456 /* Fields */, pos, key);
+    }
+    this.parseEventually(context, 18 /* Comma */);
+    return key;
+};
 Parser.prototype.parseClassElement = function parseClassElement (context, state) {
         var this$1 = this;
 
@@ -4109,6 +4118,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     var key;
     var value;
     var isEscaped = !!(this.flags & 2 /* HasUnicode */);
+    var fieldPos;
     loop: while (this.isIdentifierOrKeyword(token)) {
         switch (this$1.token) {
             case 16797801 /* StaticKeyword */:
@@ -4164,14 +4174,19 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     }
     switch (this.token) {
         case 262146 /* NumericLiteral */:
+            key = this.parseLiteral(context);
+            break;
         case 262147 /* StringLiteral */:
             if (this.tokenValue === 'constructor')
                 { state |= 1024 /* Constructor */; }
+            fieldPos = this.getLocations();
             key = this.parseLiteral(context);
-            break;
-        case 393235 /* LeftBracket */:
-            state |= 4 /* Computed */;
-            key = this.parseComputedPropertyName(context);
+            // Stage 3 Proposal - Class-fields
+            if (this.flags & 4194304 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
+                if (state & (4096 /* Prototype */ | 1024 /* Constructor */))
+                    { this.error(0 /* Unexpected */); }
+                return this.parseClassFields(context | 268435456 /* Fields */, key, fieldPos);
+            }
             break;
         case 117 /* Hash */:
             if (this.flags & 4194304 /* OptionsNext */) {
@@ -4180,31 +4195,29 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                     { return key; }
                 break;
             }
+        case 393235 /* LeftBracket */:
+            state |= 4 /* Computed */;
+            fieldPos = this.getLocations();
+            key = this.parseComputedPropertyName(context);
+            if (this.flags & 4194304 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
+                if (this.token === 1310749 /* Assign */) {
+                    key = this.parsePrivateProperty(context | 268435456 /* Fields */, fieldPos, key);
+                }
+                this.parseEventually(context, 18 /* Comma */);
+                return key;
+            }
+            break;
         default:
             if (this.isIdentifier(context & ~2 /* Strict */, this.token)) {
                 if (this.tokenValue === 'constructor')
                     { state |= 1024 /* Constructor */; }
+                fieldPos = this.getLocations();
+                key = this.parseIdentifier(context);
                 // Stage 3 Proposal - Class-fields
-                if (this.flags & 4194304 /* OptionsNext */) {
-                    var propPos = this.getLocations();
-                    var t = this.token;
-                    var tokenValue = this.tokenValue;
-                    key = this.parseIdentifier(context);
-                    // Class fields ( Stage 3 proposal)
-                    if (this.flags & 4194304 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
-                        if (t === 69742 /* ConstructorKeyword */)
-                            { this.error(0 /* Unexpected */); }
-                        if (tokenValue === 'prototype')
-                            { this.error(0 /* Unexpected */); }
-                        if (this.token === 1310749 /* Assign */) {
-                            key = this.parsePrivateProperty(context | 268435456 /* Fields */, propPos, key);
-                        }
-                        this.parseEventually(context, 18 /* Comma */);
-                        return key;
-                    }
-                }
-                else {
-                    key = this.parseIdentifier(context);
+                if (this.flags & 4194304 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
+                    if (state & (4096 /* Prototype */ | 1024 /* Constructor */))
+                        { this.error(0 /* Unexpected */); }
+                    return this.parseClassFields(context, key, fieldPos);
                 }
             }
             else if (count && currentState !== 1 /* Yield */) {
@@ -4883,6 +4896,7 @@ Parser.prototype.parseBindingPatternOrIdentifier = function parseBindingPatternO
             if (context & (16 /* Yield */ | 2 /* Strict */)) {
                 this.error(85 /* DisallowedInContext */, tokenDesc(this.token));
             }
+            return this.parseBindingIdentifier(context);
         case 331885 /* AwaitKeyword */:
             if (context & (1 /* Module */ | 32 /* Await */))
                 { this.throwUnexpectedToken(); }

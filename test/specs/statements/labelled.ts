@@ -184,13 +184,37 @@ describe('Statement - Labelled', () => {
             parseScript(`while ( false ) Label: continue Label;`)
         }).to.not.throw();
     });
-
+    
     it('should fail if ExpressionStatement doesn not have a lookahead restriction for `let', () => {
         expect(() => {
-            parseScript(`f (false) {
-        L: let // ASI
-        {}`)
+            parseScript(`var C = class { 'constructor'; };`, { next: true})
         }).to.throw();
+    });
+
+    it('should parse await as label in non-module code', () => {
+      expect(parseScript('aw\\u0061it: 1;', {
+          raw: true,
+      })).to.eql({
+          "body": [
+            {
+             "body": {
+                "expression": {
+                  "raw": "1",
+                  "type": "Literal",
+                  "value": 1,
+                },
+                "type": "ExpressionStatement",
+              },
+              "label": {
+                "name": "await",
+                "type": "Identifier",
+              },
+             "type": "LabeledStatement",
+            },
+          ],
+          "sourceType": "script",
+          "type": "Program",
+        });
     });
 
     it('should parse await as label in non-module code', () => {

@@ -57,7 +57,210 @@ describe('"Next - "Class fields"', () => {
       }`, true);
 
     fail('Early Error #8 (module code)', 'function f() { this.#x; }', true);
-     
+
+    
+    pass('literal', `class C { 'a'; }`, {
+        "type": "Program",
+        "body": [
+            {
+                "type": "ClassDeclaration",
+                "id": {
+                    "type": "Identifier",
+                    "name": "C",
+                    "start": 6,
+                    "end": 7,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 6
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 7
+                        }
+                    }
+                },
+                "superClass": null,
+                "body": {
+                    "type": "ClassBody",
+                    "body": [
+                        {
+                            "type": "Literal",
+                            "value": "a",
+                            "start": 10,
+                            "end": 13,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 10
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 13
+                                }
+                            },
+                            "raw": "'a'"
+                        }
+                    ],
+                    "start": 8,
+                    "end": 16,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 8
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 16
+                        }
+                    }
+                },
+                "start": 0,
+                "end": 16,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 16
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 16,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 1,
+                "column": 16
+            }
+        }
+    });
+
+      pass('static computed name', `class C { static ["a"] = 39; }`, {
+        "type": "Program",
+        "body": [
+            {
+                "type": "ClassDeclaration",
+                "id": {
+                    "type": "Identifier",
+                    "name": "C",
+                    "start": 6,
+                    "end": 7,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 6
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 7
+                        }
+                    }
+                },
+                "superClass": null,
+                "body": {
+                    "type": "ClassBody",
+                    "body": [
+                        {
+                            "type": "ClassProperty",
+                            "key": {
+                                "type": "Literal",
+                                "value": "a",
+                                "start": 18,
+                                "end": 21,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 18
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 21
+                                    }
+                                },
+                                "raw": "\"a\""
+                            },
+                            "value": {
+                                "type": "Literal",
+                                "value": 39,
+                                "start": 25,
+                                "end": 27,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 25
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 27
+                                    }
+                                },
+                                "raw": "39"
+                            },
+                            "start": 17,
+                            "end": 27,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 17
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 27
+                                }
+                            }
+                        }
+                    ],
+                    "start": 8,
+                    "end": 30,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 8
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 30
+                        }
+                    }
+                },
+                "start": 0,
+                "end": 30,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 30
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 30,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 1,
+                "column": 30
+            }
+        }
+    });
+
       pass('static private name', `var C = class { static #x() {}; }`, {
         "type": "Program",
         "body": [
