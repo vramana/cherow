@@ -3,11 +3,9 @@
 [![Build Status](https://travis-ci.org/cherow/cherow.svg?branch=master)](https://travis-ci.org/cherow/cherow)
 [![Coverage Status](https://coveralls.io/repos/github/cherow/cherow/badge.svg?branch=master)](https://coveralls.io/github/cherow/cherow?branch=master)
 
-Cherow is a very fast, standards-compliant [ECMAScript](http://www.ecma-international.org/publications/standards/Ecma-262.htm) parser written in ECMAScript.
+Cherow is a very fast, standards-compliant, self-hosted ECMAScript parser with high focus on both performance and stability.
 
-It strictly follows the ECMAScript® 2017 Language Specification and should parse according to these specifications.
-
-It's safe to use in production.
+It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ecma-international.org/publications/standards/Ecma-262.htm) and should parse according to these specifications.
 
 ## [Demo](https://cherow.github.io/cherow/) and [Benchmark](https://cherow.github.io/cherow/performance/)
 
@@ -136,7 +134,6 @@ cherow.parseScript('// foo',
 );
 
 ```
-
 ## Acorn and Esprima differences
 
 The main difference between Cherow and Acorn/Esprima is that the latter libraries either don't parse everything
