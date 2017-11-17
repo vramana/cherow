@@ -56,6 +56,7 @@ export class Parser {
         private blockScope: any;
         private parentScope: any;
         private functionScope: any;
+        private fieldSet: any;
         private errorLocation: void | Location;
         private comments: EmitComments;
         private locSource: void | string;
@@ -85,6 +86,7 @@ export class Parser {
             this.token = 0;
             this.tokenValue = undefined;
             this.labelSet = undefined;
+            this.fieldSet = undefined;
             this.errorLocation = undefined;
             this.tokenRegExp = undefined;
             this.functionScope = undefined;
@@ -2567,7 +2569,7 @@ export class Parser {
     
             const savedFlag = this.flags;
     
-            this.flags |= Flags.Iteration;
+            this.flags |= Flags.Iteration | Flags.Continue;
     
             const body = this.parseStatement(context & ~Context.TopLevel);
             this.flags = savedFlag;
@@ -2586,11 +2588,8 @@ export class Parser {
             this.expect(context, Token.DoKeyword);
     
             const savedFlag = this.flags;
-    
-            this.flags |= Flags.Iteration;
-    
+            this.flags |= Flags.Iteration | Flags.Continue;
             const body = this.parseStatement(context & ~Context.TopLevel);
-    
             this.flags = savedFlag;
     
             this.expect(context, Token.WhileKeyword);
@@ -2611,7 +2610,7 @@ export class Parser {
         private parseContinueStatement(context: Context): ESTree.ContinueStatement {
             const pos = this.getLocations();
     
-            if (context & Context.Labelled && !(this.flags & Flags.Iteration)) this.error(Errors.InvalidNestedContinue)
+            if (!(this.flags & Flags.Continue)) this.error(Errors.InvalidNestedContinue);
     
             this.expect(context, Token.ContinueKeyword);
     
@@ -2713,7 +2712,7 @@ export class Parser {
     
             if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
     
-            this.flags |= Flags.Iteration;
+            this.flags |= Flags.Iteration | Flags.Continue;
     
             if (this.parseEventually(context, Token.OfKeyword)) {
     
@@ -3321,7 +3320,7 @@ export class Parser {
         }
     
         private reinterpretAsPattern(context: Context, params: any) {
-
+    
             switch (params.type) {
                 case 'PrivateName':
                 case 'Identifier':
@@ -3333,7 +3332,7 @@ export class Parser {
                 case 'ObjectExpression':
                     if (this.flags & Flags.ParenthesizedPattern) this.error(Errors.InvalidParenthesizedPattern);
                     params.type = 'ObjectPattern';
-                    
+    
                     // falls through
                 case 'ObjectPattern':
                     // ObjectPattern and ObjectExpression are isomorphic
@@ -3366,14 +3365,14 @@ export class Parser {
                     return;
     
                 case 'SpreadElement':
-              
+    
                     params.type = 'RestElement';
                     if (context & Context.ForStatement && params.argument.type === 'AssignmentExpression') {
                         this.error(Errors.InvalidLHSInForIn);
                     }
                     // Fall through
                 case 'RestElement':
-
+    
                     this.reinterpretAsPattern(context, params.argument);
                     return;
     
@@ -4261,15 +4260,16 @@ export class Parser {
             if (this.isIdentifier(context, this.token)) {
                 const name = this.tokenValue;
     
-                if (context & Context.TopLevel && !expr) {
+                if (!expr) {
                     if (!this.initBlockScope() && (
                             this.blockScope !== this.functionScope && this.blockScope[name] ||
                             this.blockScope[name] === ScopeMasks.NonShadowable
                         )) {
-                        this.error(Errors.DuplicateIdentifier, name);
+                        this.error(Errors.DuplicateBinding, name);
                     }
                     this.blockScope[name] = ScopeMasks.Shadowable;
                 }
+
                 id = expr ? this.parseIdentifier(context | Context.Strict) : this.parseBindingIdentifier(context | Context.Strict);
                 // Valid: `export default class {};`
                 // Invalid: `class {};`
@@ -4296,21 +4296,22 @@ export class Parser {
         }
     
         private parseClassBody(context: Context, flags: ObjectState): ESTree.ClassBody {
+    
             const pos = this.getLocations();
     
             this.expect(context, Token.LeftBrace);
     
             const body: ESTree.MethodDefinition[] = [];
-    
-            while (this.token !== Token.RightBrace) {
-    
-                if (!this.parseEventually(context, Token.Semicolon)) {
-                    const node: any = this.parseClassElement(context, flags);
-                    body.push(node);
-                    if (node.kind === 'constructor') context |= Context.HasConstructor;
+            if (this.token !== Token.RightBrace) {
+                if (this.flags & Flags.OptionsNext) this.fieldSet = undefined;
+                while (this.token !== Token.RightBrace) {
+                    if (!this.parseEventually(context, Token.Semicolon)) {
+                        const node: any = this.parseClassElement(context, flags);
+                        body.push(node);
+                        if (node.kind === 'constructor') context |= Context.HasConstructor;
+                    }
                 }
             }
-    
             this.expect(context, Token.RightBrace);
     
             return this.finishNode(pos, {
@@ -4334,27 +4335,31 @@ export class Parser {
         }
     
         private parseClassPrivateProperty(context: Context, state: ObjectState) {
-
+    
             const pos = this.getLocations();
             this.expect(context, Token.Hash);
     
-            if (this.isEvalOrArguments(this.tokenValue)) {
-                this.error(Errors.UnexpectedStrictReserved);
-            }
+            const fieldValue = '#' + this.tokenValue;
+    
+            if (this.fieldSet === undefined) this.fieldSet = {};
+            if (this.fieldSet[fieldValue] === true) this.error(Errors.DuplicateIdentifier, fieldValue);
+            this.fieldSet[fieldValue] = true;
+    
+            if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedStrictReserved);
     
             let value: ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression | null = null;
             let key: ESTree.Identifier | ESTree.Literal;
     
             switch (this.token) {
-
+    
                 case Token.ConstructorKeyword:
                     this.error(Errors.Unexpected);
-
+    
                 case Token.StringLiteral:
                     key = this.parseLiteral(context);
                     break;
-
-                    default:
+    
+                default:
                     key = this.parseIdentifier(context);
             }
     
@@ -4560,6 +4565,7 @@ export class Parser {
                 if (this.token === Token.Ellipsis) {
                     if (!(this.flags & Flags.OptionsNext)) this.throwUnexpectedToken();
                     properties.push(this.parseSpreadElement(context));
+                    if (context & Context.ForStatement && this.token === Token.Comma) this.error(Errors.Unexpected);
                 } else {
                     this.firstProto = firstProto;
                     const elem = this.parseObjectElement(context);

@@ -26,11 +26,7 @@ describe('"Next - "Class fields"', () => {
     fail('private name as constructor', 'class C { #constructor; }');
     fail('static assign arguments', 'class C { static x = arguments; }');
     fail('static assign eval', 'class C { static x = eval; }');
-    fail('duplicate private names', `class C {
-        #x;
-        #x;
-      }`);
-      
+    fail('duplicate private names', `class C { #x; #x; }`);
     fail('private class fields early error with StringValue "#constructor"', 'function f() { this.#x; }');
     fail('private class fields early error with StringValue "#constructor"', '#constructor;');
     fail('`arguments` used in class field (ClassElementName PrivateName)', 'class C { #x = arguments; }');

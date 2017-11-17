@@ -246,7 +246,7 @@ ErrorMessages[69 /* LineBreakAfterAsync */] = 'No line break is allowed after as
 ErrorMessages[70 /* UnexpectedEscapedKeyword */] = 'Unexpected escaped keyword';
 ErrorMessages[72 /* InvalidParenthesizedPattern */] = 'Invalid parenthesized pattern';
 ErrorMessages[73 /* DuplicateIdentifier */] = '\'%0\' has already been declared ';
-ErrorMessages[74 /* DuplicateBinding */] = 'Duplicate binding';
+ErrorMessages[74 /* DuplicateBinding */] = 'Duplicate binding %0';
 ErrorMessages[75 /* Redeclaration */] = 'Label \'%0\' has already been declared';
 ErrorMessages[76 /* UnknownLabel */] = 'Undefined label \'%0\'';
 ErrorMessages[77 /* InvalidNewTargetContext */] = 'new.target expression is not allowed here';
@@ -267,7 +267,7 @@ ErrorMessages[91 /* InvalidStrictLexical */] = 'The identifier \'let\' must not 
 ErrorMessages[92 /* MissingInitializer */] = 'Missing initializer';
 ErrorMessages[93 /* InvalidLabeledForOf */] = 'The body of a for-of statement must not be a labeled function declaration';
 ErrorMessages[94 /* InvalidVarDeclInForIn */] = 'Invalid variable declaration in for-in statement';
-ErrorMessages[95 /* InvalidVarDeclInForOf */] = 'Invalid variable declaration in for-in statement';
+ErrorMessages[95 /* InvalidVarDeclInForOf */] = 'Invalid variable declaration in for-of statement';
 ErrorMessages[96 /* InvalidNoctalInteger */] = 'Unexpected noctal integer literal';
 ErrorMessages[97 /* InvalidRadix */] = 'Expected number in radix';
 ErrorMessages[98 /* UnexpectedTokenNumber */] = 'Unexpected number';
@@ -374,6 +374,7 @@ var Parser = function Parser(source, options) {
     this.token = 0;
     this.tokenValue = undefined;
     this.labelSet = undefined;
+    this.fieldSet = undefined;
     this.errorLocation = undefined;
     this.tokenRegExp = undefined;
     this.functionScope = undefined;
@@ -2567,7 +2568,7 @@ Parser.prototype.parseWhileStatement = function parseWhileStatement (context) {
     var test = this.parseExpression(context | 4 /* AllowIn */, pos);
     this.expect(context, 16 /* RightParen */);
     var savedFlag = this.flags;
-    this.flags |= 32 /* Iteration */;
+    this.flags |= 32 /* Iteration */ | 1073741824 /* Continue */;
     var body = this.parseStatement(context & ~1024 /* TopLevel */);
     this.flags = savedFlag;
     return this.finishNode(pos, {
@@ -2580,7 +2581,7 @@ Parser.prototype.parseDoWhileStatement = function parseDoWhileStatement (context
     var pos = this.getLocations();
     this.expect(context, 12369 /* DoKeyword */);
     var savedFlag = this.flags;
-    this.flags |= 32 /* Iteration */;
+    this.flags |= 32 /* Iteration */ | 1073741824 /* Continue */;
     var body = this.parseStatement(context & ~1024 /* TopLevel */);
     this.flags = savedFlag;
     this.expect(context, 12385 /* WhileKeyword */);
@@ -2596,7 +2597,7 @@ Parser.prototype.parseDoWhileStatement = function parseDoWhileStatement (context
 };
 Parser.prototype.parseContinueStatement = function parseContinueStatement (context) {
     var pos = this.getLocations();
-    if (context & 2097152 /* Labelled */ && !(this.flags & 32 /* Iteration */))
+    if (!(this.flags & 1073741824 /* Continue */))
         { this.error(112 /* InvalidNestedContinue */); }
     this.expect(context, 12366 /* ContinueKeyword */);
     var label = null;
@@ -2677,7 +2678,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
     }
     if (this.flags & 2 /* HasUnicode */)
         { this.error(70 /* UnexpectedEscapedKeyword */); }
-    this.flags |= 32 /* Iteration */;
+    this.flags |= 32 /* Iteration */ | 1073741824 /* Continue */;
     if (this.parseEventually(context, 69746 /* OfKeyword */)) {
         // State 3 proposal - Async Iteration
         if (awaitToken && !(this.flags & 4194304 /* OptionsNext */))
@@ -4012,10 +4013,10 @@ Parser.prototype.parseClass = function parseClass (context, expr) {
     var id = null;
     if (this.isIdentifier(context, this.token)) {
         var name = this.tokenValue;
-        if (context & 1024 /* TopLevel */ && !expr) {
+        if (!expr) {
             if (!this.initBlockScope() && (this.blockScope !== this.functionScope && this.blockScope[name] ||
                 this.blockScope[name] === 2 /* NonShadowable */)) {
-                this.error(73 /* DuplicateIdentifier */, name);
+                this.error(74 /* DuplicateBinding */, name);
             }
             this.blockScope[name] = 1 /* Shadowable */;
         }
@@ -4045,12 +4046,16 @@ Parser.prototype.parseClassBody = function parseClassBody (context, flags) {
     var pos = this.getLocations();
     this.expect(context, 393228 /* LeftBrace */);
     var body = [];
-    while (this.token !== 15 /* RightBrace */) {
-        if (!this$1.parseEventually(context, 17 /* Semicolon */)) {
-            var node = this$1.parseClassElement(context, flags);
-            body.push(node);
-            if (node.kind === 'constructor')
-                { context |= 131072 /* HasConstructor */; }
+    if (this.token !== 15 /* RightBrace */) {
+        if (this.flags & 4194304 /* OptionsNext */)
+            { this.fieldSet = undefined; }
+        while (this.token !== 15 /* RightBrace */) {
+            if (!this$1.parseEventually(context, 17 /* Semicolon */)) {
+                var node = this$1.parseClassElement(context, flags);
+                body.push(node);
+                if (node.kind === 'constructor')
+                    { context |= 131072 /* HasConstructor */; }
+            }
         }
     }
     this.expect(context, 15 /* RightBrace */);
@@ -4076,9 +4081,14 @@ Parser.prototype.parsePrivateProperty = function parsePrivateProperty (context, 
 Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty (context, state) {
     var pos = this.getLocations();
     this.expect(context, 117 /* Hash */);
-    if (this.isEvalOrArguments(this.tokenValue)) {
-        this.error(82 /* UnexpectedStrictReserved */);
-    }
+    var fieldValue = '#' + this.tokenValue;
+    if (this.fieldSet === undefined)
+        { this.fieldSet = {}; }
+    if (this.fieldSet[fieldValue] === true)
+        { this.error(73 /* DuplicateIdentifier */, fieldValue); }
+    this.fieldSet[fieldValue] = true;
+    if (this.isEvalOrArguments(this.tokenValue))
+        { this.error(82 /* UnexpectedStrictReserved */); }
     var value = null;
     var key;
     switch (this.token) {
@@ -4280,6 +4290,8 @@ Parser.prototype.parseObjectExpression = function parseObjectExpression (context
             if (!(this$1.flags & 4194304 /* OptionsNext */))
                 { this$1.throwUnexpectedToken(); }
             properties.push(this$1.parseSpreadElement(context));
+            if (context & 524288 /* ForStatement */ && this$1.token === 18 /* Comma */)
+                { this$1.error(0 /* Unexpected */); }
         }
         else {
             this$1.firstProto = firstProto;

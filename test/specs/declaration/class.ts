@@ -12,6 +12,9 @@ describe('Declarations - Class', () => {
     
     fail('class a { \\u0061sync* m(){} }', 'class a { \\u0061sync* m(){} }');
 
+    fail('duplicate Class binding', `class A {}
+    class A {}`);
+
     fail('LineTerminator after async keyword', `class Foo {
         async 
         a() {}
