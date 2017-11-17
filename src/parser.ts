@@ -209,7 +209,6 @@ export class Parser {
     
         private scanNext(ch: Chars, err: Errors = Errors.UnterminatedString): Chars {
             this.advance();
-            if (ch > 0xffff) this.index++;
             if (!this.hasNext()) this.error(err);
             return this.nextUnicodeChar();
         }
@@ -1619,11 +1618,6 @@ export class Parser {
     
                             // Line terminators
                         case Chars.CarriageReturn:
-                            if (this.hasNext() && this.nextChar() === Chars.LineFeed) {
-                                if (ret != null) ret += fromCodePoint(ch);
-                                ch = this.nextChar();
-                                this.index++;
-                            }
                         case Chars.LineFeed:
                         case Chars.LineSeparator:
                         case Chars.ParagraphSeparator:
@@ -2310,7 +2304,6 @@ export class Parser {
                 case Token.LetKeyword:
                     // If let follows identifier on the same line, it is an declaration. Parse it as a variable statement
                     if (this.isLexical(context)) {
-                        if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
                         return this.parseVariableStatement(context | Context.Let | Context.AllowIn);
                     }
                     return this.parseStatement(context & ~Context.TopLevel);
@@ -4342,30 +4335,20 @@ export class Parser {
             const fieldValue = '#' + this.tokenValue;
     
             if (this.fieldSet === undefined) this.fieldSet = {};
-            if (this.fieldSet[fieldValue] === true) this.error(Errors.DuplicateIdentifier, fieldValue);
+            else if (this.fieldSet[fieldValue] === true) this.error(Errors.DuplicateIdentifier, fieldValue);
             this.fieldSet[fieldValue] = true;
-    
-            if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedStrictReserved);
-    
+
             let value: ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression | null = null;
-            let key: ESTree.Identifier | ESTree.Literal;
-    
-            switch (this.token) {
-    
-                case Token.ConstructorKeyword:
-                    this.error(Errors.Unexpected);
-    
-                case Token.StringLiteral:
-                    key = this.parseLiteral(context);
-                    break;
-    
-                default:
-                    key = this.parseIdentifier(context);
-            }
-    
+            
+            if (this.token === Token.ConstructorKeyword) this.error(Errors.Unexpected);
+
+            let key = this.token === Token.StringLiteral 
+                ? this.parseLiteral(context) 
+                : this.parseIdentifier(context);
+            
             if (this.parseEventually(context, Token.Assign)) {
-                if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
-                value = this.parseAssignmentExpression(context | Context.Fields);
+               if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
+               value = this.parseAssignmentExpression(context | Context.Fields);
             }
     
             this.parseEventually(context, Token.Comma);
@@ -4419,6 +4402,7 @@ export class Parser {
                     case Token.StaticKeyword:
                         if (state & ObjectState.Static) break loop;
                         if (state & ObjectState.Async) break loop;
+                        if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
                         state |= currentState = ObjectState.Static;
                         key = this.parseIdentifier(context);
                         count++;
@@ -4637,11 +4621,12 @@ export class Parser {
             if (state & ObjectState.Async && this.flags & Flags.LineTerminator) {
                 this.error(Errors.LineBreakAfterAsync);
             }
-    
+
+            if (this.token === Token.ConstructorKeyword) state |= ObjectState.Constructor;
+
             switch (this.token) {
                 case Token.NumericLiteral:
                 case Token.StringLiteral:
-                    if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
                     key = this.parseLiteral(context);
                     break;
                 case Token.LeftBracket:
@@ -4650,7 +4635,6 @@ export class Parser {
                     break;
                 default:
                     if (this.isIdentifierOrKeyword(this.token)) {
-                        if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
                         key = this.parseIdentifier(context);
                     } else if (count && currentState !== ObjectState.Yield) {
                         state &= ~currentState;
@@ -4697,11 +4681,9 @@ export class Parser {
     
                     if (token === Token.AwaitKeyword) {
                         if (context & Context.Await) this.throwUnexpectedToken();
-                        if (context & Context.InAsyncArgs) {
-                            this.errorLocation = this.getLocations();
-                            this.flags |= Flags.HaveSeenAwait;
-                        }
-                    }
+                        this.errorLocation = this.getLocations();
+                        this.flags |= Flags.HaveSeenAwait;
+                   }
     
                     if (context & (Context.ForStatement | Context.InParenthesis) &&
                         context & Context.Strict && this.isEvalOrArguments(tokenValue)) {
@@ -5457,9 +5439,6 @@ export class Parser {
             } else {
     
                 switch (this.token) {
-                    case Token.Identifier:
-                        key = this.parseIdentifier(context);
-                        break;
                     case Token.LeftBracket:
                         state |= ObjectState.Computed;
                         this.expect(context, Token.LeftBracket);

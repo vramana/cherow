@@ -10,8 +10,9 @@ describe('Declarations - Class', () => {
 
     fail('class a{ async async a() {} }', 'class a{ async async a() {} }');
     
-    fail('class a { \\u0061sync* m(){} }', 'class a { \\u0061sync* m(){} }');
-
+    fail('escaped async generator', 'class a { \\u0061sync* m(){} }');
+    fail('escaped static', 'class C { st\\u0061tic m() {}  }');
+    
     fail('duplicate Class binding', `class A {}
     class A {}`);
 

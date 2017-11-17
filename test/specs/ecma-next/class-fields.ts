@@ -37,6 +37,11 @@ describe('"Next - "Class fields"', () => {
     fail('`arguments` used in class field (private field, ternary expression)', 'class C { #x = false ? {} : eval; }');
     fail('`arguments` used in class field (ternary expression)', 'class C { x = false ? {} : arguments;}');
     fail('`eval` used in class field (ternary expression)', 'class C { x = false ? {} : eval }');
+    fail('privatename with constructor', 'var C = class { #constructor; }');
+    fail('privatename with arguments', 'var C = class { #x = arguments;  }');
+    fail('var C = class { x = () => arguments; }', 'var C = class { x = () => arguments; }');
+    fail('var C = class {  #x = () => arguments;  }', 'var C = class {  #x = () => arguments;  }');
+    fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { #x = true ? {} : arguments; }');
     fail('Early Error #1 (module code)', '#x,;', true);
     fail('Early Error #2 (module code)', 'class C { constructor() { this.#x; }  }', true);
     fail('Early Error #3 (module code)', 'class C { f() {  this.#x; }  }', true);
@@ -54,6 +59,108 @@ describe('"Next - "Class fields"', () => {
 
     fail('Early Error #8 (module code)', 'function f() { this.#x; }', true);
     
+    pass('literal', `class C { #'abc'}`, {
+        "type": "Program",
+        "body": [
+            {
+                "type": "ClassDeclaration",
+                "id": {
+                    "type": "Identifier",
+                    "name": "C",
+                    "start": 6,
+                    "end": 7,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 6
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 7
+                        }
+                    }
+                },
+                "superClass": null,
+                "body": {
+                    "type": "ClassBody",
+                    "body": [
+                        {
+                            "type": "PrivateProperty",
+                            "key": {
+                                "type": "Literal",
+                                "value": "abc",
+                                "start": 11,
+                                "end": 16,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 11
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 16
+                                    }
+                                },
+                                "raw": "'abc'"
+                            },
+                            "value": null,
+                            "static": false,
+                            "start": 10,
+                            "end": 16,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 10
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 16
+                                }
+                            }
+                        }
+                    ],
+                    "start": 8,
+                    "end": 17,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 8
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 17
+                        }
+                    }
+                },
+                "start": 0,
+                "end": 17,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 17
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 17,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 1,
+                "column": 17
+            }
+        }
+    });
+
     pass('ASI #5', `class C {
         a = x
         in

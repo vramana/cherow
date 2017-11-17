@@ -25,7 +25,8 @@ describe('Statements - For of', () => {
     fail('for ((this) of []) {}', 'for ((this) of []) {}');
     fail('for(this of 0);', 'for(this of 0);');
     fail('for(var a = 0 of b);', 'for(var a = 0 of b);');
-
+    fail('for ([...x = 1] of [[]]) ;', 'for ([...x = 1] of [[]]) ;');
+    
     pass('should parse "for ({ prop = "x" in {} } of [{}]) {}"', `for ({ prop = "x" in {} } of [{}]) {}`, {
         "type": "Program",
         "start": 0,
