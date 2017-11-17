@@ -16,7 +16,7 @@ describe('Statement - Labelled', () => {
             parseScript(`foo: const bar = null;`)
         }).to.throw();
     });
-    
+
     it('should fail on await as label in module code', () => {
       expect(() => {
           parseModule(`await: 1`)

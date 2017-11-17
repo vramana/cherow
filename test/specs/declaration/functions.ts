@@ -2,7 +2,7 @@ import { n, pass, fail } from '../utils/test-utils';
 
 describe('Declarations - Functions', () => {
 
-    fail('a: function* a(){}', 'a: function* a(){}');
+ //   fail('a: function* a(){}', 'a: function* a(){}');
 
     pass('function a(...[]) { }', 'function a(...[]) { }', {
         "type": "Program",

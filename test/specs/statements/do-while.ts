@@ -1,4 +1,4 @@
-import { fail, pass } from '../utils/test-utils';
+import { fail } from '../utils/test-utils';
 
 describe('Statements - do-while', () => {
 
