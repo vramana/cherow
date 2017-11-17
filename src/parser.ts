@@ -978,7 +978,7 @@ export class Parser {
         private scanNumberLiteral(context: Context): Token {
     
             if (context & Context.Strict) this.error(Errors.StrictOctalEscape);
-    
+
             this.advance();
     
             let ch = this.nextChar();
@@ -1370,6 +1370,10 @@ export class Parser {
     
                 ch = this.scanNext(ch);
             }
+
+            if (!(this.flags & Flags.HasUnicode) && ret === 'use strict') {
+                this.flags |= Flags.HasStrictDirective;
+            }
     
             this.advance(); // Consume the quote
             if (this.flags & (Flags.OptionsRaw | Flags.OptionsDirectives)) this.storeRaw(start);
@@ -1751,7 +1755,7 @@ export class Parser {
         private parseStatementList(context: Context, endToken: Token): ESTree.Statement[] {
     
             const statements: ESTree.Statement[] = [];
-            const enableDirectiveNode = !!(this.flags & Flags.OptionsDirectives);
+            const enableDirectiveNode = (this.flags & Flags.OptionsDirectives) !== 0;
     
             while (this.token === Token.StringLiteral) {
     
@@ -2601,6 +2605,7 @@ export class Parser {
         }
     
         private parseContinueStatement(context: Context): ESTree.ContinueStatement {
+
             const pos = this.getLocations();
     
             if (!(this.flags & Flags.Continue)) this.error(Errors.InvalidNestedContinue);
@@ -2608,13 +2613,15 @@ export class Parser {
             this.expect(context, Token.ContinueKeyword);
     
             let label: ESTree.Identifier | null = null;
-    
             if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
                 label = this.parseIdentifierName(context, this.token);
-                this.validateLabel(label.name);
+
+                if (this.labelSet === undefined || !('$' + label.name in this.labelSet)) {
+                    this.error(Errors.UnknownLabel, label.name);
+                }
             }
     
-            if (!label && !(this.flags & Flags.Iteration)) this.error(Errors.BadContinue);
+            if (label === null && !(this.flags & Flags.Iteration)) this.error(Errors.BadContinue);
     
             this.consumeSemicolon(context);
     
@@ -2634,10 +2641,12 @@ export class Parser {
     
             if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
                 label = this.parseIdentifierName(context, this.token);
-                this.validateLabel(label.name);
+                if (this.labelSet === undefined || !('$' + label.name in this.labelSet)) {
+                    this.error(Errors.UnknownLabel, label.name);
+                }
             }
     
-            if (!label && !(this.flags & (Flags.Switch | Flags.Iteration))) {
+            if (label === null && !(this.flags & (Flags.Iteration | Flags.Switch))) {
                 this.error(Errors.IllegalBreak);
             }
     
@@ -2663,7 +2672,7 @@ export class Parser {
             // Create a lexical scope node around the whole ForStatement
             const blockScope = this.blockScope;
             const parentScope = this.parentScope;
-            const awaitToken = !!(context & Context.Await) && this.parseEventually(context, Token.AwaitKeyword);
+            const awaitToken = (context & Context.Await) !== 0 && this.parseEventually(context, Token.AwaitKeyword);
             const savedFlag = this.flags;
     
             if (blockScope !== undefined) this.parentScope = blockScope;
@@ -2707,7 +2716,7 @@ export class Parser {
             this.flags |= Flags.Iteration | Flags.Continue;
     
             if (this.parseEventually(context, Token.OfKeyword)) {
-    
+
                 // State 3 proposal - Async Iteration
                 if (awaitToken && !(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(token));
     
@@ -3021,8 +3030,8 @@ export class Parser {
                 type: 'FunctionDeclaration',
                 params,
                 body,
-                async: !!(context & Context.Await),
-                generator: !!(context & Context.Yield),
+                async: (context & Context.Await) !== 0,
+                generator: (context & Context.Yield) !== 0,
                 expression: false,
                 id
             });
@@ -3076,7 +3085,7 @@ export class Parser {
     
                 this.expect(context, Token.Colon);
     
-                const key = '@' + expr.name;
+                const key = '$' + expr.name;
                 if (this.labelSet === undefined) this.labelSet = {};
                 else if (this.labelSet[key] === true) this.error(Errors.Redeclaration, expr.name);
     
@@ -3433,8 +3442,8 @@ export class Parser {
                 body,
                 params,
                 id: null,
-                async: !!(context & Context.Await),
-                generator: !!(context & Context.Yield),
+                async: (context & Context.Await) !== 0,
+                generator: (context & Context.Yield) !== 0,
                 expression
             });
         }
@@ -3832,8 +3841,8 @@ export class Parser {
                 type: 'FunctionExpression',
                 params,
                 body,
-                async: !!(context & Context.Await),
-                generator: !!(context & Context.Yield),
+                async: (context & Context.Await) !== 0,
+                generator: (context & Context.Yield) !== 0,
                 expression: false,
                 id
             });
@@ -3915,7 +3924,7 @@ export class Parser {
             //  () => {}
             //
     
-            const isEscaped = !!(this.flags & Flags.HasUnicode);
+            const isEscaped = (this.flags & Flags.HasUnicode) !== 0;
             const id = this.parseIdentifier(context);
             const flags = this.flags |= Flags.SimpleParameterList;
     
@@ -4361,7 +4370,7 @@ export class Parser {
                 type: 'PrivateProperty',
                 key,
                 value,
-                static: !!(state & ObjectState.Static)
+                static: (state & ObjectState.Static) !== 0
             });
         }
     
@@ -4396,7 +4405,7 @@ export class Parser {
             let count = 0;
             let key;
             let value;
-            let isEscaped = !!(this.flags & Flags.HasUnicode);
+            let isEscaped = (this.flags & Flags.HasUnicode) !== 0;
             let fieldPos;
     
             loop: while (this.isIdentifierOrKeyword(token)) {
@@ -4529,9 +4538,9 @@ export class Parser {
                 key,
                 kind: (state & ObjectState.Constructor) ? 'constructor' : (state & ObjectState.Get) ? 'get' :
                     (state & ObjectState.Set) ? 'set' : 'method',
-                computed: !!(state & ObjectState.Computed),
+                computed: (state & ObjectState.Computed) !== 0,
                 value,
-                static: !!(state & ObjectState.Static)
+                static: (state & ObjectState.Static) !== 0
             });
         }
     
@@ -4579,7 +4588,7 @@ export class Parser {
             let key;
             let value;
             let firstProto = this.firstProto;
-            let isEscaped = !!(this.flags & Flags.HasUnicode);
+            let isEscaped = (this.flags & Flags.HasUnicode) !== 0; 
             const tokenValue = this.tokenValue;
     
             if (hasMask(this.token, Token.Modifiers)) {
@@ -4707,9 +4716,9 @@ export class Parser {
                 key,
                 value,
                 kind: !(state & ObjectState.Accessors) ? 'init' : (state & ObjectState.Set) ? 'set' : 'get',
-                computed: !!(state & ObjectState.Computed),
-                method: !!(state & ObjectState.Method),
-                shorthand: !!(state & ObjectState.Shorthand)
+                computed: (state & ObjectState.Computed) !== 0,
+                method: (state & ObjectState.Method) !== 0,
+                shorthand: (state & ObjectState.Shorthand) !== 0
             });
         }
     
@@ -5041,10 +5050,6 @@ export class Parser {
             const value = this.tokenValue;
             const raw = this.tokenRaw;
     
-            if (value === 'use strict' && !(this.flags & (Flags.HasUnicode | Flags.HasStrictDirective))) {
-                this.flags |= Flags.HasStrictDirective;
-            }
-    
             this.nextToken(context);
     
             const node = this.finishNode(pos, {
@@ -5102,12 +5107,6 @@ export class Parser {
                 type: 'Identifier',
                 name
             });
-        }
-    
-        private validateLabel(name: string) {
-            if (this.labelSet === undefined || !('@' + name in this.labelSet)) {
-                this.error(Errors.UnknownLabel, name);
-            }
         }
     
         // Fast path for catch arguments
@@ -5466,10 +5465,10 @@ export class Parser {
                 type: 'Property',
                 kind: 'init',
                 key,
-                computed: !!(state & ObjectState.Computed),
+                computed: (state & ObjectState.Computed) !== 0,
                 value,
                 method: false,
-                shorthand: !!(state & ObjectState.Shorthand)
+                shorthand: (state & ObjectState.Shorthand) !== 0
             });
         }
     

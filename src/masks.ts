@@ -60,21 +60,21 @@ export const enum Flags {
     SimpleParameterList          = 1 << 15,
     ParenthesizedPattern         = 1 << 16,
     Operator                     = 1 << 17,
-
+    Octal                        = 1 << 18, // e.g. `0777`
     /* Options */
-    OptionsRanges                = 1 << 18, // Enable / disable "ranges"
-    OptionsLoc                   = 1 << 19, // Enable / disable location tracking on the node
-    OptionsSource                = 1 << 20,
-    OptionsJSX                   = 1 << 21, // Enable / disable JSX extension
-    OptionsRaw                   = 1 << 22, // Enable / disable "raw" property on the node
-    OptionsNext                  = 1 << 23, // Enable / disable Stage 3 proposals
-    OptionsDirectives            = 1 << 24, // Enable / disable directives on the node
-    OptionsComments              = 1 << 25, // Enable / disable comment collecting
-    OptionsDelegate              = 1 << 26, // Enable / disable token syntax delegate
-    OptionsV8                    = 1 << 27, // Enable / disable V8 experimental features
-    OptionsGlobalReturn          = 1 << 28, // Allow return statement in global scope,
-    OptionsSourceType            = 1 << 29, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
-    OptionsTolerant              = 1 << 30,
+    OptionsRanges                = 1 << 19, // Enable / disable "ranges"
+    OptionsLoc                   = 1 << 20, // Enable / disable location tracking on the node
+    OptionsSource                = 1 << 21,
+    OptionsJSX                   = 1 << 22, // Enable / disable JSX extension
+    OptionsRaw                   = 1 << 23, // Enable / disable "raw" property on the node
+    OptionsNext                  = 1 << 24, // Enable / disable Stage 3 proposals
+    OptionsDirectives            = 1 << 25, // Enable / disable directives on the node
+    OptionsComments              = 1 << 26, // Enable / disable comment collecting
+    OptionsDelegate              = 1 << 27, // Enable / disable token syntax delegate
+    OptionsV8                    = 1 << 28, // Enable / disable V8 experimental features
+    OptionsGlobalReturn          = 1 << 29, // Allow return statement in global scope,
+    OptionsSourceType            = 1 << 30, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
+    OptionsTolerant              = 1 << 31, 
     
     
     // Common mask used to verify if either ranges or locations are enabled
