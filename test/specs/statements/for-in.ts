@@ -6,6 +6,7 @@ describe('Statements - For in', () => {
         fail('for(a in b) function c(){}', 'for ({...rest, b} in [{}]) ;');
         fail('for(a in b) function c(){}', 'for ({...rest, b} of [{}]) ;');
         fail('for ([...x = 1] in [[]]) ;', 'for ([...x = 1] in [[]]) ;');
+        fail('"use strict"; for ([arguments] in [[]]) ;', '"use strict"; for ([arguments] in [[]]) ;');
         
         test('for([{a=0}] in b);', n('Program', {
             body: [{

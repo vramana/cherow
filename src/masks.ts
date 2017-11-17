@@ -21,15 +21,16 @@ export const enum Context {
     HasConstructor         = 1 << 17,  // If node was parsed inside Class and allow super
     Constructor            = 1 << 18,  // Class declaration / expression
     ForStatement           = 1 << 19,  // If node was parsed in a for / for - in / for -of context
-    TaggedTemplate         = 1 << 20,  // 
-    Labelled               = 1 << 21,  // 
-    Iteration              = 1 << 22,  // 
-    LocationTracking       = 1 << 23,
-    Expression             = 1 << 24,
-    Pattern                = 1 << 25,
-    Let                    = 1 << 26,  // Variable declaration
-    Const                  = 1 << 27,  // Variable declaration
-    Fields                 = 1 << 28,  // Variable declaration
+    TaggedTemplate         = 1 << 20,  //
+    Labelled               = 1 << 21,  //
+    Iteration              = 1 << 22,  //
+    Fields                 = 1 << 23,  // If node was parsed in a class fields context
+    LocationTracking       = 1 << 24,
+    Expression             = 1 << 25,
+    Pattern                = 1 << 26,
+    Let                    = 1 << 27,  // Variable declaration
+    Const                  = 1 << 28,  // Variable declaration
+
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
@@ -48,32 +49,34 @@ export const enum Flags {
     Break                        = 1 << 4,
     Iteration                    = 1 << 5,
     Switch                       = 1 << 6,
-    HasPrototype                 = 1 << 7,
-    HaveSeenYield                = 1 << 8,  // Used if we have seen a 'yield' token. E.g. in arrow formal param list
-    HaveSeenAwait                = 1 << 9,  // Used if we have seen a 'await' token. E.g. in async arrow formal param list
-    HaveSeenRest                 = 1 << 10,
-    BindingPosition              = 1 << 11, // Used if an "identifier" are used in binding position in strict mode
-    HasStrictDirective           = 1 << 12, // Only used if we have seen a "use strict"; directive
-    BigInt                       = 1 << 13, // e.g. `100n`
-    SimpleParameterList          = 1 << 14,
-    ParenthesizedPattern         = 1 << 15,
-    Operator                     = 1 << 16,
+    Continue                     = 1 << 7,
+    HasPrototype                 = 1 << 8,
+    HaveSeenYield                = 1 << 9,  // Used if we have seen a 'yield' token. E.g. in arrow formal param list
+    HaveSeenAwait                = 1 << 10,  // Used if we have seen a 'await' token. E.g. in async arrow formal param list
+    HaveSeenRest                 = 1 << 11,
+    BindingPosition              = 1 << 12, // Used if an "identifier" are used in binding position in strict mode
+    HasStrictDirective           = 1 << 13, // Only used if we have seen a "use strict"; directive
+    BigInt                       = 1 << 14, // e.g. `100n`
+    SimpleParameterList          = 1 << 15,
+    ParenthesizedPattern         = 1 << 16,
+    Operator                     = 1 << 17,
 
     /* Options */
-    OptionsRanges                = 1 << 17, // Enable / disable "ranges"
-    OptionsLoc                   = 1 << 18, // Enable / disable location tracking on the node
-    OptionsSource                = 1 << 19,
-    OptionsJSX                   = 1 << 20, // Enable / disable JSX extension
-    OptionsRaw                   = 1 << 21, // Enable / disable "raw" property on the node
-    OptionsNext                  = 1 << 22, // Enable / disable Stage 3 proposals
-    OptionsDirectives            = 1 << 23, // Enable / disable directives on the node
-    OptionsComments              = 1 << 24, // Enable / disable comment collecting
-    OptionsDelegate              = 1 << 25, // Enable / disable token syntax delegate
-    OptionsV8                    = 1 << 26, // Enable / disable V8 experimental features
-    OptionsGlobalReturn          = 1 << 27, // Allow return statement in global scope,
-    OptionsSourceType            = 1 << 28, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
-    OptionsTolerant              = 1 << 29,
-    Continue                        = 1 << 30,
+    OptionsRanges                = 1 << 18, // Enable / disable "ranges"
+    OptionsLoc                   = 1 << 19, // Enable / disable location tracking on the node
+    OptionsSource                = 1 << 20,
+    OptionsJSX                   = 1 << 21, // Enable / disable JSX extension
+    OptionsRaw                   = 1 << 22, // Enable / disable "raw" property on the node
+    OptionsNext                  = 1 << 23, // Enable / disable Stage 3 proposals
+    OptionsDirectives            = 1 << 24, // Enable / disable directives on the node
+    OptionsComments              = 1 << 25, // Enable / disable comment collecting
+    OptionsDelegate              = 1 << 26, // Enable / disable token syntax delegate
+    OptionsV8                    = 1 << 27, // Enable / disable V8 experimental features
+    OptionsGlobalReturn          = 1 << 28, // Allow return statement in global scope,
+    OptionsSourceType            = 1 << 29, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
+    OptionsTolerant              = 1 << 30,
+    
+    
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc,
 

@@ -42,6 +42,15 @@ describe('"Next - "Class fields"', () => {
     fail('var C = class { x = () => arguments; }', 'var C = class { x = () => arguments; }');
     fail('var C = class {  #x = () => arguments;  }', 'var C = class {  #x = () => arguments;  }');
     fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { #x = true ? {} : arguments; }');
+
+
+    fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { x = false ? {} : arguments; }');
+    fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { #x = false ? {} : arguments; }');
+    fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { x = true ? {} : arguments; }');
+    fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { x = true ? {} : arguments; }');
+    fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { #x = true ? {} : arguments; }');
+    fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { #x = true ? {} : arguments; }');
+
     fail('Early Error #1 (module code)', '#x,;', true);
     fail('Early Error #2 (module code)', 'class C { constructor() { this.#x; }  }', true);
     fail('Early Error #3 (module code)', 'class C { f() {  this.#x; }  }', true);

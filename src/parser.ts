@@ -1886,7 +1886,7 @@ export class Parser {
     
         private isIdentifier(context: Context, t: Token): boolean {
             if (context & Context.Strict) {
-                if (t === Token.LetKeyword) this.error(Errors.InvalidStrictLexical);
+                if (t === Token.LetKeyword) this.error(Errors.InvalidBindingStrictMode, tokenDesc(this.token));
                 if (context & Context.Module) {
                     if (t === Token.AwaitKeyword) return false;
                 }
@@ -2689,7 +2689,6 @@ export class Parser {
                     } else {
                         init = this.parseExpression(context, pos);
                     }
-    
                     if (declarations) {
                         init = this.finishNode(startIndex, {
                             type: 'VariableDeclaration',
@@ -2738,13 +2737,13 @@ export class Parser {
             }
     
             if (awaitToken) this.error(Errors.UnexpectedToken, tokenDesc(token));
-    
+                
             if (this.parseEventually(context, Token.InKeyword)) {
-    
+
                 if (declarations) {
                     if (declarations.length !== 1) this.error(Errors.Unexpected);
                 } else {
-                    this.reinterpretAsPattern(context, init);
+                    this.reinterpretAsPattern(context | Context.ForStatement, init);
                 }
     
                 test = this.parseExpression(context, pos);
@@ -3313,12 +3312,15 @@ export class Parser {
         }
     
         private reinterpretAsPattern(context: Context, params: any) {
-    
+
             switch (params.type) {
                 case 'PrivateName':
                 case 'Identifier':
                     if (context & Context.InArrowParameterList) {
                         this.addFunctionArg(params.name);
+                    }
+                    if (context & Context.Strict && this.isEvalOrArguments(params.name)) {
+                        this.error(Errors.InvalidBindingStrictMode, params.name);
                     }
                     return;
     
@@ -3343,7 +3345,9 @@ export class Parser {
                 case 'ArrayPattern':
                     for (let i = 0; i < params.elements.length; ++i) {
                         // skip holes in pattern
-                        if (params.elements[i] !== null) this.reinterpretAsPattern(context, params.elements[i]);
+                        if (params.elements[i] !== null) {
+                            this.reinterpretAsPattern(context, params.elements[i]);
+                        }
                     }
                     return;
     
