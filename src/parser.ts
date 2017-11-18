@@ -7,8 +7,7 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location, EmitComments } from './interface';
-import { ArrowFunctionExpression } from './estree';
-import { prototype } from 'stream';
+
 export class Parser {
     
         // The program to be parsed
