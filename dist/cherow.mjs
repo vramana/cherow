@@ -4041,25 +4041,33 @@ Parser.prototype.parseClass = function parseClass (context) {
     classBody = this.parseClassBody(context & ~33554432 /* Expression */ | 2 /* Strict */, flags);
     if (this.flags & 16777216 /* OptionsNext */) {
         if (this.fieldSet !== undefined) {
-            // Note! Recent V8 (6.0+) handle 'Object.create(null)' better, and it's just safer.
-            var foo = Object.create(null);
-            var bar = Object.create(null);
+            var scope = undefined;
+            var method = undefined;
             var key;
             for (var i = 0; i < this.fieldSet.length; i++) {
                 key = this$1.fieldSet[i].key;
                 var mask = this$1.fieldSet[i].mask;
-                if (mask & 2 /* Scope */) {
-                    if (foo[key]) {
-                        this$1.errorLocation = this$1.fieldSet[i].loc;
-                        this$1.error(74 /* DuplicateBinding */, '#' + key);
-                    }
-                    foo[key] = mask;
+                if (mask & 1 /* Method */) {
+                    if (method === undefined)
+                        { method = {}; }
+                    method[key] = mask;
                 }
-                if (mask & 1 /* Method */)
-                    { bar[key] = mask; }
+                else if (mask & 2 /* Scope */) {
+                    if (scope === undefined)
+                        { scope = {}; }
+                    else if (scope[key])
+                        { this$1.error(74 /* DuplicateBinding */, '#' + key); }
+                    scope[key] = true;
+                }
             }
-            if (bar[key] & 1 /* Method */ && !(foo[key] & 2 /* Scope */)) {
-                this.error(122 /* UndefinedInClassScope */, '#' + key);
+            if (method !== undefined) {
+                if (method[key] & 1 /* Method */) {
+                    if (!scope[key])
+                        { this.error(122 /* UndefinedInClassScope */, '#' + key); }
+                }
+                else {
+                    this.error(122 /* UndefinedInClassScope */, '#' + key);
+                }
             }
             this.fieldSet = undefined;
         }
@@ -4124,9 +4132,9 @@ Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty 
     var fieldValue = tokenValue;
     if (this.fieldSet === undefined)
         { this.fieldSet = []; }
+    this.errorLocation = pos;
     this.fieldSet.push({
         key: fieldValue,
-        loc: this.getLocations(),
         mask: 2 /* Scope */
     });
     if (this.parseEventually(context, 1310749 /* Assign */)) {
@@ -4149,9 +4157,9 @@ Parser.prototype.parsePrivateName = function parsePrivateName (context) {
     this.expect(context, 117 /* Hash */);
     if (this.fieldSet === undefined)
         { this.fieldSet = []; }
+    this.errorLocation = pos;
     this.fieldSet.push({
         key: this.tokenValue,
-        loc: this.getLocations(),
         mask: 1 /* Method */
     });
     return this.finishNode(pos, {

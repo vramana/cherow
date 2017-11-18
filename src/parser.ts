@@ -4311,10 +4311,8 @@ export class Parser {
     
                 if (this.fieldSet !== undefined) {
     
-                    // Note! Recent V8 (6.0+) handle 'Object.create(null)' better, and it's just safer.
-                    const foo: any = Object.create(null);
-                    const bar: any = Object.create(null);
-    
+                    let scope: any = undefined;
+                    let method: any = undefined;
                     let key;
     
                     for (let i = 0; i < this.fieldSet.length; i++) {
@@ -4323,20 +4321,22 @@ export class Parser {
     
                         const mask = this.fieldSet[i].mask;
     
-                        if (mask & FieldState.Scope) {
-                            if (foo[key]) {
-                                this.errorLocation = this.fieldSet[i].loc;
-                                this.error(Errors.DuplicateBinding, '#' + key);
-                            }
-    
-                            foo[key] = mask;
-                        }
-    
-                        if (mask & FieldState.Method) bar[key] = mask;
+                        if (mask & FieldState.Method) {
+                            if (method === undefined) method = {};
+                            method[key] = mask;
+                        } else if (mask & FieldState.Scope) {
+                            if (scope === undefined) scope = {};
+                            else if (scope[key]) this.error(Errors.DuplicateBinding, '#' + key);
+                            scope[key] = true;
+                        }  
                     }
-    
-                    if (bar[key] & FieldState.Method && !(foo[key] & FieldState.Scope)) {
-                        this.error(Errors.UndefinedInClassScope, '#' + key);
+
+                    if (method !== undefined) {
+                        if (method[key] & FieldState.Method) {
+                            if (!scope[key]) this.error(Errors.UndefinedInClassScope, '#' + key);
+                        } else {
+                            this.error(Errors.UndefinedInClassScope, '#' + key);
+                        }
                     }
     
                     this.fieldSet = undefined;
@@ -4412,10 +4412,11 @@ export class Parser {
             const fieldValue = tokenValue;
     
             if (this.fieldSet === undefined) this.fieldSet = [];
-    
+            
+            this.errorLocation = pos;
+
             this.fieldSet.push({
                 key: fieldValue,
-                loc: this.getLocations(),
                 mask: FieldState.Scope
             });
     
@@ -4438,11 +4439,13 @@ export class Parser {
             if (context & Context.Module) this.throwUnexpectedToken();
             const pos = this.getLocations();
             this.expect(context, Token.Hash);
+            
             if (this.fieldSet === undefined) this.fieldSet = []
-    
+            
+            this.errorLocation = pos;    
+
             this.fieldSet.push({
                 key: this.tokenValue,
-                loc: this.getLocations(),
                 mask: FieldState.Method
             });
     
