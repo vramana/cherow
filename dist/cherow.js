@@ -4013,6 +4013,8 @@ Parser.prototype.parseClassExpression = function parseClassExpression (context) 
     return this.parseClass(context);
 };
 Parser.prototype.parseClass = function parseClass (context) {
+        var this$1 = this;
+
     var pos = this.getLocations();
     this.expect(context, 274509 /* ClassKeyword */);
     var superClass = null;
@@ -4040,7 +4042,34 @@ Parser.prototype.parseClass = function parseClass (context) {
         superClass = this.parseLeftHandSideExpression(context & ~32768 /* OptionalIdentifier */ | 2 /* Strict */, pos);
         flags |= 256 /* Heritage */;
     }
+    if (!(context & 65536 /* Method */) && this.flags & 16777216 /* OptionsNext */)
+        { this.fieldSet = undefined; }
     classBody = this.parseClassBody(context & ~33554432 /* Expression */ | 2 /* Strict */, flags);
+    if (this.flags & 16777216 /* OptionsNext */) {
+        if (this.fieldSet !== undefined) {
+            // Note! Recent V8 (6.0+) handle 'Object.create(null)' better, and it's just safer.
+            var foo = Object.create(null);
+            var bar = Object.create(null);
+            var key;
+            for (var i = 0; i < this.fieldSet.length; i++) {
+                key = this$1.fieldSet[i].key;
+                var mask = this$1.fieldSet[i].mask;
+                if (mask & 2 /* Scope */) {
+                    if (foo[key]) {
+                        this$1.errorLocation = this$1.fieldSet[i].loc;
+                        this$1.error(74 /* DuplicateBinding */, '#' + key);
+                    }
+                    foo[key] = mask;
+                }
+                if (mask & 1 /* Method */)
+                    { bar[key] = mask; }
+            }
+            if (bar[key] & 1 /* Method */ && !(foo[key] & 2 /* Scope */)) {
+                this.error(122 /* UndefinedInClassScope */, '#' + key);
+            }
+            this.fieldSet = undefined;
+        }
+    }
     this.flags = savedFlags;
     return this.finishNode(pos, {
         type: context & 33554432 /* Expression */ ? 'ClassExpression' : 'ClassDeclaration',
@@ -4056,8 +4085,6 @@ Parser.prototype.parseClassBody = function parseClassBody (context, flags) {
     this.expect(context, 393228 /* LeftBrace */);
     var body = [];
     if (this.token !== 15 /* RightBrace */) {
-        if (!(context & 65536 /* Method */) && this.flags & 16777216 /* OptionsNext */)
-            { this.fieldSet = undefined; }
         while (this.token !== 15 /* RightBrace */) {
             if (!this$1.parseEventually(context, 17 /* Semicolon */)) {
                 var node = this$1.parseClassElement(context, flags);
@@ -4100,12 +4127,14 @@ Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty 
     if (this.token === 393235 /* LeftBracket */)
         { this.error(123 /* InvalidComputedClassProperty */); }
     var value = null;
-    var fieldValue = '#' + tokenValue;
+    var fieldValue = tokenValue;
     if (this.fieldSet === undefined)
-        { this.fieldSet = {}; }
-    else if (this.fieldSet[fieldValue] === true)
-        { this.error(73 /* DuplicateIdentifier */, fieldValue); }
-    this.fieldSet[fieldValue] = true;
+        { this.fieldSet = []; }
+    this.fieldSet.push({
+        key: fieldValue,
+        loc: this.getLocations(),
+        mask: 2 /* Scope */
+    });
     if (this.parseEventually(context, 1310749 /* Assign */)) {
         if (this.isEvalOrArguments(this.tokenValue))
             { this.error(78 /* UnexpectedReservedWord */); }
@@ -4124,9 +4153,13 @@ Parser.prototype.parsePrivateName = function parsePrivateName (context) {
         { this.throwUnexpectedToken(); }
     var pos = this.getLocations();
     this.expect(context, 117 /* Hash */);
-    if (this.fieldSet === undefined || !('#' + this.tokenValue in this.fieldSet)) {
-        this.error(122 /* UndefinedInClassScope */, '#' + this.tokenValue);
-    }
+    if (this.fieldSet === undefined)
+        { this.fieldSet = []; }
+    this.fieldSet.push({
+        key: this.tokenValue,
+        loc: this.getLocations(),
+        mask: 1 /* Method */
+    });
     return this.finishNode(pos, {
         type: 'PrivateName',
         id: this.parseIdentifierName(context, this.token),

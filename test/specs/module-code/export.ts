@@ -7,10 +7,14 @@ describe('Module - Export', () => {
 
   it('should fail if the "as" contextual keyword contain Unicode escape sequences.', () => {
     expect(() => {
-      parseModule(`export {a \\u0061s b} from "./escaped-as-export-specifier.js";`);
-  }).to.throw();
+      parseScript(`class foo { #a, a }`, {
+      next: true
+    });
+  }).to.not.throw();
 
   });
+
+ 
 
   it('should fail if the "from" contextual keyword contain Unicode escape sequences.', () => {
     expect(() => {

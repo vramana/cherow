@@ -2,12 +2,11 @@ import { Chars } from './chars';
 import * as ESTree from './estree';
 import { toHex, fromCodePoint, hasMask, isPrologueDirective } from './common';
 import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget } from './validate';
-import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, Scanner, ParenthesizedState, NumberState, ArrayState, Escape } from './masks';
+import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, Scanner, ParenthesizedState, NumberState, ArrayState, Escape, FieldState } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location, EmitComments } from './interface';
-
 export class Parser {
     
         // The program to be parsed
@@ -4299,13 +4298,50 @@ export class Parser {
                 this.error(Errors.UnNamedClassStmt);
             }
     
-    
             if (this.parseEventually(context, Token.ExtendsKeyword)) {
                 superClass = this.parseLeftHandSideExpression(context & ~Context.OptionalIdentifier | Context.Strict, pos);
                 flags |= ObjectState.Heritage;
             }
     
+            if (!(context & Context.Method) && this.flags & Flags.OptionsNext) this.fieldSet = undefined;
+    
             classBody = this.parseClassBody(context & ~Context.Expression | Context.Strict, flags);
+    
+            if (this.flags & Flags.OptionsNext) {
+    
+                if (this.fieldSet !== undefined) {
+    
+                    // Note! Recent V8 (6.0+) handle 'Object.create(null)' better, and it's just safer.
+                    const foo: any = Object.create(null);
+                    const bar: any = Object.create(null);
+    
+                    let key;
+    
+                    for (let i = 0; i < this.fieldSet.length; i++) {
+    
+                        key = this.fieldSet[i].key;
+    
+                        const mask = this.fieldSet[i].mask;
+    
+                        if (mask & FieldState.Scope) {
+                            if (foo[key]) {
+                                this.errorLocation = this.fieldSet[i].loc;
+                                this.error(Errors.DuplicateBinding, '#' + key);
+                            }
+    
+                            foo[key] = mask;
+                        }
+    
+                        if (mask & FieldState.Method) bar[key] = mask;
+                    }
+    
+                    if (bar[key] & FieldState.Method && !(foo[key] & FieldState.Scope)) {
+                        this.error(Errors.UndefinedInClassScope, '#' + key);
+                    }
+    
+                    this.fieldSet = undefined;
+                }
+            }
     
             this.flags = savedFlags;
     
@@ -4325,7 +4361,7 @@ export class Parser {
     
             const body: ESTree.MethodDefinition[] = [];
             if (this.token !== Token.RightBrace) {
-                if (!(context & Context.Method) && this.flags & Flags.OptionsNext) this.fieldSet = undefined;
+    
                 while (this.token !== Token.RightBrace) {
                     if (!this.parseEventually(context, Token.Semicolon)) {
                         const node: any = this.parseClassElement(context, flags);
@@ -4373,11 +4409,15 @@ export class Parser {
             if (this.token === Token.LeftBracket) this.error(Errors.InvalidComputedClassProperty);
             let value: ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression | null = null;
     
-            const fieldValue = '#' + tokenValue;
+            const fieldValue = tokenValue;
     
-            if (this.fieldSet === undefined) this.fieldSet = {};
-            else if (this.fieldSet[fieldValue] === true) this.error(Errors.DuplicateIdentifier, fieldValue);
-            this.fieldSet[fieldValue] = true;
+            if (this.fieldSet === undefined) this.fieldSet = [];
+    
+            this.fieldSet.push({
+                key: fieldValue,
+                loc: this.getLocations(),
+                mask: FieldState.Scope
+            });
     
             if (this.parseEventually(context, Token.Assign)) {
                 if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
@@ -4398,9 +4438,14 @@ export class Parser {
             if (context & Context.Module) this.throwUnexpectedToken();
             const pos = this.getLocations();
             this.expect(context, Token.Hash);
-            if (this.fieldSet === undefined || !('#' + this.tokenValue in this.fieldSet)) {
-                this.error(Errors.UndefinedInClassScope, '#' + this.tokenValue)
-            }
+            if (this.fieldSet === undefined) this.fieldSet = []
+    
+            this.fieldSet.push({
+                key: this.tokenValue,
+                loc: this.getLocations(),
+                mask: FieldState.Method
+            });
+    
             return this.finishNode(pos, {
                 type: 'PrivateName',
                 id: this.parseIdentifierName(context, this.token),

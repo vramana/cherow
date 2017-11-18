@@ -31,8 +31,6 @@ export const enum Context {
     Let                    = 1 << 27,  // Variable declaration
     Const                  = 1 << 28,  // Variable declaration
 
-
-
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
 
@@ -163,6 +161,12 @@ export const enum RegexFlags {
     Unicode    = 1 << 3,
     Sticky     = 1 << 4,
     DotAll     = 1 << 5,
+}
+
+export const enum FieldState {
+    None = 0,
+    Method = 1 << 0,
+    Scope = 1 << 1,
 }
 
 export const enum ScopeMasks {

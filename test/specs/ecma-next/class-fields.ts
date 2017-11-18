@@ -2,7 +2,6 @@ import { n, fail, pass } from '../utils/test-utils';
 
 describe('"Next - "Class fields"', () => {
 
-    fail('inaccessible outside of the class body', '#a')
     fail('constructor with private name', 'class Foo { #constructor() {} }')
     fail('missing semicolon', 'class Foo { p = x  *#m () {} }')
     fail('delete non private','class Foo { #x;  constructor() { delete #x.d; } }');
@@ -44,21 +43,19 @@ describe('"Next - "Class fields"', () => {
     fail('undefined in class scope', 'var C = class { #foo; constructor () { #bar }}');
     fail('computed private class property - #1', 'class A { #["a" + "b"] = bar }');
     fail('computed private class property - #2', 'class foo { #a["b" + "c"] = foo,  #a["b" + "c"] = bar }');
-    
     fail('privatename with constructor', 'var C = class { #constructor; }');
-
-
+    fail('duplicates', 'class foo { #a, #a }');
+    fail('duplicates', `class A { #pe; constructor(x) { this.#p = x;  }  }`);
+    fail('duplicates', `class A { constructor(x) { this.#p = x;  } #pe;  }`);   
+    fail('duplicates', `class A { constructor(x) { this.#p = x;  } #p;  }`);   
     fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { x = false ? {} : arguments; }');
     fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { #x = false ? {} : arguments; }');
     fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { x = true ? {} : arguments; }');
     fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { x = true ? {} : arguments; }');
     fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { #x = true ? {} : arguments; }');
     fail('var C = class { #x = true ? {} : arguments; }', 'var C = class { #x = true ? {} : arguments; }');
-
     fail('duplicate bindings', 'class foo { #a;  #a; }');
-
     fail('invalid computed value', 'class foo { a["b" + "c"] = bar }');
-
     fail('Early Error #1 (module code)', '#x,;', true);
     fail('Early Error #2 (module code)', 'class C { constructor() { this.#x; }  }', true);
     fail('Early Error #3 (module code)', 'class C { f() {  this.#x; }  }', true);
@@ -75,7 +72,434 @@ describe('"Next - "Class fields"', () => {
       }`, true);
 
     fail('Early Error #8 (module code)', 'function f() { this.#x; }', true);
-    
+
+    fail('invalid undeclared bindings', `class A {
+        constructor(x) {
+            this.#p = x;
+        }
+        #ps;
+    }`)
+
+    pass('undeclared bindings', `class foo { #a, a }`, {
+        "type": "Program",
+        "body": [
+            {
+                "type": "ClassDeclaration",
+                "id": {
+                    "type": "Identifier",
+                    "name": "foo",
+                    "start": 6,
+                    "end": 9,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 6
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 9
+                        }
+                    }
+                },
+                "superClass": null,
+                "body": {
+                    "type": "ClassBody",
+                    "body": [
+                        {
+                            "type": "PrivateProperty",
+                            "key": {
+                                "type": "Identifier",
+                                "name": "a",
+                                "start": 13,
+                                "end": 14,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 13
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 14
+                                    }
+                                }
+                            },
+                            "value": null,
+                            "static": false,
+                            "start": 12,
+                            "end": 15,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 15
+                                }
+                            }
+                        },
+                        {
+                            "type": "Identifier",
+                            "name": "a",
+                            "start": 16,
+                            "end": 17,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 17
+                                }
+                            }
+                        }
+                    ],
+                    "start": 10,
+                    "end": 19,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 10
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 19
+                        }
+                    }
+                },
+                "start": 0,
+                "end": 19,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 19
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 19,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 1,
+                "column": 19
+            }
+        }
+    });
+
+    pass('undeclared bindings', `class A {
+        constructor(x) {
+            this.#p = x;
+        }
+        #p;
+    }`, {
+        "type": "Program",
+        "body": [
+            {
+                "type": "ClassDeclaration",
+                "id": {
+                    "type": "Identifier",
+                    "name": "A",
+                    "start": 6,
+                    "end": 7,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 6
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 7
+                        }
+                    }
+                },
+                "superClass": null,
+                "body": {
+                    "type": "ClassBody",
+                    "body": [
+                        {
+                            "type": "MethodDefinition",
+                            "key": {
+                                "type": "Identifier",
+                                "name": "constructor",
+                                "start": 18,
+                                "end": 29,
+                                "loc": {
+                                    "start": {
+                                        "line": 2,
+                                        "column": 8
+                                    },
+                                    "end": {
+                                        "line": 2,
+                                        "column": 19
+                                    }
+                                }
+                            },
+                            "kind": "constructor",
+                            "computed": false,
+                            "value": {
+                                "type": "FunctionExpression",
+                                "params": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "x",
+                                        "start": 30,
+                                        "end": 31,
+                                        "loc": {
+                                            "start": {
+                                                "line": 2,
+                                                "column": 20
+                                            },
+                                            "end": {
+                                                "line": 2,
+                                                "column": 21
+                                            }
+                                        }
+                                    }
+                                ],
+                                "body": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                        {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                                "type": "AssignmentExpression",
+                                                "left": {
+                                                    "type": "MemberExpression",
+                                                    "object": {
+                                                        "type": "ThisExpression",
+                                                        "start": 47,
+                                                        "end": 51,
+                                                        "loc": {
+                                                            "start": {
+                                                                "line": 3,
+                                                                "column": 12
+                                                            },
+                                                            "end": {
+                                                                "line": 3,
+                                                                "column": 16
+                                                            }
+                                                        }
+                                                    },
+                                                    "computed": false,
+                                                    "property": {
+                                                        "type": "PrivateName",
+                                                        "id": {
+                                                            "type": "Identifier",
+                                                            "name": "p",
+                                                            "start": 53,
+                                                            "end": 54,
+                                                            "loc": {
+                                                                "start": {
+                                                                    "line": 3,
+                                                                    "column": 18
+                                                                },
+                                                                "end": {
+                                                                    "line": 3,
+                                                                    "column": 19
+                                                                }
+                                                            }
+                                                        },
+                                                        "start": 52,
+                                                        "end": 54,
+                                                        "loc": {
+                                                            "start": {
+                                                                "line": 3,
+                                                                "column": 17
+                                                            },
+                                                            "end": {
+                                                                "line": 3,
+                                                                "column": 19
+                                                            }
+                                                        }
+                                                    },
+                                                    "start": 47,
+                                                    "end": 54,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 3,
+                                                            "column": 12
+                                                        },
+                                                        "end": {
+                                                            "line": 3,
+                                                            "column": 19
+                                                        }
+                                                    }
+                                                },
+                                                "operator": "=",
+                                                "right": {
+                                                    "type": "Identifier",
+                                                    "name": "x",
+                                                    "start": 57,
+                                                    "end": 58,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 3,
+                                                            "column": 22
+                                                        },
+                                                        "end": {
+                                                            "line": 3,
+                                                            "column": 23
+                                                        }
+                                                    }
+                                                },
+                                                "start": 47,
+                                                "end": 58,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 3,
+                                                        "column": 12
+                                                    },
+                                                    "end": {
+                                                        "line": 3,
+                                                        "column": 23
+                                                    }
+                                                }
+                                            },
+                                            "start": 47,
+                                            "end": 59,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 3,
+                                                    "column": 12
+                                                },
+                                                "end": {
+                                                    "line": 3,
+                                                    "column": 24
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "start": 33,
+                                    "end": 69,
+                                    "loc": {
+                                        "start": {
+                                            "line": 2,
+                                            "column": 23
+                                        },
+                                        "end": {
+                                            "line": 4,
+                                            "column": 9
+                                        }
+                                    }
+                                },
+                                "async": false,
+                                "generator": false,
+                                "expression": false,
+                                "id": null,
+                                "start": 29,
+                                "end": 69,
+                                "loc": {
+                                    "start": {
+                                        "line": 2,
+                                        "column": 19
+                                    },
+                                    "end": {
+                                        "line": 4,
+                                        "column": 9
+                                    }
+                                }
+                            },
+                            "static": false,
+                            "start": 18,
+                            "end": 69,
+                            "loc": {
+                                "start": {
+                                    "line": 2,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 4,
+                                    "column": 9
+                                }
+                            }
+                        },
+                        {
+                            "type": "PrivateProperty",
+                            "key": {
+                                "type": "Identifier",
+                                "name": "p",
+                                "start": 79,
+                                "end": 80,
+                                "loc": {
+                                    "start": {
+                                        "line": 5,
+                                        "column": 9
+                                    },
+                                    "end": {
+                                        "line": 5,
+                                        "column": 10
+                                    }
+                                }
+                            },
+                            "value": null,
+                            "static": false,
+                            "start": 78,
+                            "end": 80,
+                            "loc": {
+                                "start": {
+                                    "line": 5,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 5,
+                                    "column": 10
+                                }
+                            }
+                        }
+                    ],
+                    "start": 8,
+                    "end": 87,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 8
+                        },
+                        "end": {
+                            "line": 6,
+                            "column": 5
+                        }
+                    }
+                },
+                "start": 0,
+                "end": 87,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 6,
+                        "column": 5
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 87,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 6,
+                "column": 5
+            }
+        }
+    });
+
     pass('no conflict between private and public name', `class foo { #a, a }`, {
         "type": "Program",
         "body": [
@@ -5669,6 +6093,224 @@ describe('"Next - "Class fields"', () => {
             "end": {
                 "line": 3,
                 "column": 31
+            }
+        }
+    });
+    
+    pass('no conflict class scope and method', 'class foo { #a, constructor() { #a } }', {
+        "type": "Program",
+        "body": [
+            {
+                "type": "ClassDeclaration",
+                "id": {
+                    "type": "Identifier",
+                    "name": "foo",
+                    "start": 6,
+                    "end": 9,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 6
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 9
+                        }
+                    }
+                },
+                "superClass": null,
+                "body": {
+                    "type": "ClassBody",
+                    "body": [
+                        {
+                            "type": "PrivateProperty",
+                            "key": {
+                                "type": "Identifier",
+                                "name": "a",
+                                "start": 13,
+                                "end": 14,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 13
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 14
+                                    }
+                                }
+                            },
+                            "value": null,
+                            "static": false,
+                            "start": 12,
+                            "end": 15,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 15
+                                }
+                            }
+                        },
+                        {
+                            "type": "MethodDefinition",
+                            "key": {
+                                "type": "Identifier",
+                                "name": "constructor",
+                                "start": 16,
+                                "end": 27,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 16
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 27
+                                    }
+                                }
+                            },
+                            "kind": "constructor",
+                            "computed": false,
+                            "value": {
+                                "type": "FunctionExpression",
+                                "params": [],
+                                "body": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                        {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                                "type": "PrivateName",
+                                                "id": {
+                                                    "type": "Identifier",
+                                                    "name": "a",
+                                                    "start": 33,
+                                                    "end": 34,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 1,
+                                                            "column": 33
+                                                        },
+                                                        "end": {
+                                                            "line": 1,
+                                                            "column": 34
+                                                        }
+                                                    }
+                                                },
+                                                "start": 32,
+                                                "end": 34,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 32
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 34
+                                                    }
+                                                }
+                                            },
+                                            "start": 32,
+                                            "end": 34,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 32
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 34
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "start": 30,
+                                    "end": 36,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 30
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 36
+                                        }
+                                    }
+                                },
+                                "async": false,
+                                "generator": false,
+                                "expression": false,
+                                "id": null,
+                                "start": 27,
+                                "end": 36,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 27
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 36
+                                    }
+                                }
+                            },
+                            "static": false,
+                            "start": 16,
+                            "end": 36,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 36
+                                }
+                            }
+                        }
+                    ],
+                    "start": 10,
+                    "end": 38,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 10
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 38
+                        }
+                    }
+                },
+                "start": 0,
+                "end": 38,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 38
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 38,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 1,
+                "column": 38
             }
         }
     });
