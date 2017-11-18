@@ -289,6 +289,7 @@ ErrorMessages[120 /* InvalidAwaitInAsyncFunc */] = 'Can not use await as identif
 ErrorMessages[121 /* NewTargetArrow */] = 'new.target must be within function (but not arrow expression) code';
 ErrorMessages[122 /* UndefinedInClassScope */] = '\'%0\'  not defined in class scope';
 ErrorMessages[123 /* InvalidComputedClassProperty */] = 'Invalid computed name in private property';
+ErrorMessages[124 /* InvalidFieldConstructor */] = 'Classes may not have a private field named \'#constructor\'';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -3315,8 +3316,12 @@ Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) 
         expr = this.parseUnaryExpressionFastPath(context);
         // When a delete operator occurs within strict mode code, a SyntaxError is thrown if its
         // UnaryExpression is a direct reference to a variable, function argument, or function name
-        if (context & 2 /* Strict */ && token === 4468779 /* DeleteKeyword */ && expr.argument.type === 'Identifier') {
-            this.error(47 /* StrictDelete */);
+        if (context & 2 /* Strict */ && token === 4468779 /* DeleteKeyword */) {
+            if (expr.argument.type === 'Identifier')
+                { this.error(47 /* StrictDelete */); }
+            if (!(context & 1 /* Module */) && this.flags & 16777216 /* OptionsNext */ && expr.argument.property.type === 'PrivateName') {
+                this.error(47 /* StrictDelete */);
+            }
         }
         if (this.token === 2100022 /* Exponentiate */)
             { this.error(0 /* Unexpected */); }
@@ -4014,8 +4019,9 @@ Parser.prototype.parseClass = function parseClass (context) {
     var superClass = null;
     var classBody;
     var flags = 0;
-    var savedFlags = this.flags;
     var id = null;
+    var next = (this.flags & 16777216 /* OptionsNext */) !== 0;
+    var savedFlags = this.flags;
     if (this.isIdentifier(context, this.token)) {
         var name = this.tokenValue;
         if (!(context & 33554432 /* Expression */)) {
@@ -4036,10 +4042,10 @@ Parser.prototype.parseClass = function parseClass (context) {
         superClass = this.parseLeftHandSideExpression(context & ~32768 /* OptionalIdentifier */ | 2 /* Strict */, pos);
         flags |= 256 /* Heritage */;
     }
-    if (!(context & 65536 /* Method */) && this.flags & 16777216 /* OptionsNext */)
+    if (next && !(context & 65536 /* Method */))
         { this.fieldSet = undefined; }
     classBody = this.parseClassBody(context & ~33554432 /* Expression */ | 2 /* Strict */, flags);
-    if (this.flags & 16777216 /* OptionsNext */) {
+    if (next) {
         if (this.fieldSet !== undefined) {
             var scope = undefined;
             var method = undefined;
@@ -4123,7 +4129,7 @@ Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty 
         { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
     var tokenValue = this.tokenValue;
     if (this.token === 69742 /* ConstructorKeyword */)
-        { this.error(0 /* Unexpected */); }
+        { this.error(124 /* InvalidFieldConstructor */); }
     // Note: The grammar only supports `#` IdentifierName
     var key = this.parseIdentifierName(context, this.token);
     if (this.token === 393235 /* LeftBracket */)
@@ -4285,10 +4291,13 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                 if (this.token === 393235 /* LeftBracket */)
                     { this.throwUnexpectedToken(); }
                 // Stage 3 Proposal - Class-fields
-                if (this.flags & 16777216 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
-                    if (state & (4096 /* Prototype */ | 1024 /* Constructor */))
-                        { this.error(0 /* Unexpected */); }
-                    return this.parseClassFields(context | 4 /* AllowIn */ | 8388608 /* Fields */, key, fieldPos);
+                if (this.token !== 262155 /* LeftParen */) {
+                    if (this.flags & 16777216 /* OptionsNext */) {
+                        if (state & (4096 /* Prototype */ | 1024 /* Constructor */))
+                            { this.error(0 /* Unexpected */); }
+                        return this.parseClassFields(context | 4 /* AllowIn */ | 8388608 /* Fields */, key, fieldPos);
+                    }
+                    this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
                 }
             }
             else if (count && currentState !== 1 /* Yield */) {

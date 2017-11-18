@@ -122,7 +122,8 @@ export const enum Errors {
     InvalidAwaitInAsyncFunc,
     NewTargetArrow,
     UndefinedInClassScope,
-    InvalidComputedClassProperty
+    InvalidComputedClassProperty,
+    InvalidFieldConstructor
 }
 
 export const ErrorMessages: {
@@ -249,6 +250,7 @@ export const ErrorMessages: {
     [Errors.NewTargetArrow]: 'new.target must be within function (but not arrow expression) code',
     [Errors.UndefinedInClassScope]: '\'%0\'  not defined in class scope',
     [Errors.InvalidComputedClassProperty]: 'Invalid computed name in private property',
+    [Errors.InvalidFieldConstructor]: 'Classes may not have a private field named \'#constructor\'',
     
     
 };

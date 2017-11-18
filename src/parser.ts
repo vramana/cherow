@@ -3466,11 +3466,16 @@ export class Parser {
             if (hasMask(this.token, Token.UnaryOperator)) {
                 const token = this.token;
                 expr = this.parseUnaryExpressionFastPath(context);
+
                 // When a delete operator occurs within strict mode code, a SyntaxError is thrown if its
                 // UnaryExpression is a direct reference to a variable, function argument, or function name
-                if (context & Context.Strict && token === Token.DeleteKeyword && expr.argument.type === 'Identifier') {
-                    this.error(Errors.StrictDelete);
-                }
+                if (context & Context.Strict && token === Token.DeleteKeyword) {
+                    if ( expr.argument.type === 'Identifier') this.error(Errors.StrictDelete);
+                    if (!(context & Context.Module) && this.flags & Flags.OptionsNext && (expr as any).argument.property.type === 'PrivateName') {
+                        this.error(Errors.StrictDelete);
+                      }
+                } 
+
                 if (this.token === Token.Exponentiate) this.error(Errors.Unexpected);
             } else {
                 expr = this.parseUpdateExpression(context, pos);
@@ -3664,6 +3669,7 @@ export class Parser {
                         {
     
                             this.expect(context, Token.Period);
+                            
                             const property = this.flags & Flags.OptionsNext && context & Context.Method && this.token === Token.Hash ?
                                 this.parsePrivateName(context) : this.parseIdentifierName(context, this.token);
                             if (context & Context.ForStatement && this.token === Token.OfKeyword) {
@@ -4275,9 +4281,11 @@ export class Parser {
             let superClass: ESTree.Expression | null = null;
             let classBody;
             let flags = ObjectState.None;
-            const savedFlags = this.flags;
             let id = null;
-    
+            let next = (this.flags & Flags.OptionsNext) !== 0;
+            
+            const savedFlags = this.flags;
+
             if (this.isIdentifier(context, this.token)) {
                 const name = this.tokenValue;
     
@@ -4303,11 +4311,11 @@ export class Parser {
                 flags |= ObjectState.Heritage;
             }
     
-            if (!(context & Context.Method) && this.flags & Flags.OptionsNext) this.fieldSet = undefined;
+            if (next && !(context & Context.Method) ) this.fieldSet = undefined;
     
             classBody = this.parseClassBody(context & ~Context.Expression | Context.Strict, flags);
     
-            if (this.flags & Flags.OptionsNext) {
+            if (next) {
     
                 if (this.fieldSet !== undefined) {
     
@@ -4401,7 +4409,7 @@ export class Parser {
     
             const tokenValue = this.tokenValue;
     
-            if (this.token === Token.ConstructorKeyword) this.error(Errors.Unexpected);
+            if (this.token === Token.ConstructorKeyword) this.error(Errors.InvalidFieldConstructor);
     
             // Note: The grammar only supports `#` IdentifierName
             let key = this.parseIdentifierName(context, this.token);
@@ -4577,9 +4585,12 @@ export class Parser {
                         key = this.parseIdentifier(context);
                         if (this.token === Token.LeftBracket) this.throwUnexpectedToken();
                         // Stage 3 Proposal - Class-fields
-                        if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
+                        if (this.token !== Token.LeftParen) {
+                            if (this.flags & Flags.OptionsNext) {
                             if (state & (ObjectState.Prototype | ObjectState.Constructor)) this.error(Errors.Unexpected);
                             return this.parseClassFields(context | Context.AllowIn | Context.Fields, key, fieldPos);
+                        }
+                            this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                         }
                     } else if (count && currentState !== ObjectState.Yield) {
                         state &= ~currentState;

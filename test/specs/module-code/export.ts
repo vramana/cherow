@@ -5,6 +5,7 @@ const expect = chai.expect;
 
 describe('Module - Export', () => {
 
+
   it('should fail if the "from" contextual keyword contain Unicode escape sequences.', () => {
     expect(() => {
       parseModule(`export {} \\u0066rom "./escaped-from.js";`);
