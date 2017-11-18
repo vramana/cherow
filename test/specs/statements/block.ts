@@ -6,10 +6,10 @@ describe('Statement - Block', () => {
   
       fail('BlockStatement exist inside of expression', 'y={x;};');
       
-    //  fail('labelled let inside BlockStatement', `{
-    //    L: let
-      //  [a] = 0;
-    //}`);
+      fail('labelled let inside BlockStatement', `{
+        L: let
+        [a] = 0;
+    }`);
 
       pass('should parse "{ foo }"', `{ foo }`, {
           "type": "Program",

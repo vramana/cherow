@@ -45,6 +45,12 @@ describe('Import', () => {
         }).to.throw();
     });
 
+    it('should fail on invalid import named as missing from module', () => {
+      expect(() => {
+          parseModule('import { arguments } from "./early-import-arguments.js";');
+      }).to.throw();
+  });
+
     it('should fail on invalid import namespace missing as module', () => {
         expect(() => {
             parseModule('import * from "foo"');

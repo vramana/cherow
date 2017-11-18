@@ -287,6 +287,8 @@ ErrorMessages[118 /* ReservedKeyword */] = 'The keyword %0 is reserved';
 ErrorMessages[119 /* InvalidPrivateConstructor */] = 'Class constructor may not have a private field';
 ErrorMessages[120 /* InvalidAwaitInAsyncFunc */] = 'Can not use await as identifier inside an async function';
 ErrorMessages[121 /* NewTargetArrow */] = 'new.target must be within function (but not arrow expression) code';
+ErrorMessages[122 /* UndefinedInClassScope */] = '\'%0\'  not defined in class scope';
+ErrorMessages[123 /* InvalidComputedClassProperty */] = 'Invalid computed name in private property';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -2180,25 +2182,25 @@ Parser.prototype.parseModuleSpecifier = function parseModuleSpecifier (context) 
 // import {<foo as bar>} ...;
 Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) {
     var pos = this.getLocations();
+    var tokenValue = this.tokenValue;
     var imported;
     var local;
-    if (this.token === 262145 /* Identifier */ || hasMask(this.token, 131072 /* BindingPattern */)) {
+    if (this.isIdentifier(context, this.token)) {
+        var t = this.tokenValue;
         imported = this.parseIdentifier(context);
         local = imported;
-        // In the presence of 'as', the left-side of the 'as' can
-        // be any IdentifierName. But without 'as', it must be a valid
-        // BindingIdentifier.
         if (this.token === 69739 /* AsKeyword */) {
-            // Note:  The `as` contextual keyword must not contain Unicode escape sequences.
             if (this.flags & 2 /* HasUnicode */)
                 { this.error(70 /* UnexpectedEscapedKeyword */); }
             this.expect(context, 69739 /* AsKeyword */);
             local = this.parseBindingPatternOrIdentifier(context);
         }
+        else if (this.isEvalOrArguments(tokenValue)) {
+            this.error(82 /* UnexpectedStrictReserved */);
+        }
     }
     else {
-        imported = this.parseIdentifier(context);
-        local = imported;
+        imported = this.parseIdentifierName(context, this.token);
         this.expect(context, 69739 /* AsKeyword */);
         local = this.parseBindingPatternOrIdentifier(context);
     }
@@ -2212,30 +2214,38 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
 Parser.prototype.parseNamedImports = function parseNamedImports (context, specifiers) {
         var this$1 = this;
 
-    //  NamedImports
-    //  ImportedDefaultBinding, NameSpaceImport
-    //  ImportedDefaultBinding, NamedImports
+    var blockScope = this.blockScope;
+    var parentScope = this.parentScope;
+    if (blockScope != null)
+        { this.parentScope = blockScope; }
+    this.blockScope = undefined;
     this.expect(context, 393228 /* LeftBrace */);
-    while (!this.parseEventually(context, 15 /* RightBrace */)) {
+    while (this.token !== 15 /* RightBrace */) {
         // only accepts identifiers or keywords
         specifiers.push(this$1.parseImportSpecifier(context));
-        this$1.parseEventually(context, 18 /* Comma */);
+        if (this$1.token !== 15 /* RightBrace */) {
+            this$1.expect(context, 18 /* Comma */);
+        }
     }
+    this.expect(context, 15 /* RightBrace */);
+    this.blockScope = blockScope;
+    if (parentScope != null)
+        { this.parentScope = parentScope; }
 };
 // import <* as foo> ...;
 Parser.prototype.parseImportNamespaceSpecifier = function parseImportNamespaceSpecifier (context) {
     var pos = this.getLocations();
     this.expect(context, 2099763 /* Multiply */);
-    if (this.token !== 69739 /* AsKeyword */)
-        { this.error(40 /* NoAsAfterImportNamespace */); }
-    // Note:  The `default` contextual keyword must not contain Unicode escape sequences.
-    if (this.flags & 2 /* HasUnicode */)
-        { this.error(70 /* UnexpectedEscapedKeyword */); }
-    this.expect(context, 69739 /* AsKeyword */);
-    if (this.token !== 262145 /* Identifier */) {
-        this.throwUnexpectedToken();
+    if (this.token !== 69739 /* AsKeyword */) {
+        this.error(40 /* NoAsAfterImportNamespace */);
     }
-    var local = this.parseIdentifierName(context, this.token);
+    if (this.flags & 2 /* HasUnicode */) {
+        this.error(70 /* UnexpectedEscapedKeyword */);
+    }
+    this.expect(context, 69739 /* AsKeyword */);
+    if (this.token !== 262145 /* Identifier */)
+        { this.throwUnexpectedToken(); }
+    var local = this.parseIdentifier(context);
     return this.finishNode(pos, {
         type: 'ImportNamespaceSpecifier',
         local: local
@@ -2307,6 +2317,9 @@ Parser.prototype.parseImportDeclaration = function parseImportDeclaration (conte
             break;
         default:
             this.throwUnexpectedToken();
+    }
+    if (this.flags & 2 /* HasUnicode */) {
+        this.error(70 /* UnexpectedEscapedKeyword */);
     }
     this.expect(context, 69745 /* FromKeyword */);
     var src = this.parseModuleSpecifier(context);
@@ -4037,7 +4050,7 @@ Parser.prototype.parseClassBody = function parseClassBody (context, flags) {
     this.expect(context, 393228 /* LeftBrace */);
     var body = [];
     if (this.token !== 15 /* RightBrace */) {
-        if (this.flags & 16777216 /* OptionsNext */)
+        if (!(context & 65536 /* Method */) && this.flags & 16777216 /* OptionsNext */)
             { this.fieldSet = undefined; }
         while (this.token !== 15 /* RightBrace */) {
             if (!this$1.parseEventually(context, 17 /* Semicolon */)) {
@@ -4071,18 +4084,22 @@ Parser.prototype.parsePrivateProperty = function parsePrivateProperty (context, 
 Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty (context, state) {
     var pos = this.getLocations();
     this.expect(context, 117 /* Hash */);
-    var fieldValue = '#' + this.tokenValue;
+    if (this.token === 393235 /* LeftBracket */)
+        { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
+    var tokenValue = this.tokenValue;
+    if (this.token === 69742 /* ConstructorKeyword */)
+        { this.error(0 /* Unexpected */); }
+    // Note: The grammar only supports `#` IdentifierName
+    var key = this.parseIdentifierName(context, this.token);
+    if (this.token === 393235 /* LeftBracket */)
+        { this.error(123 /* InvalidComputedClassProperty */); }
+    var value = null;
+    var fieldValue = '#' + tokenValue;
     if (this.fieldSet === undefined)
         { this.fieldSet = {}; }
     else if (this.fieldSet[fieldValue] === true)
         { this.error(73 /* DuplicateIdentifier */, fieldValue); }
     this.fieldSet[fieldValue] = true;
-    var value = null;
-    if (this.token === 69742 /* ConstructorKeyword */)
-        { this.error(0 /* Unexpected */); }
-    var key = this.token === 262147 /* StringLiteral */ ?
-        this.parseLiteral(context) :
-        this.parseIdentifier(context);
     if (this.parseEventually(context, 1310749 /* Assign */)) {
         if (this.isEvalOrArguments(this.tokenValue))
             { this.error(78 /* UnexpectedReservedWord */); }
@@ -4101,6 +4118,9 @@ Parser.prototype.parsePrivateName = function parsePrivateName (context) {
         { this.throwUnexpectedToken(); }
     var pos = this.getLocations();
     this.expect(context, 117 /* Hash */);
+    if (this.fieldSet === undefined || !('#' + this.tokenValue in this.fieldSet)) {
+        this.error(122 /* UndefinedInClassScope */, '#' + this.tokenValue);
+    }
     return this.finishNode(pos, {
         type: 'PrivateName',
         id: this.parseIdentifierName(context, this.token),
@@ -4221,6 +4241,8 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                     { state |= 1024 /* Constructor */; }
                 fieldPos = this.getLocations();
                 key = this.parseIdentifier(context);
+                if (this.token === 393235 /* LeftBracket */)
+                    { this.throwUnexpectedToken(); }
                 // Stage 3 Proposal - Class-fields
                 if (this.flags & 16777216 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
                     if (state & (4096 /* Prototype */ | 1024 /* Constructor */))
@@ -4889,7 +4911,7 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
     }
     var pos = this.getLocations();
     var name = this.tokenValue;
-    if (this.isEvalOrArguments(name)) {
+    if (!(context & 2048 /* IfClause */) && this.isEvalOrArguments(name)) {
         if (context & 2 /* Strict */)
             { this.error(37 /* StrictLHSAssignment */); }
     }

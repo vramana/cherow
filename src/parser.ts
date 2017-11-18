@@ -1995,11 +1995,11 @@ export class Parser {
                     const functionScope = this.functionScope;
                     const blockScope = this.blockScope;
                     const parentScope = this.parentScope;
-            
+    
                     this.functionScope = undefined;
                     this.blockScope = undefined;
                     this.parentScope = undefined;
-        
+    
     
                     this.expect(context, Token.LeftBrace);
     
@@ -2119,27 +2119,27 @@ export class Parser {
         private parseImportSpecifier(context: Context): ESTree.ImportSpecifier {
     
             const pos = this.getLocations();
+            const tokenValue = this.tokenValue;
     
             let imported;
             let local;
     
-            if (this.token === Token.Identifier || hasMask(this.token, Token.BindingPattern)) {
+            if (this.isIdentifier(context, this.token)) {
+                const t = this.tokenValue;
                 imported = this.parseIdentifier(context);
                 local = imported;
-                // In the presence of 'as', the left-side of the 'as' can
-                // be any IdentifierName. But without 'as', it must be a valid
-                // BindingIdentifier.
                 if (this.token === Token.AsKeyword) {
-                    // Note:  The `as` contextual keyword must not contain Unicode escape sequences.
                     if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
                     this.expect(context, Token.AsKeyword);
                     local = this.parseBindingPatternOrIdentifier(context);
+                } else if (this.isEvalOrArguments(tokenValue)) {
+                    this.error(Errors.UnexpectedStrictReserved);
                 }
             } else {
-                imported = this.parseIdentifier(context);
-                local = imported;
+                imported = this.parseIdentifierName(context, this.token);
                 this.expect(context, Token.AsKeyword);
                 local = this.parseBindingPatternOrIdentifier(context);
+    
             }
     
             return this.finishNode(pos, {
@@ -2154,16 +2154,25 @@ export class Parser {
             context: Context,
             specifiers: (ESTree.ImportSpecifier | ESTree.ImportDefaultSpecifier | ESTree.ImportNamespaceSpecifier)[]
         ) {
-            //  NamedImports
-            //  ImportedDefaultBinding, NameSpaceImport
-            //  ImportedDefaultBinding, NamedImports
-            this.expect(context, Token.LeftBrace);
     
-            while (!this.parseEventually(context, Token.RightBrace)) {
+            const blockScope = this.blockScope;
+            const parentScope = this.parentScope;
+            if (blockScope != null) this.parentScope = blockScope;
+            this.blockScope = undefined;
+    
+    
+            this.expect(context, Token.LeftBrace);
+            while (this.token !== Token.RightBrace) {
                 // only accepts identifiers or keywords
                 specifiers.push(this.parseImportSpecifier(context));
-                this.parseEventually(context, Token.Comma);
+                if (this.token !== Token.RightBrace) {
+                    this.expect(context, Token.Comma);
+                }
             }
+    
+            this.expect(context, Token.RightBrace);
+            this.blockScope = blockScope;
+            if (parentScope != null) this.parentScope = parentScope;
         }
     
         // import <* as foo> ...;
@@ -2173,18 +2182,19 @@ export class Parser {
     
             this.expect(context, Token.Multiply);
     
-            if (this.token !== Token.AsKeyword) this.error(Errors.NoAsAfterImportNamespace);
+            if (this.token !== Token.AsKeyword) {
+                this.error(Errors.NoAsAfterImportNamespace);
+            }
     
-            // Note:  The `default` contextual keyword must not contain Unicode escape sequences.
-            if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+            if (this.flags & Flags.HasUnicode) {
+                this.error(Errors.UnexpectedEscapedKeyword);
+            }
     
             this.expect(context, Token.AsKeyword);
     
-            if (this.token !== Token.Identifier) {
-                this.throwUnexpectedToken();
-            }
+            if (this.token !== Token.Identifier) this.throwUnexpectedToken();
     
-            const local = this.parseIdentifierName(context, this.token);
+            const local = this.parseIdentifier(context);
     
             return this.finishNode(pos, {
                 type: 'ImportNamespaceSpecifier',
@@ -2270,6 +2280,10 @@ export class Parser {
     
                 default:
                     this.throwUnexpectedToken();
+            }
+    
+            if (this.flags & Flags.HasUnicode) {
+                this.error(Errors.UnexpectedEscapedKeyword);
             }
     
             this.expect(context, Token.FromKeyword);
@@ -3345,7 +3359,7 @@ export class Parser {
             this.functionScope = undefined;
             this.blockScope = undefined;
             this.parentScope = undefined;
-
+    
     
             // A 'simple arrow' is just a plain identifier and doesn't have any param list.
             if (!(context & Context.Arrow)) {
@@ -3371,9 +3385,9 @@ export class Parser {
             }
     
             this.functionScope = functionScope;
-            this.blockScope =   blockScope;
+            this.blockScope = blockScope;
             this.parentScope = parentScope;
-            
+    
             return this.finishNode(pos, {
                 type: 'ArrowFunctionExpression',
                 body,
@@ -3728,7 +3742,7 @@ export class Parser {
                 }
             }
         }
-        
+    
         private parseFunctionDeclaration(context: Context): ESTree.FunctionDeclaration {
     
             const pos = this.getLocations();
@@ -3781,26 +3795,26 @@ export class Parser {
                     if (!this.isIdentifier(context, token)) this.throwUnexpectedToken();
     
                     if (context & Context.Strict && this.isEvalOrArguments(name)) {
-                            this.error(Errors.StrictLHSAssignment);
+                        this.error(Errors.StrictLHSAssignment);
                     }
     
                     if (context & Context.Expression) {
-
+    
                         if (context & Context.Await && token === Token.AwaitKeyword) {
-                                this.error(Errors.DisallowedInContext, tokenDesc(token));
-                        } 
-                        
-                        if (context & (Context.Await | Context.Yield) && token === Token.YieldKeyword) {
-                                this.error(Errors.DisallowedInContext, tokenDesc(token));
+                            this.error(Errors.DisallowedInContext, tokenDesc(token));
                         }
-
+    
+                        if (context & (Context.Await | Context.Yield) && token === Token.YieldKeyword) {
+                            this.error(Errors.DisallowedInContext, tokenDesc(token));
+                        }
+    
                         id = this.parseIdentifier(context);
                     } else {
-                        
+    
                         if (context & Context.Await && this.flags & Flags.InFunctionBody && token === Token.AwaitKeyword) {
                             this.error(Errors.DisallowedInContext, tokenDesc(token));
-                        } 
-
+                        }
+    
                         if (parent & Context.Yield && token === Token.YieldKeyword) {
                             this.error(Errors.DisallowedInContext, tokenDesc(token));
                         }
@@ -3832,7 +3846,7 @@ export class Parser {
             this.functionScope = undefined;
             this.blockScope = undefined;
             this.parentScope = undefined;
-
+    
             const params = this.parseParameterList(context | Context.InParameter, state);
             const body = this.parseFunctionBody(context);
     
@@ -4312,7 +4326,7 @@ export class Parser {
     
             const body: ESTree.MethodDefinition[] = [];
             if (this.token !== Token.RightBrace) {
-                if (this.flags & Flags.OptionsNext) this.fieldSet = undefined;
+                if (!(context & Context.Method) && this.flags & Flags.OptionsNext) this.fieldSet = undefined;
                 while (this.token !== Token.RightBrace) {
                     if (!this.parseEventually(context, Token.Semicolon)) {
                         const node: any = this.parseClassElement(context, flags);
@@ -4348,19 +4362,23 @@ export class Parser {
             const pos = this.getLocations();
             this.expect(context, Token.Hash);
     
-            const fieldValue = '#' + this.tokenValue;
+            if (this.token === Token.LeftBracket) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+    
+            const tokenValue = this.tokenValue;
+    
+            if (this.token === Token.ConstructorKeyword) this.error(Errors.Unexpected);
+    
+            // Note: The grammar only supports `#` IdentifierName
+            let key = this.parseIdentifierName(context, this.token);
+    
+            if (this.token === Token.LeftBracket) this.error(Errors.InvalidComputedClassProperty);
+            let value: ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression | null = null;
+    
+            const fieldValue = '#' + tokenValue;
     
             if (this.fieldSet === undefined) this.fieldSet = {};
             else if (this.fieldSet[fieldValue] === true) this.error(Errors.DuplicateIdentifier, fieldValue);
             this.fieldSet[fieldValue] = true;
-    
-            let value: ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression | null = null;
-    
-            if (this.token === Token.ConstructorKeyword) this.error(Errors.Unexpected);
-    
-            let key = this.token === Token.StringLiteral ?
-                this.parseLiteral(context) :
-                this.parseIdentifier(context);
     
             if (this.parseEventually(context, Token.Assign)) {
                 if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
@@ -4381,6 +4399,9 @@ export class Parser {
             if (context & Context.Module) this.throwUnexpectedToken();
             const pos = this.getLocations();
             this.expect(context, Token.Hash);
+            if (this.fieldSet === undefined || !('#' + this.tokenValue in this.fieldSet)) {
+                this.error(Errors.UndefinedInClassScope, '#' + this.tokenValue)
+            }
             return this.finishNode(pos, {
                 type: 'PrivateName',
                 id: this.parseIdentifierName(context, this.token),
@@ -4488,6 +4509,7 @@ export class Parser {
                 case Token.Hash:
                     if (this.flags & Flags.OptionsNext) {
                         key = this.parseClassPrivateProperty(context, state);
+    
                         if (this.token !== Token.LeftParen) return key;
                         break;
                     }
@@ -4506,7 +4528,7 @@ export class Parser {
                         if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
                         fieldPos = this.getLocations();
                         key = this.parseIdentifier(context);
-    
+                        if (this.token === Token.LeftBracket) this.throwUnexpectedToken();
                         // Stage 3 Proposal - Class-fields
                         if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
                             if (state & (ObjectState.Prototype | ObjectState.Constructor)) this.error(Errors.Unexpected);
@@ -5250,7 +5272,7 @@ export class Parser {
     
             const name = this.tokenValue;
     
-            if (this.isEvalOrArguments(name)) {
+            if (!(context & Context.IfClause) && this.isEvalOrArguments(name)) {
                 if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
             }
     
