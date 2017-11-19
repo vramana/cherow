@@ -65,3 +65,6 @@
 - Implemented class field support (Stage 3 proposal)
 - Improved performance
 
+*2017-11-19: Version 0.15.0*
+- Added plugin system
+

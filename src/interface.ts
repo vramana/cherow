@@ -17,6 +17,7 @@ export interface Options {
     tolerant?: any;
     sourceType?: 'module' | 'script';
     v8?: boolean;
+    plugins?: any;
 }
 
 export interface SavedState {

@@ -74,6 +74,7 @@ export const enum Flags {
     OptionsGlobalReturn          = 1 << 29, // Allow return statement in global scope,
     OptionsSourceType            = 1 << 30, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
     OptionsTolerant              = 1 << 31, 
+    OptionsPlugins               = 1 << 32, 
     
     
     // Common mask used to verify if either ranges or locations are enabled

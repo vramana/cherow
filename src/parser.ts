@@ -60,6 +60,7 @@ export class Parser {
         private locSource: void | string;
         private lastChar: void | Chars;
         private firstProto: void | boolean;
+        private plugins: any;
         private tokenRegExp: void | {
             pattern: string;
             flags: string;
@@ -93,6 +94,7 @@ export class Parser {
             this.comments = undefined;
             this.lastChar = undefined;
             this.firstProto = undefined;
+            this.plugins = [];
     
             if (options.next) this.flags |= Flags.OptionsNext;
             if (options.comments) this.flags |= Flags.OptionsComments;
@@ -104,10 +106,9 @@ export class Parser {
             if (options.globalReturn) this.flags |= Flags.OptionsGlobalReturn;
             if (options.directives) this.flags |= Flags.OptionsDirectives;
             if (options.v8) this.flags |= Flags.OptionsV8;
-    
             if (this.flags & Flags.OptionsComments) this.comments = options.comments;
-    
             if (this.flags & (Flags.OptionsLoc | Flags.OptionsSource)) this.locSource = String(options.source);
+            if (options.plugins) this.loadPlugins(options.plugins);
         }
     
         public parse(context: Context): ESTree.Program {
@@ -142,7 +143,13 @@ export class Parser {
             }
             return node;
         }
-    
+
+        private loadPlugins(pluginConfigs: any) {
+            for (const name in pluginConfigs) {
+                pluginConfigs[name](this);
+            }
+        }
+
         private error(type: Errors, ...params: string[]): void {
             if (this.errorLocation) throw createError(type, this.errorLocation, ...params);
             throw createError(type, this.getLocations(), ...params);
@@ -3466,16 +3473,16 @@ export class Parser {
             if (hasMask(this.token, Token.UnaryOperator)) {
                 const token = this.token;
                 expr = this.parseUnaryExpressionFastPath(context);
-
+    
                 // When a delete operator occurs within strict mode code, a SyntaxError is thrown if its
                 // UnaryExpression is a direct reference to a variable, function argument, or function name
                 if (context & Context.Strict && token === Token.DeleteKeyword) {
-                    if ( expr.argument.type === 'Identifier') this.error(Errors.StrictDelete);
+                    if (expr.argument.type === 'Identifier') this.error(Errors.StrictDelete);
                     if (!(context & Context.Module) && this.flags & Flags.OptionsNext && (expr as any).argument.property.type === 'PrivateName') {
                         this.error(Errors.StrictDelete);
-                      }
-                } 
-
+                    }
+                }
+    
                 if (this.token === Token.Exponentiate) this.error(Errors.Unexpected);
             } else {
                 expr = this.parseUpdateExpression(context, pos);
@@ -3669,7 +3676,7 @@ export class Parser {
                         {
     
                             this.expect(context, Token.Period);
-                            
+    
                             const property = this.flags & Flags.OptionsNext && context & Context.Method && this.token === Token.Hash ?
                                 this.parsePrivateName(context) : this.parseIdentifierName(context, this.token);
                             if (context & Context.ForStatement && this.token === Token.OfKeyword) {
@@ -4283,9 +4290,9 @@ export class Parser {
             let flags = ObjectState.None;
             let id = null;
             let next = (this.flags & Flags.OptionsNext) !== 0;
-            
+    
             const savedFlags = this.flags;
-
+    
             if (this.isIdentifier(context, this.token)) {
                 const name = this.tokenValue;
     
@@ -4311,7 +4318,7 @@ export class Parser {
                 flags |= ObjectState.Heritage;
             }
     
-            if (next && !(context & Context.Method) ) this.fieldSet = undefined;
+            if (next && !(context & Context.Method)) this.fieldSet = undefined;
     
             classBody = this.parseClassBody(context & ~Context.Expression | Context.Strict, flags);
     
@@ -4336,9 +4343,9 @@ export class Parser {
                             if (scope === undefined) scope = {};
                             else if (scope[key]) this.error(Errors.DuplicateBinding, '#' + key);
                             scope[key] = true;
-                        }  
+                        }
                     }
-
+    
                     if (method !== undefined) {
                         if (method[key] & FieldState.Method) {
                             if (!scope[key]) this.error(Errors.UndefinedInClassScope, '#' + key);
@@ -4420,9 +4427,9 @@ export class Parser {
             const fieldValue = tokenValue;
     
             if (this.fieldSet === undefined) this.fieldSet = [];
-            
+    
             this.errorLocation = pos;
-
+    
             this.fieldSet.push({
                 key: fieldValue,
                 mask: FieldState.Scope
@@ -4447,11 +4454,11 @@ export class Parser {
             if (context & Context.Module) this.throwUnexpectedToken();
             const pos = this.getLocations();
             this.expect(context, Token.Hash);
-            
+    
             if (this.fieldSet === undefined) this.fieldSet = []
-            
-            this.errorLocation = pos;    
-
+    
+            this.errorLocation = pos;
+    
             this.fieldSet.push({
                 key: this.tokenValue,
                 mask: FieldState.Method
@@ -4587,9 +4594,9 @@ export class Parser {
                         // Stage 3 Proposal - Class-fields
                         if (this.token !== Token.LeftParen) {
                             if (this.flags & Flags.OptionsNext) {
-                            if (state & (ObjectState.Prototype | ObjectState.Constructor)) this.error(Errors.Unexpected);
-                            return this.parseClassFields(context | Context.AllowIn | Context.Fields, key, fieldPos);
-                        }
+                                if (state & (ObjectState.Prototype | ObjectState.Constructor)) this.error(Errors.Unexpected);
+                                return this.parseClassFields(context | Context.AllowIn | Context.Fields, key, fieldPos);
+                            }
                             this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                         }
                     } else if (count && currentState !== ObjectState.Yield) {
