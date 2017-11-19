@@ -45,7 +45,6 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 * `jsx` - Enables JSX
 * `locations` - Adds a location object with start and end subobjects on the AST node  {*line, column*}.
 * `next` - Enables `ECMAScript Next` support and let you use proposals at `stage 3` or higher such as `Import()`
-* `plugins` - Let you enable plugins
 * `raw` - Enables the raw property on literal nodes (*Esprima and Acorn feature*)
 * `ranges` - Adds a range property with the start and characters offsets on the AST node
 * `sourceType` - Indicate the mode the code should be parsed in. Can be either `script` or `module`.
