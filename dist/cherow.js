@@ -372,6 +372,7 @@ var Parser = function Parser(source, options) {
     this.comments = undefined;
     this.lastChar = undefined;
     this.firstProto = undefined;
+    this.plugins = [];
     if (options.next)
         { this.flags |= 16777216 /* OptionsNext */; }
     if (options.comments)
@@ -387,15 +388,15 @@ var Parser = function Parser(source, options) {
     if (options.raw)
         { this.flags |= 8388608 /* OptionsRaw */; }
     if (options.globalReturn)
-        { this.flags |= 536870912 /* OptionsGlobalReturn */; }
+        { this.flags |= 268435456 /* OptionsGlobalReturn */; }
     if (options.directives)
         { this.flags |= 33554432 /* OptionsDirectives */; }
-    if (options.v8)
-        { this.flags |= 268435456 /* OptionsV8 */; }
     if (this.flags & 67108864 /* OptionsComments */)
         { this.comments = options.comments; }
     if (this.flags & (1048576 /* OptionsLoc */ | 2097152 /* OptionsSource */))
         { this.locSource = String(options.source); }
+    if (options.plugins)
+        { this.loadPlugins(options.plugins); }
 };
 Parser.prototype.parse = function parse (context) {
     this.nextToken(context);
@@ -424,6 +425,13 @@ Parser.prototype.parse = function parse (context) {
         };
     }
     return node;
+};
+Parser.prototype.loadPlugins = function loadPlugins (pluginConfigs) {
+        var this$1 = this;
+
+    for (var name in pluginConfigs) {
+        pluginConfigs[name](this$1);
+    }
 };
 Parser.prototype.error = function error (type) {
         var params = [], len = arguments.length - 1;
@@ -2890,7 +2898,7 @@ Parser.prototype.canParseArgument = function canParseArgument () {
 };
 Parser.prototype.parseReturnStatement = function parseReturnStatement (context) {
     var pos = this.getLocations();
-    if (!(this.flags & 536870916 /* GlobalReturn */))
+    if (!(this.flags & 268435460 /* GlobalReturn */))
         { this.error(19 /* IllegalReturn */); }
     this.expect(context, 12379 /* ReturnKeyword */);
     var argument = null;
@@ -5131,9 +5139,6 @@ Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (con
 };
 /** V8 */
 Parser.prototype.parseDoExpression = function parseDoExpression (context) {
-    if (!(this.flags & 268435456 /* OptionsV8 */)) {
-        this.error(97 /* UnsupportedFeature */, tokenDesc(this.token), 'v8');
-    }
     var pos = this.getLocations();
     this.expect(context, 12369 /* DoKeyword */);
     var body = this.parseBlockStatement(context);
@@ -5478,8 +5483,7 @@ function parse(source, options) {
         ? this.parseModule(source, options)
         : this.parseScript(source, options);
 }
-// current version
-var version = '0.13.0';
+var version = '0.15.1';
 
 exports.parseScript = parseScript;
 exports.parseModule = parseModule;

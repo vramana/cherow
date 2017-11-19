@@ -37,12 +37,6 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 - [Import.meta](https://github.com/tc39/proposal-import-meta)
 - [Throw expressions](https://github.com/tc39/proposal-throw-expressions)
 
-## V8 experimental features
-
-These need to be enabled with the `v8` option, 
-
-- Do expressions
-
 ## Options
 
 * `comments` - Enables option to collect comments. Optional; Either array or function.
@@ -51,6 +45,7 @@ These need to be enabled with the `v8` option,
 * `jsx` - Enables JSX
 * `locations` - Adds a location object with start and end subobjects on the AST node  {*line, column*}.
 * `next` - Enables `ECMAScript Next` support and let you use proposals at `stage 3` or higher such as `Import()`
+* `plugins` - Let you enable plugins
 * `raw` - Enables the raw property on literal nodes (*Esprima and Acorn feature*)
 * `ranges` - Adds a range property with the start and characters offsets on the AST node
 * `sourceType` - Indicate the mode the code should be parsed in. Can be either `script` or `module`.

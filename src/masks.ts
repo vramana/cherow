@@ -70,13 +70,11 @@ export const enum Flags {
     OptionsDirectives            = 1 << 25, // Enable / disable directives on the node
     OptionsComments              = 1 << 26, // Enable / disable comment collecting
     OptionsDelegate              = 1 << 27, // Enable / disable token syntax delegate
-    OptionsV8                    = 1 << 28, // Enable / disable V8 experimental features
-    OptionsGlobalReturn          = 1 << 29, // Allow return statement in global scope,
-    OptionsSourceType            = 1 << 30, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
-    OptionsTolerant              = 1 << 31, 
-    OptionsPlugins               = 1 << 32, 
-    
-    
+    OptionsGlobalReturn          = 1 << 28, // Allow return statement in global scope,
+    OptionsSourceType            = 1 << 29, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
+    OptionsTolerant              = 1 << 30,
+    OptionsPlugins               = 1 << 31,
+
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc,
 

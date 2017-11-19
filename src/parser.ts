@@ -105,7 +105,7 @@ export class Parser {
             if (options.raw) this.flags |= Flags.OptionsRaw;
             if (options.globalReturn) this.flags |= Flags.OptionsGlobalReturn;
             if (options.directives) this.flags |= Flags.OptionsDirectives;
-            if (options.v8) this.flags |= Flags.OptionsV8;
+
             if (this.flags & Flags.OptionsComments) this.comments = options.comments;
             if (this.flags & (Flags.OptionsLoc | Flags.OptionsSource)) this.locSource = String(options.source);
             if (options.plugins) this.loadPlugins(options.plugins);
@@ -5538,10 +5538,6 @@ export class Parser {
         /** V8 */
     
         private parseDoExpression(context: Context): ESTree.Expression {
-    
-            if (!(this.flags & Flags.OptionsV8)) {
-                this.error(Errors.UnsupportedFeature, tokenDesc(this.token), 'v8');
-            }
     
             const pos = this.getLocations();
             this.expect(context, Token.DoKeyword);
