@@ -25,6 +25,20 @@ const config = {
   output
 };
 
-isMinify && config.plugins.push( uglify() );
+isMinify && config.plugins.push( uglify({
+  compress: {
+    sequences: true,
+    dead_code: true,
+    conditionals: true,
+    booleans: true,
+    unused: true,
+    if_return: true,
+    join_vars: true,
+    drop_console: true
+  },
+  output: {
+    comments: false
+  }
+ }) );
 
 export default config;

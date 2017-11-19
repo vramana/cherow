@@ -20,6 +20,269 @@ describe('Declarations - Class', () => {
         async 
         a() {}
       }`);
+
+
+      pass('class a{ get get() {} }', `var A = class B {
+        method() {}
+        static method() {}
+        ;
+      }`, {
+        "type": "Program",
+        "body": [
+            {
+                "type": "VariableDeclaration",
+                "declarations": [
+                    {
+                        "type": "VariableDeclarator",
+                        "init": {
+                            "type": "ClassExpression",
+                            "id": {
+                                "type": "Identifier",
+                                "name": "B",
+                                "start": 14,
+                                "end": 15,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 14
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 15
+                                    }
+                                }
+                            },
+                            "superClass": null,
+                            "body": {
+                                "type": "ClassBody",
+                                "body": [
+                                    {
+                                        "type": "MethodDefinition",
+                                        "key": {
+                                            "type": "Identifier",
+                                            "name": "method",
+                                            "start": 26,
+                                            "end": 32,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 8
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 14
+                                                }
+                                            }
+                                        },
+                                        "kind": "method",
+                                        "computed": false,
+                                        "value": {
+                                            "type": "FunctionExpression",
+                                            "params": [],
+                                            "body": {
+                                                "type": "BlockStatement",
+                                                "body": [],
+                                                "start": 35,
+                                                "end": 37,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 2,
+                                                        "column": 17
+                                                    },
+                                                    "end": {
+                                                        "line": 2,
+                                                        "column": 19
+                                                    }
+                                                }
+                                            },
+                                            "async": false,
+                                            "generator": false,
+                                            "expression": false,
+                                            "id": null,
+                                            "start": 32,
+                                            "end": 37,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 2,
+                                                    "column": 14
+                                                },
+                                                "end": {
+                                                    "line": 2,
+                                                    "column": 19
+                                                }
+                                            }
+                                        },
+                                        "static": false,
+                                        "start": 26,
+                                        "end": 37,
+                                        "loc": {
+                                            "start": {
+                                                "line": 2,
+                                                "column": 8
+                                            },
+                                            "end": {
+                                                "line": 2,
+                                                "column": 19
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "type": "MethodDefinition",
+                                        "key": {
+                                            "type": "Identifier",
+                                            "name": "method",
+                                            "start": 53,
+                                            "end": 59,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 3,
+                                                    "column": 15
+                                                },
+                                                "end": {
+                                                    "line": 3,
+                                                    "column": 21
+                                                }
+                                            }
+                                        },
+                                        "kind": "method",
+                                        "computed": false,
+                                        "value": {
+                                            "type": "FunctionExpression",
+                                            "params": [],
+                                            "body": {
+                                                "type": "BlockStatement",
+                                                "body": [],
+                                                "start": 62,
+                                                "end": 64,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 3,
+                                                        "column": 24
+                                                    },
+                                                    "end": {
+                                                        "line": 3,
+                                                        "column": 26
+                                                    }
+                                                }
+                                            },
+                                            "async": false,
+                                            "generator": false,
+                                            "expression": false,
+                                            "id": null,
+                                            "start": 59,
+                                            "end": 64,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 3,
+                                                    "column": 21
+                                                },
+                                                "end": {
+                                                    "line": 3,
+                                                    "column": 26
+                                                }
+                                            }
+                                        },
+                                        "static": true,
+                                        "start": 46,
+                                        "end": 64,
+                                        "loc": {
+                                            "start": {
+                                                "line": 3,
+                                                "column": 8
+                                            },
+                                            "end": {
+                                                "line": 3,
+                                                "column": 26
+                                            }
+                                        }
+                                    }
+                                ],
+                                "start": 16,
+                                "end": 82,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 16
+                                    },
+                                    "end": {
+                                        "line": 5,
+                                        "column": 7
+                                    }
+                                }
+                            },
+                            "start": 8,
+                            "end": 82,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 5,
+                                    "column": 7
+                                }
+                            }
+                        },
+                        "id": {
+                            "type": "Identifier",
+                            "name": "A",
+                            "start": 4,
+                            "end": 5,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 5
+                                }
+                            }
+                        },
+                        "start": 4,
+                        "end": 82,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 4
+                            },
+                            "end": {
+                                "line": 5,
+                                "column": 7
+                            }
+                        }
+                    }
+                ],
+                "kind": "var",
+                "start": 0,
+                "end": 82,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 5,
+                        "column": 7
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 82,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 5,
+                "column": 7
+            }
+        }
+    });
+        
       pass('class a{ get get() {} }', 'class a{ get get() {} }', {
         "type": "Program",
         "body": [

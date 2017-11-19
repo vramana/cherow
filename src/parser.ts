@@ -4254,10 +4254,10 @@ export class Parser {
             const name = this.tokenValue;
             const pos = this.getLocations();
             if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword)
-            if (context & Context.Strict) this.error(Errors.InvalidLetDeclBinding);
+            if (context & Context.Strict) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
             this.nextToken(context);
             if (this.flags & Flags.LineTerminator && !(this.flags & Flags.Iteration)) this.error(Errors.Unexpected);
-            if (this.token === Token.LetKeyword) this.error(Errors.InvalidLetDeclBinding);
+            if (this.token === Token.LetKeyword) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
             return this.finishNode(pos, {
                 type: 'Identifier',
                 name
