@@ -121,7 +121,7 @@ export class Parser {
             this.nextToken(context);
 
             const body = context & Context.Module ?
-                this.parseModuleItemList(context | Context.AllowIn) :
+                this.parseModuleItemList(context) :
                 this.parseStatementList(context, Token.EndOfSource);
 
             const node: ESTree.Program = {
@@ -1731,12 +1731,12 @@ export class Parser {
             // option are set for it. 
             if (this.flags & Flags.OptionsDirectives) {
                 while (this.token === Token.StringLiteral) {
-                    statements.push(this.parseDirective(context));
+                    statements.push(this.parseDirective(context | Context.AllowIn));
                 }
             }
     
             while (this.token !== Token.EndOfSource) {
-                statements.push(this.parseModuleItem(context));
+                statements.push(this.parseModuleItem(context | Context.AllowIn));
             }
     
             return statements;
@@ -2347,7 +2347,7 @@ export class Parser {
                     // We must be careful not to parse a 'import()'
                     // expression or 'import.meta' as an import declaration.
                     if (this.flags & Flags.OptionsNext && this.nextTokenIsLeftParenOrPeriod(context)) {
-                        return this.parseExpressionStatement(context);
+                        return this.parseExpressionStatement(context | Context.AllowIn);
                     }
                     if (context & Context.Module) this.error(Errors.ImportDeclAtTopLevel);
                 default:
@@ -2360,7 +2360,7 @@ export class Parser {
                 case Token.Identifier:
                     return this.parseLabelledStatement(context);
                 case Token.LeftParen:
-                    return this.parseExpressionStatement(context);
+                    return this.parseExpressionStatement(context | Context.AllowIn);
                     // EmptyStatement
                 case Token.Semicolon:
                     return this.parseEmptyStatement(context);
@@ -2447,7 +2447,7 @@ export class Parser {
                 case Token.ClassKeyword:
                     this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
                 default:
-                    return this.parseExpressionStatement(context);
+                    return this.parseExpressionStatement(context | Context.AllowIn);
             }
         }
     
@@ -3074,7 +3074,7 @@ export class Parser {
     
         private parseExpressionStatement(context: Context): ESTree.ExpressionStatement {
             const pos = this.getLocations();
-            const expr = this.parseExpression(context | Context.AllowIn, pos);
+            const expr = this.parseExpression(context, pos);
             this.consumeSemicolon(context);
             return this.finishNode(pos, {
                 type: 'ExpressionStatement',
@@ -4227,8 +4227,6 @@ export class Parser {
                     return this.parseRegularExpression(context);
                 case Token.AsyncKeyword:
                     return this.parseAsyncFunctionExpression(context, pos);
-                case Token.DoKeyword:
-                    return this.parseDoExpression(context);
                 case Token.ThrowKeyword:
                     return this.parseThrowExpression(context);
                 case Token.AwaitKeyword:
@@ -4577,7 +4575,7 @@ export class Parser {
                 case Token.LeftBracket:
                     state |= ObjectState.Computed;
                     fieldPos = this.getLocations();
-                    key = this.parseComputedPropertyName(context);
+                    key = this.parseComputedPropertyName(context  | Context.AllowIn);
                     if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
                         return this.parseClassFields(context | Context.AllowIn | Context.Fields, key, fieldPos);
                     }
@@ -4733,7 +4731,7 @@ export class Parser {
                     break;
                 case Token.LeftBracket:
                     state |= ObjectState.Computed;
-                    key = this.parseComputedPropertyName(context);
+                    key = this.parseComputedPropertyName(context | Context.AllowIn);
                     break;
                 default:
                     if (this.isIdentifierOrKeyword(this.token)) {
@@ -5531,19 +5529,6 @@ export class Parser {
                 value,
                 method: false,
                 shorthand: (state & ObjectState.Shorthand) !== 0
-            });
-        }
-    
-        /** V8 */
-    
-        private parseDoExpression(context: Context): ESTree.Expression {
-    
-            const pos = this.getLocations();
-            this.expect(context, Token.DoKeyword);
-            const body = this.parseBlockStatement(context);
-            return this.finishNode(pos, {
-                type: 'DoExpression',
-                body
             });
         }
     
