@@ -20,7 +20,8 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 - Skips hashbang comment nodes by default
 - Optimized for handheld devices
 - Optional tracking of syntax node location (index-based and line-column)
-- 5700 unit tests
+- Parameterized plugin system
+- 8600 unit tests
 
 ## ESNext features
 
