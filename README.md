@@ -182,7 +182,7 @@ parseScript('1', {
 });
 ```
 
-You can see and try the demo expample live at the [cherow-dummpy-plugin repo](https://github.com/cherow/cherow-dummy-plugin)
+You can see and try the demo expample live in the [cherow-dummy-plugin repo](https://github.com/cherow/cherow-dummy-plugin)
 
 ## Acorn and Esprima differences
 
