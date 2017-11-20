@@ -40,18 +40,18 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 
 ## Options
 
-* `comments` - Enables option to collect comments. Optional; Either array or function.
-* `directives` - Enables the [`ESTree`](https://github.com/estree/estree/blob/1da8e603237144f44710360f8feb7a9977e905e0/es5.md#directive) directive node.
-* `globalReturn` - Allow return statement in global scope
-* `jsx` - Enables JSX
-* `locations` - Adds a location object with start and end subobjects on the AST node  {*line, column*}.
-* `next` - Enables `ECMAScript Next` support and let you use proposals at `stage 3` or higher such as `Import()`
-* `plugins` - Let you add an array of plugins
-* `raw` - Enables the raw property on literal nodes (*Esprima and Acorn feature*)
-* `ranges` - Adds a range property with the start and characters offsets on the AST node
-* `sourceType` - Indicate the mode the code should be parsed in. Can be either `script` or `module`.
-* `v8` - Enables V8 experimental features
 
+| Option        | Description |
+| ----------- | ------------------------------------------------------------ |
+| `comments`        | Enables option to collect comments. Optional; Either array or function                 |
+| `directives`      | Enables the [`ESTree`](https://github.com/estree/estree/blob/1da8e603237144f44710360f8feb7a9977e905e0/es5.md#directive) directive node |
+| `globalReturn`    | Allow return statement in global scope   | `emptyVnode, vnode`     |
+| `jsx`             | Enables JSX   |
+| `locations`       | Adds a location object with start and end subobjects on the AST node  {*line, column* |
+| `next`            | enables `ECMAScript Next` support and let you use proposals at `stage 3` or higher such as `Import()` |
+| `plugins`         |  Let you add an array of plugins    |
+| `raw`             |  Enables the raw property on literal nodes (*Esprima and Acorn feature*)     |
+| `sourceType`      | Indicate the mode the code should be parsed in. Can be either `script` or `module` |
 ## API
 
 A JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and

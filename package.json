@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "0.15.3",
+  "version": "0.15.4",
   "description": "Fast, standard-compliant ECMAScript parser written in ECMAScript",
   "main": "dist/cherow.js",
   "author": "KFlash",
@@ -55,19 +55,16 @@
     "chai": "^4.1.2",
     "coveralls": "^3.0.0",
     "cross-env": "^5.1.1",
-    "graceful-fs": "^4.1.11",
     "mocha": "^4.0.1",
     "nyc": "^11.2.1",
     "rimraf": "^2.6.2",
-    "rollup": "^0.51.1",
-    "rollup-plugin-buble": "^0.17.0",
+    "rollup": "^0.51.8",
+    "rollup-plugin-buble": "^0.18.0",
     "rollup-plugin-uglify": "2.0.1",
-    "test262": "git+https://github.com/tc39/test262.git",
     "test262-parser-tests": "0.0.3",
     "ts-node": "^3.3.0",
     "tslint": "5.8.0",
-    "typescript": "^2.6.1",
-    "util.promisify": "^1.0.0"
+    "typescript": "^2.6.1"
   },
   "nyc": {
     "reporter": [
