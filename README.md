@@ -138,6 +138,7 @@ you far more benefits than a traditional one , and let you extend the parser wit
 simply let you create a walker function.
 
 Note that the plugin options takes only an array of plugins ` [ plugin1(args...), plugin2(args...), plugin3(args...)]`
+
 After the parser object has been created, the initialization functions for the chosen plugins are called with the `(parser)` argument. 
 
 ###  Creating a plugin
