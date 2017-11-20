@@ -348,6 +348,8 @@ var isIdentifierPart = function (cp) { return (cp === 36 /* Dollar */) || (cp ==
     (cp === 92 /* Backslash */) || isvalidIdentifierContinue(cp); };
 
 var Parser = function Parser(source, options) {
+    var this$1 = this;
+
     this.flags = 0 /* None */;
     this.source = source;
     this.index = 0;
@@ -395,8 +397,11 @@ var Parser = function Parser(source, options) {
         { this.comments = options.comments; }
     if (this.flags & (1048576 /* OptionsLoc */ | 2097152 /* OptionsSource */))
         { this.locSource = String(options.source); }
-    if (options.plugins)
-        { this.loadPlugins(options.plugins); }
+    if (options.plugins) {
+        for (var i = 0; i < options.plugins.length; i++) {
+            options.plugins[i](this$1);
+        }
+    }
 };
 Parser.prototype.parse = function parse (context) {
     this.nextToken(context);
@@ -425,13 +430,6 @@ Parser.prototype.parse = function parse (context) {
         };
     }
     return node;
-};
-Parser.prototype.loadPlugins = function loadPlugins (pluginConfigs) {
-        var this$1 = this;
-
-    for (var name in pluginConfigs) {
-        pluginConfigs[name](this$1);
-    }
 };
 Parser.prototype.error = function error (type) {
         var params = [], len = arguments.length - 1;

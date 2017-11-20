@@ -108,23 +108,28 @@ export class Parser {
 
             if (this.flags & Flags.OptionsComments) this.comments = options.comments;
             if (this.flags & (Flags.OptionsLoc | Flags.OptionsSource)) this.locSource = String(options.source);
-            if (options.plugins) this.loadPlugins(options.plugins);
+
+            if (options.plugins) {
+                for (let i = 0; i < options.plugins.length; i++) {
+                    options.plugins[i](this);
+                }
+            }
         }
-    
+
         public parse(context: Context): ESTree.Program {
-    
+
             this.nextToken(context);
-    
+
             const body = context & Context.Module ?
                 this.parseModuleItemList(context | Context.AllowIn) :
                 this.parseStatementList(context, Token.EndOfSource);
-    
+
             const node: ESTree.Program = {
                 type: 'Program',
                 body,
                 sourceType: context & Context.Module ? 'module' : 'script'
             };
-    
+
             if (this.flags & Flags.OptionsRanges) {
                 node.start = 0;
                 node.end = this.source.length;
@@ -142,12 +147,6 @@ export class Parser {
                 };
             }
             return node;
-        }
-
-        private loadPlugins(pluginConfigs: any) {
-            for (const name in pluginConfigs) {
-                pluginConfigs[name](this);
-            }
         }
 
         private error(type: Errors, ...params: string[]): void {

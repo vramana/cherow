@@ -45,7 +45,7 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 * `jsx` - Enables JSX
 * `locations` - Adds a location object with start and end subobjects on the AST node  {*line, column*}.
 * `next` - Enables `ECMAScript Next` support and let you use proposals at `stage 3` or higher such as `Import()`
-* `plugins` - Let you enable plugins
+* `plugins` - Let you add an array of plugins
 * `raw` - Enables the raw property on literal nodes (*Esprima and Acorn feature*)
 * `ranges` - Adds a range property with the start and characters offsets on the AST node
 * `sourceType` - Indicate the mode the code should be parsed in. Can be either `script` or `module`.
@@ -130,6 +130,48 @@ cherow.parseScript('// foo',
     }
 );
 
+```
+## Plugins
+
+Cherow is designed to support parameterized plugins wich, within reasonable bounds, redefine the way the parser works. A  parameterized plugin gives 
+you far more benefits than a traditional one , and let you extend the parser with code from 3rd party libraries or 
+simply let you create a walker function.
+
+Note that the plugin options takes only an array of plugins ` [ plugin1(args...), plugin2(args...), plugin3(args...)]`
+After the parser object has been created, the initialization functions for the chosen plugins are called with the `(parser)` argument. 
+
+###  Creating a plugin
+
+Here is a simple example plugin wich creates a new literal node with a pre-defined value `123`.
+
+```js
+
+// Create a new plugin
+
+function plugin(value) {
+    return (parser) => {}
+    parser.parseLiteral = function() {
+
+        // Get the start pos of line, column
+        const pos = this.getLocations();
+
+        // Call for the next token in the stream
+        this.nextToken(context);
+
+        return this.finishNode(pos, {
+            type: 'Literal',
+            value // The value will be '123'
+        });
+        return node;
+    }
+}
+
+// Parse with the new plugin enabled
+parseScript('1', {
+    plugins: [
+        plugin(a);
+    ]
+});
 ```
 ## Acorn and Esprima differences
 

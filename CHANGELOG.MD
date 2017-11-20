@@ -68,3 +68,7 @@
 *2017-11-19: Version 0.15.0*
 - Added plugin system
 
+*2017-11-19: Version 0.15.3*
+- Refactor plugin system
+- Finalized API for plugin system
+
