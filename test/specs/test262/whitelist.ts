@@ -1,11 +1,5 @@
-
-// NOTE! This list may not be up to date. Some tests that are skipped will now fail correctly
-//
-// SECOND NOTE!  All ECMAScript tests that should parse, now parses. Doubled checked against Test262.
-
 const f: any = {
     pass: [
-        // Why? This parses just fine in the online demo
         '110fa1efdd0868b8.js',
         'a62c6323a3696fa8.js',
     ],
@@ -42,7 +36,6 @@ const f: any = {
         'fd2a45941e114896.js',
         'c0ad1c20e662c8ed.js',
         '1a5b0dfa9fde985d.js',
-        '1a5b0dfa9fde985d.js',
         '4ef1d6ca8eceb313.js',
         '68766c3f46c4851a.js',
         '75f1656578c2d7e8.js'
@@ -56,7 +49,6 @@ const f: any = {
         '301abb5ba3b6506a.js',
         '3190762e2e329b66.js',
         '7958864040a4f3c1.js',
-        '0049fa147d7edac0.js',
         'd33fac4370fa022c.js',
         '02ea8b2ade05bd70.js',
         '1179d3b7dbc0c804.module.js',
@@ -76,6 +68,7 @@ const f: any = {
         '33e8f35b568836ba.module.js',
         '3a29281d7d6fba5a.module.js',
         '3abbddaa6f253dec.js',
+
         '3c97613274574690.module.js',
         '3d5969e02c02bd8f.js',
         '3dd7d3e784a292d6.js',
@@ -108,14 +101,12 @@ const f: any = {
         '91e632d1f6f140ed.js',
         '9521a03d607f8602.js',
         '96533ed6c7244382.module.js',
-        '9adb143304483420.js',
         'a236c74609b92c02.module.js',
         'a87c5d5237b34393.module.js',
         'aa796531364c9806.js',
         'aecc5068d346867a.js',
         'af0c4685b25c36e9.js',
         'b118f7ba23d3f8dd.module.js',
-        'b1fc7710d5fc4366.module.js',
         'b25c9a33c9fe3d70.js',
         'b6a72a718cb7ca67.js',
         'ba2bfa1952f3e537.module.js',
@@ -125,7 +116,6 @@ const f: any = {
         'c64846422c8fcb25.js',
         'c82fcf7c29e24b40.module.js',
         'cdceb01cec39f8d0.js',
-        'cf09b247aab59934.js',
         'cf6241d836f7f9b1.js',
         'd070112b8eb9781e.module.js',
         'd33299b545e367a3.js',
@@ -140,7 +130,6 @@ const f: any = {
         'f7c0a2c1dc2907b9.js',
         'f7f9bb74dc8d96ac.module.js',
         'f89017fd3f793d0d.js',
-        'fb40f86db65f8e6a.js',
         'f9e0efceb5690fdd.module.js',
         'fa56fc427be3e801.module.js',
         '0cda0bd08ee5f32a.js',
