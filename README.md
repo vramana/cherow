@@ -149,22 +149,22 @@ Here is a simple example plugin wich creates a new literal node with a pre-defin
 ```js
 
 // Create a new plugin
-
 function plugin(value) {
-    return (parser) => {}
-    parser.parseLiteral = function() {
+    return (parser) => {
+        parser.parseLiteral = function() {
 
-        // Get the start pos of line, column
-        const pos = this.getLocations();
+            // Get the start pos of line, column
+            const pos = this.getLocations();
 
-        // Call for the next token in the stream
-        this.nextToken(context);
+            // Call for the next token in the stream
+            this.nextToken(context);
 
-        return this.finishNode(pos, {
-            type: 'Literal',
-            value // The value will be '123'
-        });
-        return node;
+            return this.finishNode(pos, {
+                type: 'Literal',
+                value // The value will be '123'
+            });
+            return node;
+        }
     }
 }
 
