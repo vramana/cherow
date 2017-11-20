@@ -171,7 +171,7 @@ function plugin(value) {
 // Parse with the new plugin enabled
 parseScript('1', {
     plugins: [
-        plugin(a);
+        plugin(123);
     ]
 });
 ```
