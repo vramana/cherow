@@ -142,6 +142,13 @@ Note that the plugin options takes only an array of plugins ` [ plugin1(args...)
 
 After the parser object has been created, the initialization functions for the chosen plugins are called with the `(parser)` argument. 
 
+```js
+function plugin() {
+    return (parser) => {
+      // your plugin code
+   }
+}
+```
 ###  Creating a plugin
 
 Here is a simple example plugin wich creates a new literal node with a pre-defined value `123`.
