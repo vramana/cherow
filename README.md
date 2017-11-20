@@ -151,7 +151,7 @@ Here is a simple example plugin wich creates a new literal node with a pre-defin
 // Create a new plugin
 function plugin(value) {
     return (parser) => {
-        parser.parseLiteral = function() {
+        parser.parseLiteral = function(context) {
 
             // Get the start pos of line, column
             const pos = this.getLocations();
@@ -163,7 +163,6 @@ function plugin(value) {
                 type: 'Literal',
                 value // The value will be '123'
             });
-            return node;
         }
     }
 }
