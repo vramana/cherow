@@ -800,20 +800,20 @@ export class Parser {
                         case Chars.CarriageReturn:
                             this.flags |= Flags.PrecedingLineBreak;
                             this.advanceNewline();
-                            state |= Scanner.LineStart;
+                            state |= Scanner.LineStart | Scanner.LastIsCR;
                             if (!(state & Scanner.MultiLine)) break loop;
                             break;
     
                         case Chars.LineFeed:
                             this.flags |= Flags.PrecedingLineBreak;
                             this.consumeLineFeed(state);
-                            state &= ~Scanner.LastIsCR;
+                            state = state & ~Scanner.LastIsCR | Scanner.LineStart;
                             if (!(state & Scanner.MultiLine)) break loop;
                             break;
     
                         case Chars.LineSeparator:
                         case Chars.ParagraphSeparator:
-                            state &= ~Scanner.LastIsCR;
+                            state = state & ~Scanner.LastIsCR | Scanner.LineStart;
                             this.flags |= Flags.PrecedingLineBreak;
                             this.advanceNewline();
                             break;
