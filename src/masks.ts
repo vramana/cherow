@@ -41,8 +41,8 @@ export const enum Context {
 // Mutable parser flags
 export const enum Flags {
     None                         = 0,
-    LineTerminator               = 1 << 0, // If node has a LT
-    HasUnicode                   = 1 << 1, // If node has any escaped unicode sequences (escaped characters in keywords).
+    PrecedingLineBreak           = 1 << 0, 
+    ExtendedUnicodeEscape        = 1 << 1, // If node has any escaped unicode sequences (escaped characters in keywords).
     InFunctionBody               = 1 << 2, // If node was parsed in a function body
     AllowCall                    = 1 << 3, // If node was parsed in a context where call should be allowed
     Break                        = 1 << 4,
@@ -132,7 +132,7 @@ export const enum Scanner {
     LineStart       = 1 << 2, // Tracks if this is start of line
     MultiLine       = 1 << 3, // MultiLine comment
     SingleLine      = 1 << 4, // SingleLine comment (HTML, Shebang or plain)
-    Closed          = 1 << 5, // If the node was closed or not
+    Terminated      = 1 << 5, // If the node was closed or not
 
     // Collectable comments - single and multiline (shebang excluded)
     Collectable = SingleLine | MultiLine

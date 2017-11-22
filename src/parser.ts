@@ -266,7 +266,7 @@ export class Parser {
     
         private scanToken(context: Context): Token {
     
-            this.flags &= ~(Flags.LineTerminator | Flags.HasUnicode);
+            this.flags &= ~(Flags.PrecedingLineBreak | Flags.ExtendedUnicodeEscape);
     
             if (!(context & Context.Strict) && this.flags & Flags.HasStrictDirective) {
                 context |= Context.Strict;
@@ -277,7 +277,7 @@ export class Parser {
             this.lastLine = this.line;
     
             let state = this.index === 0 ? Scanner.LineStart : Scanner.None;
-    
+
             while (this.hasNext()) {
     
                 this.startIndex = this.index;
@@ -294,20 +294,20 @@ export class Parser {
     
                     case Chars.CarriageReturn:
                         state |= Scanner.LastIsCR | Scanner.LineStart;
-                        this.flags |= Flags.LineTerminator;
+                        this.flags |= Flags.PrecedingLineBreak;
                         this.advanceNewline();
                         continue;
     
                     case Chars.LineFeed:
                         this.consumeLineFeed(state);
-                        this.flags |= Flags.LineTerminator;
+                        this.flags |= Flags.PrecedingLineBreak;
                         state = state & ~Scanner.LastIsCR | Scanner.LineStart;
                         continue;
     
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
                         state = state & ~Scanner.LastIsCR | Scanner.LineStart;
-                        this.flags |= Flags.LineTerminator;
+                        this.flags |= Flags.PrecedingLineBreak;
                         this.advanceNewline();
                         continue;
     
@@ -399,15 +399,22 @@ export class Parser {
                     case Chars.Hyphen:
                         {
                             this.advance(); // skip '-'
-    
+
                             const next = this.nextChar();
-    
+
                             if (next === Chars.Hyphen) {
+
                                 this.advance();
+
                                 if (context & Context.Module || !(state & Scanner.LineStart)) return Token.Decrement;
-                                if (!this.consume(Chars.GreaterThan)) return Token.Decrement;
-                                this.skipComments(state | Scanner.SingleLine);
-                                continue;
+
+                                if (this.consume(Chars.GreaterThan)) {
+                                    this.skipComments(state | Scanner.SingleLine);
+                                    continue;
+                                }
+
+                                return Token.Decrement;
+
                             } else if (next === Chars.EqualSign) {
                                 this.advance();
                                 return Token.SubtractAssign;
@@ -421,14 +428,14 @@ export class Parser {
                         {
                             this.advance();
                             if (state & Scanner.LineStart &&
-                                this.nextChar() === Chars.Exclamation) {
-                                this.advance();
+                                this.consume(Chars.Exclamation)) {
                                 this.skipComments(state);
                                 continue;
+                            } else {
+                                return Token.Hash;
                             }
-                            return Token.Hash;
                         }
-    
+
                         // `{`
                     case Chars.LeftBrace:
                         this.advance();
@@ -767,11 +774,8 @@ export class Parser {
                     case Chars.LowerZ:
                         return this.scanIdentifier(context, state);
                     default:
-                        if (isValidIdentifierStart(first)) {
-                            return this.scanIdentifier(context, state);
-                        }
-    
-                        this.error(Errors.Unexpected);
+                        if (isValidIdentifierStart(first)) return this.scanIdentifier(context, state);
+                        this.error(Errors.UnexpectedToken, fromCodePoint(first));
                 }
             }
     
@@ -788,7 +792,7 @@ export class Parser {
             const start = this.index;
     
             // It's only pre-closed for hashbang and single line comments
-            if (!(state & Scanner.MultiLine)) state |= Scanner.Closed;
+            if (!(state & Scanner.MultiLine)) state |= Scanner.Terminated;
     
             loop:
                 while (this.hasNext()) {
@@ -797,14 +801,14 @@ export class Parser {
     
                         // Line Terminators
                         case Chars.CarriageReturn:
-                            this.flags |= Flags.LineTerminator;
+                            this.flags |= Flags.PrecedingLineBreak;
                             this.advanceNewline();
                             state |= Scanner.LineStart | Scanner.LastIsCR;
                             if (!(state & Scanner.MultiLine)) break loop;
                             break;
     
                         case Chars.LineFeed:
-                            this.flags |= Flags.LineTerminator;
+                            this.flags |= Flags.PrecedingLineBreak;
                             this.consumeLineFeed(state);
                             state = state & ~Scanner.LastIsCR | Scanner.LineStart;
                             if (!(state & Scanner.MultiLine)) break loop;
@@ -813,7 +817,7 @@ export class Parser {
                         case Chars.LineSeparator:
                         case Chars.ParagraphSeparator:
                             state = state & ~Scanner.LastIsCR | Scanner.LineStart;
-                            this.flags |= Flags.LineTerminator;
+                            this.flags |= Flags.PrecedingLineBreak;
                             this.advanceNewline();
                             break;
     
@@ -822,7 +826,7 @@ export class Parser {
                                 this.advance();
                                 state &= ~Scanner.LastIsCR;
                                 if (this.consume(Chars.Slash)) {
-                                    state |= Scanner.Closed;
+                                    state |= Scanner.Terminated;
                                     break loop;
                                 }
                                 break;
@@ -833,7 +837,7 @@ export class Parser {
                     }
                 }
     
-            if (!(state & Scanner.Closed)) this.error(Errors.UnterminatedComment);
+            if (!(state & Scanner.Terminated)) this.error(Errors.UnterminatedComment);
     
             if (state & Scanner.Collectable && this.flags & Flags.OptionsComments) {
                 let loc = {};
@@ -884,7 +888,7 @@ export class Parser {
                     let code = this.nextChar();
                     switch (code) {
                         case Chars.Backslash:
-                            this.flags |= Flags.HasUnicode;
+                            this.flags |= Flags.ExtendedUnicodeEscape;
                             ret += this.source.slice(start, this.index);
                             ret += fromCodePoint(this.peekUnicodeEscape());
                             start = this.index;
@@ -1369,7 +1373,7 @@ export class Parser {
                                 this.handleStringError(code as Escape);
                             }
     
-                            this.flags |= Flags.HasUnicode;
+                            this.flags |= Flags.ExtendedUnicodeEscape;
                         }
                         break;
     
@@ -1380,7 +1384,7 @@ export class Parser {
                 ch = this.scanNext(ch);
             }
     
-            if (!(this.flags & Flags.HasUnicode) && ret === 'use strict') {
+            if (!(this.flags & Flags.ExtendedUnicodeEscape) && ret === 'use strict') {
                 this.flags |= Flags.HasStrictDirective;
             }
     
@@ -1855,7 +1859,7 @@ export class Parser {
                 case Token.EndOfSource:
                     break;
                 default:
-                    if (this.flags & Flags.LineTerminator) break;
+                    if (this.flags & Flags.PrecedingLineBreak) break;
                     this.throwUnexpectedToken();
             }
         }
@@ -1882,7 +1886,7 @@ export class Parser {
             // or [.
             const savedState = this.saveState();
             this.nextToken(context);
-            if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
             const next = this.token;
             this.rewindState(savedState);
     
@@ -1930,7 +1934,7 @@ export class Parser {
         private parseExportDefault(context: Context, pos: Location): ESTree.ExportDefaultDeclaration {
     
             // Note:  The `default` contextual keyword must not contain Unicode escape sequences.
-            if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
     
             this.expect(context, Token.DefaultKeyword);
     
@@ -2027,7 +2031,7 @@ export class Parser {
     
                     if (this.token === Token.FromKeyword) {
                         // Note:  The `from` contextual keyword must not contain Unicode escape sequences.
-                        if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+                        if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
                         this.expect(context, Token.FromKeyword);
                         // export {default} from 'foo';
                         // export {foo} from 'foo';
@@ -2094,7 +2098,7 @@ export class Parser {
     
             if (this.token === Token.AsKeyword) {
                 // Note:  The `as` contextual keyword must not contain Unicode escape sequences.
-                if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+                if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
                 this.expect(context, Token.AsKeyword);
                 exported = this.parseIdentifierName(context, this.token);
             }
@@ -2138,7 +2142,7 @@ export class Parser {
                 imported = this.parseIdentifier(context);
                 local = imported;
                 if (this.token === Token.AsKeyword) {
-                    if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+                    if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
                     this.expect(context, Token.AsKeyword);
                     local = this.parseBindingPatternOrIdentifier(context);
                 } else if (this.isEvalOrArguments(tokenValue)) {
@@ -2195,7 +2199,7 @@ export class Parser {
                 this.error(Errors.NoAsAfterImportNamespace);
             }
     
-            if (this.flags & Flags.HasUnicode) {
+            if (this.flags & Flags.ExtendedUnicodeEscape) {
                 this.error(Errors.UnexpectedEscapedKeyword);
             }
     
@@ -2291,7 +2295,7 @@ export class Parser {
                     this.throwUnexpectedToken();
             }
     
-            if (this.flags & Flags.HasUnicode) {
+            if (this.flags & Flags.ExtendedUnicodeEscape) {
                 this.error(Errors.UnexpectedEscapedKeyword);
             }
     
@@ -2435,7 +2439,7 @@ export class Parser {
                         if (context & Context.TopLevel || this.flags & Flags.Iteration) {
                             this.throwUnexpectedToken();
                         }
-                        if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+                        if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
                         return this.parseFunctionDeclaration(context);
                     }
                     // 'Async' is a valid contextual keyword in sloppy mode for labelled statement, so either
@@ -2557,7 +2561,7 @@ export class Parser {
     
             this.expect(context, Token.ThrowKeyword);
     
-            if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterThrow);
+            if (this.flags & Flags.PrecedingLineBreak) this.error(Errors.LineBreakAfterThrow);
     
             const argument: ESTree.Expression = this.parseExpression(context | Context.AllowIn, pos);
     
@@ -2645,7 +2649,7 @@ export class Parser {
             this.expect(context, Token.ContinueKeyword);
     
             let label: ESTree.Identifier | null = null;
-            if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
+            if (!(this.flags & Flags.PrecedingLineBreak) && this.token === Token.Identifier) {
                 label = this.parseIdentifierName(context, this.token);
     
                 if (this.labelSet === undefined || !('$' + label.name in this.labelSet)) {
@@ -2671,7 +2675,7 @@ export class Parser {
     
             let label: ESTree.Identifier | null = null;
     
-            if (!(this.flags & Flags.LineTerminator) && this.token === Token.Identifier) {
+            if (!(this.flags & Flags.PrecedingLineBreak) && this.token === Token.Identifier) {
                 label = this.parseIdentifierName(context, this.token);
                 if (this.labelSet === undefined || !('$' + label.name in this.labelSet)) {
                     this.error(Errors.UnknownLabel, label.name);
@@ -2743,7 +2747,7 @@ export class Parser {
                 }
             }
     
-            if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
     
             this.flags |= Flags.Iteration | Flags.Continue;
     
@@ -2991,7 +2995,7 @@ export class Parser {
         private canParseArgument(): boolean {
     
             // Bail out quickly if we have seen a LineTerminator
-            if (this.flags & Flags.LineTerminator) return false;
+            if (this.flags & Flags.PrecedingLineBreak) return false;
     
             switch (this.token) {
                 case Token.Semicolon:
@@ -3190,7 +3194,7 @@ export class Parser {
             let argument: ESTree.Expression | null = null;
             let delegate = false;
     
-            if (!(this.flags & Flags.LineTerminator)) {
+            if (!(this.flags & Flags.PrecedingLineBreak)) {
                 delegate = this.parseEventually(context, Token.Multiply);
                 if (delegate) {
                     argument = this.parseAssignmentExpression(context);
@@ -3224,7 +3228,7 @@ export class Parser {
             // An async one, will be parsed out in 'parsePrimaryExpression'
             if (this.token === Token.Arrow && (this.isIdentifier(context | Context.Arrow, token))) {
     
-                if (!(this.flags & Flags.LineTerminator)) {
+                if (!(this.flags & Flags.PrecedingLineBreak)) {
                     if (this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                         if (context & Context.Strict) this.error(Errors.UnexpectedStrictReserved);
                         this.flags |= Flags.BindingPosition;
@@ -3350,7 +3354,7 @@ export class Parser {
         ): ESTree.ArrowFunctionExpression {
     
             // A line terminator between ArrowParameters and the => should trigger a SyntaxError.
-            if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
+            if (this.flags & Flags.PrecedingLineBreak) this.error(Errors.LineBreakAfterAsync);
     
             this.expect(context, Token.Arrow);
     
@@ -3504,7 +3508,7 @@ export class Parser {
     
         private parseAwaitExpression(context: Context): ESTree.AwaitExpression {
             const pos = this.getLocations();
-            if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
             this.expect(context, Token.AwaitKeyword);
             return this.finishNode(pos, {
                 type: 'AwaitExpression',
@@ -3553,7 +3557,7 @@ export class Parser {
     
             expr = this.parseLeftHandSideExpression(context, pos);
     
-            if (hasMask(this.token, Token.UpdateOperator) && !(this.flags & Flags.LineTerminator)) {
+            if (hasMask(this.token, Token.UpdateOperator) && !(this.flags & Flags.PrecedingLineBreak)) {
     
                 // The identifier eval or arguments may not appear as the LeftHandSideExpression of an
                 // Assignment operator(12.15) or of a PostfixExpression or as the UnaryExpression
@@ -3956,7 +3960,7 @@ export class Parser {
             //  () => {}
             //
     
-            const isEscaped = (this.flags & Flags.HasUnicode) !== 0;
+            const isEscaped = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
             const id = this.parseIdentifier(context);
             const flags = this.flags |= Flags.SimpleParameterList;
     
@@ -3968,14 +3972,14 @@ export class Parser {
                     if (isEscaped) this.error(Errors.Unexpected);
                     // The specs says "async[no LineTerminator here]", so just return an plain identifier in case
                     // we got an LineTerminator. The 'FunctionExpression' will be parsed out in 'parsePrimaryExpression'
-                    if (this.flags & Flags.LineTerminator) return id;
+                    if (this.flags & Flags.PrecedingLineBreak) return id;
                     return this.parseFunctionExpression(context & ~(Context.Yield | Context.Method) | Context.Await | Context.Expression, pos);
                     // 'AsyncArrowFunction[In, Yield, Await]'
                 case Token.YieldKeyword:
                 case Token.Identifier:
                     // The specs says "async[no LineTerminator here]", so just return an plain identifier in case
                     // we got an LineTerminator. The 'ArrowFunctionExpression' will be parsed out in 'parseAssignmentExpression'
-                    if (this.flags & Flags.LineTerminator) return id;
+                    if (this.flags & Flags.PrecedingLineBreak) return id;
                     const expr = this.parseIdentifier(context);
                     if (this.token === Token.Arrow) return this.parseArrowFunctionExpression(context & ~Context.Yield | Context.AllowIn | Context.Await, pos, [expr]);
                     // Invalid: 'async abc'
@@ -4049,7 +4053,7 @@ export class Parser {
     
                 if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
                 // async arrows cannot have a line terminator between "async" and the formals
-                if (flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
+                if (flags & Flags.PrecedingLineBreak) this.error(Errors.LineBreakAfterAsync);
                 // Valid: 'async(a=await)=>12'. 
                 // Invalid: 'async(await)=>12'. 
                 if (this.flags & Flags.HaveSeenAwait) this.error(Errors.InvalidAwaitInArrowParam);
@@ -4153,7 +4157,7 @@ export class Parser {
     
             const pos = this.getLocations();
     
-            if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
     
             const id = this.parseIdentifier(context);
     
@@ -4235,7 +4239,7 @@ export class Parser {
                 case Token.ThrowKeyword:
                     return this.parseThrowExpression(context);
                 case Token.AwaitKeyword:
-                    if (!(context & Context.Labelled) && this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedReservedWord);
+                    if (!(context & Context.Labelled) && this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedReservedWord);
                     if (context & Context.InAsyncArgs) this.flags |= Flags.HaveSeenAwait;
                     if (context & Context.Await) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
     
@@ -4252,7 +4256,7 @@ export class Parser {
                     if (context & Context.Method) return this.parsePrivateName(context);
                 case Token.YieldKeyword:
                     if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                    if (this.flags & Flags.HasUnicode && !(context & Context.Labelled)) this.error(Errors.UnexpectedEscapedKeyword);
+                    if (this.flags & Flags.ExtendedUnicodeEscape && !(context & Context.Labelled)) this.error(Errors.UnexpectedEscapedKeyword);
                 default:
                     if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
                     return this.parseIdentifier(context);
@@ -4262,10 +4266,10 @@ export class Parser {
         private parseLet(context: Context): ESTree.Identifier {
             const name = this.tokenValue;
             const pos = this.getLocations();
-            if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword)
+            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword)
             if (context & Context.Strict) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
             this.nextToken(context);
-            if (this.flags & Flags.LineTerminator && !(this.flags & Flags.Iteration)) this.error(Errors.Unexpected);
+            if (this.flags & Flags.PrecedingLineBreak && !(this.flags & Flags.Iteration)) this.error(Errors.Unexpected);
             if (this.token === Token.LetKeyword) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
             return this.finishNode(pos, {
                 type: 'Identifier',
@@ -4493,7 +4497,7 @@ export class Parser {
             let count = 0;
             let key;
             let value;
-            let isEscaped = (this.flags & Flags.HasUnicode) !== 0;
+            let isEscaped = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
             let fieldPos;
     
             loop: while (this.isIdentifierOrKeyword(token)) {
@@ -4543,7 +4547,7 @@ export class Parser {
                 count++;
             }
     
-            if (state & ObjectState.Async && this.flags & Flags.LineTerminator) {
+            if (state & ObjectState.Async && this.flags & Flags.PrecedingLineBreak) {
                 this.error(Errors.LineBreakAfterAsync);
             }
     
@@ -4680,7 +4684,7 @@ export class Parser {
             let key;
             let value;
             let firstProto = this.firstProto;
-            let isEscaped = (this.flags & Flags.HasUnicode) !== 0;
+            let isEscaped = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
             const tokenValue = this.tokenValue;
     
             if (hasMask(this.token, Token.Modifiers)) {
@@ -4723,7 +4727,7 @@ export class Parser {
                 count++;
             }
     
-            if (state & ObjectState.Async && this.flags & Flags.LineTerminator) {
+            if (state & ObjectState.Async && this.flags & Flags.PrecedingLineBreak) {
                 this.error(Errors.LineBreakAfterAsync);
             }
     
@@ -5158,7 +5162,7 @@ export class Parser {
             const pos = this.getLocations();
             const value = this.tokenValue === 'true';
             const raw = this.tokenValue;
-            if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
             this.nextToken(context);
             const node = this.finishNode(pos, {
                 type: 'Literal',
@@ -5180,7 +5184,7 @@ export class Parser {
     
         private parseNullExpression(context: Context): ESTree.Literal {
             const pos = this.getLocations();
-            if (this.flags & Flags.HasUnicode) this.error(Errors.UnexpectedEscapedKeyword);
+            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
             this.nextToken(context);
             const node = this.finishNode(pos, {
                 type: 'Literal',
