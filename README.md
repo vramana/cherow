@@ -68,20 +68,6 @@ cherow.parseModule('const fooBar = 123;');
 
 ```
 
-### Legacy
-
-`ES2009` and older only accepted a single `parse` to perform syntactic analysis of JavaScript program. In Cherow we call such features for
-*Legacy* and choose to support it both for legacy reasons and the fact that many other ECMAScript parsers allow this syntax.
-
-```js
-// Parsing script code
-cherow.parse('const fooBar = 123;');
-
-// Parsing module code
-cherow.parse('const fooBar = 123;', { sourceType: 'module'});
-
-```
-
 ### Parsing with options
 
 ```js
