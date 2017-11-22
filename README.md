@@ -165,6 +165,8 @@ parseScript('1', {
 });
 ```
 
+You can find and try the plugin example in the [cherow-dummy-plugin repo](https://github.com/cherow/cherow-dummy-plugin) repo
+
 ## Rationale
 
 Existing parsers have many issues with them:
@@ -177,8 +179,6 @@ Babylon is highly coupled to Babel, and is comparatively very slow and buggy, fa
 
 None of these parsers would fare any chance against the official Test262 suite, and most fail a substantial number of them. Also, more and more JS tools require parsing support, and slower parsers result in slower tools. ESLint already spends a significant portion of its time parsing, often upwards of 1/4 of its time.
 
-
-You can see and try the demo expample live in the [cherow-dummy-plugin repo](https://github.com/cherow/cherow-dummy-plugin)
 
 ## Bug reporting
 
