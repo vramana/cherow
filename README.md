@@ -197,23 +197,6 @@ Babylon is highly coupled to Babel, and is comparatively very slow and buggy, fa
 
 None of these parsers would fare any chance against the official Test262 suite, and most fail a substantial number of them. Also, more and more JS tools require parsing support, and slower parsers result in slower tools. ESLint already spends a significant portion of its time parsing, often upwards of 1/4 of its time.
 
-## Performance and benchmarks
-
-The most important thing for an ECMAScript parser is performance, especially when it is a
-dependency in other libraries. Poor performance will slow down the main library.
-
-Cherow has been developed from scratch with only one goal - performance.
-
-You can run your own [performance tests](https://cherow.github.io/cherow/performance/).
-
-## ESTree
-
-Cherow outputs a sensible syntax tree format as standardized by [ESTree project](https://github.com/estree/estree), and does
-not add any "extra" properties to any of its nodes.
-
-However there is a small difference from other parsers because Cherow outputs an `await` property on the `ForStatement` node.
-This because of the `Asynchronous Iteration` implementation.
-
 ## Bug reporting
 
 If you caught a bug, don't hesitate to report it in the issue tracker. From the moment I respond to you, it will take maximum 30 minutes before the bug is fixed. 
