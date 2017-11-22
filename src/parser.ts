@@ -105,9 +105,12 @@ export class Parser {
             if (options.raw) this.flags |= Flags.OptionsRaw;
             if (options.globalReturn) this.flags |= Flags.OptionsGlobalReturn;
             if (options.directives) this.flags |= Flags.OptionsDirectives;
+            if (options.impliedStrict) this.flags |= Flags.OptionsImpliedStrict;
 
             if (this.flags & Flags.OptionsComments) this.comments = options.comments;
             if (this.flags & (Flags.OptionsLoc | Flags.OptionsSource)) this.locSource = String(options.source);
+            // Implies strict mode, regardless of the existence of "use strict"
+            if (this.flags & Flags.OptionsImpliedStrict) this.source = '"use strict";' + source;
 
             if (options.plugins) {
                 for (let i = 0; i < options.plugins.length; i++) {

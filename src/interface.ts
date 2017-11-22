@@ -18,6 +18,7 @@ export interface Options {
     sourceType?: 'module' | 'script';
     v8?: boolean;
     plugins?: any;
+    impliedStrict?: boolean;
 }
 
 export interface SavedState {

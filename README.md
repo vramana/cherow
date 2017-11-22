@@ -44,7 +44,8 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 | ----------- | ------------------------------------------------------------ |
 | `comments`        | Enables option to collect comments. Optional; Either array or function                 |
 | `directives`      | Enables the [`ESTree`](https://github.com/estree/estree/blob/1da8e603237144f44710360f8feb7a9977e905e0/es5.md#directive) directive node |
-| `globalReturn`    | Allow return statement in global scope   | `emptyVnode, vnode`     |
+| `globalReturn`    | Allow return statement in global scope     |
+| `impliedStrict`   | Enable global strict mode |
 | `jsx`             | Enables JSX   |
 | `locations`       | Adds a location object with start and end subobjects on the AST node  {*line, column* |
 | `next`            | enables `ECMAScript Next` support and let you use proposals at `stage 3` or higher such as `Import()` |

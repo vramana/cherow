@@ -393,10 +393,15 @@ var Parser = function Parser(source, options) {
         { this.flags |= 268435456 /* OptionsGlobalReturn */; }
     if (options.directives)
         { this.flags |= 33554432 /* OptionsDirectives */; }
+    if (options.impliedStrict)
+        { this.flags |= 1 /* OptionsImpliedStrict */; }
     if (this.flags & 67108864 /* OptionsComments */)
         { this.comments = options.comments; }
     if (this.flags & (1048576 /* OptionsLoc */ | 2097152 /* OptionsSource */))
         { this.locSource = String(options.source); }
+    // Implies strict mode, regardless of the existence of "use strict"
+    if (this.flags & 1 /* OptionsImpliedStrict */)
+        { this.source = '"use strict";' + source; }
     if (options.plugins) {
         for (var i = 0; i < options.plugins.length; i++) {
             options.plugins[i](this$1);
@@ -406,7 +411,7 @@ var Parser = function Parser(source, options) {
 Parser.prototype.parse = function parse (context) {
     this.nextToken(context);
     var body = context & 1 /* Module */ ?
-        this.parseModuleItemList(context | 4 /* AllowIn */) :
+        this.parseModuleItemList(context) :
         this.parseStatementList(context, 0 /* EndOfSource */);
     var node = {
         type: 'Program',
@@ -1844,11 +1849,11 @@ Parser.prototype.parseModuleItemList = function parseModuleItemList (context) {
     // option are set for it. 
     if (this.flags & 33554432 /* OptionsDirectives */) {
         while (this.token === 262147 /* StringLiteral */) {
-            statements.push(this$1.parseDirective(context));
+            statements.push(this$1.parseDirective(context | 4 /* AllowIn */));
         }
     }
     while (this.token !== 0 /* EndOfSource */) {
-        statements.push(this$1.parseModuleItem(context));
+        statements.push(this$1.parseModuleItem(context | 4 /* AllowIn */));
     }
     return statements;
 };
@@ -2370,7 +2375,7 @@ Parser.prototype.parseStatementListItem = function parseStatementListItem (conte
             // We must be careful not to parse a 'import()'
             // expression or 'import.meta' as an import declaration.
             if (this.flags & 16777216 /* OptionsNext */ && this.nextTokenIsLeftParenOrPeriod(context)) {
-                return this.parseExpressionStatement(context);
+                return this.parseExpressionStatement(context | 4 /* AllowIn */);
             }
             if (context & 1 /* Module */)
                 { this.error(49 /* ImportDeclAtTopLevel */); }
@@ -2383,7 +2388,7 @@ Parser.prototype.parseStatement = function parseStatement (context) {
         case 262145 /* Identifier */:
             return this.parseLabelledStatement(context);
         case 262155 /* LeftParen */:
-            return this.parseExpressionStatement(context);
+            return this.parseExpressionStatement(context | 4 /* AllowIn */);
         // EmptyStatement
         case 17 /* Semicolon */:
             return this.parseEmptyStatement(context);
@@ -2462,7 +2467,7 @@ Parser.prototype.parseStatement = function parseStatement (context) {
         case 274509 /* ClassKeyword */:
             this.error(93 /* ForbiddenAsStatement */, tokenDesc(this.token));
         default:
-            return this.parseExpressionStatement(context);
+            return this.parseExpressionStatement(context | 4 /* AllowIn */);
     }
 };
 Parser.prototype.parseBlockStatement = function parseBlockStatement (context) {
@@ -2960,7 +2965,7 @@ Parser.prototype.parseLabelledStatement = function parseLabelledStatement (conte
 };
 Parser.prototype.parseExpressionStatement = function parseExpressionStatement (context) {
     var pos = this.getLocations();
-    var expr = this.parseExpression(context | 4 /* AllowIn */, pos);
+    var expr = this.parseExpression(context, pos);
     this.consumeSemicolon(context);
     return this.finishNode(pos, {
         type: 'ExpressionStatement',
@@ -3950,8 +3955,6 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
             return this.parseRegularExpression(context);
         case 16846956 /* AsyncKeyword */:
             return this.parseAsyncFunctionExpression(context, pos);
-        case 12369 /* DoKeyword */:
-            return this.parseDoExpression(context);
         case 12383 /* ThrowKeyword */:
             return this.parseThrowExpression(context);
         case 331885 /* AwaitKeyword */:
@@ -4275,7 +4278,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
         case 393235 /* LeftBracket */:
             state |= 4 /* Computed */;
             fieldPos = this.getLocations();
-            key = this.parseComputedPropertyName(context);
+            key = this.parseComputedPropertyName(context | 4 /* AllowIn */);
             if (this.flags & 16777216 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
                 return this.parseClassFields(context | 4 /* AllowIn */ | 8388608 /* Fields */, key, fieldPos);
             }
@@ -4431,7 +4434,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
             break;
         case 393235 /* LeftBracket */:
             state |= 4 /* Computed */;
-            key = this.parseComputedPropertyName(context);
+            key = this.parseComputedPropertyName(context | 4 /* AllowIn */);
             break;
         default:
             if (this.isIdentifierOrKeyword(this.token)) {
@@ -5133,16 +5136,6 @@ Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (con
         value: value,
         method: false,
         shorthand: (state & 8 /* Shorthand */) !== 0
-    });
-};
-/** V8 */
-Parser.prototype.parseDoExpression = function parseDoExpression (context) {
-    var pos = this.getLocations();
-    this.expect(context, 12369 /* DoKeyword */);
-    var body = this.parseBlockStatement(context);
-    return this.finishNode(pos, {
-        type: 'DoExpression',
-        body: body
     });
 };
 /** JSX */
