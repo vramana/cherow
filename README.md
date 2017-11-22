@@ -92,14 +92,9 @@ cherow.parseScript('const fooBar = 123;', { ranges: true, raw: true, next: true}
 ```
 
 
-## Comments
+### Comments and comment collection
 
-Single line, multiline and HTML comments are supported, and can be collected as well. Hashbang comment nodes (`#!foo`) are
-skipped by default, and can't be collected.
-
-### Comment collecting
-
-Cherow can be instructed to collect comments by setting the `comments option` to either an array or an function.
+Single line, multiline and HTML comments are supported by Cherow, and the parser can be instructed to collect comments by setting the `comments option` to either an array or an function.
 
 The type of each comment can either be `Line` for a single-line comment (`//`) og Block for a MultiLineComment (`/* */`).
 
