@@ -42,16 +42,17 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 
 | Option        | Description |
 | ----------- | ------------------------------------------------------------ |
-| `comments`        | Enables option to collect comments. Optional; Either array or function                 |
-| `directives`      | Enables the [`ESTree`](https://github.com/estree/estree/blob/1da8e603237144f44710360f8feb7a9977e905e0/es5.md#directive) directive node |
-| `globalReturn`    | Allow return statement in global scope     |
+| `comments`        | Let you collect comments. Accepts either an array or function  |
+| `directives`      | Allow use of the [`ESTree`](https://github.com/estree/estree/blob/1da8e603237144f44710360f8feb7a9977e905e0/es5.md#directive) directive node |
+| `globalReturn`    | Enable return in global scope     |
 | `impliedStrict`   | Enable global strict mode in sloppy mode |
-| `jsx`             | Enables JSX   |
-| `locations`       | Adds a location object with start and end subobjects on the AST node  {*line, column* |
-| `next`            | enables `ECMAScript Next` support and let you use proposals at `stage 3` or higher such as `Import()` |
-| `plugins`         |  Let you add an array of plugins    |
-| `raw`             |  Enables the raw property on literal nodes (*Esprima and Acorn feature*)     |
-| `sourceType`      | Indicate the mode the code should be parsed in. Can be either `script` or `module` |
+| `jsx`             | Enable JSX parsing   |
+| `locations`       | Attach line/column location information to each node |
+| `ranges`          | Attach range information to each node |
+| `next`            | Allow experimental ECMAScript features - stage 3 proposals |
+| `plugins`         | Let you add an array of plugins    |
+| `raw`             | Attach raw property on literal nodes (*Esprima and Acorn feature*)     |
+| `sourceType`      | Specify which type of script you're parsing ("script" or "module") |
 ## API
 
 A JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and
@@ -184,22 +185,17 @@ parseScript('1', {
 
 You can see and try the demo expample live in the [cherow-dummy-plugin repo](https://github.com/cherow/cherow-dummy-plugin)
 
-## Acorn and Esprima differences
+## Rationale
 
-The main difference between Cherow and Acorn/Esprima is that the latter libraries either don't parse everything
-according to TC39, or they don't fail as they should according to the ECMAScript specs.
+Existing parsers have many issues with them:
 
-Cherow parses everything after the specs, and fails 90% after the specs (*work in progress*).
+Acorn is the most commonly used tool out there because of its support for recent ES standards, but it's slow and it often is too permissive in what it accepts. It's also a bit bloated.
 
-## Compability with other parsers
+Esprima is faster than Acorn, but only recently added async function support, and it misses some edge cases.
 
-`Cherow` is compatible with other parsers, and can be used as an drop-in replacement. Only thing you have to do is to 
-replace the imported parser name with `cherow`. E.g `var require('foo').parse` should be `var require('cherow').parse`.
+Babylon is highly coupled to Babel, and is comparatively very slow and buggy, failing to correctly handle even stable ECMAScript standard features.
 
-Please *note* that the options supported my vary from parser to parser. If you are missing an option in Cherow, open an issue ticket
-and it will be implemented as long as there exist a solid reason for it.
-
-Also not that both `Babylon` and `ShiftJS` isn't ESTree compatible. However. `Babylon` supports ESTree through a plugin.
+None of these parsers would fare any chance against the official Test262 suite, and most fail a substantial number of them. Also, more and more JS tools require parsing support, and slower parsers result in slower tools. ESLint already spends a significant portion of its time parsing, often upwards of 1/4 of its time.
 
 ## Performance and benchmarks
 
