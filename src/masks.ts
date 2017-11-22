@@ -41,25 +41,26 @@ export const enum Context {
 // Mutable parser flags
 export const enum Flags {
     None                         = 0,
-    PrecedingLineBreak           = 1 << 0, 
+    PrecedingLineBreak           = 1 << 0,
     ExtendedUnicodeEscape        = 1 << 1, // If node has any escaped unicode sequences (escaped characters in keywords).
     InFunctionBody               = 1 << 2, // If node was parsed in a function body
     AllowCall                    = 1 << 3, // If node was parsed in a context where call should be allowed
-    Break                        = 1 << 4,
-    Iteration                    = 1 << 5,
-    Switch                       = 1 << 6,
+    BreakStatement                        = 1 << 4,
+    IterationStatement                    = 1 << 5,
+    SwitchStatement                       = 1 << 6,
     Continue                     = 1 << 7,
     HasPrototype                 = 1 << 8,
-    HaveSeenYield                = 1 << 9,  // Used if we have seen a 'yield' token. E.g. in arrow formal param list
-    HaveSeenAwait                = 1 << 10,  // Used if we have seen a 'await' token. E.g. in async arrow formal param list
-    HaveSeenRest                 = 1 << 11,
-    BindingPosition              = 1 << 12, // Used if an "identifier" are used in binding position in strict mode
-    HasStrictDirective           = 1 << 13, // Only used if we have seen a "use strict"; directive
+    Yield                        = 1 << 9,  // Used if we have seen a 'yield' token. E.g. in arrow formal param list
+    Await                        = 1 << 10,  // Used if we have seen a 'await' token. E.g. in async arrow formal param list
+    Rest                         = 1 << 11,
+    Binding                      = 1 << 12, // Used if an "identifier" are used in binding position in strict mode
+    DirectivePrologue            = 1 << 13, // Only used if we have seen a "use strict"; directive
     BigInt                       = 1 << 14, // e.g. `100n`
     SimpleParameterList          = 1 << 15,
     ParenthesizedPattern         = 1 << 16,
     Operator                     = 1 << 17,
     Octal                        = 1 << 18, // e.g. `0777`
+
     /* Options */
     OptionsRanges                = 1 << 19, // Enable / disable "ranges"
     OptionsLoc                   = 1 << 20, // Enable / disable location tracking on the node

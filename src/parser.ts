@@ -268,7 +268,7 @@ export class Parser {
     
             this.flags &= ~(Flags.PrecedingLineBreak | Flags.ExtendedUnicodeEscape);
     
-            if (!(context & Context.Strict) && this.flags & Flags.HasStrictDirective) {
+            if (!(context & Context.Strict) && this.flags & Flags.DirectivePrologue) {
                 context |= Context.Strict;
             }
     
@@ -789,10 +789,7 @@ export class Parser {
          */
         private skipComments(state: Scanner) {
     
-            const start = this.index;
-    
-            // It's only pre-closed for hashbang and single line comments
-            if (!(state & Scanner.MultiLine)) state |= Scanner.Terminated;
+            const startPos = this.index;
     
             loop:
                 while (this.hasNext()) {
@@ -803,20 +800,20 @@ export class Parser {
                         case Chars.CarriageReturn:
                             this.flags |= Flags.PrecedingLineBreak;
                             this.advanceNewline();
-                            state |= Scanner.LineStart | Scanner.LastIsCR;
+                            state |= Scanner.LineStart;
                             if (!(state & Scanner.MultiLine)) break loop;
                             break;
     
                         case Chars.LineFeed:
                             this.flags |= Flags.PrecedingLineBreak;
                             this.consumeLineFeed(state);
-                            state = state & ~Scanner.LastIsCR | Scanner.LineStart;
+                            state &= ~Scanner.LastIsCR;
                             if (!(state & Scanner.MultiLine)) break loop;
                             break;
     
                         case Chars.LineSeparator:
                         case Chars.ParagraphSeparator:
-                            state = state & ~Scanner.LastIsCR | Scanner.LineStart;
+                            state &= ~Scanner.LastIsCR;
                             this.flags |= Flags.PrecedingLineBreak;
                             this.advanceNewline();
                             break;
@@ -837,15 +834,15 @@ export class Parser {
                     }
                 }
     
-            if (!(state & Scanner.Terminated)) this.error(Errors.UnterminatedComment);
+            if (state & Scanner.MultiLine && !(state & Scanner.Terminated)) this.error(Errors.UnterminatedComment);
     
             if (state & Scanner.Collectable && this.flags & Flags.OptionsComments) {
-                let loc = {};
-                let commentStart = this.startIndex;;
-                let commentEnd = this.index;
+                let loc;
+                let start;
+                let end;
                 let type = state & Scanner.MultiLine ? 'Block' : 'Line';
-                let value = this.source.slice(start, state & Scanner.MultiLine ? this.index - 2 : this.index);
-    
+                let value = this.source.slice(startPos, state & Scanner.MultiLine ? this.index - 2 : this.index);
+
                 if (this.flags & Flags.OptionsLoc) {
                     loc = {
                         start: {
@@ -858,9 +855,14 @@ export class Parser {
                         }
                     };
                 }
-    
+
+                if (this.flags & Flags.OptionsRanges) {
+                    start = this.startIndex;
+                    end = this.index;
+                }
+
                 if (typeof this.comments === 'function') {
-                    this.comments(type, value, commentStart as number, commentEnd as number, loc);
+                    this.comments(type, value, start as number, end as number, loc);
                 }
     
                 if (Array.isArray(this.comments)) {
@@ -868,8 +870,8 @@ export class Parser {
                     const node: any = {
                         type,
                         value,
-                        start: commentStart,
-                        end: commentEnd,
+                        start,
+                        end,
                         loc
                     };
     
@@ -1385,7 +1387,7 @@ export class Parser {
             }
     
             if (!(this.flags & Flags.ExtendedUnicodeEscape) && ret === 'use strict') {
-                this.flags |= Flags.HasStrictDirective;
+                this.flags |= Flags.DirectivePrologue;
             }
     
             this.advance(); // Consume the quote
@@ -1780,9 +1782,9 @@ export class Parser {
     
                 if (!isPrologueDirective(item)) break;
     
-                if (this.flags & Flags.HasStrictDirective) {
+                if (this.flags & Flags.DirectivePrologue) {
                     if (this.flags & Flags.SimpleParameterList) this.error(Errors.IllegalUseStrict);
-                    if (this.flags & Flags.BindingPosition) this.error(Errors.UnexpectedStrictReserved);
+                    if (this.flags & Flags.Binding) this.error(Errors.UnexpectedStrictReserved);
                     context |= Context.Strict;
                 }
             }
@@ -2436,7 +2438,7 @@ export class Parser {
                     // J.K. Thomas
                     if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                         // Note: async function are only subject to AnnexB if we forbid them to parse
-                        if (context & Context.TopLevel || this.flags & Flags.Iteration) {
+                        if (context & Context.TopLevel || this.flags & Flags.IterationStatement) {
                             this.throwUnexpectedToken();
                         }
                         if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
@@ -2602,7 +2604,7 @@ export class Parser {
     
             const savedFlag = this.flags;
     
-            this.flags |= Flags.Iteration | Flags.Continue;
+            this.flags |= Flags.IterationStatement | Flags.Continue;
     
             const body = this.parseStatement(context & ~Context.TopLevel);
             this.flags = savedFlag;
@@ -2621,7 +2623,7 @@ export class Parser {
             this.expect(context, Token.DoKeyword);
     
             const savedFlag = this.flags;
-            this.flags |= Flags.Iteration | Flags.Continue;
+            this.flags |= Flags.IterationStatement | Flags.Continue;
             const body = this.parseStatement(context & ~Context.TopLevel);
             this.flags = savedFlag;
     
@@ -2657,7 +2659,7 @@ export class Parser {
                 }
             }
     
-            if (label === null && !(this.flags & Flags.Iteration)) this.error(Errors.BadContinue);
+            if (label === null && !(this.flags & Flags.IterationStatement)) this.error(Errors.BadContinue);
     
             this.consumeSemicolon(context);
     
@@ -2682,7 +2684,7 @@ export class Parser {
                 }
             }
     
-            if (label === null && !(this.flags & (Flags.Iteration | Flags.Switch))) {
+            if (label === null && !(this.flags & (Flags.IterationStatement | Flags.SwitchStatement))) {
                 this.error(Errors.IllegalBreak);
             }
     
@@ -2749,7 +2751,7 @@ export class Parser {
     
             if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
     
-            this.flags |= Flags.Iteration | Flags.Continue;
+            this.flags |= Flags.IterationStatement | Flags.Continue;
     
             if (this.parseEventually(context, Token.OfKeyword)) {
     
@@ -2903,7 +2905,7 @@ export class Parser {
     
             const SavedFlag = this.flags;
     
-            this.flags |= (Flags.Break | Flags.Switch);
+            this.flags |= Flags.SwitchStatement;
     
             while (this.token !== Token.RightBrace) {
     
@@ -3050,7 +3052,7 @@ export class Parser {
                 switch (this.token) {
                     case Token.FunctionKeyword:
                         if (context & Context.Iteration) this.error(Errors.InvalidWithBody);
-                        if (context & Context.ForStatement || this.flags & Flags.Iteration) this.error(Errors.StrictFunction);
+                        if (context & Context.ForStatement || this.flags & Flags.IterationStatement) this.error(Errors.StrictFunction);
                         // '13.1.1 - Static Semantics: ContainsDuplicateLabels', says it's a syntax error if
                         // LabelledItem: FunctionDeclaration is ever matched. Annex B.3.2 changes this behaviour.
                         if (context & Context.Strict) this.error(Errors.StrictFunction);
@@ -3231,13 +3233,13 @@ export class Parser {
                 if (!(this.flags & Flags.PrecedingLineBreak)) {
                     if (this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                         if (context & Context.Strict) this.error(Errors.UnexpectedStrictReserved);
-                        this.flags |= Flags.BindingPosition;
+                        this.flags |= Flags.Binding;
                     }
                     if (expr.type !== 'Identifier') this.throwUnexpectedToken();
                     // Invalid: 'package => { "use strict"}"'
                     if (hasMask(token, Token.FutureReserved)) {
                         this.errorLocation = this.getLocations();
-                        this.flags |= Flags.BindingPosition;
+                        this.flags |= Flags.Binding;
                     }
                     return this.parseArrowFunctionExpression(context & ~(Context.Await) | Context.Arrow, pos, [expr]);
                 }
@@ -3248,7 +3250,7 @@ export class Parser {
                 if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                     this.error(Errors.StrictLHSAssignment);
                 } else if (this.token === Token.Assign) {
-                    if (this.flags & Flags.HaveSeenRest) this.error(Errors.InvalidLHSInAssignment);
+                    if (this.flags & Flags.Rest) this.error(Errors.InvalidLHSInAssignment);
                     // Note: A functions arameter list is already parsed as pattern, so no need to reinterpret
                     if (!(context & Context.InParameter)) this.reinterpretAsPattern(context, expr);
                 } else if (!isValidSimpleAssignmentTarget(expr)) {
@@ -3260,7 +3262,7 @@ export class Parser {
                 this.nextToken(context);
     
                 if (context & Context.Yield && context & Context.InParenthesis && this.token === Token.YieldKeyword) {
-                    this.flags |= Flags.HaveSeenYield
+                    this.flags |= Flags.Yield
                 }
     
                 const right = this.parseAssignmentExpression(context | Context.AllowIn);
@@ -3940,7 +3942,7 @@ export class Parser {
             } else if (this.isEvalOrArguments(this.tokenValue)) {
                 if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
                 this.errorLocation = pos;
-                this.flags |= Flags.BindingPosition;
+                this.flags |= Flags.Binding;
             }
     
             return this.parseAssignmentPattern(context, pos);
@@ -4056,7 +4058,7 @@ export class Parser {
                 if (flags & Flags.PrecedingLineBreak) this.error(Errors.LineBreakAfterAsync);
                 // Valid: 'async(a=await)=>12'. 
                 // Invalid: 'async(await)=>12'. 
-                if (this.flags & Flags.HaveSeenAwait) this.error(Errors.InvalidAwaitInArrowParam);
+                if (this.flags & Flags.Await) this.error(Errors.InvalidAwaitInArrowParam);
                 if (state & ParenthesizedState.EvalOrArg) this.error(Errors.StrictParamName);
                 if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
                 if (state & ParenthesizedState.Await) this.error(Errors.InvalidAwaitInArrowParam);
@@ -4065,7 +4067,7 @@ export class Parser {
             }
     
             // We are done, so unset the bitmask
-            this.flags &= ~Flags.HaveSeenAwait;
+            this.flags &= ~Flags.Await;
     
             this.errorLocation = undefined;
     
@@ -4089,7 +4091,7 @@ export class Parser {
                 const savedFlags = this.flags;
                 this.flags |= Flags.InFunctionBody;
     
-                this.flags &= ~(Flags.Switch | Flags.Break | Flags.Iteration);
+                this.flags &= ~(Flags.SwitchStatement | Flags.BreakStatement | Flags.IterationStatement);
                 body = this.parseStatementList(context & ~Context.Lexical, Token.RightBrace);
                 this.labelSet = previousLabelSet;
                 this.flags = savedFlags;
@@ -4240,7 +4242,7 @@ export class Parser {
                     return this.parseThrowExpression(context);
                 case Token.AwaitKeyword:
                     if (!(context & Context.Labelled) && this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedReservedWord);
-                    if (context & Context.InAsyncArgs) this.flags |= Flags.HaveSeenAwait;
+                    if (context & Context.InAsyncArgs) this.flags |= Flags.Await;
                     if (context & Context.Await) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
     
                     if (context & Context.Module) {
@@ -4269,7 +4271,7 @@ export class Parser {
             if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword)
             if (context & Context.Strict) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
             this.nextToken(context);
-            if (this.flags & Flags.PrecedingLineBreak && !(this.flags & Flags.Iteration)) this.error(Errors.Unexpected);
+            if (this.flags & Flags.PrecedingLineBreak && !(this.flags & Flags.IterationStatement)) this.error(Errors.Unexpected);
             if (this.token === Token.LetKeyword) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
             return this.finishNode(pos, {
                 type: 'Identifier',
@@ -4769,7 +4771,7 @@ export class Parser {
     
                     if (context & Context.InAsyncArgs && this.token === Token.AwaitKeyword) {
                         this.errorLocation = this.getLocations();
-                        this.flags |= Flags.HaveSeenAwait;
+                        this.flags |= Flags.Await;
                     }
     
                     value = this.parseAssignmentExpression(context);
@@ -4791,7 +4793,7 @@ export class Parser {
                     if (token === Token.AwaitKeyword) {
                         if (context & Context.Await) this.throwUnexpectedToken();
                         this.errorLocation = this.getLocations();
-                        this.flags |= Flags.HaveSeenAwait;
+                        this.flags |= Flags.Await;
                     }
     
                     if (context & (Context.ForStatement | Context.InParenthesis) &&
@@ -4867,7 +4869,7 @@ export class Parser {
     
                     if (this.token !== Token.RightBracket) {
                         this.errorLocation = this.getLocations();
-                        this.flags |= Flags.HaveSeenRest;
+                        this.flags |= Flags.Rest;
                         this.expect(context, Token.Comma);
                     }
     
@@ -4932,7 +4934,7 @@ export class Parser {
     
             if (context & Context.Yield && !(state & ParenthesizedState.Yield) && this.token === Token.YieldKeyword) {
                 this.errorLocation = pos;
-                this.flags |= Flags.HaveSeenYield;
+                this.flags |= Flags.Yield;
             }
     
             if (!(state & ParenthesizedState.Parenthesized) && this.token === Token.LeftParen) {
@@ -5005,11 +5007,11 @@ export class Parser {
     
             if (this.token === Token.Arrow) {
                 if (this.flags & Flags.Operator) this.error(Errors.IllegalArrowFuncParamList);
-                if (state & ParenthesizedState.FutureReserved) this.flags |= Flags.BindingPosition;
-                if (this.flags & Flags.HaveSeenYield) this.error(Errors.InvalidArrowYieldParam);
+                if (state & ParenthesizedState.FutureReserved) this.flags |= Flags.Binding;
+                if (this.flags & Flags.Yield) this.error(Errors.InvalidArrowYieldParam);
                 if (state & ParenthesizedState.EvalOrArg) {
                     if (context & Context.Strict) this.error(Errors.StrictParamName);
-                    this.flags |= Flags.BindingPosition
+                    this.flags |= Flags.Binding
                 }
                 if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
                 return this.parseArrowFunctionExpression(context, pos, expr.type === 'SequenceExpression' ? expr.expressions : [expr]);
