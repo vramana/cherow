@@ -10,7 +10,7 @@ import { Options, SavedState, Location, EmitComments } from './interface';
 export class Parser {
     
         // The program to be parsed
-        private readonly source: string;
+        private source: string;
     
         // Current position (end position of text of current token)
         private index: number;
@@ -109,9 +109,6 @@ export class Parser {
 
             if (this.flags & Flags.OptionsComments) this.comments = options.comments;
             if (this.flags & (Flags.OptionsLoc | Flags.OptionsSource)) this.locSource = String(options.source);
-            // Implies strict mode, regardless of the existence of "use strict"
-            if (this.flags & Flags.OptionsImpliedStrict) this.source = '"use strict";' + source;
-
             if (options.plugins) {
                 for (let i = 0; i < options.plugins.length; i++) {
                     options.plugins[i](this);
@@ -120,6 +117,11 @@ export class Parser {
         }
 
         public parse(context: Context): ESTree.Program {
+
+            // enable implied strict mode if in sloppy mode
+            if (!(context & Context.Module) && this.flags & Flags.OptionsImpliedStrict) {
+                this.source = '"use strict";' + this.source;
+            }
 
             this.nextToken(context);
 

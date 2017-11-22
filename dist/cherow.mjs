@@ -393,9 +393,6 @@ var Parser = function Parser(source, options) {
         { this.comments = options.comments; }
     if (this.flags & (1048576 /* OptionsLoc */ | 2097152 /* OptionsSource */))
         { this.locSource = String(options.source); }
-    // Implies strict mode, regardless of the existence of "use strict"
-    if (this.flags & 1 /* OptionsImpliedStrict */)
-        { this.source = '"use strict";' + source; }
     if (options.plugins) {
         for (var i = 0; i < options.plugins.length; i++) {
             options.plugins[i](this$1);
@@ -403,6 +400,10 @@ var Parser = function Parser(source, options) {
     }
 };
 Parser.prototype.parse = function parse (context) {
+    // enable implied strict mode if in sloppy mode
+    if (!(context & 1 /* Module */) && this.flags & 1 /* OptionsImpliedStrict */) {
+        this.source = '"use strict";' + this.source;
+    }
     this.nextToken(context);
     var body = context & 1 /* Module */ ?
         this.parseModuleItemList(context) :
