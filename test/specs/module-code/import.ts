@@ -29,6 +29,12 @@ describe('Import', () => {
     }).to.throw();
   });
 
+  it('should fail on "import {a, a} from "module";"', () => {
+    expect(() => {
+      parseModule(`import {b as a, c as a} from "module";`);
+  }).to.throw();
+});
+
 it('should fail on "import {b as a, c as a} from "module";"', () => {
   expect(() => {
     parseModule(`import a, {a} from "module";`);

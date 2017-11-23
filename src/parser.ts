@@ -2107,7 +2107,7 @@ export class Parser {
                 // Note:  The `as` contextual keyword must not contain Unicode escape sequences.
                 if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
                 this.expect(context, Token.AsKeyword);
-                this.checkIfExistInBlockScope(this.tokenValue);
+                this.checkIfExistInBlockScope(this.tokenValue, true);
                 exported = this.parseIdentifierName(context, this.token);
             }
     
@@ -2151,14 +2151,14 @@ export class Parser {
                 if (this.token === Token.AsKeyword) {
                     if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
                     this.expect(context, Token.AsKeyword);
+                    this.checkIfExistInBlockScope(this.tokenValue, true);
                     local = this.parseBindingPatternOrIdentifier(context);
                 } else {
                     if (this.isEvalOrArguments(tokenValue)) this.error(Errors.UnexpectedStrictReserved);
-                    this.checkIfExistInFunctionScope(tokenValue);
+                    this.checkIfExistInBlockScope(tokenValue, true);
                     this.addBlockName(tokenValue);
                 }
             } else {
-
                 imported = this.parseIdentifierName(context, this.token);
                 this.expect(context, Token.AsKeyword);
                 local = this.parseBindingPatternOrIdentifier(context);
@@ -2205,7 +2205,7 @@ export class Parser {
             }
     
             this.expect(context, Token.AsKeyword);
-            this.checkIfExistInBlockScope(this.tokenValue);
+            this.checkIfExistInBlockScope(this.tokenValue, true);
             if (this.token !== Token.Identifier) this.throwUnexpectedToken();
     
             const local = this.parseIdentifier(context);
@@ -5273,13 +5273,13 @@ export class Parser {
             }
         }
     
-        private checkIfExistInBlockScope(name: string) {
+        private checkIfExistInBlockScope(name: string, binding: boolean = false) {
             if (!this.initBlockScope() && (
                     (this.blockScope[name] & ScopeMasks.Shadowable) !== 0 ||
                     Object.prototype.hasOwnProperty.call(this.blockScope, name)
                 )) {
     
-                this.error(Errors.DuplicateIdentifier, name);
+                this.error(binding ? Errors.DuplicateBinding : Errors.DuplicateIdentifier, name);
             }
         }
     

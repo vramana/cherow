@@ -72,3 +72,7 @@
 - Refactor plugin system
 - Finalized API for plugin system
 
+*2017-11-19: Version 0.15.6*
+- Refactor block scoping
+- Fixed early errors for module code
+- Throws correctly on duplicate import / export

@@ -2158,7 +2158,7 @@ Parser.prototype.parseExportSpecifier = function parseExportSpecifier (context) 
         if (this.flags & 2 /* ExtendedUnicodeEscape */)
             { this.error(64 /* UnexpectedEscapedKeyword */); }
         this.expect(context, 69739 /* AsKeyword */);
-        this.checkIfExistInBlockScope(this.tokenValue);
+        this.checkIfExistInBlockScope(this.tokenValue, true);
         exported = this.parseIdentifierName(context, this.token);
     }
     return this.finishNode(pos, {
@@ -2197,12 +2197,13 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
             if (this.flags & 2 /* ExtendedUnicodeEscape */)
                 { this.error(64 /* UnexpectedEscapedKeyword */); }
             this.expect(context, 69739 /* AsKeyword */);
+            this.checkIfExistInBlockScope(this.tokenValue, true);
             local = this.parseBindingPatternOrIdentifier(context);
         }
         else {
             if (this.isEvalOrArguments(tokenValue))
                 { this.error(76 /* UnexpectedStrictReserved */); }
-            this.checkIfExistInFunctionScope(tokenValue);
+            this.checkIfExistInBlockScope(tokenValue, true);
             this.addBlockName(tokenValue);
         }
     }
@@ -2242,7 +2243,7 @@ Parser.prototype.parseImportNamespaceSpecifier = function parseImportNamespaceSp
         this.error(64 /* UnexpectedEscapedKeyword */);
     }
     this.expect(context, 69739 /* AsKeyword */);
-    this.checkIfExistInBlockScope(this.tokenValue);
+    this.checkIfExistInBlockScope(this.tokenValue, true);
     if (this.token !== 262145 /* Identifier */)
         { this.throwUnexpectedToken(); }
     var local = this.parseIdentifier(context);
@@ -4901,10 +4902,12 @@ Parser.prototype.checkIfExistInFunctionScope = function checkIfExistInFunctionSc
         this.error(67 /* DuplicateIdentifier */, name);
     }
 };
-Parser.prototype.checkIfExistInBlockScope = function checkIfExistInBlockScope (name) {
+Parser.prototype.checkIfExistInBlockScope = function checkIfExistInBlockScope (name, binding) {
+        if ( binding === void 0 ) binding = false;
+
     if (!this.initBlockScope() && ((this.blockScope[name] & 1 /* Shadowable */) !== 0 ||
         Object.prototype.hasOwnProperty.call(this.blockScope, name))) {
-        this.error(67 /* DuplicateIdentifier */, name);
+        this.error(binding ? 68 /* DuplicateBinding */ : 67 /* DuplicateIdentifier */, name);
     }
 };
 Parser.prototype.addBlockName = function addBlockName (name) {
