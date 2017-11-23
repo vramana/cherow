@@ -140,7 +140,7 @@ describe('Miscellaneous - Keyword', () => {
     it('should fail on "\\u0069\\u{66} (1) {}"', () => {
         expect(() => {
             parseModule(`\\u0069\\u{66} (1) {}`);
-        }).to.not.throw();
+        }).to.throw();
     });
 
     it('should fail on "var i\\u0066"', () => {
