@@ -994,7 +994,7 @@ Parser.prototype.scanToken = function scanToken (context) {
                 return this$1.scanIdentifier(context, state);
             default:
                 if (isValidIdentifierStart(first))
-                    { return this$1.scanIdentifier(context, state); }
+                    { return this$1.scanIdentifier(context, state | 64 /* Unicode */); }
                 this$1.error(1 /* UnexpectedToken */, fromCodePoint(first));
         }
     }
@@ -1113,15 +1113,13 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context, state) {
         { ret += this.source.slice(start, this.index); }
     var len = ret.length;
     this.tokenValue = ret;
-    // Reserved words are between 2 and 11 characters long and start with a lowercase letter
+    if (state & 64 /* Unicode */)
+        { return 262145 /* Identifier */; }
+    // Keywords are between 2 and 11 characters long and start with a lowercase letter
     if (len >= 2 && len <= 11) {
-        var ch = ret.charCodeAt(0);
-        if (ch >= 97 /* LowerA */ && ch <= 122 /* LowerZ */) {
-            var token = descKeyword(ret);
-            if (token > 0) {
-                return token;
-            }
-        }
+        var token = descKeyword(ret);
+        if (token > 0)
+            { return token; }
     }
     return 262145 /* Identifier */;
 };
