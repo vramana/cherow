@@ -788,7 +788,7 @@ export class Parser {
                     case Chars.LowerZ:
                         return this.scanIdentifier(context, state);
                     default:
-                        if (isValidIdentifierStart(first)) return this.scanIdentifier(context, state);
+                        if (isValidIdentifierStart(first)) return this.scanIdentifier(context, state | Scanner.Unicode);
                         this.error(Errors.UnexpectedToken, fromCodePoint(first));
                 }
             }
@@ -923,18 +923,15 @@ export class Parser {
     
             const len = ret.length;
             this.tokenValue = ret;
-    
-            // Reserved words are between 2 and 11 characters long and start with a lowercase letter
+
+            if (state & Scanner.Unicode) return Token.Identifier;
+
+            // Keywords are between 2 and 11 characters long and start with a lowercase letter
             if (len >= 2 && len <= 11) {
-                const ch = ret.charCodeAt(0);
-                if (ch >= Chars.LowerA && ch <= Chars.LowerZ) {
-                    const token = descKeyword(ret);
-                    if (token > 0) {
-                        return token;
-                    }
-                }
+               const token = descKeyword(ret);
+               if (token > 0) return token;
             }
-    
+ 
             return Token.Identifier;
         }
     

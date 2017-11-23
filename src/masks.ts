@@ -30,6 +30,7 @@ export const enum Context {
     Pattern                = 1 << 26,
     Let                    = 1 << 27,  // Variable declaration
     Const                  = 1 << 28,  // Variable declaration
+    Isiah                  = 1 << 29,  // Variable declaration
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
@@ -134,6 +135,7 @@ export const enum Scanner {
     MultiLine       = 1 << 3, // MultiLine comment
     SingleLine      = 1 << 4, // SingleLine comment (HTML, Shebang or plain)
     Terminated      = 1 << 5, // If the node was closed or not
+    Unicode         = 1 << 6, // If the node was closed or not
 
     // Collectable comments - single and multiline (shebang excluded)
     Collectable = SingleLine | MultiLine
