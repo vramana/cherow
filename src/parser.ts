@@ -7,6 +7,7 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location, EmitComments } from './interface';
+
 export class Parser {
     
         // The program to be parsed
@@ -3140,11 +3141,7 @@ export class Parser {
                             this.error(Errors.InvalidVarDeclInForIn);
                         }
                     }
-                } else if (context & Context.Lexical) {
-                    if (!this.isInOrOfKeyword(this.token)) {
-                        this.error(Errors.DeclarationMissingInitializer);
-                    }
-                } else if (!(context & Context.ForStatement)) {
+                } else if (!this.isInOrOfKeyword(this.token)) {
                     this.error(Errors.DeclarationMissingInitializer);
                 }
     
@@ -3965,7 +3962,7 @@ export class Parser {
             const isEscaped = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
             const id = this.parseIdentifier(context);
             const flags = this.flags |= Flags.SimpleParameterList;
-    
+          
             switch (this.token) {
     
                 // 'parseAsyncFunctionExpression'
@@ -3990,7 +3987,7 @@ export class Parser {
                     // CoverCallExpressionAndAsyncArrowHead[Yield, Await]:
                 case Token.LeftParen:
                     // This could be either a CallExpression or the head of an async arrow function
-                    return this.parseAsyncArguments(context | Context.AllowIn, pos, id, flags, isEscaped);
+                    return this.parseAsyncArguments(context & ~Context.Yield | Context.AllowIn, pos, id, flags, isEscaped);
                 default:
                     // Async as Identifier
                     return id;
@@ -4008,7 +4005,7 @@ export class Parser {
             // speed up the "normal" CallExpression production. This also deal with the
             // CoverCallExpressionAndAsyncArrowHead production directly
             // J.K. Thomas
-    
+
             this.expect(context, Token.LeftParen);
     
             const args = [];
@@ -4677,7 +4674,7 @@ export class Parser {
         }
     
         private parseObjectElement(context: Context): ESTree.Property {
-    
+
             const pos = this.getLocations();
             const token = this.token;
             let state = ObjectState.None;
@@ -4742,7 +4739,7 @@ export class Parser {
                     break;
                 case Token.LeftBracket:
                     state |= ObjectState.Computed;
-                    key = this.parseComputedPropertyName(context | Context.AllowIn);
+                    key = this.parseComputedPropertyName(context);
                     break;
                 default:
                     if (this.isIdentifierOrKeyword(this.token)) {
@@ -4767,15 +4764,18 @@ export class Parser {
                         if (firstProto) this.error(Errors.DuplicateProtoProperty);
                         this.firstProto = true;
                     }
+                    
+                    
+                    
                     this.expect(context, Token.Colon);
     
                     if (context & Context.InAsyncArgs && this.token === Token.AwaitKeyword) {
                         this.errorLocation = this.getLocations();
                         this.flags |= Flags.Await;
                     }
-    
+                    
                     value = this.parseAssignmentExpression(context);
-    
+                    
                     if (context & Context.Strict && this.isEvalOrArguments((value as any).name)) {
                         this.error(Errors.UnexpectedStrictReserved);
                     }
@@ -4902,7 +4902,7 @@ export class Parser {
         // ParenthesizedExpression[Yield, Await]:
         // CoverParenthesizedExpressionAndArrowParameterList[Yield, Await]:
         private parseParenthesizedExpression(context: Context): ESTree.Expression {
-    
+
             const pos = this.getLocations();
     
             this.expect(context, Token.LeftParen);
@@ -5436,6 +5436,7 @@ export class Parser {
     
         private parseComputedPropertyName(context: Context): ESTree.Expression {
             this.expect(context, Token.LeftBracket);
+            if (this.token === Token.YieldKeyword) this.flags |= Flags.Yield;
             const expression = this.parseAssignmentExpression(context | Context.AllowIn);
             this.expect(context, Token.RightBracket);
             return expression;
@@ -5493,7 +5494,6 @@ export class Parser {
     
     
                 if (this.parseEventually(context, Token.Colon)) {
-    
                     value = this.parseAssignmentPattern(context);
                 } else {
     

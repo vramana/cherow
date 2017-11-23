@@ -10,7 +10,7 @@ describe('Expressions - Async function', () => {
             parseScript(`function* wrap() {
           async(a = yield b) => a
         };`);
-        }).to.not.throw()
+        }).to.throw()
     });
 
     it('should fail on escaped async function', () => {

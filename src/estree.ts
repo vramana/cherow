@@ -5,6 +5,7 @@ interface _Node<T extends string> {
     end?: number;
     leadingComments?: Comment[];
     trailingComments?: Comment[];
+    innerComments?: Comment[];
 }
 
 export interface T_Node extends T_Statement, T_Expression, T_Pattern,
