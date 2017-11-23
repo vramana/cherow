@@ -5,7 +5,6 @@ const expect = chai.expect;
 
 describe('Module - Export', () => {
 
-
   it('should fail if the "from" contextual keyword contain Unicode escape sequences.', () => {
     expect(() => {
       parseModule(`export {} \\u0066rom "./escaped-from.js";`);
@@ -13,9 +12,59 @@ describe('Module - Export', () => {
 
   });
 
+  it('should fail on "export {a, b as a};"', () => {
+    expect(() => {
+      parseModule(`export {a, b as a};`);
+  }).to.throw();
+
+  });
+
+  it('should fail on "let a, b; export {a, b as a};"', () => {
+    expect(() => {
+      parseModule(`let a, b; export {a, b as a};`);
+  }).to.throw();
+
+  });
+
+  it('should fail on "export let a; let b; export {b as a};"', () => {
+    expect(() => {
+      parseModule(`export let a; let b; export {b as a};`);
+  }).to.not.throw();
+
+  });
+
+  it('should fail on "export {a, b as a};"', () => {
+    expect(() => {
+      parseModule(`export {a}; export function a(){};`);
+  }).to.not.throw();
+
+  });
+
+  it('should fail on "import a, * as a from "module";"', () => {
+    expect(() => {
+      parseModule(`import a, * as a from "isiah";`);
+  }).to.throw();
+
+  });
+  
+  it('should fail on "export {a, b as a};"', () => {
+    expect(() => {
+      parseModule(`export {a}; export class a(){};`);
+  }).to.throw();
+
+  });
+  
+
   it('should fail if the "default" contextual keyword contain Unicode escape sequences.', () => {
     expect(() => {
       parseModule(`export d\\u0065fault 0;`);
+  }).to.throw();
+
+  });
+  
+  it('should fail if the "default" contextual keyword contain Unicode escape sequences.', () => {
+    expect(() => {
+      parseModule(`with ({}) async function f() {}`);
   }).to.throw();
 
   });
@@ -84,6 +133,19 @@ describe('Module - Export', () => {
       }).to.throw();
 
     });
+
+    it('should fail if the "default" contextual keyword contain Unicode escape sequences.', () => {
+      expect(() => {
+        parseModule(`let a; export function a(){};`);
+    }).to.throw();
+  });
+
+  it('should fail if the "default" contextual keyword contain Unicode escape sequeaaaances.', () => {
+    expect(() => {
+      parseModule(`import a, {b as a} from "module";`);
+  }).to.throw();
+});
+  
 
     it('should fail on "export * from 123;"', () => {
       expect(() => {

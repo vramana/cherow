@@ -17,6 +17,36 @@ describe('Import', () => {
     
       });
 
+      it('should fail on duplicate', () => {
+        expect(() => {
+          parseModule(`import a, {b as a} from "module";`);
+      }).to.throw();
+    });  
+
+    it('should fail on "import {a, a} from "module";"', () => {
+      expect(() => {
+        parseModule(`import {a, a} from "module";`);
+    }).to.throw();
+  });
+
+it('should fail on "import {b as a, c as a} from "module";"', () => {
+  expect(() => {
+    parseModule(`import a, {a} from "module";`);
+}).to.throw();
+});
+
+it('should fail on "import {b as a, c as a} from "module";"', () => {
+  expect(() => {
+    parseModule(`import a, {b as a} from "module";`);
+}).to.throw();
+});
+
+    it('should fail on duplicate', () => {
+      expect(() => {
+        parseModule(`import a, * as a from "module";`);
+    }).to.throw();
+  });
+
       it('should fail on import as of arguments', () => {
           expect(() => {
               parseModule('import { x as arguments } from "./cherow.js";');

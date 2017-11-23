@@ -413,24 +413,25 @@ export class Parser {
                             const next = this.nextChar();
     
                             switch (next) {
-     
-                                case Chars.Hyphen: {
-                                    this.advance();
     
-                                    if (context & Context.Module || !(state & Scanner.LineStart)) return Token.Decrement;
+                                case Chars.Hyphen:
+                                    {
+                                        this.advance();
     
-                                    if (this.consume(Chars.GreaterThan)) {
-                                        this.skipComments(state | Scanner.SingleLine);
-                                        continue;
+                                        if (context & Context.Module || !(state & Scanner.LineStart)) return Token.Decrement;
+    
+                                        if (this.consume(Chars.GreaterThan)) {
+                                            this.skipComments(state | Scanner.SingleLine);
+                                            continue;
+                                        }
+    
+                                        return Token.Decrement;
                                     }
     
-                                    return Token.Decrement;
-                                }
-
-                                case Chars.EqualSign: 
+                                case Chars.EqualSign:
                                     this.advance();
                                     return Token.SubtractAssign;
-
+    
                                 default:
                                     return Token.Subtract;
                             }
@@ -956,16 +957,16 @@ export class Parser {
         }
     
         private peekExtendedUnicodeEscape(): Chars {
-
+    
             let ch = this.scanNext();
-
+    
             let code = 0;
     
             // '\u{DDDDDDDD}'
             if (ch === Chars.LeftBrace) { // {
-
+    
                 ch = this.scanNext(Errors.InvalidHexEscapeSequence);
-
+    
                 while (ch !== Chars.RightBrace) {
                     const digit = toHex(ch);
                     if (digit < 0) this.error(Errors.InvalidHexEscapeSequence);
@@ -975,19 +976,19 @@ export class Parser {
                 }
     
             } else {
-
-            // '\uDDDD'
-            code = toHex(ch);
     
-            if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
+                // '\uDDDD'
+                code = toHex(ch);
     
-            for (let i = 0; i < 3; i++) {
-                ch = this.scanNext(Errors.InvalidHexEscapeSequence);
-                const digit = toHex(ch);
                 if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
-                code = code << 4 | digit;
+    
+                for (let i = 0; i < 3; i++) {
+                    ch = this.scanNext(Errors.InvalidHexEscapeSequence);
+                    const digit = toHex(ch);
+                    if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
+                    code = code << 4 | digit;
+                }
             }
-        }
             return code;
         }
     
@@ -2013,9 +2014,8 @@ export class Parser {
                     const parentScope = this.parentScope;
     
                     this.functionScope = undefined;
-                    this.blockScope = undefined;
                     this.parentScope = undefined;
-    
+                    this.blockScope = undefined;
     
                     this.expect(context, Token.LeftBrace);
     
@@ -2028,6 +2028,7 @@ export class Parser {
                     }
     
                     this.expect(context, Token.RightBrace);
+    
                     this.functionScope = functionScope;
                     this.blockScope = blockScope;
                     this.parentScope = parentScope;
@@ -2092,8 +2093,11 @@ export class Parser {
         }
     
         private parseExportSpecifier(context: Context): ESTree.ExportSpecifier {
+    
             const pos = this.getLocations();
+    
             if (this.token === Token.Identifier) this.addBlockName(this.tokenValue);
+    
             const local = this.parseIdentifierName(context, this.token);
     
             let exported = local;
@@ -2103,6 +2107,7 @@ export class Parser {
                 // Note:  The `as` contextual keyword must not contain Unicode escape sequences.
                 if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
                 this.expect(context, Token.AsKeyword);
+                this.checkIfExistInBlockScope(this.tokenValue);
                 exported = this.parseIdentifierName(context, this.token);
             }
     
@@ -2136,26 +2141,27 @@ export class Parser {
     
             const pos = this.getLocations();
             const tokenValue = this.tokenValue;
-    
+
             let imported;
             let local;
     
             if (this.isIdentifier(context, this.token)) {
-                const t = this.tokenValue;
                 imported = this.parseIdentifier(context);
                 local = imported;
                 if (this.token === Token.AsKeyword) {
                     if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
                     this.expect(context, Token.AsKeyword);
                     local = this.parseBindingPatternOrIdentifier(context);
-                } else if (this.isEvalOrArguments(tokenValue)) {
-                    this.error(Errors.UnexpectedStrictReserved);
+                } else {
+                    if (this.isEvalOrArguments(tokenValue)) this.error(Errors.UnexpectedStrictReserved);
+                    this.checkIfExistInFunctionScope(tokenValue);
+                    this.addBlockName(tokenValue);
                 }
             } else {
+
                 imported = this.parseIdentifierName(context, this.token);
                 this.expect(context, Token.AsKeyword);
                 local = this.parseBindingPatternOrIdentifier(context);
-    
             }
     
             return this.finishNode(pos, {
@@ -2171,12 +2177,6 @@ export class Parser {
             specifiers: (ESTree.ImportSpecifier | ESTree.ImportDefaultSpecifier | ESTree.ImportNamespaceSpecifier)[]
         ) {
     
-            const blockScope = this.blockScope;
-            const parentScope = this.parentScope;
-            if (blockScope != null) this.parentScope = blockScope;
-            this.blockScope = undefined;
-    
-    
             this.expect(context, Token.LeftBrace);
             while (this.token !== Token.RightBrace) {
                 // only accepts identifiers or keywords
@@ -2187,8 +2187,6 @@ export class Parser {
             }
     
             this.expect(context, Token.RightBrace);
-            this.blockScope = blockScope;
-            if (parentScope != null) this.parentScope = parentScope;
         }
     
         // import <* as foo> ...;
@@ -2207,7 +2205,7 @@ export class Parser {
             }
     
             this.expect(context, Token.AsKeyword);
-    
+            this.checkIfExistInBlockScope(this.tokenValue);
             if (this.token !== Token.Identifier) this.throwUnexpectedToken();
     
             const local = this.parseIdentifier(context);
@@ -2248,11 +2246,18 @@ export class Parser {
     
             this.expect(context, Token.ImportKeyword);
     
+            const blockScope = this.blockScope;
+            const parentScope = this.parentScope;
+            if (blockScope != null) this.parentScope = blockScope;
+            this.blockScope = undefined;
+    
             switch (this.token) {
     
                 // import 'foo';
                 case Token.StringLiteral:
                     {
+    
+                        this.addBlockName(this.tokenValue);
                         const source = this.parseModuleSpecifier(context);
                         this.consumeSemicolon(context);
                         return this.finishNode(pos, {
@@ -2265,6 +2270,7 @@ export class Parser {
                 case Token.Identifier:
                     {
                         const tokenValue = this.tokenValue;
+                        this.addBlockName(tokenValue)
                         specifiers.push(this.parseImportDefaultSpecifier(context));
                         if (this.parseEventually(context, Token.Comma)) {
                             switch (this.token) {
@@ -2306,6 +2312,9 @@ export class Parser {
             const src = this.parseModuleSpecifier(context);
     
             this.consumeSemicolon(context);
+    
+            this.blockScope = blockScope;
+            if (parentScope != null) this.parentScope = parentScope;
     
             return this.finishNode(pos, {
                 type: 'ImportDeclaration',
@@ -3850,12 +3859,7 @@ export class Parser {
                         }
     
                         if (context & Context.TopLevel && !(context & Context.AnnexB)) {
-                            if (!this.initBlockScope() && (
-                                    this.blockScope !== this.functionScope && this.blockScope[name] ||
-                                    this.blockScope[name] === ScopeMasks.NonShadowable
-                                )) {
-                                this.error(Errors.DuplicateIdentifier, name);
-                            }
+                            this.checkIfExistInFunctionScope(name);
                             this.blockScope[name] = ScopeMasks.Shadowable;
                         }
     
@@ -4310,12 +4314,7 @@ export class Parser {
                 const name = this.tokenValue;
     
                 if (!(context & Context.Expression)) {
-                    if (!this.initBlockScope() && (
-                            this.blockScope !== this.functionScope && this.blockScope[name] ||
-                            this.blockScope[name] === ScopeMasks.NonShadowable
-                        )) {
-                        this.error(Errors.DuplicateBinding, name);
-                    }
+                    this.checkIfExistInFunctionScope(name);
                     this.blockScope[name] = ScopeMasks.Shadowable;
                 }
     
@@ -5259,10 +5258,29 @@ export class Parser {
     
         private addVarName(name: string) {
             if (!this.initFunctionScope() && this.blockScope !== undefined &&
-                this.blockScope[name] === ScopeMasks.NonShadowable) {
+                (this.blockScope[name] & ScopeMasks.NonShadowable) !== 0) {
                 this.error(Errors.DuplicateIdentifier, name);
             }
             this.functionScope[name] = ScopeMasks.Shadowable;
+        }
+    
+        private checkIfExistInFunctionScope(name: string) {
+            if (!this.initBlockScope() && (
+                    this.blockScope !== this.functionScope && this.blockScope[name] ||
+                    (this.blockScope[name] & ScopeMasks.NonShadowable) !== 0
+                )) {
+                this.error(Errors.DuplicateIdentifier, name);
+            }
+        }
+    
+        private checkIfExistInBlockScope(name: string) {
+            if (!this.initBlockScope() && (
+                    (this.blockScope[name] & ScopeMasks.Shadowable) !== 0 ||
+                    Object.prototype.hasOwnProperty.call(this.blockScope, name)
+                )) {
+    
+                this.error(Errors.DuplicateIdentifier, name);
+            }
         }
     
         private addBlockName(name: string) {
@@ -5276,15 +5294,7 @@ export class Parser {
                 default: // ignore
             }
     
-            if (!this.initBlockScope() && (
-                    // Check `var` variables
-                    this.blockScope[name] === ScopeMasks.Shadowable ||
-                    // Check variables in current block only
-                    Object.prototype.hasOwnProperty.call(this.blockScope, name)
-                )) {
-                this.error(Errors.DuplicateIdentifier, name);
-            }
-    
+            this.checkIfExistInBlockScope(name);
             this.blockScope[name] = ScopeMasks.NonShadowable;
         }
     

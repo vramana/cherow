@@ -667,16 +667,17 @@ Parser.prototype.scanToken = function scanToken (context) {
                     this$1.advance(); // skip '-'
                     var next$2 = this$1.nextChar();
                     switch (next$2) {
-                        case 45 /* Hyphen */: {
-                            this$1.advance();
-                            if (context & 1 /* Module */ || !(state & 4 /* LineStart */))
-                                { return 786460 /* Decrement */; }
-                            if (this$1.consume(62 /* GreaterThan */)) {
-                                this$1.skipComments(state | 16 /* SingleLine */);
-                                continue;
+                        case 45 /* Hyphen */:
+                            {
+                                this$1.advance();
+                                if (context & 1 /* Module */ || !(state & 4 /* LineStart */))
+                                    { return 786460 /* Decrement */; }
+                                if (this$1.consume(62 /* GreaterThan */)) {
+                                    this$1.skipComments(state | 16 /* SingleLine */);
+                                    continue;
+                                }
+                                return 786460 /* Decrement */;
                             }
-                            return 786460 /* Decrement */;
-                        }
                         case 61 /* EqualSign */:
                             this$1.advance();
                             return 1310755 /* SubtractAssign */;
@@ -2079,8 +2080,8 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
             var blockScope = this.blockScope;
             var parentScope = this.parentScope;
             this.functionScope = undefined;
-            this.blockScope = undefined;
             this.parentScope = undefined;
+            this.blockScope = undefined;
             this.expect(context, 393228 /* LeftBrace */);
             while (this.token !== 15 /* RightBrace */) {
                 if (hasMask(this$1.token, 12288 /* Reserved */))
@@ -2157,6 +2158,7 @@ Parser.prototype.parseExportSpecifier = function parseExportSpecifier (context) 
         if (this.flags & 2 /* ExtendedUnicodeEscape */)
             { this.error(64 /* UnexpectedEscapedKeyword */); }
         this.expect(context, 69739 /* AsKeyword */);
+        this.checkIfExistInBlockScope(this.tokenValue);
         exported = this.parseIdentifierName(context, this.token);
     }
     return this.finishNode(pos, {
@@ -2189,7 +2191,6 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
     var imported;
     var local;
     if (this.isIdentifier(context, this.token)) {
-        var t = this.tokenValue;
         imported = this.parseIdentifier(context);
         local = imported;
         if (this.token === 69739 /* AsKeyword */) {
@@ -2198,8 +2199,11 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
             this.expect(context, 69739 /* AsKeyword */);
             local = this.parseBindingPatternOrIdentifier(context);
         }
-        else if (this.isEvalOrArguments(tokenValue)) {
-            this.error(76 /* UnexpectedStrictReserved */);
+        else {
+            if (this.isEvalOrArguments(tokenValue))
+                { this.error(76 /* UnexpectedStrictReserved */); }
+            this.checkIfExistInFunctionScope(tokenValue);
+            this.addBlockName(tokenValue);
         }
     }
     else {
@@ -2217,11 +2221,6 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
 Parser.prototype.parseNamedImports = function parseNamedImports (context, specifiers) {
         var this$1 = this;
 
-    var blockScope = this.blockScope;
-    var parentScope = this.parentScope;
-    if (blockScope != null)
-        { this.parentScope = blockScope; }
-    this.blockScope = undefined;
     this.expect(context, 393228 /* LeftBrace */);
     while (this.token !== 15 /* RightBrace */) {
         // only accepts identifiers or keywords
@@ -2231,9 +2230,6 @@ Parser.prototype.parseNamedImports = function parseNamedImports (context, specif
         }
     }
     this.expect(context, 15 /* RightBrace */);
-    this.blockScope = blockScope;
-    if (parentScope != null)
-        { this.parentScope = parentScope; }
 };
 // import <* as foo> ...;
 Parser.prototype.parseImportNamespaceSpecifier = function parseImportNamespaceSpecifier (context) {
@@ -2246,6 +2242,7 @@ Parser.prototype.parseImportNamespaceSpecifier = function parseImportNamespaceSp
         this.error(64 /* UnexpectedEscapedKeyword */);
     }
     this.expect(context, 69739 /* AsKeyword */);
+    this.checkIfExistInBlockScope(this.tokenValue);
     if (this.token !== 262145 /* Identifier */)
         { this.throwUnexpectedToken(); }
     var local = this.parseIdentifier(context);
@@ -2278,10 +2275,16 @@ Parser.prototype.parseImportDeclaration = function parseImportDeclaration (conte
     var pos = this.getLocations();
     var specifiers = [];
     this.expect(context, 274521 /* ImportKeyword */);
+    var blockScope = this.blockScope;
+    var parentScope = this.parentScope;
+    if (blockScope != null)
+        { this.parentScope = blockScope; }
+    this.blockScope = undefined;
     switch (this.token) {
         // import 'foo';
         case 262147 /* StringLiteral */:
             {
+                this.addBlockName(this.tokenValue);
                 var source = this.parseModuleSpecifier(context);
                 this.consumeSemicolon(context);
                 return this.finishNode(pos, {
@@ -2293,6 +2296,7 @@ Parser.prototype.parseImportDeclaration = function parseImportDeclaration (conte
         case 262145 /* Identifier */:
             {
                 var tokenValue = this.tokenValue;
+                this.addBlockName(tokenValue);
                 specifiers.push(this.parseImportDefaultSpecifier(context));
                 if (this.parseEventually(context, 18 /* Comma */)) {
                     switch (this.token) {
@@ -2327,6 +2331,9 @@ Parser.prototype.parseImportDeclaration = function parseImportDeclaration (conte
     this.expect(context, 69745 /* FromKeyword */);
     var src = this.parseModuleSpecifier(context);
     this.consumeSemicolon(context);
+    this.blockScope = blockScope;
+    if (parentScope != null)
+        { this.parentScope = parentScope; }
     return this.finishNode(pos, {
         type: 'ImportDeclaration',
         specifiers: specifiers,
@@ -3610,10 +3617,7 @@ Parser.prototype.parseFunction = function parseFunction (context, pos, state /* 
                     this.error(107 /* InvalidAwaitInAsyncFunc */);
                 }
                 if (context & 1024 /* TopLevel */ && !(context & 4096 /* AnnexB */)) {
-                    if (!this.initBlockScope() && (this.blockScope !== this.functionScope && this.blockScope[name] ||
-                        this.blockScope[name] === 2 /* NonShadowable */)) {
-                        this.error(67 /* DuplicateIdentifier */, name);
-                    }
+                    this.checkIfExistInFunctionScope(name);
                     this.blockScope[name] = 1 /* Shadowable */;
                 }
                 id = this.parseBindingIdentifier(context);
@@ -4026,10 +4030,7 @@ Parser.prototype.parseClass = function parseClass (context) {
     if (this.isIdentifier(context, this.token)) {
         var name = this.tokenValue;
         if (!(context & 33554432 /* Expression */)) {
-            if (!this.initBlockScope() && (this.blockScope !== this.functionScope && this.blockScope[name] ||
-                this.blockScope[name] === 2 /* NonShadowable */)) {
-                this.error(68 /* DuplicateBinding */, name);
-            }
+            this.checkIfExistInFunctionScope(name);
             this.blockScope[name] = 1 /* Shadowable */;
         }
         id = context & 33554432 /* Expression */ ? this.parseIdentifier(context | 2 /* Strict */) : this.parseBindingIdentifier(context | 2 /* Strict */);
@@ -4889,10 +4890,22 @@ Parser.prototype.addVarOrBlock = function addVarOrBlock (context, name) {
 };
 Parser.prototype.addVarName = function addVarName (name) {
     if (!this.initFunctionScope() && this.blockScope !== undefined &&
-        this.blockScope[name] === 2 /* NonShadowable */) {
+        (this.blockScope[name] & 2 /* NonShadowable */) !== 0) {
         this.error(67 /* DuplicateIdentifier */, name);
     }
     this.functionScope[name] = 1 /* Shadowable */;
+};
+Parser.prototype.checkIfExistInFunctionScope = function checkIfExistInFunctionScope (name) {
+    if (!this.initBlockScope() && (this.blockScope !== this.functionScope && this.blockScope[name] ||
+        (this.blockScope[name] & 2 /* NonShadowable */) !== 0)) {
+        this.error(67 /* DuplicateIdentifier */, name);
+    }
+};
+Parser.prototype.checkIfExistInBlockScope = function checkIfExistInBlockScope (name) {
+    if (!this.initBlockScope() && ((this.blockScope[name] & 1 /* Shadowable */) !== 0 ||
+        Object.prototype.hasOwnProperty.call(this.blockScope, name))) {
+        this.error(67 /* DuplicateIdentifier */, name);
+    }
 };
 Parser.prototype.addBlockName = function addBlockName (name) {
     switch (name) {
@@ -4904,13 +4917,7 @@ Parser.prototype.addBlockName = function addBlockName (name) {
             this.error(67 /* DuplicateIdentifier */, name);
         default: // ignore
     }
-    if (!this.initBlockScope() && (
-    // Check `var` variables
-    this.blockScope[name] === 1 /* Shadowable */ ||
-        // Check variables in current block only
-        Object.prototype.hasOwnProperty.call(this.blockScope, name))) {
-        this.error(67 /* DuplicateIdentifier */, name);
-    }
+    this.checkIfExistInBlockScope(name);
     this.blockScope[name] = 2 /* NonShadowable */;
 };
 Parser.prototype.parseAssignmentPattern = function parseAssignmentPattern (context, pos, pattern) {
