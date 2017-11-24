@@ -1741,7 +1741,7 @@ export class Parser {
             // option are set for it. 
             if (this.flags & Flags.OptionsDirectives) {
                 while (this.token === Token.StringLiteral) {
-                    statements.push(this.parseDirective(context | Context.AllowIn));
+                    statements.push(this.parseDirective(context));
                 }
             }
     
@@ -1754,7 +1754,7 @@ export class Parser {
     
         private parseDirective(context: Context): ESTree.ExpressionStatement {
             const pos = this.getLocations();
-            const expr = this.parseExpression(context, pos);
+            const expr = this.parseExpression(context | Context.AllowIn, pos);
             const directive = this.tokenRaw.slice(1, -1);
             this.consumeSemicolon(context);
             const node = this.finishNode(pos, {
@@ -4366,8 +4366,6 @@ export class Parser {
                     this.fieldSet = undefined;
                 }
             }
-    
-            this.flags = savedFlags;
     
             return this.finishNode(pos, {
                 type: context & Context.Expression ? 'ClassExpression' : 'ClassDeclaration',

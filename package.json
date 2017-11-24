@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "0.15.6",
+  "version": "0.15.7",
   "description": "Fast, standard-compliant ECMAScript parser written in ECMAScript",
   "main": "dist/cherow.js",
   "author": "KFlash",
@@ -59,9 +59,9 @@
     "nyc": "^11.2.1",
     "rimraf": "^2.6.2",
     "rollup": "^0.51.8",
+    "test262": "git+https://github.com/tc39/test262.git",
     "rollup-plugin-buble": "^0.18.0",
     "rollup-plugin-uglify": "2.0.1",
-    "test262-parser-tests": "0.0.3",
     "ts-node": "^3.3.0",
     "tslint": "5.8.0",
     "typescript": "^2.6.1"
