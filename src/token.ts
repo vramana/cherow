@@ -163,8 +163,6 @@ export const enum Token {
 
     /** State 3 proposals */
     Hash               = 117,
-
-    ReservedWord       = 118,
 }
 
 const KeywordDescTable = [

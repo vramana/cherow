@@ -2731,7 +2731,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
                 { this.error(0 /* Unexpected */); }
         }
         else {
-            this.reinterpretAsPattern(context | 524288 /* ForStatement */, init);
+            this.reinterpretAsPattern(context, init);
         }
         test = this.parseExpression(context, pos);
         body = this.parseForBody(context, pos);
@@ -2753,7 +2753,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
     this.expect(context, 17 /* Semicolon */);
     if (this.token !== 16 /* RightParen */)
         { update = this.parseExpression(context, pos); }
-    body = this.parseForBody(context, pos);
+    body = this.parseForBody(context & ~524288 /* ForStatement */, pos);
     this.blockScope = blockScope;
     if (blockScope !== undefined)
         { this.parentScope = parentScope; }
@@ -3848,9 +3848,6 @@ Parser.prototype.parseSpreadElement = function parseSpreadElement (context) {
     if (context & 16384 /* Import */)
         { this.throwUnexpectedToken(); }
     this.expect(context, 14 /* Ellipsis */);
-    if (context & 2 /* Strict */ && this.isEvalOrArguments(this.tokenValue)) {
-        this.error(76 /* UnexpectedStrictReserved */);
-    }
     // Object rest element needs to be the last AssignmenProperty in 
     // ObjectAssignmentPattern. (For..in statement)
     if (context & 524288 /* ForStatement */ && this.token === 18 /* Comma */) {
@@ -4000,8 +3997,8 @@ Parser.prototype.parseLet = function parseLet (context) {
     if (context & 2 /* Strict */)
         { this.error(84 /* InvalidStrictExpPostion */, tokenDesc(this.token)); }
     this.nextToken(context);
-    if (this.flags & 1 /* PrecedingLineBreak */ && !(this.flags & 32 /* IterationStatement */))
-        { this.error(0 /* Unexpected */); }
+    if (!(context & 524288 /* ForStatement */) && this.flags & 1 /* PrecedingLineBreak */)
+        { this.throwUnexpectedToken(); }
     if (this.token === 8671304 /* LetKeyword */)
         { this.error(84 /* InvalidStrictExpPostion */, tokenDesc(this.token)); }
     return this.finishNode(pos, {

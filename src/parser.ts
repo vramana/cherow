@@ -2800,7 +2800,7 @@ export class Parser {
                 if (declarations) {
                     if (declarations.length !== 1) this.error(Errors.Unexpected);
                 } else {
-                    this.reinterpretAsPattern(context | Context.ForStatement, init);
+                    this.reinterpretAsPattern(context, init);
                 }
     
                 test = this.parseExpression(context, pos);
@@ -2821,15 +2821,15 @@ export class Parser {
             }
     
             let update = null;
-    
+
             this.expect(context, Token.Semicolon);
     
             if (this.token !== Token.Semicolon) test = this.parseExpression(context, pos);
             this.expect(context, Token.Semicolon);
             if (this.token !== Token.RightParen) update = this.parseExpression(context, pos);
     
-            body = this.parseForBody(context, pos);
-    
+            body = this.parseForBody(context & ~Context.ForStatement, pos);
+
             this.blockScope = blockScope;
             if (blockScope !== undefined) this.parentScope = parentScope;
     
@@ -3139,7 +3139,7 @@ export class Parser {
         }
     
         private parseVariableDeclaration(context: Context): ESTree.VariableDeclarator {
-    
+            
             const pos = this.getLocations();
             const token = this.token;
             let id = this.parseBindingPatternOrIdentifier(context);
@@ -3147,7 +3147,6 @@ export class Parser {
             let init: ESTree.Expression | null = null;
     
             if (hasMask(token, Token.BindingPattern)) {
-    
                 if (this.parseEventually(context, Token.Assign)) {
                     init = this.parseAssignmentExpression(context & ~(Context.Lexical | Context.ForStatement));
                     if (!(context & Context.Lexical) && context & Context.ForStatement) {
@@ -4124,9 +4123,7 @@ export class Parser {
             // Disallow SpreadElement inside dynamic import
             if (context & Context.Import) this.throwUnexpectedToken();
             this.expect(context, Token.Ellipsis);
-            if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) {
-                this.error(Errors.UnexpectedStrictReserved);
-            }
+
             // Object rest element needs to be the last AssignmenProperty in 
             // ObjectAssignmentPattern. (For..in statement)
             if (context & Context.ForStatement && this.token === Token.Comma) {
@@ -4285,7 +4282,7 @@ export class Parser {
             if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword)
             if (context & Context.Strict) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
             this.nextToken(context);
-            if (this.flags & Flags.PrecedingLineBreak && !(this.flags & Flags.IterationStatement)) this.error(Errors.Unexpected);
+            if (!(context & Context.ForStatement) && this.flags & Flags.PrecedingLineBreak) this.throwUnexpectedToken();
             if (this.token === Token.LetKeyword) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
             return this.finishNode(pos, {
                 type: 'Identifier',
