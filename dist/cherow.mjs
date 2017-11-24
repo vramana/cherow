@@ -1841,7 +1841,7 @@ Parser.prototype.parseModuleItemList = function parseModuleItemList (context) {
     // option are set for it. 
     if (this.flags & 33554432 /* OptionsDirectives */) {
         while (this.token === 262147 /* StringLiteral */) {
-            statements.push(this$1.parseDirective(context | 4 /* AllowIn */));
+            statements.push(this$1.parseDirective(context));
         }
     }
     while (this.token !== 0 /* EndOfSource */) {
@@ -1851,7 +1851,7 @@ Parser.prototype.parseModuleItemList = function parseModuleItemList (context) {
 };
 Parser.prototype.parseDirective = function parseDirective (context) {
     var pos = this.getLocations();
-    var expr = this.parseExpression(context, pos);
+    var expr = this.parseExpression(context | 4 /* AllowIn */, pos);
     var directive = this.tokenRaw.slice(1, -1);
     this.consumeSemicolon(context);
     var node = this.finishNode(pos, {
@@ -4073,7 +4073,6 @@ Parser.prototype.parseClass = function parseClass (context) {
             this.fieldSet = undefined;
         }
     }
-    this.flags = savedFlags;
     return this.finishNode(pos, {
         type: context & 33554432 /* Expression */ ? 'ClassExpression' : 'ClassDeclaration',
         id: id,
