@@ -3310,7 +3310,7 @@ export class Parser {
                     // ObjectPattern and ObjectExpression are isomorphic
                     for (let i = 0; i < params.properties.length; i++) {
                         const property = params.properties[i];
-                        this.reinterpretAsPattern(context, !property.type ? property.value : property);
+                        this.reinterpretAsPattern(context, property.value ? property.value : property);
                     }
                     return;
     

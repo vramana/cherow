@@ -3166,7 +3166,7 @@ Parser.prototype.reinterpretAsPattern = function reinterpretAsPattern (context, 
             // ObjectPattern and ObjectExpression are isomorphic
             for (var i = 0; i < params.properties.length; i++) {
                 var property = params.properties[i];
-                this$1.reinterpretAsPattern(context, !property.type ? property.value : property);
+                this$1.reinterpretAsPattern(context, property.value ? property.value : property);
             }
             return;
         case 'ArrayExpression':
