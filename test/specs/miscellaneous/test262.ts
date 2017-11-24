@@ -364,7 +364,7 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/template-literal/tv-null-character-escape-sequence.js',
         'test/language/expressions/tagged-template/invalid-escape-sequences.js',
         'test/language/expressions/this/S11.1.1_A1.js',
-        'test/language/literals/regexp/S7.8.5_A1.5_T1.js ',
+        'test/language/literals/regexp/S7.8.5_A1.5_T1.js',
         'test/language/statements/class/**/*.*'
     ],
     parse: (file: string, source: string, opts: any) => {
