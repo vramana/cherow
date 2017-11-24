@@ -3172,7 +3172,7 @@ Parser.prototype.reinterpretAsPattern = function reinterpretAsPattern (context, 
             // ObjectPattern and ObjectExpression are isomorphic
             for (var i = 0; i < params.properties.length; i++) {
                 var property = params.properties[i];
-                this$1.reinterpretAsPattern(context, property.type === 'SpreadElement' ? property : property.value);
+                this$1.reinterpretAsPattern(context, !property.type ? property.value : property);
             }
             return;
         case 'ArrayExpression':
@@ -3313,6 +3313,11 @@ Parser.prototype.parseBinaryExpression = function parseBinaryExpression (context
     return expr;
 };
 // 12.5 Unary Operators
+Parser.prototype.isPrivateName = function isPrivateName (expr) {
+    if (!expr.argument.property)
+        { return false; }
+    return expr.argument.property.type === 'PrivateName';
+};
 Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) {
     // Fast path for "await" expression
     if (context & 32 /* Await */ && this.token === 331885 /* AwaitKeyword */) {
@@ -3326,9 +3331,10 @@ Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) 
         // When a delete operator occurs within strict mode code, a SyntaxError is thrown if its
         // UnaryExpression is a direct reference to a variable, function argument, or function name
         if (context & 2 /* Strict */ && token === 4468779 /* DeleteKeyword */) {
-            if (expr.argument.type === 'Identifier')
-                { this.error(44 /* StrictDelete */); }
-            if (!(context & 1 /* Module */) && this.flags & 16777216 /* OptionsNext */ && expr.argument.property.type === 'PrivateName') {
+            if (expr.argument.type === 'Identifier') {
+                this.error(44 /* StrictDelete */);
+            }
+            else if (this.flags & 16777216 /* OptionsNext */ && !(context & 1 /* Module */) && this.isPrivateName(expr)) {
                 this.error(44 /* StrictDelete */);
             }
         }

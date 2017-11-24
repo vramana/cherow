@@ -3289,7 +3289,7 @@ export class Parser {
         }
     
         private reinterpretAsPattern(context: Context, params: any) {
-    
+
             switch (params.type) {
                 case 'PrivateName':
                 case 'Identifier':
@@ -3310,7 +3310,7 @@ export class Parser {
                     // ObjectPattern and ObjectExpression are isomorphic
                     for (let i = 0; i < params.properties.length; i++) {
                         const property = params.properties[i];
-                        this.reinterpretAsPattern(context, property.type === 'SpreadElement' ? property : property.value);
+                        this.reinterpretAsPattern(context, !property.type ? property.value : property);
                     }
                     return;
     
@@ -3335,6 +3335,7 @@ export class Parser {
                     // Fall through
     
                 case 'AssignmentPattern':
+              
                     this.reinterpretAsPattern(context, params.left);
                     return;
     
@@ -3479,7 +3480,13 @@ export class Parser {
         }
     
         // 12.5 Unary Operators
-    
+        
+        private isPrivateName(expr: any) {
+            if (!expr.argument.property) return false;
+            return expr.argument.property.type === 'PrivateName';
+            
+        }
+
         private parseUnaryExpression(context: Context): ESTree.UnaryExpression | ESTree.Expression {
     
             // Fast path for "await" expression
@@ -3498,10 +3505,11 @@ export class Parser {
                 // When a delete operator occurs within strict mode code, a SyntaxError is thrown if its
                 // UnaryExpression is a direct reference to a variable, function argument, or function name
                 if (context & Context.Strict && token === Token.DeleteKeyword) {
-                    if (expr.argument.type === 'Identifier') this.error(Errors.StrictDelete);
-                    if (!(context & Context.Module) && this.flags & Flags.OptionsNext && (expr as any).argument.property.type === 'PrivateName') {
+                    if (expr.argument.type === 'Identifier') {
                         this.error(Errors.StrictDelete);
-                    }
+                    } else if (this.flags & Flags.OptionsNext && !(context & Context.Module) && this.isPrivateName(expr)) {
+                        this.error(Errors.StrictDelete);
+                    } 
                 }
     
                 if (this.token === Token.Exponentiate) this.error(Errors.Unexpected);
@@ -4406,7 +4414,9 @@ export class Parser {
                 if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
                 value = this.parseAssignmentExpression(context);
             }
+            
             this.parseEventually(context, Token.Comma);
+            
             return this.finishNode(pos as Location, {
                 type: 'ClassProperty',
                 key,
