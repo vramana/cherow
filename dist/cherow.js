@@ -2489,10 +2489,10 @@ Parser.prototype.parseBlockStatement = function parseBlockStatement (context) {
         var parentScope = this.parentScope;
         if (blockScope != null)
             { this.parentScope = blockScope; }
-        this.blockScope = context & 2048 /* IfClause */ && this.token !== 393228 /* LeftBrace */ ? blockScope : undefined;
+        this.blockScope = context & 2048 /* IfClause */ ? blockScope : undefined;
         var flag = this.flags;
         while (this.token !== 15 /* RightBrace */) {
-            body.push(this$1.parseStatementListItem(context | 1024 /* TopLevel */));
+            body.push(this$1.parseStatementListItem(context & ~2048 /* IfClause */ | 1024 /* TopLevel */));
         }
         this.flags = flag;
         this.blockScope = blockScope;

@@ -2479,11 +2479,11 @@ export class Parser {
                 const blockScope = this.blockScope;
                 const parentScope = this.parentScope;
                 if (blockScope != null) this.parentScope = blockScope;
-                this.blockScope = context & Context.IfClause && this.token !== Token.LeftBrace ? blockScope : undefined;
+                this.blockScope = context & Context.IfClause ? blockScope : undefined;
                 const flag = this.flags;
     
                 while (this.token !== Token.RightBrace) {
-                    body.push(this.parseStatementListItem(context | Context.TopLevel));
+                    body.push(this.parseStatementListItem(context & ~Context.IfClause | Context.TopLevel));
                 }
     
                 this.flags = flag;
