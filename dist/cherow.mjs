@@ -2934,8 +2934,6 @@ Parser.prototype.parseReturnStatement = function parseReturnStatement (context) 
 Parser.prototype.parseLabelledStatement = function parseLabelledStatement (context) {
     var pos = this.getLocations();
     var token = this.token;
-    if (!(context & 2 /* Strict */))
-        { context |= 2097152 /* Labelled */; }
     var expr = this.parseExpression(context | 4 /* AllowIn */, pos);
     if (this.token === 21 /* Colon */ && expr.type === 'Identifier') {
         this.expect(context, 21 /* Colon */);
@@ -3976,8 +3974,6 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 12383 /* ThrowKeyword */:
             return this.parseThrowExpression(context);
         case 331885 /* AwaitKeyword */:
-            if (!(context & 2097152 /* Labelled */) && this.flags & 2 /* ExtendedUnicodeEscape */)
-                { this.error(72 /* UnexpectedReservedWord */); }
             if (context & 256 /* InAsyncArgs */)
                 { this.flags |= 1024 /* Await */; }
             if (context & 32 /* Await */)
@@ -3999,7 +3995,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 282730 /* YieldKeyword */:
             if (context & 16 /* Yield */)
                 { this.error(79 /* DisallowedInContext */, tokenDesc(this.token)); }
-            if (this.flags & 2 /* ExtendedUnicodeEscape */ && !(context & 2097152 /* Labelled */))
+            if (context & 2 /* Strict */ && this.flags & 2 /* ExtendedUnicodeEscape */)
                 { this.error(64 /* UnexpectedEscapedKeyword */); }
         default:
             if (!this.isIdentifier(context, this.token))

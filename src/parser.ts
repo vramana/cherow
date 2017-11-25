@@ -3060,8 +3060,6 @@ export class Parser {
             const pos = this.getLocations();
             const token = this.token;
     
-            if (!(context & Context.Strict)) context |= Context.Labelled;
-    
             const expr = this.parseExpression(context | Context.AllowIn, pos);
     
             if (this.token === Token.Colon && expr.type === 'Identifier') {
@@ -4268,7 +4266,6 @@ export class Parser {
                 case Token.ThrowKeyword:
                     return this.parseThrowExpression(context);
                 case Token.AwaitKeyword:
-                    if (!(context & Context.Labelled) && this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedReservedWord);
                     if (context & Context.InAsyncArgs) this.flags |= Flags.Await;
                     if (context & Context.Await) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
     
@@ -4285,7 +4282,7 @@ export class Parser {
                     if (context & Context.Method) return this.parsePrivateName(context);
                 case Token.YieldKeyword:
                     if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                    if (this.flags & Flags.ExtendedUnicodeEscape && !(context & Context.Labelled)) this.error(Errors.UnexpectedEscapedKeyword);
+                    if (context & Context. Strict && this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
                 default:
                     if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
                     return this.parseIdentifier(context);

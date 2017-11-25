@@ -35,11 +35,6 @@ describe('Statement - Labelled', () => {
         }).to.throw();
     });
 
-    it('should fail on "aw\\u0061it: 1;"', () => {
-        expect(() => {
-            parseScript(`"use strict"; aw\\u0061it: 1;`)
-        }).to.throw();
-    });
     it('should fail if use await keyword as label in strict mode"', () => {
         expect(() => {
             parseModule(`aw\\u0061it: 1;`)
@@ -57,13 +52,7 @@ describe('Statement - Labelled', () => {
         }).to.throw();
     });
 
-    it('should fail on escaped await ( strict mode code)', () => {
-      expect(() => {
-          parseScript(`"use strict"; aw\\u0061it: 1;`)
-      }).to.throw();
-  });
-
-    it('should fail if Lexical declaration (const) used in statement position"', () => {
+      it('should fail if Lexical declaration (const) used in statement position"', () => {
         expect(() => {
             parseScript(`label: const x = null;`)
         }).to.throw();
