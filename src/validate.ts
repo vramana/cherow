@@ -27,6 +27,7 @@ export function isValidDestructuringAssignmentTarget(expr: Expression | Pattern)
         case 'ArrayExpression':
         case 'ArrayPattern':
         case 'ObjectExpression':
+        case 'RestElement':
         case 'ObjectPattern':
         case 'MemberExpression':
         case 'ClassExpression':

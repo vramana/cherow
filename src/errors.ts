@@ -191,7 +191,7 @@ export const ErrorMessages: {
     [Errors.InvalidShorthandProperty]: 'Invalid shorthand property',
     [Errors.InvalidShorthandAssignment]: 'Shorthand property assignments are valid only in destructuring patterns',
     [Errors.UnterminatedTemplate]: 'Unterminated template literal',
-    [Errors.UnexpectedStrictReserved]: 'Unexpected strict mode reserved word',
+    [Errors.UnexpectedStrictReserved]: 'Unexpected eval or arguments in strict mode',
     [Errors.YieldReservedWord]: 'yield is a reserved word inside generator functions',
     [Errors.StrictParamName]: 'The identifier \'eval\' or \'arguments\' must not be in binding position in strict mode',
     [Errors.DisallowedInContext]: '\'%0\' may not be used as an identifier in this context',

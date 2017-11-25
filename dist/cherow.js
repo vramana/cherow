@@ -53,6 +53,7 @@ function isValidDestructuringAssignmentTarget(expr) {
         case 'ArrayExpression':
         case 'ArrayPattern':
         case 'ObjectExpression':
+        case 'RestElement':
         case 'ObjectPattern':
         case 'MemberExpression':
         case 'ClassExpression':
@@ -247,7 +248,7 @@ ErrorMessages[72 /* UnexpectedReservedWord */] = 'Unexpected reserved word';
 ErrorMessages[73 /* InvalidShorthandProperty */] = 'Invalid shorthand property';
 ErrorMessages[74 /* InvalidShorthandAssignment */] = 'Shorthand property assignments are valid only in destructuring patterns';
 ErrorMessages[75 /* UnterminatedTemplate */] = 'Unterminated template literal';
-ErrorMessages[76 /* UnexpectedStrictReserved */] = 'Unexpected strict mode reserved word';
+ErrorMessages[76 /* UnexpectedStrictReserved */] = 'Unexpected eval or arguments in strict mode';
 ErrorMessages[77 /* YieldReservedWord */] = 'yield is a reserved word inside generator functions';
 ErrorMessages[78 /* StrictParamName */] = 'The identifier \'eval\' or \'arguments\' must not be in binding position in strict mode';
 ErrorMessages[79 /* DisallowedInContext */] = '\'%0\' may not be used as an identifier in this context';
@@ -1019,21 +1020,24 @@ Parser.prototype.skipComments = function skipComments (state) {
         switch (this$1.nextChar()) {
             // Line Terminators
             case 13 /* CarriageReturn */:
+                if (!(state & 8 /* MultiLine */))
+                    { break loop; }
                 this$1.flags |= 1 /* PrecedingLineBreak */;
                 this$1.advanceNewline();
                 state |= 4 /* LineStart */ | 2 /* LastIsCR */;
-                if (!(state & 8 /* MultiLine */))
-                    { break loop; }
                 break;
             case 10 /* LineFeed */:
+                if (!(state & 8 /* MultiLine */))
+                    { break loop; }
                 this$1.flags |= 1 /* PrecedingLineBreak */;
                 this$1.consumeLineFeed(state);
                 state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
-                if (!(state & 8 /* MultiLine */))
-                    { break loop; }
                 break;
             case 8232 /* LineSeparator */:
             case 8233 /* ParagraphSeparator */:
+                // Single line comments can not contain LINE SEPARATOR (U+2028)
+                if (!(state & 8 /* MultiLine */))
+                    { break loop; }
                 state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
                 this$1.flags |= 1 /* PrecedingLineBreak */;
                 this$1.advanceNewline();
@@ -2466,9 +2470,8 @@ Parser.prototype.parseStatement = function parseStatement (context) {
             // the PrimaryExpression production
             return this.parseLabelledStatement(context | 1024 /* TopLevel */);
         case 274519 /* FunctionKeyword */:
-            if (context & 4096 /* AnnexB */) {
-                return this.parseFunctionDeclaration(context | 4096 /* AnnexB */);
-            }
+            if (context & 4096 /* AnnexB */)
+                { return this.parseFunctionDeclaration(context); }
         case 274509 /* ClassKeyword */:
             this.error(93 /* ForbiddenAsStatement */, tokenDesc(this.token));
         default:
@@ -2711,9 +2714,13 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
                 { this.error(31 /* InvalidVarInitForOf */); }
         }
         else {
+            if (init.type === 'AssignmentExpression') {
+                this.error(32 /* InvalidLHSInForLoop */);
+            }
+            else if (!isValidDestructuringAssignmentTarget(init)) {
+                this.error(32 /* InvalidLHSInForLoop */);
+            }
             this.reinterpretAsPattern(context, init);
-            if (!isValidDestructuringAssignmentTarget(init))
-                { this.error(32 /* InvalidLHSInForLoop */); }
         }
         var right = this.parseAssignmentExpression(context);
         body = this.parseForBody(context, pos);
@@ -2737,6 +2744,12 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
                 { this.error(0 /* Unexpected */); }
         }
         else {
+            if (init.type === 'AssignmentExpression') {
+                this.error(32 /* InvalidLHSInForLoop */);
+            }
+            else if (!isValidDestructuringAssignmentTarget(init)) {
+                this.error(32 /* InvalidLHSInForLoop */);
+            }
             this.reinterpretAsPattern(context, init);
         }
         test = this.parseExpression(context, pos);
@@ -2784,9 +2797,8 @@ Parser.prototype.parseIfStatementChild = function parseIfStatementChild (context
 };
 Parser.prototype.parseIfStatement = function parseIfStatement (context) {
     var pos = this.getLocations();
-    if (this.flags & 2 /* ExtendedUnicodeEscape */) {
-        this.error(64 /* UnexpectedEscapedKeyword */);
-    }
+    if (this.flags & 2 /* ExtendedUnicodeEscape */)
+        { this.error(64 /* UnexpectedEscapedKeyword */); }
     this.expect(context, 12376 /* IfKeyword */);
     this.expect(context, 262155 /* LeftParen */);
     // An IF node has three kids: test, alternate, and optional else
@@ -3602,8 +3614,14 @@ Parser.prototype.parseFunction = function parseFunction (context, pos, state /* 
             var token = this.token;
             if (!this.isIdentifier(context, token))
                 { this.throwUnexpectedToken(); }
-            if (context & 2 /* Strict */ && this.isEvalOrArguments(name)) {
-                this.error(35 /* StrictLHSAssignment */);
+            if (this.isEvalOrArguments(name)) {
+                if (context & 2 /* Strict */)
+                    { this.error(35 /* StrictLHSAssignment */); }
+                // Mark it in case 'arguments' or 'eval' occurs as the
+                // Identifier of a FunctionDeclaration whose FunctionBody is
+                // contained in strict code.
+                this.flags |= 4096 /* Binding */;
+                this.errorLocation = this.getLocations();
             }
             if (context & 33554432 /* Expression */) {
                 if (context & 32 /* Await */ && token === 331885 /* AwaitKeyword */) {
@@ -3612,7 +3630,6 @@ Parser.prototype.parseFunction = function parseFunction (context, pos, state /* 
                 if (context & (32 /* Await */ | 16 /* Yield */) && token === 282730 /* YieldKeyword */) {
                     this.error(79 /* DisallowedInContext */, tokenDesc(token));
                 }
-                id = this.parseIdentifier(context);
             }
             else {
                 if (context & 32 /* Await */ && this.flags & 4 /* InFunctionBody */ && token === 331885 /* AwaitKeyword */) {
@@ -3629,8 +3646,10 @@ Parser.prototype.parseFunction = function parseFunction (context, pos, state /* 
                     this.checkIfExistInFunctionScope(name);
                     this.blockScope[name] = 1 /* Shadowable */;
                 }
-                id = this.parseBindingIdentifier(context);
             }
+            id = context & (33554432 /* Expression */ | 4096 /* AnnexB */) ?
+                this.parseIdentifier(context) :
+                this.parseBindingIdentifier(context);
         }
         else if (!(context & (33554432 /* Expression */ | 32768 /* OptionalIdentifier */)))
             { this.error(83 /* UnNamedFunctionStmt */); }
