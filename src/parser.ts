@@ -3541,6 +3541,10 @@ export class Parser {
             if (hasMask(this.token, Token.UnaryOperator)) {
                 const token = this.token;
                 this.nextToken(context);
+                // It's a syntax error if `arguments` or 'eval' are used in class field (private field, typeof expression)
+                if (context & Context.Fields && this.isEvalOrArguments(this.tokenValue)) {
+                    this.error(Errors.ReservedKeyword);
+                }
                 return this.finishNode(pos, {
                     type: 'UnaryExpression',
                     operator: tokenDesc(token),
@@ -4360,12 +4364,8 @@ export class Parser {
                         }
                     }
     
-                    if (method !== undefined) {
-                        if (method[key] & FieldState.Method) {
-                            if (!scope[key]) this.error(Errors.UndefinedInClassScope, '#' + key);
-                        } else {
-                            this.error(Errors.UndefinedInClassScope, '#' + key);
-                        }
+                    if (method !== undefined && method[key] & FieldState.Method) {
+                        if (!scope || !scope[key]) this.error(Errors.UndefinedInClassScope, '#' + key);
                     }
     
                     this.fieldSet = undefined;
@@ -4422,7 +4422,6 @@ export class Parser {
         }
     
         private parseClassPrivateProperty(context: Context, state: ObjectState) {
-    
             const pos = this.getLocations();
             this.expect(context, Token.Hash);
     
@@ -4599,7 +4598,7 @@ export class Parser {
                     break;
     
                 default:
-    
+                
                     if (this.isIdentifier(context & ~Context.Strict, this.token)) {
                         if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
                         fieldPos = this.getLocations();
@@ -4618,7 +4617,7 @@ export class Parser {
                         count--;
                     }
             }
-    
+
             if (!key && state & ObjectState.Yield) {
                 this.error(Errors.UnexpectedToken, tokenDesc(token));
             }
@@ -4634,9 +4633,13 @@ export class Parser {
                 if (state & ObjectState.Special) this.error(Errors.ConstructorSpecialMethod);
                 if (context & Context.HasConstructor) this.error(Errors.DuplicateConstructor);
             }
-    
-            value = this.parseMethodDefinition(context & ~(Context.Yield | Context.Await) | Context.Method, state);
-    
+            
+            if (this.token === Token.LeftParen)  {
+                value = this.parseMethodDefinition(context & ~(Context.Yield | Context.Await) | Context.Method, state);
+            } else {
+                this.error(Errors.Unexpected);
+            }
+
             return this.finishNode(pos, {
                 type: 'MethodDefinition',
                 key,

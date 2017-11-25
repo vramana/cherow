@@ -3362,6 +3362,10 @@ Parser.prototype.parseUnaryExpressionFastPath = function parseUnaryExpressionFas
     if (hasMask(this.token, 4456448 /* UnaryOperator */)) {
         var token = this.token;
         this.nextToken(context);
+        // It's a syntax error if `arguments` or 'eval' are used in class field (private field, typeof expression)
+        if (context & 8388608 /* Fields */ && this.isEvalOrArguments(this.tokenValue)) {
+            this.error(105 /* ReservedKeyword */);
+        }
         return this.finishNode(pos, {
             type: 'UnaryExpression',
             operator: tokenDesc(token),
@@ -4064,14 +4068,9 @@ Parser.prototype.parseClass = function parseClass (context) {
                     scope[key] = true;
                 }
             }
-            if (method !== undefined) {
-                if (method[key] & 1 /* Method */) {
-                    if (!scope[key])
-                        { this.error(109 /* UndefinedInClassScope */, '#' + key); }
-                }
-                else {
-                    this.error(109 /* UndefinedInClassScope */, '#' + key);
-                }
+            if (method !== undefined && method[key] & 1 /* Method */) {
+                if (!scope || !scope[key])
+                    { this.error(109 /* UndefinedInClassScope */, '#' + key); }
             }
             this.fieldSet = undefined;
         }
@@ -4318,7 +4317,12 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
         if (context & 131072 /* HasConstructor */)
             { this.error(58 /* DuplicateConstructor */); }
     }
-    value = this.parseMethodDefinition(context & ~(16 /* Yield */ | 32 /* Await */) | 65536 /* Method */, state);
+    if (this.token === 262155 /* LeftParen */) {
+        value = this.parseMethodDefinition(context & ~(16 /* Yield */ | 32 /* Await */) | 65536 /* Method */, state);
+    }
+    else {
+        this.error(0 /* Unexpected */);
+    }
     return this.finishNode(pos, {
         type: 'MethodDefinition',
         key: key,
