@@ -2483,7 +2483,7 @@ Parser.prototype.parseBlockStatement = function parseBlockStatement (context) {
         var parentScope = this.parentScope;
         if (blockScope != null)
             { this.parentScope = blockScope; }
-        this.blockScope = context & 2048 /* IfClause */ ? blockScope : undefined;
+        this.blockScope = context & 2048 /* IfClause */ && this.token !== 393228 /* LeftBrace */ ? blockScope : undefined;
         var flag = this.flags;
         while (this.token !== 15 /* RightBrace */) {
             body.push(this$1.parseStatementListItem(context | 1024 /* TopLevel */));
@@ -3611,11 +3611,6 @@ Parser.prototype.parseFunction = function parseFunction (context, pos, state /* 
             if (this.isEvalOrArguments(name)) {
                 if (context & 2 /* Strict */)
                     { this.error(35 /* StrictLHSAssignment */); }
-                // Mark it in case 'arguments' or 'eval' occurs as the
-                // Identifier of a FunctionDeclaration whose FunctionBody is
-                // contained in strict code.
-                this.flags |= 4096 /* Binding */;
-                this.errorLocation = this.getLocations();
             }
             if (context & 33554432 /* Expression */) {
                 if (context & 32 /* Await */ && token === 331885 /* AwaitKeyword */) {

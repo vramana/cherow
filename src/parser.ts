@@ -2479,7 +2479,7 @@ export class Parser {
                 const blockScope = this.blockScope;
                 const parentScope = this.parentScope;
                 if (blockScope != null) this.parentScope = blockScope;
-                this.blockScope = context & Context.IfClause ? blockScope : undefined;
+                this.blockScope = context & Context.IfClause && this.token !== Token.LeftBrace ? blockScope : undefined;
                 const flag = this.flags;
     
                 while (this.token !== Token.RightBrace) {
@@ -3850,11 +3850,6 @@ export class Parser {
     
                     if (this.isEvalOrArguments(name)) {
                         if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
-                        // Mark it in case 'arguments' or 'eval' occurs as the
-                        // Identifier of a FunctionDeclaration whose FunctionBody is
-                        // contained in strict code.
-                        this.flags |= Flags.Binding;
-                        this.errorLocation = this.getLocations();
                     }
     
                     if (context & Context.Expression) {

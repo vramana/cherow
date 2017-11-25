@@ -12,10 +12,7 @@ describe('Annex B', () => {
 
     describe('B.3.5', () => {
 
-    fail('try { throw null; } catch (f) { { function f() { return 123; } } }', 'try { throw null; } catch (f) { { function f() { return 123; } } }');
-    fail('var foo; try {} catch (_) { let foo; }', 'var foo; try {} catch (_) { let foo; }');
     fail('try {} catch (foo) { let foo; }', 'try {} catch (foo) { let foo; }');
-    fail('try {} catch (foo) { { let foo; } }', 'try {} catch (foo) { { let foo; } }');
     fail('try { } catch (x) { let x; }', 'try { } catch (x) { let x; }');
     fail('try {} catch (foo) { function foo() {} }', 'try {} catch (foo) { function foo() {} }');
     fail('let foo; try {} catch (foo) {} let foo;', 'let foo; try {} catch (foo) {} let foo;');
