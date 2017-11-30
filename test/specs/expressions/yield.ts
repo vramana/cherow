@@ -80,7 +80,7 @@ describe('Espressions - Yield', () => {
       it('should fail on "+function* fn() { (x = 3 + a.b(yield) ** 2) => {};}"', () => {
         expect(() => {
             parseScript('+function* fn() { (x = 3 + a.b(yield) ** 2) => {};}');
-          }).to.not.throw();
+          }).to.throw();
       });
 
       it('should fail on "+function* fn() { (x = 3 + a.b(yield) ** 2) => {};}"', () => {

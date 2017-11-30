@@ -30,6 +30,7 @@ export const enum Context {
     Pattern                = 1 << 26,
     Let                    = 1 << 27,  // Variable declaration
     Const                  = 1 << 28,  // Variable declaration
+    Unary                  = 1 << 29,  // Variable declaration
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
@@ -127,7 +128,7 @@ export const enum ObjectState {
 }
 
 // A set of flags for  maintaining the internal state machine.
-export const enum Scanner {
+export const enum ScanState {
     None            = 0,
     LastIsCR        = 1 << 1, // Tracks if previous scanned character was CR
     LineStart       = 1 << 2, // Tracks if this is start of line
@@ -135,6 +136,7 @@ export const enum Scanner {
     SingleLine      = 1 << 4, // SingleLine comment (HTML, Shebang or plain)
     Terminated      = 1 << 5, // If the node was closed or not
     Unicode         = 1 << 6, // If the node was closed or not
+    SameLine         = 1 << 7, // If the node was closed or not
 
     // Collectable comments - single and multiline (shebang excluded)
     Collectable = SingleLine | MultiLine

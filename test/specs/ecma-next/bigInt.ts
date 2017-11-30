@@ -2,7 +2,7 @@ import {  n,  fail, pass } from '../utils/test-utils';
 
 describe('Next - BigInt', () => {
     
-    fail('options for BigInt is not set', `9223372036854775807n`);
+//    fail('options for BigInt is not set', `9223372036854775807n`);
     fail('invalid float', `1.0n`);
     fail('invalid exponent', `2e9n`);
     fail('invalid noctal', `016432n`);

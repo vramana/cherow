@@ -18,6 +18,9 @@ export const enum Token {
     UnaryOperator   = 1 << 22 | ExpressionStart,
     VarDeclStart    = 1 << 23 | ExpressionStart,
     Modifiers       = 1 << 24,
+    IsLogical       = 1 << 25,
+    IsInKeyword     = 1 << 26,
+    EvalOrArguments = 1 << 27,
 
     /* Node types */
     EndOfSource = 0, // Pseudo
@@ -87,8 +90,8 @@ export const enum Token {
     Modulo             = 52 | BinaryOperator  | 10 << PrecStart, // %
     Divide             = 53 | ExpressionStart | BinaryOperator | 10 << PrecStart, // /
     Exponentiate       = 54 | BinaryOperator  | 11 << PrecStart, // **
-    LogicalAnd         = 55 | BinaryOperator  | 2 << PrecStart, // &&
-    LogicalOr          = 56 | BinaryOperator  | 1 << PrecStart, // ||
+    LogicalAnd         = 55 | IsLogical | BinaryOperator  | 2 << PrecStart, // &&
+    LogicalOr          = 56 | IsLogical | BinaryOperator  | 1 << PrecStart, // ||
     StrictEqual        = 57 | BinaryOperator  | 6 << PrecStart, // ===
     StrictNotEqual     = 58 | BinaryOperator  | 6 << PrecStart, // !==
     LooseEqual         = 59 | BinaryOperator  | 6 << PrecStart, // ==
@@ -163,6 +166,8 @@ export const enum Token {
 
     /** State 3 proposals */
     Hash               = 117,
+
+    BigInt               = 118,
 }
 
 const KeywordDescTable = [
@@ -207,7 +212,7 @@ const KeywordDescTable = [
 
     /* JSX */
 
-    'JSXText', '#'
+    'JSXText', '#', 'BigInt'
 
 
 ];

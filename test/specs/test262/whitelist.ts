@@ -2,6 +2,11 @@ const f: any = {
     pass: [
         '110fa1efdd0868b8.js',
         'a62c6323a3696fa8.js',
+
+        '15dfd62aa10c8b18.js',
+        '2b9d4a632590814a.js',
+        '4e07f8992cca7db0.js',
+        '7c6d13458e08e1f4.js'
     ],
     explicit: [
         '110fa1efdd0868b8.js',

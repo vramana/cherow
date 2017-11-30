@@ -10,7 +10,7 @@ function plugin(value: any) {
         parser.parseLiteral = function(context: any) {
             const pos = this.getLocations();
             this.nextToken(context);
-            return this.finishNode(pos, {
+            return this.finishNode(context, pos, {
                 type: 'Literal',
                 value
             });
