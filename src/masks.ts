@@ -83,16 +83,6 @@ export const enum Flags {
     GlobalReturn = OptionsGlobalReturn |  InFunctionBody
 }
 
-export const enum NumberState {
-    None        = 0,
-    Float       = 1 << 1, // e.g. `09.01`
-    Exponent    = 1 << 2, // e.g. `10e2`
-    BigInt      = 1 << 3, // e.g. `100n`
-
-    // BigInt implementation can't handle either float or exponent acc. TC-39
-    FloatOrExponent = Float | Exponent,
-}
-
 // Flags used in parenthesized to validate arrow formal list
 export const enum ParenthesizedState {
     None            = 0,
@@ -142,6 +132,18 @@ export const enum ScanState {
     Collectable = SingleLine | MultiLine
 }
 
+export const enum NumericState {
+   Decimal                  = 1 << 0,
+   DecimalWithLeadingZero   = 1 << 1,
+   ImplicitOctal            = 1 << 2,
+   Hex                      = 1 << 3,
+   Octal                    = 1 << 4,
+   Binary                   = 1 << 5,
+   BigInt                   = 1 << 6,
+   Float                    = 1 << 7,
+   Boh = Binary | Octal | Hex
+}
+
 export const enum ArrayState {
     None      = 0,
     EvalArg   = 1 << 0,
@@ -185,4 +187,3 @@ export const enum Escape {
     OutOfRange  = -5,
     TemplateOctalLiteral = -6,
 }
-

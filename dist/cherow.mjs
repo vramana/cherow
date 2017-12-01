@@ -1352,7 +1352,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
     if (state & (56 /* Boh */ | 4 /* ImplicitOctal */)) {
         if (this.flags & 8388608 /* OptionsRaw */)
             { this.storeRaw(start); }
-        if (state & (4 /* ImplicitOctal */ | 16 /* Octal */))
+        if (state & (4 /* ImplicitOctal */ | 2 /* DecimalWithLeadingZero */))
             { this.flags |= 262144 /* Octal */; }
         this.tokenValue = value;
     }
@@ -4786,7 +4786,7 @@ Parser.prototype.parseLiteral = function parseLiteral (context) {
     var value = this.tokenValue;
     var raw = this.tokenRaw;
     if (context & 2 /* Strict */ && this.flags & 262144 /* Octal */) {
-        this.error(0 /* Unexpected */);
+        this.error(9 /* StrictOctalLiteral */);
     }
     var node = this.finishNode(context, pos, {
         type: 'Literal',

@@ -2,26 +2,11 @@ import { Chars } from './chars';
 import * as ESTree from './estree';
 import { toHex, fromCodePoint, hasMask, isPrologueDirective } from './common';
 import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget } from './validate';
-import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, ScanState, ParenthesizedState, NumberState, ArrayState, Escape, FieldState } from './masks';
+import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, ScanState, ParenthesizedState, NumericState, ArrayState, Escape, FieldState } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location, EmitComments } from './interface';
-
-
-
-export const enum NumericState {
-    Decimal = 1 << 0,
-        DecimalWithLeadingZero = 1 << 1,
-        ImplicitOctal = 1 << 2,
-        Hex = 1 << 3,
-        Octal = 1 << 4,
-        Binary = 1 << 5,
-        BigInt = 1 << 6,
-        Float = 1 << 7,
-        Boh = Binary | Octal | Hex
-}
-
 
 export class Parser {
     
@@ -981,7 +966,8 @@ export class Parser {
             }
             return code;
         }
-        scanDecimalDigits() {
+
+        private scanDecimalDigits() {
             scan: while (this.hasNext()) {
                 switch (this.nextChar()) {
                     case Chars.Zero:
@@ -1001,7 +987,8 @@ export class Parser {
                 }
             }
         }
-        scanNumber(context: Context, ch: number): Token {
+
+        private scanNumber(context: Context, ch: number): Token {
             
                     let state = NumericState.Decimal;
             
@@ -1044,7 +1031,7 @@ export class Parser {
                             case Chars.UpperO:
                                 {
                                     state = NumericState.Octal;
-            
+
                                     ch = this.scanNext(Errors.Unexpected);
             
                                     value = ch - Chars.Zero;
@@ -1215,7 +1202,7 @@ export class Parser {
             
                     if (state & (NumericState.Boh | NumericState.ImplicitOctal)) {
                         if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
-                        if (state & (NumericState.ImplicitOctal | NumericState.Octal)) this.flags |= Flags.Octal;
+                        if (state & (NumericState.ImplicitOctal | NumericState.DecimalWithLeadingZero)) this.flags |= Flags.Octal;
                         this.tokenValue = value;
                     } else {
             
@@ -5168,7 +5155,7 @@ export class Parser {
             const raw = this.tokenRaw;
     
             if (context & Context.Strict && this.flags & Flags.Octal) {
-                this.error(Errors.Unexpected);
+                 this.error(Errors.StrictOctalLiteral);
             }
     
             const node = this.finishNode(context, pos, {
