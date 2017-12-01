@@ -3472,7 +3472,7 @@ export class Parser {
             });
         }
     
-        parseBinaryExpression(
+        private parseBinaryExpression(
             context: Context,
             minPrec: number,
             startLoc: any,
@@ -3501,12 +3501,11 @@ export class Parser {
         // 12.5 Unary Operators
     
         private isPrivateName(expr: any) {
-            if (!expr.argument.property) return false;
-            return expr.argument.property.type === 'PrivateName';
-    
+           if (!expr.property) return false;
+           return expr.property.type === 'PrivateName';
         }
     
-        parseUnaryExpression(context: Context): ESTree.UnaryExpression | ESTree.Expression {
+        private parseUnaryExpression(context: Context): ESTree.UnaryExpression | ESTree.Expression {
     
             const startLoc = this.getLocations();
     
@@ -3516,8 +3515,10 @@ export class Parser {
                 const operator = this.token;
                 this.nextToken(context);
                 const operand = this.parseUnaryExpression(context | Context.Unary);
-                if (context & Context.Strict) {
-                    if (operator === Token.DeleteKeyword && operand.type === 'Identifier') {
+                if (context & Context.Strict && operator === Token.DeleteKeyword) {
+                    if (operand.type === 'Identifier') {
+                        this.error(Errors.StrictDelete);
+                    } else if (this.flags & Flags.OptionsNext && !(context & Context.Module) && this.isPrivateName(operand)) {
                         this.error(Errors.StrictDelete);
                     }
                 }
