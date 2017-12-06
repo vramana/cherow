@@ -376,67 +376,57 @@ var Parser = function Parser(source, options) {
     this.lastChar = undefined;
     this.firstProto = undefined;
     this.plugins = [];
-    if (options.next)
-        { this.flags |= 16777216 /* OptionsNext */; }
-    if (options.comments)
-        { this.flags |= 67108864 /* OptionsComments */; }
-    if (options.jsx)
-        { this.flags |= 4194304 /* OptionsJSX */; }
-    if (options.locations)
-        { this.flags |= 1048576 /* OptionsLoc */; }
-    if (options.source)
-        { this.flags |= 2097152 /* OptionsSource */; }
-    if (options.ranges)
-        { this.flags |= 524288 /* OptionsRanges */; }
-    if (options.raw)
-        { this.flags |= 8388608 /* OptionsRaw */; }
-    if (options.globalReturn)
-        { this.flags |= 268435456 /* OptionsGlobalReturn */; }
-    if (options.directives)
-        { this.flags |= 33554432 /* OptionsDirectives */; }
-    if (options.impliedStrict)
-        { this.flags |= 1 /* OptionsImpliedStrict */; }
-    if (this.flags & 67108864 /* OptionsComments */)
-        { this.comments = options.comments; }
-    if (this.flags & (1048576 /* OptionsLoc */ | 2097152 /* OptionsSource */))
-        { this.locSource = String(options.source); }
-    if (options.plugins) {
-        for (var i = 0; i < options.plugins.length; i++) {
-            options.plugins[i](this$1);
+    if (options != null) {
+        if (options.next)
+            { this.flags |= 16777216 /* OptionsNext */; }
+        if (options.jsx)
+            { this.flags |= 4194304 /* OptionsJSX */; }
+        if (options.locations)
+            { this.flags |= 1048576 /* OptionsLoc */; }
+        if (options.ranges)
+            { this.flags |= 524288 /* OptionsRanges */; }
+        if (options.raw)
+            { this.flags |= 8388608 /* OptionsRaw */; }
+        if (options.globalReturn)
+            { this.flags |= 134217728 /* OptionsGlobalReturn */; }
+        if (options.directives)
+            { this.flags |= 33554432 /* OptionsDirectives */; }
+        if (options.impliedStrict)
+            { this.flags |= -2147483648 /* OptionsImpliedStrict */; }
+        if (options.comments)
+            { this.comments = options.comments; }
+        if (options.source) {
+            this.flags |= 2097152 /* OptionsSource */;
+            this.locSource = options.source;
+        }
+        if (options.plugins) {
+            for (var i = 0; i < options.plugins.length; i++) {
+                options.plugins[i](this$1);
+            }
         }
     }
 };
-Parser.prototype.parse = function parse (context) {
-    // enable implied strict mode if in sloppy mode
-    if (!(context & 1 /* Module */) && this.flags & 1 /* OptionsImpliedStrict */) {
-        this.source = '"use strict";' + this.source;
-    }
+// https://tc39.github.io/ecma262/#sec-scripts
+Parser.prototype.parseScript = function parseScript (context) {
+    if (this.flags & -2147483648 /* OptionsImpliedStrict */)
+        { this.source = '"use strict";\n' + this.source; }
     this.nextToken(context);
-    var body = context & 1 /* Module */ ?
-        this.parseModuleItemList(context) :
-        this.parseStatementList(context, 0 /* EndOfSource */);
-    var node = {
+    var body = this.parseStatementList(context, 0 /* EndOfSource */);
+    return this.finishRootNode({
         type: 'Program',
         body: body,
-        sourceType: context & 1 /* Module */ ? 'module' : 'script'
-    };
-    if (this.flags & 524288 /* OptionsRanges */) {
-        node.start = 0;
-        node.end = this.source.length;
-    }
-    if (this.flags & 1048576 /* OptionsLoc */) {
-        node.loc = {
-            start: {
-                line: 1,
-                column: 0,
-            },
-            end: {
-                line: this.line,
-                column: this.column
-            }
-        };
-    }
-    return node;
+        sourceType: 'script'
+    });
+};
+// https://tc39.github.io/ecma262/#sec-modules
+Parser.prototype.parseModule = function parseModule (context) {
+    this.nextToken(context);
+    var body = this.parseModuleItemList(context);
+    return this.finishRootNode({
+        type: 'Program',
+        body: body,
+        sourceType: 'module'
+    });
 };
 Parser.prototype.error = function error (type) {
         var params = [], len = arguments.length - 1;
@@ -1037,7 +1027,7 @@ Parser.prototype.skipComments = function skipComments (state) {
     }
     if (state & 8 /* MultiLine */ && !(state & 32 /* Terminated */))
         { this.error(2 /* UnterminatedComment */); }
-    if (state & 24 /* Collectable */ && this.flags & 67108864 /* OptionsComments */) {
+    if (state & 24 /* Collectable */ && this.comments !== undefined) {
         var loc;
         var start;
         var end;
@@ -1911,8 +1901,28 @@ Parser.prototype.getLocations = function getLocations () {
         column: this.startColumn
     };
 };
-Parser.prototype.finishNode = function finishNode (context, startLoc, node, shouldAdvance) {
+Parser.prototype.finishRootNode = function finishRootNode (node) {
+    if (this.flags & 524288 /* OptionsRanges */) {
+        node.start = 0;
+        node.end = this.source.length;
+    }
+    if (this.flags & 1048576 /* OptionsLoc */) {
+        node.loc = {
+            start: {
+                line: 1,
+                column: 0,
+            },
+            end: {
+                line: this.line,
+                column: this.column
+            }
+        };
+    }
+    return node;
+};
+Parser.prototype.finishNode = function finishNode (context, startLoc, node, shouldAdvance, root) {
         if ( shouldAdvance === void 0 ) shouldAdvance = false;
+        if ( root === void 0 ) root = false;
 
     if (shouldAdvance) {
         this.nextToken(context);
@@ -2936,7 +2946,7 @@ Parser.prototype.canParseArgument = function canParseArgument () {
 };
 Parser.prototype.parseReturnStatement = function parseReturnStatement (context) {
     var pos = this.getLocations();
-    if (!(this.flags & 268435460 /* GlobalReturn */))
+    if (!(this.flags & 134217732 /* GlobalReturn */))
         { this.error(19 /* IllegalReturn */); }
     this.expect(context, 12379 /* ReturnKeyword */);
     var argument = null;
@@ -3333,9 +3343,9 @@ Parser.prototype.parseBinaryExpression = function parseBinaryExpression (context
 };
 // 12.5 Unary Operators
 Parser.prototype.isPrivateName = function isPrivateName (expr) {
-    if (!expr.argument.property)
+    if (!expr.property)
         { return false; }
-    return expr.argument.property.type === 'PrivateName';
+    return expr.property.type === 'PrivateName';
 };
 Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) {
     var startLoc = this.getLocations();
@@ -3346,8 +3356,11 @@ Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) 
         var operator = this.token;
         this.nextToken(context);
         var operand = this.parseUnaryExpression(context | 536870912 /* Unary */);
-        if (context & 2 /* Strict */) {
-            if (operator === 4468779 /* DeleteKeyword */ && operand.type === 'Identifier') {
+        if (context & 2 /* Strict */ && operator === 4468779 /* DeleteKeyword */) {
+            if (operand.type === 'Identifier') {
+                this.error(44 /* StrictDelete */);
+            }
+            else if (this.flags & 16777216 /* OptionsNext */ && !(context & 1 /* Module */) && this.isPrivateName(operand)) {
                 this.error(44 /* StrictDelete */);
             }
         }
@@ -5467,29 +5480,17 @@ Parser.prototype.parseJSXElementName = function parseJSXElementName (context) {
     return expression;
 };
 
+// https://tc39.github.io/ecma262/#sec-scripts
 function parseScript(source, options) {
-    if ( options === void 0 ) options = {};
-
-    return new Parser(source, options).parse(0 /* None */);
+    return new Parser(source, options).parseScript(0 /* None */);
 }
+// https://tc39.github.io/ecma262/#sec-modules
 function parseModule(source, options) {
-    if ( options === void 0 ) options = {};
-
-    return new Parser(source, options).parse(2 /* Strict */ | 1 /* Module */);
+    return new Parser(source, options).parseModule(2 /* Strict */ | 1 /* Module */);
 }
-function parse(source, options) {
-    if ( options === void 0 ) options = {};
-
-    return options && typeof options.sourceType === 'string' && options.sourceType === 'module'
-        ? this.parseModule(source, options)
-        : this.parseScript(source, options);
-}
-var version = '0.15.1';
 
 exports.parseScript = parseScript;
 exports.parseModule = parseModule;
-exports.parse = parse;
-exports.version = version;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 

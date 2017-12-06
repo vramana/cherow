@@ -2,18 +2,12 @@ import { Context } from './masks';
 import { Parser } from './parser';
 import { Options } from './interface';
 
-export function parseScript(source: string, options: Options = {}) {
-    return new Parser(source, options).parse(Context.None);
+// https://tc39.github.io/ecma262/#sec-scripts
+export function parseScript(source: string, options?: Options) {
+    return new Parser(source, options).parseScript(Context.None);
 }
 
-export function parseModule(source: string, options: Options = {}) {
-    return new Parser(source, options).parse(Context.Strict | Context.Module);
+// https://tc39.github.io/ecma262/#sec-modules
+export function parseModule(source: string, options?: Options) {
+    return new Parser(source, options).parseModule(Context.Strict | Context.Module);
 }
-
-export function parse(source: string, options: Options = {}) {
-    return options && typeof options.sourceType === 'string' && options.sourceType === 'module'
-            ? this.parseModule(source, options)
-            : this.parseScript(source, options);
-}
-
-export const version = '0.15.1';

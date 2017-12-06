@@ -69,7 +69,7 @@ export class Parser {
     
         constructor(
             source: string,
-            options: Options
+            options: Options | void
         ) {
             this.flags = Flags.None;
             this.source = source;
@@ -97,62 +97,51 @@ export class Parser {
             this.firstProto = undefined;
             this.plugins = [];
     
-            if (options.next) this.flags |= Flags.OptionsNext;
-            if (options.comments) this.flags |= Flags.OptionsComments;
-            if (options.jsx) this.flags |= Flags.OptionsJSX;
-            if (options.locations) this.flags |= Flags.OptionsLoc;
-            if (options.source) this.flags |= Flags.OptionsSource;
-            if (options.ranges) this.flags |= Flags.OptionsRanges;
-            if (options.raw) this.flags |= Flags.OptionsRaw;
-            if (options.globalReturn) this.flags |= Flags.OptionsGlobalReturn;
-            if (options.directives) this.flags |= Flags.OptionsDirectives;
-            if (options.impliedStrict) this.flags |= Flags.OptionsImpliedStrict;
+            if (options != null) {
+                if (options.next) this.flags |= Flags.OptionsNext;
+                if (options.jsx) this.flags |= Flags.OptionsJSX;
+                if (options.locations) this.flags |= Flags.OptionsLoc;
+                if (options.ranges) this.flags |= Flags.OptionsRanges;
+                if (options.raw) this.flags |= Flags.OptionsRaw;
+                if (options.globalReturn) this.flags |= Flags.OptionsGlobalReturn;
+                if (options.directives) this.flags |= Flags.OptionsDirectives;
+                if (options.impliedStrict) this.flags |= Flags.OptionsImpliedStrict;
+                if (options.comments) this.comments = options.comments;
     
-            if (this.flags & Flags.OptionsComments) this.comments = options.comments;
-            if (this.flags & (Flags.OptionsLoc | Flags.OptionsSource)) this.locSource = String(options.source);
-            if (options.plugins) {
-                for (let i = 0; i < options.plugins.length; i++) {
-                    options.plugins[i](this);
+                if (options.source) {
+                    this.flags |= Flags.OptionsSource;
+                    this.locSource = options.source;
+                }
+    
+                if (options.plugins) {
+                    for (let i = 0; i < options.plugins.length; i++) {
+                        options.plugins[i](this);
+                    }
                 }
             }
         }
-    
-        public parse(context: Context): ESTree.Program {
-    
-            // enable implied strict mode if in sloppy mode
-            if (!(context & Context.Module) && this.flags & Flags.OptionsImpliedStrict) {
-                this.source = '"use strict";' + this.source;
-            }
-    
+
+        // https://tc39.github.io/ecma262/#sec-scripts
+        public parseScript(context: Context): ESTree.Program {
+            if (this.flags & Flags.OptionsImpliedStrict) this.source = '"use strict";\n' + this.source;
             this.nextToken(context);
-    
-            const body = context & Context.Module ?
-                this.parseModuleItemList(context) :
-                this.parseStatementList(context, Token.EndOfSource);
-    
-            const node: ESTree.Program = {
+            const body = this.parseStatementList(context, Token.EndOfSource);
+            return this.finishRootNode({
                 type: 'Program',
                 body,
-                sourceType: context & Context.Module ? 'module' : 'script'
-            };
-    
-            if (this.flags & Flags.OptionsRanges) {
-                node.start = 0;
-                node.end = this.source.length;
-            }
-            if (this.flags & Flags.OptionsLoc) {
-                node.loc = {
-                    start: {
-                        line: 1,
-                        column: 0,
-                    },
-                    end: {
-                        line: this.line,
-                        column: this.column
-                    }
-                };
-            }
-            return node;
+                sourceType: 'script'
+            });
+        }
+
+        // https://tc39.github.io/ecma262/#sec-modules
+        public parseModule(context: Context): ESTree.Program {
+            this.nextToken(context);
+            const body = this.parseModuleItemList(context);
+            return this.finishRootNode({
+                type: 'Program',
+                body,
+                sourceType: 'module'
+            });
         }
     
         private error(type: Errors, ...params: string[]): void {
@@ -690,7 +679,7 @@ export class Parser {
                             return Token.Period;
                         }
     
-                    // '0' - '9'
+                        // '0' - '9'
                     case Chars.Zero:
                     case Chars.One:
                     case Chars.Two:
@@ -828,7 +817,7 @@ export class Parser {
     
             if (state & ScanState.MultiLine && !(state & ScanState.Terminated)) this.error(Errors.UnterminatedComment);
     
-            if (state & ScanState.Collectable && this.flags & Flags.OptionsComments) {
+            if (state & ScanState.Collectable && this.comments !== undefined) {
                 let loc;
                 let start;
                 let end;
@@ -966,7 +955,7 @@ export class Parser {
             }
             return code;
         }
-
+    
         private scanDecimalDigits() {
             scan: while (this.hasNext()) {
                 switch (this.nextChar()) {
@@ -987,237 +976,237 @@ export class Parser {
                 }
             }
         }
-
+    
         private scanNumber(context: Context, ch: number): Token {
-            
-                    let state = NumericState.Decimal;
-            
-                    const start = this.index;
-                    let value = 0;
-            
-                    if (ch === Chars.Zero) {
-            
-                        this.advance();
-            
-                        ch = this.nextChar();
-            
-                        switch (ch) {
-            
-                            case Chars.LowerX:
-                            case Chars.UpperX:
-                                {
-                                    state = NumericState.Hex;
-            
-                                    ch = this.scanNext(Errors.Unexpected);
-            
-                                    value = toHex(ch);
-            
-                                    if (value < 0) this.error(Errors.Unexpected);
-            
-                                    this.advance();
-            
-                                    while (this.hasNext()) {
-                                        ch = this.nextChar();
-                                        const digit = toHex(ch);
-                                        if (digit < 0) break;
-                                        value = value << 4 | digit;
-                                        this.advance();
-                                    }
-            
-                                    break;
-                                }
-            
-                            case Chars.LowerO:
-                            case Chars.UpperO:
-                                {
-                                    state = NumericState.Octal;
-
-                                    ch = this.scanNext(Errors.Unexpected);
-            
-                                    value = ch - Chars.Zero;
-            
-                                    // we must have at least one octal digit after 'o'/'O'
-                                    if (ch < Chars.Zero || ch >= Chars.Eight) this.error(Errors.Unexpected);
-            
-                                    this.advance();
-            
-                                    while (this.hasNext()) {
-                                        ch = this.nextChar();
-                                        if (ch < Chars.Zero || Chars.Nine < ch) break;
-                                        if (ch < Chars.Zero || ch >= Chars.Eight) {
-                                            this.error(Errors.Unexpected);
-                                        }
-                                        value = (value << 3) | (ch - Chars.Zero);
-                                        this.advance();
-                                    }
-            
-                                    break;
-                                }
-            
-                            case Chars.LowerB:
-                            case Chars.UpperB:
-                                {
-                                    state = NumericState.Binary;
-            
-                                    ch = this.scanNext(Errors.Unexpected);
-            
-                                    // Invalid:  '0b'
-                                    if (ch !== Chars.Zero && ch !== Chars.One) {
-                                        this.error(Errors.Unexpected);
-                                    }
-            
-                                    value = ch - Chars.Zero;
-            
-                                    this.advance();
-            
-                                    while (this.hasNext()) {
-                                        ch = this.nextChar();
-                                        if (ch < Chars.Zero || Chars.Nine < ch) break;
-                                        if (!(ch === Chars.Zero || ch === Chars.One)) {
-                                            this.error(Errors.Unexpected);
-                                        }
-                                        value = (value << 1) | (ch - Chars.Zero);
-                                        this.advance();
-                                    }
-            
-                                    break;
-                                }
-            
-                            case Chars.Zero:
-                            case Chars.One:
-                            case Chars.Two:
-                            case Chars.Three:
-                            case Chars.Four:
-                            case Chars.Five:
-                            case Chars.Six:
-                            case Chars.Seven:
-                                {
-                                    state = NumericState.ImplicitOctal;
-                                    while (this.hasNext()) {
-                                        ch = this.nextChar();
-                                        if (ch === Chars.Eight || ch === Chars.Nine) {
-                                            state = NumericState.DecimalWithLeadingZero;
-                                            break;
-                                        }
-                                        if (!(Chars.Zero <= ch && ch <= Chars.Seven)) break;
-                                        value = (value << 3) | (ch - Chars.Zero);
-                                        this.advance();
-                                    }
-                                }
-                                break;
-            
-                            case Chars.Eight:
-                            case Chars.Nine:
-                                state = NumericState.DecimalWithLeadingZero;
-                            default: // ignore
-                        }
-                    }
-            
-                    // Fast path for plain decimal numbers
-                    if (state & NumericState.Decimal) {
-            
-                        while (ch >= Chars.Zero && ch <= Chars.Nine) {
-                            value = 10 * value + (ch - Chars.Zero);
+    
+            let state = NumericState.Decimal;
+    
+            const start = this.index;
+            let value = 0;
+    
+            if (ch === Chars.Zero) {
+    
+                this.advance();
+    
+                ch = this.nextChar();
+    
+                switch (ch) {
+    
+                    case Chars.LowerX:
+                    case Chars.UpperX:
+                        {
+                            state = NumericState.Hex;
+    
+                            ch = this.scanNext(Errors.Unexpected);
+    
+                            value = toHex(ch);
+    
+                            if (value < 0) this.error(Errors.Unexpected);
+    
                             this.advance();
-                            ch = this.nextChar();
-                        }
-            
-                        if (ch !== Chars.Period && !isIdentifierStart(ch)) {
-            
-                            if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
-            
-                            this.tokenValue = value;
-            
-                            return Token.NumericLiteral;
-                        }
-                        // falls through
-                    }
-            
-                    this.scanDecimalDigits();
-            
-                    ch = this.nextChar();
-            
-                    if (ch === Chars.Period) {
-                        // Invalid: '06.7'
-                        if (state & NumericState.ImplicitOctal) this.error(Errors.Unexpected);
-                        state |= NumericState.Float;
-                        this.advance();
-                        this.scanDecimalDigits();
-                    }
-            
-                    // BigInt - Stage 3 proposal
-                    if (this.nextChar() === Chars.LowerN &&
-                        state & (NumericState.Decimal | NumericState.Boh | NumericState.DecimalWithLeadingZero)) {
-            
-                        // E.g. Invalid MV number - '2017.8n;'
-                        if (state & (NumericState.DecimalWithLeadingZero | NumericState.Float)) {
-                            this.error(Errors.Unexpected);
-                        }
-            
-                        // Check that the literal is within our limits for BigInt length.
-                        // For simplicity, use 4 bits per character to calculate the maximum
-                        // allowed literal length.
-                        const maxBigIntCharacters = 1024 * 1024 / 4;
-                        const length = start - this.index - state & NumericState.Decimal ? 0 : 2;
-            
-                        if (length > maxBigIntCharacters) this.error(Errors.Unexpected);
-                        state |= NumericState.BigInt;
-                        this.advance();
-            
-                    } else if (!(state & NumericState.Boh)) {
-            
-                        state |= NumericState.Float;
-            
-                        switch (this.nextChar()) {
-                            case Chars.LowerE:
-                            case Chars.UpperE:
-            
-                                // scan exponent
-                                this.advance();
-                                switch (this.nextChar()) {
-                                    case Chars.Hyphen:
-                                    case Chars.Plus:
-            
-                                        this.advance();
-            
-                                        if (!this.hasNext()) this.error(Errors.Unexpected);
-            
-                                    default: // ignore
-                                }
-            
+    
+                            while (this.hasNext()) {
                                 ch = this.nextChar();
-            
-                                // check for unexpected mantissa
-                                if (!(ch >= Chars.Zero && ch <= Chars.Nine)) this.error(Errors.Unexpected);
-                                this.scanDecimalDigits();
-            
+                                const digit = toHex(ch);
+                                if (digit < 0) break;
+                                value = value << 4 | digit;
+                                this.advance();
+                            }
+    
+                            break;
+                        }
+    
+                    case Chars.LowerO:
+                    case Chars.UpperO:
+                        {
+                            state = NumericState.Octal;
+    
+                            ch = this.scanNext(Errors.Unexpected);
+    
+                            value = ch - Chars.Zero;
+    
+                            // we must have at least one octal digit after 'o'/'O'
+                            if (ch < Chars.Zero || ch >= Chars.Eight) this.error(Errors.Unexpected);
+    
+                            this.advance();
+    
+                            while (this.hasNext()) {
+                                ch = this.nextChar();
+                                if (ch < Chars.Zero || Chars.Nine < ch) break;
+                                if (ch < Chars.Zero || ch >= Chars.Eight) {
+                                    this.error(Errors.Unexpected);
+                                }
+                                value = (value << 3) | (ch - Chars.Zero);
+                                this.advance();
+                            }
+    
+                            break;
+                        }
+    
+                    case Chars.LowerB:
+                    case Chars.UpperB:
+                        {
+                            state = NumericState.Binary;
+    
+                            ch = this.scanNext(Errors.Unexpected);
+    
+                            // Invalid:  '0b'
+                            if (ch !== Chars.Zero && ch !== Chars.One) {
+                                this.error(Errors.Unexpected);
+                            }
+    
+                            value = ch - Chars.Zero;
+    
+                            this.advance();
+    
+                            while (this.hasNext()) {
+                                ch = this.nextChar();
+                                if (ch < Chars.Zero || Chars.Nine < ch) break;
+                                if (!(ch === Chars.Zero || ch === Chars.One)) {
+                                    this.error(Errors.Unexpected);
+                                }
+                                value = (value << 1) | (ch - Chars.Zero);
+                                this.advance();
+                            }
+    
+                            break;
+                        }
+    
+                    case Chars.Zero:
+                    case Chars.One:
+                    case Chars.Two:
+                    case Chars.Three:
+                    case Chars.Four:
+                    case Chars.Five:
+                    case Chars.Six:
+                    case Chars.Seven:
+                        {
+                            state = NumericState.ImplicitOctal;
+                            while (this.hasNext()) {
+                                ch = this.nextChar();
+                                if (ch === Chars.Eight || ch === Chars.Nine) {
+                                    state = NumericState.DecimalWithLeadingZero;
+                                    break;
+                                }
+                                if (!(Chars.Zero <= ch && ch <= Chars.Seven)) break;
+                                value = (value << 3) | (ch - Chars.Zero);
+                                this.advance();
+                            }
+                        }
+                        break;
+    
+                    case Chars.Eight:
+                    case Chars.Nine:
+                        state = NumericState.DecimalWithLeadingZero;
+                    default: // ignore
+                }
+            }
+    
+            // Fast path for plain decimal numbers
+            if (state & NumericState.Decimal) {
+    
+                while (ch >= Chars.Zero && ch <= Chars.Nine) {
+                    value = 10 * value + (ch - Chars.Zero);
+                    this.advance();
+                    ch = this.nextChar();
+                }
+    
+                if (ch !== Chars.Period && !isIdentifierStart(ch)) {
+    
+                    if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
+    
+                    this.tokenValue = value;
+    
+                    return Token.NumericLiteral;
+                }
+                // falls through
+            }
+    
+            this.scanDecimalDigits();
+    
+            ch = this.nextChar();
+    
+            if (ch === Chars.Period) {
+                // Invalid: '06.7'
+                if (state & NumericState.ImplicitOctal) this.error(Errors.Unexpected);
+                state |= NumericState.Float;
+                this.advance();
+                this.scanDecimalDigits();
+            }
+    
+            // BigInt - Stage 3 proposal
+            if (this.nextChar() === Chars.LowerN &&
+                state & (NumericState.Decimal | NumericState.Boh | NumericState.DecimalWithLeadingZero)) {
+    
+                // E.g. Invalid MV number - '2017.8n;'
+                if (state & (NumericState.DecimalWithLeadingZero | NumericState.Float)) {
+                    this.error(Errors.Unexpected);
+                }
+    
+                // Check that the literal is within our limits for BigInt length.
+                // For simplicity, use 4 bits per character to calculate the maximum
+                // allowed literal length.
+                const maxBigIntCharacters = 1024 * 1024 / 4;
+                const length = start - this.index - state & NumericState.Decimal ? 0 : 2;
+    
+                if (length > maxBigIntCharacters) this.error(Errors.Unexpected);
+                state |= NumericState.BigInt;
+                this.advance();
+    
+            } else if (!(state & NumericState.Boh)) {
+    
+                state |= NumericState.Float;
+    
+                switch (this.nextChar()) {
+                    case Chars.LowerE:
+                    case Chars.UpperE:
+    
+                        // scan exponent
+                        this.advance();
+                        switch (this.nextChar()) {
+                            case Chars.Hyphen:
+                            case Chars.Plus:
+    
+                                this.advance();
+    
+                                if (!this.hasNext()) this.error(Errors.Unexpected);
+    
                             default: // ignore
                         }
-                    }
-            
-                    // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
-                    // The SourceCharacter immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
-                    // For example : 3in is an error and not the two input elements 3 and in
-                    if (isIdentifierStart(this.nextChar())) this.error(Errors.Unexpected);
-            
-                    if (state & (NumericState.Boh | NumericState.ImplicitOctal)) {
-                        if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
-                        if (state & (NumericState.ImplicitOctal | NumericState.DecimalWithLeadingZero)) this.flags |= Flags.Octal;
-                        this.tokenValue = value;
-                    } else {
-            
-                        const rawValue = this.source.slice(start, this.index);
-            
-                        if (state & (NumericState.ImplicitOctal | NumericState.DecimalWithLeadingZero)) this.flags |= Flags.Octal;
-            
-                        if (this.flags & Flags.OptionsRaw) this.tokenRaw = rawValue;
-            
-                        // avoid unnecessarily dispatching to parseFloat.
-                        this.tokenValue = state & NumericState.Float ? parseFloat(rawValue) : parseInt(rawValue);
-                    }
-            
-                    return state & NumericState.BigInt ? Token.BigInt : Token.NumericLiteral;
+    
+                        ch = this.nextChar();
+    
+                        // check for unexpected mantissa
+                        if (!(ch >= Chars.Zero && ch <= Chars.Nine)) this.error(Errors.Unexpected);
+                        this.scanDecimalDigits();
+    
+                    default: // ignore
                 }
+            }
+    
+            // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
+            // The SourceCharacter immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
+            // For example : 3in is an error and not the two input elements 3 and in
+            if (isIdentifierStart(this.nextChar())) this.error(Errors.Unexpected);
+    
+            if (state & (NumericState.Boh | NumericState.ImplicitOctal)) {
+                if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
+                if (state & (NumericState.ImplicitOctal | NumericState.DecimalWithLeadingZero)) this.flags |= Flags.Octal;
+                this.tokenValue = value;
+            } else {
+    
+                const rawValue = this.source.slice(start, this.index);
+    
+                if (state & (NumericState.ImplicitOctal | NumericState.DecimalWithLeadingZero)) this.flags |= Flags.Octal;
+    
+                if (this.flags & Flags.OptionsRaw) this.tokenRaw = rawValue;
+    
+                // avoid unnecessarily dispatching to parseFloat.
+                this.tokenValue = state & NumericState.Float ? parseFloat(rawValue) : parseInt(rawValue);
+            }
+    
+            return state & NumericState.BigInt ? Token.BigInt : Token.NumericLiteral;
+        }
         private scanRegularExpression(): Token {
             const bodyStart = this.startIndex + 1;
             let preparseState = RegExpState.Empty;
@@ -1820,11 +1809,31 @@ export class Parser {
             };
         }
     
-        finishNode < T extends ESTree.Node > (
+        private finishRootNode < T extends ESTree.Node > (node: any): any {
+            if (this.flags & Flags.OptionsRanges) {
+                node.start = 0;
+                node.end = this.source.length;
+            }
+            if (this.flags & Flags.OptionsLoc) {
+                node.loc = {
+                    start: {
+                        line: 1,
+                        column: 0,
+                    },
+                    end: {
+                        line: this.line,
+                        column: this.column
+                    }
+                };
+            }
+            return node;
+        }
+        private finishNode < T extends ESTree.Node > (
             context: Context,
             startLoc: any,
             node: any,
-            shouldAdvance = false
+            shouldAdvance = false,
+            root = false
         ): any {
     
             if (shouldAdvance) {
@@ -3501,8 +3510,8 @@ export class Parser {
         // 12.5 Unary Operators
     
         private isPrivateName(expr: any) {
-           if (!expr.property) return false;
-           return expr.property.type === 'PrivateName';
+            if (!expr.property) return false;
+            return expr.property.type === 'PrivateName';
         }
     
         private parseUnaryExpression(context: Context): ESTree.UnaryExpression | ESTree.Expression {
@@ -5156,7 +5165,7 @@ export class Parser {
             const raw = this.tokenRaw;
     
             if (context & Context.Strict && this.flags & Flags.Octal) {
-                 this.error(Errors.StrictOctalLiteral);
+                this.error(Errors.StrictOctalLiteral);
             }
     
             const node = this.finishNode(context, pos, {

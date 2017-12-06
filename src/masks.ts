@@ -46,9 +46,9 @@ export const enum Flags {
     ExtendedUnicodeEscape        = 1 << 1, // If node has any escaped unicode sequences (escaped characters in keywords).
     InFunctionBody               = 1 << 2, // If node was parsed in a function body
     AllowCall                    = 1 << 3, // If node was parsed in a context where call should be allowed
-    BreakStatement                        = 1 << 4,
-    IterationStatement                    = 1 << 5,
-    SwitchStatement                       = 1 << 6,
+    BreakStatement               = 1 << 4,
+    IterationStatement           = 1 << 5,
+    SwitchStatement              = 1 << 6,
     Continue                     = 1 << 7,
     HasPrototype                 = 1 << 8,
     Yield                        = 1 << 9,  // Used if we have seen a 'yield' token. E.g. in arrow formal param list
@@ -70,13 +70,12 @@ export const enum Flags {
     OptionsRaw                   = 1 << 23, // Enable / disable "raw" property on the node
     OptionsNext                  = 1 << 24, // Enable / disable Stage 3 proposals
     OptionsDirectives            = 1 << 25, // Enable / disable directives on the node
-    OptionsComments              = 1 << 26, // Enable / disable comment collecting
-    OptionsDelegate              = 1 << 27, // Enable / disable token syntax delegate
-    OptionsGlobalReturn          = 1 << 28, // Allow return statement in global scope,
-    OptionsSourceType            = 1 << 29, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
-    OptionsTolerant              = 1 << 30,
-    OptionsPlugins               = 1 << 31,
-    OptionsImpliedStrict         = 1 << 32,
+    OptionsDelegate              = 1 << 26, // Enable / disable token syntax delegate
+    OptionsGlobalReturn          = 1 << 27, // Allow return statement in global scope,
+    OptionsSourceType            = 1 << 28, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
+    OptionsTolerant              = 1 << 29,
+    OptionsPlugins               = 1 << 30,
+    OptionsImpliedStrict         = 1 << 31,
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc,
 
