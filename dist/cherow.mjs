@@ -4591,6 +4591,7 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
     }
     var sequencePos = this.getLocations();
     this.errorLocation = pos;
+    var isSequence = false;
     if (context & 16 /* Yield */ && this.token === 282730 /* YieldKeyword */)
         { this.flags |= 512 /* Yield */; }
     if (this.token === 262155 /* LeftParen */)
@@ -4635,6 +4636,7 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
                 expressions.push(this$1.parseAssignmentExpression(context));
             }
         }
+        isSequence = true;
         expr = this.finishNode(context, sequencePos, {
             type: 'SequenceExpression',
             expressions: expressions
@@ -4657,7 +4659,7 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
             { this.flags |= 4096 /* Binding */; }
         if (state & 4 /* Parenthesized */)
             { this.error(66 /* InvalidParenthesizedPattern */); }
-        return this.parseArrowFunctionExpression(context, pos, expr.type === 'SequenceExpression' ? expr.expressions : [expr]);
+        return this.parseArrowFunctionExpression(context, pos, isSequence ? expr.expressions : [expr]);
     }
     this.errorLocation = undefined;
     if (state & 16 /* Pattern */) {

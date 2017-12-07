@@ -4928,7 +4928,8 @@ export class Parser {
     
             const sequencePos = this.getLocations();
             this.errorLocation = pos;
-    
+            let isSequence = false;
+
             if (context & Context.Yield && this.token === Token.YieldKeyword) this.flags |= Flags.Yield;
             if (this.token === Token.LeftParen) state |= ParenthesizedState.Parenthesized;
             if (this.token & Token.BindingPattern) state |= ParenthesizedState.Pattern;
@@ -4966,7 +4967,9 @@ export class Parser {
                         expressions.push(this.parseAssignmentExpression(context));
                     }
                 }
-    
+                
+                isSequence = true;
+
                 expr = this.finishNode(context, sequencePos, {
                     type: 'SequenceExpression',
                     expressions
@@ -4987,7 +4990,7 @@ export class Parser {
                 if (this.flags & Flags.Yield) this.error(Errors.InvalidArrowYieldParam);
                 if (state & ParenthesizedState.EvalOrArg)  this.flags |= Flags.Binding
                 if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
-                return this.parseArrowFunctionExpression(context, pos, expr.type === 'SequenceExpression' ? expr.expressions : [expr]);
+                return this.parseArrowFunctionExpression(context, pos, isSequence ? (expr as any).expressions : [expr]);
             }
     
             this.errorLocation = undefined;
