@@ -1942,7 +1942,7 @@ export class Parser {
                 if (context & Context.Module && t === Token.AwaitKeyword) return false;
                 if (t & Token.EvalOrArguments) return true;
                 if (t === Token.YieldKeyword) return false;
-                if (t === Token.AwaitKeyword && context & Context.Await) return false;
+                //if (t === Token.AwaitKeyword && context & Context.Await) return false;
     
                 return t === Token.Identifier ||
                     (t & Token.Contextual) === Token.Contextual;
@@ -4932,14 +4932,10 @@ export class Parser {
             if (context & Context.Yield && this.token === Token.YieldKeyword) this.flags |= Flags.Yield;
             if (this.token === Token.LeftParen) state |= ParenthesizedState.Parenthesized;
             if (this.token & Token.BindingPattern) state |= ParenthesizedState.Pattern;
+
             if (this.isEvalOrArguments(this.tokenValue)) state |= ParenthesizedState.EvalOrArg;
             if (this.token & Token.FutureReserved) state |= ParenthesizedState.FutureReserved;
     
-            if (context & Context.Strict) {
-                if (this.isEvalOrArguments(this.tokenValue)) {
-                    state |= ParenthesizedState.EvalOrArg;
-                }
-            }
             expr = this.parseAssignmentExpression(context);
     
             if (this.token === Token.Comma) {
@@ -4960,21 +4956,13 @@ export class Parser {
                         if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
                         return this.parseArrowFunctionExpression(context & ~(Context.Await | Context.Yield), pos, expressions);
                     } else {
+                        this.errorLocation = this.getLocations();
                         if (context & Context.Strict) {
-                            const errPos = this.getLocations();
-                            if (!(state & ParenthesizedState.EvalOrArg) && this.isEvalOrArguments(this.tokenValue)) {
-                                this.errorLocation = errPos;
-                                state |= ParenthesizedState.EvalOrArg;
-                            }
+                            if (this.isEvalOrArguments(this.tokenValue)) state |= ParenthesizedState.EvalOrArg;
                         }
-                        if (!(state & ParenthesizedState.Parenthesized) && this.token === Token.LeftParen) {
-                            this.errorLocation = this.getLocations();
-                            state |= ParenthesizedState.Parenthesized;
-                        }
-                        if (!(state & ParenthesizedState.FutureReserved) && hasMask(this.token, Token.FutureReserved)) {
-                            this.errorLocation = pos;
-                            state |= ParenthesizedState.FutureReserved;
-                        }
+                        if (this.token === Token.LeftParen) state |= ParenthesizedState.Parenthesized;
+                        if (this.token & Token.FutureReserved) state |= ParenthesizedState.FutureReserved;
+                        if (state & ParenthesizedState.None) this.errorLocation = undefined;
                         expressions.push(this.parseAssignmentExpression(context));
                     }
                 }
@@ -4997,10 +4985,7 @@ export class Parser {
                 if (this.flags & Flags.Operator) this.error(Errors.IllegalArrowFuncParamList);
                 if (state & ParenthesizedState.FutureReserved) this.flags |= Flags.Binding;
                 if (this.flags & Flags.Yield) this.error(Errors.InvalidArrowYieldParam);
-                if (state & ParenthesizedState.EvalOrArg) {
-                    if (context & Context.Strict) this.error(Errors.StrictParamName);
-                    this.flags |= Flags.Binding
-                }
+                if (state & ParenthesizedState.EvalOrArg)  this.flags |= Flags.Binding
                 if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
                 return this.parseArrowFunctionExpression(context, pos, expr.type === 'SequenceExpression' ? expr.expressions : [expr]);
             }

@@ -2021,8 +2021,7 @@ Parser.prototype.isIdentifier = function isIdentifier (context, t) {
             { return true; }
         if (t === 282730 /* YieldKeyword */)
             { return false; }
-        if (t === 331885 /* AwaitKeyword */ && context & 32 /* Await */)
-            { return false; }
+        //if (t === Token.AwaitKeyword && context & Context.Await) return false;
         return t === 134479873 /* Identifier */ ||
             (t & 69632 /* Contextual */) === 69632 /* Contextual */;
     }
@@ -4608,11 +4607,6 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
         { state |= 1 /* EvalOrArg */; }
     if (this.token & 20480 /* FutureReserved */)
         { state |= 32 /* FutureReserved */; }
-    if (context & 2 /* Strict */) {
-        if (this.isEvalOrArguments(this.tokenValue)) {
-            state |= 1 /* EvalOrArg */;
-        }
-    }
     expr = this.parseAssignmentExpression(context);
     if (this.token === 18 /* Comma */) {
         var expressions = [expr];
@@ -4633,21 +4627,17 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
                 return this$1.parseArrowFunctionExpression(context & ~(32 /* Await */ | 16 /* Yield */), pos, expressions);
             }
             else {
+                this$1.errorLocation = this$1.getLocations();
                 if (context & 2 /* Strict */) {
-                    var errPos = this$1.getLocations();
-                    if (!(state & 1 /* EvalOrArg */) && this$1.isEvalOrArguments(this$1.tokenValue)) {
-                        this$1.errorLocation = errPos;
-                        state |= 1 /* EvalOrArg */;
-                    }
+                    if (this$1.isEvalOrArguments(this$1.tokenValue))
+                        { state |= 1 /* EvalOrArg */; }
                 }
-                if (!(state & 4 /* Parenthesized */) && this$1.token === 262155 /* LeftParen */) {
-                    this$1.errorLocation = this$1.getLocations();
-                    state |= 4 /* Parenthesized */;
-                }
-                if (!(state & 32 /* FutureReserved */) && hasMask(this$1.token, 20480 /* FutureReserved */)) {
-                    this$1.errorLocation = pos;
-                    state |= 32 /* FutureReserved */;
-                }
+                if (this$1.token === 262155 /* LeftParen */)
+                    { state |= 4 /* Parenthesized */; }
+                if (this$1.token & 20480 /* FutureReserved */)
+                    { state |= 32 /* FutureReserved */; }
+                if (state & 0 /* None */)
+                    { this$1.errorLocation = undefined; }
                 expressions.push(this$1.parseAssignmentExpression(context));
             }
         }
@@ -4669,11 +4659,8 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
             { this.flags |= 4096 /* Binding */; }
         if (this.flags & 512 /* Yield */)
             { this.error(95 /* InvalidArrowYieldParam */); }
-        if (state & 1 /* EvalOrArg */) {
-            if (context & 2 /* Strict */)
-                { this.error(78 /* StrictParamName */); }
-            this.flags |= 4096 /* Binding */;
-        }
+        if (state & 1 /* EvalOrArg */)
+            { this.flags |= 4096 /* Binding */; }
         if (state & 4 /* Parenthesized */)
             { this.error(66 /* InvalidParenthesizedPattern */); }
         return this.parseArrowFunctionExpression(context, pos, expr.type === 'SequenceExpression' ? expr.expressions : [expr]);
