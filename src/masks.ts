@@ -31,7 +31,7 @@ export const enum Context {
     Let                    = 1 << 27,  // Variable declaration
     Const                  = 1 << 28,  // Variable declaration
     Unary                  = 1 << 29,  // Variable declaration
-
+    ForceBinding            = 1 << 30,  // Variable declaration
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
 

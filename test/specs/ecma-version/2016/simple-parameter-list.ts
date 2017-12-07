@@ -14,7 +14,7 @@ describe('Miscellaneous - Simple parameter list', () => {
     it('should fail on array pattern default', () => {
         expect(() => {
             parseScript('function foo(a=2) { "use strict"; }');
-        }).to.not.throw();
+        }).to.throw();
     });
     it('should fail on array pattern default', () => {
         expect(() => {
@@ -57,7 +57,7 @@ describe('Miscellaneous - Simple parameter list', () => {
     it('should fail on arrow function', () => {
         expect(() => {
             parseScript('var a = (options = {}) => { "use strict"; }');
-        }).to.throw('');
+        }).to.not.throw('');
     });
     it('should fail on default', () => {
         expect(() => {

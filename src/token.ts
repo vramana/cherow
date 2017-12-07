@@ -21,12 +21,13 @@ export const enum Token {
     IsLogical       = 1 << 25,
     IsInKeyword     = 1 << 26,
     EvalOrArguments = 1 << 27,
+    IsIdentifier = 1 << 27,
 
     /* Node types */
     EndOfSource = 0, // Pseudo
 
     /* Constants/Bindings */
-    Identifier        = 1 | ExpressionStart,
+    Identifier        = 1 | IsIdentifier | ExpressionStart,
     NumericLiteral    = 2 | ExpressionStart,
     StringLiteral     = 3 | ExpressionStart,
     RegularExpression = 4 | ExpressionStart,
@@ -168,6 +169,10 @@ export const enum Token {
     Hash               = 117,
 
     BigInt               = 118,
+
+    Eval               = 119 | EvalOrArguments,
+    Arguments           = 120 | EvalOrArguments,
+    
 }
 
 const KeywordDescTable = [
@@ -212,9 +217,10 @@ const KeywordDescTable = [
 
     /* JSX */
 
-    'JSXText', '#', 'BigInt'
+    'JSXText', '#', 'BigInt',
 
-
+    /** V8 */
+    'eval', 'arguments'
 ];
 
 /**

@@ -157,7 +157,7 @@ describe('Next - Asynchronous Iteration', () => {
             parseScript(`(async function*(x = 1) {"use strict"});`, {
                 next: true
             })
-        }).to.not.throw();
+        }).to.throw();
     });
     it("should fail if formal parameters contains arguments in strict mode", () => {
         expect(() => {
