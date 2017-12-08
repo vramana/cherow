@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "0.15.11",
+  "version": "0.16.0",
   "description": "Fast, standard-compliant ECMAScript parser written in ECMAScript",
   "main": "dist/cherow.js",
   "author": "KFlash",
@@ -28,13 +28,12 @@
     "CODE_OF_CONDUCT.md",
     "CONTRIBUTING.md",
     "README.md",
-    "LICENSE.md",
-    "BENCHMARK.md"
+    "LICENSE.md"
   ],
   "scripts": {
     "build": "cross-env NODE_ENV=umd rollup -c",
     "minify": "cross-env NODE_ENV=minify rollup -c",
-    "test": "mocha test/specs/**/*.ts -R spec --bail",
+    "test": "mocha test/**/*.ts",
     "coverage": "rimraf build && npm run pretest && nyc mocha ./build/test/**/*.js",
     "post_coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "clean": "rimraf dist build coverage",
@@ -42,29 +41,30 @@
     "prebuild": "tsc --skipLibCheck -t es2015 --m es2015",
     "pretest": "tsc --sourceMap --skipLibCheck -t es2015 --m umd",
     "lint:src": "tslint src/**/*.ts src/**/*.tsx",
-    "lint:tests": "tslint test/specs/**/*.ts test/specs/**/*.tsx",
-    "watch:tests": "mocha test/specs/**/*.ts -R spec --bail --watch",
+    "lint:tests": "tslint test/**/*.ts test/**/*.tsx",
+    "watch:tests": "mocha test/**/*.ts --watch",
     "watch:build": "tsc --skipLibCheck -t es2015 --m es2015 -w",
     "circleci": "npm run coverage && npm run test",
     "appveyor": "npm run build && npm run coverage && npm run test"
   },
   "devDependencies": {
-    "@types/chai": "^4.0.4",
-    "@types/mocha": "^2.2.43",
-    "@types/node": "^8.0.46",
-    "chai": "^4.1.2",
+    "@types/js-yaml": "^3.10.1",
+    "@types/mocha": "^2.2.44",
+    "@types/node": "^8.0.56",
     "coveralls": "^3.0.0",
     "cross-env": "^5.1.1",
+    "glob": "^7.1.2",
+    "js-yaml": "^3.10.0",
     "mocha": "^4.0.1",
-    "nyc": "^11.2.1",
+    "nyc": "^11.4.0",
     "rimraf": "^2.6.2",
-    "rollup": "^0.51.8",
+    "rollup": "^0.52.1",
     "rollup-plugin-buble": "^0.18.0",
     "rollup-plugin-uglify": "2.0.1",
-    "test262-parser-tests": "0.0.3",
+    "test262": "git+https://github.com/tc39/test262.git",
     "ts-node": "^3.3.0",
     "tslint": "5.8.0",
-    "typescript": "^2.6.1"
+    "typescript": "^2.6.2"
   },
   "nyc": {
     "reporter": [
@@ -74,5 +74,6 @@
     "exclude": [
       "build/test/**/*.*"
     ]
-  }
+  },
+  "dependencies": {}
 }

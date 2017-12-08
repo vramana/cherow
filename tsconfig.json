@@ -21,7 +21,7 @@
         "suppressImplicitAnyIndexErrors": false,
         "outDir": "build/",
         "typeRoots": [ "node_modules/@types/"],
-        "types": ["chai", "mocha", "node"]
+        "types": ["mocha", "node"]
 },
     "compileOnSave": false,
     "buildOnSave": false

@@ -5,7 +5,6 @@ import { Comment } from './estree';
 export interface Options {
     next?: boolean;
     ranges?: boolean;
-    locations?: boolean;
     comments?: EmitComments;
     loc?: boolean;
     raw?: boolean;
@@ -16,7 +15,6 @@ export interface Options {
     globalReturn?: boolean;
     tolerant?: any;
     sourceType?: 'module' | 'script';
-    v8?: boolean;
     plugins?: any;
     impliedStrict?: boolean;
 }

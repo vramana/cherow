@@ -3,7 +3,6 @@
 [![NPM version](https://img.shields.io/npm/v/cherow.svg)](https://www.npmjs.com/package/cherow)
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/cherow/cherow)
 [![Build Status](https://travis-ci.org/cherow/cherow.svg?branch=master)](https://travis-ci.org/cherow/cherow)
-[![Coverage Status](https://coveralls.io/repos/github/cherow/cherow/badge.svg?branch=master)](https://coveralls.io/github/cherow/cherow?branch=master)
 
 A very fast, standards-compliant, self-hosted ECMAScript parser with high focus on both performance and stability.
 
@@ -20,7 +19,7 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 - Optimized for handheld devices
 - Optional tracking of syntax node location (index-based and line-column)
 - Parameterized plugin system
-- 8600 unit tests
+- Heavily tested (~28 000 [Test262 unit tests](https://github.com/tc39/test262) with full code coverage)
 
 ## ESNext features
 
@@ -47,7 +46,7 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 | `globalReturn`    | Enable return in global scope     |
 | `impliedStrict`   | Enable global strict mode in sloppy mode |
 | `jsx`             | Enable JSX parsing   |
-| `locations`       | Attach line/column location information to each node |
+| `loc      `       | Attach line/column location information to each node |
 | `ranges`          | Attach range information to each node |
 | `next`            | Allow experimental ECMAScript features - stage 3 proposals |
 | `plugins`         | Let you add an array of plugins    |
@@ -77,14 +76,13 @@ cherow.parseScript('const fooBar = 123;', { ranges: true, raw: true, next: true}
 
 ```
 
-
 ### Comments and comment collection
 
 Single line, multiline and HTML comments are supported by Cherow, and the parser can be instructed to collect comments by setting the `comments option` to either an array or an function.
 
 The type of each comment can either be `Line` for a single-line comment (`//`) og Block for a MultiLineComment (`/* */`).
 
-**Note** that if the location tracking isn't enabled, an empty object will be returned, and if the `ranges option` isn't set - `undefined` will be returned.
+**Note** If the location tracking isn't enabled, an empty object will be returned, and if the `ranges option` isn't set - `undefined` will be returned.
 
 A function will be called with the following parameters
 

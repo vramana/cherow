@@ -100,7 +100,7 @@ export class Parser {
             if (options != null) {
                 if (options.next) this.flags |= Flags.OptionsNext;
                 if (options.jsx) this.flags |= Flags.OptionsJSX;
-                if (options.locations) this.flags |= Flags.OptionsLoc;
+                if (options.loc) this.flags |= Flags.OptionsLoc;
                 if (options.ranges) this.flags |= Flags.OptionsRanges;
                 if (options.raw) this.flags |= Flags.OptionsRaw;
                 if (options.globalReturn) this.flags |= Flags.OptionsGlobalReturn;
@@ -123,7 +123,7 @@ export class Parser {
     
         // https://tc39.github.io/ecma262/#sec-scripts
         public parseScript(context: Context): ESTree.Program {
-            if (this.flags & Flags.OptionsImpliedStrict) this.source = '"use strict";\n' + this.source;
+            if (this.flags & Flags.OptionsImpliedStrict) this.source = '"use strict";' + this.source;
             this.nextToken(context);
             const body = this.parseStatementList(context, Token.EndOfSource);
             return this.finishRootNode({
@@ -3529,7 +3529,7 @@ export class Parser {
             const updateExpression = this.parseUpdateExpression(context, startLoc);
     
             if (this.token === Token.Exponentiate) {
-                if (context & Context.Unary) this.error(Errors.Unexpected);
+                // if (context & Context.Unary) this.error(Errors.Unexpected);
                 return this.parseBinaryExpression(context & ~Context.Unary, this.token & Token.Precedence, startLoc, updateExpression);
             }
     
