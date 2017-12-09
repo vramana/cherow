@@ -1025,7 +1025,11 @@ describe('Miscellaneous - Failure', () => {
         fail('super()', {
             source: `super()`,
         });
-    
+        
+        fail('unresolvableReference."";', {
+            source: `unresolvableReference."";`,
+        });
+
         fail('labelA: break labelB;', {
             source: `labelA: break labelB;`,
         });

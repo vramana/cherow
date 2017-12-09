@@ -2,55 +2,1103 @@ import { pass, fail } from '../utils';
 
 describe('Miscellaneous - Keywords', () => {
   
-      fail(`var cla\\u0073s = 123;`, {
+    fail(`var a\\u2E2F;`, {
+        source: `var a\\u2E2F;`,
+    });
+    
+    fail(`var aⸯ;`, {
+        source: `var aⸯ;`,
+    });
+
+    fail(`var ⸯ; // U+2E2F`, {
+        source: `var ⸯ; // U+2E2F`,
+        loc: true,
+    });
+
+    fail(`var ⸯ; // U+2E2F`, {
+        source: `var ⸯ; // U+2E2F`,
+        loc: true,
+    });
+
+    fail(`var cla\\u0073s = 123;`, {
           source: `var cla\\u0073s = 123;`,
-          loc: true,
-          ranges: true,
-          raw: true,
       });
   
       fail(`var \\uD83B\\uDE00`, {
           source: `var \\uD83B\\uDE00`,
           loc: true,
-          ranges: true,
-          raw: true,
       });
   
       fail(`var 🀒`, {
           source: `var 🀒`,
-          loc: true,
-          ranges: true,
-          raw: true,
       });
   
       fail(`var \\u{63}ontinue = 123;`, {
           source: `var \\u{63}ontinue = 123;`,
-          loc: true,
-          ranges: true,
-          raw: true,
       });
   
       fail(`var default = 123;`, {
           source: `var default = 123;`,
-          loc: true,
-          ranges: true,
-          raw: true,
       });
   
       fail(`var true = 123;`, {
           source: `var true = 123;`,
-          loc: true,
-          ranges: true,
-          raw: true,
       });
   
       fail(`var \\u{74 = 123;`, {
           source: `var \\u{74 = 123;`,
-          loc: true,
-          ranges: true,
-          raw: true,
       });
   
+      pass(`var a\\u2118;`, {
+        source: 'var a\\u2118;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "a℘",
+                                "start": 4,
+                                "end": 11,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 11
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 11,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 11
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 12,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 12
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 12,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 12
+                }
+            }
+        }
+      });
+
+      pass(`var a\\u309C;`, {
+        source: 'var a\\u309C;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "a゜",
+                                "start": 4,
+                                "end": 11,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 11
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 11,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 11
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 12,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 12
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 12,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 12
+                }
+            }
+        }
+      });
+
+      pass(`var a\\u1886;`, {
+        source: 'var a\\u1886;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "aᢆ",
+                                "start": 4,
+                                "end": 11,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 11
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 11,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 11
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 12,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 12
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 12,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 12
+                }
+            }
+        }
+      });
+
+      pass(`var a\\u1369;`, {
+        source: 'var a\\u1369;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "a፩",
+                                "start": 4,
+                                "end": 11,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 11
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 11,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 11
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 12,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 12
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 12,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 12
+                }
+            }
+        }
+      });
+
+      pass(`var a\\u136D;`, {
+        source: 'var a\\u136D;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "a፭",
+                                "start": 4,
+                                "end": 11,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 11
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 11,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 11
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 12,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 12
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 12,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 12
+                }
+            }
+        }
+      });
+
+      pass(`var a\\u00B7;`, {
+        source: 'var a\\u00B7;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "a·",
+                                "start": 4,
+                                "end": 11,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 11
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 11,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 11
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 12,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 12
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 12,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 12
+                }
+            }
+        }
+      });
+
+      pass(`var a\\u19DA;`, {
+        source: 'var a\\u19DA;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "a᧚",
+                                "start": 4,
+                                "end": 11,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 11
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 11,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 11
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 12,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 12
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 12,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 12
+                }
+            }
+        }
+      });
+
+      pass(`var a℮;`, {
+        source: 'var a℮;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "a℮",
+                                "start": 4,
+                                "end": 6,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 6
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 6,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 6
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 7,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 7
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 7,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 7
+                }
+            }
+        }
+      });
+
+      pass(`var aᢆ;`, {
+        source: 'var aᢆ;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "aᢆ",
+                                "start": 4,
+                                "end": 6,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 6
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 6,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 6
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 7,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 7
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 7,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 7
+                }
+            }
+        }
+      });
+
+      pass(`var a፰;`, {
+        source: 'var a፰;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "a፰",
+                                "start": 4,
+                                "end": 6,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 6
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 6,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 6
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 7,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 7
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 7,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 7
+                }
+            }
+        }
+      });
+
+      pass(`var a᧚;`, {
+        source: 'var a᧚;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "a᧚",
+                                "start": 4,
+                                "end": 6,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 6
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 6,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 6
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 7,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 7
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 7,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 7
+                }
+            }
+        }
+      });
+
+      pass(`var \\u1886;`, {
+        source: 'var \\u1886;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "ᢆ",
+                                "start": 4,
+                                "end": 10,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 10
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 10,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 10
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 11,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 11
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 11,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 11
+                }
+            }
+        }
+      });
+
+      pass(`var ゛;`, {
+        source: 'var ゛;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "゛",
+                                "start": 4,
+                                "end": 5,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 5
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 5,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 5
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 6,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 6
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 6,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 6
+                }
+            }
+        }
+      });
+
+      pass(`var ᢅ;`, {
+        source: 'var ᢅ;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "ᢅ",
+                                "start": 4,
+                                "end": 5,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 5
+                                    }
+                                }
+                            },
+                            "start": 4,
+                            "end": 5,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 5
+                                }
+                            }
+                        }
+                    ],
+                    "kind": "var",
+                    "start": 0,
+                    "end": 6,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 6
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 6,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 6
+                }
+            }
+        }
+      });
+
       pass(`var \\u0024 = 1;`, {
           source: 'var \\u0024 = 1;',
           loc: true,

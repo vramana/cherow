@@ -1593,57 +1593,37 @@ describe('Statements - Variable', () => {
         
         fail(`var {a:a};`, {
             source: 'var {a:a};',
-            loc: true,
-            ranges: true,
-            raw: true
         });
     
         fail(`var {a};`, {
             source: 'var {a};',
-            loc: true,
-            ranges: true,
-            raw: true
         });
     
         fail(`var [a];`, {
             source: 'var [a];',
-            loc: true,
-            ranges: true,
-            raw: true
         });
     
         fail(`var this`, {
             source: 'var this',
-            loc: true,
-            ranges: true,
-            raw: true
         });
     
         fail(`var new A = 0;`, {
             source: 'var new A = 0;',
-            loc: true,
-            ranges: true,
-            raw: true
         });
     
         fail(`var (a)=0;`, {
             source: 'var (a)=0;',
-            loc: true,
-            ranges: true,
-            raw: true
         });
     
         fail(`var a[0]=0;`, {
             source: 'var a[0]=0;',
-            loc: true,
-            ranges: true,
-            raw: true
         });
     
         fail(`var const`, {
             source: 'var const',
-            loc: true,
-            ranges: true,
-            raw: true
+        });
+
+        fail(`var a.b;`, {
+            source: 'var a.b;',
         });
     });

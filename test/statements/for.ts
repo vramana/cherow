@@ -2534,6 +2534,163 @@ describe('Statements - For', () => {
             }
         });
 
+        pass(`for (() => { this in null };;);`, {
+            source: 'for (() => { this in null };;);',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ForStatement",
+                        "body": {
+                            "type": "EmptyStatement",
+                            "start": 30,
+                            "end": 31,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 31
+                                }
+                            }
+                        },
+                        "init": {
+                            "type": "ArrowFunctionExpression",
+                            "body": {
+                                "type": "BlockStatement",
+                                "body": [
+                                    {
+                                        "type": "ExpressionStatement",
+                                        "expression": {
+                                            "type": "BinaryExpression",
+                                            "left": {
+                                                "type": "ThisExpression",
+                                                "start": 13,
+                                                "end": 17,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 13
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 17
+                                                    }
+                                                }
+                                            },
+                                            "right": {
+                                                "type": "Literal",
+                                                "value": null,
+                                                "start": 21,
+                                                "end": 25,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 21
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 25
+                                                    }
+                                                },
+                                                "raw": "null"
+                                            },
+                                            "operator": "in",
+                                            "start": 13,
+                                            "end": 25,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 13
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 25
+                                                }
+                                            }
+                                        },
+                                        "start": 13,
+                                        "end": 25,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 13
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 25
+                                            }
+                                        }
+                                    }
+                                ],
+                                "start": 11,
+                                "end": 27,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 11
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 27
+                                    }
+                                }
+                            },
+                            "params": [],
+                            "id": null,
+                            "async": false,
+                            "generator": false,
+                            "expression": false,
+                            "start": 5,
+                            "end": 27,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 5
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 27
+                                }
+                            }
+                        },
+                        "test": null,
+                        "update": null,
+                        "start": 0,
+                        "end": 31,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 31
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 31,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 31
+                    }
+                }
+            }
+        });
+
         pass(`for (const [{ x, y, z } = { x: 44, y: 55, z: 66 }] = [{ x: 11, y: 22, z: 33 }]; i < 1; ) {}`, {
             source: 'for (const [{ x, y, z } = { x: 44, y: 55, z: 66 }] = [{ x: 11, y: 22, z: 33 }]; i < 1; ) {}',
             loc: true,
@@ -3240,127 +3397,74 @@ describe('Statements - For', () => {
         
         /*fail(`for (let x; false; ) { var x; }`, {
             source: 'for (let x; false; ) { var x; }',
-            loc: true,
-            ranges: true,
-            raw: true
         }); */
 
         fail(`for (const x; false; ) { var x; }`, {
             source: 'for (const x; false; ) { var x; }',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for(let let;;);`, {
             source: 'for(let let;;);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
-        /*fail(`for(let a, let;;);`, {
+        fail(`for(let a, let;;);`, {
             source: 'for(let a, let;;);',
-            loc: true,
-            ranges: true,
-            raw: true
         }); 
 
         fail(`for(const let = 0;;);`, {
             source: 'for(const let = 0;;);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for(const a = 0, let = 1;;);`, {
             source: 'for(const a = 0, let = 1;;);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
+
         fail(`for(let [let] = 0;;);`, {
             source: 'for(let [let] = 0;;);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
-*/
+
         fail(`for(let a, a;;);`, {
             source: 'for(let a, a;;);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
          fail(`for(let [a, a] = 0;;);`, {
              source: 'for(let [a, a] = 0;;);',
-             loc: true,
-             ranges: true,
-             raw: true
          });
 
         fail(`for(const a = 0, a = 1;;);`, {
             source: 'for(const a = 0, a = 1;;);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
          fail(`for(const [a, a] = 0;;);`, {
              source: 'for(const [a, a] = 0;;);',
-            loc: true,
-            ranges: true,
-            raw: true
          });
-/*
+
         fail(`for(const a;;);`, {
             source: 'for(const a;;);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for(const a = 0, b;;);`, {
             source: 'for(const a = 0, b;;);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
-*/
+
         fail(`for (const x; false; ) { var x; }`, {
             source: 'for (const x; false; ) { var x; }',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
 /*
         fail(`for(let {a, a} of 0);`, {
             source: 'for(let {a, a} of 0);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for(const {a, a} in 0);`, {
             source: 'for(const {a, a} in 0);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for(let {a, a} in 0);`, {
             source: 'for(let {a, a} in 0);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 */
         /*fail(`for({a=0};;);`, {
             source: 'for({a=0};;);',
-            loc: true,
-            ranges: true,
-            raw: true
         }); */
     });

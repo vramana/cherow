@@ -9,16 +9,16 @@ describe('Declarations - Let', () => {
         source: `let
     let = foo;`
     });
-    fail('escaped let', {
+    fail('l\\u0065t', {
         source: 'l\\u0065t'
     });
-    fail('disallow let as LHS expression in strict mode', {
+    fail('"use strict"; for (let in o) { }', {
         source: '"use strict"; for (let in o) { }'
     });
-    fail('let in array pattern without initializery', {
+    fail('let [x]', {
         source: 'let [x]'
     });
-    fail('let in object pattern without initializer', {
+    fail('let {x}', {
         source: 'let {x}'
     });
 
@@ -28,6 +28,10 @@ describe('Declarations - Let', () => {
 
     fail('if (true) {} else let x;', {
         source: 'if (true) {} else let x;'
+    });
+
+    fail('a: let a', {
+        source: 'a: let a'
     });
 
     fail('if (true) let x = 1;', {

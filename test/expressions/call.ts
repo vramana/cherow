@@ -107,6 +107,96 @@ describe('Expressions - Call', () => {
             }
         });
 
+        pass(`Function("-->");`, {
+            source: 'Function("-->");',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "CallExpression",
+                            "callee": {
+                                "type": "Identifier",
+                                "name": "Function",
+                                "start": 0,
+                                "end": 8,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 8
+                                    }
+                                }
+                            },
+                            "arguments": [
+                                {
+                                    "type": "Literal",
+                                    "value": "-->",
+                                    "start": 9,
+                                    "end": 14,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 9
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 14
+                                        }
+                                    },
+                                    "raw": "\"-->\""
+                                }
+                            ],
+                            "start": 0,
+                            "end": 15,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 15
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 16,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 16
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 16,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 16
+                    }
+                }
+            }
+        });
+
         pass(`async()`, {
             source: 'async()',
             loc: true,

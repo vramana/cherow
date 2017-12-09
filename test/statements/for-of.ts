@@ -1119,39 +1119,60 @@ describe('Statements - For of', () => {
             }
         });
         
-     /*   fail(`for ([[(x, y)]] of [[[]]]) ;`, {
+        fail(`for ([[(x, y)]] of [[[]]]) ;`, {
             source: 'for ([[(x, y)]] of [[[]]]) ;',
-            loc: true,
-            ranges: true,
-            raw: true
-        });*/
+        });
 
         fail(`for(let of 0);`, {
             source: 'for(let of 0);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
-      /*  fail(`for(this of 0);`, {
+        fail(`for(this of 0);`, {
             source: 'for(this of 0);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for(let.let of 0);`, {
             source: 'for(let.let of 0);',
-            loc: true,
-            ranges: true,
-            raw: true
-        }); */
+        }); 
 
         fail(`for (a=12 of e) break;`, {
             source: 'for (a=12 of e) break;',
-            loc: true,
-            ranges: true,
-            raw: true
+        });
+
+        fail(`for(let of 0);`, {
+            source: 'for(let of 0);',
+        });
+
+        fail(`for(this of 0);`, {
+            source: 'for(this of 0);',
+        });
+
+        fail(`for(var a = 0 of b);`, {
+            source: 'for(var a = 0 of b);',
+        });
+
+        fail(`for(let a = 0 of b);`, {
+            source: 'for(let a = 0 of b);',
+        });
+
+        fail(`for(const a = 0 of b);`, {
+            source: 'for(const a = 0 of b);',
+        });
+
+        fail(`for(({a}) of 0);`, {
+            source: 'for(({a}) of 0);',
+        });
+
+        fail(`for(([a]) of 0);`, {
+            source: 'for(([a]) of 0);',
+        });
+
+        fail(`for(var a of b, c);`, {
+            source: 'for(var a of b, c);',
+        });
+
+        fail(`for(a of b, c);`, {
+            source: 'for(a of b, c);',
         });
         
 });
