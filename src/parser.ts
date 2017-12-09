@@ -7,7 +7,6 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location, EmitComments } from './interface';
-
 export class Parser {
     
         // The program to be parsed
@@ -191,7 +190,14 @@ export class Parser {
         }
     
         private nextToken(context: Context) {
-            this.token = this.scanToken(context);
+            this.lastIndex = this.index;
+            this.lastColumn = this.column;
+            this.lastLine = this.line;
+    
+            if (!(context & Context.Strict) && this.flags & Flags.DirectivePrologue) {
+                context |= Context.Strict;
+            }
+            this.token = this.scan(context);
         }
     
         private hasNext(): boolean {
@@ -253,18 +259,9 @@ export class Parser {
          *
          * @param context Context
          */
-    
-        private scanToken(context: Context): Token {
+            private scan(context: Context): Token {
     
             this.flags &= ~(Flags.PrecedingLineBreak | Flags.ExtendedUnicodeEscape);
-    
-            if (!(context & Context.Strict) && this.flags & Flags.DirectivePrologue) {
-                context |= Context.Strict;
-            }
-    
-            this.lastIndex = this.index;
-            this.lastColumn = this.column;
-            this.lastLine = this.line;
     
             let state = this.index === 0 ? ScanState.LineStart : ScanState.None;
     
@@ -275,14 +272,14 @@ export class Parser {
                 this.startLine = this.line;
     
                 let first = this.nextChar();
-
-                // Skip initial BOM.
-                if (this.source.charCodeAt(this.index) === Chars.ByteOrderMark) {
-                    this.index++;
+    
+                if (first >= 128) {
+                    // Skip initial BOM.
+                    if (this.nextChar() === Chars.ByteOrderMark) this.index++;
+                    // Chars not in the range 0..127 are rare.  Getting them out of the way
+                    // early allows subsequent checking to be faster.
+                    first = this.nextUnicodeChar()
                 }
-                // Chars not in the range 0..127 are rare.  Getting them out of the way
-                // early allows subsequent checking to be faster.
-                if (first >= 128) first = this.nextUnicodeChar()
     
                 switch (first) {
     
@@ -328,7 +325,6 @@ export class Parser {
                     case Chars.ZeroWidthNoBreakSpace:
                     case Chars.ZeroWidthJoiner:
                     case Chars.ZeroWidthNonJoiner:
-                        state |= ScanState.SameLine;
                         this.advance();
                         continue;
     
@@ -441,8 +437,8 @@ export class Parser {
                             continue;
                         }
                         return Token.Hash;
-                        
-                       // `{`
+    
+                        // `{`
                     case Chars.LeftBrace:
                         this.advance();
                         return Token.LeftBrace;
@@ -4930,11 +4926,11 @@ export class Parser {
             const sequencePos = this.getLocations();
             this.errorLocation = pos;
             let isSequence = false;
-
+    
             if (context & Context.Yield && this.token === Token.YieldKeyword) this.flags |= Flags.Yield;
             if (this.token === Token.LeftParen) state |= ParenthesizedState.Parenthesized;
             if (this.token & Token.BindingPattern) state |= ParenthesizedState.Pattern;
-
+    
             if (this.isEvalOrArguments(this.tokenValue)) state |= ParenthesizedState.EvalOrArg;
             if (this.token & Token.FutureReserved) state |= ParenthesizedState.FutureReserved;
     
@@ -4968,9 +4964,9 @@ export class Parser {
                         expressions.push(this.parseAssignmentExpression(context));
                     }
                 }
-                
+    
                 isSequence = true;
-
+    
                 expr = this.finishNode(context, sequencePos, {
                     type: 'SequenceExpression',
                     expressions
@@ -4989,7 +4985,7 @@ export class Parser {
                 if (this.flags & Flags.Operator) this.error(Errors.IllegalArrowFuncParamList);
                 if (state & ParenthesizedState.FutureReserved) this.flags |= Flags.Binding;
                 if (this.flags & Flags.Yield) this.error(Errors.InvalidArrowYieldParam);
-                if (state & ParenthesizedState.EvalOrArg)  this.flags |= Flags.Binding
+                if (state & ParenthesizedState.EvalOrArg) this.flags |= Flags.Binding
                 if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
                 return this.parseArrowFunctionExpression(context, pos, isSequence ? (expr as any).expressions : [expr]);
             }
@@ -5318,7 +5314,7 @@ export class Parser {
         }
     
         private parseBindingIdentifier(context: Context): ESTree.Identifier {
-
+    
             const t = this.token;
     
             if (context & Context.ForceBinding && !this.isIdentifier(context, this.token)) {

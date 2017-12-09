@@ -477,7 +477,13 @@ Parser.prototype.rewindState = function rewindState (state) {
     this.flags = state.flags;
 };
 Parser.prototype.nextToken = function nextToken (context) {
-    this.token = this.scanToken(context);
+    this.lastIndex = this.index;
+    this.lastColumn = this.column;
+    this.lastLine = this.line;
+    if (!(context & 2 /* Strict */) && this.flags & 8192 /* DirectivePrologue */) {
+        context |= 2 /* Strict */;
+    }
+    this.token = this.scan(context);
 };
 Parser.prototype.hasNext = function hasNext () {
     return this.index < this.source.length;
@@ -529,44 +535,30 @@ Parser.prototype.consume = function consume (code) {
     this.advance();
     return true;
 };
-// Skip initial BOM and/or shebang.
-Parser.prototype.skipBOM = function skipBOM () {
-    if (this.index === this.source.length)
-        { return; }
-    if (this.source.charCodeAt(this.index) === 65519 /* ByteOrderMark */) {
-        this.index++;
-    }
-};
 /**
  * Scan the entire source code. Skips whitespace and comments, and
  * return the token at the given index.
  *
  * @param context Context
  */
-Parser.prototype.scanToken = function scanToken (context) {
+Parser.prototype.scan = function scan (context) {
         var this$1 = this;
 
     this.flags &= ~(1 /* PrecedingLineBreak */ | 2 /* ExtendedUnicodeEscape */);
-    if (!(context & 2 /* Strict */) && this.flags & 8192 /* DirectivePrologue */) {
-        context |= 2 /* Strict */;
-    }
-    this.lastIndex = this.index;
-    this.lastColumn = this.column;
-    this.lastLine = this.line;
     var state = this.index === 0 ? 4 /* LineStart */ : 0;
     while (this.hasNext()) {
         this$1.startIndex = this$1.index;
         this$1.startColumn = this$1.column;
         this$1.startLine = this$1.line;
         var first = this$1.nextChar();
-        // Skip initial BOM.
-        if (this$1.source.charCodeAt(this$1.index) === 65519 /* ByteOrderMark */) {
-            this$1.index++;
+        if (first >= 128) {
+            // Skip initial BOM.
+            if (this$1.nextChar() === 65519 /* ByteOrderMark */)
+                { this$1.index++; }
+            // Chars not in the range 0..127 are rare.  Getting them out of the way
+            // early allows subsequent checking to be faster.
+            first = this$1.nextUnicodeChar();
         }
-        // Chars not in the range 0..127 are rare.  Getting them out of the way
-        // early allows subsequent checking to be faster.
-        if (first >= 128)
-            { first = this$1.nextUnicodeChar(); }
         switch (first) {
             case 13 /* CarriageReturn */:
                 state |= 2 /* LastIsCR */ | 4 /* LineStart */;
@@ -607,7 +599,6 @@ Parser.prototype.scanToken = function scanToken (context) {
             case 65279 /* ZeroWidthNoBreakSpace */:
             case 8204 /* ZeroWidthJoiner */:
             case 8205 /* ZeroWidthNonJoiner */:
-                state |= 128 /* SameLine */;
                 this$1.advance();
                 continue;
             // `/`, `/=`, `/>`
