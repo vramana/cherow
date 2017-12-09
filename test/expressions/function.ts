@@ -26,6 +26,14 @@ describe('Statements - Function', () => {
         source: '"use strict"; (function({a: x}, {b: x}){})',
     });
 
+    fail(`(function((a)){})`, {
+        source: '(function((a)){})',
+    });
+
+    fail(`(function(...a, b){})`, {
+        source: '(function(...a, b){})',
+    });
+
     pass(`(function x(y, z) { })`, {
         source: `(function x(y, z) { })`,
         loc: true,

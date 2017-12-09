@@ -1,7 +1,7 @@
 import { pass, fail } from '../utils';
 
 describe('Expressions - Call', () => {
- 
+
         pass(`a(b,c)`, {
             source: 'a(b,c)',
             loc: true,

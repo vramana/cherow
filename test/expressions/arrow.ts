@@ -1819,36 +1819,69 @@ describe('Expressions - Arrow', () => {
     
         fail(`[]=>0`, {
             source: '[]=>0',
-            loc: true,
-            ranges: true,
-            raw: true
         });
     
         fail(`() ? 0`, {
             source: '() ? 0',
-            loc: true,
-            ranges: true,
-            raw: true
+        });
+
+        fail(`(a)\n=> 0`, {
+            source: '(a)\n=> 0',
         });
     
         fail(`1 + ()`, {
             source: '1 + ()',
-            loc: true,
-            ranges: true,
-            raw: true
         });
     
         fail(`1 + ()`, {
             source: '1 + ()',
-            loc: true,
-            ranges: true,
-            raw: true
         });
     
         fail(`a\n=> 0`, {
             source: 'a\n=> 0',
-            loc: true,
-            ranges: true,
-            raw: true
+        });
+
+        fail(`(a,...a)/*\u2028*/ => 0`, {
+            source: '(a,...a)/*\u2028*/ => 0',
+        });
+    
+        fail(`a\n=> 0`, {
+            source: 'a\n=> 0',
+        });
+    
+        fail(`((a),...a) => 1`, {
+            source: '((a),...a) => 1',
+        });
+    
+        fail(`(a,...a)\n`, {
+            source: '(a,...a)\n',
+        });
+    
+        fail(`(a,...a)/*\u2028*/ => 0`, {
+            source: '(a,...a)/*\u2028*/ => 0',
+        });
+    
+        fail(`(a,...a)/*\u2029*/ => 0`, {
+            source: '(a,...a)/*\u2029*/ => 0',
+        });
+    
+        fail(`() <= 0`, {
+            source: '() <= 0',
+        });
+    
+        fail(`() + 0`, {
+            source: '() + 0',
+        });
+
+        fail(`(a,...a)/*\u202a*/`, {
+            source: '(a,...a)/*\u202a*/',
+        });
+
+        fail(`(a,...a)/*\n*/ => 0`, {
+            source: '(a,...a)/*\n*/ => 0',
+        });
+
+        fail(`(a,...a)/*\r\n*/ => 0`, {
+            source: '(a,...a)/*\r\n*/ => 0',
         });
     });

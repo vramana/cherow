@@ -5783,8 +5783,6 @@ describe('Miscellaneous - AnnexB', () => {
         });
     
         describe('B.3.4', () => {
-            //        fail('for(;;) function a(){}', 'for(;;) function a(){}');
-            //        fail('for(a in b) function c(){}', 'for(a in b) function c(){}');
     
             fail(`"use strict"; if (0) function f(){}`, {
                 source: `"use strict"; if (0) function f(){}`,
@@ -5808,6 +5806,338 @@ describe('Miscellaneous - AnnexB', () => {
     
             fail(`with(true) function a(){}`, {
                 source: `with(true) function a(){}`,
+            });
+
+            pass(`if (x) function f() { return 23; } else function f() { return 42; }`, {
+                source: 'if (x) function f() { return 23; } else function f() { return 42; }',
+                loc: true,
+                ranges: true,
+                raw: true,
+                expected: {
+                    "type": "Program",
+                    "body": [
+                        {
+                            "type": "IfStatement",
+                            "test": {
+                                "type": "Identifier",
+                                "name": "x",
+                                "start": 4,
+                                "end": 5,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 5
+                                    }
+                                }
+                            },
+                            "alternate": {
+                                "type": "FunctionDeclaration",
+                                "params": [],
+                                "body": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                        {
+                                            "type": "ReturnStatement",
+                                            "argument": {
+                                                "type": "Literal",
+                                                "value": 42,
+                                                "start": 62,
+                                                "end": 64,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 62
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 64
+                                                    }
+                                                },
+                                                "raw": "42"
+                                            },
+                                            "start": 55,
+                                            "end": 65,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 55
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 65
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "start": 53,
+                                    "end": 67,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 53
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 67
+                                        }
+                                    }
+                                },
+                                "async": false,
+                                "generator": false,
+                                "expression": false,
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "f",
+                                    "start": 49,
+                                    "end": 50,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 49
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 50
+                                        }
+                                    }
+                                },
+                                "start": 40,
+                                "end": 67,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 40
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 67
+                                    }
+                                }
+                            },
+                            "consequent": {
+                                "type": "FunctionDeclaration",
+                                "params": [],
+                                "body": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                        {
+                                            "type": "ReturnStatement",
+                                            "argument": {
+                                                "type": "Literal",
+                                                "value": 23,
+                                                "start": 29,
+                                                "end": 31,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 29
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 31
+                                                    }
+                                                },
+                                                "raw": "23"
+                                            },
+                                            "start": 22,
+                                            "end": 32,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 22
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 32
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "start": 20,
+                                    "end": 34,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 20
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 34
+                                        }
+                                    }
+                                },
+                                "async": false,
+                                "generator": false,
+                                "expression": false,
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "f",
+                                    "start": 16,
+                                    "end": 17,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 16
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 17
+                                        }
+                                    }
+                                },
+                                "start": 7,
+                                "end": 34,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 7
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 34
+                                    }
+                                }
+                            },
+                            "start": 0,
+                            "end": 67,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 67
+                                }
+                            }
+                        }
+                    ],
+                    "sourceType": "script",
+                    "start": 0,
+                    "end": 67,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 67
+                        }
+                    }
+                }
+            });
+
+            pass(`if (x) function f() {}`, {
+                source: 'if (x) function f() {}',
+                loc: true,
+                ranges: true,
+                raw: true,
+                expected: {
+                    "type": "Program",
+                    "body": [
+                        {
+                            "type": "IfStatement",
+                            "test": {
+                                "type": "Identifier",
+                                "name": "x",
+                                "start": 4,
+                                "end": 5,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 5
+                                    }
+                                }
+                            },
+                            "alternate": null,
+                            "consequent": {
+                                "type": "FunctionDeclaration",
+                                "params": [],
+                                "body": {
+                                    "type": "BlockStatement",
+                                    "body": [],
+                                    "start": 20,
+                                    "end": 22,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 20
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 22
+                                        }
+                                    }
+                                },
+                                "async": false,
+                                "generator": false,
+                                "expression": false,
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "f",
+                                    "start": 16,
+                                    "end": 17,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 16
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 17
+                                        }
+                                    }
+                                },
+                                "start": 7,
+                                "end": 22,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 7
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 22
+                                    }
+                                }
+                            },
+                            "start": 0,
+                            "end": 22,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 22
+                                }
+                            }
+                        }
+                    ],
+                    "sourceType": "script",
+                    "start": 0,
+                    "end": 22,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 22
+                        }
+                    }
+                }
             });
         });
     

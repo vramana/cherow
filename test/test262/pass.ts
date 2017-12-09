@@ -17,7 +17,7 @@ describe('test262 tests', () => parserTest262({
         'regexp-unicode-property-escapes',
     ],
     ignore: [
-
+        // TODO!
         'test/annexB/language/global-code/block-decl-global-no-skip-try.js',
         'test/annexB/language/comments/multi-line-html-close.js',
         'test/annexB/language/statements/for-in/nonstrict-initializer.js',

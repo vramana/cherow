@@ -23,8 +23,136 @@ describe('Literals - RegExp', () => {
         next: true
     });
 
+    fail(`/./sis`, {
+        source: '/./sis',
+        next: true
+    });
+
+    fail(`/./sis`, {
+        source: '/./sis',
+        next: true
+    });
+
+    fail(`var x = /[\u0063-b]/u;`, {
+        source: 'var x = /[\u0063-b]/u;',
+        next: true
+    });
+
+    fail(`var x = /[\f\n\r]/u;`, {
+        source: 'var x = /[\n\r]/u;',
+        next: true
+    });
+
+    fail(`var x = /[\u{63}-b]/u;`, {
+        source: 'var x = /[\u{63}-b]/u;',
+        next: true
+    });
+
+    fail(`/./yiy`, {
+        source: '/./yiy',
+        next: true
+    });
+
+    fail(`/./uu`, {
+        source: '/./uu',
+        next: true
+    });
+
     fail(`var re = //;`, {
         source: 'var re = //;',
+    });
+
+    pass(`var x = /[\u{61}-b][\u0061-b][a-\u{62}][a-\u0062]\u{1ffff}/u;`, {
+        source: 'var x = /[\u{61}-b][\u0061-b][a-\u{62}][a-\u0062]\u{1ffff}/u;',
+        expected: {
+              "body": [
+                {
+                  "declarations": [
+                    {
+                      "id": {
+                        "name": "x",
+                        "type": "Identifier"
+                      },
+                      "init": {
+                        "regex": {
+                          "flags": "u",
+                          "pattern": "[a-b][a-b][a-b][a-b]🿿"
+                        },
+                        "type": "Literal",
+                        "value": /[a-b][a-b][a-b][a-b]🿿/u
+                      },
+                     "type": "VariableDeclarator"
+                    }
+                  ],
+                  "kind": "var",
+                  "type": "VariableDeclaration"
+                },
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
+    });
+
+    pass(`var x = /=([^=\s])+/g`, {
+        source: 'var x = /=([^=\s])+/g',
+        expected: {
+              "body": [
+                {
+                  "declarations": [
+                    {
+                      "id": {
+                        "name": "x",
+                        "type": "Identifier"
+                      },
+                      "init": {
+                        "regex": {
+                          "flags": "g",
+                          "pattern": "=([^=s])+",
+                        },
+                        "type": "Literal",
+                        "value": /=([^=s])+/g,
+                      },
+                      "type": "VariableDeclarator"
+                    }
+                  ],
+                  "kind": "var",
+                  "type": "VariableDeclaration"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
+    });
+
+    pass(`var x = /[x-z]/i`, {
+        source: 'var x = /[x-z]/i',
+        expected: {
+              "body": [
+                {
+                  "declarations": [
+                    {
+                      "id": {
+                        "name": "x",
+                        "type": "Identifier"
+                      },
+                      "init": {
+                        "regex": {
+                          "flags": "i",
+                          "pattern": "[x-z]",
+                        },
+                        "type": "Literal",
+                        "value": /[x-z]/i,
+                     },
+                      "type": "VariableDeclarator"
+                    }
+                  ],
+                  "kind": "var",
+                  "type": "VariableDeclaration"
+               }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
     });
 
     pass(`/(?:)/\u0067`, {

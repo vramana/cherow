@@ -2573,6 +2573,115 @@ describe('Expressions - New', () => {
             }
         });
 
+        pass(`({ enum: 0 })`, {
+            source: '({ enum: 0 })',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "ObjectExpression",
+                            "properties": [
+                                {
+                                    "type": "Property",
+                                    "key": {
+                                        "type": "Identifier",
+                                        "name": "enum",
+                                        "start": 3,
+                                        "end": 7,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 3
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 7
+                                            }
+                                        }
+                                    },
+                                    "value": {
+                                        "type": "Literal",
+                                        "value": 0,
+                                        "start": 9,
+                                        "end": 10,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 9
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 10
+                                            }
+                                        },
+                                        "raw": "0"
+                                    },
+                                    "kind": "init",
+                                    "computed": false,
+                                    "method": false,
+                                    "shorthand": false,
+                                    "start": 3,
+                                    "end": 10,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 3
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 10
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 1,
+                            "end": 12,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 1
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 12
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 13,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 13
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 13,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 13
+                    }
+                }
+            }
+        });
+
         pass(`({a, b: 0, c})`, {
             source: '({a, b: 0, c})',
             loc: true,

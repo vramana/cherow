@@ -664,4 +664,389 @@ describe('Miscellaneous - Failure', () => {
             source: `export { if as foo }`,
             module: true
         });
+    
+        fail('0 = 0;', {
+            source: `0 = 0;`,
+        });
+        fail('0++', {
+            source: `0++`,
+        });
+        fail('0--', {
+            source: `0--`,
+        });
+        fail('({a}) = 0;', {
+            source: `({a}) = 0;`,
+        });
+        fail('[a] *= 0;', {
+            source: `[a] *= 0;`,
+        });
+        fail('0 /= 0;', {
+            source: `0 /= 0;`,
+        });
+        fail('[...{a: 0}] = 0;', {
+            source: `[...{a: 0}] = 0;`,
+        });
+        fail('for({a: 0} in 0);', {
+            source: `for({a: 0} in 0);`,
+        });
+        fail('for([0] in 0);', {
+            source: `for([0] in 0);`,
+        });
+        fail('for([0] of 0);', {
+            source: `for([0] of 0);`,
+        });
+        fail('for(0 of 0);', {
+            source: `for(0 of 0);`,
+        });
+        fail('for((0) in 0);', {
+            source: `for((0) in 0);`,
+        });
+        fail('for((0) of 0);', {
+            source: `for((0) of 0);`,
+        });
+        fail('a\\u{0}', {
+            source: `a\\u{0}`,
+        });
+        fail('\\u{FFFFFFF}")', {
+            source: `\\u{FFFFFFF}")`,
+        });
+    
+        fail('/./\\u0069', {
+            source: `/./\\u{69}`,
+        });
+    
+        fail('"use strict"; implements:0;', {
+            source: `"use strict"; implements:0;`,
+        });
+    
+        fail('"use strict"; +package;', {
+            source: `"use strict"; +package;`,
+        });
+    
+        fail('"use strict"; +static;', {
+            source: `"use strict"; +static;`,
+        });
+    
+        fail('"use strict"; yield:0;', {
+            source: `"use strict"; yield:0;`,
+        });
+    
+        fail('"use strict"; function a([yield]){}', {
+            source: `"use strict"; function a([yield]){}`,
+        });
+    
+        fail('"use strict"; function a({yield}){}', {
+            source: `"use strict"; function a({yield}){}`,
+        });
+    
+        fail('(package) => { "use strict"; }', {
+            source: `(package) => { "use strict"; }`,
+        });
+    
+        fail('async (package) => { "use strict"; }', {
+            source: `async (package) => { "use strict"; }`,
+        });
+    
+        fail('!{ get a() { "use strict"; +let; } }', {
+            source: `!{ get a() { "use strict"; +let; } }`,
+        });
+    
+        fail('({ a(){ super(); } });', {
+            source: `({ a(){ super(); } });`,
+        });
+    
+        fail('{ const a = 0; let a; }', {
+            source: `{ const a = 0; let a; }`,
+        });
+    
+        fail('{ function a(){} function a(){} }', {
+            source: `{ function a(){} function a(){} }`,
+        });
+        fail('/?/', {
+            source: `/?/`,
+        });
+    
+        fail('let {a: b, c: b} = 0', {
+            source: `let {a: b, c: b} = 0`,
+        });
+    
+        fail('let a, b, a;', {
+            source: `let a, b, a;`,
+        });
+    
+        fail('const a = 0, a = 1;', {
+            source: `const a = 0, a = 1;`,
+        });
+    
+        fail('const a = 0, b = 1, a = 2;', {
+            source: `const a = 0, b = 1, a = 2;`,
+        });
+    
+        fail('let \\u0061, \\u{0061};', {
+            source: `let \\u0061, \\u{0061};`,
+        });
+    
+        fail('let x\\u{E01D5}, x\uDB40\uDDD5;', {
+            source: `let x\\u{E01D5}, x\uDB40\uDDD5;`,
+        });
+    
+        fail('{ const a; }', {
+            source: `{ const a; }`,
+        });
+    
+        fail('const a;', {
+            source: `const a;`,
+        });
+    
+        fail('for(const a = 0, b;;);', {
+            source: `for(const a = 0, b;;);`,
+        });
+    
+        fail('if(0) label: function f(){}', {
+            source: `if(0) label: function f(){}`,
+        });
+    
+        fail('do label: function f(){} while (0)', {
+            source: `do label: function f(){} while (0)`,
+        });
+    
+        fail('for(let a;;) label: function f(){}', {
+            source: `for(let a;;) label: function f(){}`,
+        });
+    
+        fail('for(a in b) label: function f(){}', {
+            source: `for(a in b) label: function f(){}`,
+        });
+    
+        fail('for(let a in b) label: function f(){}', {
+            source: `for(let a in b) label: function f(){}`,
+        });
+    
+        fail('for(a of b) label: function f(){}', {
+            source: `for(a of b) label: function f(){}`,
+        });
+    
+        fail('for(;;) labelA: labelB: labelC: function f(){}', {
+            source: `for(;;) labelA: labelB: labelC: function f(){}`,
+        });
+    
+        fail('continue;', {
+            source: `continue;`,
+        });
+    
+        fail('if(0) continue;', {
+            source: `if(0) continue;`,
+        });
+    
+        fail('label: continue label;', {
+            source: `label: continue label;`,
+        });
+    
+        fail('label: if(0) continue label;', {
+            source: `label: if(0) continue label;`,
+        });
+    
+        fail('label: while(0) { function f(){ continue label; } }', {
+            source: `label: while(0) { function f(){ continue label; } }`,
+        });
+    
+        fail('break;', {
+            source: `break;`,
+        });
+    
+        fail('while(0) !function(){ break; };', {
+            source: `while(0) !function(){ break; };`,
+        });
+    
+        fail('switch(0) { case 0: function f(){ break; } }', {
+            source: `switch(0) { case 0: function f(){ break; } }`,
+        });
+    
+        fail('switch(0) { default: function f(){ break; } }', {
+            source: `switch(0) { default: function f(){ break; } }`,
+        });
+    
+        fail('with(0) label: function f(){}', {
+            source: `with(0) label: function f(){}`,
+        });
+    
+        fail('switch(0) { case 0: let a; case 1: let a; }', {
+            source: `switch(0) { case 0: let a; case 1: let a; }`,
+        });
+    
+        fail('switch(0) { default: let a; case 0: let a; }', {
+            source: `switch(0) { default: let a; case 0: let a; }`,
+        });
+    
+        fail('switch(0) { case 0: let a; case 1: var a; }', {
+            source: `switch(0) { case 0: let a; case 1: var a; }`,
+        });
+    
+        fail('switch(0) { default: var a; case 0: let a; }', {
+            source: `switch(0) { default: var a; case 0: let a; }`,
+        });
+    
+        fail('switch(0) { default: var a; case 0: const a = 0; }', {
+            source: `switch(0) { default: var a; case 0: const a = 0; }`,
+        });
+    
+        fail('"use strict"; !function eval(){}', {
+            source: `"use strict"; !function eval(){}`,
+        });
+    
+        fail('"use strict"; !function arguments(){}', {
+            source: `"use strict"; !function arguments(){}`,
+        });
+    
+        fail('"use strict"; function arguments(){}', {
+            source: `"use strict"; function arguments(){}`,
+        });
+    
+        fail('function f(a){ let a; }', {
+            source: `function f(a){ let a; }`,
+        });
+    
+        fail('function f(a){ const a = 0; }', {
+            source: `function f(a){ const a = 0; }`,
+        });
+    
+        fail('!function(a){ const a = 0; }', {
+            source: `!function(a){ const a = 0; }`,
+        });
+    
+        fail('!function f(a = super[0]){}', {
+            source: `!function f(a = super[0]){}`,
+        });
+    
+        fail('!function f(a){ super[0] }', {
+            source: `!function f(a){ super[0] }`,
+        });
+    
+        fail('function f(a){ super() }', {
+            source: `function f(a){ super() }`,
+        });
+    
+        fail('!{ *g([a, a]){} };', {
+            source: `!{ *g([a, a]){} };`,
+        });
+    
+        fail('!{ get f(){ let a; let a; } };', {
+            source: `!{ get f(){ let a; let a; } };`,
+        });
+    
+        fail('([a, a]) => 0;', {
+            source: `([a, a]) => 0;`,
+        });
+    
+        fail('function f(){ const a = 0; var a; }', {
+            source: `function f(){ const a = 0; var a; }`,
+        });
+    
+        fail('class A { static f(){ let a; var a; } }', {
+            source: `class A { static f(){ let a; var a; } }`,
+        });
+    
+        fail('function f(){ break label; }', {
+            source: `function f(){ break label; }`,
+        });
+    
+        fail('function f(){ labelA: while(0) continue labelB; }', {
+            source: `function f(){ labelA: while(0) continue labelB; }`,
+        });
+    
+        fail('function* g(){ ([a = yield]) => 0; }', {
+            source: `function* g(){ ([a = yield]) => 0; }`,
+        });
+    
+        fail('({a}) => { const a = 0; }', {
+            source: `({a}) => { const a = 0; }`,
+        });
+    
+        fail('for(let a;;) label: function f(){}', {
+            source: `for(let a;;) label: function f(){}`,
+        });
+    
+        fail('function* g(){ (a = yield* b) => 0; }', {
+            source: `function* g(){ (a = yield* b) => 0; }`,
+        });
+    
+        fail('function* g(){ (a = yield) => 0; }', {
+            source: `function* g(){ (a = yield) => 0; }`,
+        });
+    
+        fail('!{ f([a]){ let a; } };', {
+            source: `!{ f([a]){ let a; } };`,
+        });
+    
+        fail('!{ f(a) { let a; } };', {
+            source: `!{ f(a) { let a; } };`,
+        });
+    
+        fail('!function* f(a = super()){}', {
+            source: `!function* f(a = super()){}`,
+        });
+    
+        fail('function* g(){ ({ *m([a = yield]){} }); }', {
+            source: `function* g(){ ({ *m([a = yield]){} }); }`,
+        });
+    
+        fail('function* g(){ !function*([a = yield]){} }', {
+            source: `function* g(){ !function*([a = yield]){} }`,
+        });
+    
+        fail('function* f(a = super.b){}', {
+            source: `function* f(a = super.b){}`,
+        });
+    
+        fail('class A extends B { a() { !function* (){ super.b(); } } }', {
+            source: `class A extends B { a() { !function* (){ super.b(); } } }`,
+        });
+    
+        fail('class A { constructor() { (class {[super()](){}}); } }', {
+            source: `class A { constructor() { (class {[super()](){}}); } }`,
+        });
+    
+        fail('class A extends B { static prototype(){} }', {
+            source: `class A extends B { static prototype(){} }`,
+        });
+    
+        fail('class A extends B { static set prototype(a) {} }', {
+            source: `class A extends B { static set prototype(a) {} }`,
+        });
+    
+        fail('const a = 0; var a;', {
+            source: `const a = 0; var a;`,
+        });
+    
+        fail('var a; const a = 0;', {
+            source: `var a; const a = 0;`,
+        });
+    
+        fail('super()', {
+            source: `super()`,
+        });
+    
+        fail('labelA: break labelB;', {
+            source: `labelA: break labelB;`,
+        });
+    
+        fail('new.target', {
+            source: `new.target`,
+        });
+    
+        fail('var a; export class a {};', {
+            source: `var a; export class a {};`,
+        });
+    
+        fail('!{ __proto__: null, __proto__: null, };', {
+            source: `!{ __proto__: null, __proto__: null, };;`,
+        });
+    
+        fail('super.a', {
+            source: `super.a`,
+        });
+    
+        fail('try {} catch(e) { function e(){} }', {
+            source: `try {} catch(e) { function e(){} }`,
+        });
     });
