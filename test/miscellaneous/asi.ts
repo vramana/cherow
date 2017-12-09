@@ -2,7 +2,43 @@ import { pass, fail } from '../utils';
 
 describe('Miscellaneous - ASI', () => {
 
-    fail(`for(false;false;;false) { break; }`, {
+  fail(`Variable1 \n ++ \n ++ \n Variable2 construction`, {
+    source: `var x=0, y=0;
+    var z=
+    x
+    ++
+    ++
+    y`,
+});    
+
+fail(`invalid Do-While Statement ASI`, {
+  source: `do {}; \n while(false)`,
+});    
+
+fail(`for header is (false \n false \n)`, {
+  source: `for(false
+    false
+) {
+  break;
+}`,
+});    
+
+fail(`for header is (\n false \n)`, {
+  source: `for(
+    false
+) {
+  break;
+}`,
+});    
+
+fail(`for header is (\n semicolon false)`, {
+  source: `for(
+    ;false) {
+      break;
+    }`,
+});    
+
+  fail(`for(false;false;;false) { break; }`, {
         source: `for(false;false;;false) {
             break;
           }`,
@@ -11,6 +47,339 @@ describe('Miscellaneous - ASI', () => {
     fail(`\n while(false)`, {
         source: `\n while(false)`,
     });    
+
+    pass(`;;1;;1;;1`, {
+      source: `;;1;;1;;1`,
+      loc: true,
+      ranges: true,
+      raw: true,
+      expected: {
+        "type": "Program",
+        "body": [
+            {
+                "type": "EmptyStatement",
+                "start": 0,
+                "end": 1,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 1
+                    }
+                }
+            },
+            {
+                "type": "EmptyStatement",
+                "start": 1,
+                "end": 2,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 1
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 2
+                    }
+                }
+            },
+            {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "Literal",
+                    "value": 1,
+                    "start": 2,
+                    "end": 3,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 2
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 3
+                        }
+                    },
+                    "raw": "1"
+                },
+                "start": 2,
+                "end": 4,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 2
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 4
+                    }
+                }
+            },
+            {
+                "type": "EmptyStatement",
+                "start": 4,
+                "end": 5,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 4
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 5
+                    }
+                }
+            },
+            {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "Literal",
+                    "value": 1,
+                    "start": 5,
+                    "end": 6,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 5
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 6
+                        }
+                    },
+                    "raw": "1"
+                },
+                "start": 5,
+                "end": 7,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 5
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 7
+                    }
+                }
+            },
+            {
+                "type": "EmptyStatement",
+                "start": 7,
+                "end": 8,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 7
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 8
+                    }
+                }
+            },
+            {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "Literal",
+                    "value": 1,
+                    "start": 8,
+                    "end": 9,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 8
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 9
+                        }
+                    },
+                    "raw": "1"
+                },
+                "start": 8,
+                "end": 9,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 8
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 9
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 9,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 1,
+                "column": 9
+            }
+        }
+    }
+    });
+
+    pass(`;;;;`, {
+      source: `;;;;`,
+      loc: true,
+      ranges: true,
+      raw: true,
+      expected: {
+        "type": "Program",
+        "body": [
+            {
+                "type": "EmptyStatement",
+                "start": 0,
+                "end": 1,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 1
+                    }
+                }
+            },
+            {
+                "type": "EmptyStatement",
+                "start": 1,
+                "end": 2,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 1
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 2
+                    }
+                }
+            },
+            {
+                "type": "EmptyStatement",
+                "start": 2,
+                "end": 3,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 2
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 3
+                    }
+                }
+            },
+            {
+                "type": "EmptyStatement",
+                "start": 3,
+                "end": 4,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 3
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 4
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 4,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 1,
+                "column": 4
+            }
+        }
+    }
+    });
+
+    pass(`0\n;`, {
+      source: `0\n;`,
+      raw: true,
+      expected: {
+          "body": [
+            {
+              "expression": {
+                "raw": "0",
+                "type": "Literal",
+                "value": 0,
+              },
+              "type": "ExpressionStatement"
+            }
+          ],
+          "sourceType": "script",
+          "type": "Program"
+        }
+    });
+
+    pass(`x: while(true) { continue x\n; }`, {
+      source: `    \t \f\v 'abc'  \t `,
+      raw: true,
+      expected: {
+          "body": [
+            {
+              "expression": {
+                "raw": "'abc'",
+                "type": "Literal",
+                "value": "abc"
+              },
+             "type": "ExpressionStatement"
+            }
+          ],
+          "sourceType": "script",
+          "type": "Program"
+        }
+    });
+
+    pass(`    \t \f\v\n 'abc'  \t `, {
+      source: `    \t \f\v\n 'abc'  \t `,
+      raw: true,
+      expected: {
+          "body": [
+            {
+              "expression": {
+                "raw": "'abc'",
+                "type": "Literal",
+                "value": "abc",
+              },
+              "type": "ExpressionStatement"
+            },
+          ],
+          "sourceType": "script",
+          "type": "Program"
+        }
+    });
+
+    pass(`    \t \f\v\n`, {
+      source: `    \t \f\v\n`,
+      raw: true,
+      expected: {
+          "body": [],
+          "sourceType": "script",
+          "type": "Program"
+        }
+    });
 
     pass(`x: while(true) { continue x\n; }`, {
         source: `x: while(true) { continue x
@@ -148,7 +517,43 @@ describe('Miscellaneous - ASI', () => {
             "sourceType": "script"
           }
     });
+/*
+    pass(`function f() { return\n; }`, {
+      source: `function f() { return
+          ; }`,
+      loc: true,
+      ranges: true,
+      raw: true,    
+      expected: {}
+    });
 
+    pass(`function f() { return\n; }`, {
+      source: `function f() { return
+          ; }`,
+      loc: true,
+      ranges: true,
+      raw: true,    
+      expected: {}
+    });
+
+    pass(`function f() { return\n; }`, {
+      source: `function f() { return
+          ; }`,
+      loc: true,
+      ranges: true,
+      raw: true,    
+      expected: {}
+    });
+
+    pass(`function f() { return\n; }`, {
+      source: `function f() { return
+          ; }`,
+      loc: true,
+      ranges: true,
+      raw: true,    
+      expected: {}
+    });
+*/
     pass(`function f() { return\n; }`, {
         source: `function f() { return
             ; }`,

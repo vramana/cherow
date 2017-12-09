@@ -38,7 +38,52 @@ describe('Expressions - Await', () => {
         source: 'async(e=await)=>l',
     });
  
-        pass(`function* foo(await) { yield await; };`, {
+    fail(`async function f() { let await; }`, {
+        source: 'async function f() { let await; }',
+    });
+
+    fail(`class X { async function f() { let await } }`, {
+        source: 'class X { async function f() { let await } }',
+    });
+
+    fail(`a = async function () { async function await() {} }`, {
+        source: 'a = async function () { async function await() {} }',
+    });
+
+    fail(`async function f() { g(await) }`, {
+        source: 'async function f() { g(await) }',
+    });
+
+    fail(`async f() { class X { async await(){} } }`, {
+        source: 'async f() { class X { async await(){} } }',
+    });
+
+    fail(`async function f() { return {g: await} }`, {
+        source: 'async function f() { return {g: await} }',
+    });
+
+    fail(`async function f(await) {}`, {
+        source: 'async function f(await) {}',
+    });
+
+    fail(`class X { async f(await) {} }`, {
+        source: 'class X { async f(await) {} }',
+    });
+
+    fail(`x = { async f(await){} }`, {
+        source: 'x = { async f(await){} }',
+    });
+
+    fail(`async (await) => 42`, {
+        source: 'async (await) => 42',
+    });
+
+    fail(`async f() { x = { async await(){} } }`, {
+        source: 'async f() { x = { async await(){} } }',
+    });
+
+
+    pass(`function* foo(await) { yield await; };`, {
             source: 'function* foo(await) { yield await; };',
             ranges: true,
             raw: true,
