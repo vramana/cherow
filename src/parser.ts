@@ -275,7 +275,11 @@ export class Parser {
                 this.startLine = this.line;
     
                 let first = this.nextChar();
-    
+
+                // Skip initial BOM.
+                if (this.source.charCodeAt(this.index) === Chars.ByteOrderMark) {
+                    this.index++;
+                }
                 // Chars not in the range 0..127 are rare.  Getting them out of the way
                 // early allows subsequent checking to be faster.
                 if (first >= 128) first = this.nextUnicodeChar()
@@ -430,18 +434,15 @@ export class Parser {
     
                         // `#`
                     case Chars.Hash:
-                        {
-                            this.advance();
-                            if (state & ScanState.LineStart &&
-                                this.consume(Chars.Exclamation)) {
-                                this.skipComments(state);
-                                continue;
-                            } else {
-                                return Token.Hash;
-                            }
+                        this.advance();
+                        if (state & ScanState.LineStart &&
+                            this.consume(Chars.Exclamation)) {
+                            this.skipComments(state);
+                            continue;
                         }
-    
-                        // `{`
+                        return Token.Hash;
+                        
+                       // `{`
                     case Chars.LeftBrace:
                         this.advance();
                         return Token.LeftBrace;

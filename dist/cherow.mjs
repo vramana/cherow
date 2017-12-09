@@ -377,7 +377,7 @@ var Parser = function Parser(source, options) {
             { this.flags |= 16777216 /* OptionsNext */; }
         if (options.jsx)
             { this.flags |= 4194304 /* OptionsJSX */; }
-        if (options.locations)
+        if (options.loc)
             { this.flags |= 1048576 /* OptionsLoc */; }
         if (options.ranges)
             { this.flags |= 524288 /* OptionsRanges */; }
@@ -405,7 +405,7 @@ var Parser = function Parser(source, options) {
 // https://tc39.github.io/ecma262/#sec-scripts
 Parser.prototype.parseScript = function parseScript (context) {
     if (this.flags & -2147483648 /* OptionsImpliedStrict */)
-        { this.source = '"use strict";\n' + this.source; }
+        { this.source = '"use strict";' + this.source; }
     this.nextToken(context);
     var body = this.parseStatementList(context, 0 /* EndOfSource */);
     return this.finishRootNode({
@@ -523,6 +523,14 @@ Parser.prototype.consume = function consume (code) {
     this.advance();
     return true;
 };
+// Skip initial BOM and/or shebang.
+Parser.prototype.skipBOM = function skipBOM () {
+    if (this.index === this.source.length)
+        { return; }
+    if (this.source.charCodeAt(this.index) === 65519 /* ByteOrderMark */) {
+        this.index++;
+    }
+};
 /**
  * Scan the entire source code. Skips whitespace and comments, and
  * return the token at the given index.
@@ -545,6 +553,10 @@ Parser.prototype.scanToken = function scanToken (context) {
         this$1.startColumn = this$1.column;
         this$1.startLine = this$1.line;
         var first = this$1.nextChar();
+        // Skip initial BOM.
+        if (this$1.source.charCodeAt(this$1.index) === 65519 /* ByteOrderMark */) {
+            this$1.index++;
+        }
         // Chars not in the range 0..127 are rare.  Getting them out of the way
         // early allows subsequent checking to be faster.
         if (first >= 128)
@@ -675,17 +687,13 @@ Parser.prototype.scanToken = function scanToken (context) {
                 }
             // `#`
             case 35 /* Hash */:
-                {
-                    this$1.advance();
-                    if (state & 4 /* LineStart */ &&
-                        this$1.consume(33 /* Exclamation */)) {
-                        this$1.skipComments(state);
-                        continue;
-                    }
-                    else {
-                        return 117 /* Hash */;
-                    }
+                this$1.advance();
+                if (state & 4 /* LineStart */ &&
+                    this$1.consume(33 /* Exclamation */)) {
+                    this$1.skipComments(state);
+                    continue;
                 }
+                return 117 /* Hash */;
             // `{`
             case 123 /* LeftBrace */:
                 this$1.advance();
@@ -3361,8 +3369,7 @@ Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) 
     }
     var updateExpression = this.parseUpdateExpression(context, startLoc);
     if (this.token === 2100022 /* Exponentiate */) {
-        if (context & 536870912 /* Unary */)
-            { this.error(0 /* Unexpected */); }
+        // if (context & Context.Unary) this.error(Errors.Unexpected);
         return this.parseBinaryExpression(context & ~536870912 /* Unary */, this.token & 3840 /* Precedence */, startLoc, updateExpression);
     }
     return updateExpression;
