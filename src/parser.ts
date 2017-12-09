@@ -4540,7 +4540,7 @@ export class Parser {
                         break loop;
                 }
             }
-    
+           
             // Generator / Async Iterations ( Stage 3 proposal)
             if (this.token === Token.Multiply) {
                 if (state & ObjectState.Async && !(this.flags & Flags.OptionsNext)) {
@@ -4550,9 +4550,9 @@ export class Parser {
                 this.expect(context, Token.Multiply);
                 count++;
             }
-    
-            if (state & ObjectState.Async && this.flags & Flags.PrecedingLineBreak) {
-                this.error(Errors.LineBreakAfterAsync);
+
+            if (state & ObjectState.Async) {
+                if (this.flags & Flags.PrecedingLineBreak) this.error(Errors.LineBreakAfterAsync);
             }
     
             if (this.tokenValue === 'prototype') {

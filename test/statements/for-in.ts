@@ -1413,110 +1413,77 @@ describe('Statements - For In', () => {
 
         fail(`for(let of 0);`, {
             source: 'for(let of 0);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for (a=12 in e) break;`, {
             source: 'for (a=12 in e) break;',
-            loc: true,
-            ranges: true,
-            raw: true
         });
         
         fail(`for (var a, b in e) break;`, {
             source: 'for (var a, b in e) break;',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
-      /*  fail(`for (var a = 12 in e) break;`, {
+        fail(`for (var a = 12 in e) break;`, {
             source: 'for (var a = 12 in e) break;',
-            loc: true,
-            ranges: true,
-            raw: true
-        });*/
+        });
 
         fail(`for (a in b 5`, {
             source: 'for (a in b 5',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for (a to e) break;`, {
             source: 'for (a to e) break;',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for (a 12 b; 12) break;`, {
             source: 'for (a 12 b; 12) break;',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for(let a = 0 in b);`, {
             source: 'for(let a = 0 in b);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for(const a = 0 in b);`, {
             source: 'for(const a = 0 in b);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for(let ? b : c in 0);`, {
             source: 'for(let ? b : c in 0);',
-            loc: true,
-            ranges: true,
-            raw: true
+        });
+
+        fail(`for (var {x}=0 in y);`, {
+            source: 'for (var {x}=0 in y);',
+        });
+
+        fail(`for (var [p]=0 in q);`, {
+            source: 'for (var [p]=0 in q);',
+        });
+
+        fail(`"use strict"; for (var [p]=1 in q);`, {
+            source: '"use strict"; for (var [p]=1 in q);',
         });
 
         fail(`for(({a}) in 0);`, {
             source: 'for(({a}) in 0);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for(([a]) in 0);`, {
             source: 'for(([a]) in 0);',
-            loc: true,
-            ranges: true,
-            raw: true
+        });
+
+        
+        fail(`for(([a]) in 0);`, {
+            source: 'for(([a]) in 0);',
         });
         
 
-      /*  fail(`for(this of 0);`, {
+        fail(`for(this of 0);`, {
             source: 'for(this of 0);',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`for(let.let of 0);`, {
             source: 'for(let.let of 0);',
-            loc: true,
-            ranges: true,
-            raw: true
-        }); */
-
-        /*
-        fail(`for (const x in {}) { var x; }`, {
-            source: 'for (const x in {}) { var x; }',
-            loc: true,
-            ranges: true,
-            raw: true
-        });
-        */
+        }); 
+        
 });
             

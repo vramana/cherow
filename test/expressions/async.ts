@@ -37,7 +37,43 @@ describe('Expressions - Async', () => {
     fail(`async(e=await)=>l`, {
         source: 'async(e=await)=>l',
     });
- 
+
+    fail(`({async *a(eval){}})`, {
+        source: '({async *a(eval){}})',
+    });
+
+    fail(`x = { async f: function() {} }`, {
+        source: 'x = { async f: function() {} }',
+    });
+
+    fail(`class X { async constructor(){} }`, {
+        source: 'class X { async constructor(){} }',
+    });
+
+    // fail(`class X { async get(){} }`, {
+       //  source: 'class X { async get(){} }',
+    // });
+
+    // fail(`class X { async set(v){} }`, {
+       //  source: 'class X { async set(v){} }',
+    // });
+
+    fail(`x = {async set s(i) {} }`, {
+        source: 'x = {async set s(i) {} }',
+    });
+
+    fail(`x = { async *g() {} }`, {
+        source: 'x = { async *g() {} }',
+    });
+
+    // fail(`class X { static async set(v){} }`, {
+       //  source: 'class X { static async set(v){} }',
+    // });
+
+    // fail(`class X { static async set(v){} }`, {
+        //  source: 'class X { static async set(v){} }',
+    // });
+
         pass(`class UserRepo{ async get(id) { return id; } }`, {
             source: 'class UserRepo{ async get(id) { return id; } }',
             ranges: true,
@@ -2367,6 +2403,958 @@ describe('Expressions - Async', () => {
                     "end": {
                         "line": 1,
                         "column": 17
+                    }
+                }
+            }
+        });
+
+        pass(`class X { static async f(){} }`, {
+            source: 'class X { static async f(){} }',
+            loc: true,
+            ranges: true,
+            next: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ClassDeclaration",
+                        "id": {
+                            "type": "Identifier",
+                            "name": "X",
+                            "start": 6,
+                            "end": 7,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 6
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 7
+                                }
+                            }
+                        },
+                        "superClass": null,
+                        "body": {
+                            "type": "ClassBody",
+                            "body": [
+                                {
+                                    "type": "MethodDefinition",
+                                    "key": {
+                                        "type": "Identifier",
+                                        "name": "f",
+                                        "start": 23,
+                                        "end": 24,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 23
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 24
+                                            }
+                                        }
+                                    },
+                                    "kind": "method",
+                                    "computed": false,
+                                    "value": {
+                                        "type": "FunctionExpression",
+                                        "params": [],
+                                        "body": {
+                                            "type": "BlockStatement",
+                                            "body": [],
+                                            "start": 26,
+                                            "end": 28,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 26
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 28
+                                                }
+                                            }
+                                        },
+                                        "async": true,
+                                        "generator": false,
+                                        "expression": false,
+                                        "id": null,
+                                        "start": 24,
+                                        "end": 28,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 24
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 28
+                                            }
+                                        }
+                                    },
+                                    "static": true,
+                                    "start": 10,
+                                    "end": 28,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 10
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 28
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 8,
+                            "end": 30,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 30
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 30,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 30
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 30,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 30
+                    }
+                }
+            }
+        });
+
+        pass(`class X { async f(){} }`, {
+            source: 'class X { async f(){} }',
+            loc: true,
+            ranges: true,
+            next: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ClassDeclaration",
+                        "id": {
+                            "type": "Identifier",
+                            "name": "X",
+                            "start": 6,
+                            "end": 7,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 6
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 7
+                                }
+                            }
+                        },
+                        "superClass": null,
+                        "body": {
+                            "type": "ClassBody",
+                            "body": [
+                                {
+                                    "type": "MethodDefinition",
+                                    "key": {
+                                        "type": "Identifier",
+                                        "name": "f",
+                                        "start": 16,
+                                        "end": 17,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 16
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 17
+                                            }
+                                        }
+                                    },
+                                    "kind": "method",
+                                    "computed": false,
+                                    "value": {
+                                        "type": "FunctionExpression",
+                                        "params": [],
+                                        "body": {
+                                            "type": "BlockStatement",
+                                            "body": [],
+                                            "start": 19,
+                                            "end": 21,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 19
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 21
+                                                }
+                                            }
+                                        },
+                                        "async": true,
+                                        "generator": false,
+                                        "expression": false,
+                                        "id": null,
+                                        "start": 17,
+                                        "end": 21,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 17
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 21
+                                            }
+                                        }
+                                    },
+                                    "static": false,
+                                    "start": 10,
+                                    "end": 21,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 10
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 21
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 8,
+                            "end": 23,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 23
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 23,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 23
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 23,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 23
+                    }
+                }
+            }
+        });
+
+        pass(`class X { async f(a) { await a } }`, {
+            source: 'class X { async f(a) { await a } }',
+            loc: true,
+            ranges: true,
+            next: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ClassDeclaration",
+                        "id": {
+                            "type": "Identifier",
+                            "name": "X",
+                            "start": 6,
+                            "end": 7,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 6
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 7
+                                }
+                            }
+                        },
+                        "superClass": null,
+                        "body": {
+                            "type": "ClassBody",
+                            "body": [
+                                {
+                                    "type": "MethodDefinition",
+                                    "key": {
+                                        "type": "Identifier",
+                                        "name": "f",
+                                        "start": 16,
+                                        "end": 17,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 16
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 17
+                                            }
+                                        }
+                                    },
+                                    "kind": "method",
+                                    "computed": false,
+                                    "value": {
+                                        "type": "FunctionExpression",
+                                        "params": [
+                                            {
+                                                "type": "Identifier",
+                                                "name": "a",
+                                                "start": 18,
+                                                "end": 19,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 18
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 19
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        "body": {
+                                            "type": "BlockStatement",
+                                            "body": [
+                                                {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                        "type": "AwaitExpression",
+                                                        "argument": {
+                                                            "type": "Identifier",
+                                                            "name": "a",
+                                                            "start": 29,
+                                                            "end": 30,
+                                                            "loc": {
+                                                                "start": {
+                                                                    "line": 1,
+                                                                    "column": 29
+                                                                },
+                                                                "end": {
+                                                                    "line": 1,
+                                                                    "column": 30
+                                                                }
+                                                            }
+                                                        },
+                                                        "start": 23,
+                                                        "end": 30,
+                                                        "loc": {
+                                                            "start": {
+                                                                "line": 1,
+                                                                "column": 23
+                                                            },
+                                                            "end": {
+                                                                "line": 1,
+                                                                "column": 30
+                                                            }
+                                                        }
+                                                    },
+                                                    "start": 23,
+                                                    "end": 30,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 1,
+                                                            "column": 23
+                                                        },
+                                                        "end": {
+                                                            "line": 1,
+                                                            "column": 30
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "start": 21,
+                                            "end": 32,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 21
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 32
+                                                }
+                                            }
+                                        },
+                                        "async": true,
+                                        "generator": false,
+                                        "expression": false,
+                                        "id": null,
+                                        "start": 17,
+                                        "end": 32,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 17
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 32
+                                            }
+                                        }
+                                    },
+                                    "static": false,
+                                    "start": 10,
+                                    "end": 32,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 10
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 32
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 8,
+                            "end": 34,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 34
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 34,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 34
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 34,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 34
+                    }
+                }
+            }
+        });
+
+        pass(`({ async "xyz"() {} })`, {
+            source: '({ async "xyz"() {} })',
+            loc: true,
+            ranges: true,
+            next: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "ObjectExpression",
+                            "properties": [
+                                {
+                                    "type": "Property",
+                                    "key": {
+                                        "type": "Literal",
+                                        "value": "xyz",
+                                        "start": 9,
+                                        "end": 14,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 9
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 14
+                                            }
+                                        },
+                                        "raw": "\"xyz\""
+                                    },
+                                    "value": {
+                                        "type": "FunctionExpression",
+                                        "params": [],
+                                        "body": {
+                                            "type": "BlockStatement",
+                                            "body": [],
+                                            "start": 17,
+                                            "end": 19,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 17
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 19
+                                                }
+                                            }
+                                        },
+                                        "async": true,
+                                        "generator": false,
+                                        "expression": false,
+                                        "id": null,
+                                        "start": 14,
+                                        "end": 19,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 14
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 19
+                                            }
+                                        }
+                                    },
+                                    "kind": "init",
+                                    "computed": false,
+                                    "method": true,
+                                    "shorthand": false,
+                                    "start": 3,
+                                    "end": 19,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 3
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 19
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 1,
+                            "end": 21,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 1
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 21
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 22,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 22
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 22,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 22
+                    }
+                }
+            }
+        });
+
+        pass(`({ async f(a) { await a } })`, {
+            source: '({ async f(a) { await a } })',
+            loc: true,
+            ranges: true,
+            next: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "ObjectExpression",
+                            "properties": [
+                                {
+                                    "type": "Property",
+                                    "key": {
+                                        "type": "Identifier",
+                                        "name": "f",
+                                        "start": 9,
+                                        "end": 10,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 9
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 10
+                                            }
+                                        }
+                                    },
+                                    "value": {
+                                        "type": "FunctionExpression",
+                                        "params": [
+                                            {
+                                                "type": "Identifier",
+                                                "name": "a",
+                                                "start": 11,
+                                                "end": 12,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 11
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 12
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        "body": {
+                                            "type": "BlockStatement",
+                                            "body": [
+                                                {
+                                                    "type": "ExpressionStatement",
+                                                    "expression": {
+                                                        "type": "AwaitExpression",
+                                                        "argument": {
+                                                            "type": "Identifier",
+                                                            "name": "a",
+                                                            "start": 22,
+                                                            "end": 23,
+                                                            "loc": {
+                                                                "start": {
+                                                                    "line": 1,
+                                                                    "column": 22
+                                                                },
+                                                                "end": {
+                                                                    "line": 1,
+                                                                    "column": 23
+                                                                }
+                                                            }
+                                                        },
+                                                        "start": 16,
+                                                        "end": 23,
+                                                        "loc": {
+                                                            "start": {
+                                                                "line": 1,
+                                                                "column": 16
+                                                            },
+                                                            "end": {
+                                                                "line": 1,
+                                                                "column": 23
+                                                            }
+                                                        }
+                                                    },
+                                                    "start": 16,
+                                                    "end": 23,
+                                                    "loc": {
+                                                        "start": {
+                                                            "line": 1,
+                                                            "column": 16
+                                                        },
+                                                        "end": {
+                                                            "line": 1,
+                                                            "column": 23
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            "start": 14,
+                                            "end": 25,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 14
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 25
+                                                }
+                                            }
+                                        },
+                                        "async": true,
+                                        "generator": false,
+                                        "expression": false,
+                                        "id": null,
+                                        "start": 10,
+                                        "end": 25,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 10
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 25
+                                            }
+                                        }
+                                    },
+                                    "kind": "init",
+                                    "computed": false,
+                                    "method": true,
+                                    "shorthand": false,
+                                    "start": 3,
+                                    "end": 25,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 3
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 25
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 1,
+                            "end": 27,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 1
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 27
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 28,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 28
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 28,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 28
+                    }
+                }
+            }
+        });
+
+        pass(`({ async ["xyz"]() {} })`, {
+            source: '({ async ["xyz"]() {} })',
+            loc: true,
+            ranges: true,
+            next: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "ObjectExpression",
+                            "properties": [
+                                {
+                                    "type": "Property",
+                                    "key": {
+                                        "type": "Literal",
+                                        "value": "xyz",
+                                        "start": 10,
+                                        "end": 15,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 10
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 15
+                                            }
+                                        },
+                                        "raw": "\"xyz\""
+                                    },
+                                    "value": {
+                                        "type": "FunctionExpression",
+                                        "params": [],
+                                        "body": {
+                                            "type": "BlockStatement",
+                                            "body": [],
+                                            "start": 19,
+                                            "end": 21,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 19
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 21
+                                                }
+                                            }
+                                        },
+                                        "async": true,
+                                        "generator": false,
+                                        "expression": false,
+                                        "id": null,
+                                        "start": 16,
+                                        "end": 21,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 16
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 21
+                                            }
+                                        }
+                                    },
+                                    "kind": "init",
+                                    "computed": true,
+                                    "method": true,
+                                    "shorthand": false,
+                                    "start": 3,
+                                    "end": 21,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 3
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 21
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 1,
+                            "end": 23,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 1
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 23
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 24,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 24
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 24,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 24
                     }
                 }
             }
