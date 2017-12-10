@@ -2594,7 +2594,7 @@ export class Parser {
         return this.finishNode(context, pos, {
             type: 'WithStatement',
             object,
-            body: this.parseStatement(context | Context.Iteration)
+            body: this.parseStatement(context | Context.Iteration | Context.TopLevel)
         });
     }
 
@@ -2779,8 +2779,11 @@ export class Parser {
                 }
             }
             if (!declarations) {
+                if (!isValidDestructuringAssignmentTarget(init) || init.type === 'AssignmentExpression') {
+                    this.error(Errors.InvalidLHSInForLoop);
+                }
                 this.reinterpretAsPattern(context, init);
-                if (!isValidDestructuringAssignmentTarget(init)) this.error(Errors.InvalidLHSInForLoop);
+
             }
 
             right = this.parseAssignmentExpression(context);
