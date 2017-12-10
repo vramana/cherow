@@ -104,7 +104,6 @@ export class Parser {
                 if (options.raw) this.flags |= Flags.OptionsRaw;
                 if (options.globalReturn) this.flags |= Flags.OptionsGlobalReturn;
                 if (options.directives) this.flags |= Flags.OptionsDirectives;
-                if (options.impliedStrict) this.flags |= Flags.OptionsImpliedStrict;
                 if (options.comments) this.comments = options.comments;
     
                 if (options.source) {
@@ -119,11 +118,10 @@ export class Parser {
                 }
             }
         }
-    
+
         // https://tc39.github.io/ecma262/#sec-scripts
         public parseScript(context: Context): ESTree.Program {
-            if (this.flags & Flags.OptionsImpliedStrict) this.source = '"use strict";' + this.source;
-            this.nextToken(context);
+            this.token = this.scan(context);
             const body = this.parseStatementList(context, Token.EndOfSource);
             return this.finishRootNode({
                 type: 'Program',
@@ -131,10 +129,10 @@ export class Parser {
                 sourceType: 'script'
             });
         }
-    
+
         // https://tc39.github.io/ecma262/#sec-modules
         public parseModule(context: Context): ESTree.Program {
-            this.nextToken(context);
+            this.token = this.scan(context);
             const body = this.parseModuleItemList(context);
             return this.finishRootNode({
                 type: 'Program',
@@ -1715,7 +1713,6 @@ export class Parser {
         }
     
         private parseModuleItemList(context: Context): ESTree.Statement[] {
-    
             const statements: ESTree.Statement[] = [];
     
             if (this.flags & Flags.OptionsDirectives) {

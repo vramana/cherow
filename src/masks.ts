@@ -75,7 +75,7 @@ export const enum Flags {
     OptionsSourceType            = 1 << 28, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
     OptionsTolerant              = 1 << 29,
     OptionsPlugins               = 1 << 30,
-    OptionsImpliedStrict         = 1 << 31,
+
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc,
 

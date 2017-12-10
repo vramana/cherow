@@ -387,8 +387,6 @@ var Parser = function Parser(source, options) {
             { this.flags |= 134217728 /* OptionsGlobalReturn */; }
         if (options.directives)
             { this.flags |= 33554432 /* OptionsDirectives */; }
-        if (options.impliedStrict)
-            { this.flags |= -2147483648 /* OptionsImpliedStrict */; }
         if (options.comments)
             { this.comments = options.comments; }
         if (options.source) {
@@ -404,9 +402,7 @@ var Parser = function Parser(source, options) {
 };
 // https://tc39.github.io/ecma262/#sec-scripts
 Parser.prototype.parseScript = function parseScript (context) {
-    if (this.flags & -2147483648 /* OptionsImpliedStrict */)
-        { this.source = '"use strict";' + this.source; }
-    this.nextToken(context);
+    this.token = this.scan(context);
     var body = this.parseStatementList(context, 0 /* EndOfSource */);
     return this.finishRootNode({
         type: 'Program',
@@ -416,7 +412,7 @@ Parser.prototype.parseScript = function parseScript (context) {
 };
 // https://tc39.github.io/ecma262/#sec-modules
 Parser.prototype.parseModule = function parseModule (context) {
-    this.nextToken(context);
+    this.token = this.scan(context);
     var body = this.parseModuleItemList(context);
     return this.finishRootNode({
         type: 'Program',
@@ -511,14 +507,11 @@ Parser.prototype.advance = function advance () {
     this.index++;
     this.column++;
 };
-Parser.prototype.advanceNewline = function advanceNewline () {
+Parser.prototype.advanceNewline = function advanceNewline (skipLF) {
+        if ( skipLF === void 0 ) skipLF = true;
+
     this.index++;
-    this.column = 0;
-    this.line++;
-};
-Parser.prototype.consumeLineFeed = function consumeLineFeed (lastIsCR) {
-    this.index++;
-    if (lastIsCR) {
+    if (skipLF) {
         this.column = 0;
         this.line++;
     }
@@ -557,10 +550,10 @@ Parser.prototype.scan = function scan (context) {
             case 13 /* CarriageReturn */:
                 state |= 2 /* LastIsCR */ | 4 /* LineStart */;
                 this$1.flags |= 1 /* PrecedingLineBreak */;
-                this$1.advanceNewline();
+                this$1.advanceNewline(true);
                 continue;
             case 10 /* LineFeed */:
-                this$1.consumeLineFeed((state & 2 /* LastIsCR */) === 0);
+                this$1.advanceNewline((state & 2 /* LastIsCR */) === 0);
                 this$1.flags |= 1 /* PrecedingLineBreak */;
                 state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
                 continue;
@@ -568,7 +561,7 @@ Parser.prototype.scan = function scan (context) {
             case 8233 /* ParagraphSeparator */:
                 state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
                 this$1.flags |= 1 /* PrecedingLineBreak */;
-                this$1.advanceNewline();
+                this$1.advanceNewline(true);
                 continue;
             case 9 /* Tab */:
             case 11 /* VerticalTab */:
@@ -987,14 +980,14 @@ Parser.prototype.skipComments = function skipComments (state) {
                 if (!(state & 8 /* MultiLine */))
                     { break loop; }
                 this$1.flags |= 1 /* PrecedingLineBreak */;
-                this$1.advanceNewline();
+                this$1.advanceNewline(true);
                 state |= 4 /* LineStart */ | 2 /* LastIsCR */;
                 break;
             case 10 /* LineFeed */:
                 if (!(state & 8 /* MultiLine */))
                     { break loop; }
                 this$1.flags |= 1 /* PrecedingLineBreak */;
-                this$1.consumeLineFeed((state & 2 /* LastIsCR */) === 0);
+                this$1.advanceNewline((state & 2 /* LastIsCR */) === 0);
                 state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
                 break;
             case 8232 /* LineSeparator */:
@@ -1004,7 +997,7 @@ Parser.prototype.skipComments = function skipComments (state) {
                     { break loop; }
                 state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
                 this$1.flags |= 1 /* PrecedingLineBreak */;
-                this$1.advanceNewline();
+                this$1.advanceNewline(true);
                 break;
             case 42 /* Asterisk */:
                 if (state & 8 /* MultiLine */) {
@@ -5374,6 +5367,8 @@ Parser.prototype.parseJSXElementName = function parseJSXElementName (context) {
 
 // https://tc39.github.io/ecma262/#sec-scripts
 function parseScript(source, options) {
+    if (options && options.impliedStrict)
+        { source = '"use strict";' + source; }
     return new Parser(source, options).parseScript(0 /* None */);
 }
 // https://tc39.github.io/ecma262/#sec-modules
