@@ -17,6 +17,26 @@ describe('Miscellaneous - Import', () => {
         module: true
     });
 
+    fail(`import {} \\u0066rom "./escaped-from.js";`, {
+        source: `import {} \\u0066rom "./escaped-from.js";`,
+        module: true
+    });
+
+    fail(`export {a \\u0061s b} from "./escaped-as-export-specifier.js";`, {
+        source: `export {a \\u0061s b} from "./escaped-as-export-specifier.js";`,
+        module: true
+    });
+
+    fail(`import {a \\u0061s b} from "./escaped-as-import-specifier.js";`, {
+        source: `import {a \\u0061s b} from "./escaped-as-import-specifier.js";`,
+        module: true
+    });
+
+    fail(`import* \\u0061s self from "./escaped-as-namespace-import.js";`, {
+        source: `import* \\u0061s self from "./escaped-as-namespace-import.js";`,
+        module: true
+    });
+
       fail(`import {a, a} from "module";`, {
           source: `import {a, a} from "module";`,
           module: true

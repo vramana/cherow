@@ -5971,6 +5971,14 @@ describe('Expressions - Arrow', () => {
             }
         });
     
+        fail(`var af = eval => 1;`, {
+            source: '"use strict"; var af = eval => 1;',
+        });
+
+        fail(`var af = eval => 1;`, {
+            source: '"use strict"; var af = arguments => 1;',
+        });
+
         fail(`[]=>0`, {
             source: '[]=>0',
         });

@@ -1174,6 +1174,15 @@ describe('Statements - For of', () => {
         fail(`for(a of b, c);`, {
             source: 'for(a of b, c);',
         });
+
+        fail(`for (var x o\\u0066 []) ;`, {
+            source: 'for (var x o\\u0066 []) ;',
+        });
         
+        fail(`for ({...rest, b} of [{} ]) ;`, {
+            source: 'for ({...rest, b} of [{} ]) ;',
+            next: true
+        });
+
 });
             

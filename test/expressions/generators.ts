@@ -14,6 +14,10 @@ describe('Statements - Generator', () => {
         source: 'var g = function*(yield) {};',
     });
 
+    fail(`var gen = function *() { void yield; };`, {
+        source: 'var gen = function *() { void yield; };',
+    });
+
     pass(`yield spread multiple`, {
         source: `var gen = function *() {
             yield [...yield yield];

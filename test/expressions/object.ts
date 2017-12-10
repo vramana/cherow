@@ -1,6 +1,6 @@
 import { pass, fail } from '../utils';
 
-describe('Expressions - New', () => {
+describe('Expressions - Object', () => {
 
     pass(`({})`, {
         source: '({})',
@@ -8279,6 +8279,10 @@ describe('Expressions - New', () => {
 
         fail(`({ *[0]: 0 })`, {
             source: '({ *[0]: 0 })',
+        });
+
+        fail(`({ g\\u0065t m() {} });`, {
+            source: '({ g\\u0065t m() {} });',
         });
 
         fail(`({ __proto__: null, __proto__: null })`, {

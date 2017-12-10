@@ -730,4 +730,270 @@ describe('Literals - Strings', () => {
                 sourceType: "script"
             }
         });
+
+        pass('"\\u{11000}"', {
+            source: '"\\u{11000}"',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "Literal",
+                            "value": "𑀀",
+                            "start": 0,
+                            "end": 11,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 11
+                                }
+                            },
+                            "raw": "\"\\u{11000}\""
+                        },
+                        "start": 0,
+                        "end": 11,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 11
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 11,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 11
+                    }
+                }
+            }
+        });
+
+        pass('"\\Щ"', {
+            source: '"\\Щ"',
+            raw: true,
+            expected: {
+                  "body": [
+                    {
+                      "expression": {
+                        "raw": "\"\\Щ\"",
+                        "type": "Literal",
+                       "value": "Щ"
+                      },
+                     "type": "ExpressionStatement"
+                    }
+                  ],
+                  "sourceType": "script",
+                  "type": "Program"
+                }
+        });
+
+        pass('"\\З"', {
+            source: '"\\З"',
+            raw: true,
+            expected: {
+                  "body": [
+                    {
+                      "expression": {
+                        "raw": "\"\\З\"",
+                        "type": "Literal",
+                       "value": "З"
+                      },
+                     "type": "ExpressionStatement"
+                    }
+                  ],
+                  "sourceType": "script",
+                  "type": "Program"
+                }
+        });
+
+        pass('"\\ю"', {
+            source: '"\\ю"',
+            raw: true,
+            expected: {
+                  "body": [
+                    {
+                      "expression": {
+                        "raw": "\"\\ю\"",
+                        "type": "Literal",
+                       "value": "ю"
+                      },
+                     "type": "ExpressionStatement"
+                    }
+                  ],
+                  "sourceType": "script",
+                  "type": "Program"
+                }
+        });
+
+        pass('"\\б"', {
+            source: '"\\б"',
+            raw: true,
+            expected: {
+                  "body": [
+                    {
+                      "expression": {
+                        "raw": "\"\\б\"",
+                        "type": "Literal",
+                       "value": "б"
+                      },
+                     "type": "ExpressionStatement"
+                    }
+                  ],
+                  "sourceType": "script",
+                  "type": "Program"
+                }
+        });
+
+        pass('"a\\r\\nb"', {
+            source: '"a\\r\\nb"',
+            raw: true,
+            expected: {
+                  "body": [
+                   {
+                      "expression": {
+                        "raw": "\"a\\r\\nb\"",
+                        "type": "Literal",
+                        "value": "a\r\nb",
+                     },
+                      "type": "ExpressionStatement",
+                    },
+                  ],
+                  "sourceType": "script",
+                  "type": "Program"
+                }
+        });
+
+        pass('"\\u0451"', {
+            source: '"\\u0451"',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "Literal",
+                            "value": "ё",
+                            "start": 0,
+                            "end": 8,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 8
+                                }
+                            },
+                            "raw": "\"\\u0451\""
+                        },
+                        "start": 0,
+                        "end": 8,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 8
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 8,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 8
+                    }
+                }
+            }
+        });
+
+        pass('"\\u0006A"', {
+            source: '"\\u0006A"',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "Literal",
+                            "value": "\u0006A",
+                            "start": 0,
+                            "end": 9,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 9
+                                }
+                            },
+                            "raw": "\"\\u0006A\""
+                        },
+                        "start": 0,
+                        "end": 9,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 9
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 9,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 9
+                    }
+                }
+            }
+        });
     });

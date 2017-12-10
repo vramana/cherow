@@ -18,6 +18,10 @@ describe('Statements - Block', () => {
         source: '"use strict"; var foo = 05;',
     });
 
+    fail(`06.7`, {
+      source: '06.7',
+  });
+
     fail(`0b;`, {
         source: '0b;',
     });

@@ -24,6 +24,20 @@ describe('Statements - Try', () => {
           }`,
     });
 
+    
+
+    fail(`try {
+        throw 
+        1;
+      } catch(e) {  
+      }`, {
+        source: `try {
+            throw 
+            1;
+          } catch(e) {  
+          }`,
+    });
+
     fail(`catch(){} finally{}`, {
         source: 'catch(){} finally{}',
     });

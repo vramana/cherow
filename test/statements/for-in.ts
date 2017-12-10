@@ -1411,6 +1411,11 @@ describe('Statements - For In', () => {
             }
         });
 
+        fail(`for ({...rest, b} in [{} ]) ;`, {
+            source: 'for ({...rest, b} in [{} ]) ;',
+            next: true
+        });
+
         fail(`for(let of 0);`, {
             source: 'for(let of 0);',
         });

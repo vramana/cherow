@@ -34,6 +34,10 @@ describe('Statements - Function', () => {
         source: '(function(...a, b){})',
     });
 
+    fail(`var _13_1_18_fun = function (eval) { "use strict"; }`, {
+        source: 'var _13_1_18_fun = function (eval) { "use strict"; }',
+    });
+
     pass(`(function x(y, z) { })`, {
         source: `(function x(y, z) { })`,
         loc: true,

@@ -1626,4 +1626,16 @@ describe('Statements - Variable', () => {
         fail(`var a.b;`, {
             source: 'var a.b;',
         });
+
+        fail(`var a.b;`, {
+            source: 'var a.b;',
+        });
+
+        fail(`"use strict"; function foo() { var a, arguments, b;}`, {
+            source: '"use strict"; function foo() { var a, arguments, b;}',
+        });
+
+        fail(`"use strict"; for (var eval in null) {};`, {
+            source: '"use strict"; for (var eval in null) {};',
+        });
     });

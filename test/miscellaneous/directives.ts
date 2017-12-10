@@ -121,6 +121,128 @@ describe('Directives', () => {
     fail("catches invalid } after Unicode \\u{", { source:  "'random\\u{} foo'"});
 
     pass(`single "use strict" wrapped inside parenthesis'`, {
+        source: '("use strict"); foo = 42;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        module: true,
+        directives: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "Literal",
+                        "value": "use strict",
+                        "start": 1,
+                        "end": 13,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 1
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 13
+                            }
+                        },
+                        "raw": "\"use strict\""
+                    },
+                    "start": 0,
+                    "end": 15,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 15
+                        }
+                    }
+                },
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "AssignmentExpression",
+                        "left": {
+                            "type": "Identifier",
+                            "name": "foo",
+                            "start": 16,
+                            "end": 19,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 19
+                                }
+                            }
+                        },
+                        "operator": "=",
+                        "right": {
+                            "type": "Literal",
+                            "value": 42,
+                            "start": 22,
+                            "end": 24,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 22
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 24
+                                }
+                            },
+                            "raw": "42"
+                        },
+                        "start": 16,
+                        "end": 24,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 16
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 24
+                            }
+                        }
+                    },
+                    "start": 16,
+                    "end": 25,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 16
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 25
+                        }
+                    }
+                }
+            ],
+            "sourceType": "module",
+            "start": 0,
+            "end": 25,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 25
+                }
+            }
+        }
+    });
+    pass(`single "use strict" wrapped inside parenthesis'`, {
         source: '("use strict"); eval = 42;',
         loc: true,
         ranges: true,
