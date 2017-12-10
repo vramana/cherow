@@ -2023,7 +2023,7 @@ Parser.prototype.parseExportDefault = function parseExportDefault (context, pos)
     switch (this.token) {
         // export default HoistableDeclaration[Default]
         case 274519 /* FunctionKeyword */:
-            declaration = this.parseFunctionDeclaration(context | (32768 /* OptionalIdentifier */ | 1024 /* TopLevel */));
+            declaration = this.parseFunction(context & ~33554432 /* Expression */ | (32768 /* OptionalIdentifier */ | 1024 /* TopLevel */));
             break;
         // export default ClassDeclaration[Default]
         case 274509 /* ClassKeyword */:
@@ -2032,7 +2032,7 @@ Parser.prototype.parseExportDefault = function parseExportDefault (context, pos)
         // export default HoistableDeclaration[Default]
         case 16846956 /* AsyncKeyword */:
             if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                declaration = this.parseFunctionDeclaration(context | (32768 /* OptionalIdentifier */ | 1024 /* TopLevel */));
+                declaration = this.parseFunction(context & ~33554432 /* Expression */ | (32768 /* OptionalIdentifier */ | 1024 /* TopLevel */));
                 break;
             }
         // falls through
@@ -2125,12 +2125,12 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
             break;
         // export HoistableDeclaration
         case 274519 /* FunctionKeyword */:
-            declaration = this.parseFunctionDeclaration(context | 1024 /* TopLevel */);
+            declaration = this.parseFunction(context & ~33554432 /* Expression */ | 1024 /* TopLevel */);
             break;
         // export HoistableDeclaration
         case 16846956 /* AsyncKeyword */:
             if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                declaration = this.parseFunctionDeclaration(context | 1024 /* TopLevel */);
+                declaration = this.parseFunction(context & ~33554432 /* Expression */ | 1024 /* TopLevel */);
                 break;
             }
         // Falls through
@@ -2361,7 +2361,7 @@ Parser.prototype.parseModuleItem = function parseModuleItem (context) {
 Parser.prototype.parseStatementListItem = function parseStatementListItem (context) {
     switch (this.token) {
         case 274519 /* FunctionKeyword */:
-            return this.parseFunctionDeclaration(context);
+            return this.parseFunction(context & ~33554432 /* Expression */);
         case 274509 /* ClassKeyword */:
             return this.parseClassDeclaration(context);
         case 8671304 /* LetKeyword */:
@@ -2458,7 +2458,7 @@ Parser.prototype.parseStatement = function parseStatement (context) {
                 }
                 if (this.flags & 2 /* ExtendedUnicodeEscape */)
                     { this.error(64 /* UnexpectedEscapedKeyword */); }
-                return this.parseFunctionDeclaration(context);
+                return this.parseFunction(context & ~33554432 /* Expression */);
             }
             // 'Async' is a valid contextual keyword in sloppy mode for labelled statement, so either
             // parse out 'LabelledStatement' or an plain identifier. We pass down the 'Statement' mask
@@ -2467,7 +2467,7 @@ Parser.prototype.parseStatement = function parseStatement (context) {
             return this.parseLabelledStatement(context | 1024 /* TopLevel */);
         case 274519 /* FunctionKeyword */:
             if (context & 4096 /* AnnexB */)
-                { return this.parseFunctionDeclaration(context); }
+                { return this.parseFunction(context & ~33554432 /* Expression */); }
         case 274509 /* ClassKeyword */:
             this.error(93 /* ForbiddenAsStatement */, tokenDesc(this.token));
         default:
@@ -2939,7 +2939,7 @@ Parser.prototype.parseLabelledStatement = function parseLabelledStatement (conte
                 // generator declaration is only matched by a hoistable declaration in StatementListItem.
                 // To fix this we need to pass the 'AnnexB' mask, and let it throw in 'parseFunctionDeclaration'
                 // We also unset the 'ForStatement' mask because we are no longer inside a 'ForStatement'.
-                body = this.parseFunctionDeclaration(context & ~(4194304 /* Iteration */ | 33554432 /* Expression */) | 4096 /* AnnexB */ | 1024 /* TopLevel */);
+                body = this.parseFunction(context & ~(4194304 /* Iteration */ | 33554432 /* Expression */ | 33554432 /* Expression */) | 4096 /* AnnexB */ | 1024 /* TopLevel */);
                 break;
             default:
                 body = this.parseStatement(context | 1024 /* TopLevel */);
@@ -3527,84 +3527,76 @@ Parser.prototype.parseCallExpression = function parseCallExpression (context, po
         }
     }
 };
-Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (context) {
+Parser.prototype.parseFunction = function parseFunction (context) {
     var pos = this.getLocations();
-    var parentContext = context;
-    context &= ~(32 /* Await */ | 16 /* Yield */ | 65536 /* Method */);
-    if (this.parseOptional(context, 16846956 /* AsyncKeyword */))
-        { context |= 32 /* Await */; }
-    return this.parseFunction(context & ~33554432 /* Expression */, pos, 0 /* None */, parentContext);
-};
-Parser.prototype.parseFunctionExpression = function parseFunctionExpression (context, pos, state /* None */) {
-        if ( state === void 0 ) state = 0;
-
-    return this.parseFunction(context, pos, state);
-};
-Parser.prototype.parseFunction = function parseFunction (context, pos, state /* None */, parent /* None */) {
-        if ( state === void 0 ) state = 0;
-        if ( parent === void 0 ) parent = 0;
-
-    var id = null;
-    if (!(context & 65536 /* Method */)) {
-        this.expect(context, 274519 /* FunctionKeyword */);
-        if (this.token === 2099763 /* Multiply */) {
-            // Annex B.3.4 doesn't allow generators functions
-            if (context & 4096 /* AnnexB */)
-                { this.error(93 /* ForbiddenAsStatement */, tokenDesc(this.token)); }
-            // If we are in the 'await' context. Check if the 'Next' option are set
-            // and allow use of async generators. Throw a decent error message if this isn't the case
-            if (context & 32 /* Await */ && !(this.flags & 16777216 /* OptionsNext */))
-                { this.error(94 /* InvalidAsyncGenerator */); }
-            this.expect(context, 2099763 /* Multiply */);
-            context |= 16 /* Yield */;
-        }
-        if (this.token !== 262155 /* LeftParen */) {
-            var name = this.tokenValue;
-            var token = this.token;
-            if (!this.isIdentifier(context, token))
-                { this.throwUnexpectedToken(); }
-            if (this.isEvalOrArguments(name)) {
-                if (context & 2 /* Strict */)
-                    { this.error(35 /* StrictLHSAssignment */); }
-            }
-            if (context & 33554432 /* Expression */) {
-                if (context & 32 /* Await */ && token === 331885 /* AwaitKeyword */) {
-                    this.error(79 /* DisallowedInContext */, tokenDesc(token));
-                }
-                if (context & (32 /* Await */ | 16 /* Yield */) && token === 282730 /* YieldKeyword */) {
-                    this.error(79 /* DisallowedInContext */, tokenDesc(token));
-                }
-            }
-            else {
-                if (context & 32 /* Await */ && this.flags & 4 /* InFunctionBody */ && token === 331885 /* AwaitKeyword */) {
-                    this.error(79 /* DisallowedInContext */, tokenDesc(token));
-                }
-                if (parent & 16 /* Yield */ && token === 282730 /* YieldKeyword */) {
-                    this.error(79 /* DisallowedInContext */, tokenDesc(token));
-                }
-                // Can not use 'await' as identifier inside an async function
-                if (parent & 32 /* Await */ && this.token === 331885 /* AwaitKeyword */) {
-                    this.error(107 /* InvalidAwaitInAsyncFunc */);
-                }
-                if (context & 1024 /* TopLevel */ && !(context & 4096 /* AnnexB */)) {
-                    this.checkIfExistInFunctionScope(name);
-                    this.blockScope[name] = 1 /* Shadowable */;
-                }
-            }
-            id = context & (33554432 /* Expression */ | 4096 /* AnnexB */) ?
-                this.parseIdentifier(context) :
-                this.parseBindingIdentifier(context);
-        }
-        else if (!(context & (33554432 /* Expression */ | 32768 /* OptionalIdentifier */)))
-            { this.error(83 /* UnNamedFunctionStmt */); }
+    var parent = context;
+    if (!(context & 33554432 /* Expression */))
+        { context &= ~(32 /* Await */ | 16 /* Yield */ | 65536 /* Method */); }
+    if (this.token === 16846956 /* AsyncKeyword */) {
+        if (this.flags & 2 /* ExtendedUnicodeEscape */)
+            { this.error(0 /* Unexpected */); }
+        this.expect(context, 16846956 /* AsyncKeyword */);
+        context |= 32 /* Await */;
     }
+    this.expect(context, 274519 /* FunctionKeyword */);
+    if (this.token === 2099763 /* Multiply */) {
+        // Annex B.3.4 doesn't allow generators functions
+        if (context & 4096 /* AnnexB */)
+            { this.error(93 /* ForbiddenAsStatement */, tokenDesc(this.token)); }
+        // If we are in the 'await' context. Check if the 'Next' option are set
+        // and allow use of async generators. Throw a decent error message if this isn't the case
+        if (context & 32 /* Await */ && !(this.flags & 16777216 /* OptionsNext */))
+            { this.error(94 /* InvalidAsyncGenerator */); }
+        this.expect(context, 2099763 /* Multiply */);
+        context |= 16 /* Yield */;
+    }
+    var id = null;
+    if (this.token !== 262155 /* LeftParen */) {
+        var name = this.tokenValue;
+        var token = this.token;
+        if (!this.isIdentifier(context, token))
+            { this.throwUnexpectedToken(); }
+        if (this.isEvalOrArguments(name)) {
+            if (context & 2 /* Strict */)
+                { this.error(35 /* StrictLHSAssignment */); }
+        }
+        if (context & 33554432 /* Expression */) {
+            if (context & 32 /* Await */ && token === 331885 /* AwaitKeyword */) {
+                this.error(79 /* DisallowedInContext */, tokenDesc(token));
+            }
+            if (context & (32 /* Await */ | 16 /* Yield */) && token === 282730 /* YieldKeyword */) {
+                this.error(79 /* DisallowedInContext */, tokenDesc(token));
+            }
+        }
+        else {
+            if (context & 32 /* Await */ && this.flags & 4 /* InFunctionBody */ && token === 331885 /* AwaitKeyword */) {
+                this.error(79 /* DisallowedInContext */, tokenDesc(token));
+            }
+            if (parent & 16 /* Yield */ && token === 282730 /* YieldKeyword */) {
+                this.error(79 /* DisallowedInContext */, tokenDesc(token));
+            }
+            // Can not use 'await' as identifier inside an async function
+            if (parent & 32 /* Await */ && this.token === 331885 /* AwaitKeyword */) {
+                this.error(107 /* InvalidAwaitInAsyncFunc */);
+            }
+            if (context & 1024 /* TopLevel */ && !(context & 4096 /* AnnexB */)) {
+                this.checkIfExistInFunctionScope(name);
+                this.blockScope[name] = 1 /* Shadowable */;
+            }
+        }
+        id = context & (33554432 /* Expression */ | 4096 /* AnnexB */) ?
+            this.parseIdentifier(context) :
+            this.parseBindingIdentifier(context);
+    }
+    else if (!(context & (33554432 /* Expression */ | 32768 /* OptionalIdentifier */)))
+        { this.error(83 /* UnNamedFunctionStmt */); }
     var functionScope = this.functionScope;
     var blockScope = this.blockScope;
     var parentScope = this.parentScope;
     this.functionScope = undefined;
     this.blockScope = undefined;
     this.parentScope = undefined;
-    var params = this.parseParameterList(context | 128 /* InParameter */, state);
+    var params = this.parseParameterList(context | 128 /* InParameter */, 0 /* None */);
     var body = this.parseFunctionBody(context);
     this.functionScope = functionScope;
     this.blockScope = blockScope;
@@ -3683,30 +3675,10 @@ Parser.prototype.parseFormalParameters = function parseFormalParameters (context
     });
 };
 Parser.prototype.parseAsyncFunctionExpression = function parseAsyncFunctionExpression (context, pos) {
-    // Note: We are "bending" the EcmaScript specs a litle, and expand
-    // the AsyncFunctionExpression production to also deal with
-    // CoverCallExpressionAndAsyncArrowHead and AsyncArrowFunction productions.
-    // This to avoid complications with the CoverCallExpressionAndAsyncArrowHead production
-    // and ArrowFunction production where the latter has to parse out programs. like:
-    //
-    //  async a => {}
-    //  () => {}
-    //
     var isEscaped = (this.flags & 2 /* ExtendedUnicodeEscape */) !== 0;
     var id = this.parseIdentifier(context);
     var flags = this.flags |= 32768;
     switch (this.token) {
-        // 'parseAsyncFunctionExpression'
-        case 274519 /* FunctionKeyword */:
-            //  The `async` contextual keyword must not contain Unicode escape sequences
-            if (isEscaped)
-                { this.error(0 /* Unexpected */); }
-            // The specs says "async[no LineTerminator here]", so just return an plain identifier in case
-            // we got an LineTerminator. The 'FunctionExpression' will be parsed out in 'parsePrimaryExpression'
-            if (this.flags & 1 /* PrecedingLineBreak */)
-                { return id; }
-            return this.parseFunctionExpression(context & ~(16 /* Yield */ | 65536 /* Method */) | 32 /* Await */ | 33554432 /* Expression */, pos);
-        // 'AsyncArrowFunction[In, Yield, Await]'
         case 282730 /* YieldKeyword */:
         case 134479873 /* Identifier */:
             // The specs says "async[no LineTerminator here]", so just return an plain identifier in case
@@ -3904,7 +3876,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 134479873 /* Identifier */:
             return this.parseIdentifier(context | 1048576 /* TaggedTemplate */);
         case 274519 /* FunctionKeyword */:
-            return this.parseFunctionExpression(context & ~(16 /* Yield */ | 65536 /* Method */) | 33554432 /* Expression */ | 64 /* InParenthesis */, pos);
+            return this.parseFunction(context & ~(16 /* Yield */ | 65536 /* Method */) | 33554432 /* Expression */ | 64 /* InParenthesis */);
         case 274526 /* ThisKeyword */:
             return this.parseThisExpression(context);
         case 274439 /* NullKeyword */:
@@ -3932,6 +3904,9 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 1310757 /* DivideAssign */:
             return this.parseRegularExpression(context);
         case 16846956 /* AsyncKeyword */:
+            if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
+                return this.parseFunction(context | 32 /* Await */ | 33554432 /* Expression */);
+            }
             return this.parseAsyncFunctionExpression(context, pos);
         case 12383 /* ThrowKeyword */:
             return this.parseThrowExpression(context);
@@ -4448,11 +4423,31 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
     });
 };
 Parser.prototype.parseMethodDefinition = function parseMethodDefinition (context, state) {
+    var pos = this.getLocations();
     if (state & 1 /* Yield */ && !(state & 16 /* Get */))
         { context |= 16 /* Yield */; }
     if (state & 2 /* Async */)
         { context |= 32 /* Await */; }
-    return this.parseFunctionExpression(context | 33554432 /* Expression */, this.getLocations(), state);
+    var functionScope = this.functionScope;
+    var blockScope = this.blockScope;
+    var parentScope = this.parentScope;
+    this.functionScope = undefined;
+    this.blockScope = undefined;
+    this.parentScope = undefined;
+    var params = this.parseParameterList(context | 128 /* InParameter */, state);
+    var body = this.parseFunctionBody(context);
+    this.functionScope = functionScope;
+    this.blockScope = blockScope;
+    this.parentScope = parentScope;
+    return this.finishNode(context, pos, {
+        type: 'FunctionExpression',
+        params: params,
+        body: body,
+        async: (context & 32 /* Await */) !== 0,
+        generator: (context & 16 /* Yield */) !== 0,
+        expression: false,
+        id: null
+    });
 };
 Parser.prototype.parseRestElement = function parseRestElement (context) {
     var pos = this.getLocations();
