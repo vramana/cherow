@@ -2450,7 +2450,6 @@ export class Parser {
                     if (context & Context.TopLevel || this.flags & Flags.IterationStatement) {
                         this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
                     }
-                    if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
                     return this.parseFunction(context & ~Context.Expression);
                 }
                 // 'Async' is a valid contextual keyword in sloppy mode for labelled statement, so either
