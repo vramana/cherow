@@ -861,13 +861,14 @@ export class Parser {
 
         let start = this.index;
         let ret = '';
+        let isEscaped = false;
 
         loop:
             while (this.hasNext()) {
                 let code = this.nextChar();
                 switch (code) {
                     case Chars.Backslash:
-                        this.flags |= Flags.ExtendedUnicodeEscape;
+                        isEscaped = true;
                         ret += this.source.slice(start, this.index);
                         ret += fromCodePoint(this.peekUnicodeEscape());
                         start = this.index;
@@ -886,11 +887,14 @@ export class Parser {
 
         const len = ret.length;
         this.tokenValue = ret;
+        
+        if (isEscaped) this.flags |= Flags.ExtendedUnicodeEscape;
 
         if (state & ScanState.Unicode) return Token.Identifier;
 
         // Keywords are between 2 and 11 characters long and start with a lowercase letter
         if (len >= 2 && len <= 11) {
+            if (context & Context.ValidateEscape && this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword)
             const token = descKeyword(ret);
             if (token > 0) return token;
         }
@@ -1946,9 +1950,6 @@ export class Parser {
 
     private parseExportDefault(context: Context, pos: Location): ESTree.ExportDefaultDeclaration {
 
-        // Note:  The `default` contextual keyword must not contain Unicode escape sequences.
-        if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
-
         this.expect(context, Token.DefaultKeyword);
 
         let declaration: ESTree.FunctionDeclaration | ESTree.ClassDeclaration | ESTree.Expression;
@@ -1999,7 +2000,7 @@ export class Parser {
         let isExportedReservedWord = false;
         let declaration: ESTree.Statement | null = null;
 
-        this.expect(context, Token.ExportKeyword);
+        this.expect(context | Context.ValidateEscape, Token.ExportKeyword);
 
         switch (this.token) {
 
@@ -2036,15 +2037,13 @@ export class Parser {
                     if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
                 }
 
-                this.expect(context, Token.RightBrace);
+                this.expect(context | Context.ValidateEscape, Token.RightBrace);
 
                 this.functionScope = functionScope;
                 this.blockScope = blockScope;
                 this.parentScope = parentScope;
 
                 if (this.token === Token.FromKeyword) {
-                    // Note:  The `from` contextual keyword must not contain Unicode escape sequences.
-                    if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
                     this.expect(context, Token.FromKeyword);
                     // export {default} from 'foo';
                     // export {foo} from 'foo';
@@ -2107,14 +2106,12 @@ export class Parser {
 
         if (this.token === Token.Identifier) this.addBlockName(this.tokenValue);
 
-        const local = this.parseIdentifierName(context, this.token);
+        const local = this.parseIdentifierName(context | Context.ValidateEscape, this.token);
 
         let exported = local;
         const token = this.token;
 
         if (this.token === Token.AsKeyword) {
-            // Note:  The `as` contextual keyword must not contain Unicode escape sequences.
-            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
             this.expect(context, Token.AsKeyword);
             this.checkIfExistInBlockScope(this.tokenValue, true);
             exported = this.parseIdentifierName(context, this.token);
@@ -2155,10 +2152,9 @@ export class Parser {
         let local;
 
         if (this.isIdentifier(context, this.token)) {
-            imported = this.parseIdentifier(context);
+            imported = this.parseIdentifier(context | Context.ValidateEscape);
             local = imported;
             if (this.token === Token.AsKeyword) {
-                if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
                 this.expect(context, Token.AsKeyword);
                 this.checkIfExistInBlockScope(this.tokenValue, true);
                 local = this.parseIdentifierOrPattern(context);
@@ -2203,14 +2199,10 @@ export class Parser {
 
         const pos = this.getLocations();
 
-        this.expect(context, Token.Multiply);
+        this.expect(context | Context.ValidateEscape, Token.Multiply);
 
         if (this.token !== Token.AsKeyword) {
             this.error(Errors.NoAsAfterImportNamespace);
-        }
-
-        if (this.flags & Flags.ExtendedUnicodeEscape) {
-            this.error(Errors.UnexpectedEscapedKeyword);
         }
 
         this.expect(context, Token.AsKeyword);
@@ -2301,7 +2293,7 @@ export class Parser {
 
                 // import {bar}
             case Token.LeftBrace:
-                this.parseNamedImports(context, specifiers);
+                this.parseNamedImports(context | Context.ValidateEscape, specifiers);
                 break;
 
                 // import * as foo
@@ -2313,9 +2305,7 @@ export class Parser {
                 this.throwUnexpectedToken();
         }
 
-        if (this.flags & Flags.ExtendedUnicodeEscape) {
-            this.error(Errors.UnexpectedEscapedKeyword);
-        }
+     
 
         this.expect(context, Token.FromKeyword);
         const src = this.parseModuleSpecifier(context);
@@ -2745,13 +2735,13 @@ export class Parser {
                 const startIndex = this.getLocations()
                 const kind = tokenDesc(this.token);
                 if (this.parseOptional(context, Token.VarKeyword)) {
-                    declarations = this.parseVariableDeclarationList(context);
+                    declarations = this.parseVariableDeclarationList(context | Context.ValidateEscape);
                 } else if (this.parseOptional(context, Token.ConstKeyword)) {
-                    declarations = this.parseVariableDeclarationList(context | Context.Const);
-                } else if (this.isLexical(context) && this.parseOptional(context, Token.LetKeyword)) {
-                    declarations = this.parseVariableDeclarationList(context | Context.Let);
+                    declarations = this.parseVariableDeclarationList(context | Context.ValidateEscape | Context.Const);
+                } else if (this.isLexical(context) && this.parseOptional(context | Context.ValidateEscape, Token.LetKeyword)) {
+                    declarations = this.parseVariableDeclarationList(context | Context.ValidateEscape | Context.Let);
                 } else {
-                    init = this.parseExpression(context, pos);
+                    init = this.parseExpression(context | Context.ValidateEscape, pos);
                 }
                 if (declarations) {
                     init = this.finishNode(context, startIndex, {
@@ -2762,11 +2752,9 @@ export class Parser {
                 }
 
             } else {
-                init = this.parseExpression(context & ~Context.AllowIn, pos);
+                init = this.parseExpression(context & ~Context.AllowIn | Context.ValidateEscape, pos);
             }
         }
-
-        if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
 
         this.flags |= Flags.IterationStatement | Flags.Continue;
 
@@ -3476,7 +3464,7 @@ export class Parser {
         } else if (hasMask(this.token, Token.UnaryOperator)) {
             const operator = this.token;
             this.nextToken(context);
-            const operand = this.parseUnaryExpression(context | Context.Unary);
+            const operand = this.parseUnaryExpression(context);
             if (context & Context.Strict && operator === Token.DeleteKeyword) {
                 if (operand.type === 'Identifier') {
                     this.error(Errors.StrictDelete);
@@ -3496,8 +3484,7 @@ export class Parser {
         const updateExpression = this.parseUpdateExpression(context, startLoc);
 
         if (this.token === Token.Exponentiate) {
-            // if (context & Context.Unary) this.error(Errors.Unexpected);
-            return this.parseBinaryExpression(context & ~Context.Unary, this.token & Token.Precedence, startLoc, updateExpression);
+            return this.parseBinaryExpression(context, this.token & Token.Precedence, startLoc, updateExpression);
         }
 
         return updateExpression;
@@ -4319,7 +4306,7 @@ export class Parser {
 
         const pos = this.getLocations();
 
-        this.expect(context, Token.LeftBrace);
+        this.expect(context | Context.ValidateEscape, Token.LeftBrace);
 
         const body: ESTree.MethodDefinition[] = [];
         if (this.token !== Token.RightBrace) {
@@ -4436,7 +4423,6 @@ export class Parser {
         let count = 0;
         let key;
         let value;
-        let isEscaped = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
         let fieldPos;
 
         loop: while (this.isIdentifierOrKeyword(token)) {
@@ -4444,7 +4430,6 @@ export class Parser {
             switch (this.token) {
 
                 case Token.StaticKeyword:
-                    if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
                     state |= currentState = ObjectState.Static;
                     key = this.parseIdentifier(context);
                     count++;
@@ -4463,7 +4448,6 @@ export class Parser {
 
                 case Token.AsyncKeyword:
                     if (state & ObjectState.Accessors) break loop;
-                    if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
                     state |= currentState = ObjectState.Async;
                     key = this.parseIdentifier(context);
                     count++;
