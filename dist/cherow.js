@@ -1857,6 +1857,8 @@ Parser.prototype.parseStatementList = function parseStatementList (context, endT
                 { this$1.error(26 /* IllegalUseStrict */); }
             if (this$1.flags & 4096 /* Binding */)
                 { this$1.error(76 /* UnexpectedStrictReserved */); }
+            if (this$1.flags & -2147483648 /* Duplicate */)
+                { this$1.error(68 /* DuplicateBinding */); }
             context |= 2 /* Strict */;
         }
     }
@@ -3631,6 +3633,7 @@ Parser.prototype.parseParameterList = function parseParameterList (context, stat
     this.expect(context, 262155 /* LeftParen */);
     var result = [];
     this.flags &= ~32768 /* SimpleParameterList */;
+    var first;
     while (this.token !== 16 /* RightParen */) {
         if (this$1.token === 14 /* Ellipsis */) {
             this$1.errorLocation = this$1.getLocations();
@@ -3643,6 +3646,14 @@ Parser.prototype.parseParameterList = function parseParameterList (context, stat
         }
         if (!(context & 2 /* Strict */) && this$1.token !== 134479873 /* Identifier */) {
             context |= 67108864 /* Pattern */;
+        }
+        if (!(context & 2 /* Strict */) && this$1.token === 134479873 /* Identifier */) {
+            if (!first)
+                { first = this$1.tokenValue; }
+            if (first === this$1.tokenValue)
+                { this$1.flags |= -2147483648 /* Duplicate */; }
+            else
+                { this$1.flags &= ~-2147483648 /* Duplicate */; }
         }
         result.push(this$1.parseFormalParameters(context & ~1073741824 /* ForceBinding */));
         if (this$1.token !== 16 /* RightParen */)

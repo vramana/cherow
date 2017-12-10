@@ -13,29 +13,29 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 
 ## Features
 
-- Full support for ECMAScript® 2017 [(ECMA-262 8th Edition)](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
-- ECmaScript Next (*Stage 3 proposals*)
-- [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), a syntax extension for React
-- Skips hashbang comment nodes by default
-- Optimized for handheld devices
-- Optional tracking of syntax node location (index-based and line-column)
-- Parameterized plugin system
-- Heavily tested (~28 000 [Test262 unit tests](https://github.com/tc39/test262) with full code coverage)
+* Full support for ECMAScript® 2017 [(ECMA-262 8th Edition)](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
+* ECmaScript Next (*Stage 3 proposals*)
+* [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), a syntax extension for React
+* Skips hashbang comment nodes by default
+* Optimized for handheld devices
+* Optional tracking of syntax node location (index-based and line-column)
+* Parameterized plugin system
+* Heavily tested (~29 000 [Test262 unit tests](https://github.com/tc39/test262) with full code coverage)
 
 ## ESNext features
 
 `Stage 3` features support. These need to be enabled with the `next` option. 
 
-- [Import()](https://github.com/tc39/proposal-dynamic-import)
-- [Asynchronous Iteration](https://github.com/tc39/proposal-async-iteration)
-- [Class Fields](https://github.com/tc39/proposal-class-fields)
-- [Private methods and fields](https://github.com/tc39/proposal-private-methods)
-- [Rest/Spread Properties](https://github.com/tc39/proposal-object-rest-spread)
-- [Optional catch binding](https://github.com/tc39/proposal-optional-catch-binding)
-- [BigInt](https://github.com/tc39/proposal-bigint)
-- [Regexp dotall flag](https://github.com/tc39/proposal-regexp-dotall-flag)
-- [Import.meta](https://github.com/tc39/proposal-import-meta)
-- [Throw expressions](https://github.com/tc39/proposal-throw-expressions)
+* [Import()](https://github.com/tc39/proposal-dynamic-import)
+* [Asynchronous Iteration](https://github.com/tc39/proposal-async-iteration)
+* [Class Fields](https://github.com/tc39/proposal-class-fields)
+* [Private methods and fields](https://github.com/tc39/proposal-private-methods)
+* [Rest/Spread Properties](https://github.com/tc39/proposal-object-rest-spread)
+* [Optional catch binding](https://github.com/tc39/proposal-optional-catch-binding)
+* [BigInt](https://github.com/tc39/proposal-bigint)
+* [Regexp dotall flag](https://github.com/tc39/proposal-regexp-dotall-flag)
+* [Import.meta](https://github.com/tc39/proposal-import-meta)
+* [Throw expressions](https://github.com/tc39/proposal-throw-expressions)
 
 ## Options
 
@@ -54,8 +54,7 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 | `raw`             | Attach raw property on literal nodes (*Esprima and Acorn feature*)     |
 | `sourceType`      | Specify which type of script you're parsing ("script" or "module") |
 ## API
-
-A JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and
+Cherow can be used to perform [syntactic analysis](https://en.wikipedia.org/wiki/Parsing) (parsing) of a JavaScript program, and a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and
 both are accepted by Cherow to perform syntactic analysis of JavaScript programs.
 
 ```js
@@ -67,6 +66,35 @@ cherow.parseScript('const fooBar = 123;');
 cherow.parseModule('const fooBar = 123;');
 
 ```
+
+Will return this when serialized in json:
+
+```js
+{
+    "type": "Program",
+    "body": [
+        {
+            "type": "VariableDeclaration",
+            "declarations": [
+                {
+                    "type": "VariableDeclarator",
+                    "init": {
+                        "type": "Literal",
+                        "value": 123
+                    },
+                    "id": {
+                        "type": "Identifier",
+                        "name": "fooBar"
+                    }
+                }
+            ],
+            "kind": "const"
+        }
+    ],
+    "sourceType": "script"
+}
+```
+
 
 ### Parsing with options
 
