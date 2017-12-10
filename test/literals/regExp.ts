@@ -53,6 +53,10 @@ describe('Literals - RegExp', () => {
         next: true
     });
 
+    fail(`var regExp =  /[\u2028]/`, {
+      source: 'var regExp =  /[\u2028]/',
+  });
+
     fail(`/./uu`, {
         source: '/./uu',
         next: true

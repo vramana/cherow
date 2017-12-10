@@ -1152,7 +1152,7 @@ export class Parser {
                 const maxBigIntCharacters = 1024 * 1024 / 4;
                 const length = start - this.index - state & NumericState.Decimal ? 0 : 2;
     
-                if (length > maxBigIntCharacters) this.error(Errors.Unexpected);
+               // if (length > maxBigIntCharacters) this.error(Errors.Unexpected);
                 state |= NumericState.BigInt;
                 this.advance();
     
@@ -1317,36 +1317,16 @@ export class Parser {
         }
     
         private testRegExp(pattern: string, flags: string, mask: RegexFlags): RegExp | null {
-            const astralSubstitute = '\uFFFF';
-            let tmp = pattern;
-            const self = this;
-    
-            if (mask & RegexFlags.Unicode) {
-                tmp = tmp.replace(/\\u\{([0-9a-fA-F]+)\}|\\u([a-fA-F0-9]{4})/g, ($0, $1, $2) => {
-                    const codePoint = parseInt($1 || $2, 16);
-                    if (codePoint > Chars.LastUnicodeChar) this.error(Errors.UnicodeOutOfRange);
-                    if (codePoint <= 0xFFFF) return String.fromCharCode(codePoint);
-                    return astralSubstitute;
-                }).replace(
-                    /[\uD800-\uDBFF][\uDC00-\uDFFF]/g,
-                    astralSubstitute
-                );
-            }
-    
-            // First, detect invalid regular expressions.
+
             try {
-                RegExp(tmp);
+                RegExp(pattern);
             } catch (e) {
                 this.error(Errors.UnexpectedTokenRegExp);
             }
-    
-            // Return a regular expression object for this pattern-flag pair, or
-            // `null` in case the current environment doesn't support the flags it
-            // uses.
+
             try {
                 return new RegExp(pattern, flags);
             } catch (exception) {
-                /* istanbul ignore next */
                 return null;
             }
         }
@@ -2717,9 +2697,6 @@ export class Parser {
         private parseBreakStatement(context: Context): ESTree.BreakStatement {
     
             const pos = this.getLocations();
-            if (this.flags & Flags.ExtendedUnicodeEscape) {
-                this.error(Errors.UnexpectedEscapedKeyword)
-            }
     
             this.expect(context, Token.BreakKeyword);
     

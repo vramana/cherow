@@ -3,103 +3,80 @@ import {  pass, fail} from '../utils';
 describe('Statements - Switch', () => {
   
       describe('Redeclaration', () => {
-  
+
+          fail(`duplicate default`, {
+              source: `function SwitchTest(value){
+                var result = 0;
+                
+                switch(value) {
+                  case 0:
+                    result += 2;
+                  default:
+                    result += 32;
+                    break;
+                  default:
+                    result += 32;
+                    break;
+                }
+                
+                return result;
+              }`,
+          });
+        
           fail(`switch (0) { case 1: const f = 0; default: async function f() {} }`, {
               source: 'switch (0) { case 1: const f = 0; default: async function f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: const f = 0; default: async function* f() {} }`, {
               source: 'switch (0) { case 1: const f = 0; default: async function* f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: const f = 0; default: class f {}; }`, {
               source: 'switch (0) { case 1: const f = 0; default: class f {}; }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: const f = 0; default: const f = 0; }`, {
               source: 'switch (0) { case 1: const f = 0; default: const f = 0; }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: const f = 0; default: function f() {} }`, {
               source: 'switch (0) { case 1: const f = 0; default: function f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: const f = 0; default: function* f() {} }`, {
               source: 'switch (0) { case 1: const f = 0; default: function* f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: const f = 0; default: let f; }`, {
               source: 'switch (0) { case 1: const f = 0; default: let f; }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: const f = 0; default: var f; }`, {
               source: 'switch (0) { case 1: const f = 0; default: var f; }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: function f() {} default: async function f() {} }`, {
               source: 'switch (0) { case 1: function f() {} default: async function f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: function f() {} default: async function* f() {} }`, {
               source: 'switch (0) { case 1: function f() {} default: async function* f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: function f() {} default: const f = 0; }`, {
               source: 'switch (0) { case 1: function f() {} default: const f = 0; }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: function f() {} default: function f() {} }`, {
               source: 'switch (0) { case 1: function f() {} default: function f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: function f() {} default: function* f() {} }`, {
               source: 'switch (0) { case 1: function f() {} default: function* f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: function f() {} default: let f; }`, {
               source: 'switch (0) { case 1: function f() {} default: let f; }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           // fail(`switch (0) { case 1: function f() {} default: var f; }`, {
@@ -111,51 +88,30 @@ describe('Statements - Switch', () => {
   
           fail(`switch (0) { case 1: function* f() {} default: async function f() {} }`, {
               source: 'switch (0) { case 1: function* f() {} default: async function f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: function* f() {} default: async function* f() {} }`, {
               source: 'switch (0) { case 1: function* f() {} default: async function* f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: function* f() {} default: class f {}; }`, {
               source: 'switch (0) { case 1: function* f() {} default: class f {}; }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: function* f() {} default: const f = 0; }`, {
               source: 'switch (0) { case 1: function* f() {} default: const f = 0; }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: function* f() {} default: function f() {} }`, {
               source: 'switch (0) { case 1: function* f() {} default: function f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: function* f() {} default: function* f() {} }`, {
               source: 'switch (0) { case 1: function* f() {} default: function* f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: function* f() {} default: let f; }`, {
               source: 'switch (0) { case 1: function* f() {} default: let f; }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           // fail(`switch (0) { case 1: function* f() {} default: var f; }`, {
@@ -167,65 +123,38 @@ describe('Statements - Switch', () => {
   
           fail(`switch (0) { case 1: async function f() {} default: async function f() {} }`, {
               source: 'switch (0) { case 1: async function f() {} default: async function f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: async function f() {} default: async function* f() {} }`, {
               source: 'switch (0) { case 1: async function f() {} default: async function* f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: async function f() {} default: const f = 0; }`, {
               source: 'switch (0) { case 1: async function f() {} default: const f = 0; }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: async function f() {} default: function f() {} }`, {
               source: 'switch (0) { case 1: async function f() {} default: function f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: async function f() {} default: function* f() {} }`, {
               source: 'switch (0) { case 1: async function f() {} default: function* f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: async function f() {} default: let f; }`, {
               source: 'switch (0) { case 1: async function f() {} default: let f; }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: async function* f() {} default: async function f() {} }`, {
               source: 'switch (0) { case 1: async function* f() {} default: async function f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: async function* f() {} default: function f() {} }`, {
               source: 'switch (0) { case 1: async function* f() {} default: function f() {} }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
   
           fail(`switch (0) { case 1: async function* f() {} default: let f; }`, {
               source: 'switch (0) { case 1: async function* f() {} default: let f; }',
-              loc: true,
-              ranges: true,
-              raw: true
           });
       });
   

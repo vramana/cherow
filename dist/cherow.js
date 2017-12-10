@@ -1312,10 +1312,8 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
         // Check that the literal is within our limits for BigInt length.
         // For simplicity, use 4 bits per character to calculate the maximum
         // allowed literal length.
-        var maxBigIntCharacters = 1024 * 1024 / 4;
         var length = start - this.index - state & 1 /* Decimal */ ? 0 : 2;
-        if (length > maxBigIntCharacters)
-            { this.error(0 /* Unexpected */); }
+        // if (length > maxBigIntCharacters) this.error(Errors.Unexpected);
         state |= 64 /* BigInt */;
         this.advance();
     }
@@ -1461,35 +1459,16 @@ Parser.prototype.scanRegularExpression = function scanRegularExpression () {
     return 262148 /* RegularExpression */;
 };
 Parser.prototype.testRegExp = function testRegExp (pattern, flags, mask) {
-        var this$1 = this;
-
-    var astralSubstitute = '\uFFFF';
-    var tmp = pattern;
-    if (mask & 8 /* Unicode */) {
-        tmp = tmp.replace(/\\u\{([0-9a-fA-F]+)\}|\\u([a-fA-F0-9]{4})/g, function ($0, $1, $2) {
-            var codePoint = parseInt($1 || $2, 16);
-            if (codePoint > 1114111 /* LastUnicodeChar */)
-                { this$1.error(5 /* UnicodeOutOfRange */); }
-            if (codePoint <= 0xFFFF)
-                { return String.fromCharCode(codePoint); }
-            return astralSubstitute;
-        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, astralSubstitute);
-    }
-    // First, detect invalid regular expressions.
     try {
         
     }
     catch (e) {
         this.error(12 /* UnexpectedTokenRegExp */);
     }
-    // Return a regular expression object for this pattern-flag pair, or
-    // `null` in case the current environment doesn't support the flags it
-    // uses.
     try {
         return new RegExp(pattern, flags);
     }
     catch (exception) {
-        /* istanbul ignore next */
         return null;
     }
 };
@@ -2666,9 +2645,6 @@ Parser.prototype.parseContinueStatement = function parseContinueStatement (conte
 };
 Parser.prototype.parseBreakStatement = function parseBreakStatement (context) {
     var pos = this.getLocations();
-    if (this.flags & 2 /* ExtendedUnicodeEscape */) {
-        this.error(64 /* UnexpectedEscapedKeyword */);
-    }
     this.expect(context, 12362 /* BreakKeyword */);
     var label = null;
     if (!(this.flags & 1 /* PrecedingLineBreak */) && this.token === 134479873 /* Identifier */) {
