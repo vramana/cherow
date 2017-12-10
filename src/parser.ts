@@ -1760,8 +1760,8 @@ export class Parser {
                 if (this.flags & Flags.DirectivePrologue) {
                     if (this.flags & Flags.SimpleParameterList) this.error(Errors.IllegalUseStrict);
                     if (this.flags & Flags.Binding) this.error(Errors.UnexpectedStrictReserved);
-                    if (this.flags & Flags.Duplicate) this.error(Errors.DuplicateBinding);
                     context |= Context.Strict;
+
                 }
             }
     
@@ -3866,7 +3866,6 @@ export class Parser {
             this.expect(context, Token.LeftParen);
             const result = [];
             this.flags &= ~Flags.SimpleParameterList;
-            let first;
             while (this.token !== Token.RightParen) {
                 if (this.token === Token.Ellipsis) {
                     this.errorLocation = this.getLocations();
@@ -3880,11 +3879,7 @@ export class Parser {
                 if (!(context & Context.Strict) && this.token !== Token.Identifier) {
                     context |= Context.Pattern;
                 }
-                if (!(context & Context.Strict) && this.token === Token.Identifier) {
-                    if (!first) first = this.tokenValue;
-                    if (first === this.tokenValue) this.flags |= Flags.Duplicate;
-                    else this.flags &= ~Flags.Duplicate;
-                }
+    
                 result.push(this.parseFormalParameters(context & ~Context.ForceBinding));
                 if (this.token !== Token.RightParen) this.expect(context, Token.Comma);
             }
