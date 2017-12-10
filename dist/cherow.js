@@ -2660,47 +2660,31 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
     var token = this.token;
     context |= 524288 /* ForStatement */;
     if (this.token !== 17 /* Semicolon */) {
-        if (hasMask(this.token, 8650752 /* VarDeclStart */)) {
-            var startIndex = this.getLocations();
-            var kind = tokenDesc(this.token);
-            if (this.parseOptional(context, 8663111 /* VarKeyword */)) {
-                declarations = this.parseVariableDeclarationList(context | 268435456 /* ValidateEscape */);
-            }
-            else if (this.parseOptional(context, 8663113 /* ConstKeyword */)) {
-                declarations = this.parseVariableDeclarationList(context | 268435456 /* ValidateEscape */ | 1073741824 /* Const */);
-            }
-            else if (this.isLexical(context) && this.parseOptional(context | 268435456 /* ValidateEscape */, 8671304 /* LetKeyword */)) {
-                declarations = this.parseVariableDeclarationList(context | 268435456 /* ValidateEscape */ | 536870912 /* Let */);
-            }
-            else {
-                init = this.parseExpression(context | 268435456 /* ValidateEscape */, pos);
-            }
-            if (declarations) {
-                init = this.finishNode(context, startIndex, {
-                    type: 'VariableDeclaration',
-                    declarations: declarations,
-                    kind: kind
-                });
-            }
+        var startIndex;
+        if ((token & 8650752 /* VarDeclStart */))
+            { startIndex = this.getLocations(); }
+        if (this.parseOptional(context, 8663111 /* VarKeyword */)) {
+            declarations = this.parseVariableDeclarationList(context | 268435456 /* ValidateEscape */);
+        }
+        else if (this.parseOptional(context, 8663113 /* ConstKeyword */)) {
+            declarations = this.parseVariableDeclarationList(context | 268435456 /* ValidateEscape */ | 1073741824 /* Const */);
+        }
+        else if (this.isLexical(context) && this.parseOptional(context | 268435456 /* ValidateEscape */, 8671304 /* LetKeyword */)) {
+            declarations = this.parseVariableDeclarationList(context | 268435456 /* ValidateEscape */ | 536870912 /* Let */);
         }
         else {
-            init = this.parseExpression(context & ~4 /* AllowIn */ | 268435456 /* ValidateEscape */, pos);
+            init = this.parseExpression(context & ~4 /* AllowIn */, pos);
+        }
+        if (declarations) {
+            init = this.finishNode(context, startIndex, {
+                type: 'VariableDeclaration',
+                declarations: declarations,
+                kind: tokenDesc(token)
+            });
         }
     }
     this.flags |= 32 /* IterationStatement */ | 128 /* Continue */;
     if (this.isInOrOfKeyword(this.token)) {
-        if (declarations) {
-            if (declarations[0].init != null)
-                { this.error(31 /* InvalidVarInitForOf */); }
-            if (declarations.length !== 1)
-                { this.error(0 /* Unexpected */); }
-        }
-        else {
-            if (!isValidDestructuringAssignmentTarget(init) || init.type === 'AssignmentExpression') {
-                this.error(32 /* InvalidLHSInForLoop */);
-            }
-            this.reinterpretAsPattern(context, init);
-        }
         var isForOfStatement = false;
         var right;
         if (this.parseOptional(context, 69746 /* OfKeyword */)) {
@@ -2708,10 +2692,21 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
             if (awaitToken && !(this.flags & 16777216 /* OptionsNext */)) {
                 this.error(1 /* UnexpectedToken */, tokenDesc(token));
             }
+            if (declarations && declarations[0].init != null) {
+                this.error(31 /* InvalidVarInitForOf */);
+            }
         }
         else if (this.parseOptional(context, 2111281 /* InKeyword */)) {
             if (awaitToken)
                 { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }
+            if (declarations && declarations.length !== 1) {
+                this.error(0 /* Unexpected */);
+            }
+        }
+        if (!declarations) {
+            this.reinterpretAsPattern(context, init);
+            if (!isValidDestructuringAssignmentTarget(init))
+                { this.error(32 /* InvalidLHSInForLoop */); }
         }
         right = this.parseAssignmentExpression(context);
         this.expect(context, 16 /* RightParen */);

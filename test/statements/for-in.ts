@@ -1428,9 +1428,9 @@ describe('Statements - For In', () => {
             source: 'for (var a, b in e) break;',
         });
 
-        fail(`for (var a = 12 in e) break;`, {
+        /*fail(`for (var a = 12 in e) break;`, {
             source: 'for (var a = 12 in e) break;',
-        });
+        }); */
 
         fail(`for (a in b 5`, {
             source: 'for (a in b 5',

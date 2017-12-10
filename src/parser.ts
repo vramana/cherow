@@ -887,7 +887,7 @@ export class Parser {
 
         const len = ret.length;
         this.tokenValue = ret;
-        
+
         if (isEscaped) this.flags |= Flags.ExtendedUnicodeEscape;
 
         if (state & ScanState.Unicode) return Token.Identifier;
@@ -2305,7 +2305,7 @@ export class Parser {
                 this.throwUnexpectedToken();
         }
 
-     
+
 
         this.expect(context, Token.FromKeyword);
         const src = this.parseModuleSpecifier(context);
@@ -2725,49 +2725,37 @@ export class Parser {
 
         this.expect(context, Token.LeftParen);
 
-        const token = this.token;
+        let token = this.token;
 
         context |= Context.ForStatement;
 
         if (this.token !== Token.Semicolon) {
-            if (hasMask(this.token, Token.VarDeclStart)) {
-                const startIndex = this.getLocations()
-                const kind = tokenDesc(this.token);
-                if (this.parseOptional(context, Token.VarKeyword)) {
-                    declarations = this.parseVariableDeclarationList(context | Context.ValidateEscape);
-                } else if (this.parseOptional(context, Token.ConstKeyword)) {
-                    declarations = this.parseVariableDeclarationList(context | Context.ValidateEscape | Context.Const);
-                } else if (this.isLexical(context) && this.parseOptional(context | Context.ValidateEscape, Token.LetKeyword)) {
-                    declarations = this.parseVariableDeclarationList(context | Context.ValidateEscape | Context.Let);
-                } else {
-                    init = this.parseExpression(context | Context.ValidateEscape, pos);
-                }
-                if (declarations) {
-                    init = this.finishNode(context, startIndex, {
-                        type: 'VariableDeclaration',
-                        declarations,
-                        kind
-                    });
-                }
 
+            let startIndex;
+
+            if ((token & Token.VarDeclStart)) startIndex = this.getLocations()
+
+            if (this.parseOptional(context, Token.VarKeyword)) {
+                declarations = this.parseVariableDeclarationList(context | Context.ValidateEscape);
+            } else if (this.parseOptional(context, Token.ConstKeyword)) {
+                declarations = this.parseVariableDeclarationList(context | Context.ValidateEscape | Context.Const);
+            } else if (this.isLexical(context) && this.parseOptional(context | Context.ValidateEscape, Token.LetKeyword)) {
+                declarations = this.parseVariableDeclarationList(context | Context.ValidateEscape | Context.Let);
             } else {
-                init = this.parseExpression(context & ~Context.AllowIn | Context.ValidateEscape, pos);
+                init = this.parseExpression(context & ~Context.AllowIn, pos);
+            }
+            if (declarations) {
+                init = this.finishNode(context, startIndex, {
+                    type: 'VariableDeclaration',
+                    declarations,
+                    kind: tokenDesc(token)
+                });
             }
         }
 
         this.flags |= Flags.IterationStatement | Flags.Continue;
 
         if (this.isInOrOfKeyword(this.token)) {
-
-            if (declarations) {
-                if (declarations[0].init != null) this.error(Errors.InvalidVarInitForOf);
-                if (declarations.length !== 1) this.error(Errors.Unexpected);
-            } else {
-                if (!isValidDestructuringAssignmentTarget(init) || init.type === 'AssignmentExpression') {
-                    this.error(Errors.InvalidLHSInForLoop);
-                }
-                this.reinterpretAsPattern(context, init);
-            }
 
             let isForOfStatement = false;
             let right;
@@ -2777,8 +2765,22 @@ export class Parser {
                 if (awaitToken && !(this.flags & Flags.OptionsNext)) {
                     this.error(Errors.UnexpectedToken, tokenDesc(token));
                 }
+
+                if (declarations && declarations[0].init != null) {
+                    this.error(Errors.InvalidVarInitForOf);
+                }
+
             } else if (this.parseOptional(context, Token.InKeyword)) {
+
                 if (awaitToken) this.error(Errors.UnexpectedToken, tokenDesc(token));
+
+                if (declarations && declarations.length !== 1) {
+                    this.error(Errors.Unexpected);
+                }
+            }
+            if (!declarations) {
+                this.reinterpretAsPattern(context, init);
+                if (!isValidDestructuringAssignmentTarget(init)) this.error(Errors.InvalidLHSInForLoop);
             }
 
             right = this.parseAssignmentExpression(context);
@@ -2802,7 +2804,6 @@ export class Parser {
                 left: init,
                 right
             });
-
         }
 
         let update = null;
