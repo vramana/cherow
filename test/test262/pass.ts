@@ -102,6 +102,7 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/class/fields-derived-cls-direct-eval-err-contains-supercall.js',
         'test/language/expressions/class/fields-derived-cls-direct-eval-err-contains-supercall-2.js',
         'test/language/expressions/class/fields-derived-cls-direct-eval-err-contains-supercall-1.js',
+        'test/language/expressions/object/11.1.5_6-2-1-s.js',
         'test/language/expressions/await/early-errors-await-not-simple-assignment-target.js',
         'test/language/expressions/async-generator/early-errors-expression-not-simple-assignment-target.js',
         'test/language/expressions/async-generator/early-errors-expression-not-simple-assignment-target.js',
