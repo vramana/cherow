@@ -44,15 +44,6 @@ parsers = [
     }
 },
 {
-    name: 'Jazzle',
-    link: 'https://github.com/JazzleWare/jazzle-parser',
-    src: 'https://unpkg.com/jazzle',
-    parse: function (code) {
-        var syntax = window.parse(code);
-        return syntax.body.length;
-    }
-},
-{
     name: 'Esprima',
     link: 'https://github.com/jquery/esprima',
     src: 'https://unpkg.com/esprima',
