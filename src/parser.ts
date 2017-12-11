@@ -251,44 +251,42 @@ export class Parser {
     private scan(context: Context): Token {
 
         this.flags &= ~(Flags.PrecedingLineBreak | Flags.ExtendedUnicodeEscape);
-        let isStart = this.index === 0;
-        let lastIsCR = false;
-        let state = ScanState.None;
+
+        let state = this.index === 0 ? ScanState.LineStart : ScanState.None;
+
+        if (this.nextChar() >= 128 && this.nextChar() === Chars.ByteOrderMark) this.index++;
 
         while (this.hasNext()) {
-
-            this.startIndex = this.index;
-            this.startColumn = this.column;
-            this.startLine = this.line;
 
             let first = this.nextChar();
 
             if (first >= 128) {
-                // Skip initial BOM.
-                if (this.nextChar() === Chars.ByteOrderMark) this.index++;
                 // Chars not in the range 0..127 are rare.  Getting them out of the way
                 // early allows subsequent checking to be faster.
                 first = this.peekUnicodeChar();
             }
 
+            this.startIndex = this.index;
+            this.startColumn = this.column;
+            this.startLine = this.line;
+
+
             switch (first) {
 
                 case Chars.CarriageReturn:
-                    isStart = lastIsCR = true;
+                    state |= ScanState.LastIsCR | ScanState.LineStart;
                     this.advanceNewline(true);
                     continue;
 
                 case Chars.LineFeed:
-                    this.advanceNewline(!lastIsCR);
-                    lastIsCR = false;
-                    isStart = true;
+                    this.advanceNewline((state & ScanState.LastIsCR) === 0);
+                    state = state & ~ScanState.LastIsCR | ScanState.LineStart;
                     continue;
 
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
-                    lastIsCR = false;
+                    state = state & ~ScanState.LastIsCR | ScanState.LineStart;
                     this.advanceNewline(true);
-                    isStart = true;
                     continue;
 
                 case Chars.Tab:
@@ -325,10 +323,10 @@ export class Parser {
                         const next = this.nextChar();
 
                         if (this.consume(Chars.Slash)) {
-                            this.skipComments(true);
+                            this.skipComments(state | ScanState.SingleLine);
                             continue;
                         } else if (this.consume(Chars.Asterisk)) {
-                            this.skipComments(false);
+                            this.skipComments(state | ScanState.MultiLine);
                             continue;
                         } else if (this.consume(Chars.EqualSign)) {
                             return Token.DivideAssign;
@@ -374,7 +372,7 @@ export class Parser {
                                         this.advance();
                                         if (this.consume(Chars.Hyphen) &&
                                             this.consume(Chars.Hyphen)) {
-                                            this.skipComments(true);
+                                            this.skipComments(state | ScanState.SingleLine);
                                         }
                                         continue;
                                     }
@@ -399,10 +397,10 @@ export class Parser {
                                 {
                                     this.advance();
 
-                                    if (context & Context.Module || !isStart) return Token.Decrement;
+                                    if (context & Context.Module || !(state & ScanState.LineStart)) return Token.Decrement;
 
                                     if (this.consume(Chars.GreaterThan)) {
-                                        this.skipComments(true);
+                                        this.skipComments(state | ScanState.SingleLine);
                                         continue;
                                     }
 
@@ -421,9 +419,9 @@ export class Parser {
                     // `#`
                 case Chars.Hash:
                     this.advance();
-                    if (isStart &&
+                    if (state & ScanState.LineStart &&
                         this.consume(Chars.Exclamation)) {
-                        this.skipComments(true);
+                        this.skipComments(state);
                         continue;
                     }
                     return Token.Hash;
@@ -756,12 +754,9 @@ export class Parser {
      *
      * @param state Scanner
      */
-    private skipComments(isSingleLine: boolean = false) {
+    private skipComments(state: ScanState) {
 
         const startPos = this.index;
-
-        let isTerminated = isSingleLine;
-        let lastIsCR;
 
         loop:
             while (this.hasNext()) {
@@ -770,30 +765,31 @@ export class Parser {
 
                     // Line Terminators
                     case Chars.CarriageReturn:
-                        if (isSingleLine) break loop;
+                        if (!(state & ScanState.MultiLine)) break loop;
                         this.advanceNewline(true);
-                        lastIsCR = true;
+                        state |= ScanState.LastIsCR;
                         break;
 
                     case Chars.LineFeed:
-                        if (isSingleLine) break loop;
-                        this.advanceNewline(!lastIsCR);
-                        lastIsCR = false;
+                        if (!(state & ScanState.MultiLine)) break loop;
+                        this.advanceNewline((state & ScanState.LastIsCR) === 0);
+                        state = state & ~ScanState.LastIsCR;
                         break;
 
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
-                        if (isSingleLine) break loop;
-                        lastIsCR = false;
+                        // Single line comments can not contain LINE SEPARATOR (U+2028)
+                        if (!(state & ScanState.MultiLine)) break loop;
+                        state = state & ~ScanState.LastIsCR;
                         this.advanceNewline(true);
                         break;
 
                     case Chars.Asterisk:
-                        if (!isSingleLine) {
+                        if (state & ScanState.MultiLine) {
                             this.advance();
-                            lastIsCR = false;
+                            state &= ~ScanState.LastIsCR;
                             if (this.consume(Chars.Slash)) {
-                                isTerminated = true;
+                                state |= ScanState.Terminated;
                                 break loop;
                             }
                             break;
@@ -804,14 +800,16 @@ export class Parser {
                 }
             }
 
-        if (!isTerminated) this.error(Errors.UnterminatedComment);
+        if (state & ScanState.MultiLine && !(state & ScanState.Terminated)) {
+            this.error(Errors.UnterminatedComment);
+        }
 
-        if (isSingleLine && this.comments !== undefined) {
+        if (state & ScanState.Collectable && this.comments !== undefined) {
             let loc;
             let start;
             let end;
-            let type = isSingleLine ? 'Line' : 'Block';
-            let value = this.source.slice(startPos, isSingleLine ? this.index : this.index - 2);
+            let type = state & ScanState.MultiLine ? 'Block' : 'Line';
+            let value = this.source.slice(startPos, state & ScanState.MultiLine ? this.index - 2 : this.index);
 
             if (this.flags & Flags.OptionsLoc) {
                 loc = {

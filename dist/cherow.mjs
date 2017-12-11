@@ -371,7 +371,6 @@ var Parser = function Parser(source, options) {
     this.comments = undefined;
     this.lastChar = undefined;
     this.firstProto = undefined;
-    this.plugins = [];
     if (options != null) {
         if (options.next)
             { this.flags |= 16777216 /* OptionsNext */; }
@@ -490,9 +489,9 @@ Parser.prototype.scanNext = function scanNext (err /* UnterminatedString */) {
     this.advance();
     if (!this.hasNext())
         { this.error(err); }
-    return this.nextUnicodeChar();
+    return this.peekUnicodeChar();
 };
-Parser.prototype.nextUnicodeChar = function nextUnicodeChar () {
+Parser.prototype.peekUnicodeChar = function peekUnicodeChar () {
     var index = this.index;
     var hi = this.source.charCodeAt(index);
     if (hi < 55296 /* LeadSurrogateMin */ || hi > 56319 /* LeadSurrogateMax */)
@@ -510,6 +509,7 @@ Parser.prototype.advance = function advance () {
 Parser.prototype.advanceNewline = function advanceNewline (skipLF) {
         if ( skipLF === void 0 ) skipLF = true;
 
+    this.flags |= 1 /* PrecedingLineBreak */;
     this.index++;
     if (skipLF) {
         this.column = 0;
@@ -533,34 +533,30 @@ Parser.prototype.scan = function scan (context) {
 
     this.flags &= ~(1 /* PrecedingLineBreak */ | 2 /* ExtendedUnicodeEscape */);
     var state = this.index === 0 ? 4 /* LineStart */ : 0;
+    if (this.nextChar() >= 128 && this.nextChar() === 65519 /* ByteOrderMark */)
+        { this.index++; }
     while (this.hasNext()) {
+        var first = this$1.nextChar();
+        if (first >= 128) {
+            // Chars not in the range 0..127 are rare.  Getting them out of the way
+            // early allows subsequent checking to be faster.
+            first = this$1.peekUnicodeChar();
+        }
         this$1.startIndex = this$1.index;
         this$1.startColumn = this$1.column;
         this$1.startLine = this$1.line;
-        var first = this$1.nextChar();
-        if (first >= 128) {
-            // Skip initial BOM.
-            if (this$1.nextChar() === 65519 /* ByteOrderMark */)
-                { this$1.index++; }
-            // Chars not in the range 0..127 are rare.  Getting them out of the way
-            // early allows subsequent checking to be faster.
-            first = this$1.nextUnicodeChar();
-        }
         switch (first) {
             case 13 /* CarriageReturn */:
                 state |= 2 /* LastIsCR */ | 4 /* LineStart */;
-                this$1.flags |= 1 /* PrecedingLineBreak */;
                 this$1.advanceNewline(true);
                 continue;
             case 10 /* LineFeed */:
                 this$1.advanceNewline((state & 2 /* LastIsCR */) === 0);
-                this$1.flags |= 1 /* PrecedingLineBreak */;
                 state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
                 continue;
             case 8232 /* LineSeparator */:
             case 8233 /* ParagraphSeparator */:
                 state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
-                this$1.flags |= 1 /* PrecedingLineBreak */;
                 this$1.advanceNewline(true);
                 continue;
             case 9 /* Tab */:
@@ -979,24 +975,21 @@ Parser.prototype.skipComments = function skipComments (state) {
             case 13 /* CarriageReturn */:
                 if (!(state & 8 /* MultiLine */))
                     { break loop; }
-                this$1.flags |= 1 /* PrecedingLineBreak */;
                 this$1.advanceNewline(true);
-                state |= 4 /* LineStart */ | 2 /* LastIsCR */;
+                state |= 2 /* LastIsCR */;
                 break;
             case 10 /* LineFeed */:
                 if (!(state & 8 /* MultiLine */))
                     { break loop; }
-                this$1.flags |= 1 /* PrecedingLineBreak */;
                 this$1.advanceNewline((state & 2 /* LastIsCR */) === 0);
-                state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
+                state = state & ~2 /* LastIsCR */;
                 break;
             case 8232 /* LineSeparator */:
             case 8233 /* ParagraphSeparator */:
                 // Single line comments can not contain LINE SEPARATOR (U+2028)
                 if (!(state & 8 /* MultiLine */))
                     { break loop; }
-                state = state & ~2 /* LastIsCR */ | 4 /* LineStart */;
-                this$1.flags |= 1 /* PrecedingLineBreak */;
+                state = state & ~2 /* LastIsCR */;
                 this$1.advanceNewline(true);
                 break;
             case 42 /* Asterisk */:
@@ -1070,7 +1063,7 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context, state) {
                 break;
             default:
                 if (code >= 55296 /* LeadSurrogateMin */ && code <= 57343 /* TrailSurrogateMax */) {
-                    code = this$1.nextUnicodeChar();
+                    code = this$1.peekUnicodeChar();
                 }
                 else if (!isIdentifierPart(code)) {
                     break loop;
@@ -1467,7 +1460,6 @@ Parser.prototype.testRegExp = function testRegExp (pattern, flags, mask) {
 Parser.prototype.scanString = function scanString (context, quote) {
         var this$1 = this;
 
-    var start = this.index;
     var ret = '';
     this.advance(); // Consume the quote
     var ch = this.nextChar();
@@ -1504,7 +1496,7 @@ Parser.prototype.scanString = function scanString (context, quote) {
     }
     this.advance(); // Consume the quote
     if (this.flags & (8388608 /* OptionsRaw */ | 33554432 /* OptionsDirectives */))
-        { this.storeRaw(start); }
+        { this.storeRaw(this.startIndex); }
     this.tokenValue = ret;
     return 262147 /* StringLiteral */;
 };
@@ -1665,7 +1657,7 @@ Parser.prototype.scanEscape = function scanEscape (context, cp, isTemplate) {
                 }
             }
         default:
-            return this.nextUnicodeChar();
+            return this.peekUnicodeChar();
     }
 };
 Parser.prototype.scanTemplateNext = function scanTemplateNext (context) {
@@ -2559,7 +2551,7 @@ Parser.prototype.parseWithStatement = function parseWithStatement (context) {
     return this.finishNode(context, pos, {
         type: 'WithStatement',
         object: object,
-        body: this.parseStatement(context | 4194304 /* Iteration */)
+        body: this.parseStatement(context | 4194304 /* Iteration */ | 1024 /* TopLevel */)
     });
 };
 Parser.prototype.parseWhileStatement = function parseWhileStatement (context) {
@@ -2698,9 +2690,10 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
             }
         }
         if (!declarations) {
+            if (!isValidDestructuringAssignmentTarget(init) || init.type === 'AssignmentExpression') {
+                this.error(32 /* InvalidLHSInForLoop */);
+            }
             this.reinterpretAsPattern(context, init);
-            if (!isValidDestructuringAssignmentTarget(init))
-                { this.error(32 /* InvalidLHSInForLoop */); }
         }
         right = this.parseAssignmentExpression(context);
         this.expect(context, 16 /* RightParen */);
@@ -3852,7 +3845,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 118 /* BigInt */:
             return this.parseBigIntLiteral(context);
         case 134479873 /* Identifier */:
-            return this.parseIdentifier(context | 1048576 /* TaggedTemplate */);
+            return this.parseIdentifier(context);
         case 274519 /* FunctionKeyword */:
             return this.parseFunction(context & ~(16 /* Yield */ | 65536 /* Method */) | 33554432 /* Expression */ | 64 /* InParenthesis */);
         case 274526 /* ThisKeyword */:
@@ -4710,7 +4703,7 @@ Parser.prototype.parseNullExpression = function parseNullExpression (context) {
 Parser.prototype.parseIdentifier = function parseIdentifier (context) {
     var name = this.tokenValue;
     var pos = this.getLocations();
-    return this.finishNode(context, pos, {
+    return this.finishNode(context | 1048576 /* TaggedTemplate */, pos, {
         type: 'Identifier',
         name: name
     }, true);

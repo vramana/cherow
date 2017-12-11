@@ -81,39 +81,7 @@ describe('Miscellaneous - Meta', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [
-                    {
-                      "end": 1,
-                      "expression": {
-                        "end": 1,
-                        "loc": {
-                          "end": {
-                            "column": 0,
-                            "line": 1,
-                          },
-                          "start": {
-                            "column": 0,
-                            "line": 1,
-                          }
-                        },
-                        "name": "",
-                        "start": 0,
-                        "type": "Identifier"
-                     },
-                      "loc": {
-                        "end": {
-                          "column": 0,
-                          "line": 1,
-                        },
-                        "start": {
-                          "column": 0,
-                          "line": 1,
-                       }
-                      },
-                      "start": 0,
-                      "type": "ExpressionStatement"
-                    }
-                  ],
+              "body": [],
               "end": 1,
               "loc": {
                 "end": {
