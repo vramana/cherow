@@ -98,6 +98,92 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
+    pass(`keep locations correct after CRLF`, {
+      source: 'a\r\nb',
+      loc: true,
+      ranges: true,
+      raw: true,
+      expected: {
+        "type": "Program",
+        "body": [{
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "Identifier",
+                    "name": "a",
+                    "start": 0,
+                    "end": 1,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 1
+                        }
+                    }
+                },
+                "start": 0,
+                "end": 1,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 1
+                    }
+                }
+            },
+            {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "Identifier",
+                    "name": "b",
+                    "start": 3,
+                    "end": 4,
+                    "loc": {
+                        "start": {
+                            "line": 2,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 2,
+                            "column": 1
+                        }
+                    }
+                },
+                "start": 3,
+                "end": 4,
+                "loc": {
+                    "start": {
+                        "line": 2,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 2,
+                        "column": 1
+                    }
+                }
+            }
+        ],
+        "sourceType": "script",
+        "start": 0,
+        "end": 4,
+        "loc": {
+            "start": {
+                "line": 1,
+                "column": 0
+            },
+            "end": {
+                "line": 2,
+                "column": 1
+            }
+        }
+    }
+  });
+
     pass(`line feed`, {
         source: '\n\n\n\n\n\n\n\n',
         loc: true,

@@ -61,16 +61,12 @@ export class Parser {
     private locSource: void | string;
     private lastChar: void | Chars;
     private firstProto: void | boolean;
-    private plugins: any;
     private tokenRegExp: void | {
         pattern: string;
         flags: string;
     };
 
-    constructor(
-        source: string,
-        options: Options | void
-    ) {
+    constructor(source: string, options: Options | void) {
         this.flags = Flags.None;
         this.source = source;
         this.index = 0;
@@ -95,7 +91,6 @@ export class Parser {
         this.comments = undefined;
         this.lastChar = undefined;
         this.firstProto = undefined;
-        this.plugins = [];
 
         if (options != null) {
             if (options.next) this.flags |= Flags.OptionsNext;
@@ -214,10 +209,10 @@ export class Parser {
     private scanNext(err: Errors = Errors.UnterminatedString): Chars {
         this.advance();
         if (!this.hasNext()) this.error(err);
-        return this.nextUnicodeChar();
+        return this.peekUnicodeChar();
     }
 
-    private nextUnicodeChar(): Chars {
+    private peekUnicodeChar(): Chars {
         let index = this.index;
         let hi = this.source.charCodeAt(index);
         if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
@@ -233,6 +228,7 @@ export class Parser {
     }
 
     private advanceNewline(skipLF = true) {
+        this.flags |= Flags.PrecedingLineBreak;
         this.index++;
         if (skipLF) {
             this.column = 0;
@@ -255,8 +251,9 @@ export class Parser {
     private scan(context: Context): Token {
 
         this.flags &= ~(Flags.PrecedingLineBreak | Flags.ExtendedUnicodeEscape);
-
-        let state = this.index === 0 ? ScanState.LineStart : ScanState.None;
+        let isStart = this.index === 0;
+        let lastIsCR = false;
+        let state = ScanState.None;
 
         while (this.hasNext()) {
 
@@ -271,28 +268,27 @@ export class Parser {
                 if (this.nextChar() === Chars.ByteOrderMark) this.index++;
                 // Chars not in the range 0..127 are rare.  Getting them out of the way
                 // early allows subsequent checking to be faster.
-                first = this.nextUnicodeChar()
+                first = this.peekUnicodeChar();
             }
 
             switch (first) {
 
                 case Chars.CarriageReturn:
-                    state |= ScanState.LastIsCR | ScanState.LineStart;
-                    this.flags |= Flags.PrecedingLineBreak;
+                    isStart = lastIsCR = true;
                     this.advanceNewline(true);
                     continue;
 
                 case Chars.LineFeed:
-                    this.advanceNewline((state & ScanState.LastIsCR) === 0);
-                    this.flags |= Flags.PrecedingLineBreak;
-                    state = state & ~ScanState.LastIsCR | ScanState.LineStart;
+                    this.advanceNewline(!lastIsCR);
+                    lastIsCR = false;
+                    isStart = true;
                     continue;
 
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
-                    state = state & ~ScanState.LastIsCR | ScanState.LineStart;
-                    this.flags |= Flags.PrecedingLineBreak;
+                    lastIsCR = false;
                     this.advanceNewline(true);
+                    isStart = true;
                     continue;
 
                 case Chars.Tab:
@@ -329,10 +325,10 @@ export class Parser {
                         const next = this.nextChar();
 
                         if (this.consume(Chars.Slash)) {
-                            this.skipComments(state | ScanState.SingleLine);
+                            this.skipComments(true);
                             continue;
                         } else if (this.consume(Chars.Asterisk)) {
-                            this.skipComments(state | ScanState.MultiLine);
+                            this.skipComments(false);
                             continue;
                         } else if (this.consume(Chars.EqualSign)) {
                             return Token.DivideAssign;
@@ -378,7 +374,7 @@ export class Parser {
                                         this.advance();
                                         if (this.consume(Chars.Hyphen) &&
                                             this.consume(Chars.Hyphen)) {
-                                            this.skipComments(state | ScanState.SingleLine);
+                                            this.skipComments(true);
                                         }
                                         continue;
                                     }
@@ -403,10 +399,10 @@ export class Parser {
                                 {
                                     this.advance();
 
-                                    if (context & Context.Module || !(state & ScanState.LineStart)) return Token.Decrement;
+                                    if (context & Context.Module || !isStart) return Token.Decrement;
 
                                     if (this.consume(Chars.GreaterThan)) {
-                                        this.skipComments(state | ScanState.SingleLine);
+                                        this.skipComments(true);
                                         continue;
                                     }
 
@@ -425,9 +421,9 @@ export class Parser {
                     // `#`
                 case Chars.Hash:
                     this.advance();
-                    if (state & ScanState.LineStart &&
+                    if (isStart &&
                         this.consume(Chars.Exclamation)) {
-                        this.skipComments(state);
+                        this.skipComments(true);
                         continue;
                     }
                     return Token.Hash;
@@ -760,9 +756,12 @@ export class Parser {
      *
      * @param state Scanner
      */
-    private skipComments(state: ScanState) {
+    private skipComments(isSingleLine: boolean = false) {
 
         const startPos = this.index;
+
+        let isTerminated = isSingleLine;
+        let lastIsCR;
 
         loop:
             while (this.hasNext()) {
@@ -771,34 +770,30 @@ export class Parser {
 
                     // Line Terminators
                     case Chars.CarriageReturn:
-                        if (!(state & ScanState.MultiLine)) break loop;
-                        this.flags |= Flags.PrecedingLineBreak;
+                        if (isSingleLine) break loop;
                         this.advanceNewline(true);
-                        state |= ScanState.LineStart | ScanState.LastIsCR;
+                        lastIsCR = true;
                         break;
 
                     case Chars.LineFeed:
-                        if (!(state & ScanState.MultiLine)) break loop;
-                        this.flags |= Flags.PrecedingLineBreak;
-                        this.advanceNewline((state & ScanState.LastIsCR) === 0);
-                        state = state & ~ScanState.LastIsCR | ScanState.LineStart;
+                        if (isSingleLine) break loop;
+                        this.advanceNewline(!lastIsCR);
+                        lastIsCR = false;
                         break;
 
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
-                        // Single line comments can not contain LINE SEPARATOR (U+2028)
-                        if (!(state & ScanState.MultiLine)) break loop;
-                        state = state & ~ScanState.LastIsCR | ScanState.LineStart;
-                        this.flags |= Flags.PrecedingLineBreak;
+                        if (isSingleLine) break loop;
+                        lastIsCR = false;
                         this.advanceNewline(true);
                         break;
 
                     case Chars.Asterisk:
-                        if (state & ScanState.MultiLine) {
+                        if (!isSingleLine) {
                             this.advance();
-                            state &= ~ScanState.LastIsCR;
+                            lastIsCR = false;
                             if (this.consume(Chars.Slash)) {
-                                state |= ScanState.Terminated;
+                                isTerminated = true;
                                 break loop;
                             }
                             break;
@@ -809,16 +804,14 @@ export class Parser {
                 }
             }
 
-        if (state & ScanState.MultiLine && !(state & ScanState.Terminated)) {
-            this.error(Errors.UnterminatedComment);
-        }
+        if (!isTerminated) this.error(Errors.UnterminatedComment);
 
-        if (state & ScanState.Collectable && this.comments !== undefined) {
+        if (isSingleLine && this.comments !== undefined) {
             let loc;
             let start;
             let end;
-            let type = state & ScanState.MultiLine ? 'Block' : 'Line';
-            let value = this.source.slice(startPos, state & ScanState.MultiLine ? this.index - 2 : this.index);
+            let type = isSingleLine ? 'Line' : 'Block';
+            let value = this.source.slice(startPos, isSingleLine ? this.index : this.index - 2);
 
             if (this.flags & Flags.OptionsLoc) {
                 loc = {
@@ -875,7 +868,7 @@ export class Parser {
                         break;
                     default:
                         if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMax) {
-                            code = this.nextUnicodeChar();
+                            code = this.peekUnicodeChar();
                         } else if (!isIdentifierPart(code)) {
                             break loop;
                         }
@@ -1329,11 +1322,10 @@ export class Parser {
     }
 
     private scanString(context: Context, quote: number): Token {
-        const start = this.index;
+
         let ret = '';
 
         this.advance(); // Consume the quote
-
         let ch = this.nextChar();
 
         while (ch !== quote) {
@@ -1374,7 +1366,7 @@ export class Parser {
         }
 
         this.advance(); // Consume the quote
-        if (this.flags & (Flags.OptionsRaw | Flags.OptionsDirectives)) this.storeRaw(start);
+        if (this.flags & (Flags.OptionsRaw | Flags.OptionsDirectives)) this.storeRaw(this.startIndex);
         this.tokenValue = ret;
         return Token.StringLiteral;
     }
@@ -1550,7 +1542,7 @@ export class Parser {
                 }
 
             default:
-                return this.nextUnicodeChar();
+                return this.peekUnicodeChar();
         }
     }
 
@@ -4145,7 +4137,7 @@ export class Parser {
             case Token.BigInt:
                 return this.parseBigIntLiteral(context);
             case Token.Identifier:
-                return this.parseIdentifier(context | Context.TaggedTemplate);
+                return this.parseIdentifier(context);
             case Token.FunctionKeyword:
                 return this.parseFunction(context & ~(Context.Yield | Context.Method) | Context.Expression | Context.InParenthesis);
             case Token.ThisKeyword:
@@ -5094,7 +5086,7 @@ export class Parser {
     private parseIdentifier(context: Context): ESTree.Identifier {
         const name = this.tokenValue;
         const pos = this.getLocations();
-        return this.finishNode(context, pos, {
+        return this.finishNode(context | Context.TaggedTemplate, pos, {
             type: 'Identifier',
             name
         }, true);

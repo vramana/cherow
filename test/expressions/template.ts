@@ -2216,4 +2216,74 @@ describe('Expressions - Template', () => {
               "sourceType": "script"
           }
       });
+
+      pass('foo`T\\u200C`', {
+        source: 'foo`T\\u200C`',
+        raw: true,
+        expected: {
+              "body": [
+                {
+                  "expression": {
+                    "quasi": {
+                      "expressions": [],
+                      "quasis": [
+                        {
+                          "tail": true,
+                          "type": "TemplateElement",
+                          "value": {
+                            "cooked": "T‌",
+                            "raw": "T\\u200C",
+                          }
+                        }
+                      ],
+                      "type": "TemplateLiteral"
+                    },
+                    "tag": {
+                      "name": "foo",
+                      "type": "Identifier",
+                    },
+                    "type": "TaggedTemplateExpression",
+                  },
+                  "type": "ExpressionStatement",
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
+      });
+
+      pass('foo`\\u{00000000034}`', {
+        source: 'foo`\\u{00000000034}`',
+        raw: true,
+        expected: {
+              "body": [
+                {
+                  "expression": {
+                    "quasi": {
+                      "expressions": [],
+                      "quasis": [
+                        {
+                          "tail": true,
+                          "type": "TemplateElement",
+                          "value": {
+                            "cooked": "4",
+                            "raw": "\\u{00000000034}",
+                          }
+                        }
+                      ],
+                      "type": "TemplateLiteral"
+                    },
+                    "tag": {
+                      "name": "foo",
+                      "type": "Identifier",
+                    },
+                    "type": "TaggedTemplateExpression"
+                  },
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
+      });
   });
