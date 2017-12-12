@@ -8,6 +8,67 @@ describe('Next - BigInt', () => {
     fail('invalid MV', { source: `2017.8n;`, next: true});
     fail('invalid noctal', { source: `.0000000001n;`, next: true});
 
+    pass(`(0b101n) << 1n`, {
+        source: '(0b101n) << 1n',
+        loc: true,
+        next: true,
+        ranges: true,
+        raw: true,
+        expected: {
+    "type": "Program",
+    "body": [
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "BinaryExpression",
+                "left": {
+                    "type": "Literal",
+                    "value": 5,
+                    "bigint": "0b101n",
+                    "start": 1,
+                    "end": 7,
+                    "raw": "0b101n"
+                },
+                "right": {
+                    "type": "Literal",
+                    "value": 1,
+                    "bigint": "1n",
+                    "start": 12,
+                    "end": 14,
+                    "raw": "1n"
+                },
+                "operator": "<<",
+                "start": 0,
+                "end": 14
+            },
+            "start": 0,
+            "end": 14
+        }
+    ],
+    "sourceType": "script",
+    "start": 0,
+    "end": 14
+}
+    });
+
+    pass(`0b101011101n`, {
+        source: '0b101011101n',
+        loc: true,
+        next: true,
+        ranges: true,
+        raw: true,
+        expected: {}
+    });
+
+    pass(`0b101011101n`, {
+        source: '0b101011101n',
+        loc: true,
+        next: true,
+        ranges: true,
+        raw: true,
+        expected: {}
+    });
+    
     pass(`0b101011101n`, {
         source: '0b101011101n',
         loc: true,

@@ -2,6 +2,14 @@ import { pass, fail } from '../utils';
 
 describe('Expressions - Conditional', () => {
 
+    fail(`for (true ? 0 : 0 in {}; false; ) ;`, {
+        source: 'for (true ? 0 : 0 in {}; false; ) ;',
+    });
+
+      fail(`for ("" in {} ? 0 : 0; false; ) ;`, {
+        source: 'for ("" in {} ? 0 : 0; false; ) ;',
+    });
+
     pass(`x = (0) ? 1 : 2`, {
         source: 'x = (0) ? 1 : 2',
         loc: true,

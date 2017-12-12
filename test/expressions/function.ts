@@ -2,6 +2,18 @@ import { fail, pass } from '../utils';
 
 describe('Statements - Function', () => {
 
+    fail(`var f = function(a = 0) { "use strict"; }`, {
+        source: 'var f = function(a = 0) { "use strict"; }',
+    });
+
+    fail(`"use strict"; function *g() { 0, function(x = yield) { paramValue = x; }; }`, {
+        source: '"use strict"; function *g() { 0, function(x = yield) { paramValue = x; }; }',
+    });
+
+    fail(`0, function() { super(); };`, {
+        source: '0, function() { super(); };',
+    });
+
     fail(`0, function(x = super()) {};`, {
         source: '0, function(x = super()) {};',
     });
