@@ -79,3 +79,6 @@
 
 *2017-12-12: Version 0.17.0*
 - Implemented Numeric Separators (Stage 3)
+
+*2017-12-12: Version 0.17.2*
+- Fixed infinity loop in Numeric Separators if next option not set

@@ -960,7 +960,7 @@ export class Parser {
 
                 switch (this.nextChar()) {
                     case Chars.Underscore:
-                        if (!next) break;
+                        if (!next) break loop;
                         if (!(state & NumericState.AllowSeparator)) this.error(Errors.InvalidNumericSeparators)
                         this.flags |= Flags.ContainsSeparator;
                         state &= ~NumericState.AllowSeparator

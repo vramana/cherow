@@ -1156,7 +1156,7 @@ Parser.prototype.scanDecimalDigitsOrFragment = function scanDecimalDigitsOrFragm
         switch (this$1.nextChar()) {
             case 95 /* Underscore */:
                 if (!next)
-                    { break; }
+                    { break loop; }
                 if (!(state & 256 /* AllowSeparator */))
                     { this$1.error(112 /* InvalidNumericSeparators */); }
                 this$1.flags |= 1 /* ContainsSeparator */;

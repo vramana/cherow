@@ -12,6 +12,10 @@ describe('Statements - Numeric separators', () => {
         next: true
     });
 
+     fail(`1_`, {
+        source: '1_'
+    });
+
     fail(`3_.1415F;`, {
         source: '3_.1415F;',
         next: true
@@ -166,6 +170,61 @@ describe('Statements - Numeric separators', () => {
         next: true
     });
 
+     fail(`0.00e0__0`, {
+        source: '0.00e0__0',
+        next: true
+    });
+
+     fail(`0._0e+0`, {
+        source: '0._0e+0',
+        next: true
+    });
+
+     fail(`0_e+0`, {
+        source: '0_e+0',
+        next: true
+    });
+
+     fail(`0e-0__0`, {
+        source: '0e-0__0',
+        next: true
+    });
+
+     fail(`0.0e-_0`, {
+        source: '0.0e-_0',
+        next: true
+    });
+
+     fail(`0__0.0e-0`, {
+        source: '0__0.0e-0',
+        next: true
+    });
+
+     fail(`10._e1`, {
+        source: '10._e1',
+        next: true
+    });
+
+     fail(`1.0e_+10`, {
+        source: '1.0e_+10',
+        next: true
+    });
+
+     fail(`1.0e_-10`, {
+        source: '1.0e_-10',
+        next: true
+    });
+
+     fail(`0.0__0`, {
+        source: '0.0__0',
+        next: true
+    });
+
+     fail(`0.0__ : 0`, {
+        source: '0.0__ : 0',
+        next: true
+    });
+
     fail(`10._e1`, {
         source: '10._e1',
         next: true
@@ -261,9 +320,261 @@ describe('Statements - Numeric separators', () => {
         next: true
     });
 
+     fail(`0x___0111010_0101_1`, {
+        source: '0x___0111010_0101_1',
+        next: true
+    });
+
+     fail(`0X0110_0110__`, {
+        source: '0X0110_0110__',
+        next: true
+    });
+
     fail(`0\\u005F0123456789`, {
         source: '0\\u005F0123456789',
         next: true
+    });
+
+      fail(`\\uff__ff`, {
+        source: '\\uff__ff',
+        next: true
+    });
+
+      fail(`"\\uff__ff"`, {
+        source: '"\\uff__ff"',
+        next: true
+    });
+
+    pass(`0X0_11_0101;`, {
+        source: '0X0_11_0101;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+    "type": "Program",
+    "body": [
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "Literal",
+                "value": 1114369,
+                "start": 0,
+                "end": 11,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 11
+                    }
+                },
+                "raw": "0X0_11_0101"
+            },
+            "start": 0,
+            "end": 12,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 12
+                }
+            }
+        }
+    ],
+    "sourceType": "script",
+    "start": 0,
+    "end": 12,
+    "loc": {
+        "start": {
+            "line": 1,
+            "column": 0
+        },
+        "end": {
+            "line": 1,
+            "column": 12
+        }
+    }
+}
+    });
+
+    pass(`0o1100_0011;`, {
+        source: '0o1100_0011;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+    "type": "Program",
+    "body": [
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "Literal",
+                "value": 2359305,
+                "start": 0,
+                "end": 11,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 11
+                    }
+                },
+                "raw": "0o1100_0011"
+            },
+            "start": 0,
+            "end": 12,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 12
+                }
+            }
+        }
+    ],
+    "sourceType": "script",
+    "start": 0,
+    "end": 12,
+    "loc": {
+        "start": {
+            "line": 1,
+            "column": 0
+        },
+        "end": {
+            "line": 1,
+            "column": 12
+        }
+    }
+}
+    });
+
+    pass(`1_000_000_000`, {
+        source: '1_000_000_000',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+    "type": "Program",
+    "body": [
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "Literal",
+                "value": 1000000000,
+                "start": 0,
+                "end": 13,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 13
+                    }
+                },
+                "raw": "1_000_000_000"
+            },
+            "start": 0,
+            "end": 13,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 13
+                }
+            }
+        }
+    ],
+    "sourceType": "script",
+    "start": 0,
+    "end": 13,
+    "loc": {
+        "start": {
+            "line": 1,
+            "column": 0
+        },
+        "end": {
+            "line": 1,
+            "column": 13
+        }
+    }
+}
+    });
+
+    pass(`1_2.3_4e5_6`, {
+        source: '1_2.3_4e5_6',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+    "type": "Program",
+    "body": [
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "Literal",
+                "value": 1.234e+57,
+                "start": 0,
+                "end": 11,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 11
+                    }
+                },
+                "raw": "1_2.3_4e5_6"
+            },
+            "start": 0,
+            "end": 11,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 11
+                }
+            }
+        }
+    ],
+    "sourceType": "script",
+    "start": 0,
+    "end": 11,
+    "loc": {
+        "start": {
+            "line": 1,
+            "column": 0
+        },
+        "end": {
+            "line": 1,
+            "column": 11
+        }
+    }
+}
     });
 
     pass(`1_9`, {
