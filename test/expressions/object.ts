@@ -8277,6 +8277,10 @@ describe('Expressions - Object', () => {
             source: 'x = { set y(a, b) {} }',
         });
 
+        fail(`({ *method(x = yield) {} });`, {
+            source: '({ *method(x = yield) {} });',
+        });
+
         fail(`({ *[0]: 0 })`, {
             source: '({ *[0]: 0 })',
         });

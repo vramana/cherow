@@ -1,6 +1,6 @@
 import { fail, pass } from '../utils';
 
-describe('Statements - Block', () => {
+describe('Literals - Numbers', () => {
 
     fail(`const t = 2.34e-;const b = 4.3e--3;`, {
         source: 'const t = 2.34e-;const b = 4.3e--3;',

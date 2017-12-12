@@ -18,6 +18,10 @@ describe('Statements - New target', () => {
         source: 'new Type[]',
     });
 
+    fail(`function f() { n\\u0065w.target; }`, {
+        source: 'function f() { n\\u0065w.target; }',
+    });
+
     fail(`new.prop`, {
         source: 'new.prop',
     });

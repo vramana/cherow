@@ -6471,17 +6471,22 @@ describe('Destructuring - Assignment', () => {
                   }
             });
 
-            /*fail(`({a = 0});`, {
+          /*  fail(`({a = 0});`, {
                 source: '({a = 0});',
                 loc: true,
                 ranges: true,
                 raw: true
             });
-*/
+
+
+             fail(`0, { eval } = {};`, {
+                source: '0, { eval } = {};',
+            });
+
             fail(`({a} += 0);`, {
                 source: '({a} += 0);',
             });
-
+*/
             fail(`({a,,} = 0)`, {
                 source: '({a,,} = 0)',
             });

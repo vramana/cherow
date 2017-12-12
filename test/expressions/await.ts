@@ -63,6 +63,10 @@ describe('Expressions - Await', () => {
         source: 'async function f() { g(await) }',
     });
 
+     fail(`async function foo() { function await() { } }`, {
+        source: 'async function foo() { function await() { } }',
+    });
+
     fail(`async f() { class X { async await(){} } }`, {
         source: 'async f() { class X { async await(){} } }',
     });

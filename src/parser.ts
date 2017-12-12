@@ -3152,13 +3152,13 @@ export class Parser {
         });
     }
 
-    private parseVariableStatement(context: Context, shouldConsume = true): ESTree.VariableDeclaration {
+    private parseVariableStatement(context: Context): ESTree.VariableDeclaration {
         const pos = this.getLocations();
         const token = this.token;
         if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
         this.nextToken(context);
         const declarations = this.parseVariableDeclarationList(context);
-        if (shouldConsume) this.consumeSemicolon(context);
+        this.consumeSemicolon(context);
         return this.finishNode(context, pos, {
             type: 'VariableDeclaration',
             declarations,
@@ -3293,11 +3293,6 @@ export class Parser {
                     this.flags |= Flags.Binding;
                 }
                 if (expr.type !== 'Identifier') this.throwUnexpectedToken();
-                // Invalid: 'package => { "use strict"}"'
-                if (hasMask(token, Token.FutureReserved)) {
-                    this.errorLocation = this.getLocations();
-                    this.flags |= Flags.Binding;
-                }
                 return this.parseArrowFunctionExpression(context & ~(Context.Await) | Context.Arrow, pos, [expr]);
             }
         }
@@ -3312,8 +3307,6 @@ export class Parser {
                 if (!(context & Context.InParameter)) this.reinterpretAsPattern(context, expr);
             } else if (!isValidSimpleAssignmentTarget(expr)) {
                 this.error(Errors.InvalidLHSInAssignment);
-            } else if (context & Context.InParenthesis) {
-                this.flags |= Flags.Operator;
             }
 
             this.nextToken(context);
@@ -3387,6 +3380,7 @@ export class Parser {
 
             case 'SpreadElement':
                 params.type = 'RestElement';
+
                 // Fall through
 
             case 'RestElement':
@@ -3950,6 +3944,7 @@ export class Parser {
         if (this.token !== Token.Assign) return left;
 
         this.expect(context, Token.Assign);
+
         switch (this.token) {
             case Token.YieldKeyword:
                 if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
@@ -4056,12 +4051,9 @@ export class Parser {
             if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
             // async arrows cannot have a line terminator between "async" and the formals
             if (flags & Flags.PrecedingLineBreak) this.error(Errors.LineBreakAfterAsync);
-            // Valid: 'async(a=await)=>12'. 
-            // Invalid: 'async(await)=>12'. 
             if (this.flags & Flags.Await) this.error(Errors.InvalidAwaitInArrowParam);
             if (state & ParenthesizedState.EvalOrArg) this.error(Errors.StrictParamName);
             if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
-            if (state & ParenthesizedState.Await) this.error(Errors.InvalidAwaitInArrowParam);
             if (state & ParenthesizedState.Trailing) this.throwUnexpectedToken();
             return this.parseArrowFunctionExpression(context | Context.Await, pos, args);
         }
@@ -4111,11 +4103,6 @@ export class Parser {
         if (context & Context.Import) this.throwUnexpectedToken();
         this.expect(context, Token.Ellipsis);
 
-        // Object rest element needs to be the last AssignmenProperty in 
-        // ObjectAssignmentPattern. (For..in statement)
-        if (context & Context.ForStatement && this.token === Token.Comma) {
-            this.error(Errors.Unexpected);
-        }
         const arg = this.parseAssignmentExpression(context);
         return this.finishNode(context, pos, {
             type: 'SpreadElement',
@@ -4183,10 +4170,6 @@ export class Parser {
 
                 return meta;
 
-                // 'import'
-            case Token.ImportKeyword:
-                this.throwUnexpectedToken();
-
             default:
 
                 return this.finishNode(context, pos, {
@@ -4244,8 +4227,6 @@ export class Parser {
                 return this.parseThrowExpression(context);
             case Token.AwaitKeyword:
                 if (context & Context.InAsyncArgs) this.flags |= Flags.Await;
-                if (context & Context.Await) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-
                 if (context & Context.Module) {
                     // Valid: 'await = 0;'
                     if (!this.nextTokenIsAssign(context)) this.throwUnexpectedToken();
@@ -4259,7 +4240,7 @@ export class Parser {
                 if (context & Context.Method) return this.parsePrivateName(context);
             case Token.YieldKeyword:
                 if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                if (context & Context.Strict && this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
+                // falls through
             default:
                 if (!this.isIdentifier(context, this.token)) this.throwUnexpectedToken();
                 return this.parseIdentifier(context);
@@ -4737,9 +4718,6 @@ export class Parser {
                     if (firstProto) this.error(Errors.DuplicateProtoProperty);
                     this.firstProto = true;
                 }
-
-
-
                 this.expect(context, Token.Colon);
 
                 if (context & Context.InAsyncArgs && this.token === Token.AwaitKeyword) {
@@ -4749,9 +4727,6 @@ export class Parser {
 
                 value = this.parseAssignmentExpression(context);
 
-                if (context & Context.Strict && this.isEvalOrArguments((value as any).name)) {
-                    this.error(Errors.UnexpectedStrictReserved);
-                }
                 break;
             default:
 
@@ -4769,10 +4744,6 @@ export class Parser {
                     this.flags |= Flags.Await;
                 }
 
-                if (context & (Context.ForStatement | Context.InParenthesis) &&
-                    context & Context.Strict && this.isEvalOrArguments(tokenValue)) {
-                    this.error(Errors.UnexpectedReservedWord);
-                }
                 state |= ObjectState.Shorthand
 
                 if (this.token === Token.Assign) {
