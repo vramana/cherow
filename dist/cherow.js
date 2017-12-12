@@ -264,7 +264,7 @@ ErrorMessages[86 /* MissingInitializer */] = 'Missing initializer';
 ErrorMessages[87 /* InvalidVarDeclInForIn */] = 'Invalid variable declaration in for-in statement';
 ErrorMessages[88 /* InvalidVarDeclInForOf */] = 'Invalid variable declaration in for-of statement';
 ErrorMessages[89 /* InvalidRadix */] = 'Expected number in radix';
-ErrorMessages[90 /* UnexpectedTokenNumber */] = 'Unexpected number';
+ErrorMessages[90 /* UnexpectedNumber */] = 'Unexpected number';
 ErrorMessages[91 /* UnexpectedMantissa */] = 'Unexpected mantissa';
 ErrorMessages[92 /* UnexpectedSurrogate */] = 'Unexpected surrogate pair';
 ErrorMessages[93 /* ForbiddenAsStatement */] = '%0 can\'t appear in single-statement context';
@@ -287,6 +287,7 @@ ErrorMessages[110 /* InvalidComputedClassProperty */] = 'Invalid computed name i
 ErrorMessages[111 /* InvalidFieldConstructor */] = 'Classes may not have a private field named \'#constructor\'';
 ErrorMessages[112 /* InvalidNumericSeparators */] = 'Numeric separators are not allowed here';
 ErrorMessages[113 /* InvalidRestDefaultValue */] = 'Rest elements cannot have a default value';
+ErrorMessages[114 /* InvalidBigIntLiteral */] = 'Invalid BigIntLiteral';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -1238,7 +1239,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                     value = ch - 48 /* Zero */;
                     // we must have at least one octal digit after 'o'/'O'
                     if (ch < 48 /* Zero */ || ch >= 56 /* Eight */)
-                        { this.error(90 /* UnexpectedTokenNumber */); }
+                        { this.error(90 /* UnexpectedNumber */); }
                     this.advance();
                     while (this.hasNext()) {
                         ch = this$1.nextChar();
@@ -1338,7 +1339,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
         if (this.nextChar() === 46 /* Period */) {
             state |= 128 /* Float */;
             if (state & 4 /* ImplicitOctal */)
-                { this.error(90 /* UnexpectedTokenNumber */); }
+                { this.error(90 /* UnexpectedNumber */); }
             this.advance();
             decimalFragment = this.scanDecimalDigitsOrFragment();
         }
@@ -1349,7 +1350,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
             state |= 128 /* Float */;
             // Invalid: '06.7'
             if (state & 4 /* ImplicitOctal */)
-                { this.error(90 /* UnexpectedTokenNumber */); }
+                { this.error(90 /* UnexpectedNumber */); }
             this.advance();
             this.scanDecimalDigitsOrFragment();
         }
@@ -1358,7 +1359,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
     // BigInt - Stage 3 proposal
     if (next && this.nextChar() === 110 /* LowerN */) {
         if (state & (4 /* ImplicitOctal */ | 128 /* Float */))
-            { this.error(90 /* UnexpectedTokenNumber */); }
+            { this.error(114 /* InvalidBigIntLiteral */); }
         state |= 64 /* BigInt */;
         this.advance();
     }
@@ -1378,12 +1379,12 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                 }
                 ch = this.nextChar();
                 if (!(ch >= 48 /* Zero */ && ch <= 57 /* Nine */))
-                    { this.error(0 /* Unexpected */); }
+                    { this.error(114 /* InvalidBigIntLiteral */); }
                 if (this.flags & 8388608 /* OptionsNext */) {
                     var preNumericPart = this.index;
                     var finalFragment = this.scanDecimalDigitsOrFragment();
                     if (!finalFragment)
-                        { this.error(90 /* UnexpectedTokenNumber */); }
+                        { this.error(90 /* UnexpectedNumber */); }
                     scientificFragment = this.source.substring(end, preNumericPart) + finalFragment;
                 }
                 else {
@@ -4489,13 +4490,11 @@ Parser.prototype.parseArrayInitializer = function parseArrayInitializer (context
     var pos = this.getLocations();
     this.expect(context, 393235 /* LeftBracket */);
     var elements = [];
-    var state = 0;
     while (this.token !== 20 /* RightBracket */) {
         if (this$1.parseOptional(context, 18 /* Comma */)) {
             elements.push(null);
         }
         else if (this$1.token === 14 /* Ellipsis */) {
-            state |= 2 /* Spread */;
             var element = this$1.parseSpreadElement(context);
             if (this$1.token !== 20 /* RightBracket */) {
                 this$1.errorLocation = this$1.getLocations();
@@ -4512,10 +4511,6 @@ Parser.prototype.parseArrayInitializer = function parseArrayInitializer (context
         }
     }
     this.expect(context, 20 /* RightBracket */);
-    if (this.token === 1310749 /* Assign */) {
-        if (state & 1 /* EvalArg */)
-            { this.error(78 /* StrictParamName */); }
-    }
     return this.finishNode(context, pos, {
         type: 'ArrayExpression',
         elements: elements

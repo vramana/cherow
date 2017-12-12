@@ -91,7 +91,7 @@ export const enum Errors {
     InvalidVarDeclInForIn,
     InvalidVarDeclInForOf,
     InvalidRadix,
-    UnexpectedTokenNumber,
+    UnexpectedNumber,
     UnexpectedMantissa,
     UnexpectedSurrogate,
     ForbiddenAsStatement,
@@ -115,6 +115,7 @@ export const enum Errors {
     InvalidFieldConstructor,
     InvalidNumericSeparators,
     InvalidRestDefaultValue,
+    InvalidBigIntLiteral
 }
 
 export const ErrorMessages: {
@@ -207,7 +208,7 @@ export const ErrorMessages: {
     [Errors.InvalidVarDeclInForIn]: 'Invalid variable declaration in for-in statement',
     [Errors.InvalidVarDeclInForOf]: 'Invalid variable declaration in for-of statement',
     [Errors.InvalidRadix]: 'Expected number in radix',
-    [Errors.UnexpectedTokenNumber]: 'Unexpected number',
+    [Errors.UnexpectedNumber]: 'Unexpected number',
     [Errors.UnexpectedMantissa]: 'Unexpected mantissa',
     [Errors.UnexpectedSurrogate]: 'Unexpected surrogate pair',
     [Errors.ForbiddenAsStatement]: '%0 can\'t appear in single-statement context',
@@ -230,6 +231,7 @@ export const ErrorMessages: {
     [Errors.InvalidFieldConstructor]: 'Classes may not have a private field named \'#constructor\'',
     [Errors.InvalidNumericSeparators]: 'Numeric separators are not allowed here',
     [Errors.InvalidRestDefaultValue]: 'Rest elements cannot have a default value',
+    [Errors.InvalidBigIntLiteral]: 'Invalid BigIntLiteral',
 };
 
 function constructError(msg: string, column: number): Error {

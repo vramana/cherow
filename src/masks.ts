@@ -149,12 +149,6 @@ export const enum NumericState {
    Boh = Binary | Octal | Hex
 }
 
-export const enum ArrayState {
-    None      = 0,
-    EvalArg   = 1 << 0,
-    Spread    = 1 << 1,
-}
-
 // Regular expression scanning
 export const enum RegExpState {
     Empty = 0,

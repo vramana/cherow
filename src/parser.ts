@@ -2,7 +2,7 @@ import { Chars } from './chars';
 import * as ESTree from './estree';
 import { toHex, fromCodePoint, hasMask, isPrologueDirective } from './common';
 import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget } from './validate';
-import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, ScanState, ParenthesizedState, NumericState, ArrayState, Escape, FieldState } from './masks';
+import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, ScanState, ParenthesizedState, NumericState, Escape, FieldState } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
@@ -1055,7 +1055,7 @@ export class Parser {
                         value = ch - Chars.Zero;
 
                         // we must have at least one octal digit after 'o'/'O'
-                        if (ch < Chars.Zero || ch >= Chars.Eight) this.error(Errors.UnexpectedTokenNumber);
+                        if (ch < Chars.Zero || ch >= Chars.Eight) this.error(Errors.UnexpectedNumber);
 
                         this.advance();
 
@@ -1173,7 +1173,7 @@ export class Parser {
 
             if (this.nextChar() === Chars.Period) {
                 state |= NumericState.Float;
-                if (state & NumericState.ImplicitOctal) this.error(Errors.UnexpectedTokenNumber);
+                if (state & NumericState.ImplicitOctal) this.error(Errors.UnexpectedNumber);
                 this.advance();
                 decimalFragment = this.scanDecimalDigitsOrFragment();
             }
@@ -1183,7 +1183,7 @@ export class Parser {
             if (this.nextChar() === Chars.Period) {
                 state |= NumericState.Float;
                 // Invalid: '06.7'
-                if (state & NumericState.ImplicitOctal) this.error(Errors.UnexpectedTokenNumber);
+                if (state & NumericState.ImplicitOctal) this.error(Errors.UnexpectedNumber);
                 this.advance();
                 this.scanDecimalDigitsOrFragment();
             }
@@ -1193,7 +1193,7 @@ export class Parser {
 
         // BigInt - Stage 3 proposal
         if (next && this.nextChar() === Chars.LowerN) {
-            if (state & (NumericState.ImplicitOctal | NumericState.Float)) this.error(Errors.UnexpectedTokenNumber);
+            if (state & (NumericState.ImplicitOctal | NumericState.Float)) this.error(Errors.InvalidBigIntLiteral);
             state |= NumericState.BigInt;
             this.advance();
         }
@@ -1216,12 +1216,12 @@ export class Parser {
 
                     ch = this.nextChar();
 
-                    if (!(ch >= Chars.Zero && ch <= Chars.Nine)) this.error(Errors.Unexpected);
+                    if (!(ch >= Chars.Zero && ch <= Chars.Nine)) this.error(Errors.InvalidBigIntLiteral);
 
                     if (this.flags & Flags.OptionsNext) {
                         const preNumericPart = this.index;
                         const finalFragment = this.scanDecimalDigitsOrFragment();
-                        if (!finalFragment) this.error(Errors.UnexpectedTokenNumber)
+                        if (!finalFragment) this.error(Errors.UnexpectedNumber)
 
                         scientificFragment = this.source.substring(end, preNumericPart) + finalFragment;
                     } else {
@@ -4827,13 +4827,11 @@ export class Parser {
         const pos = this.getLocations();
         this.expect(context, Token.LeftBracket);
         const elements = [];
-        let state = ArrayState.None;
 
         while (this.token !== Token.RightBracket) {
             if (this.parseOptional(context, Token.Comma)) {
                 elements.push(null);
             } else if (this.token === Token.Ellipsis) {
-                state |= ArrayState.Spread;
 
                 const element = this.parseSpreadElement(context);
 
@@ -4853,10 +4851,6 @@ export class Parser {
             }
         }
         this.expect(context, Token.RightBracket);
-
-        if (this.token === Token.Assign) {
-            if (state & ArrayState.EvalArg) this.error(Errors.StrictParamName);
-        }
 
         return this.finishNode(context, pos, {
             type: 'ArrayExpression',
