@@ -94,7 +94,7 @@
       this.parse();
     },
     onLocChange: function(event) {
-      this._options.locations = this.$loc.prop('checked');
+      this._options.loc = this.$loc.prop('checked');
       this.parse();
     },
     parse: function() {
