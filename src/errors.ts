@@ -115,7 +115,9 @@ export const enum Errors {
     InvalidFieldConstructor,
     InvalidNumericSeparators,
     InvalidRestDefaultValue,
-    InvalidBigIntLiteral
+    InvalidBigIntLiteral,
+    InvalidLhsInPostfixOp,
+    InvalidLhsInPrefixOp
 }
 
 export const ErrorMessages: {
@@ -232,6 +234,8 @@ export const ErrorMessages: {
     [Errors.InvalidNumericSeparators]: 'Numeric separators are not allowed here',
     [Errors.InvalidRestDefaultValue]: 'Rest elements cannot have a default value',
     [Errors.InvalidBigIntLiteral]: 'Invalid BigIntLiteral',
+    [Errors.InvalidLhsInPostfixOp]: 'Invalid left-hand side expression in postfix operation',
+    [Errors.InvalidLhsInPrefixOp]: 'Invalid left-hand side expression in prefix operation',
 };
 
 function constructError(msg: string, column: number): Error {

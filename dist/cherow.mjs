@@ -282,6 +282,8 @@ ErrorMessages[111 /* InvalidFieldConstructor */] = 'Classes may not have a priva
 ErrorMessages[112 /* InvalidNumericSeparators */] = 'Numeric separators are not allowed here';
 ErrorMessages[113 /* InvalidRestDefaultValue */] = 'Rest elements cannot have a default value';
 ErrorMessages[114 /* InvalidBigIntLiteral */] = 'Invalid BigIntLiteral';
+ErrorMessages[115 /* InvalidLhsInPostfixOp */] = 'Invalid left-hand side expression in postfix operation';
+ErrorMessages[116 /* InvalidLhsInPrefixOp */] = 'Invalid left-hand side expression in prefix operation';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -2089,7 +2091,7 @@ Parser.prototype.parseExportDefault = function parseExportDefault (context, pos)
             break;
         // export default ClassDeclaration[Default]
         case 274509 /* ClassKeyword */:
-            declaration = this.parseClassDeclaration(context | (32768 /* OptionalIdentifier */ | 1024 /* TopLevel */));
+            declaration = this.parseClass(context | (32768 /* OptionalIdentifier */ | 1024 /* TopLevel */));
             break;
         // export default HoistableDeclaration[Default]
         case 16846956 /* AsyncKeyword */:
@@ -2168,7 +2170,7 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
             break;
         // export ClassDeclaration
         case 274509 /* ClassKeyword */:
-            declaration = this.parseClassDeclaration(context | 1024 /* TopLevel */);
+            declaration = this.parseClass(context | 1024 /* TopLevel */);
             break;
         // export LexicalDeclaration
         case 8663113 /* ConstKeyword */:
@@ -2411,7 +2413,7 @@ Parser.prototype.parseStatementListItem = function parseStatementListItem (conte
         case 274519 /* FunctionKeyword */:
             return this.parseFunction(context & ~33554432 /* Expression */);
         case 274509 /* ClassKeyword */:
-            return this.parseClassDeclaration(context);
+            return this.parseClass(context);
         case 8671304 /* LetKeyword */:
             // If let follows identifier on the same line, it is an declaration. Parse it as a variable statement
             if (this.isLexical(context)) {
@@ -3383,7 +3385,9 @@ Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context
         expr = this.parseLeftHandSideExpression(context, pos);
         if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name)) {
             this.error(45 /* StrictLHSPrefix */);
-        } // else if (!isValidSimpleAssignmentTarget(expr)) this.error(Errors.InvalidLHSInAssignment);
+        }
+        else if (!isValidSimpleAssignmentTarget(expr))
+            { this.error(116 /* InvalidLhsInPrefixOp */); }
         return this.finishNode(context, pos, {
             type: 'UpdateExpression',
             operator: tokenDesc(operator),
@@ -3399,8 +3403,9 @@ Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context
         if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name)) {
             this.error(46 /* StrictLHSPostfix */);
         }
-        if (!isValidSimpleAssignmentTarget(expr))
-            { this.error(36 /* InvalidLHSInAssignment */); }
+        else if (!isValidSimpleAssignmentTarget(expr)) {
+            this.error(115 /* InvalidLhsInPostfixOp */);
+        }
         var operator$1 = this.token;
         this.nextToken(context);
         return this.finishNode(context, pos, {
@@ -3912,7 +3917,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 274524 /* SuperKeyword */:
             return this.parseSuper(context);
         case 274509 /* ClassKeyword */:
-            return this.parseClassExpression(context | 33554432 /* Expression */);
+            return this.parseClass(context | 33554432 /* Expression */);
         case 393228 /* LeftBrace */:
             return this.parseObjectExpression(context);
         case 262153 /* TemplateTail */:
@@ -3959,25 +3964,23 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
 Parser.prototype.parseLet = function parseLet (context) {
     var name = this.tokenValue;
     var pos = this.getLocations();
-    if (this.flags & 2 /* ExtendedUnicodeEscape */)
-        { this.error(64 /* UnexpectedEscapedKeyword */); }
-    if (context & 2 /* Strict */)
-        { this.error(84 /* InvalidStrictExpPostion */, tokenDesc(this.token)); }
+    if (this.flags & 2 /* ExtendedUnicodeEscape */) {
+        this.error(64 /* UnexpectedEscapedKeyword */);
+    }
+    if (context & 2 /* Strict */) {
+        this.error(84 /* InvalidStrictExpPostion */, tokenDesc(this.token));
+    }
     this.nextToken(context);
-    if (!(context & 524288 /* ForStatement */) && this.flags & 1 /* PrecedingLineBreak */)
-        { this.throwUnexpectedToken(); }
-    if (this.token === 8671304 /* LetKeyword */)
-        { this.error(84 /* InvalidStrictExpPostion */, tokenDesc(this.token)); }
+    if (!(context & 524288 /* ForStatement */) && this.flags & 1 /* PrecedingLineBreak */) {
+        this.throwUnexpectedToken();
+    }
+    if (this.token === 8671304 /* LetKeyword */) {
+        this.error(84 /* InvalidStrictExpPostion */, tokenDesc(this.token));
+    }
     return this.finishNode(context, pos, {
         type: 'Identifier',
         name: name
     });
-};
-Parser.prototype.parseClassDeclaration = function parseClassDeclaration (context) {
-    return this.parseClass(context);
-};
-Parser.prototype.parseClassExpression = function parseClassExpression (context) {
-    return this.parseClass(context);
 };
 Parser.prototype.parseClass = function parseClass (context) {
         var this$1 = this;

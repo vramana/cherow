@@ -2024,7 +2024,7 @@ export class Parser {
 
                 // export default ClassDeclaration[Default]
             case Token.ClassKeyword:
-                declaration = this.parseClassDeclaration(context | (Context.OptionalIdentifier | Context.TopLevel));
+                declaration = this.parseClass(context | (Context.OptionalIdentifier | Context.TopLevel));
                 break;
 
                 // export default HoistableDeclaration[Default]
@@ -2119,7 +2119,7 @@ export class Parser {
 
                 // export ClassDeclaration
             case Token.ClassKeyword:
-                declaration = this.parseClassDeclaration(context | Context.TopLevel);
+                declaration = this.parseClass(context | Context.TopLevel) as ESTree.ClassDeclaration;
                 break;
 
                 // export LexicalDeclaration
@@ -2412,7 +2412,7 @@ export class Parser {
             case Token.FunctionKeyword:
                 return this.parseFunction(context & ~Context.Expression);
             case Token.ClassKeyword:
-                return this.parseClassDeclaration(context);
+                return this.parseClass(context) as ESTree.ClassDeclaration;
             case Token.LetKeyword:
                 // If let follows identifier on the same line, it is an declaration. Parse it as a variable statement
                 if (this.isLexical(context)) {
@@ -3572,7 +3572,7 @@ export class Parser {
 
             if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                 this.error(Errors.StrictLHSPrefix);
-            } // else if (!isValidSimpleAssignmentTarget(expr)) this.error(Errors.InvalidLHSInAssignment);
+            } else if (!isValidSimpleAssignmentTarget(expr)) this.error(Errors.InvalidLhsInPrefixOp);
 
             return this.finishNode(context, pos, {
                 type: 'UpdateExpression',
@@ -3591,9 +3591,9 @@ export class Parser {
             // operated upon by a Prefix Increment(12.4.6) or a Prefix Decrement(12.4.7) operator.
             if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                 this.error(Errors.StrictLHSPostfix);
+            } else if (!isValidSimpleAssignmentTarget(expr)) {
+                this.error(Errors.InvalidLhsInPostfixOp);
             }
-
-            if (!isValidSimpleAssignmentTarget(expr)) this.error(Errors.InvalidLHSInAssignment);
 
             const operator = this.token;
 
@@ -4208,7 +4208,7 @@ export class Parser {
             case Token.SuperKeyword:
                 return this.parseSuper(context);
             case Token.ClassKeyword:
-                return this.parseClassExpression(context | Context.Expression);
+                return this.parseClass(context | Context.Expression);
             case Token.LeftBrace:
                 return this.parseObjectExpression(context);
             case Token.TemplateTail:
@@ -4250,23 +4250,23 @@ export class Parser {
     private parseLet(context: Context): ESTree.Identifier {
         const name = this.tokenValue;
         const pos = this.getLocations();
-        if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword)
-        if (context & Context.Strict) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
+        if (this.flags & Flags.ExtendedUnicodeEscape) {
+            this.error(Errors.UnexpectedEscapedKeyword)
+        }
+        if (context & Context.Strict) {
+            this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
+        }
         this.nextToken(context);
-        if (!(context & Context.ForStatement) && this.flags & Flags.PrecedingLineBreak) this.throwUnexpectedToken();
-        if (this.token === Token.LetKeyword) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
+        if (!(context & Context.ForStatement) && this.flags & Flags.PrecedingLineBreak) {
+            this.throwUnexpectedToken();
+        }
+        if (this.token === Token.LetKeyword) {
+            this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
+        }
         return this.finishNode(context, pos, {
             type: 'Identifier',
             name
         });
-    }
-
-    private parseClassDeclaration(context: Context): ESTree.ClassDeclaration {
-        return this.parseClass(context) as ESTree.ClassDeclaration;
-    }
-
-    private parseClassExpression(context: Context): ESTree.ClassExpression {
-        return this.parseClass(context) as ESTree.ClassExpression;
     }
 
     private parseClass(context: Context): ESTree.ClassDeclaration | ESTree.ClassExpression {

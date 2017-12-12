@@ -1,11 +1,12 @@
+/**
+ * Copyright (c) 2017 and later, Isiah Meadows. Licensed under the ISC License.
+ */
+
+/* Modified! */
+
 import parserTest262 from '../tools/test262';
-
 import * as path from 'path';
-
-import {
-    parseScript,
-    parseModule
-} from '../../src/cherow';
+import { parseScript, parseModule} from '../../src/cherow';
 
 describe('test262 tests', () => parserTest262({
     test262Dir: path.join(__dirname, '../../', 'node_modules', 'test262'),
@@ -42,12 +43,12 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/prefix-decrement/non-simple.js',
         'test/language/expressions/prefix-decrement/target-cover-newtarget.js',
         'test/language/expressions/prefix-decrement/target-cover-yieldexpr.js',
-        'test/language/expressions/prefix-decrement/target-newtarget.js',
-        'test/language/expressions/postfix-decrement/11.3.2-2-1-s.js',
+         'test/language/expressions/prefix-decrement/target-newtarget.js',
+         'test/language/expressions/postfix-decrement/11.3.2-2-1-s.js',
         'test/language/expressions/postfix-decrement/non-simple.js',
         'test/language/expressions/postfix-decrement/target-cover-newtarget.js',
         'test/language/expressions/postfix-decrement/target-cover-yieldexpr.js',
-        'test/language/expressions/postfix-decrement/target-newtarget.js',
+        'test/language/expressions/postfix-decrement/target-newtarget.js', 
         'test/language/expressions/object/method-definition/use-strict-with-non-simple-param.js',
         'test/language/expressions/object/method-definition/use-strict-with-non-simple-param.js',
         'test/language/expressions/object/method-definition/setter-use-strict-with-non-simple-param.js',
