@@ -1627,6 +1627,10 @@ describe('Statements - Variable', () => {
             source: 'var a.b;',
         });
 
+        fail(`"use strict"; var eval;`, {
+            source: '"use strict"; var eval;    ',
+        });
+
         fail(`var a.b;`, {
             source: 'var a.b;',
         });

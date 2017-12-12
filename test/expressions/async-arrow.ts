@@ -19,6 +19,22 @@ describe('Expressions - Async arrow', () => {
         => await a`,
     });
 
+     fail(`async (x = 1) => {"use strict"}`, {
+        source: `async (x = 1) => {"use strict"}`,
+    });
+
+     fail(`async(x = await) => {  }`, {
+        source: `async(x = await) => {  }`,
+    });
+
+     fail(`"use strict"; async(eval) => {  }`, {
+        source: `"use strict"; async(eval) => {  }`,
+    });
+
+     fail(`\\u0061sync () => {}`, {
+        source: `\\u0061sync () => {}`,
+    });
+
     fail(`async\n() => a`, {
         source: 'async\n() => a',
     });

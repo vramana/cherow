@@ -200,9 +200,14 @@ describe('Statements - Numeric separators', () => {
         source: '0o0_',
         next: true
     });
-
+    
     fail(`0o_1`, {
         source: '0o_1',
+        next: true
+    });
+
+    fail(`"use strict"; 07_1`, {
+        source: '"use strict"; 07_1',
         next: true
     });
 

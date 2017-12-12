@@ -127,7 +127,7 @@ export const enum ScanState {
     SingleLine      = 1 << 4, // SingleLine comment (HTML, Shebang or plain)
     Terminated      = 1 << 5, // If the node was closed or not
     Unicode         = 1 << 6, // If the node was closed or not
-    SameLine         = 1 << 7, // If the node was closed or not
+    SameLine        = 1 << 7, // If the node was closed or not
 
     // Collectable comments - single and multiline (shebang excluded)
     Collectable = SingleLine | MultiLine
@@ -143,9 +143,10 @@ export const enum NumericState {
    Binary                   = 1 << 5,
    BigInt                   = 1 << 6,
    Float                    = 1 << 7,
-   ContainsFragment         = 1 << 8,
-   ContainsSeparator        = 1 << 9,
-   AllowSeparator           = 1 << 10,
+   AllowSeparator           = 1 << 8, // Numeric Separator specific
+
+   Noctal = ImplicitOctal | DecimalWithLeadingZero,
+   
    Boh = Binary | Octal | Hex
 }
 

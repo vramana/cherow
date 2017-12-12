@@ -14,8 +14,17 @@ describe('Expressions - Await', () => {
         source: 'async function foo() { await }',
     });
 
+    fail(`async function foo() { (await 1) = 1; }`, {
+        source: 'async function foo() { (await 1) = 1; }',
+    });
+
+    fail(`async function foo() { await; }`, {
+        source: 'async function foo() { await; }',
+    });
+
     fail(`({async foo() { await }})`, {
-        source: `({async foo() { await }})`, module: true,
+        source: `({async foo() { await }})`, 
+        module: true,
     });
 
     fail(`async await => 1;`, {

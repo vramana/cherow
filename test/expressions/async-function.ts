@@ -2,6 +2,38 @@ import { pass, fail } from '../utils';
 
 describe('Expressions - Async function', () => {
 
+     fail(`"use strict"; (async function eval () { })`, {
+        source: '"use strict"; (async function eval () { })',
+    });
+
+     fail(`(async function foo (foo) { super() })`, {
+        source: '(async function foo (foo) { super() })',
+    });
+
+     fail(`(async function foo (bar) { let bar; });`, {
+        source: '(async function foo (bar) { let bar; });',
+    });
+
+     fail(`(async function foo() { } = 1)`, {
+        source: '(async function foo() { } = 1)',
+    });
+
+     fail(`void \\u0061sync function f(){}`, {
+        source: 'void \\u0061sync function f(){}',
+    });
+
+     fail(`async function wrap() { async function await() { } };`, {
+        source: 'async function wrap() { async function await() { } };',
+    });
+
+     fail(`async function wrap() { async function await() { } };`, {
+        source: 'async function wrap() { async function await() { } };',
+    });
+
+     fail(`async function wrap() { async function await() { } };`, {
+        source: 'async function wrap() { async function await() { } };',
+    });
+
     fail(`async function wrap() { async function await() { } };`, {
         source: 'async function wrap() { async function await() { } };',
     });
@@ -55,6 +87,162 @@ fail(`async function *f() {}`, {
   source: `(async
     function f() {})`,
 });   
+
+pass(`(async function ref(a, b = 39,) {});`, {
+  source: '(async function ref(a, b = 39,) {});',
+  ranges: true,
+  raw: true,
+  loc: true,
+  expected: {
+    "type": "Program",
+    "body": [
+        {
+            "type": "ExpressionStatement",
+            "expression": {
+                "type": "FunctionExpression",
+                "params": [
+                    {
+                        "type": "Identifier",
+                        "name": "a",
+                        "start": 20,
+                        "end": 21,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 20
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 21
+                            }
+                        }
+                    },
+                    {
+                        "type": "AssignmentPattern",
+                        "left": {
+                            "type": "Identifier",
+                            "name": "b",
+                            "start": 23,
+                            "end": 24,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 24
+                                }
+                            }
+                        },
+                        "right": {
+                            "type": "Literal",
+                            "value": 39,
+                            "start": 27,
+                            "end": 29,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 27
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 29
+                                }
+                            },
+                            "raw": "39"
+                        },
+                        "start": 23,
+                        "end": 29,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 23
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 29
+                            }
+                        }
+                    }
+                ],
+                "body": {
+                    "type": "BlockStatement",
+                    "body": [],
+                    "start": 32,
+                    "end": 34,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 32
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 34
+                        }
+                    }
+                },
+                "async": true,
+                "generator": false,
+                "expression": false,
+                "id": {
+                    "type": "Identifier",
+                    "name": "ref",
+                    "start": 16,
+                    "end": 19,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 16
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 19
+                        }
+                    }
+                },
+                "start": 1,
+                "end": 34,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 1
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 34
+                    }
+                }
+            },
+            "start": 0,
+            "end": 36,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 36
+                }
+            }
+        }
+    ],
+    "sourceType": "script",
+    "start": 0,
+    "end": 36,
+    "loc": {
+        "start": {
+            "line": 1,
+            "column": 0
+        },
+        "end": {
+            "line": 1,
+            "column": 36
+        }
+    }
+}
+});
 
 pass(`export default async function() {}`, {
   source: 'export default async function() {}',
