@@ -18,6 +18,10 @@ describe('Declarations - Let', () => {
     fail('let [x]', {
         source: 'let [x]'
     });
+    
+    fail('le\\u0074 x = 5', {
+        source: 'le\\u0074 x = 5'
+    });
     fail('let {x}', {
         source: 'let {x}'
     });

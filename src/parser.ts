@@ -947,25 +947,23 @@ export class Parser {
         }
     
         private scanDecimalDigitsOrFragment(): any {
+    
             let start = this.index;
-            let allowSeparator = false;
-            let hasFragment = false;
-            let result = '';
+            let state = NumericState.None;
+            let ret = '';
+    
             const next = this.flags & Flags.OptionsNext;
     
             loop:
                 while (this.hasNext()) {
+    
                     switch (this.nextChar()) {
                         case Chars.Underscore:
                             if (!next) break;
-                            hasFragment = true;
+                            if (!(state & NumericState.AllowSeparator)) this.error(Errors.InvalidNumericSeparators)
                             this.flags |= Flags.ContainsSeparator;
-                            if (allowSeparator) {
-                                allowSeparator = false;
-                                result += this.source.substring(start, this.index);
-                            } else {
-                                this.error(Errors.InvalidNumericSeparators)
-                            }
+                            state &= ~NumericState.AllowSeparator
+                            ret += this.source.substring(start, this.index);
                             this.advance();
                             start = this.index;
                             continue;
@@ -979,31 +977,30 @@ export class Parser {
                         case Chars.Seven:
                         case Chars.Eight:
                         case Chars.Nine:
-                            allowSeparator = true;
+                            state |= NumericState.AllowSeparator;
                             this.advance();
                             break;
                         default:
                             break loop;
                     }
-    
                 }
     
             if (next && this.source.charCodeAt(this.index - 1) === Chars.Underscore) {
                 this.error(Errors.InvalidNumericSeparators)
             }
     
-            return result + this.source.substring(start, this.index)
+            return ret + this.source.substring(start, this.index)
         }
     
-        private scanNumericFragment(separatorAllowed: boolean): boolean {
+        private scanNumericFragment(state: NumericState): NumericState {
             this.flags |= Flags.ContainsSeparator;
-            if (separatorAllowed) {
-                separatorAllowed = false;
+            if (state & NumericState.AllowSeparator) {
+                state &= ~NumericState.AllowSeparator
             } else {
                 this.error(Errors.InvalidNumericSeparators);
             }
             this.advance();
-            return separatorAllowed;
+            return state | NumericState.ContainsFragment;
         }
     
         private scanNumber(context: Context, ch: number): Token {
@@ -1011,8 +1008,12 @@ export class Parser {
             let state = NumericState.None;
             let value: any = undefined;
     
+            const next = this.flags & Flags.OptionsNext;
+    
             if (ch === Chars.Zero) {
+    
                 this.advance();
+    
                 ch = this.nextChar();
     
                 switch (ch) {
@@ -1020,11 +1021,9 @@ export class Parser {
                     case Chars.LowerX:
                     case Chars.UpperX:
                         {
-                            state = NumericState.Hex;
-                            let separatorAllowed = true;
-                            ch = this.scanNext(Errors.Unexpected);
+                            state = NumericState.Hex | NumericState.AllowSeparator;
     
-                            value = toHex(ch);
+                            value = toHex(this.scanNext(Errors.Unexpected));
     
                             if (value < 0) this.error(Errors.Unexpected);
     
@@ -1033,11 +1032,11 @@ export class Parser {
                             while (this.hasNext()) {
                                 ch = this.nextChar();
     
-                                if (ch === Chars.Underscore) {
-                                    state |= NumericState.ContainsFragment
-                                    separatorAllowed = this.scanNumericFragment(separatorAllowed);
+                                if (next && ch === Chars.Underscore) {
+                                    state = this.scanNumericFragment(state);
                                     continue;
                                 }
+                                state |= NumericState.AllowSeparator;
                                 const digit = toHex(ch);
                                 if (digit < 0) break;
                                 value = value << 4 | digit;
@@ -1049,29 +1048,26 @@ export class Parser {
                     case Chars.LowerO:
                     case Chars.UpperO:
                         {
-    
-                            state = NumericState.Octal;
-    
-                            let separatorAllowed = true;
+                            state = NumericState.Octal | NumericState.AllowSeparator;
     
                             ch = this.scanNext(Errors.Unexpected);
     
                             value = ch - Chars.Zero;
     
                             // we must have at least one octal digit after 'o'/'O'
-                            if (ch < Chars.Zero || ch >= Chars.Eight) this.error(Errors.Unexpected);
+                            if (ch < Chars.Zero || ch >= Chars.Eight) this.error(Errors.UnexpectedTokenNumber);
+    
                             this.advance();
     
                             while (this.hasNext()) {
     
                                 ch = this.nextChar();
     
-                                if (ch === Chars.Underscore) {
-                                    state |= NumericState.ContainsFragment
-                                    separatorAllowed = this.scanNumericFragment(separatorAllowed);
+                                if (next && ch === Chars.Underscore) {
+                                    state = this.scanNumericFragment(state);
                                     continue;
                                 }
-                                separatorAllowed = true;
+                                state |= NumericState.AllowSeparator;
                                 if (ch < Chars.Zero || Chars.Nine < ch) break;
                                 if (ch < Chars.Zero || ch >= Chars.Eight) {
                                     this.error(Errors.Unexpected);
@@ -1085,8 +1081,8 @@ export class Parser {
                     case Chars.LowerB:
                     case Chars.UpperB:
                         {
-                            state = NumericState.Binary;
-                            let separatorAllowed = true;
+                            state = NumericState.Binary | NumericState.AllowSeparator;
+    
                             ch = this.scanNext(Errors.Unexpected);
     
                             // Invalid:  '0b'
@@ -1101,12 +1097,11 @@ export class Parser {
     
                             while (this.hasNext()) {
                                 ch = this.nextChar();
-                                if (ch === Chars.Underscore) {
-                                    state |= NumericState.ContainsFragment;
-                                    separatorAllowed = this.scanNumericFragment(separatorAllowed);
+                                if (next && ch === Chars.Underscore) {
+                                    state = this.scanNumericFragment(state);
                                     continue;
                                 }
-                                separatorAllowed = true;
+                                state |= NumericState.AllowSeparator;
                                 if (ch < Chars.Zero || Chars.Nine < ch) break;
                                 if (!(ch === Chars.Zero || ch === Chars.One)) {
                                     this.error(Errors.Unexpected);
@@ -1133,22 +1128,15 @@ export class Parser {
                     case Chars.Six:
                     case Chars.Seven:
                         {
-                            state |= NumericState.ImplicitOctal;
-                            let separatorAllowed = true;
+                            state |= NumericState.ImplicitOctal | NumericState.AllowSeparator;
+    
                             while (this.hasNext()) {
                                 ch = this.nextChar();
                                 if (ch === Chars.Underscore) {
-                                    state |= NumericState.ContainsFragment;
-                                    this.flags |= Flags.ContainsSeparator;
-                                    if (separatorAllowed) {
-                                        separatorAllowed = false;
-                                    } else {
-                                        this.error(Errors.InvalidNumericSeparators);
-                                    }
-                                    this.advance();
+                                    state = this.scanNumericFragment(state);
                                     continue;
                                 }
-                                separatorAllowed = true;
+                                state |= NumericState.AllowSeparator;
                                 if (ch === Chars.Eight || ch === Chars.Nine) {
                                     state = NumericState.DecimalWithLeadingZero;
                                     break;
@@ -1209,13 +1197,6 @@ export class Parser {
                     this.error(Errors.Unexpected);
                 }
     
-                // Check that the literal is within our limits for BigInt length.
-                // For simplicity, use 4 bits per character to calculate the maximum
-                // allowed literal length.
-                const maxBigIntCharacters = 1024 * 1024 / 4;
-                const length = start - this.index - state & NumericState.Decimal ? 0 : 2;
-    
-                // if (length > maxBigIntCharacters) this.error(Errors.Unexpected);
                 state |= NumericState.BigInt;
                 this.advance();
     
@@ -3170,6 +3151,7 @@ export class Parser {
         private parseVariableStatement(context: Context, shouldConsume = true): ESTree.VariableDeclaration {
             const pos = this.getLocations();
             const token = this.token;
+            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
             this.nextToken(context);
             const declarations = this.parseVariableDeclarationList(context);
             if (shouldConsume) this.consumeSemicolon(context);
@@ -3260,11 +3242,13 @@ export class Parser {
             pos: Location
         ): ESTree.YieldExpression {
     
+            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
+            
             this.expect(context, Token.YieldKeyword);
     
             let argument: ESTree.Expression | null = null;
             let delegate = false;
-    
+            
             if (!(this.flags & Flags.PrecedingLineBreak)) {
                 delegate = this.parseOptional(context, Token.Multiply);
                 if (delegate) {

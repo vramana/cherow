@@ -2252,4 +2252,8 @@ describe('Expressions - Yield', () => {
         fail(`function *a(){yield*}`, {
             source: 'function *a(){yield*}',
         });
+
+        fail(`(function* () { y\\u0069eld 10 })`, {
+            source: '(function* () { y\\u0069eld 10 })',
+        });
 });

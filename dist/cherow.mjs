@@ -1143,23 +1143,19 @@ Parser.prototype.scanDecimalDigitsOrFragment = function scanDecimalDigitsOrFragm
         var this$1 = this;
 
     var start = this.index;
-    var allowSeparator = false;
-    var result = '';
+    var state = 0;
+    var ret = '';
     var next = this.flags & 16777216;
     loop: while (this.hasNext()) {
         switch (this$1.nextChar()) {
             case 95 /* Underscore */:
                 if (!next)
                     { break; }
-                
+                if (!(state & 1024 /* AllowSeparator */))
+                    { this$1.error(112 /* InvalidNumericSeparators */); }
                 this$1.flags |= 1 /* ContainsSeparator */;
-                if (allowSeparator) {
-                    allowSeparator = false;
-                    result += this$1.source.substring(start, this$1.index);
-                }
-                else {
-                    this$1.error(112 /* InvalidNumericSeparators */);
-                }
+                state &= ~1024 /* AllowSeparator */;
+                ret += this$1.source.substring(start, this$1.index);
                 this$1.advance();
                 start = this$1.index;
                 continue;
@@ -1173,7 +1169,7 @@ Parser.prototype.scanDecimalDigitsOrFragment = function scanDecimalDigitsOrFragm
             case 55 /* Seven */:
             case 56 /* Eight */:
             case 57 /* Nine */:
-                allowSeparator = true;
+                state |= 1024 /* AllowSeparator */;
                 this$1.advance();
                 break;
             default:
@@ -1183,25 +1179,26 @@ Parser.prototype.scanDecimalDigitsOrFragment = function scanDecimalDigitsOrFragm
     if (next && this.source.charCodeAt(this.index - 1) === 95 /* Underscore */) {
         this.error(112 /* InvalidNumericSeparators */);
     }
-    return result + this.source.substring(start, this.index);
+    return ret + this.source.substring(start, this.index);
 };
-Parser.prototype.scanNumericFragment = function scanNumericFragment (separatorAllowed) {
+Parser.prototype.scanNumericFragment = function scanNumericFragment (state) {
     this.flags |= 1 /* ContainsSeparator */;
-    if (separatorAllowed) {
-        separatorAllowed = false;
+    if (state & 1024 /* AllowSeparator */) {
+        state &= ~1024 /* AllowSeparator */;
     }
     else {
         this.error(112 /* InvalidNumericSeparators */);
     }
     this.advance();
-    return separatorAllowed;
+    return state | 256 /* ContainsFragment */;
 };
 Parser.prototype.scanNumber = function scanNumber (context, ch) {
         var this$1 = this;
 
     var start = this.index;
-    var state = 1;
+    var state = 0;
     var value = undefined;
+    var next = this.flags & 16777216;
     if (ch === 48 /* Zero */) {
         this.advance();
         ch = this.nextChar();
@@ -1209,20 +1206,18 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
             case 120 /* LowerX */:
             case 88 /* UpperX */:
                 {
-                    state = 8 /* Hex */;
-                    var separatorAllowed = true;
-                    ch = this.scanNext(0 /* Unexpected */);
-                    value = toHex(ch);
+                    state = 8 /* Hex */ | 1024 /* AllowSeparator */;
+                    value = toHex(this.scanNext(0 /* Unexpected */));
                     if (value < 0)
                         { this.error(0 /* Unexpected */); }
                     this.advance();
                     while (this.hasNext()) {
                         ch = this$1.nextChar();
-                        if (ch === 95 /* Underscore */) {
-                            state |= 256 /* ContainsFragment */;
-                            separatorAllowed = this$1.scanNumericFragment(separatorAllowed);
+                        if (next && ch === 95 /* Underscore */) {
+                            state = this$1.scanNumericFragment(state);
                             continue;
                         }
+                        state |= 1024 /* AllowSeparator */;
                         var digit = toHex(ch);
                         if (digit < 0)
                             { break; }
@@ -1234,22 +1229,20 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
             case 111 /* LowerO */:
             case 79 /* UpperO */:
                 {
-                    state = 16 /* Octal */;
-                    var separatorAllowed$1 = true;
+                    state = 16 /* Octal */ | 1024 /* AllowSeparator */;
                     ch = this.scanNext(0 /* Unexpected */);
                     value = ch - 48 /* Zero */;
                     // we must have at least one octal digit after 'o'/'O'
                     if (ch < 48 /* Zero */ || ch >= 56 /* Eight */)
-                        { this.error(0 /* Unexpected */); }
+                        { this.error(90 /* UnexpectedTokenNumber */); }
                     this.advance();
                     while (this.hasNext()) {
                         ch = this$1.nextChar();
-                        if (ch === 95 /* Underscore */) {
-                            state |= 256 /* ContainsFragment */;
-                            separatorAllowed$1 = this$1.scanNumericFragment(separatorAllowed$1);
+                        if (next && ch === 95 /* Underscore */) {
+                            state = this$1.scanNumericFragment(state);
                             continue;
                         }
-                        separatorAllowed$1 = true;
+                        state |= 1024 /* AllowSeparator */;
                         if (ch < 48 /* Zero */ || 57 /* Nine */ < ch)
                             { break; }
                         if (ch < 48 /* Zero */ || ch >= 56 /* Eight */) {
@@ -1263,8 +1256,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
             case 98 /* LowerB */:
             case 66 /* UpperB */:
                 {
-                    state = 32 /* Binary */;
-                    var separatorAllowed$2 = true;
+                    state = 32 /* Binary */ | 1024 /* AllowSeparator */;
                     ch = this.scanNext(0 /* Unexpected */);
                     // Invalid:  '0b'
                     if (ch !== 48 /* Zero */ && ch !== 49 /* One */) {
@@ -1274,12 +1266,11 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                     this.advance();
                     while (this.hasNext()) {
                         ch = this$1.nextChar();
-                        if (ch === 95 /* Underscore */) {
-                            state |= 256 /* ContainsFragment */;
-                            separatorAllowed$2 = this$1.scanNumericFragment(separatorAllowed$2);
+                        if (next && ch === 95 /* Underscore */) {
+                            state = this$1.scanNumericFragment(state);
                             continue;
                         }
-                        separatorAllowed$2 = true;
+                        state |= 1024 /* AllowSeparator */;
                         if (ch < 48 /* Zero */ || 57 /* Nine */ < ch)
                             { break; }
                         if (!(ch === 48 /* Zero */ || ch === 49 /* One */)) {
@@ -1305,23 +1296,14 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
             case 54 /* Six */:
             case 55 /* Seven */:
                 {
-                    state |= 4 /* ImplicitOctal */;
-                    var separatorAllowed$3 = true;
+                    state |= 4 /* ImplicitOctal */ | 1024 /* AllowSeparator */;
                     while (this.hasNext()) {
                         ch = this$1.nextChar();
                         if (ch === 95 /* Underscore */) {
-                            state |= 256 /* ContainsFragment */;
-                            this$1.flags |= 1 /* ContainsSeparator */;
-                            if (separatorAllowed$3) {
-                                separatorAllowed$3 = false;
-                            }
-                            else {
-                                this$1.error(112 /* InvalidNumericSeparators */);
-                            }
-                            this$1.advance();
+                            state = this$1.scanNumericFragment(state);
                             continue;
                         }
-                        separatorAllowed$3 = true;
+                        state |= 1024 /* AllowSeparator */;
                         if (ch === 56 /* Eight */ || ch === 57 /* Nine */) {
                             state = 2 /* DecimalWithLeadingZero */;
                             break;
@@ -1351,6 +1333,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
     if (this.flags & 16777216 /* OptionsNext */) {
         mainFragment = this.scanDecimalDigitsOrFragment();
         if (this.nextChar() === 46 /* Period */) {
+            state |= 128 /* Float */;
             this.advance();
             decimalFragment = this.scanDecimalDigitsOrFragment();
         }
@@ -1368,16 +1351,11 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
     }
     var end = this.index;
     // BigInt - Stage 3 proposal
-    if (this.nextChar() === 110 /* LowerN */) {
+    if (this.flags & 16777216 /* OptionsNext */ && this.nextChar() === 110 /* LowerN */) {
         // E.g. Invalid MV number - '2017.8n;'
         if (state & (2 /* DecimalWithLeadingZero */ | 4 /* ImplicitOctal */ | 128 /* Float */)) {
             this.error(0 /* Unexpected */);
         }
-        // Check that the literal is within our limits for BigInt length.
-        // For simplicity, use 4 bits per character to calculate the maximum
-        // allowed literal length.
-        var length = start - this.index - state & 1 /* Decimal */ ? 0 : 2;
-        // if (length > maxBigIntCharacters) this.error(Errors.Unexpected);
         state |= 64 /* BigInt */;
         this.advance();
     }
@@ -1413,7 +1391,10 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
             default: // ignore
         }
     }
-    if (!(state & 256 /* ContainsFragment */) && this.flags & 1 /* ContainsSeparator */) {
+    if (state & (4 /* ImplicitOctal */ | 2 /* DecimalWithLeadingZero */)) {
+        this.flags |= 262144 /* Octal */;
+    }
+    if (this.flags & 16777216 /* OptionsNext */ && !(state & 256 /* ContainsFragment */) && this.flags & 1 /* ContainsSeparator */) {
         var result = mainFragment;
         if (decimalFragment) {
             result += '.' + decimalFragment;
@@ -1429,8 +1410,6 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
         // For example : 3in is an error and not the two input elements 3 and in
         if (isIdentifierStart(this.nextChar()))
             { this.error(0 /* Unexpected */); }
-        if (state & (4 /* ImplicitOctal */ | 2 /* DecimalWithLeadingZero */))
-            { this.flags |= 262144 /* Octal */; }
         if (!value || !(state & (4 /* ImplicitOctal */ | 56 /* Boh */)))
             { this.tokenValue = parseFloat(this.source.substring(start, end)); }
     }
@@ -3038,6 +3017,8 @@ Parser.prototype.parseVariableStatement = function parseVariableStatement (conte
 
     var pos = this.getLocations();
     var token = this.token;
+    if (this.flags & 2 /* ExtendedUnicodeEscape */)
+        { this.error(64 /* UnexpectedEscapedKeyword */); }
     this.nextToken(context);
     var declarations = this.parseVariableDeclarationList(context);
     if (shouldConsume)
@@ -3122,6 +3103,8 @@ Parser.prototype.parseExpression = function parseExpression (context, pos) {
     });
 };
 Parser.prototype.parseYieldExpression = function parseYieldExpression (context, pos) {
+    if (this.flags & 2 /* ExtendedUnicodeEscape */)
+        { this.error(64 /* UnexpectedEscapedKeyword */); }
     this.expect(context, 282730 /* YieldKeyword */);
     var argument = null;
     var delegate = false;

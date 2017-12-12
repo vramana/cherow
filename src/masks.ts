@@ -145,6 +145,7 @@ export const enum NumericState {
    Float                    = 1 << 7,
    ContainsFragment         = 1 << 8,
    ContainsSeparator        = 1 << 9,
+   AllowSeparator           = 1 << 10,
    Boh = Binary | Octal | Hex
 }
 

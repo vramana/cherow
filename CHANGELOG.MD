@@ -76,3 +76,6 @@
 - Refactor block scoping
 - Fixed early errors for module code
 - Throws correctly on duplicate import / export
+
+*2017-12-12: Version 0.17.0*
+- Implemented Numeric Separators (Stage 3)

@@ -21,7 +21,7 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 * Optimized for handheld devices
 * Optional tracking of syntax node location (index-based and line-column)
 * Parameterized plugin system
-* Heavily tested (~30 000 [Test262 unit tests](https://github.com/tc39/test262) and 2100 *locale* tests)
+* Heavily tested (~30 000 [Test262 unit tests](https://github.com/tc39/test262) and ~2200 *locale* tests)
 
 ## ESNext features
 
@@ -30,6 +30,7 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 * [Import()](https://github.com/tc39/proposal-dynamic-import)
 * [Asynchronous Iteration](https://github.com/tc39/proposal-async-iteration)
 * [Class Fields](https://github.com/tc39/proposal-class-fields)
+* [Numeric Separators](https://github.com/tc39/proposal-numeric-separator)
 * [Private methods and fields](https://github.com/tc39/proposal-private-methods)
 * [Rest/Spread Properties](https://github.com/tc39/proposal-object-rest-spread)
 * [Optional catch binding](https://github.com/tc39/proposal-optional-catch-binding)
