@@ -285,6 +285,8 @@ ErrorMessages[108 /* NewTargetArrow */] = 'new.target must be within function (b
 ErrorMessages[109 /* UndefinedInClassScope */] = '\'%0\'  not defined in class scope';
 ErrorMessages[110 /* InvalidComputedClassProperty */] = 'Invalid computed name in private property';
 ErrorMessages[111 /* InvalidFieldConstructor */] = 'Classes may not have a private field named \'#constructor\'';
+ErrorMessages[112 /* InvalidNumericSeparators */] = 'Numeric separators are not allowed here';
+ErrorMessages[113 /* InvalidRestDefaultValue */] = 'Rest elements cannot have a default value';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -1143,11 +1145,30 @@ Parser.prototype.peekExtendedUnicodeEscape = function peekExtendedUnicodeEscape 
     }
     return code;
 };
-Parser.prototype.scanDecimalDigits = function scanDecimalDigits () {
+Parser.prototype.scanDecimalDigitsOrFragment = function scanDecimalDigitsOrFragment () {
         var this$1 = this;
 
-    scan: while (this.hasNext()) {
+    var start = this.index;
+    var allowSeparator = false;
+    var result = '';
+    var next = this.flags & 16777216;
+    loop: while (this.hasNext()) {
         switch (this$1.nextChar()) {
+            case 95 /* Underscore */:
+                if (!next)
+                    { break; }
+                
+                this$1.flags |= 1 /* ContainsSeparator */;
+                if (allowSeparator) {
+                    allowSeparator = false;
+                    result += this$1.source.substring(start, this$1.index);
+                }
+                else {
+                    this$1.error(112 /* InvalidNumericSeparators */);
+                }
+                this$1.advance();
+                start = this$1.index;
+                continue;
             case 48 /* Zero */:
             case 49 /* One */:
             case 50 /* Two */:
@@ -1158,19 +1179,35 @@ Parser.prototype.scanDecimalDigits = function scanDecimalDigits () {
             case 55 /* Seven */:
             case 56 /* Eight */:
             case 57 /* Nine */:
+                allowSeparator = true;
                 this$1.advance();
                 break;
             default:
-                break scan;
+                break loop;
         }
     }
+    if (next && this.source.charCodeAt(this.index - 1) === 95 /* Underscore */) {
+        this.error(112 /* InvalidNumericSeparators */);
+    }
+    return result + this.source.substring(start, this.index);
+};
+Parser.prototype.scanNumericFragment = function scanNumericFragment (separatorAllowed) {
+    this.flags |= 1 /* ContainsSeparator */;
+    if (separatorAllowed) {
+        separatorAllowed = false;
+    }
+    else {
+        this.error(112 /* InvalidNumericSeparators */);
+    }
+    this.advance();
+    return separatorAllowed;
 };
 Parser.prototype.scanNumber = function scanNumber (context, ch) {
         var this$1 = this;
 
-    var state = 1;
     var start = this.index;
-    var value = 0;
+    var state = 1;
+    var value = undefined;
     if (ch === 48 /* Zero */) {
         this.advance();
         ch = this.nextChar();
@@ -1179,6 +1216,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
             case 88 /* UpperX */:
                 {
                     state = 8 /* Hex */;
+                    var separatorAllowed = true;
                     ch = this.scanNext(0 /* Unexpected */);
                     value = toHex(ch);
                     if (value < 0)
@@ -1186,6 +1224,11 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                     this.advance();
                     while (this.hasNext()) {
                         ch = this$1.nextChar();
+                        if (ch === 95 /* Underscore */) {
+                            state |= 256 /* ContainsFragment */;
+                            separatorAllowed = this$1.scanNumericFragment(separatorAllowed);
+                            continue;
+                        }
                         var digit = toHex(ch);
                         if (digit < 0)
                             { break; }
@@ -1198,6 +1241,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
             case 79 /* UpperO */:
                 {
                     state = 16 /* Octal */;
+                    var separatorAllowed$1 = true;
                     ch = this.scanNext(0 /* Unexpected */);
                     value = ch - 48 /* Zero */;
                     // we must have at least one octal digit after 'o'/'O'
@@ -1206,6 +1250,12 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                     this.advance();
                     while (this.hasNext()) {
                         ch = this$1.nextChar();
+                        if (ch === 95 /* Underscore */) {
+                            state |= 256 /* ContainsFragment */;
+                            separatorAllowed$1 = this$1.scanNumericFragment(separatorAllowed$1);
+                            continue;
+                        }
+                        separatorAllowed$1 = true;
                         if (ch < 48 /* Zero */ || 57 /* Nine */ < ch)
                             { break; }
                         if (ch < 48 /* Zero */ || ch >= 56 /* Eight */) {
@@ -1220,6 +1270,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
             case 66 /* UpperB */:
                 {
                     state = 32 /* Binary */;
+                    var separatorAllowed$2 = true;
                     ch = this.scanNext(0 /* Unexpected */);
                     // Invalid:  '0b'
                     if (ch !== 48 /* Zero */ && ch !== 49 /* One */) {
@@ -1229,6 +1280,12 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                     this.advance();
                     while (this.hasNext()) {
                         ch = this$1.nextChar();
+                        if (ch === 95 /* Underscore */) {
+                            state |= 256 /* ContainsFragment */;
+                            separatorAllowed$2 = this$1.scanNumericFragment(separatorAllowed$2);
+                            continue;
+                        }
+                        separatorAllowed$2 = true;
                         if (ch < 48 /* Zero */ || 57 /* Nine */ < ch)
                             { break; }
                         if (!(ch === 48 /* Zero */ || ch === 49 /* One */)) {
@@ -1239,6 +1296,12 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                     }
                     break;
                 }
+            case 95 /* Underscore */:
+                if (!(this.flags & 16777216 /* OptionsNext */))
+                    { break; }
+                state |= 256 /* ContainsFragment */;
+                this.flags |= 1 /* ContainsSeparator */;
+                this.advance();
             case 48 /* Zero */:
             case 49 /* One */:
             case 50 /* Two */:
@@ -1248,9 +1311,23 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
             case 54 /* Six */:
             case 55 /* Seven */:
                 {
-                    state = 4 /* ImplicitOctal */;
+                    state |= 4 /* ImplicitOctal */;
+                    var separatorAllowed$3 = true;
                     while (this.hasNext()) {
                         ch = this$1.nextChar();
+                        if (ch === 95 /* Underscore */) {
+                            state |= 256 /* ContainsFragment */;
+                            this$1.flags |= 1 /* ContainsSeparator */;
+                            if (separatorAllowed$3) {
+                                separatorAllowed$3 = false;
+                            }
+                            else {
+                                this$1.error(112 /* InvalidNumericSeparators */);
+                            }
+                            this$1.advance();
+                            continue;
+                        }
+                        separatorAllowed$3 = true;
                         if (ch === 56 /* Eight */ || ch === 57 /* Nine */) {
                             state = 2 /* DecimalWithLeadingZero */;
                             break;
@@ -1267,37 +1344,39 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                 state = 2 /* DecimalWithLeadingZero */;
             default: // ignore
         }
-    }
-    // Fast path for plain decimal numbers
-    if (state & 1 /* Decimal */) {
-        while (ch >= 48 /* Zero */ && ch <= 57 /* Nine */) {
-            value = 10 * value + (ch - 48 /* Zero */);
-            this$1.advance();
-            ch = this$1.nextChar();
+        if (state & 256 /* ContainsFragment */) {
+            if (this.source.charCodeAt(this.index - 1) === 95 /* Underscore */) {
+                this.error(112 /* InvalidNumericSeparators */);
+            }
         }
-        if (ch !== 46 /* Period */ && !isIdentifierStart(ch)) {
-            if (this.flags & 8388608 /* OptionsRaw */)
-                { this.storeRaw(start); }
-            this.tokenValue = value;
-            return 262146 /* NumericLiteral */;
+        this.tokenValue = value;
+    }
+    var mainFragment = '';
+    var decimalFragment = '';
+    var scientificFragment = '';
+    if (this.flags & 16777216 /* OptionsNext */) {
+        mainFragment = this.scanDecimalDigitsOrFragment();
+        if (this.nextChar() === 46 /* Period */) {
+            this.advance();
+            decimalFragment = this.scanDecimalDigitsOrFragment();
         }
-        // falls through
     }
-    this.scanDecimalDigits();
-    ch = this.nextChar();
-    if (ch === 46 /* Period */) {
-        // Invalid: '06.7'
-        if (state & 4 /* ImplicitOctal */)
-            { this.error(0 /* Unexpected */); }
-        state |= 128 /* Float */;
-        this.advance();
-        this.scanDecimalDigits();
+    else {
+        this.scanDecimalDigitsOrFragment();
+        if (this.nextChar() === 46 /* Period */) {
+            state |= 128 /* Float */;
+            // Invalid: '06.7'
+            if (state & 4 /* ImplicitOctal */)
+                { this.error(0 /* Unexpected */); }
+            this.advance();
+            this.scanDecimalDigitsOrFragment();
+        }
     }
+    var end = this.index;
     // BigInt - Stage 3 proposal
-    if (this.nextChar() === 110 /* LowerN */ &&
-        state & (1 /* Decimal */ | 56 /* Boh */ | 2 /* DecimalWithLeadingZero */)) {
+    if (this.nextChar() === 110 /* LowerN */) {
         // E.g. Invalid MV number - '2017.8n;'
-        if (state & (2 /* DecimalWithLeadingZero */ | 128 /* Float */)) {
+        if (state & (2 /* DecimalWithLeadingZero */ | 4 /* ImplicitOctal */ | 128 /* Float */)) {
             this.error(0 /* Unexpected */);
         }
         // Check that the literal is within our limits for BigInt length.
@@ -1311,9 +1390,8 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
     else if (!(state & 56 /* Boh */)) {
         state |= 128 /* Float */;
         switch (this.nextChar()) {
-            case 101 /* LowerE */:
             case 69 /* UpperE */:
-                // scan exponent
+            case 101 /* LowerE */:
                 this.advance();
                 switch (this.nextChar()) {
                     case 45 /* Hyphen */:
@@ -1327,31 +1405,46 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                 // check for unexpected mantissa
                 if (!(ch >= 48 /* Zero */ && ch <= 57 /* Nine */))
                     { this.error(0 /* Unexpected */); }
-                this.scanDecimalDigits();
+                if (this.flags & 16777216 /* OptionsNext */) {
+                    var preNumericPart = this.index;
+                    var finalFragment = this.scanDecimalDigitsOrFragment();
+                    if (!finalFragment)
+                        { this.error(90 /* UnexpectedTokenNumber */); }
+                    scientificFragment = this.source.substring(end, preNumericPart) + finalFragment;
+                }
+                else {
+                    this.scanDecimalDigitsOrFragment();
+                }
+                end = this.index;
             default: // ignore
         }
     }
-    // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
-    // The SourceCharacter immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
-    // For example : 3in is an error and not the two input elements 3 and in
-    if (isIdentifierStart(this.nextChar()))
-        { this.error(0 /* Unexpected */); }
-    if (state & (56 /* Boh */ | 4 /* ImplicitOctal */)) {
-        if (this.flags & 8388608 /* OptionsRaw */)
-            { this.storeRaw(start); }
+    if (!(state & 256 /* ContainsFragment */) && this.flags & 1 /* ContainsSeparator */) {
+        var result = mainFragment;
+        if (decimalFragment) {
+            result += '.' + decimalFragment;
+        }
+        if (scientificFragment) {
+            result += scientificFragment;
+        }
+        this.tokenValue = parseFloat(result);
+    }
+    else if (!(this.flags & 16777216 /* OptionsNext */)) {
+        // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
+        // The SourceCharacter immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
+        // For example : 3in is an error and not the two input elements 3 and in
+        if (isIdentifierStart(this.nextChar()))
+            { this.error(0 /* Unexpected */); }
         if (state & (4 /* ImplicitOctal */ | 2 /* DecimalWithLeadingZero */))
             { this.flags |= 262144 /* Octal */; }
-        this.tokenValue = value;
+        if (!value || !(state & (4 /* ImplicitOctal */ | 56 /* Boh */)))
+            { this.tokenValue = parseFloat(this.source.substring(start, end)); }
     }
-    else {
-        var rawValue = this.source.slice(start, this.index);
-        if (state & (4 /* ImplicitOctal */ | 2 /* DecimalWithLeadingZero */))
-            { this.flags |= 262144 /* Octal */; }
-        if (this.flags & 8388608 /* OptionsRaw */)
-            { this.tokenRaw = rawValue; }
-        // avoid unnecessarily dispatching to parseFloat.
-        this.tokenValue = state & 128 /* Float */ ? parseFloat(rawValue) : parseInt(rawValue);
+    else if (!value) {
+        this.tokenValue = parseFloat(this.source.substring(start, end));
     }
+    if (this.flags & 8388608 /* OptionsRaw */)
+        { this.tokenRaw = this.source.slice(start, this.index); }
     return state & 64 /* BigInt */ ? 118 /* BigInt */ : 262146 /* NumericLiteral */;
 };
 Parser.prototype.scanRegularExpression = function scanRegularExpression () {
@@ -3165,12 +3258,11 @@ Parser.prototype.reinterpretAsPattern = function reinterpretAsPattern (context, 
             return;
         case 'SpreadElement':
             params.type = 'RestElement';
-            if (context & 524288 /* ForStatement */ && params.argument.type === 'AssignmentExpression') {
-                this.error(33 /* InvalidLHSInForIn */);
-            }
         // Fall through
         case 'RestElement':
             this.reinterpretAsPattern(context, params.argument);
+            if (params.argument.type === 'AssignmentPattern')
+                { this.error(113 /* InvalidRestDefaultValue */); }
             return;
         case 'MemberExpression':
         case 'MetaProperty':

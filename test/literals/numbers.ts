@@ -30,6 +30,10 @@ describe('Statements - Block', () => {
         source: '00b0;',
     });
 
+    fail(`"use strict"; 01;`, {
+      source: '"use strict"; 01;',
+    });
+
     fail(`0\\u00620;`, {
         source: '0\\u00620;',
     });
@@ -81,6 +85,34 @@ describe('Statements - Block', () => {
     fail(`0b1a;`, {
         source: '0b1a',
     });
+
+    pass(`44`, {
+      source: '44',
+      raw: true,
+      ranges: true,
+      // next: true,
+      expected: {
+        "type": "Program",
+        "start": 0,
+        "end": 2,
+        "body": [
+          {
+            "type": "ExpressionStatement",
+            "start": 0,
+            "end": 2,
+            "expression": {
+              "type": "Literal",
+              "start": 0,
+              "end": 2,
+              "value": 44,
+              "raw": "44"
+            }
+          }
+        ],
+        "sourceType": "script"
+      }
+    });
+
 
     pass(`8E+01`, {
             source: '8E+01',

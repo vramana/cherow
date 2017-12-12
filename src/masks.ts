@@ -77,7 +77,7 @@ export const enum Flags {
     OptionsTolerant              = 1 << 29,
     OptionsPlugins               = 1 << 30,
     Duplicate                    = 1 << 31,
-    TaggedTemplate                = 1 << 32,
+    ContainsSeparator                = 1 << 32,
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc,
 
@@ -134,6 +134,7 @@ export const enum ScanState {
 }
 
 export const enum NumericState {
+   None = 0,
    Decimal                  = 1 << 0,
    DecimalWithLeadingZero   = 1 << 1,
    ImplicitOctal            = 1 << 2,
@@ -142,6 +143,8 @@ export const enum NumericState {
    Binary                   = 1 << 5,
    BigInt                   = 1 << 6,
    Float                    = 1 << 7,
+   ContainsFragment         = 1 << 8,
+   ContainsSeparator        = 1 << 9,
    Boh = Binary | Octal | Hex
 }
 

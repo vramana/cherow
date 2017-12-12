@@ -2,13 +2,16 @@ import { pass, fail } from '../utils';
 
 describe('Next - BigInt', () => {
    
-    fail('invalid float', { source: `1.0n`});
-    fail('invalid exponent', { source: `2e9n`});
-    fail('invalid noctal', { source: `016432n`});
+    fail('invalid float', { source: `1.0n`, next: true});
+    fail('invalid exponent', { source: `2e9n`, next: true});
+    fail('invalid noctal', { source: `016432n`, next: true});
+    fail('invalid MV', { source: `2017.8n;`, next: true});
+    fail('invalid noctal', { source: `.0000000001n;`, next: true});
 
     pass(`0b101011101n`, {
         source: '0b101011101n',
         loc: true,
+        next: true,
         ranges: true,
         raw: true,
         expected: {
@@ -68,6 +71,7 @@ describe('Next - BigInt', () => {
         source: '0o16432n',
         loc: true,
         ranges: true,
+        next: true,
         raw: true,
         expected: {
             "type": "Program",
@@ -126,6 +130,7 @@ describe('Next - BigInt', () => {
         source: '0xFFF123n',
         loc: true,
         ranges: true,
+        next: true,
         raw: true,
         expected: {
             "type": "Program",
@@ -185,6 +190,7 @@ describe('Next - BigInt', () => {
         loc: true,
         ranges: true,
         raw: true,
+        next: true,
         expected: {
             "body": [
               {
@@ -243,6 +249,7 @@ describe('Next - BigInt', () => {
         loc: true,
         ranges: true,
         raw: true,
+        next: true,
         expected: {
             "body": [
               {
@@ -300,6 +307,7 @@ describe('Next - BigInt', () => {
         source: '-(-1n)',
         loc: true,
         ranges: true,
+        next: true,
         raw: true,
         expected: {
             "type": "Program",
@@ -392,6 +400,7 @@ describe('Next - BigInt', () => {
         source: '- - 1n',
         loc: true,
         ranges: true,
+        next: true,
         raw: true,
         expected: {
             "type": "Program",
