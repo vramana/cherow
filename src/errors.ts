@@ -119,6 +119,11 @@ export const enum Errors {
     InvalidLhsInPostfixOp,
     InvalidLhsInPrefixOp,
     InvalidDestructuringTarget,
+    UnterminatedEscape,
+    NoRegExpRepGrpToTerminate,
+    NoRegExpRepitation,
+    UnmatchedRegExpGroupName,
+    InvalidRegExpGroup
 }
 
 export const ErrorMessages: {
@@ -238,6 +243,11 @@ export const ErrorMessages: {
     [Errors.InvalidLhsInPostfixOp]: 'Invalid left-hand side expression in postfix operation',
     [Errors.InvalidLhsInPrefixOp]: 'Invalid left-hand side expression in prefix operation',
     [Errors.InvalidDestructuringTarget]: 'Invalid destructuring assignment target',
+    [Errors.UnterminatedEscape]: 'Unterminated escape in regular expression',
+    [Errors.NoRegExpRepGrpToTerminate]: 'No group to terminate',
+    [Errors.NoRegExpRepitation]: 'Nothing to repeat',
+    [Errors.UnmatchedRegExpGroupName]: 'Unmatched group name \'%0\'',
+    [Errors.InvalidRegExpGroup]: 'Invalid regexp group',
 };
 
 function constructError(msg: string, column: number): Error {

@@ -998,7 +998,7 @@ export class Parser {
         if (!(state & NumericState.AllowSeparator)) {
             this.error(Errors.InvalidNumericSeparators);
         }
-        state &= ~NumericState.AllowSeparator
+        state &= ~NumericState.AllowSeparator;
         this.advance();
         return state;
     }
@@ -1006,7 +1006,7 @@ export class Parser {
     private scanNumber(context: Context, ch: number): Token {
         const start = this.index;
         let state = NumericState.None;
-        let value: any = undefined;
+        let value: any;
 
         const next = this.flags & Flags.OptionsNext;
 
@@ -1221,13 +1221,12 @@ export class Parser {
                     if (this.flags & Flags.OptionsNext) {
                         const preNumericPart = this.index;
                         const finalFragment = this.scanDecimalDigitsOrFragment();
-                        if (!finalFragment) this.error(Errors.UnexpectedNumber)
+                        if (!finalFragment) this.error(Errors.UnexpectedNumber);
 
                         scientificFragment = this.source.substring(end, preNumericPart) + finalFragment;
                     } else {
                         this.scanDecimalDigitsOrFragment();
                     }
-                    end = this.index;
 
                 default: // ignore
             }
@@ -1261,7 +1260,7 @@ export class Parser {
         if (!value || !(state & (NumericState.ImplicitOctal | NumericState.Boh))) {
             this.tokenValue = NumericState.Float ?
                 parseFloat(rawValue) :
-                parseInt(rawValue)
+                parseInt(rawValue, 10);
         }
 
         if (this.flags & Flags.OptionsRaw) this.tokenRaw = rawValue;
@@ -1308,7 +1307,6 @@ export class Parser {
             }
 
         const bodyEnd = this.index - 1; // drop the slash from the slice
-
         const flagsStart = this.index;
 
         let mask = RegexFlags.None;
@@ -1389,6 +1387,7 @@ export class Parser {
             return null;
         }
     }
+
 
     private scanString(context: Context, quote: number): Token {
 
@@ -1626,7 +1625,7 @@ export class Parser {
         const start = this.index;
         const lastChar = this.lastChar;
         let tail = true;
-        let ret: string | void | null = '';
+        let ret: string | null = '';
 
         let ch = this.scanNext(Errors.UnterminatedTemplate);
 
@@ -1674,7 +1673,6 @@ export class Parser {
                             } else {
                                 this.handleStringError(code as Escape);
                             }
-                            ch = this.lastChar;
                         }
 
                         break;
@@ -1728,15 +1726,9 @@ export class Parser {
                         break;
                     }
 
-                    // '/'
-                case Chars.Backslash:
-                    ch = this.scanNext();
-                    break;
-
                     // LineTerminators
                 case Chars.CarriageReturn:
                     if (this.hasNext() && this.nextChar() === Chars.LineFeed) {
-                        ch = this.nextChar();
                         this.index++;
                     }
                     // falls through

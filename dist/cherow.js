@@ -291,6 +291,11 @@ ErrorMessages[114 /* InvalidBigIntLiteral */] = 'Invalid BigIntLiteral';
 ErrorMessages[115 /* InvalidLhsInPostfixOp */] = 'Invalid left-hand side expression in postfix operation';
 ErrorMessages[116 /* InvalidLhsInPrefixOp */] = 'Invalid left-hand side expression in prefix operation';
 ErrorMessages[117 /* InvalidDestructuringTarget */] = 'Invalid destructuring assignment target';
+ErrorMessages[118 /* UnterminatedEscape */] = 'Unterminated escape in regular expression';
+ErrorMessages[119 /* NoRegExpRepGrpToTerminate */] = 'No group to terminate';
+ErrorMessages[120 /* NoRegExpRepitation */] = 'Nothing to repeat';
+ErrorMessages[121 /* UnmatchedRegExpGroupName */] = 'Unmatched group name \'%0\'';
+ErrorMessages[122 /* InvalidRegExpGroup */] = 'Invalid regexp group';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -1205,7 +1210,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
 
     var start = this.index;
     var state = 0;
-    var value = undefined;
+    var value;
     var next = this.flags & 8388608;
     if (ch === 48 /* Zero */) {
         this.advance();
@@ -1393,7 +1398,6 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                 else {
                     this.scanDecimalDigitsOrFragment();
                 }
-                end = this.index;
             default: // ignore
         }
     }
@@ -1792,7 +1796,6 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
                     else {
                         this$1.handleStringError(code);
                     }
-                    ch = this$1.lastChar;
                 }
                 break;
             // Line terminators
@@ -1838,14 +1841,9 @@ Parser.prototype.scanLooserTemplateSegment = function scanLooserTemplateSegment 
                     }
                     break;
                 }
-            // '/'
-            case 92 /* Backslash */:
-                ch = this$1.scanNext();
-                break;
             // LineTerminators
             case 13 /* CarriageReturn */:
                 if (this$1.hasNext() && this$1.nextChar() === 10 /* LineFeed */) {
-                    ch = this$1.nextChar();
                     this$1.index++;
                 }
             // falls through

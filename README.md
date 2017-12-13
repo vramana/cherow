@@ -35,7 +35,9 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 * [Rest/Spread Properties](https://github.com/tc39/proposal-object-rest-spread)
 * [Optional catch binding](https://github.com/tc39/proposal-optional-catch-binding)
 * [BigInt](https://github.com/tc39/proposal-bigint)
-* [Regexp dotall flag](https://github.com/tc39/proposal-regexp-dotall-flag)
+* [RegExp Lookbehind Assertions](https://github.com/tc39/proposal-regexp-lookbehind)
+* [RegExp named capture groups](https://github.com/tc39/proposal-regexp-named-groups)
+* [s (dotAll) flag for regular expressions](https://github.com/tc39/proposal-regexp-dotall-flag)
 * [Import.meta](https://github.com/tc39/proposal-import-meta)
 * [Throw expressions](https://github.com/tc39/proposal-throw-expressions)
 
