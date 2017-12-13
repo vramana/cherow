@@ -82,3 +82,6 @@
 
 *2017-12-12: Version 0.17.2*
 - Fixed infinity loop in Numeric Separators if next option not set
+
+*2017-12-12: Version 0.17.6*
+- Fixed a couple of HTML single line comments issues in sloppy mode code

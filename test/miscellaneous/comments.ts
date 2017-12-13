@@ -7,6 +7,19 @@ describe('Miscellaneous - Comments', () => {
         x*/`,
     });
 
+    fail(`single and multi line comments used together`, {
+        source: `<!-`,
+    });
+
+    fail(`single and multi line comments used together`, {
+        source: `<!`,
+    });
+
+    fail(`single and multi line comments used together`, {
+        source: `// var /* 
+        x*/`,
+    });
+
     fail(`nested multi line comments`, {
         source: `/* x */
         = 1;

@@ -509,11 +509,10 @@ Parser.prototype.scanNext = function scanNext (err /* UnterminatedString */) {
     return this.peekUnicodeChar();
 };
 Parser.prototype.peekUnicodeChar = function peekUnicodeChar () {
-    var index = this.index;
-    var hi = this.source.charCodeAt(index);
+    var hi = this.source.charCodeAt(this.index);
     if (hi < 55296 /* LeadSurrogateMin */ || hi > 56319 /* LeadSurrogateMax */)
         { return hi; }
-    var lo = this.source.charCodeAt(index + 1);
+    var lo = this.source.charCodeAt(this.index + 1);
     if (lo < 56320 /* TrailSurrogateMin */ || lo > 57343 /* TrailSurrogateMax */)
         { return hi; }
     var a = hi & 0x3FF;
@@ -646,12 +645,15 @@ Parser.prototype.scan = function scan (context) {
                         case 33 /* Exclamation */:
                             {
                                 if (!(context & 1 /* Module */)) {
-                                    this$1.advance();
-                                    if (this$1.consume(45 /* Hyphen */) &&
-                                        this$1.consume(45 /* Hyphen */)) {
-                                        this$1.skipComments(state | 16 /* SingleLine */);
+                                    this$1.advance(); // skip `<`
+                                    // Double 'hyphen' because of the "look and feel" of
+                                    // the HTML single line comment (<!--)
+                                    if (this$1.consume(45 /* Hyphen */)) {
+                                        if (this$1.consume(45 /* Hyphen */)) {
+                                            this$1.skipComments(state | 16 /* SingleLine */);
+                                            continue;
+                                        }
                                     }
-                                    continue;
                                 }
                             }
                         default:
@@ -1080,11 +1082,10 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context, state) {
                 break;
             default:
                 if (code >= 55296 /* LeadSurrogateMin */ && code <= 57343 /* TrailSurrogateMax */) {
-                    code = this$1.peekUnicodeChar();
+                    this$1.peekUnicodeChar();
                 }
-                else if (!isIdentifierPart(code)) {
-                    break loop;
-                }
+                else if (!isIdentifierPart(code))
+                    { break loop; }
                 this$1.advance();
         }
     }
@@ -1098,8 +1099,9 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context, state) {
         { return 134479873 /* Identifier */; }
     // Keywords are between 2 and 11 characters long and start with a lowercase letter
     if (len >= 2 && len <= 11) {
-        if (context & 268435456 /* ValidateEscape */ && this.flags & 2 /* ExtendedUnicodeEscape */)
-            { this.error(64 /* UnexpectedEscapedKeyword */); }
+        if (context & 268435456 /* ValidateEscape */ && this.flags & 2 /* ExtendedUnicodeEscape */) {
+            this.error(64 /* UnexpectedEscapedKeyword */);
+        }
         var token = descKeyword(ret);
         if (token > 0)
             { return token; }
@@ -2058,14 +2060,11 @@ Parser.prototype.isIdentifier = function isIdentifier (context, t) {
             { return true; }
         if (t === 282730 /* YieldKeyword */)
             { return false; }
-        //if (t === Token.AwaitKeyword && context & Context.Await) return false;
         return t === 134479873 /* Identifier */ ||
             (t & 69632 /* Contextual */) === 69632 /* Contextual */;
     }
     if (t & 134217728 /* EvalOrArguments */)
         { return true; }
-    // if (t === Token.YieldKeyword && context & Context.Yield) return false;
-    //if (t === Token.AwaitKeyword && context & Context.Await) return false;
     return t === 134479873 /* Identifier */ ||
         (t & 69632 /* Contextual */) === 69632 /* Contextual */ ||
         (t & 20480 /* FutureReserved */) === 20480 /* FutureReserved */;
@@ -2615,7 +2614,7 @@ Parser.prototype.parseThrowStatement = function parseThrowStatement (context) {
 };
 Parser.prototype.parseWithStatement = function parseWithStatement (context) {
     var pos = this.getLocations();
-    // Strict mode code may not include a WithStatement. The occurrence of a WithStatement in such 
+    // Strict mode code may not include a WithStatement. The occurrence of a WithStatement in such
     // a context is an grammar error
     if (context & 2 /* Strict */)
         { this.error(22 /* StrictModeWith */); }
@@ -4027,8 +4026,8 @@ Parser.prototype.parseClass = function parseClass (context) {
     classBody = this.parseClassBody(context & ~33554432 /* Expression */ | 2 /* Strict */, flags);
     if (next) {
         if (this.fieldSet !== undefined) {
-            var scope = undefined;
-            var method = undefined;
+            var scope;
+            var method;
             var key;
             for (var i = 0; i < this.fieldSet.length; i++) {
                 key = this$1.fieldSet[i].key;

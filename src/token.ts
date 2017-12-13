@@ -167,12 +167,9 @@ export const enum Token {
 
     /** State 3 proposals */
     Hash               = 117,
-
-    BigInt               = 118,
-
+    BigInt             = 118,
     Eval               = 119 | EvalOrArguments,
-    Arguments           = 120 | EvalOrArguments,
-    
+    Arguments          = 120 | EvalOrArguments,
 }
 
 const KeywordDescTable = [
