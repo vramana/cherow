@@ -77,6 +77,7 @@ export const enum Flags {
     OptionsPlugins               = 1 << 29,
     Duplicate                    = 1 << 30,
     ContainsSeparator            = 1 << 31,
+    
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc,
 

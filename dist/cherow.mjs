@@ -284,6 +284,7 @@ ErrorMessages[113 /* InvalidRestDefaultValue */] = 'Rest elements cannot have a 
 ErrorMessages[114 /* InvalidBigIntLiteral */] = 'Invalid BigIntLiteral';
 ErrorMessages[115 /* InvalidLhsInPostfixOp */] = 'Invalid left-hand side expression in postfix operation';
 ErrorMessages[116 /* InvalidLhsInPrefixOp */] = 'Invalid left-hand side expression in prefix operation';
+ErrorMessages[117 /* InvalidDestructuringTarget */] = 'Invalid destructuring assignment target';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -2349,7 +2350,7 @@ Parser.prototype.parseImportDeclaration = function parseImportDeclaration (conte
             {
                 var tokenValue = this.tokenValue;
                 this.addBlockName(tokenValue);
-                specifiers.push(this.parseImportDefaultSpecifier(context));
+                specifiers.push(this.parseImportDefaultSpecifier(context | 268435456 /* ValidateEscape */));
                 if (this.parseOptional(context, 18 /* Comma */)) {
                     switch (this.token) {
                         case 2099763 /* Multiply */:
@@ -3234,7 +3235,7 @@ Parser.prototype.reinterpretAsPattern = function reinterpretAsPattern (context, 
                 { return; }
         // Fall through
         default:
-            this.throwUnexpectedToken();
+            this.error(117 /* InvalidDestructuringTarget */);
     }
 };
 Parser.prototype.parseArrowFunctionExpression = function parseArrowFunctionExpression (context, pos, params) {
@@ -3712,6 +3713,10 @@ Parser.prototype.parseFormalParameters = function parseFormalParameters (context
 };
 Parser.prototype.parseAsyncFunctionExpression = function parseAsyncFunctionExpression (context, pos) {
     var isEscaped = (this.flags & 2 /* ExtendedUnicodeEscape */) !== 0;
+    // Valid: `(\u0061sync ())`
+    if (isEscaped && !(context & 64 /* InParenthesis */)) {
+        this.error(0 /* Unexpected */);
+    }
     var id = this.parseIdentifier(context);
     var flags = this.flags |= 32768;
     switch (this.token) {
@@ -4173,6 +4178,8 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                 count++;
                 break;
             case 16846956 /* AsyncKeyword */:
+                if (this$1.flags & 2 /* ExtendedUnicodeEscape */)
+                    { this$1.error(0 /* Unexpected */); }
                 if (state & 48 /* Accessors */)
                     { break loop; }
                 state |= currentState = 2 /* Async */;

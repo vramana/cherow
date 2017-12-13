@@ -1,7 +1,7 @@
 import { pass, fail } from '../utils';
 
 describe('Expressions - Assignment', () => {
-    
+        
         pass(`x <<= 42`, {
             source: 'x <<= 42',
             loc: true,
@@ -2260,6 +2260,14 @@ describe('Expressions - Assignment', () => {
             loc: true,
             ranges: true,
             raw: true
+        });
+
+        fail(`42 = 42;`, {
+           source: '42 = 42;',
+        });
+
+        fail(`"x" = 42;`, {
+           source: '"x" = 42;',
         });
     
     });

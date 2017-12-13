@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2017 and later, Isiah Meadows. Licensed under the ISC License.
+ */
+ 
 const fs = require("fs")
 const path = require("path")
 const {AssertionError} = require("assert")
@@ -1875,7 +1879,7 @@ export default (opts: any) => {
             case "onlyStrict":
                 test("strict")
                 break
-            case "noStrict":
+
             case "noStrict":
                 test("non-strict")
                 break

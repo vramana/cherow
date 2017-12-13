@@ -2333,7 +2333,7 @@ export class Parser {
                 {
                     const tokenValue = this.tokenValue;
                     this.addBlockName(tokenValue)
-                    specifiers.push(this.parseImportDefaultSpecifier(context));
+                    specifiers.push(this.parseImportDefaultSpecifier(context | Context.ValidateEscape));
                     if (this.parseOptional(context, Token.Comma)) {
                         switch (this.token) {
                             case Token.Multiply:
@@ -3394,7 +3394,7 @@ export class Parser {
                 // Fall through
 
             default:
-                this.throwUnexpectedToken();
+                this.error(Errors.InvalidDestructuringTarget);
         }
     }
 
@@ -3967,6 +3967,11 @@ export class Parser {
         pos: Location
     ): ESTree.CallExpression | ESTree.ArrowFunctionExpression | ESTree.Identifier | void {
         const isEscaped = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
+        // Valid: `(\u0061sync ())`
+        if (isEscaped && !(context & Context.InParenthesis)) {
+            this.error(Errors.Unexpected);
+        }
+
         const id = this.parseIdentifier(context);
         const flags = this.flags |= Flags.SimpleParameterList;
 
@@ -4492,6 +4497,7 @@ export class Parser {
                     break;
 
                 case Token.AsyncKeyword:
+                    if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.Unexpected);
                     if (state & ObjectState.Accessors) break loop;
                     state |= currentState = ObjectState.Async;
                     key = this.parseIdentifier(context);

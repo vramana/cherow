@@ -22,6 +22,19 @@ describe('Expressions - Async function', () => {
         source: 'void \\u0061sync function f(){}',
     });
 
+    fail(`async function foo() { (await 1) = 1; }`, {
+        source: 'async function foo() { (await 1) = 1; }',
+        next: true
+    });
+
+    fail(`(async function foo() { } = 1)`, {
+        source: '(async function foo() { } = 1)',
+    });
+
+    fail(`async function foo() { (await 1) = 1; }`, {
+        source: 'async function foo() { (await 1) = 1; }',
+    });
+
      fail(`async function wrap() { async function await() { } };`, {
         source: 'async function wrap() { async function await() { } };',
     });

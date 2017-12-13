@@ -14,6 +14,10 @@ describe('Expressions - Async arrow', () => {
         source: 'f = async ((x)) => x',
     });
 
+    fail(`(async (...x = []) => { });`, {
+        source: '(async (...x = []) => { });',
+    });
+
     fail(`async a\n=> await a`, {
         source: `async a
         => await a`,

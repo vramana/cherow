@@ -1,9 +1,3 @@
-/**
- * Copyright (c) 2017 and later, Isiah Meadows. Licensed under the ISC License.
- */
-
-/* Modified! */
-
 import parserTest262 from '../tools/test262';
 import * as path from 'path';
 import { parseScript, parseModule} from '../../src/cherow';
@@ -43,22 +37,13 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/prefix-decrement/non-simple.js',
         'test/language/expressions/prefix-decrement/target-cover-newtarget.js',
         'test/language/expressions/prefix-decrement/target-cover-yieldexpr.js',
-         'test/language/expressions/prefix-decrement/target-newtarget.js',
-         'test/language/expressions/postfix-decrement/11.3.2-2-1-s.js',
+        'test/language/expressions/prefix-decrement/target-newtarget.js',
+        'test/language/expressions/postfix-decrement/11.3.2-2-1-s.js',
         'test/language/expressions/postfix-decrement/non-simple.js',
         'test/language/expressions/postfix-decrement/target-cover-newtarget.js',
         'test/language/expressions/postfix-decrement/target-cover-yieldexpr.js',
         'test/language/expressions/postfix-decrement/target-newtarget.js', 
-        'test/language/expressions/object/method-definition/use-strict-with-non-simple-param.js',
-        'test/language/expressions/object/method-definition/use-strict-with-non-simple-param.js',
-        'test/language/expressions/object/method-definition/setter-use-strict-with-non-simple-param.js',
-        'test/language/expressions/object/method-definition/early-errors-object-method-NSPL-with-USD.js',
-        'test/language/expressions/object/method-definition/generator-use-strict-with-non-simple-param.js',
-        'test/language/expressions/object/method-definition/async-gen-yield-star-sync-throw.js',
-        'test/language/expressions/object/method-definition/async-gen-yield-star-sync-return.js',
-        'test/language/expressions/object/method-definition/async-gen-yield-star-sync-next.js',
-        'test/language/expressions/object/method-definition/async-gen-yield-star-sync-next.js',
-        'test/language/expressions/object/method-definition/async-gen-yield-star-async-return.js',
+
         'test/language/expressions/postfix-increment/non-simple.js',
         'test/language/expressions/postfix-increment/non-simple.js',
         'test/language/expressions/postfix-increment/11.3.1-2-1-s.js',
@@ -67,7 +52,9 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/postfix-increment/target-cover-yieldexpr.js',
         'test/language/expressions/postfix-increment/target-cover-yieldexpr.js',
         'test/language/expressions/postfix-increment/target-cover-newtarget.js',
+
         'test/language/expressions/object/method-definition/meth-dflt-params-duplicates.js',
+        
         'test/language/expressions/class/accessor-name-static-literal-string-line-continuation.js',
         'test/language/expressions/class/accessor-name-inst-literal-string-line-continuation.js',
         'test/language/expressions/object/accessor-name-literal-string-line-continuation.js',
@@ -78,7 +65,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/object/11.1.5_7-2-1-s.js',
         'test/language/expressions/new.target/escaped-target.js',
         'test/language/expressions/compound-assignment/u-right-shift-non-simple.js',
-        'test/language/expressions/compound-assignment/subtract-non-simple.j',
         'test/language/expressions/function/dflt-params-duplicates.js',
         'test/language/expressions/compound-assignment/right-shift-non-simple.js',
         'test/language/expressions/compound-assignment/subtract-non-simple.js',
@@ -105,19 +91,19 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/class/fields-derived-cls-direct-eval-err-contains-supercall-1.js',
         'test/language/expressions/object/11.1.5_6-2-1-s.js',
         'test/language/expressions/await/early-errors-await-not-simple-assignment-target.js',
+        
         'test/language/expressions/async-generator/early-errors-expression-not-simple-assignment-target.js',
         'test/language/expressions/async-generator/early-errors-expression-not-simple-assignment-target.js',
         'test/language/expressions/async-function/early-errors-expression-not-simple-assignment-target.js',
         'test/language/expressions/async-function/early-errors-expression-not-simple-assignment-target.js',
-        'test/language/expressions/async-arrow-function/dflt-params-rest.js',
-        'test/language/expressions/async-arrow-function/dflt-params-rest.js',
-        'test/language/expressions/assignment/target-string.js',
-        'test/language/expressions/assignment/target-string.js',
-        'test/language/expressions/assignment/target-number.js',
-        'test/language/expressions/assignment/target-null.js',
-        'test/language/expressions/assignment/target-newtarget.js',
-        'test/language/expressions/assignment/target-cover-yieldexpr.js',
-        'test/language/expressions/assignment/target-boolean.js',
+
+         'test/language/expressions/assignment/target-string.js',
+         'test/language/expressions/assignment/target-string.js',
+         'test/language/expressions/assignment/target-number.js',
+         'test/language/expressions/assignment/target-null.js',
+          'test/language/expressions/assignment/target-newtarget.js',
+         'test/language/expressions/assignment/target-cover-yieldexpr.js',
+         'test/language/expressions/assignment/target-boolean.js',
         'test/language/expressions/assignment/non-simple-target.js',
         'test/language/expressions/assignment/dstr-obj-rest-not-last-element-invalid.js',
         'test/language/expressions/assignment/dstr-array-rest-init.js',

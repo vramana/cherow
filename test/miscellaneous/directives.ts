@@ -1,6 +1,6 @@
 import { pass, fail } from '../utils';
 
-describe('Directives', () => {
+describe('Miscellaneous - Directives', () => {
 
     fail('strict directive after legacy octal ', { source:  '"\\1;" "use strict";'});
     fail('strict directive after legacy octal in function body', { source:  '"use strict"; function f(){"\\1";}'});

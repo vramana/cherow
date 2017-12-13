@@ -117,7 +117,8 @@ export const enum Errors {
     InvalidRestDefaultValue,
     InvalidBigIntLiteral,
     InvalidLhsInPostfixOp,
-    InvalidLhsInPrefixOp
+    InvalidLhsInPrefixOp,
+    InvalidDestructuringTarget,
 }
 
 export const ErrorMessages: {
@@ -236,6 +237,7 @@ export const ErrorMessages: {
     [Errors.InvalidBigIntLiteral]: 'Invalid BigIntLiteral',
     [Errors.InvalidLhsInPostfixOp]: 'Invalid left-hand side expression in postfix operation',
     [Errors.InvalidLhsInPrefixOp]: 'Invalid left-hand side expression in prefix operation',
+    [Errors.InvalidDestructuringTarget]: 'Invalid destructuring assignment target',
 };
 
 function constructError(msg: string, column: number): Error {

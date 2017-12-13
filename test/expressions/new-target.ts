@@ -22,6 +22,10 @@ describe('Statements - New target', () => {
         source: 'function f() { n\\u0065w.target; }',
     });
 
+    fail(`function f() { new.target = 1; }`, {
+        source: 'function f() { new.target = 1; }',
+    });
+
     fail(`new.prop`, {
         source: 'new.prop',
     });
