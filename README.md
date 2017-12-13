@@ -37,7 +37,6 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 * [BigInt](https://github.com/tc39/proposal-bigint)
 * [RegExp Lookbehind Assertions](https://github.com/tc39/proposal-regexp-lookbehind)
 * [RegExp named capture groups](https://github.com/tc39/proposal-regexp-named-groups)
-* [s (dotAll) flag for regular expressions](https://github.com/tc39/proposal-regexp-dotall-flag)
 * [Import.meta](https://github.com/tc39/proposal-import-meta)
 * [Throw expressions](https://github.com/tc39/proposal-throw-expressions)
 
