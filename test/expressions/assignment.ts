@@ -2241,6 +2241,13 @@ describe('Expressions - Assignment', () => {
             raw: true
         });
     
+       fail(`"use strict"; (arguments) = 20;`, {
+            source: '"use strict"; (arguments) = 20;',
+            loc: true,
+            ranges: true,
+            raw: true
+        });
+    
         fail(`(([a])=0);`, {
             source: '(([a])=0);',
             loc: true,

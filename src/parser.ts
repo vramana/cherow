@@ -3302,6 +3302,9 @@ export class Parser {
             if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                 this.error(Errors.StrictLHSAssignment);
             } else if (this.token === Token.Assign) {
+                if (context & Context.InParenthesis) {
+                    this.flags |= Flags.SimpleParameterList;
+                }
                 if (this.flags & Flags.Rest) this.error(Errors.InvalidLHSInAssignment);
                 // Note: A functions arameter list is already parsed as pattern, so no need to reinterpret
                 if (!(context & Context.InParameter)) this.reinterpretAsPattern(context, expr);

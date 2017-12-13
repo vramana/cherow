@@ -21,7 +21,7 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 * Optimized for handheld devices
 * Optional tracking of syntax node location (index-based and line-column)
 * Parameterized plugin system
-* Heavily tested (~31 000 [Test262 unit tests](https://github.com/tc39/test262) and ~2200 *locale* tests)
+* Heavily tested (~33 000 [Test262 unit tests](https://github.com/tc39/test262) and ~2200 *locale* tests)
 
 ## ESNext features
 

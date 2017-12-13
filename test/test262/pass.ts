@@ -42,8 +42,7 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/postfix-decrement/non-simple.js',
         'test/language/expressions/postfix-decrement/target-cover-newtarget.js',
         'test/language/expressions/postfix-decrement/target-cover-yieldexpr.js',
-        'test/language/expressions/postfix-decrement/target-newtarget.js', 
-
+        'test/language/expressions/postfix-decrement/target-newtarget.js',
         'test/language/expressions/postfix-increment/non-simple.js',
         'test/language/expressions/postfix-increment/non-simple.js',
         'test/language/expressions/postfix-increment/11.3.1-2-1-s.js',
@@ -52,9 +51,7 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/postfix-increment/target-cover-yieldexpr.js',
         'test/language/expressions/postfix-increment/target-cover-yieldexpr.js',
         'test/language/expressions/postfix-increment/target-cover-newtarget.js',
-
         'test/language/expressions/object/method-definition/meth-dflt-params-duplicates.js',
-        
         'test/language/expressions/class/accessor-name-static-literal-string-line-continuation.js',
         'test/language/expressions/class/accessor-name-inst-literal-string-line-continuation.js',
         'test/language/expressions/object/accessor-name-literal-string-line-continuation.js',
@@ -91,43 +88,24 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/class/fields-derived-cls-direct-eval-err-contains-supercall-1.js',
         'test/language/expressions/object/11.1.5_6-2-1-s.js',
         'test/language/expressions/await/early-errors-await-not-simple-assignment-target.js',
-        
         'test/language/expressions/async-generator/early-errors-expression-not-simple-assignment-target.js',
         'test/language/expressions/async-generator/early-errors-expression-not-simple-assignment-target.js',
         'test/language/expressions/async-function/early-errors-expression-not-simple-assignment-target.js',
         'test/language/expressions/async-function/early-errors-expression-not-simple-assignment-target.js',
-
-         'test/language/expressions/assignment/target-string.js',
-         'test/language/expressions/assignment/target-string.js',
-         'test/language/expressions/assignment/target-number.js',
-         'test/language/expressions/assignment/target-null.js',
-          'test/language/expressions/assignment/target-newtarget.js',
-         'test/language/expressions/assignment/target-cover-yieldexpr.js',
-         'test/language/expressions/assignment/target-boolean.js',
+        'test/language/expressions/assignment/target-string.js',
+        'test/language/expressions/assignment/target-string.js',
+        'test/language/expressions/assignment/target-number.js',
+        'test/language/expressions/assignment/target-null.js',
+        'test/language/expressions/assignment/target-newtarget.js',
+        'test/language/expressions/assignment/target-cover-yieldexpr.js',
+        'test/language/expressions/assignment/target-boolean.js',
         'test/language/expressions/assignment/non-simple-target.js',
         'test/language/expressions/assignment/dstr-obj-rest-not-last-element-invalid.js',
         'test/language/expressions/assignment/dstr-array-rest-init.js',
         'test/language/expressions/assignment/destructuring/obj-prop-__proto__dup.js',
-        'test/language/expressions/assignment/destructuring/obj-prop-__proto__dup.js',
         'test/language/expressions/assignment/11.13.1-4-31-s.js',
-        'test/language/expressions/arrow-function/dstr-dflt-ary-ptrn-rest-init-obj.js',
-        'test/language/expressions/arrow-function/syntax/early-errors/use-strict-with-non-simple-param.js',
-        'test/language/expressions/arrow-function/syntax/early-errors/use-strict-with-non-simple-param.js',
-        'test/language/expressions/arrow-function/dstr-dflt-ary-ptrn-rest-init-ary.js',
-        'test/language/expressions/arrow-function/dstr-dflt-ary-ptrn-rest-init-ary.js',
-        'test/language/expressions/arrow-function/dstr-dflt-ary-ptrn-rest-init-id.js',
-        'test/language/expressions/assignment/11.13.1-4-29-s.js',
-        'test/language/expressions/arrow-function/dstr-ary-ptrn-rest-init-obj.js',
-        'test/language/expressions/arrow-function/dstr-ary-ptrn-rest-init-ary.js',
-        'test/language/expressions/arrow-function/dstr-ary-ptrn-rest-init-ary.js',
-        'test/language/expressions/arrow-function/dstr-ary-ptrn-rest-init-id.js',
-        'test/language/expressions/arrow-function/dstr-ary-ptrn-rest-init-id.js',
-        'test/language/expressions/arrow-function/dflt-params-arg-val-not-undefined.js',
-        'test/language/expressions/arrow-function/dflt-params-arg-val-not-undefined.js',
         'test/language/expressions/assignment/11.13.1-4-29-s.js',
         'test/language/expressions/exponentiation/exp-operator-syntax-error-void-unary-expression-base.js',
-        'test/language/expressions/exponentiation/exp-operator-syntax-error-void-unary-expression-base.js',
-        'test/language/expressions/exponentiation/exp-operator-syntax-error-typeof-unary-expression-base.js',
         'test/language/expressions/exponentiation/exp-operator-syntax-error-typeof-unary-expression-base.js',
         'test/language/expressions/exponentiation/exp-operator-syntax-error-plus-unary-expression-base.js',
         'test/language/expressions/exponentiation/exp-operator-syntax-error-negate-unary-expression-base.js',
@@ -153,16 +131,12 @@ describe('test262 tests', () => parserTest262({
         'test/language/block-scope/syntax/redeclaration/async-generator-declaration-attempt-to-redeclare-with-var-declaration.js', //
         'test/language/block-scope/syntax/redeclaration/function-declaration-attempt-to-redeclare-with-var-declaration.js', //
         'test/language/block-scope/syntax/redeclaration/generator-declaration-attempt-to-redeclare-with-var-declaration.js', //
-
         'test/language/block-scope/syntax/redeclaration/var-declaration-attempt-to-redeclare-with-async-generator-declaration.js', //
         'test/language/block-scope/syntax/redeclaration/var-declaration-attempt-to-redeclare-with-function-declaration.js', //
         'test/language/block-scope/syntax/redeclaration/var-declaration-attempt-to-redeclare-with-generator-declaration.js',
-
         'test/language/directive-prologue/10.1.1-23-s.js',
         'test/language/directive-prologue/10.1.1-24-s.js',
         'test/language/directive-prologue/14.1-4-s.js',
-        'test/language/directive-prologue/14.1-4gs.js',
-        'test/language/directive-prologue/14.1-5gs.js',
         'test/language/eval-code/direct/global-env-rec-eval.js',
         'test/language/eval-code/direct/switch-case-decl-strict-caller.js',
         'test/language/eval-code/direct/switch-case-decl-strict-source.js',
@@ -171,20 +145,12 @@ describe('test262 tests', () => parserTest262({
         'test/language/eval-code/indirect/global-env-rec-eval.js',
         'test/language/eval-code/indirect/switch-case-decl-strict.js',
         'test/language/eval-code/indirect/switch-dflt-decl-strict.js',
-
         'test/annexB/language/global-code/block-decl-global-no-skip-try.js',
-
-        'test/language/statements/async-function/early-errors-declaration-NSPL-with-USD.js',
-        'test/language/statements/async-generator/yield-star-async-next.js',
-        'test/language/statements/async-generator/yield-star-async-return.js',
-        'test/language/statements/async-generator/yield-star-async-throw.js',
-
         'test/language/statements/break/S12.8_A1_T2.js',
         'test/language/statements/break/S12.8_A1_T4.js',
         'test/language/statements/break/S12.8_A5_T3.js',
         'test/language/statements/class/accessor-name-inst-literal-string-line-continuation.js',
         'test/language/statements/class/accessor-name-static-literal-string-line-continuation.js',
-
         'test/language/statements/class/definition/early-errors-class-method-NSPL-with-USD.js',
         'test/language/statements/class/fields-derived-cls-direct-eval-err-contains-supercall-1.js',
         'test/language/statements/class/fields-derived-cls-direct-eval-err-contains-supercall-2.js',
@@ -203,7 +169,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/for-await-of/async-gen-decl-dstr-obj-id-put-unresolvable-no-strict.js',
         'test/language/statements/for-await-of/async-gen-decl-dstr-obj-prop-put-unresolvable-no-strict.js',
         'test/language/statements/for-await-of/let-array-with-newline.js',
-        
         'test/language/statements/for-in/dstr-array-rest-before-element.js',
         'test/language/statements/for-in/dstr-array-rest-before-elision.js',
         'test/language/statements/for-in/dstr-array-rest-before-rest.js',
@@ -223,7 +188,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/for-in/let-array-with-newline.js',
         'test/language/statements/while/let-block-with-newline.js',
         'test/language/statements/while/let-identifier-with-newline.js',
-
         'test/language/statements/function/13.1-40-s.js',
         'test/language/statements/function/13.1-42-s.js',
         'test/language/statements/function/13.1-12-s.js',
@@ -235,7 +199,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/function/13.1-34-s.js',
         'test/language/statements/function/13.1-36-s.js',
         'test/language/statements/function/13.1-38-s.js',
-
         'test/language/statements/function/dflt-params-duplicates.js',
         'test/language/statements/function/use-strict-with-non-simple-param.js',
         'test/language/statements/generators/use-strict-with-non-simple-param.js',

@@ -3157,6 +3157,9 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
             this.error(35 /* StrictLHSAssignment */);
         }
         else if (this.token === 1310749 /* Assign */) {
+            if (context & 64 /* InParenthesis */) {
+                this.flags |= 32768 /* SimpleParameterList */;
+            }
             if (this.flags & 2048 /* Rest */)
                 { this.error(36 /* InvalidLHSInAssignment */); }
             // Note: A functions arameter list is already parsed as pattern, so no need to reinterpret

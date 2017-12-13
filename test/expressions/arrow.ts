@@ -6062,4 +6062,8 @@ describe('Expressions - Arrow', () => {
         fail(`(x, x) => y;`, {
             source: '(x, x) => y;',
         });
+
+        fail(`var f = (a = 0) => { "use strict"; };`, {
+            source: 'var f = (a = 0) => { "use strict"; };',
+        });
     });

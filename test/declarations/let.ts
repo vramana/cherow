@@ -19,9 +19,14 @@ describe('Declarations - Let', () => {
         source: 'let [x]'
     });
     
+    fail('(function() { "use strict"; { let f; var f; } })', {
+        source: '(function() { "use strict"; { let f; var f; } })'
+    });
+
     fail('le\\u0074 x = 5', {
         source: 'le\\u0074 x = 5'
     });
+
     fail('let {x}', {
         source: 'let {x}'
     });
