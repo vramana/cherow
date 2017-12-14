@@ -204,10 +204,13 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/generators/use-strict-with-non-simple-param.js',
         'test/language/statements/if/let-block-with-newline.js',
         'test/language/statements/if/let-identifier-with-newline.js',
+        
         'test/language/statements/labeled/continue.js',
         'test/language/statements/labeled/let-block-with-newline.js',
         'test/language/statements/labeled/let-identifier-with-newline.js',
+        
         'test/language/statements/let/syntax/escaped-let.js',
+        
         'test/language/statements/switch/syntax/redeclaration/class-declaration-attempt-to-redeclare-with-var-declaration.js',
         'test/language/statements/switch/syntax/redeclaration/function-declaration-attempt-to-redeclare-with-var-declaration.js',
         'test/language/statements/switch/syntax/redeclaration/generator-declaration-attempt-to-redeclare-with-var-declaration.js',

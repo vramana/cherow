@@ -123,7 +123,9 @@ export const enum Errors {
     NoRegExpRepGrpToTerminate,
     NoRegExpRepitation,
     UnmatchedRegExpGroupName,
-    InvalidRegExpGroup
+    InvalidRegExpGroup,
+    AsyncFunctionInSingleStatementContext,
+    GeneratorInSingleStatementContext
 }
 
 export const ErrorMessages: {
@@ -248,6 +250,8 @@ export const ErrorMessages: {
     [Errors.NoRegExpRepitation]: 'Nothing to repeat',
     [Errors.UnmatchedRegExpGroupName]: 'Unmatched group name \'%0\'',
     [Errors.InvalidRegExpGroup]: 'Invalid regexp group',
+    [Errors.AsyncFunctionInSingleStatementContext]: 'Async functions can only be declared at the top level or inside a block',
+    [Errors.InvalidRegExpGroup]: 'Generators can only be declared at the top level or inside a block',
 };
 
 function constructError(msg: string, column: number): Error {

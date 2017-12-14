@@ -2,6 +2,26 @@ import { pass, fail } from '../utils';
 
 describe('Statements - If', () => {
   
+    fail(`if (true) async function f() {  }`, {
+      source: 'if (true) async function f() {  }',
+  });
+/*
+  pass(`if (morning) goodMorning()`, {
+    source: 'label: function g() {}',
+    loc: true,
+    ranges: true,
+    raw: true,
+    expected: {}
+  });
+
+  pass(`if (morning) goodMorning()`, {
+    source: 'label1: label2: function f() {}',
+    loc: true,
+    ranges: true,
+    raw: true,
+    expected: {}
+  });*/
+
       pass(`if (morning) goodMorning()`, {
           source: 'if (morning) goodMorning()',
           loc: true,

@@ -290,6 +290,8 @@ ErrorMessages[119 /* NoRegExpRepGrpToTerminate */] = 'No group to terminate';
 ErrorMessages[120 /* NoRegExpRepitation */] = 'Nothing to repeat';
 ErrorMessages[121 /* UnmatchedRegExpGroupName */] = 'Unmatched group name \'%0\'';
 ErrorMessages[122 /* InvalidRegExpGroup */] = 'Invalid regexp group';
+ErrorMessages[123 /* AsyncFunctionInSingleStatementContext */] = 'Async functions can only be declared at the top level or inside a block';
+ErrorMessages[122 /* InvalidRegExpGroup */] = 'Generators can only be declared at the top level or inside a block';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -2085,16 +2087,16 @@ Parser.prototype.parseExportDefault = function parseExportDefault (context, pos)
     switch (this.token) {
         // export default HoistableDeclaration[Default]
         case 274519 /* FunctionKeyword */:
-            declaration = this.parseFunction(context & ~33554432 /* Expression */ | (32768 /* OptionalIdentifier */ | 1024 /* TopLevel */));
+            declaration = this.parseFunction(context | (32768 /* OptionalIdentifier */ | 1024 /* Declaration */));
             break;
         // export default ClassDeclaration[Default]
         case 274509 /* ClassKeyword */:
-            declaration = this.parseClass(context | (32768 /* OptionalIdentifier */ | 1024 /* TopLevel */));
+            declaration = this.parseClass(context | (32768 /* OptionalIdentifier */ | 1024 /* Declaration */));
             break;
         // export default HoistableDeclaration[Default]
         case 16846956 /* AsyncKeyword */:
             if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                declaration = this.parseFunction(context & ~33554432 /* Expression */ | (32768 /* OptionalIdentifier */ | 1024 /* TopLevel */));
+                declaration = this.parseFunction(context | (32768 /* OptionalIdentifier */ | 1024 /* Declaration */));
                 break;
             }
         // falls through
@@ -2168,7 +2170,7 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
             break;
         // export ClassDeclaration
         case 274509 /* ClassKeyword */:
-            declaration = this.parseClass(context | 1024 /* TopLevel */);
+            declaration = this.parseClass(context | 1024 /* Declaration */);
             break;
         // export LexicalDeclaration
         case 8663113 /* ConstKeyword */:
@@ -2180,16 +2182,16 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
             break;
         // export VariableDeclaration
         case 8663111 /* VarKeyword */:
-            declaration = this.parseVariableStatement(context | 1024 /* TopLevel */);
+            declaration = this.parseVariableStatement(context | 1024 /* Declaration */);
             break;
         // export HoistableDeclaration
         case 274519 /* FunctionKeyword */:
-            declaration = this.parseFunction(context & ~33554432 /* Expression */ | 1024 /* TopLevel */);
+            declaration = this.parseFunction(context | 1024 /* Declaration */);
             break;
         // export HoistableDeclaration
         case 16846956 /* AsyncKeyword */:
             if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                declaration = this.parseFunction(context & ~33554432 /* Expression */ | 1024 /* TopLevel */);
+                declaration = this.parseFunction(context | 1024 /* Declaration */);
                 break;
             }
         // Falls through
@@ -2409,7 +2411,7 @@ Parser.prototype.parseModuleItem = function parseModuleItem (context) {
 Parser.prototype.parseStatementListItem = function parseStatementListItem (context) {
     switch (this.token) {
         case 274519 /* FunctionKeyword */:
-            return this.parseFunction(context & ~33554432 /* Expression */);
+            return this.parseFunction(context);
         case 274509 /* ClassKeyword */:
             return this.parseClass(context);
         case 8671304 /* LetKeyword */:
@@ -2417,7 +2419,7 @@ Parser.prototype.parseStatementListItem = function parseStatementListItem (conte
             if (this.isLexical(context)) {
                 return this.parseVariableStatement(context | 536870912 /* Let */ | 4 /* AllowIn */);
             }
-            return this.parseStatement(context & ~1024 /* TopLevel */);
+            return this.parseStatement(context & ~1024 /* Declaration */);
         case 8663113 /* ConstKeyword */:
             return this.parseVariableStatement(context | 1073741824 /* Const */ | 4 /* AllowIn */);
         // VariableStatement[?Yield]
@@ -2481,7 +2483,7 @@ Parser.prototype.parseStatement = function parseStatement (context) {
         case 12386 /* WithKeyword */:
             return this.parseWithStatement(context);
         case 274525 /* SwitchKeyword */:
-            return this.parseSwitchStatement(context | 1024 /* TopLevel */);
+            return this.parseSwitchStatement(context | 1024 /* Declaration */);
         // ThrowStatement[?Yield]
         case 12383 /* ThrowKeyword */:
             return this.parseThrowStatement(context);
@@ -2494,26 +2496,17 @@ Parser.prototype.parseStatement = function parseStatement (context) {
         case 331885 /* AwaitKeyword */:
             return this.parseLabelledStatement(context);
         case 16846956 /* AsyncKeyword */:
-            // Here we do a quick lookahead so we just need to parse out the
-            // 'AsyncFunctionDeclaration'. The 'parsePrimaryExpression' will do the
-            // heavy work for us. I doubt this will cause any performance loss, but
-            // if so is the case - this can be reverted later on.
-            // J.K. Thomas
             if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                // Note: async function are only subject to AnnexB if we forbid them to parse
-                if (context & 1024 /* TopLevel */ || this.flags & 32 /* IterationStatement */) {
-                    this.error(93 /* ForbiddenAsStatement */, tokenDesc(this.token));
+                if (context & 1024 /* Declaration */ || this.flags & 32 /* IterationStatement */) {
+                    this.error(123 /* AsyncFunctionInSingleStatementContext */);
                 }
-                return this.parseFunction(context & ~33554432 /* Expression */);
+                return this.parseFunction(context);
             }
-            // 'Async' is a valid contextual keyword in sloppy mode for labelled statement, so either
-            // parse out 'LabelledStatement' or an plain identifier. We pass down the 'Statement' mask
-            // so we can easily switch async state if needed on "TopLevel" even if we are inside
-            // the PrimaryExpression production
-            return this.parseLabelledStatement(context | 1024 /* TopLevel */);
+            return this.parseLabelledStatement(context | 1024 /* Declaration */);
         case 274519 /* FunctionKeyword */:
             if (context & 4096 /* AnnexB */)
-                { return this.parseFunction(context & ~33554432 /* Expression */); }
+                { return this.parseFunction(context); }
+        // falls through
         case 274509 /* ClassKeyword */:
             this.error(93 /* ForbiddenAsStatement */, tokenDesc(this.token));
         default:
@@ -2534,7 +2527,7 @@ Parser.prototype.parseBlockStatement = function parseBlockStatement (context) {
         this.blockScope = context & 2048 /* IfClause */ ? blockScope : undefined;
         var flag = this.flags;
         while (this.token !== 15 /* RightBrace */) {
-            body.push(this$1.parseStatementListItem(context & ~2048 /* IfClause */ | 1024 /* TopLevel */));
+            body.push(this$1.parseStatementListItem(context & ~2048 /* IfClause */ | 1024 /* Declaration */));
         }
         this.flags = flag;
         this.blockScope = blockScope;
@@ -2619,7 +2612,7 @@ Parser.prototype.parseWithStatement = function parseWithStatement (context) {
     return this.finishNode(context, pos, {
         type: 'WithStatement',
         object: object,
-        body: this.parseStatement(context | 4194304 /* Iteration */ | 1024 /* TopLevel */)
+        body: this.parseStatement(context | 4194304 /* Iteration */ | 1024 /* Declaration */)
     });
 };
 Parser.prototype.parseWhileStatement = function parseWhileStatement (context) {
@@ -2630,7 +2623,7 @@ Parser.prototype.parseWhileStatement = function parseWhileStatement (context) {
     this.expect(context, 16 /* RightParen */);
     var savedFlag = this.flags;
     this.flags |= 32 /* IterationStatement */ | 128 /* Continue */;
-    var body = this.parseStatement(context & ~1024 /* TopLevel */);
+    var body = this.parseStatement(context & ~1024 /* Declaration */);
     this.flags = savedFlag;
     return this.finishNode(context, pos, {
         type: 'WhileStatement',
@@ -2643,11 +2636,11 @@ Parser.prototype.parseDoWhileStatement = function parseDoWhileStatement (context
     this.expect(context, 12369 /* DoKeyword */);
     var savedFlag = this.flags;
     this.flags |= 32 /* IterationStatement */ | 128 /* Continue */;
-    var body = this.parseStatement(context & ~1024 /* TopLevel */);
+    var body = this.parseStatement(context & ~1024 /* Declaration */);
     this.flags = savedFlag;
     this.expect(context, 12385 /* WhileKeyword */);
     this.expect(context, 262155 /* LeftParen */);
-    var test = this.parseExpression(context & ~1024 /* TopLevel */ | 4 /* AllowIn */, pos);
+    var test = this.parseExpression(context & ~1024 /* Declaration */ | 4 /* AllowIn */, pos);
     this.expect(context, 16 /* RightParen */);
     this.parseOptional(context, 17 /* Semicolon */);
     return this.finishNode(context, pos, {
@@ -2765,7 +2758,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
         }
         right = this.parseAssignmentExpression(context);
         this.expect(context, 16 /* RightParen */);
-        body = this.parseStatement(context & ~1024 /* TopLevel */);
+        body = this.parseStatement(context & ~1024 /* Declaration */);
         this.blockScope = blockScope;
         if (blockScope !== undefined)
             { this.parentScope = parentScope; }
@@ -2791,7 +2784,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
     if (this.token !== 16 /* RightParen */)
         { update = this.parseExpression(context, pos); }
     this.expect(context, 16 /* RightParen */);
-    body = this.parseStatement(context & ~1024 /* TopLevel */);
+    body = this.parseStatement(context & ~1024 /* Declaration */);
     this.blockScope = blockScope;
     if (blockScope !== undefined)
         { this.parentScope = parentScope; }
@@ -2808,7 +2801,7 @@ Parser.prototype.parseIfStatementChild = function parseIfStatementChild (context
     if (context & 2 /* Strict */ && this.token === 274519 /* FunctionKeyword */) {
         this.error(93 /* ForbiddenAsStatement */, tokenDesc(this.token));
     }
-    return this.parseStatement(context | (4096 /* AnnexB */ | 1024 /* TopLevel */ | 4194304 /* Iteration */));
+    return this.parseStatement(context | (4096 /* AnnexB */ | 1024 /* Declaration */ | 4194304 /* Iteration */));
 };
 Parser.prototype.parseIfStatement = function parseIfStatement (context) {
     var pos = this.getLocations();
@@ -2965,25 +2958,17 @@ Parser.prototype.parseLabelledStatement = function parseLabelledStatement (conte
             { this.error(69 /* Redeclaration */, expr.name); }
         this.labelSet[key] = true;
         var body;
-        switch (this.token) {
-            case 274519 /* FunctionKeyword */:
-                if (context & 4194304 /* Iteration */)
-                    { this.error(101 /* InvalidWithBody */); }
-                if (context & 524288 /* ForStatement */ || this.flags & 32 /* IterationStatement */)
-                    { this.error(15 /* StrictFunction */); }
-                // '13.1.1 - Static Semantics: ContainsDuplicateLabels', says it's a syntax error if
-                // LabelledItem: FunctionDeclaration is ever matched. Annex B.3.2 changes this behaviour.
-                if (context & 2 /* Strict */)
-                    { this.error(15 /* StrictFunction */); }
-                // AnnexB allows function declaration as labels, but not async func or generator func because the
-                // generator declaration is only matched by a hoistable declaration in StatementListItem.
-                // To fix this we need to pass the 'AnnexB' mask, and let it throw in 'parseFunctionDeclaration'
-                // We also unset the 'ForStatement' mask because we are no longer inside a 'ForStatement'.
-                body = this.parseFunction(context & ~(4194304 /* Iteration */ | 33554432 /* Expression */ | 33554432 /* Expression */) | 4096 /* AnnexB */ | 1024 /* TopLevel */);
-                break;
-            default:
-                body = this.parseStatement(context | 1024 /* TopLevel */);
+        if (this.token === 274519 /* FunctionKeyword */) {
+            if (context & 4194304 /* Iteration */) {
+                this.error(101 /* InvalidWithBody */);
+            }
+            if (context & (2 /* Strict */ | 524288 /* ForStatement */) || this.flags & 32 /* IterationStatement */) {
+                this.error(15 /* StrictFunction */);
+            }
+            body = this.parseFunction(context & ~(4194304 /* Iteration */ | 33554432 /* Expression */) | 4096 /* AnnexB */ | 1024 /* Declaration */);
         }
+        else
+            { body = this.parseStatement(context | 1024 /* Declaration */); }
         this.labelSet[key] = false;
         return this.finishNode(context, pos, {
             type: 'LabeledStatement',
@@ -3268,7 +3253,7 @@ Parser.prototype.parseArrowFunctionExpression = function parseArrowFunctionExpre
     // Unset the necessary masks
     context &= ~(64 /* InParenthesis */ | 16 /* Yield */) | 4 /* AllowIn */;
     if (!(this.flags & 4 /* InFunctionBody */))
-        { context |= 1024 /* TopLevel */; }
+        { context |= 1024 /* Declaration */; }
     if (this.token === 393228 /* LeftBrace */) {
         body = this.parseFunctionBody(context | 8 /* Arrow */);
     }
@@ -3616,7 +3601,7 @@ Parser.prototype.parseFunction = function parseFunction (context) {
             if (parent & 32 /* Await */ && this.token === 331885 /* AwaitKeyword */) {
                 this.error(107 /* InvalidAwaitInAsyncFunc */);
             }
-            if (context & 1024 /* TopLevel */ && !(context & 4096 /* AnnexB */)) {
+            if (context & 1024 /* Declaration */ && !(context & 4096 /* AnnexB */)) {
                 this.checkIfExistInFunctionScope(name);
                 this.blockScope[name] = 1 /* Shadowable */;
             }
@@ -3634,7 +3619,7 @@ Parser.prototype.parseFunction = function parseFunction (context) {
     this.blockScope = undefined;
     this.parentScope = undefined;
     var params = this.parseParameterList(context | 128 /* InParameter */, 0 /* None */);
-    var body = this.parseFunctionBody(context);
+    var body = this.parseFunctionBody(context & ~33554432 /* Expression */);
     this.functionScope = functionScope;
     this.blockScope = blockScope;
     this.parentScope = parentScope;
@@ -3877,7 +3862,7 @@ Parser.prototype.parseNewExpression = function parseNewExpression (context) {
                     { this.error(29 /* MetaNotInFunctionBody */); }
                 if (context & 128 /* InParameter */)
                     { return this.parseMetaProperty(context, id, pos); }
-                if (context & 8 /* Arrow */ && context & 1024 /* TopLevel */)
+                if (context & 8 /* Arrow */ && context & 1024 /* Declaration */)
                     { this.error(108 /* NewTargetArrow */); }
                 if (!(this.flags & 4 /* InFunctionBody */))
                     { this.error(29 /* MetaNotInFunctionBody */); }
@@ -4017,7 +4002,7 @@ Parser.prototype.parseClass = function parseClass (context) {
     }
     if (next && !(context & 65536 /* Method */))
         { this.fieldSet = undefined; }
-    classBody = this.parseClassBody(context & ~33554432 /* Expression */ | 2 /* Strict */, flags);
+    classBody = this.parseClassBody(context | 2 /* Strict */, flags);
     if (next) {
         if (this.fieldSet !== undefined) {
             var scope;

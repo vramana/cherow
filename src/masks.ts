@@ -11,7 +11,7 @@ export const enum Context {
     InParameter            = 1 << 7,   // If node was parsed in the formal list of an function
     InAsyncArgs            = 1 << 8,   // If node was parsed in the formal list of an async arrow function
     InArrowParameterList   = 1 << 9,   // If node was parsed in the formal list of an arrow function
-    TopLevel               = 1 << 10,  // If node was parsed at the TopLevel
+    Declaration            = 1 << 10,  
     IfClause               = 1 << 11,  // If node was parsed in a if statement (early error related)
     AnnexB                 = 1 << 12,  // If node was parsed in the 'if statement' with the AnnexB semtantic
     JSXChild               = 1 << 13,  // If node was parsed in a JSX context and has JSX children
@@ -32,7 +32,7 @@ export const enum Context {
     ValidateEscape         = 1 << 28,  // If node was parsed in a context where escaped keywords are forbidden
     Let                    = 1 << 29,  // Variable declaration
     Const                  = 1 << 30,  // Variable declaration
-
+    
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
 
