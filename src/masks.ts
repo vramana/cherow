@@ -50,33 +50,32 @@ export const enum Flags {
     BreakStatement               = 1 << 4,
     IterationStatement           = 1 << 5,
     SwitchStatement              = 1 << 6,
-    Continue                     = 1 << 7,
-    HasPrototype                 = 1 << 8,
-    Yield                        = 1 << 9,  // Used if we have seen a 'yield' token. E.g. in arrow formal param list
-    Await                        = 1 << 10,  // Used if we have seen a 'await' token. E.g. in async arrow formal param list
-    Rest                         = 1 << 11,
-    Binding                      = 1 << 12, // Used if an "identifier" are used in binding position in strict mode
-    DirectivePrologue            = 1 << 13, // Only used if we have seen a "use strict"; directive
-    BigInt                       = 1 << 14, // e.g. `100n`
-    SimpleParameterList          = 1 << 15,
-    ParenthesizedPattern         = 1 << 16,
-    Octal                        = 1 << 17, // e.g. `0777`
+    HasPrototype                 = 1 << 7,
+    Yield                        = 1 << 8,  // Used if we have seen a 'yield' token. E.g. in arrow formal param list
+    Await                        = 1 << 9,  // Used if we have seen a 'await' token. E.g. in async arrow formal param list
+    Rest                         = 1 << 10,
+    Binding                      = 1 << 11, // Used if an "identifier" are used in binding position in strict mode
+    DirectivePrologue            = 1 << 12, // Only used if we have seen a "use strict"; directive
+    BigInt                       = 1 << 13, // e.g. `100n`
+    SimpleParameterList          = 1 << 14,
+    ParenthesizedPattern         = 1 << 15,
+    Octal                        = 1 << 16, // e.g. `0777`
 
     /* Options */
-    OptionsRanges                = 1 << 18, // Enable / disable "ranges"
-    OptionsLoc                   = 1 << 19, // Enable / disable location tracking on the node
-    OptionsSource                = 1 << 20,
-    OptionsJSX                   = 1 << 21, // Enable / disable JSX extension
-    OptionsRaw                   = 1 << 22, // Enable / disable "raw" property on the node
-    OptionsNext                  = 1 << 23, // Enable / disable Stage 3 proposals
-    OptionsDirectives            = 1 << 24, // Enable / disable directives on the node
-    OptionsDelegate              = 1 << 25, // Enable / disable token syntax delegate
-    OptionsGlobalReturn          = 1 << 26, // Allow return statement in global scope,
-    OptionsSourceType            = 1 << 27, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
-    OptionsTolerant              = 1 << 28,
-    OptionsPlugins               = 1 << 29,
-    Duplicate                    = 1 << 30,
-    ContainsSeparator            = 1 << 31,
+    OptionsRanges                = 1 << 17, // Enable / disable "ranges"
+    OptionsLoc                   = 1 << 18, // Enable / disable location tracking on the node
+    OptionsSource                = 1 << 19,
+    OptionsJSX                   = 1 << 20, // Enable / disable JSX extension
+    OptionsRaw                   = 1 << 21, // Enable / disable "raw" property on the node
+    OptionsNext                  = 1 << 22, // Enable / disable Stage 3 proposals
+    OptionsDirectives            = 1 << 23, // Enable / disable directives on the node
+    OptionsDelegate              = 1 << 24, // Enable / disable token syntax delegate
+    OptionsGlobalReturn          = 1 << 25, // Allow return statement in global scope,
+    OptionsSourceType            = 1 << 26, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
+    OptionsTolerant              = 1 << 27,
+    OptionsPlugins               = 1 << 28,
+    Duplicate                    = 1 << 29,
+    ContainsSeparator            = 1 << 30,
     
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc,

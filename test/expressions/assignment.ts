@@ -1,6 +1,127 @@
 import { pass, fail } from '../utils';
 
 describe('Expressions - Assignment', () => {
+
+        pass(`a = (b, c)`, {
+            source: 'a = (b, c)',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "AssignmentExpression",
+                            "left": {
+                                "type": "Identifier",
+                                "name": "a",
+                                "start": 0,
+                                "end": 1,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 1
+                                    }
+                                }
+                            },
+                            "operator": "=",
+                            "right": {
+                                "type": "SequenceExpression",
+                                "expressions": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "b",
+                                        "start": 5,
+                                        "end": 6,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 5
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 6
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "type": "Identifier",
+                                        "name": "c",
+                                        "start": 8,
+                                        "end": 9,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 8
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 9
+                                            }
+                                        }
+                                    }
+                                ],
+                                "start": 5,
+                                "end": 9,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 5
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 9
+                                    }
+                                }
+                            },
+                            "start": 0,
+                            "end": 10,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 10
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 10,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 10
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 10,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 10
+                    }
+                }
+            }
+        });
         
         pass(`x <<= 42`, {
             source: 'x <<= 42',

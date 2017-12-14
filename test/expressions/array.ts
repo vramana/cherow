@@ -2,6 +2,78 @@ import { pass, fail } from '../utils';
 
 describe('Expressions - Array', () => {
  
+        pass(`[ 1 ]`, {
+            source: '[ 1 ]',
+            loc: true,
+            ranges: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "ArrayExpression",
+                            "elements": [
+                                {
+                                    "type": "Literal",
+                                    "value": 1,
+                                    "start": 2,
+                                    "end": 3,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 2
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 3
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 0,
+                            "end": 5,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 5
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 5,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 5
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 5,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 5
+                    }
+                }
+            }
+        });
+        
         pass(`[a, ...b=c]`, {
             source: '[a, ...b=c]',
             loc: true,

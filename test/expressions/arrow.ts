@@ -5850,6 +5850,131 @@ describe('Expressions - Arrow', () => {
                 }
             }
         });
+
+        pass(`(a, ...[]) => 1`, {
+            source: '(a, ...[]) => 1',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "ArrowFunctionExpression",
+                            "body": {
+                                "type": "Literal",
+                                "value": 1,
+                                "start": 14,
+                                "end": 15,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 14
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 15
+                                    }
+                                },
+                                "raw": "1"
+                            },
+                            "params": [
+                                {
+                                    "type": "Identifier",
+                                    "name": "a",
+                                    "start": 1,
+                                    "end": 2,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 1
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 2
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "RestElement",
+                                    "argument": {
+                                        "type": "ArrayPattern",
+                                        "elements": [],
+                                        "start": 7,
+                                        "end": 9,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 7
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 9
+                                            }
+                                        }
+                                    },
+                                    "start": 4,
+                                    "end": 9,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 4
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 9
+                                        }
+                                    }
+                                }
+                            ],
+                            "id": null,
+                            "async": false,
+                            "generator": false,
+                            "expression": true,
+                            "start": 0,
+                            "end": 15,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 15
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 15,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 15
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 15,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 15
+                    }
+                }
+            }
+        });
     
         pass(`(x)=>{\'use strict\';}`, {
             source: '(x)=>{\'use strict\';}',
