@@ -1384,4 +1384,94 @@ describe('Literals - Numbers', () => {
               "sourceType": "script"
             }
         });
+
+        pass(`01.a`, {
+          source: '01.a',
+          raw: true,
+          ranges: true,
+          loc: true,
+          expected: {
+            "type": "Program",
+            "start": 0,
+            "end": 4,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 4
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 4,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 4
+                  }
+                },
+                "expression": {
+                  "type": "MemberExpression",
+                  "start": 0,
+                  "end": 4,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 4
+                    }
+                  },
+                  "object": {
+                    "type": "Literal",
+                    "start": 0,
+                    "end": 2,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 0
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 2
+                      }
+                    },
+                    "value": 1,
+                    "raw": "01"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "start": 3,
+                    "end": 4,
+                    "loc": {
+                      "start": {
+                        "line": 1,
+                        "column": 3
+                      },
+                      "end": {
+                        "line": 1,
+                        "column": 4
+                      }
+                    },
+                    "name": "a"
+                  },
+                  "computed": false
+                }
+              }
+            ],
+            "sourceType": "script"
+          }
+        });
+    
     });

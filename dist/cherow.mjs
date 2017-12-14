@@ -1270,9 +1270,8 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                     state = 32 /* Binary */ | 256 /* AllowSeparator */;
                     ch = this.scanNext(0 /* Unexpected */);
                     // Invalid:  '0b'
-                    if (ch !== 48 /* Zero */ && ch !== 49 /* One */) {
-                        this.error(0 /* Unexpected */);
-                    }
+                    if (ch !== 48 /* Zero */ && ch !== 49 /* One */)
+                        { this.error(90 /* UnexpectedNumber */); }
                     value = ch - 48 /* Zero */;
                     this.advance();
                     while (this.hasNext()) {
@@ -1355,10 +1354,15 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
         if (this.nextChar() === 46 /* Period */) {
             state |= 128 /* Float */;
             // Invalid: '06.7'
-            if (state & 4 /* ImplicitOctal */)
-                { this.error(90 /* UnexpectedNumber */); }
-            this.advance();
-            this.scanDecimalDigitsOrFragment();
+            if (state & 4 /* ImplicitOctal */) {
+                var next$1 = this.source.charCodeAt(this.index + 1);
+                if (next$1 >= 48 /* Zero */ && next$1 <= 57 /* Nine */)
+                    { this.error(90 /* UnexpectedNumber */); }
+            }
+            else {
+                this.advance();
+                this.scanDecimalDigitsOrFragment();
+            }
         }
     }
     var end = this.index;

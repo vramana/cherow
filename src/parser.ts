@@ -7,6 +7,7 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location, EmitComments } from './interface';
+
 export class Parser {
     
         // The program to be parsed
@@ -1087,9 +1088,7 @@ export class Parser {
                             ch = this.scanNext(Errors.Unexpected);
     
                             // Invalid:  '0b'
-                            if (ch !== Chars.Zero && ch !== Chars.One) {
-                                this.error(Errors.Unexpected);
-                            }
+                            if (ch !== Chars.Zero && ch !== Chars.One) this.error(Errors.UnexpectedNumber);
     
                             value = ch - Chars.Zero;
     
@@ -1182,9 +1181,13 @@ export class Parser {
                 if (this.nextChar() === Chars.Period) {
                     state |= NumericState.Float;
                     // Invalid: '06.7'
-                    if (state & NumericState.ImplicitOctal) this.error(Errors.UnexpectedNumber);
-                    this.advance();
-                    this.scanDecimalDigitsOrFragment();
+                    if (state & NumericState.ImplicitOctal) {
+                     const next = this.source.charCodeAt(this.index + 1)   
+                     if (next >= Chars.Zero && next <= Chars.Nine) this.error(Errors.UnexpectedNumber);
+                    } else {
+                        this.advance();
+                        this.scanDecimalDigitsOrFragment();
+                    } 
                 }
             }
     
