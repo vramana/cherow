@@ -102,7 +102,6 @@ export const enum Errors {
     TemplateOctalLiteral,
     InvalidForBindingInit,
     InvalidNestedContinue,
-    InvalidWithBody,
     InvalidGeneratorParam,
     DefaultRestParameter,
     IllegalArrowFuncParamList,
@@ -125,7 +124,8 @@ export const enum Errors {
     UnmatchedRegExpGroupName,
     InvalidRegExpGroup,
     AsyncFunctionInSingleStatementContext,
-    GeneratorInSingleStatementContext
+    GeneratorInSingleStatementContext,
+    SloppyFunction
 }
 
 export const ErrorMessages: {
@@ -229,7 +229,6 @@ export const ErrorMessages: {
     [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences',
     [Errors.InvalidForBindingInit]: 'Binding pattern appears without initializer in for statement init',
     [Errors.InvalidNestedContinue]: 'Continue statement must be nested within an iteration statement',
-    [Errors.InvalidWithBody]: 'The body of a with statement must not be a labeled function declaration',
     [Errors.InvalidGeneratorParam]: 'Generator parameters must not contain yield expressions',
     [Errors.IllegalArrowFuncParamList]: 'Illegal arrow function parameter list',
     [Errors.ReservedKeyword]: 'The keyword %0 is reserved',
@@ -252,6 +251,7 @@ export const ErrorMessages: {
     [Errors.InvalidRegExpGroup]: 'Invalid regexp group',
     [Errors.AsyncFunctionInSingleStatementContext]: 'Async functions can only be declared at the top level or inside a block',
     [Errors.InvalidRegExpGroup]: 'Generators can only be declared at the top level or inside a block',
+    [Errors.SloppyFunction]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
 };
 
 function constructError(msg: string, column: number): Error {

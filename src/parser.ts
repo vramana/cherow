@@ -2632,7 +2632,7 @@ export class Parser {
         return this.finishNode(context, pos, {
             type: 'WithStatement',
             object,
-            body: this.parseStatement(context | Context.Iteration | Context.Declaration)
+            body: this.parseStatement(context | Context.Statement | Context.Declaration)
         });
     }
 
@@ -2876,7 +2876,7 @@ export class Parser {
         if (context & Context.Strict && this.token === Token.FunctionKeyword) {
             this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
         }
-        return this.parseStatement(context | (Context.AnnexB | Context.Declaration | Context.Iteration));
+        return this.parseStatement(context | (Context.AnnexB | Context.Declaration | Context.Statement));
     }
 
     private parseIfStatement(context: Context): ESTree.IfStatement {
@@ -3083,17 +3083,14 @@ export class Parser {
             else if (this.labelSet[key] === true) this.error(Errors.Redeclaration, expr.name);
 
             this.labelSet[key] = true;
-            let body;
 
             if (this.token === Token.FunctionKeyword) {
-                if (context & Context.Iteration) {
-                    this.error(Errors.InvalidWithBody);
-                }
-                if (context & (Context.Strict | Context.ForStatement) || this.flags & Flags.IterationStatement) {
-                    this.error(Errors.StrictFunction);
-                }
-                body = this.parseFunction(context & ~(Context.Iteration | Context.Expression) | Context.AnnexB | Context.Declaration);
-            } else body = this.parseStatement(context | Context.Declaration);
+                if (context & Context.Statement || this.flags & Flags.IterationStatement) {
+                    this.error(Errors.SloppyFunction);
+                } else if (context & Context.Strict) this.error(Errors.StrictFunction);
+            } 
+            
+            const body = this.parseStatement(context | Context.AnnexB | Context.Declaration);
 
             this.labelSet[key] = false;
 

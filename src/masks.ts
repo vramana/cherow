@@ -23,7 +23,7 @@ export const enum Context {
     ForStatement           = 1 << 19,  // If node was parsed in a for / for - in / for -of context
     TaggedTemplate         = 1 << 20,  //
     Labelled               = 1 << 21,  //
-    Iteration              = 1 << 22,  //
+    Statement              = 1 << 22,  //
     Fields                 = 1 << 23,  // If node was parsed in a class fields context
     LocationTracking       = 1 << 24,
     Expression             = 1 << 25,

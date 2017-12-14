@@ -275,29 +275,29 @@ ErrorMessages[97 /* UnsupportedFeature */] = '%0 isn\'t supported by default. En
 ErrorMessages[98 /* TemplateOctalLiteral */] = 'Template literals may not contain octal escape sequences';
 ErrorMessages[99 /* InvalidForBindingInit */] = 'Binding pattern appears without initializer in for statement init';
 ErrorMessages[100 /* InvalidNestedContinue */] = 'Continue statement must be nested within an iteration statement';
-ErrorMessages[101 /* InvalidWithBody */] = 'The body of a with statement must not be a labeled function declaration';
-ErrorMessages[102 /* InvalidGeneratorParam */] = 'Generator parameters must not contain yield expressions';
-ErrorMessages[104 /* IllegalArrowFuncParamList */] = 'Illegal arrow function parameter list';
-ErrorMessages[105 /* ReservedKeyword */] = 'The keyword %0 is reserved';
-ErrorMessages[106 /* InvalidPrivateConstructor */] = 'Class constructor may not have a private field';
-ErrorMessages[107 /* InvalidAwaitInAsyncFunc */] = 'Can not use await as identifier inside an async function';
-ErrorMessages[108 /* NewTargetArrow */] = 'new.target must be within function (but not arrow expression) code';
-ErrorMessages[109 /* UndefinedInClassScope */] = '\'%0\'  not defined in class scope';
-ErrorMessages[110 /* InvalidComputedClassProperty */] = 'Invalid computed name in private property';
-ErrorMessages[111 /* InvalidFieldConstructor */] = 'Classes may not have a private field named \'#constructor\'';
-ErrorMessages[112 /* InvalidNumericSeparators */] = 'Numeric separators are not allowed here';
-ErrorMessages[113 /* InvalidRestDefaultValue */] = 'Rest elements cannot have a default value';
-ErrorMessages[114 /* InvalidBigIntLiteral */] = 'Invalid BigIntLiteral';
-ErrorMessages[115 /* InvalidLhsInPostfixOp */] = 'Invalid left-hand side expression in postfix operation';
-ErrorMessages[116 /* InvalidLhsInPrefixOp */] = 'Invalid left-hand side expression in prefix operation';
-ErrorMessages[117 /* InvalidDestructuringTarget */] = 'Invalid destructuring assignment target';
-ErrorMessages[118 /* UnterminatedEscape */] = 'Unterminated escape in regular expression';
-ErrorMessages[119 /* NoRegExpRepGrpToTerminate */] = 'No group to terminate';
-ErrorMessages[120 /* NoRegExpRepitation */] = 'Nothing to repeat';
-ErrorMessages[121 /* UnmatchedRegExpGroupName */] = 'Unmatched group name \'%0\'';
-ErrorMessages[122 /* InvalidRegExpGroup */] = 'Invalid regexp group';
-ErrorMessages[123 /* AsyncFunctionInSingleStatementContext */] = 'Async functions can only be declared at the top level or inside a block';
-ErrorMessages[122 /* InvalidRegExpGroup */] = 'Generators can only be declared at the top level or inside a block';
+ErrorMessages[101 /* InvalidGeneratorParam */] = 'Generator parameters must not contain yield expressions';
+ErrorMessages[103 /* IllegalArrowFuncParamList */] = 'Illegal arrow function parameter list';
+ErrorMessages[104 /* ReservedKeyword */] = 'The keyword %0 is reserved';
+ErrorMessages[105 /* InvalidPrivateConstructor */] = 'Class constructor may not have a private field';
+ErrorMessages[106 /* InvalidAwaitInAsyncFunc */] = 'Can not use await as identifier inside an async function';
+ErrorMessages[107 /* NewTargetArrow */] = 'new.target must be within function (but not arrow expression) code';
+ErrorMessages[108 /* UndefinedInClassScope */] = '\'%0\'  not defined in class scope';
+ErrorMessages[109 /* InvalidComputedClassProperty */] = 'Invalid computed name in private property';
+ErrorMessages[110 /* InvalidFieldConstructor */] = 'Classes may not have a private field named \'#constructor\'';
+ErrorMessages[111 /* InvalidNumericSeparators */] = 'Numeric separators are not allowed here';
+ErrorMessages[112 /* InvalidRestDefaultValue */] = 'Rest elements cannot have a default value';
+ErrorMessages[113 /* InvalidBigIntLiteral */] = 'Invalid BigIntLiteral';
+ErrorMessages[114 /* InvalidLhsInPostfixOp */] = 'Invalid left-hand side expression in postfix operation';
+ErrorMessages[115 /* InvalidLhsInPrefixOp */] = 'Invalid left-hand side expression in prefix operation';
+ErrorMessages[116 /* InvalidDestructuringTarget */] = 'Invalid destructuring assignment target';
+ErrorMessages[117 /* UnterminatedEscape */] = 'Unterminated escape in regular expression';
+ErrorMessages[118 /* NoRegExpRepGrpToTerminate */] = 'No group to terminate';
+ErrorMessages[119 /* NoRegExpRepitation */] = 'Nothing to repeat';
+ErrorMessages[120 /* UnmatchedRegExpGroupName */] = 'Unmatched group name \'%0\'';
+ErrorMessages[121 /* InvalidRegExpGroup */] = 'Invalid regexp group';
+ErrorMessages[122 /* AsyncFunctionInSingleStatementContext */] = 'Async functions can only be declared at the top level or inside a block';
+ErrorMessages[121 /* InvalidRegExpGroup */] = 'Generators can only be declared at the top level or inside a block';
+ErrorMessages[124 /* SloppyFunction */] = 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -1171,7 +1171,7 @@ Parser.prototype.scanDecimalDigitsOrFragment = function scanDecimalDigitsOrFragm
                 if (!next)
                     { break loop; }
                 if (!(state & 256 /* AllowSeparator */))
-                    { this$1.error(112 /* InvalidNumericSeparators */); }
+                    { this$1.error(111 /* InvalidNumericSeparators */); }
                 this$1.flags |= -2147483648 /* ContainsSeparator */;
                 state &= ~256 /* AllowSeparator */;
                 ret += this$1.source.substring(start, this$1.index);
@@ -1196,14 +1196,14 @@ Parser.prototype.scanDecimalDigitsOrFragment = function scanDecimalDigitsOrFragm
         }
     }
     if (next && this.source.charCodeAt(this.index - 1) === 95 /* Underscore */) {
-        this.error(112 /* InvalidNumericSeparators */);
+        this.error(111 /* InvalidNumericSeparators */);
     }
     return ret + this.source.substring(start, this.index);
 };
 Parser.prototype.scanNumericFragment = function scanNumericFragment (state) {
     this.flags |= -2147483648 /* ContainsSeparator */;
     if (!(state & 256 /* AllowSeparator */)) {
-        this.error(112 /* InvalidNumericSeparators */);
+        this.error(111 /* InvalidNumericSeparators */);
     }
     state &= ~256 /* AllowSeparator */;
     this.advance();
@@ -1338,7 +1338,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
         }
         if (this.flags & -2147483648 /* ContainsSeparator */) {
             if (this.source.charCodeAt(this.index - 1) === 95 /* Underscore */) {
-                this.error(112 /* InvalidNumericSeparators */);
+                this.error(111 /* InvalidNumericSeparators */);
             }
         }
         this.tokenValue = value;
@@ -1371,7 +1371,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
     // BigInt - Stage 3 proposal
     if (next && this.nextChar() === 110 /* LowerN */) {
         if (state & (4 /* ImplicitOctal */ | 128 /* Float */))
-            { this.error(114 /* InvalidBigIntLiteral */); }
+            { this.error(113 /* InvalidBigIntLiteral */); }
         state |= 64 /* BigInt */;
         this.advance();
     }
@@ -1391,7 +1391,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                 }
                 ch = this.nextChar();
                 if (!(ch >= 48 /* Zero */ && ch <= 57 /* Nine */))
-                    { this.error(114 /* InvalidBigIntLiteral */); }
+                    { this.error(113 /* InvalidBigIntLiteral */); }
                 if (this.flags & 8388608 /* OptionsNext */) {
                     var preNumericPart = this.index;
                     var finalFragment = this.scanDecimalDigitsOrFragment();
@@ -2504,7 +2504,7 @@ Parser.prototype.parseStatement = function parseStatement (context) {
         case 16846956 /* AsyncKeyword */:
             if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                 if (context & 1024 /* Declaration */ || this.flags & 32 /* IterationStatement */) {
-                    this.error(123 /* AsyncFunctionInSingleStatementContext */);
+                    this.error(122 /* AsyncFunctionInSingleStatementContext */);
                 }
                 return this.parseFunction(context);
             }
@@ -2618,7 +2618,7 @@ Parser.prototype.parseWithStatement = function parseWithStatement (context) {
     return this.finishNode(context, pos, {
         type: 'WithStatement',
         object: object,
-        body: this.parseStatement(context | 4194304 /* Iteration */ | 1024 /* Declaration */)
+        body: this.parseStatement(context | 4194304 /* Statement */ | 1024 /* Declaration */)
     });
 };
 Parser.prototype.parseWhileStatement = function parseWhileStatement (context) {
@@ -2807,7 +2807,7 @@ Parser.prototype.parseIfStatementChild = function parseIfStatementChild (context
     if (context & 2 /* Strict */ && this.token === 274519 /* FunctionKeyword */) {
         this.error(93 /* ForbiddenAsStatement */, tokenDesc(this.token));
     }
-    return this.parseStatement(context | (4096 /* AnnexB */ | 1024 /* Declaration */ | 4194304 /* Iteration */));
+    return this.parseStatement(context | (4096 /* AnnexB */ | 1024 /* Declaration */ | 4194304 /* Statement */));
 };
 Parser.prototype.parseIfStatement = function parseIfStatement (context) {
     var pos = this.getLocations();
@@ -2963,18 +2963,14 @@ Parser.prototype.parseLabelledStatement = function parseLabelledStatement (conte
         else if (this.labelSet[key] === true)
             { this.error(69 /* Redeclaration */, expr.name); }
         this.labelSet[key] = true;
-        var body;
         if (this.token === 274519 /* FunctionKeyword */) {
-            if (context & 4194304 /* Iteration */) {
-                this.error(101 /* InvalidWithBody */);
+            if (context & 4194304 /* Statement */ || this.flags & 32 /* IterationStatement */) {
+                this.error(124 /* SloppyFunction */);
             }
-            if (context & (2 /* Strict */ | 524288 /* ForStatement */) || this.flags & 32 /* IterationStatement */) {
-                this.error(15 /* StrictFunction */);
-            }
-            body = this.parseFunction(context & ~(4194304 /* Iteration */ | 33554432 /* Expression */) | 4096 /* AnnexB */ | 1024 /* Declaration */);
+            else if (context & 2 /* Strict */)
+                { this.error(15 /* StrictFunction */); }
         }
-        else
-            { body = this.parseStatement(context | 1024 /* Declaration */); }
+        var body = this.parseStatement(context | 4096 /* AnnexB */ | 1024 /* Declaration */);
         this.labelSet[key] = false;
         return this.finishNode(context, pos, {
             type: 'LabeledStatement',
@@ -3112,7 +3108,7 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
     if (context & 16 /* Yield */ && this.token === 282730 /* YieldKeyword */) {
         // Invalid: 'function* foo(a = 1 + (yield 2)) { }'
         if (context & 128 /* InParameter */ && !(this.flags & 4 /* InFunctionBody */)) {
-            this.error(102 /* InvalidGeneratorParam */);
+            this.error(101 /* InvalidGeneratorParam */);
         }
         return this.parseYieldExpression(context, pos);
     }
@@ -3218,7 +3214,7 @@ Parser.prototype.reinterpretAsPattern = function reinterpretAsPattern (context, 
         case 'RestElement':
             this.reinterpretAsPattern(context, params.argument);
             if (params.argument.type === 'AssignmentPattern')
-                { this.error(113 /* InvalidRestDefaultValue */); }
+                { this.error(112 /* InvalidRestDefaultValue */); }
             return;
         case 'MemberExpression':
         case 'MetaProperty':
@@ -3226,7 +3222,7 @@ Parser.prototype.reinterpretAsPattern = function reinterpretAsPattern (context, 
                 { return; }
         // Fall through
         default:
-            this.error(117 /* InvalidDestructuringTarget */);
+            this.error(116 /* InvalidDestructuringTarget */);
     }
 };
 Parser.prototype.parseArrowFunctionExpression = function parseArrowFunctionExpression (context, pos, params) {
@@ -3379,7 +3375,7 @@ Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context
             this.error(45 /* StrictLHSPrefix */);
         }
         else if (!isValidSimpleAssignmentTarget(expr))
-            { this.error(116 /* InvalidLhsInPrefixOp */); }
+            { this.error(115 /* InvalidLhsInPrefixOp */); }
         return this.finishNode(context, pos, {
             type: 'UpdateExpression',
             operator: tokenDesc(operator),
@@ -3396,7 +3392,7 @@ Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context
             this.error(46 /* StrictLHSPostfix */);
         }
         else if (!isValidSimpleAssignmentTarget(expr)) {
-            this.error(115 /* InvalidLhsInPostfixOp */);
+            this.error(114 /* InvalidLhsInPostfixOp */);
         }
         var operator$1 = this.token;
         this.nextToken(context);
@@ -3605,7 +3601,7 @@ Parser.prototype.parseFunction = function parseFunction (context) {
             }
             // Can not use 'await' as identifier inside an async function
             if (parent & 32 /* Await */ && this.token === 331885 /* AwaitKeyword */) {
-                this.error(107 /* InvalidAwaitInAsyncFunc */);
+                this.error(106 /* InvalidAwaitInAsyncFunc */);
             }
             if (context & 1024 /* Declaration */ && !(context & 4096 /* AnnexB */)) {
                 this.checkIfExistInFunctionScope(name);
@@ -3869,7 +3865,7 @@ Parser.prototype.parseNewExpression = function parseNewExpression (context) {
                 if (context & 128 /* InParameter */)
                     { return this.parseMetaProperty(context, id, pos); }
                 if (context & 8 /* Arrow */ && context & 1024 /* Declaration */)
-                    { this.error(108 /* NewTargetArrow */); }
+                    { this.error(107 /* NewTargetArrow */); }
                 if (!(this.flags & 4 /* InFunctionBody */))
                     { this.error(29 /* MetaNotInFunctionBody */); }
             }
@@ -4032,7 +4028,7 @@ Parser.prototype.parseClass = function parseClass (context) {
             }
             if (method !== undefined && method[key] & 1 /* Method */) {
                 if (!scope || !scope[key])
-                    { this.error(109 /* UndefinedInClassScope */, '#' + key); }
+                    { this.error(108 /* UndefinedInClassScope */, '#' + key); }
             }
             this.fieldSet = undefined;
         }
@@ -4087,11 +4083,11 @@ Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty 
         { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
     var tokenValue = this.tokenValue;
     if (this.token === 69742 /* ConstructorKeyword */)
-        { this.error(111 /* InvalidFieldConstructor */); }
+        { this.error(110 /* InvalidFieldConstructor */); }
     // Note: The grammar only supports `#` IdentifierName
     var key = this.parseIdentifierName(context, this.token);
     if (this.token === 393235 /* LeftBracket */)
-        { this.error(110 /* InvalidComputedClassProperty */); }
+        { this.error(109 /* InvalidComputedClassProperty */); }
     var value = null;
     var fieldValue = tokenValue;
     if (this.fieldSet === undefined)
