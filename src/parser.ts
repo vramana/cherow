@@ -2044,8 +2044,8 @@ export class Parser {
                     const parentScope = this.parentScope;
     
                     this.functionScope = undefined;
-                    this.parentScope = undefined;
                     this.blockScope = undefined;
+                    if (blockScope != null) this.parentScope = blockScope;
     
                     this.expect(context, Token.LeftBrace);
     
@@ -2117,7 +2117,9 @@ export class Parser {
     
             const pos = this.getLocations();
     
-            if (this.token === Token.Identifier) this.addBlockName(this.tokenValue);
+            if (this.token === Token.Identifier) {
+                this.addBlockName(this.tokenValue);
+            }
     
             const local = this.parseIdentifierName(context | Context.ValidateEscape, this.token);
     
@@ -2458,11 +2460,11 @@ export class Parser {
                 const blockScope = this.blockScope;
                 const parentScope = this.parentScope;
                 if (blockScope != null) this.parentScope = blockScope;
-                this.blockScope = context & Context.IfClause ? blockScope : undefined;
+                this.blockScope = context & Context.ExistingScope ? blockScope : undefined;
                 const flag = this.flags;
     
                 while (this.token !== Token.RightBrace) {
-                    body.push(this.parseStatementListItem(context & ~Context.IfClause | Context.Declaration));
+                    body.push(this.parseStatementListItem(context & ~Context.ExistingScope | Context.Declaration));
                 }
     
                 this.flags = flag;
@@ -2530,7 +2532,7 @@ export class Parser {
                 this.expect(context, Token.RightParen);
             }
     
-            const body = this.parseBlockStatement(context | Context.IfClause);
+            const body = this.parseBlockStatement(context | Context.ExistingScope);
     
             this.blockScope = blockScope;
     
@@ -2697,10 +2699,9 @@ export class Parser {
             const parentScope = this.parentScope;
             const awaitToken = (context & Context.Await) !== 0 && this.parseOptional(context, Token.AwaitKeyword);
             const savedFlag = this.flags;
-    
-            if (blockScope !== undefined) this.parentScope = blockScope;
-    
+            
             this.blockScope = undefined;
+            if (blockScope !== undefined) this.parentScope = blockScope;
     
             this.expect(context, Token.LeftParen);
     
@@ -2758,7 +2759,7 @@ export class Parser {
     
                 right = this.parseAssignmentExpression(context);
                 this.expect(context, Token.RightParen);
-                body = this.parseStatement(context & ~Context.Declaration);
+                body = this.parseStatement(context & ~Context.Declaration | Context.ExistingScope);
     
                 this.blockScope = blockScope;
                 if (blockScope !== undefined) this.parentScope = parentScope;
@@ -5180,11 +5181,11 @@ export class Parser {
     
             const name = this.tokenValue;
     
-            if (!(context & Context.IfClause) && this.isEvalOrArguments(name)) {
+            if (!(context & Context.ExistingScope) && this.isEvalOrArguments(name)) {
                 if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
             }
     
-            if (context & Context.InParameter && context & (Context.Strict | Context.YieldAwait | Context.Pattern)) {
+            if (context & Context.InParameter && context & (Context.Strict | Context.YieldAwait | Context.Pattern )) {
                 this.addFunctionArg(name);
             }
     

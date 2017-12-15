@@ -163,7 +163,7 @@ export const ErrorMessages: {
     [Errors.MetaNotInFunctionBody]: 'new.target only allowed within functions',
     [Errors.DeclarationMissingInitializer]: 'Missing initializer in destructuring declaration',
     [Errors.InvalidLHSInForLoop]: 'Invalid left-hand side in for-loop',
-    [Errors.InvalidVarInitForOf]: ' for-of loop variable declaration may not have an initializer',
+    [Errors.InvalidVarInitForOf]: 'for-of loop variable declaration may not have an initializer',
     [Errors.InvalidLHSInForOf]: 'Invalid left-hand side in for-of',
     [Errors.InvalidLHSInForIn]: 'Invalid left-hand side in for-in',
     [Errors.StrictLHSAssignment]: 'Eval or arguments can\'t be assigned to in strict mode code',
@@ -251,7 +251,8 @@ export const ErrorMessages: {
     [Errors.InvalidRegExpGroup]: 'Invalid regexp group',
     [Errors.AsyncFunctionInSingleStatementContext]: 'Async functions can only be declared at the top level or inside a block',
     [Errors.InvalidRegExpGroup]: 'Generators can only be declared at the top level or inside a block',
-    [Errors.SloppyFunction]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
+    [Errors.SloppyFunction]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement'
+    
 };
 
 function constructError(msg: string, column: number): Error {

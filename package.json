@@ -50,7 +50,7 @@
   "devDependencies": {
     "@types/js-yaml": "^3.10.1",
     "@types/mocha": "^2.2.44",
-    "@types/node": "^8.0.56",
+    "@types/node": "^8.5.1",
     "coveralls": "^3.0.0",
     "cross-env": "^5.1.1",
     "glob": "^7.1.2",
@@ -61,9 +61,9 @@
     "rollup": "^0.52.1",
     "rollup-plugin-buble": "^0.18.0",
     "rollup-plugin-uglify": "2.0.1",
-    "test262-parser-tests": "0.0.3",
     "test262": "git+https://github.com/tc39/test262.git",
-    "ts-node": "^3.3.0",
+    "test262-parser-tests": "0.0.3",
+    "ts-node": "^4.0.2",
     "tslint": "5.8.0",
     "typescript": "^2.6.2"
   },

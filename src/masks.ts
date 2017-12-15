@@ -12,7 +12,7 @@ export const enum Context {
     InAsyncArgs            = 1 << 8,   // If node was parsed in the formal list of an async arrow function
     InArrowParameterList   = 1 << 9,   // If node was parsed in the formal list of an arrow function
     Declaration            = 1 << 10,  
-    IfClause               = 1 << 11,  // If node was parsed in a if statement (early error related)
+    ExistingScope          = 1 << 11,  // If node was parsed in a context where the scope shouldn't be undefined
     AnnexB                 = 1 << 12,  // If node was parsed in the 'if statement' with the AnnexB semtantic
     JSXChild               = 1 << 13,  // If node was parsed in a JSX context and has JSX children
     Import                 = 1 << 14,  // Module ( strict and non-strict)
@@ -31,6 +31,7 @@ export const enum Context {
     ValidateEscape         = 1 << 27,  // If node was parsed in a context where escaped keywords are forbidden
     Let                    = 1 << 28,  // Variable declaration
     Const                  = 1 << 29,  // Variable declaration
+    ImportExport           = 1 << 30,  // Variable declaration
     
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
@@ -75,7 +76,7 @@ export const enum Flags {
     OptionsPlugins               = 1 << 28,
     Duplicate                    = 1 << 29,
     ContainsSeparator            = 1 << 30,
-    
+
     // Common mask used to verify if either ranges or locations are enabled
     LocationTracking = OptionsRanges | OptionsLoc,
 
