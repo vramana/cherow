@@ -183,6 +183,7 @@ export class Parser {
         }
     
         private nextToken(context: Context) {
+    
             this.lastIndex = this.index;
             this.lastColumn = this.column;
             this.lastLine = this.line;
@@ -191,6 +192,8 @@ export class Parser {
                 context |= Context.Strict;
             }
             this.token = this.scan(context);
+    
+            return this.token;
         }
     
         private hasNext(): boolean {
@@ -1888,8 +1891,8 @@ export class Parser {
             return true;
         }
     
-        private expect(context: Context, t: Token) {
-            if (this.token !== t) this.error(Errors.UnexpectedToken, tokenDesc(t));
+        private expect(context: Context, t: Token, msg: Errors = Errors.Unexpected) {
+            if (this.token !== t) this.error(msg);
             this.nextToken(context);
         }
     
@@ -2035,27 +2038,21 @@ export class Parser {
             const specifiers: ESTree.ExportSpecifier[] = [];
     
             let source = null;
-            let isExportedReservedWord = false;
             let declaration: ESTree.Statement | null = null;
     
             this.expect(context | Context.ValidateEscape, Token.ExportKeyword);
     
             switch (this.token) {
+                // export * FromClause ;
+                case Token.Multiply:
+                    return this.parseExportAllDeclaration(context, pos);
     
                 case Token.DefaultKeyword:
                     return this.parseExportDefault(context, pos);
     
-                    // export * FromClause ;
-                case Token.Multiply:
-                    return this.parseExportAllDeclaration(context, pos);
-    
                 case Token.LeftBrace:
-                    // There are two cases here:
-                    //
-                    // 'export' ExportClause ';'
-                    // and
-                    // 'export' ExportClause FromClause ';'
-                    //
+    
+                    let isReserved = false;
     
                     const functionScope = this.functionScope;
                     const blockScope = this.blockScope;
@@ -2068,27 +2065,20 @@ export class Parser {
                     this.expect(context, Token.LeftBrace);
     
                     while (this.token !== Token.RightBrace) {
-    
-                        if (hasMask(this.token, Token.Reserved)) isExportedReservedWord = true;
+                        if (this.token & Token.Reserved) isReserved = true;
                         specifiers.push(this.parseExportSpecifier(context));
-                        // Invalid: 'export {a,,b}'
                         if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
                     }
     
                     this.expect(context | Context.ValidateEscape, Token.RightBrace);
     
+                    if (this.token === Token.FromKeyword) {
+                        source = this.parseFromClause(context);
+                    } else if (isReserved) this.throwUnexpectedToken();
+    
                     this.functionScope = functionScope;
                     this.blockScope = blockScope;
                     this.parentScope = parentScope;
-    
-                    if (this.token === Token.FromKeyword) {
-                        this.expect(context, Token.FromKeyword);
-                        // export {default} from 'foo';
-                        // export {foo} from 'foo';
-                        source = this.parseModuleSpecifier(context);
-                    } else if (isExportedReservedWord) {
-                        this.throwUnexpectedToken();
-                    }
     
                     this.consumeSemicolon(context);
     
@@ -2164,8 +2154,7 @@ export class Parser {
     
         private parseExportAllDeclaration(context: Context, pos: Location): ESTree.ExportAllDeclaration {
             this.expect(context, Token.Multiply);
-            this.expect(context, Token.FromKeyword);
-            const source = this.parseModuleSpecifier(context);
+            const source = this.parseFromClause(context);
             this.consumeSemicolon(context);
             return this.finishNode(context, pos, {
                 type: 'ExportAllDeclaration',
@@ -2173,10 +2162,12 @@ export class Parser {
             });
         }
     
-        private parseModuleSpecifier(context: Context): ESTree.Literal {
-            // ModuleSpecifier :
-            //    StringLiteral
-            if (this.token !== Token.StringLiteral) this.error(Errors.InvalidModuleSpecifier);
+        private parseFromClause(context: Context): ESTree.Literal {
+            this.expect(context, Token.FromKeyword);
+            if (this.token !== Token.StringLiteral) {
+                this.error(Errors.InvalidModuleSpecifier);
+            }
+    
             return this.parseLiteral(context);
         }
     
@@ -2184,28 +2175,28 @@ export class Parser {
         private parseImportSpecifier(context: Context): ESTree.ImportSpecifier {
     
             const pos = this.getLocations();
-            const tokenValue = this.tokenValue;
+            const value = this.tokenValue;
+            const t = this.token;
+            const imported = this.parseIdentifierName(context | Context.ValidateEscape, this.token);
+            let hasAs = false;
     
-            let imported;
+            if (this.token & Token.Contextual) {
+                this.expect(context, Token.AsKeyword);
+                this.checkIfExistInBlockScope(this.tokenValue, true);
+                hasAs = true;
+            } else {
+                hasAs = this.parseOptional(context, Token.AsKeyword);
+                //this.checkIfExistInBlockScope(value, true);
+                this.addBlockName(value);
+            }
+    
             let local;
     
-            if (this.isIdentifier(context, this.token)) {
-                imported = this.parseIdentifier(context | Context.ValidateEscape);
+            if (!hasAs) {
+                if (t & Token.Reserved) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+                if (this.isEvalOrArguments(value)) this.error(Errors.UnexpectedStrictReserved)
                 local = imported;
-                if (this.token === Token.AsKeyword) {
-                    this.expect(context, Token.AsKeyword);
-                    this.checkIfExistInBlockScope(this.tokenValue, true);
-                    local = this.parseBindingIdentifierOrPattern(context);
-                } else {
-                    if (this.isEvalOrArguments(tokenValue)) this.error(Errors.UnexpectedStrictReserved);
-                    this.checkIfExistInBlockScope(tokenValue, true);
-                    this.addBlockName(tokenValue);
-                }
-            } else {
-                imported = this.parseIdentifierName(context, this.token);
-                this.expect(context, Token.AsKeyword);
-                local = this.parseBindingIdentifierOrPattern(context);
-            }
+            } else local = this.parseBindingIdentifier(context);
     
             return this.finishNode(context, pos, {
                 type: 'ImportSpecifier',
@@ -2215,12 +2206,13 @@ export class Parser {
         }
     
         // {foo, bar as bas}
-        private parseNamedImports(
+        private parseNamedImport(
             context: Context,
             specifiers: (ESTree.ImportSpecifier | ESTree.ImportDefaultSpecifier | ESTree.ImportNamespaceSpecifier)[]
         ) {
     
             this.expect(context, Token.LeftBrace);
+    
             while (this.token !== Token.RightBrace) {
                 // only accepts identifiers or keywords
                 specifiers.push(this.parseImportSpecifier(context));
@@ -2233,26 +2225,19 @@ export class Parser {
         }
     
         // import <* as foo> ...;
-        private parseImportNamespaceSpecifier(context: Context): ESTree.ImportNamespaceSpecifier {
-    
+        private parseImportNamespaceSpecifier(
+            context: Context,
+            specifiers: (ESTree.ImportSpecifier | ESTree.ImportDefaultSpecifier | ESTree.ImportNamespaceSpecifier)[]
+        ) {
             const pos = this.getLocations();
-    
             this.expect(context | Context.ValidateEscape, Token.Multiply);
-    
-            if (this.token !== Token.AsKeyword) {
-                this.error(Errors.NoAsAfterImportNamespace);
-            }
-    
-            this.expect(context, Token.AsKeyword);
+            this.expect(context, Token.AsKeyword, Errors.NoAsAfterImportNamespace);
             this.checkIfExistInBlockScope(this.tokenValue, true);
-            if (this.token !== Token.Identifier) this.throwUnexpectedToken();
-    
-            const local = this.parseIdentifier(context);
-    
-            return this.finishNode(context, pos, {
+            const local = this.parseBindingIdentifier(context);
+            specifiers.push(this.finishNode(context, pos, {
                 type: 'ImportNamespaceSpecifier',
                 local
-            });
+            }));
         }
     
         // import <foo> ...;
@@ -2264,24 +2249,8 @@ export class Parser {
         }
     
         private parseImportDeclaration(context: Context): ESTree.ImportDeclaration {
-            // ImportDeclaration :
-            //   'import' ImportClause 'from' ModuleSpecifier ';'
-            //   'import' ModuleSpecifier ';'
-            //
-            // ImportClause :
-            //   ImportedDefaultBinding
-            //   NameSpaceImport
-            //   NamedImports
-            //   ImportedDefaultBinding ',' NameSpaceImport
-            //   ImportedDefaultBinding ',' NamedImports
-            //
-            // NameSpaceImport :
-            //   '*' 'as' ImportedBinding
     
             const pos = this.getLocations();
-            const specifiers: (ESTree.ImportSpecifier |
-                ESTree.ImportDefaultSpecifier |
-                ESTree.ImportNamespaceSpecifier)[] = [];
     
             this.expect(context, Token.ImportKeyword);
     
@@ -2290,61 +2259,22 @@ export class Parser {
             if (blockScope != null) this.parentScope = blockScope;
             this.blockScope = undefined;
     
-            switch (this.token) {
+            // import 'foo';
+            if (this.token === Token.StringLiteral) {
+                this.addBlockName(this.tokenValue);
+                const source = this.parseLiteral(context);
+                this.consumeSemicolon(context);
     
-                // import 'foo';
-                case Token.StringLiteral:
-                    {
-    
-                        this.addBlockName(this.tokenValue);
-                        const source = this.parseModuleSpecifier(context);
-                        this.consumeSemicolon(context);
-                        return this.finishNode(context, pos, {
-                            type: 'ImportDeclaration',
-                            specifiers,
-                            source
-                        });
-                    }
-    
-                case Token.Identifier:
-                    {
-                        const tokenValue = this.tokenValue;
-                        this.addBlockName(tokenValue);
-                        specifiers.push(this.parseImportDefaultSpecifier(context | Context.ValidateEscape));
-                        if (this.parseOptional(context, Token.Comma)) {
-                            switch (this.token) {
-                                case Token.Multiply:
-                                    // import foo, * as foo
-                                    specifiers.push(this.parseImportNamespaceSpecifier(context));
-                                    break;
-                                case Token.LeftBrace:
-                                    // import foo, {bar}
-                                    this.parseNamedImports(context, specifiers);
-                                    break;
-                                default:
-                                    this.throwUnexpectedToken();
-                            }
-                        }
-    
-                        break;
-                    }
-    
-                    // import {bar}
-                case Token.LeftBrace:
-                    this.parseNamedImports(context | Context.ValidateEscape, specifiers);
-                    break;
-    
-                    // import * as foo
-                case Token.Multiply:
-                    specifiers.push(this.parseImportNamespaceSpecifier(context));
-                    break;
-    
-                default:
-                    this.throwUnexpectedToken();
+                return this.finishNode(context, pos, {
+                    type: 'ImportDeclaration',
+                    specifiers: [],
+                    source
+                });
             }
     
-            this.expect(context, Token.FromKeyword);
-            const src = this.parseModuleSpecifier(context);
+            const specifiers = this.parseImportClause(context);
+    
+            const source = this.parseFromClause(context);
     
             this.consumeSemicolon(context);
     
@@ -2354,8 +2284,49 @@ export class Parser {
             return this.finishNode(context, pos, {
                 type: 'ImportDeclaration',
                 specifiers,
-                source: src
+                source
             });
+        }
+    
+        private parseImportClause(context: Context): any {
+            const specifiers: (ESTree.ImportSpecifier |
+                ESTree.ImportDefaultSpecifier |
+                ESTree.ImportNamespaceSpecifier)[] = [] = [];
+    
+            switch (this.token) {
+    
+                case Token.Identifier:
+                    {
+                        this.addBlockName(this.tokenValue);
+                        specifiers.push(this.parseImportDefaultSpecifier(context | Context.ValidateEscape));
+                        if (this.parseOptional(context, Token.Comma)) {
+                            const t = this.token;
+                            if (t === Token.Multiply) {
+                                this.parseImportNamespaceSpecifier(context, specifiers);
+                            } else if (t === Token.LeftBrace) {
+                                this.parseNamedImport(context, specifiers);
+                            } else {
+                                this.error(Errors.UnexpectedToken, tokenDesc(t));
+                            }
+                        }
+    
+                        break;
+                    }
+    
+                    // import {bar}
+                case Token.LeftBrace:
+                    this.parseNamedImport(context | Context.ValidateEscape, specifiers);
+                    break;
+    
+                    // import * as foo
+                case Token.Multiply:
+                    this.parseImportNamespaceSpecifier(context, specifiers);
+                    break;
+    
+                default:
+                    this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+            }
+            return specifiers;
         }
     
         private parseModuleItem(context: Context): any {
@@ -3300,7 +3271,7 @@ export class Parser {
                 case 'ObjectExpression':
                     if (this.flags & Flags.ParenthesizedPattern) this.error(Errors.InvalidParenthesizedPattern);
                     node.type = 'ObjectPattern';
-
+    
                     // falls through
                 case 'ObjectPattern':
                     // ObjectPattern and ObjectExpression are isomorphic
@@ -3317,8 +3288,8 @@ export class Parser {
     
                 case 'ArrayPattern':
                     for (let i = 0; i < node.elements.length; ++i) {
-                    // skip holes in pattern
-                     if (node.elements[i] !== null) this.reinterpretAsPattern(context, node.elements[i]);
+                        // skip holes in pattern
+                        if (node.elements[i] !== null) this.reinterpretAsPattern(context, node.elements[i]);
                     }
                     return;
     
@@ -3721,7 +3692,7 @@ export class Parser {
             while (true) {
     
                 expr = this.parseMemberExpression(context, pos, expr);
-                
+    
                 switch (this.token) {
     
                     case Token.LeftParen:
@@ -3848,7 +3819,7 @@ export class Parser {
             this.expect(context, Token.LeftParen);
             const result = [];
             this.flags &= ~Flags.SimpleParameterList;
-
+    
             while (this.token !== Token.RightParen) {
                 if (this.token === Token.Ellipsis) {
                     this.errorLocation = this.getLocations();
@@ -3860,7 +3831,7 @@ export class Parser {
                 }
     
                 if (!(context & Context.Strict) && this.token !== Token.Identifier) context |= Context.Pattern;
-                
+    
                 result.push(this.parseFormalParameters(context));
                 if (this.token !== Token.RightParen) this.expect(context, Token.Comma);
             }
@@ -4600,7 +4571,7 @@ export class Parser {
         private parseObjectElement(context: Context): ESTree.Property {
     
             const pos = this.getLocations();
-            const token = this.token;
+            const t = this.token;
             let state = ObjectState.None;
             let currentState = ObjectState.None;
             let count = 0;
@@ -4610,31 +4581,26 @@ export class Parser {
             const isEscaped = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
             const tokenValue = this.tokenValue;
     
-            switch (this.token) {
-    
-                case Token.GetKeyword:
-                case Token.SetKeyword:
-                    if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
-                    state |= currentState = this.token === Token.GetKeyword ?
-                        ObjectState.Get :
-                        ObjectState.Set;
-                    key = this.parseIdentifier(context);
-                    count++;
-                    break;
-    
-                case Token.AsyncKeyword:
-                    if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
+            // can be a async/getter/setter or a shorthand binding or a property with init...
+            if (t & Token.Modifiers) {
+                if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
+                if (t === Token.GetKeyword) {
+                    state |= currentState = ObjectState.Get;
+                }
+                if (t === Token.SetKeyword) {
+                    state |= currentState = ObjectState.Set;
+                }
+                if (t === Token.AsyncKeyword) {
                     state |= currentState = ObjectState.Async;
-                    key = this.parseIdentifier(context);
-                    count++;
-                    break;
-                default:
+                }
+                count++;
+                key = this.parseIdentifier(context);
             }
     
             // Generator / Async Iterations ( Stage 3 proposal)
             if (this.token === Token.Multiply) {
-                if (state & ObjectState.Async && !(this.flags & Flags.OptionsNext)) {
-                    this.error(Errors.InvalidAsyncGenerator);
+                if (state & ObjectState.Async) {
+                    if (!(this.flags & Flags.OptionsNext)) this.error(Errors.InvalidAsyncGenerator);
                 }
                 state |= currentState = ObjectState.Yield;
                 this.expect(context, Token.Multiply);
@@ -4665,7 +4631,7 @@ export class Parser {
                     }
             }
     
-            if (!key && state & ObjectState.Yield) this.error(Errors.UnexpectedToken, tokenDesc(token));
+            if (!key && state & ObjectState.Yield) this.error(Errors.UnexpectedToken, tokenDesc(t));
     
             switch (this.token) {
                 case Token.LeftParen:
@@ -4691,15 +4657,15 @@ export class Parser {
                     break;
                 default:
     
-                    if (state & ObjectState.Special || !this.isIdentifier(context, token)) {
+                    if (state & ObjectState.Special || !this.isIdentifier(context, t)) {
                         this.throwUnexpectedToken();
                     }
     
-                    if (context & Context.Yield && token === Token.YieldKeyword) {
+                    if (context & Context.Yield && t === Token.YieldKeyword) {
                         this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                     }
     
-                    if (token === Token.AwaitKeyword) {
+                    if (t === Token.AwaitKeyword) {
                         if (context & Context.Await) this.throwUnexpectedToken();
                         this.errorLocation = this.getLocations();
                         this.flags |= Flags.Await;
