@@ -1764,14 +1764,12 @@ export class Parser {
         private parseModuleItemList(context: Context): ESTree.Statement[] {
             const statements: ESTree.Statement[] = [];
     
-            if (this.flags & Flags.OptionsDirectives) {
-                while (this.token === Token.StringLiteral) {
-                    statements.push(this.parseDirective(context));
-                }
-            }
-    
             while (this.token !== Token.EndOfSource) {
-                statements.push(this.parseModuleItem(context | Context.AllowIn));
+                if (this.token === Token.StringLiteral && this.flags & Flags.OptionsDirectives) {
+                    statements.push(this.parseDirective(context));
+                } else {
+                    statements.push(this.parseModuleItem(context | Context.AllowIn));
+                }
             }
     
             return statements;
@@ -1782,13 +1780,11 @@ export class Parser {
             const expr = this.parseExpression(context | Context.AllowIn, pos);
             const directive = this.tokenRaw.slice(1, -1);
             this.consumeSemicolon(context);
-            const node = this.finishNode(context, pos, {
+            return this.finishNode(context, pos, {
                 type: 'ExpressionStatement',
                 expression: expr,
                 directive
             });
-    
-            return node;
         }
     
         private parseStatementList(context: Context, endToken: Token): ESTree.Statement[] {
@@ -1929,29 +1925,18 @@ export class Parser {
         private nextTokenIsLeftParenOrPeriod(context: Context): boolean {
             const savedState = this.saveState();
             this.nextToken(context);
-            const next = this.token;
+            const t = this.token;
             this.rewindState(savedState);
-            return next === Token.LeftParen || next === Token.Period;
+            return t === Token.LeftParen || t === Token.Period;
         }
     
         private isLexical(context: Context): boolean {
-            // In ES6 'let' always starts a lexical declaration if followed by an identifier or {
-            // or [.
             const savedState = this.saveState();
-            this.nextToken(context);
-            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
-            const next = this.token;
+            this.nextToken(context | Context.ValidateEscape);
+            const t = this.token;
             this.rewindState(savedState);
-    
-            if (hasMask(next, Token.BindingPattern)) return true;
-    
-            switch (next) {
-                case Token.Identifier:
-                case Token.YieldKeyword:
-                    return true;
-                default:
-                    return hasMask(next, Token.Contextual);
-            }
+            if (t & Token.BindingPattern || (t & Token.Contextual) === Token.Contextual) return true;
+            return t === Token.Identifier || t === Token.YieldKeyword;
         }
     
         private isIdentifier(context: Context, t: Token): boolean {
@@ -2186,7 +2171,6 @@ export class Parser {
                 hasAs = true;
             } else {
                 hasAs = this.parseOptional(context, Token.AsKeyword);
-                //this.checkIfExistInBlockScope(value, true);
                 this.addBlockName(value);
             }
     
@@ -2707,7 +2691,6 @@ export class Parser {
             let declarations: ESTree.VariableDeclarator[] | null = null;
             let init: any = null;
             let body: ESTree.Statement;
-            let test: ESTree.Expression | null = null;
     
             // Create a lexical scope node around the whole ForStatement
             const blockScope = this.blockScope;
@@ -2723,30 +2706,32 @@ export class Parser {
     
             const token = this.token;
     
-            context |= Context.ForStatement;
+            context |= Context.ForStatement | Context.ValidateEscape;
     
             if (this.token !== Token.Semicolon) {
     
-                let startIndex;
+                if (token & Token.VarDeclStart) {
     
-                if ((token & Token.VarDeclStart)) startIndex = this.getLocations();
+                    const VarDeclStart = this.getLocations();
     
-                if (this.parseOptional(context, Token.VarKeyword)) {
-                    declarations = this.parseVariableDeclarationList(context | Context.ValidateEscape);
-                } else if (this.parseOptional(context, Token.ConstKeyword)) {
-                    declarations = this.parseVariableDeclarationList(context | Context.ValidateEscape | Context.Const);
-                } else if (this.isLexical(context) && this.parseOptional(context | Context.ValidateEscape, Token.LetKeyword)) {
-                    declarations = this.parseVariableDeclarationList(context | Context.ValidateEscape | Context.Let);
-                } else {
-                    init = this.parseExpression(context & ~Context.AllowIn, pos);
-                }
-                if (declarations) {
-                    init = this.finishNode(context, startIndex, {
-                        type: 'VariableDeclaration',
-                        declarations,
-                        kind: tokenDesc(token)
-                    });
-                }
+                    if (this.parseOptional(context, Token.VarKeyword)) {
+                        declarations = this.parseVariableDeclarationList(context);
+                    } else if (this.parseOptional(context, Token.ConstKeyword)) {
+                        declarations = this.parseVariableDeclarationList(context | Context.Const);
+                    } else if (this.isLexical(context) && this.parseOptional(context, Token.LetKeyword)) {
+                        declarations = this.parseVariableDeclarationList(context | Context.Let);
+                    } else {
+                        init = this.parseExpression(context & ~Context.AllowIn, pos);
+                    }
+                    if (declarations) {
+                        init = this.finishNode(context, VarDeclStart, {
+                            type: 'VariableDeclaration',
+                            declarations,
+                            kind: tokenDesc(token)
+                        });
+                    }
+    
+                } else init = this.parseExpression(context & ~Context.AllowIn, pos);
             }
     
             this.flags |= Flags.IterationStatement;
@@ -2758,28 +2743,17 @@ export class Parser {
     
                 if (this.parseOptional(context, Token.OfKeyword)) {
                     isForOfStatement = true;
-                    if (awaitToken && !(this.flags & Flags.OptionsNext)) {
-                        this.error(Errors.UnexpectedToken, tokenDesc(token));
-                    }
-    
-                    if (declarations && declarations[0].init != null) {
-                        this.error(Errors.InvalidVarInitForOf);
-                    }
-    
+                    if (awaitToken && !(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(token));
                 } else if (this.parseOptional(context, Token.InKeyword)) {
-    
                     if (awaitToken) this.error(Errors.UnexpectedToken, tokenDesc(token));
-    
-                    if (declarations && declarations.length !== 1) {
-                        this.error(Errors.Unexpected);
-                    }
+                    if (declarations && declarations.length !== 1) this.error(Errors.Unexpected);
                 }
+                
                 if (!declarations) {
                     if (!isValidDestructuringAssignmentTarget(init) || init.type === 'AssignmentExpression') {
                         this.error(Errors.InvalidLHSInForLoop);
                     }
                     this.reinterpretAsPattern(context, init);
-    
                 }
     
                 right = this.parseAssignmentExpression(context);
@@ -2805,18 +2779,23 @@ export class Parser {
                 });
             }
     
-            let update = null;
-    
+            let update: ESTree.Expression | null = null;
+            let test: ESTree.Expression | null = null;
+
             this.expect(context, Token.Semicolon);
     
             if (this.token !== Token.Semicolon) test = this.parseExpression(context, pos);
+
             this.expect(context, Token.Semicolon);
+            
             if (this.token !== Token.RightParen) update = this.parseExpression(context, pos);
     
             this.expect(context, Token.RightParen);
+
             body = this.parseStatement(context & ~Context.Declaration);
     
             this.blockScope = blockScope;
+            
             if (blockScope !== undefined) this.parentScope = parentScope;
     
             this.flags = savedFlag;
@@ -3080,7 +3059,11 @@ export class Parser {
         private parseVariableStatement(context: Context): ESTree.VariableDeclaration {
             const pos = this.getLocations();
             const token = this.token;
-            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
+    
+            if (this.flags & Flags.ExtendedUnicodeEscape) {
+                this.error(Errors.UnexpectedEscapedKeyword);
+            }
+    
             this.nextToken(context);
             const declarations = this.parseVariableDeclarationList(context);
             this.consumeSemicolon(context);
@@ -3115,28 +3098,30 @@ export class Parser {
             const id = this.parseBindingIdentifierOrPattern(context);
     
             let init: ESTree.Expression | null = null;
-    
+
             if (hasMask(token, Token.BindingPattern)) {
+
                 if (this.parseOptional(context, Token.Assign)) {
                     init = this.parseAssignmentExpression(context & ~(Context.Lexical | Context.ForStatement));
                     if (!(context & Context.Lexical) && context & Context.ForStatement) {
                         if (this.token === Token.InKeyword) {
                             this.error(Errors.InvalidVarDeclInForIn);
+                        } else if (this.token === Token.OfKeyword) {
+                            this.error(Errors.DeclarationMissingInitializer);        
                         }
                     }
-                } else if (!this.isInOrOfKeyword(this.token)) {
-                    this.error(Errors.DeclarationMissingInitializer);
-                }
+                } else if (!this.isInOrOfKeyword(this.token)) this.error(Errors.DeclarationMissingInitializer);
     
             } else {
     
                 if (this.parseOptional(context, Token.Assign)) {
                     init = this.parseAssignmentExpression(context & ~(Context.Lexical | Context.ForStatement));
-                    if (context & Context.ForStatement && this.isInOrOfKeyword(this.token)) {
-                        if (context & (Context.Strict | Context.Lexical)) {
-                            this.error(this.token === Token.InKeyword ?
-                                Errors.InvalidVarDeclInForIn :
-                                Errors.InvalidVarDeclInForOf);
+                    if (context & Context.ForStatement) {
+                        if (this.token === Token.OfKeyword) this.error(Errors.InvalidVarInitForOf);
+                        if (this.token === Token.InKeyword) {
+                            if (context & (Context.Strict | Context.Lexical)) {
+                                this.error(Errors.InvalidVarDeclInForIn);
+                            } 
                         }
                     }
                 } else if (context & Context.Const && !this.isInOrOfKeyword(this.token)) {
