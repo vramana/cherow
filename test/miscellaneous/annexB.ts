@@ -3,6 +3,383 @@ import { pass, fail } from '../utils';
 describe('Miscellaneous - AnnexB', () => {
 
     describe('Numeric (B1.1)', () => {
+        
+                pass(`/}?/u;`, {
+                    source: `/}?/u;`,
+                    loc: true,
+                    ranges: true,
+                    raw: true,
+                    expected: {
+                        "type": "Program",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "Literal",
+                                    "value": null,
+                                    "regex": {
+                                        "pattern": "}?",
+                                        "flags": "u"
+                                    },
+                                    "start": 0,
+                                    "end": 5,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 0
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 5
+                                        }
+                                    },
+                                    "raw": "/}?/u"
+                                },
+                                "start": 0,
+                                "end": 6,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 6
+                                    }
+                                }
+                            }
+                        ],
+                        "sourceType": "script",
+                        "start": 0,
+                        "end": 6,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 6
+                            }
+                        }
+                    }
+                });
+
+                pass(`/{*/u;`, {
+                    source: `/{*/u;`,
+                    loc: true,
+                    ranges: true,
+                    raw: true,
+                    expected: {
+                        "type": "Program",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "Literal",
+                                    "value": null,
+                                    "regex": {
+                                        "pattern": "{*",
+                                        "flags": "u"
+                                    },
+                                    "start": 0,
+                                    "end": 5,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 0
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 5
+                                        }
+                                    },
+                                    "raw": "/{*/u"
+                                },
+                                "start": 0,
+                                "end": 6,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 6
+                                    }
+                                }
+                            }
+                        ],
+                        "sourceType": "script",
+                        "start": 0,
+                        "end": 6,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 6
+                            }
+                        }
+                    }
+                });
+
+                pass(`/.{.}/;`, {
+                    source: `/.{.}/;`,
+                    loc: true,
+                    ranges: true,
+                    raw: true,
+                    expected: {
+                        "type": "Program",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "Literal",
+                                    "value": {},
+                                    "regex": {
+                                        "pattern": ".{.}",
+                                        "flags": ""
+                                    },
+                                    "start": 0,
+                                    "end": 6,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 0
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 6
+                                        }
+                                    },
+                                    "raw": "/.{.}/"
+                                },
+                                "start": 0,
+                                "end": 7,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 7
+                                    }
+                                }
+                            }
+                        ],
+                        "sourceType": "script",
+                        "start": 0,
+                        "end": 7,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 7
+                            }
+                        }
+                    }
+                });
+
+                pass(`/[\\w-\\s]/;`, {
+                    source: `/[\\w-\\s]/;`,
+                    raw: true,
+                    expected: {
+                          "body": [
+                            {
+                              "expression": {
+                                "raw": "/[\\w-\\s]/",
+                                "regex": {
+                                  "flags": "",
+                                  "pattern": "[\\w-\\s]",
+                                },
+                                "type": "Literal",
+                                "value": /[\w-\s]/,
+                              },
+                              "type": "ExpressionStatement"
+                            }
+                         ],
+                          "sourceType": "script",
+                          "type": "Program"
+                        }
+                });
+
+                pass(`/[\\s-\\w]/;`, {
+                    source: `/[\\s-\\w]/;`,
+                    raw: true,
+                    expected: {
+                          "body": [
+                            {
+                             "expression": {
+                                "raw": "/[\\s-\\w]/",
+                                "regex": {
+                                  "flags": "",
+                                  "pattern": "[\\s-\\w]"
+                                },
+                               "type": "Literal",
+                                "value": /[\s-\w]/,
+                              },
+                              "type": "ExpressionStatement"
+                            }
+                          ],
+                          "sourceType": "script",
+                          "type": "Program"
+                        }
+                });
+
+                pass(`/(?!.){0,}?/;`, {
+                    source: `/(?!.){0,}?/;`,
+                    loc: true,
+                    ranges: true,
+                    raw: true,
+                    expected: {
+                        "type": "Program",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "Literal",
+                                    "value": {},
+                                    "regex": {
+                                        "pattern": "(?!.){0,}?",
+                                        "flags": ""
+                                    },
+                                    "start": 0,
+                                    "end": 12,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 0
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 12
+                                        }
+                                    },
+                                    "raw": "/(?!.){0,}?/"
+                                },
+                                "start": 0,
+                                "end": 13,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 13
+                                    }
+                                }
+                            }
+                        ],
+                        "sourceType": "script",
+                        "start": 0,
+                        "end": 13,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 13
+                            }
+                        }
+                    }
+                });
+
+                pass(`/(?!.){0,}?/u`, {
+                    source: `/(?!.){0,}?/u;`,
+                    raw: true,
+                    expected: {
+                          "body": [
+                            {
+                              "expression": {
+                                "raw": "/(?!.){0,}?/u",
+                                "regex": {
+                                  "flags": "u",
+                                  "pattern": "(?!.){0,}?",
+                                },
+                                "type": "Literal",
+                                "value": null,
+                              },
+                              "type": "ExpressionStatement"
+                            }
+                          ],
+                          "sourceType": "script",
+                          "type": "Program"
+                        }
+                });
+
+                pass(`/{/;`, {
+                    source: `/{/;`,
+                    loc: true,
+                    ranges: true,
+                    raw: true,
+                    expected: {
+                        "type": "Program",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "Literal",
+                                    "value": {},
+                                    "regex": {
+                                        "pattern": "{",
+                                        "flags": ""
+                                    },
+                                    "start": 0,
+                                    "end": 3,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 0
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 3
+                                        }
+                                    },
+                                    "raw": "/{/"
+                                },
+                                "start": 0,
+                                "end": 4,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 4
+                                    }
+                                }
+                            }
+                        ],
+                        "sourceType": "script",
+                        "start": 0,
+                        "end": 4,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 4
+                            }
+                        }
+                    }
+                });
+    });
+
+    describe('Numeric (B1.1)', () => {
 
         pass(`004`, {
             source: `004`,
