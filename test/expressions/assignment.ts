@@ -2,6 +2,160 @@ import { pass, fail } from '../utils';
 
 describe('Expressions - Assignment', () => {
 
+        pass(`[a,b] = [b,a];`, {
+            source: '[a,b] = [b,a];',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "ExpressionStatement",
+                        "expression": {
+                            "type": "AssignmentExpression",
+                            "left": {
+                                "type": "ArrayPattern",
+                                "elements": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "a",
+                                        "start": 1,
+                                        "end": 2,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 1
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 2
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "type": "Identifier",
+                                        "name": "b",
+                                        "start": 3,
+                                        "end": 4,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 3
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 4
+                                            }
+                                        }
+                                    }
+                                ],
+                                "start": 0,
+                                "end": 5,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 5
+                                    }
+                                }
+                            },
+                            "operator": "=",
+                            "right": {
+                                "type": "ArrayExpression",
+                                "elements": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "b",
+                                        "start": 9,
+                                        "end": 10,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 9
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 10
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "type": "Identifier",
+                                        "name": "a",
+                                        "start": 11,
+                                        "end": 12,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 11
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 12
+                                            }
+                                        }
+                                    }
+                                ],
+                                "start": 8,
+                                "end": 13,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 8
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 13
+                                    }
+                                }
+                            },
+                            "start": 0,
+                            "end": 13,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 13
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 14,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 14
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 14,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 14
+                    }
+                }
+            }
+        });
+
         pass(`a = (b, c)`, {
             source: 'a = (b, c)',
             loc: true,

@@ -28,10 +28,9 @@ export const enum Context {
     LocationTracking       = 1 << 24,
     Expression             = 1 << 25,
     Pattern                = 1 << 26,
-    ForceBinding           = 1 << 27,  // If node was parsed in a context where we need to force binding
-    ValidateEscape         = 1 << 28,  // If node was parsed in a context where escaped keywords are forbidden
-    Let                    = 1 << 29,  // Variable declaration
-    Const                  = 1 << 30,  // Variable declaration
+    ValidateEscape         = 1 << 27,  // If node was parsed in a context where escaped keywords are forbidden
+    Let                    = 1 << 28,  // Variable declaration
+    Const                  = 1 << 29,  // Variable declaration
     
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
