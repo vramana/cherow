@@ -1727,18 +1727,6 @@ export class Parser {
                             break;
                         }
     
-                        // LineTerminators
-                    case Chars.CarriageReturn:
-                        if (this.hasNext() && this.nextChar() === Chars.LineFeed) {
-                            this.index++;
-                        }
-                        // falls through
-                    case Chars.LineFeed:
-                    case Chars.LineSeparator:
-                    case Chars.ParagraphSeparator:
-                        this.column = -1;
-                        this.line++;
-                        // falls through
                     default:
                         // ignore
                 }
@@ -4880,7 +4868,6 @@ export class Parser {
                         if (this.token === Token.Arrow) {
                             return this.parseArrowFunctionExpression(context & ~(Context.Await | Context.Yield), pos, expressions);
                         }
-                        this.error(Errors.UnexpectedToken, tokenDesc(token));
                     } else if (this.token === Token.Ellipsis) {
                         expressions.push(this.parseRestElement(context));
                         this.expect(context, Token.RightParen);
@@ -5193,15 +5180,8 @@ export class Parser {
     
             if (!this.parseOptional(context, Token.Assign)) return pattern;
     
-            if (context & Context.InParameter) {
-    
-                switch (this.token) {
-                    case Token.YieldKeyword:
-                        if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                    case Token.AwaitKeyword:
-                        if (context & Context.Await) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                    default: // ignore
-                }
+             if (context & Context.InParameter && this.token === Token.YieldKeyword) {
+               if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
             }
     
             return this.finishNode(context, pos, {

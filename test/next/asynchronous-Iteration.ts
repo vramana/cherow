@@ -13,6 +13,10 @@ describe('Next - Asynchronous Iteration', () => {
             next: true
         });
     
+        fail(`var C = class { async *gen() {} }`, {
+            source: `var C = class { async *gen() {} }`
+        });
+    
         fail('rest parameter has an initializer', {
             source: `0, async function* g(...x = []) {};`,
             next: true

@@ -1,26 +1,43 @@
 import { pass, fail } from '../utils';
 import * as t from 'assert';
+import { parseScript, parseModule } from '../../src/cherow';
 
 describe('Miscellaneous - API', () => {
-
-    fail(`JSX syntax by default`, {
-        source: `<head/>`,
-    });    
-
-    fail(`JSX syntax by default (module)`, {
-        source: `<head/>`,
-        module: true
-    });    
-
-    pass(`source option on location node`, {
-        source: `function f(){}`,
-        ranges: true,
-        loc: true,
-        raw: true,
-        expected: {
-            "type": "Program",
-            "body": [
-                {
+    
+        fail(`JSX syntax by default`, {
+            source: `<head/>`,
+        });
+    
+        fail(`JSX syntax by default (module)`, {
+            source: `<head/>`,
+            module: true
+        });
+    
+        it('Should handle source on node', () => {
+    
+            const parser = parseScript('1', {
+                source: 'foo'
+            });
+            t.deepEqual(parser, {
+                "body": [{
+                    "expression": {
+                        "type": "Literal",
+                        "value": 1,
+                    },
+                    "type": "ExpressionStatement",
+                }, ],
+                "sourceType": "script",
+                "type": "Program",
+            });
+        });
+        pass(`source option on location node`, {
+            source: `function f(){}`,
+            ranges: true,
+            loc: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [{
                     "type": "FunctionDeclaration",
                     "params": [],
                     "body": {
@@ -70,24 +87,23 @@ describe('Miscellaneous - API', () => {
                             "column": 14
                         }
                     }
-                }
-            ],
-            "sourceType": "script",
-            "start": 0,
-            "end": 14,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 0
-                },
-                "end": {
-                    "line": 1,
-                    "column": 14
+                }],
+                "sourceType": "script",
+                "start": 0,
+                "end": 14,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 1,
+                        "column": 14
+                    }
                 }
             }
-        }
-    });
-
+        });
+    
     
         describe('Collect comments', () => {
     
@@ -109,7 +125,7 @@ describe('Miscellaneous - API', () => {
                     "sourceType": "script"
                 }
             });
-
+    
             pass(`/* Hello multiline comment, are you colleced yet? */`, {
                 source: `/* Hello multiline comment, are you colleced yet? */`,
                 ranges: true,
@@ -128,7 +144,7 @@ describe('Miscellaneous - API', () => {
                     "sourceType": "script"
                 }
             });
-
+    
             const foo: any[] = [];
             pass(`/* ABC */ function abc() {} /* DEF */`, {
                 source: `/* ABC */ function abc() {} /* DEF */`,
