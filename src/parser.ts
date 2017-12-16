@@ -330,10 +330,8 @@ export class Parser {
                                 continue;
                             } else if (this.consume(Chars.EqualSign)) {
                                 return Token.DivideAssign;
-                            } else if (this.consume(Chars.GreaterThan)) {
-                                return Token.JSXAutoClose;
-                            }
-    
+                            } 
+
                             return Token.Divide;
                         }
     
@@ -5524,7 +5522,7 @@ export class Parser {
     
         private parseJSXAttributes(context: Context): ESTree.JSXAttribute[] {
             const attributes: ESTree.JSXAttribute[] = [];
-            while (!(this.token === Token.GreaterThan || this.token === Token.JSXAutoClose)) {
+            while (!(this.token === Token.GreaterThan || this.token === Token.Divide)) {
                 if (this.token === Token.LeftBrace) {
                     attributes.push(this.parseJSXSpreadAttribute(context &= ~Context.JSXChild));
                 } else {
@@ -5635,10 +5633,9 @@ export class Parser {
                 if (this.token === Token.GreaterThan) {
                     this.nextJSXToken();
                 } else {
-    
-                    this.expect(context, Token.JSXAutoClose);
+                    this.expect(context, Token.Divide);
+                    this.expect(context, Token.GreaterThan);
                     selfClosing = true;
-                    //this.expect(context, Token.GreaterThan);
                 }
     
                 openingElement = this.finishNode(context, pos, {

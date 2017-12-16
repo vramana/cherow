@@ -617,9 +617,6 @@ Parser.prototype.scan = function scan (context) {
                     else if (this$1.consume(61 /* EqualSign */)) {
                         return 1310757 /* DivideAssign */;
                     }
-                    else if (this$1.consume(62 /* GreaterThan */)) {
-                        return 26 /* JSXAutoClose */;
-                    }
                     return 2361909 /* Divide */;
                 }
             // `<`, `<=`, `<<`, `<<=`, `</`,  <!--
@@ -5101,7 +5098,7 @@ Parser.prototype.parseJSXAttributes = function parseJSXAttributes (context) {
         var this$1 = this;
 
     var attributes = [];
-    while (!(this.token === 2099008 /* GreaterThan */ || this.token === 26 /* JSXAutoClose */)) {
+    while (!(this.token === 2099008 /* GreaterThan */ || this.token === 2361909 /* Divide */)) {
         if (this$1.token === 393228 /* LeftBrace */) {
             attributes.push(this$1.parseJSXSpreadAttribute(context &= ~8192 /* JSXChild */));
         }
@@ -5196,9 +5193,9 @@ Parser.prototype.parseJSXElement = function parseJSXElement (context) {
             this.nextJSXToken();
         }
         else {
-            this.expect(context, 26 /* JSXAutoClose */);
+            this.expect(context, 2361909 /* Divide */);
+            this.expect(context, 2099008 /* GreaterThan */);
             selfClosing = true;
-            //this.expect(context, Token.GreaterThan);
         }
         openingElement = this.finishNode(context, pos, {
             type: 'JSXOpeningElement',
