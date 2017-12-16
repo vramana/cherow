@@ -49,7 +49,236 @@ describe('Statements - Function', () => {
     fail(`var _13_1_18_fun = function (eval) { "use strict"; }`, {
         source: 'var _13_1_18_fun = function (eval) { "use strict"; }',
     });
-
+    
+    pass(`function a({a} = {a: 1}) {}`, {
+        source: `function a({a} = {a: 1}) {}`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "FunctionDeclaration",
+                    "params": [
+                        {
+                            "type": "AssignmentPattern",
+                            "left": {
+                                "type": "ObjectPattern",
+                                "properties": [
+                                    {
+                                        "type": "Property",
+                                        "kind": "init",
+                                        "key": {
+                                            "type": "Identifier",
+                                            "name": "a",
+                                            "start": 12,
+                                            "end": 13,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 12
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 13
+                                                }
+                                            }
+                                        },
+                                        "computed": false,
+                                        "value": {
+                                            "type": "Identifier",
+                                            "name": "a",
+                                            "start": 12,
+                                            "end": 13,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 12
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 13
+                                                }
+                                            }
+                                        },
+                                        "method": false,
+                                        "shorthand": true,
+                                        "start": 12,
+                                        "end": 13,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 12
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 13
+                                            }
+                                        }
+                                    }
+                                ],
+                                "start": 11,
+                                "end": 14,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 11
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 14
+                                    }
+                                }
+                            },
+                            "right": {
+                                "type": "ObjectExpression",
+                                "properties": [
+                                    {
+                                        "type": "Property",
+                                        "key": {
+                                            "type": "Identifier",
+                                            "name": "a",
+                                            "start": 18,
+                                            "end": 19,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 18
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 19
+                                                }
+                                            }
+                                        },
+                                        "value": {
+                                            "type": "Literal",
+                                            "value": 1,
+                                            "start": 21,
+                                            "end": 22,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 21
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 22
+                                                }
+                                            },
+                                            "raw": "1"
+                                        },
+                                        "kind": "init",
+                                        "computed": false,
+                                        "method": false,
+                                        "shorthand": false,
+                                        "start": 18,
+                                        "end": 22,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 18
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 22
+                                            }
+                                        }
+                                    }
+                                ],
+                                "start": 17,
+                                "end": 23,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 17
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 23
+                                    }
+                                }
+                            },
+                            "start": 11,
+                            "end": 23,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 23
+                                }
+                            }
+                        }
+                    ],
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [],
+                        "start": 25,
+                        "end": 27,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 25
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 27
+                            }
+                        }
+                    },
+                    "async": false,
+                    "generator": false,
+                    "expression": false,
+                    "id": {
+                        "type": "Identifier",
+                        "name": "a",
+                        "start": 9,
+                        "end": 10,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 9
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 10
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 27,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 27
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 27,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 27
+                }
+            }
+        }
+    });
+    
     pass(`(function x(y, z) { })`, {
         source: `(function x(y, z) { })`,
         loc: true,

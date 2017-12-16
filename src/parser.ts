@@ -357,15 +357,6 @@ export class Parser {
                                     this.advance();
                                     return Token.LessThanOrEqual;
     
-                                case Chars.Slash:
-                                    {
-                                        if (this.flags & Flags.OptionsJSX) {
-                                            this.advance();
-                                            return Token.JSXClose;
-                                        }
-    
-                                    }
-    
                                 case Chars.Exclamation:
                                     {
                                         if (!(context & Context.Module)) {
@@ -380,7 +371,12 @@ export class Parser {
                                             }
                                         }
                                     }
-    
+                                case Chars.Slash:
+                                    {
+                                     if (!(this.flags & Flags.OptionsJSX)) break;
+                                     this.advance();
+                                     return Token.JSXClose;
+                                    }
                                 default:
     
                                     return Token.LessThan;
@@ -809,8 +805,8 @@ export class Parser {
     
             if (state & ScanState.Collectable && this.comments !== undefined) {
                 let loc;
-                let start;
-                let end;
+                const start = this.startIndex;
+                const end = this.index;
                 const type = state & ScanState.MultiLine ? 'Block' : 'Line';
                 const value = this.source.slice(startPos, state & ScanState.MultiLine ? this.index - 2 : this.index);
     
@@ -826,17 +822,10 @@ export class Parser {
                         }
                     };
                 }
-    
-                if (this.flags & Flags.OptionsRanges) {
-                    start = this.startIndex;
-                    end = this.index;
-                }
-    
+
                 if (typeof this.comments === 'function') {
                     this.comments(type, value, start as number, end as number, loc);
-                }
-    
-                if (Array.isArray(this.comments)) {
+                } else if (Array.isArray(this.comments)) {
     
                     const node: any = {
                         type,
@@ -1115,10 +1104,9 @@ export class Parser {
                         }
     
                     case Chars.Underscore:
-                        if (!(this.flags & Flags.OptionsNext)) break;
                         this.flags |= Flags.ContainsSeparator;
                         this.advance();
-    
+                        // falls through
                     case Chars.Zero:
                     case Chars.One:
                     case Chars.Two:
@@ -1249,7 +1237,7 @@ export class Parser {
     
                 this.tokenValue = parseFloat(result);
     
-                if (state & NumericState.BigInt) return Token.BigInt;
+//                if (state & NumericState.BigInt) return Token.BigInt;
                 return Token.NumericLiteral;
             }
     
@@ -1657,7 +1645,7 @@ export class Parser {
                             ch = this.scanNext(Errors.UnterminatedTemplate);
     
                             if (ch >= 128) {
-                                ret += fromCodePoint(ch);
+                               // ret += fromCodePoint(ch);
                             } else {
                                 this.lastChar = ch;
                                 const code = this.scanEscape(context, ch, true);
@@ -1725,7 +1713,6 @@ export class Parser {
                                 this.column++;
                                 return -ch;
                             }
-                            break;
                         }
     
                     default:
@@ -1741,15 +1728,6 @@ export class Parser {
         private scanJSXIdentifier(context: Context): Token {
             if (this.isIdentifierOrKeyword(this.token)) {
                 const firstCharPosition = this.index;
-                while (this.hasNext()) {
-                    const ch = this.nextChar();
-                    if (ch === Chars.Hyphen || ((firstCharPosition === this.index) ? isIdentifierStart(ch) : isIdentifierPart(ch))) {
-                        this.advance();
-                    } else {
-                        break;
-                    }
-                }
-    
                 this.tokenValue += this.source.slice(firstCharPosition, this.index - firstCharPosition);
     
             }
@@ -1868,10 +1846,6 @@ export class Parser {
                         column: this.lastColumn
                     }
                 };
-    
-                if (this.flags & Flags.OptionsSource) {
-                    node.loc.source = this.locSource;
-                }
             }
     
             return node;
@@ -2632,8 +2606,6 @@ export class Parser {
                 }
             }
     
-            if (label === null && !(this.flags & Flags.IterationStatement)) this.error(Errors.BadContinue);
-    
             this.consumeSemicolon(context);
     
             return this.finishNode(context, pos, {
@@ -2696,8 +2668,6 @@ export class Parser {
     
             if (this.token !== Token.Semicolon) {
     
-                if (token & Token.VarDeclStart) {
-    
                     const VarDeclStart = this.getLocations();
     
                     if (this.parseOptional(context, Token.VarKeyword)) {
@@ -2716,8 +2686,6 @@ export class Parser {
                             kind: tokenDesc(token)
                         });
                     }
-    
-                } else init = this.parseExpression(context & ~Context.AllowIn, pos);
             }
     
             this.flags |= Flags.IterationStatement;
@@ -4173,7 +4141,7 @@ export class Parser {
                     if (mask & FieldState.Method) {
                         if (method === undefined) method = {};
                         method[key] = mask;
-                    } else if (mask & FieldState.Scope) {
+                    } if (mask & FieldState.Scope) {
                         if (scope === undefined) scope = {};
                         else if (scope[key]) this.error(Errors.DuplicateBinding, '#' + key);
                         scope[key] = true;

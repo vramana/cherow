@@ -978,4 +978,81 @@ describe('Next - BigInt', () => {
             }
         }
     });
+
+    pass(`0o0_11n`, {
+        source: '0o0_11n',
+        loc: true,
+        ranges: true,
+        next: true,
+        raw: true,
+        expected: {
+              "body": [
+                {
+                  "end": 7,
+                  "expression": {
+                    "bigint": "0o0_11n",
+                    "end": 7,
+                    "loc": {
+                     "end": {
+                        "column": 7,
+                        "line": 1,
+                      },
+                      "start": {
+                        "column": 0,
+                        "line": 1,
+                      },
+                    },
+                    "raw": "0o0_11n",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": 9,
+                  },
+                  "loc": {
+                    "end": {
+                      "column": 7,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    },
+                  },
+                  "start": 0,
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "end": 7,
+              "loc": {
+               "end": {
+                  "column": 7,
+                  "line": 1,
+                },
+                "start": {
+                  "column": 0,
+                  "line": 1,
+                }
+              },
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            }
+    });
+    
+    pass(`123456789_8n`, {
+        source: '123456789_8n',
+        raw: true,
+        next: true,
+        expected: {
+            "body": [{
+                "expression": {
+                    "raw": "123456789_8n",
+                    "type": "Literal",
+                    "value": 1234567898,
+                },
+                "type": "ExpressionStatement",
+            }, ],
+            "sourceType": "script",
+            "type": "Program"
+        }
+    });
 });
