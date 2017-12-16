@@ -5,7 +5,7 @@ import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimple
 import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, ScanState, ParenthesizedState, NumericState, Escape, FieldState } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
-import { isValidIdentifierStart, isvalidIdentifierContinue, isIdentifierStart, isIdentifierPart } from './unicode';
+import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location, EmitComments } from './interface';
 export class Parser {
     
@@ -593,7 +593,7 @@ export class Parser {
                             this.advance();
     
                             // Fixes '<a>= == =</a>'
-                            if (context & Context.JSXChild) return Token.GreaterThan;
+                            if (context & Context.Expression) return Token.GreaterThan;
     
                             let next = this.nextChar();
     
@@ -659,11 +659,11 @@ export class Parser {
                                     return Token.Ellipsis;
                                 }
                             }
-    
+
                             this.advance();
                             return Token.Period;
                         }
-    
+
                         // '0' - '9'
                     case Chars.Zero:
                     case Chars.One:
@@ -675,7 +675,7 @@ export class Parser {
                     case Chars.Seven:
                     case Chars.Eight:
                     case Chars.Nine:
-    
+
                         return this.scanNumber(context, first);
     
                         // '\uVar', `\u{N}var`
@@ -708,10 +708,8 @@ export class Parser {
                     case Chars.UpperX:
                     case Chars.UpperY:
                     case Chars.UpperZ:
-    
                     case Chars.Dollar:
                     case Chars.Underscore:
-    
                     case Chars.LowerA:
                     case Chars.LowerB:
                     case Chars.LowerC:
@@ -740,7 +738,9 @@ export class Parser {
                     case Chars.LowerZ:
                         return this.scanIdentifier(context, state);
                     default:
-                        if (isValidIdentifierStart(first)) return this.scanIdentifier(context, state | ScanState.Unicode);
+                        if (isValidIdentifierStart(first)) {
+                            return this.scanIdentifier(context, state | ScanState.Unicode);
+                        }
                         this.error(Errors.UnexpectedToken, fromCodePoint(first));
                 }
             }
@@ -1237,7 +1237,7 @@ export class Parser {
     
                 this.tokenValue = parseFloat(result);
     
-//                if (state & NumericState.BigInt) return Token.BigInt;
+                if (state & NumericState.BigInt) return Token.BigInt;
                 return Token.NumericLiteral;
             }
     
@@ -1405,7 +1405,7 @@ export class Parser {
                             if (code >= 0) {
                                 ret += fromCodePoint(code as Chars);
                             } else {
-                                this.handleStringError(code as Escape);
+                                this.handleStringError(context, code as Escape);
                             }
     
                             this.flags |= Flags.ExtendedUnicodeEscape;
@@ -1429,16 +1429,12 @@ export class Parser {
             return Token.StringLiteral;
         }
     
-        private handleStringError(
-            code: Escape
-        ): void {
+        private handleStringError(context: Context, code: Escape) {
             switch (code) {
                 case Escape.Empty:
                     return;
                 case Escape.StrictOctal:
-                    this.error(Errors.StrictOctalEscape);
-                case Escape.TemplateOctalLiteral:
-                    this.error(Errors.TemplateOctalLiteral);
+                    this.error(context & Context.Template ? Errors.StrictOctalEscape : Errors.TemplateOctalLiteral);
                 case Escape.EightOrNine:
                     this.error(Errors.InvalidEightAndNine);
                 case Escape.InvalidHex:
@@ -1450,7 +1446,7 @@ export class Parser {
             }
         }
     
-        private scanEscape(context: Context, cp: Chars, isTemplate: boolean = false): Chars | Escape {
+        private scanEscape(context: Context, cp: Chars): Chars | Escape {
     
             switch (cp) {
                 case Chars.LowerB:
@@ -1483,8 +1479,6 @@ export class Parser {
                         let code = cp - Chars.Zero;
                         let index = this.index + 1;
                         let column = this.column + 1;
-    
-                        if (isTemplate && !(context & Context.TaggedTemplate)) return Escape.TemplateOctalLiteral;
     
                         let next = this.source.charCodeAt(index);
     
@@ -1521,9 +1515,6 @@ export class Parser {
                 case Chars.Six:
                 case Chars.Seven:
                     {
-                        if (isTemplate && !(context & Context.TaggedTemplate)) {
-                            return Escape.TemplateOctalLiteral;
-                        }
     
                         if (context & Context.Strict) {
                             return Escape.StrictOctal;
@@ -1643,12 +1634,12 @@ export class Parser {
                         case Chars.Backslash:
     
                             ch = this.scanNext(Errors.UnterminatedTemplate);
-    
+
                             if (ch >= 128) {
-                               // ret += fromCodePoint(ch);
+                                ret += fromCodePoint(ch);
                             } else {
                                 this.lastChar = ch;
-                                const code = this.scanEscape(context, ch, true);
+                                const code = this.scanEscape(context | Context.Strict, ch);
     
                                 if (code >= 0) {
                                     ret += fromCodePoint(code as Chars);
@@ -1656,15 +1647,13 @@ export class Parser {
                                     ret = null;
                                     ch = this.scanLooserTemplateSegment();
                                     if (ch < 0) {
-                                        ch = -ch;
                                         tail = false;
                                     }
                                     break loop;
                                 } else {
-                                    this.handleStringError(code as Escape);
+                                    this.handleStringError(context | Context.Template, code as Escape);
                                 }
                             }
-    
                             break;
     
                             // Line terminators
@@ -4087,7 +4076,7 @@ export class Parser {
                 case Token.LetKeyword:
                     return this.parseLet(context);
                 case Token.LessThan:
-                    if (this.flags & Flags.OptionsJSX) return this.parseJSXElement(context | Context.JSXChild);
+                    if (this.flags & Flags.OptionsJSX) return this.parseJSXElement(context | Context.Expression);
                 case Token.Hash:
                     if (context & Context.Method) return this.parsePrivateName(context);
                 case Token.YieldKeyword:
@@ -5284,7 +5273,7 @@ export class Parser {
             const children: any = [];
     
             while (this.token !== Token.JSXClose) {
-                children.push(this.parseJSXChild(context | Context.JSXChild, this.getLocations()));
+                children.push(this.parseJSXChild(context | Context.Expression, this.getLocations()));
             }
     
             return children;
@@ -5300,9 +5289,9 @@ export class Parser {
                 case Token.Identifier:
                     return this.parseJSXText(context);
                 case Token.LeftBrace:
-                    return this.parseJSXExpressionContainer(context, pos);
+                    return this.parseJSXExpressionContainer(context);
                 case Token.LessThan:
-                    return this.parseJSXElement(context & ~Context.JSXChild);
+                    return this.parseJSXElement(context & ~Context.Expression);
                 default: // ignore
             }
         }
@@ -5342,10 +5331,9 @@ export class Parser {
         }
     
         private parseJSXExpressionContainer(
-            context: Context,
-            pos: Location
+            context: Context
         ): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
-    
+            const pos = this.getLocations()
             this.expect(context, Token.LeftBrace);
     
             if (this.token === Token.Ellipsis) {
@@ -5377,7 +5365,7 @@ export class Parser {
     
             const name = this.parseJSXElementName(context);
     
-            if (context & Context.JSXChild) {
+            if (context & Context.Expression) {
                 this.expect(context, Token.GreaterThan);
             } else {
                 this.nextJSXToken();
@@ -5392,8 +5380,7 @@ export class Parser {
         private scanJSXString(quote: number): Token {
     
             let ret = '';
-    
-            this.advance(); // Consume the quote
+            this.advance();
             let ch = this.nextChar();
     
             while (ch !== quote) {
@@ -5484,7 +5471,7 @@ export class Parser {
             const attributes: ESTree.JSXAttribute[] = [];
             while (!(this.token === Token.GreaterThan || this.token === Token.Divide)) {
                 if (this.token === Token.LeftBrace) {
-                    attributes.push(this.parseJSXSpreadAttribute(context &= ~Context.JSXChild));
+                    attributes.push(this.parseJSXSpreadAttribute(context &= ~Context.Expression));
                 } else {
                     attributes.push(this.parseJSXAttribute(context));
                 }
@@ -5556,7 +5543,7 @@ export class Parser {
     
             this.scanJSXIdentifier(context);
     
-            let expression: ESTree.JSXIdentifier | ESTree.JSXMemberExpression = this.parseJSXIdentifier(context | Context.JSXChild);
+            let expression: ESTree.JSXIdentifier | ESTree.JSXMemberExpression = this.parseJSXIdentifier(context | Context.Expression);
     
             // Namespace
             if (this.token === Token.Colon) return this.parseJSXNamespacedName(context, expression, pos);

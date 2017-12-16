@@ -75,8 +75,5 @@
     "exclude": [
       "build/test/**/*.*"
     ]
-  },
-  "dependencies": {
-    "snap-shot-it": "^4.0.1"
   }
 }
