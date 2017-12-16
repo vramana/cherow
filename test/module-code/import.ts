@@ -11,6 +11,11 @@ describe('Miscellaneous - Import', () => {
           source: `import a, {b as a} from "module";`,
           module: true
       });
+
+      fail(`import { arguments } from './foo';`, {
+        source: `import { arguments } from './foo';`,
+        module: true
+     });
   
       fail(`import a, {b as a} from "module";`, {
         source: `import a, {b as a} from "module";`,

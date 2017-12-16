@@ -3,6 +3,8 @@ import { Statement, ExpressionStatement, Literal, Expression, Pattern } from './
 import { Token } from './token';
 import { Flags, Context } from './masks';
 
+export const isInOrOfKeyword = (t: Token) => t === Token.InKeyword || t === Token.OfKeyword;
+
 // Fully qualified element name, e.g. <svg:path> returns "svg:path"
 export function isQualifiedJSXName(elementName: any): any {
     switch (elementName.type) {

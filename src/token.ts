@@ -19,9 +19,7 @@ export const enum Token {
     VarDeclStart    = 1 << 23 | ExpressionStart,
     Modifiers       = 1 << 24,
     IsLogical       = 1 << 25,
-    IsInKeyword     = 1 << 26,
-    EvalOrArguments = 1 << 27,
-    IsIdentifier = 1 << 27,
+    IsIdentifier    = 1 << 26,
 
     /* Node types */
     EndOfSource = 0, // Pseudo
@@ -167,9 +165,7 @@ export const enum Token {
 
     /** State 3 proposals */
     Hash               = 117,
-    BigInt             = 118,
-    Eval               = 119 | EvalOrArguments,
-    Arguments          = 120 | EvalOrArguments,
+    BigInt             = 118
 }
 
 const KeywordDescTable = [
@@ -215,9 +211,6 @@ const KeywordDescTable = [
     /* JSX */
 
     'JSXText', '#', 'BigInt',
-
-    /** V8 */
-    'eval', 'arguments'
 ];
 
 /**

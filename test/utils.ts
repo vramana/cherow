@@ -58,4 +58,5 @@ export const fail = (name: string, opts: Opts) => {
             opts.module ? parseModule(opts.source, CherowOpts) : parseScript(opts.source, CherowOpts);
         });
     });
+  
 }
