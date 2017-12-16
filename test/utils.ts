@@ -36,7 +36,7 @@ export const pass = (name: string, opts: Opts) => {
         impliedStrict: opts.impliedStrict,
         comments: opts.comments
     }
-
+    const esprima = require('esprima').parseScript;
     it('Should pass "' + name + '"', () => {
         const parser = opts.module ? parseModule(opts.source, CherowOpts) : parseScript(opts.source, CherowOpts);
         t.deepEqual(parser, opts.expected);

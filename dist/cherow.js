@@ -617,6 +617,9 @@ Parser.prototype.scan = function scan (context) {
                     else if (this$1.consume(61 /* EqualSign */)) {
                         return 1310757 /* DivideAssign */;
                     }
+                    else if (this$1.consume(62 /* GreaterThan */)) {
+                        return 26 /* JSXAutoClose */;
+                    }
                     return 2361909 /* Divide */;
                 }
             // `<`, `<=`, `<<`, `<<=`, `</`,  <!--
@@ -1398,8 +1401,6 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                 if (this.flags & 4194304 /* OptionsNext */) {
                     var preNumericPart = this.index;
                     var finalFragment = this.scanDecimalDigitsOrFragment();
-                    if (!finalFragment)
-                        { this.error(90 /* UnexpectedNumber */); }
                     scientificFragment = this.source.substring(end, preNumericPart) + finalFragment;
                 }
                 else {
@@ -1421,7 +1422,9 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
         if (this.flags & 2097152 /* OptionsRaw */)
             { this.tokenRaw = this.source.slice(start, this.index); }
         this.tokenValue = parseFloat(result);
-        return state & 64 /* BigInt */ ? 118 /* BigInt */ : 262146 /* NumericLiteral */;
+        if (state & 64 /* BigInt */)
+            { return 118 /* BigInt */; }
+        return 262146 /* NumericLiteral */;
     }
     // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
     // The SourceCharacter immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
@@ -1857,16 +1860,15 @@ Parser.prototype.scanLooserTemplateSegment = function scanLooserTemplateSegment 
 Parser.prototype.scanJSXIdentifier = function scanJSXIdentifier (context) {
         var this$1 = this;
 
-    if (this.token & 67108864 /* IsIdentifier */) {
+    if (this.isIdentifierOrKeyword(this.token)) {
         var firstCharPosition = this.index;
-        scan: while (this.hasNext()) {
+        while (this.hasNext()) {
             var ch = this$1.nextChar();
-            switch (ch) {
-                case 45 /* Hyphen */:
-                    this$1.advance();
-                    break;
-                default:
-                    break scan;
+            if (ch === 45 /* Hyphen */ || ((firstCharPosition === this$1.index) ? isIdentifierStart(ch) : isIdentifierPart(ch))) {
+                this$1.advance();
+            }
+            else {
+                break;
             }
         }
         this.tokenValue += this.source.slice(firstCharPosition, this.index - firstCharPosition);
@@ -2036,8 +2038,6 @@ Parser.prototype.isLexical = function isLexical (context) {
 };
 Parser.prototype.isIdentifier = function isIdentifier (context, t) {
     if (context & 2 /* Strict */) {
-        if (context & 1 /* Module */ && t === 331885 /* AwaitKeyword */)
-            { return false; }
         if (t === 282730 /* YieldKeyword */)
             { return false; }
         return (t & 67108864 /* IsIdentifier */) === 67108864 /* IsIdentifier */ ||
@@ -3060,8 +3060,6 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
                     { this.error(76 /* UnexpectedStrictReserved */); }
                 this.flags |= 2048 /* Binding */;
             }
-            if (expr.type !== 'Identifier')
-                { this.throwUnexpectedToken(); }
             return this.parseArrowFunctionExpression(context & ~(32 /* Await */) | 8 /* Arrow */, pos, [expr]);
         }
     }
@@ -4866,14 +4864,9 @@ Parser.prototype.ObjectAssignmentPattern = function ObjectAssignmentPattern (con
     var properties = [];
     this.expect(context, 393228 /* LeftBrace */);
     while (this.token !== 15 /* RightBrace */) {
-        if (this$1.token === 14 /* Ellipsis */) {
-            if (!(this$1.flags & 4194304 /* OptionsNext */))
-                { this$1.throwUnexpectedToken(); }
-            properties.push(this$1.parseRestProperty(context));
-        }
-        else {
-            properties.push(this$1.parseAssignmentProperty(context));
-        }
+        properties.push(this$1.token === 14 /* Ellipsis */ ?
+            this$1.parseRestProperty(context) :
+            this$1.parseAssignmentProperty(context));
         if (this$1.token !== 15 /* RightBrace */)
             { this$1.parseOptional(context, 18 /* Comma */); }
     }
@@ -5007,78 +5000,15 @@ Parser.prototype.parseJSXExpressionContainer = function parseJSXExpressionContai
         expression: expression
     });
 };
-Parser.prototype.parseJSXClosingFragment = function parseJSXClosingFragment (context) {
+Parser.prototype.parseJSXClosingElement = function parseJSXClosingElement (context, isFragment) {
     var pos = this.getLocations();
     this.expect(context, 25 /* JSXClose */);
-    this.expect(context, 2099008 /* GreaterThan */);
-    return this.finishNode(context, pos, {
-        type: 'JSXClosingFragment'
-    });
-};
-Parser.prototype.parseJSXElement = function parseJSXElement (context) {
-    var pos = this.getLocations();
-    var openingElement = this.parseJSXOpeningElement(context);
-    var children = [];
-    var closingElement = null;
-    if (openingElement.type === 'JSXOpeningFragment') {
-        children = this.parseJSXChildren(context);
-        closingElement = this.parseJSXClosingFragment(context);
+    if (isFragment) {
+        this.expect(context, 2099008 /* GreaterThan */);
         return this.finishNode(context, pos, {
-            type: 'JSXFragment',
-            children: children,
-            openingElement: openingElement,
-            closingElement: closingElement,
+            type: 'JSXClosingFragment'
         });
     }
-    if (!openingElement.selfClosing) {
-        children = this.parseJSXChildren(context);
-        closingElement = this.parseJSXClosingElement(context);
-        var open = isQualifiedJSXName(openingElement.name);
-        var close = isQualifiedJSXName(closingElement.name);
-        if (open !== close)
-            { this.error(40 /* ExpectedJSXClosingTag */, close); }
-    }
-    return this.finishNode(context, pos, {
-        type: 'JSXElement',
-        children: children,
-        openingElement: openingElement,
-        closingElement: closingElement,
-    });
-};
-Parser.prototype.parseJSXOpeningElement = function parseJSXOpeningElement (context) {
-    var pos = this.getLocations();
-    this.expect(context, 2361151 /* LessThan */);
-    if (this.token === 2099008 /* GreaterThan */) {
-        this.nextJSXToken();
-        return this.finishNode(context, pos, {
-            type: 'JSXOpeningFragment'
-        });
-    }
-    var tagName = this.parseJSXElementName(context);
-    var attributes = this.parseJSXAttributes(context);
-    var selfClosing = this.token === 2361909;
-    if (this.token === 2099008 /* GreaterThan */) {
-        this.nextJSXToken();
-    }
-    else {
-        this.expect(context, 2361909 /* Divide */);
-        if (context & 8192 /* JSXChild */) {
-            this.expect(context, 2099008 /* GreaterThan */);
-        }
-        else {
-            this.nextJSXToken();
-        }
-    }
-    return this.finishNode(context, pos, {
-        type: 'JSXOpeningElement',
-        name: tagName,
-        attributes: attributes,
-        selfClosing: selfClosing
-    });
-};
-Parser.prototype.parseJSXClosingElement = function parseJSXClosingElement (context) {
-    var pos = this.getLocations();
-    this.expect(context, 25 /* JSXClose */);
     var name = this.parseJSXElementName(context);
     if (context & 8192 /* JSXChild */) {
         this.expect(context, 2099008 /* GreaterThan */);
@@ -5091,39 +5021,31 @@ Parser.prototype.parseJSXClosingElement = function parseJSXClosingElement (conte
         name: name
     });
 };
-Parser.prototype.scanJSXString = function scanJSXString () {
+Parser.prototype.scanJSXString = function scanJSXString (quote) {
         var this$1 = this;
 
-    var rawStart = this.index;
-    var quote = this.nextChar();
-    this.advance();
     var ret = '';
-    var start = this.index;
-    var ch;
+    this.advance(); // Consume the quote
+    var ch = this.nextChar();
     while (ch !== quote) {
-        this$1.advance();
-        ch = this$1.nextChar();
+        ret += fromCodePoint(ch);
+        ch = this$1.scanNext();
     }
-    // check for unterminated string
-    if (ch !== quote)
-        { this.error(3 /* UnterminatedString */); }
-    if (start !== this.index)
-        { ret += this.source.slice(start, this.index); }
-    this.advance(); // skip the quote
-    this.tokenValue = ret;
-    // raw
+    this.advance(); // Consume the quote
     if (this.flags & 2097152 /* OptionsRaw */)
-        { this.storeRaw(rawStart); }
+        { this.storeRaw(this.startIndex); }
+    this.tokenValue = ret;
     return 262147 /* StringLiteral */;
 };
 Parser.prototype.scanJSXAttributeValue = function scanJSXAttributeValue (context) {
     this.startIndex = this.index;
     this.startColumn = this.column;
     this.startLine = this.line;
-    switch (this.nextChar()) {
+    var ch = this.nextChar();
+    switch (ch) {
         case 34 /* DoubleQuote */:
         case 39 /* SingleQuote */:
-            return this.scanJSXString();
+            return this.scanJSXString(ch);
         default:
             this.nextToken(context);
     }
@@ -5142,24 +5064,22 @@ Parser.prototype.parseJSXSpreadAttribute = function parseJSXSpreadAttribute (con
 Parser.prototype.parseJSXAttributeName = function parseJSXAttributeName (context) {
     var pos = this.getLocations();
     var identifier = this.parseJSXIdentifier(context);
-    if (this.token !== 21 /* Colon */)
-        { return identifier; }
-    return this.parseJSXNamespacedName(context, identifier, pos);
+    if (this.token === 21 /* Colon */)
+        { return this.parseJSXNamespacedName(context, identifier, pos); }
+    return identifier;
 };
 Parser.prototype.parseJSXAttribute = function parseJSXAttribute (context) {
     var pos = this.getLocations();
     var value = null;
     var attrName = this.parseJSXAttributeName(context);
-    switch (this.token) {
-        case 1310749 /* Assign */:
-            switch (this.scanJSXAttributeValue(context)) {
-                case 262147 /* StringLiteral */:
-                    value = this.parseLiteral(context);
-                    break;
-                default:
-                    value = this.parseJSXExpressionAttribute(context);
-            }
-        default: // ignore
+    if (this.token === 1310749 /* Assign */) {
+        switch (this.scanJSXAttributeValue(context)) {
+            case 262147 /* StringLiteral */:
+                value = this.parseLiteral(context);
+                break;
+            default:
+                value = this.parseJSXExpressionAttribute(context);
+        }
     }
     return this.finishNode(context, pos, {
         type: 'JSXAttribute',
@@ -5170,8 +5090,6 @@ Parser.prototype.parseJSXAttribute = function parseJSXAttribute (context) {
 Parser.prototype.parseJSXExpressionAttribute = function parseJSXExpressionAttribute (context) {
     var pos = this.getLocations();
     this.expect(context, 393228 /* LeftBrace */);
-    if (this.token === 14 /* Ellipsis */)
-        { return this.parseJSXSpreadChild(context); }
     var expression = this.parseAssignmentExpression(context);
     this.expect(context, 15 /* RightBrace */);
     return this.finishNode(context, pos, {
@@ -5183,44 +5101,40 @@ Parser.prototype.parseJSXAttributes = function parseJSXAttributes (context) {
         var this$1 = this;
 
     var attributes = [];
-    loop: while (this.hasNext()) {
-        switch (this$1.token) {
-            case 2361909 /* Divide */:
-            case 2099008 /* GreaterThan */:
-                break loop;
-            case 393228 /* LeftBrace */:
-                attributes.push(this$1.parseJSXSpreadAttribute(context &= ~8192 /* JSXChild */));
-                break;
-            default:
-                attributes.push(this$1.parseJSXAttribute(context));
+    while (!(this.token === 2099008 /* GreaterThan */ || this.token === 26 /* JSXAutoClose */)) {
+        if (this$1.token === 393228 /* LeftBrace */) {
+            attributes.push(this$1.parseJSXSpreadAttribute(context &= ~8192 /* JSXChild */));
+        }
+        else {
+            attributes.push(this$1.parseJSXAttribute(context));
         }
     }
     return attributes;
 };
 Parser.prototype.nextJSXToken = function nextJSXToken () {
-    this.token = this.scanJSXToken();
-};
-Parser.prototype.scanJSXToken = function scanJSXToken () {
         var this$1 = this;
 
-    // Set 'lastIndex' and 'startIndex' to current index
     this.lastIndex = this.startIndex = this.index;
-    if (this.consume(60 /* LessThan */)) {
-        if (this.nextChar() !== 47 /* Slash */)
-            { return 2361151 /* LessThan */; }
+    var next = this.nextChar();
+    if (next === 60 /* LessThan */) {
         this.advance();
-        return 25 /* JSXClose */;
-    }
-    if (this.consume(123 /* LeftBrace */))
-        { return 393228 /* LeftBrace */; }
-    while (this.hasNext()) {
-        if (this$1.nextChar() === 123 /* LeftBrace */ ||
-            this$1.nextChar() === 60 /* LessThan */) {
-            break;
+        if (this.consume(47 /* Slash */)) {
+            this.token = 25 /* JSXClose */;
         }
-        this$1.advance();
+        else {
+            this.token = 2361151 /* LessThan */;
+        }
     }
-    return 116 /* JSXText */;
+    else if (next === 123 /* LeftBrace */) {
+        this.advance();
+        this.token = 393228 /* LeftBrace */;
+    }
+    else {
+        while (!(this.nextChar() === 123 /* LeftBrace */ || this.nextChar() === 60 /* LessThan */)) {
+            this$1.advance();
+        }
+        this.token = 116 /* JSXText */;
+    }
 };
 Parser.prototype.parseJSXIdentifier = function parseJSXIdentifier (context) {
     var name = this.tokenValue;
@@ -5261,6 +5175,64 @@ Parser.prototype.parseJSXElementName = function parseJSXElementName (context) {
         expression = this$1.parseJSXMemberExpression(context, expression, pos);
     }
     return expression;
+};
+Parser.prototype.parseJSXElement = function parseJSXElement (context) {
+    var pos = this.getLocations();
+    var openingElement = null;
+    var selfClosing = false;
+    var isFragment = false;
+    this.expect(context, 2361151 /* LessThan */);
+    if (this.token === 2099008 /* GreaterThan */) {
+        isFragment = true;
+        this.nextJSXToken();
+        openingElement = this.finishNode(context, pos, {
+            type: 'JSXOpeningFragment'
+        });
+    }
+    else {
+        var tagName = this.parseJSXElementName(context);
+        var attributes = this.parseJSXAttributes(context);
+        if (this.token === 2099008 /* GreaterThan */) {
+            this.nextJSXToken();
+        }
+        else {
+            this.expect(context, 26 /* JSXAutoClose */);
+            selfClosing = true;
+            //this.expect(context, Token.GreaterThan);
+        }
+        openingElement = this.finishNode(context, pos, {
+            type: 'JSXOpeningElement',
+            name: tagName,
+            attributes: attributes,
+            selfClosing: selfClosing
+        });
+    }
+    var children = [];
+    var closingElement = null;
+    if (isFragment || !selfClosing) {
+        children = this.parseJSXChildren(context);
+        closingElement = this.parseJSXClosingElement(context, isFragment);
+        if (isFragment) {
+            return this.finishNode(context, pos, {
+                type: 'JSXFragment',
+                children: children,
+                openingElement: openingElement,
+                closingElement: closingElement,
+            });
+        }
+        else {
+            var open = isQualifiedJSXName(openingElement.name);
+            var close = isQualifiedJSXName(closingElement.name);
+            if (open !== close)
+                { this.error(40 /* ExpectedJSXClosingTag */, close); }
+        }
+    }
+    return this.finishNode(context, pos, {
+        type: 'JSXElement',
+        children: children,
+        openingElement: openingElement,
+        closingElement: closingElement,
+    });
 };
 
 // https://tc39.github.io/ecma262/#sec-scripts
