@@ -3062,10 +3062,8 @@ export class Parser {
                     init = this.parseAssignmentExpression(context & ~(Context.Lexical | Context.ForStatement));
                     if (context & Context.ForStatement) {
                         if (this.token === Token.OfKeyword) this.error(Errors.InvalidVarInitForOf);
-                        if (this.token === Token.InKeyword) {
-                            if (context & (Context.Strict | Context.Lexical)) {
+                        if (this.token === Token.InKeyword && (context & (Context.Strict | Context.Lexical))) {
                                 this.error(Errors.InvalidVarDeclInForIn);
-                            }
                         }
                     }
                 } else if (context & Context.Const && !isInOrOfKeyword(this.token)) {
@@ -3157,8 +3155,7 @@ export class Parser {
                 } else if (this.token === Token.Assign) {
                     if (context & Context.InParenthesis) {
                         this.flags |= Flags.SimpleParameterList;
-                    }
-                    if (this.flags & Flags.Rest) this.error(Errors.InvalidLHSInAssignment);
+                    } else if (this.flags & Flags.Rest) this.error(Errors.InvalidLHSInAssignment);
                     // Note: A functions arameter list is already parsed as pattern, so no need to reinterpret
                     if (!(context & Context.InParameter)) this.reinterpretAsPattern(context, expr);
                 } else if (!isValidSimpleAssignmentTarget(expr)) {
@@ -3362,8 +3359,7 @@ export class Parser {
         // 12.5 Unary Operators
     
         private isPrivateName(expr: any) {
-            if (!expr.property) return false;
-            return expr.property.type === 'PrivateName';
+            return expr.property && expr.property.type === 'PrivateName';
         }
     
         private parseUnaryExpression(context: Context): ESTree.UnaryExpression | ESTree.Expression {
@@ -4233,15 +4229,12 @@ export class Parser {
         }
     
         private parsePrivateProperty(context: Context, pos: Location | undefined, key: ESTree.Expression) {
-            let value: ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression | null = null;
-            if (this.parseOptional(context, Token.Assign)) {
-                if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
-                value = this.parseAssignmentExpression(context);
+            let value = this.parseOptional(context, Token.Assign) ? this.parseAssignmentExpression(context) : null;
+            if (this.isEvalOrArguments(this.tokenValue)) {
+                this.error(Errors.UnexpectedReservedWord);
             }
-    
             this.parseOptional(context, Token.Comma);
-    
-            return this.finishNode(context, pos as Location, {
+                return this.finishNode(context, pos as Location, {
                 type: 'ClassProperty',
                 key,
                 value,
@@ -4756,9 +4749,8 @@ export class Parser {
                     if (this.token === Token.RightParen) {
                         const token = this.token;
                         this.expect(context, Token.RightParen);
-                        if (this.token === Token.Arrow) {
-                            return this.parseArrowFunctionExpression(context & ~(Context.Await | Context.Yield), pos, expressions);
-                        }
+                        if (this.token === Token.Arrow) 
+                        return this.parseArrowFunctionExpression(context & ~(Context.Await | Context.Yield), pos, expressions);
                     } else if (this.token === Token.Ellipsis) {
                         expressions.push(this.parseRestElement(context));
                         this.expect(context, Token.RightParen);
