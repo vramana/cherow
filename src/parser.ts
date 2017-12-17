@@ -4875,9 +4875,7 @@ export class Parser {
 
             if (this.token === Token.TemplateTail) {
                 quasis.push(this.parseTemplateElement(context));
-            }
-            
-            if (this.token === Token.TemplateCont) {
+            } else {
                 this.parseTemplate(context, pos, expressions, quasis);
             }
 
