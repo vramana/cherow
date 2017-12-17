@@ -330,7 +330,7 @@ export class Parser {
                                 continue;
                             } else if (this.consume(Chars.EqualSign)) {
                                 return Token.DivideAssign;
-                            } 
+                            }
 
                             return Token.Divide;
                         }
@@ -373,9 +373,9 @@ export class Parser {
                                     }
                                 case Chars.Slash:
                                     {
-                                     if (!(this.flags & Flags.OptionsJSX)) break;
-                                     this.advance();
-                                     return Token.JSXClose;
+                                        if (!(this.flags & Flags.OptionsJSX)) break;
+                                        this.advance();
+                                        return Token.JSXClose;
                                     }
                                 default:
     
@@ -659,11 +659,11 @@ export class Parser {
                                     return Token.Ellipsis;
                                 }
                             }
-
+    
                             this.advance();
                             return Token.Period;
                         }
-
+    
                         // '0' - '9'
                     case Chars.Zero:
                     case Chars.One:
@@ -675,7 +675,7 @@ export class Parser {
                     case Chars.Seven:
                     case Chars.Eight:
                     case Chars.Nine:
-
+    
                         return this.scanNumber(context, first);
     
                         // '\uVar', `\u{N}var`
@@ -822,7 +822,7 @@ export class Parser {
                         }
                     };
                 }
-
+    
                 if (typeof this.comments === 'function') {
                     this.comments(type, value, start as number, end as number, loc);
                 } else if (Array.isArray(this.comments)) {
@@ -1634,7 +1634,7 @@ export class Parser {
                         case Chars.Backslash:
     
                             ch = this.scanNext(Errors.UnterminatedTemplate);
-
+    
                             if (ch >= 128) {
                                 ret += fromCodePoint(ch);
                             } else {
@@ -1645,14 +1645,19 @@ export class Parser {
                                     ret += fromCodePoint(code as Chars);
                                 } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
                                     ret = null;
-                                    ch = this.scanLooserTemplateSegment();
+                                    ch = this.scanLooserTemplateSegment(this.lastChar);
                                     if (ch < 0) {
+                                        // Before: '-36'
+                                        ch = -ch;
+                                        // After: '36'
                                         tail = false;
                                     }
                                     break loop;
                                 } else {
                                     this.handleStringError(context | Context.Template, code as Escape);
                                 }
+    
+                                ch = this.lastChar;
                             }
                             break;
     
@@ -1684,9 +1689,7 @@ export class Parser {
             }
         }
     
-        private scanLooserTemplateSegment(): Chars {
-    
-            let ch: void | Chars = this.lastChar;
+        private scanLooserTemplateSegment(ch: number): Chars {
     
             while (ch !== Chars.Backtick) {
     
@@ -1703,6 +1706,8 @@ export class Parser {
                                 return -ch;
                             }
                         }
+                    case Chars.Backslash:
+                        ch = this.scanNext();
     
                     default:
                         // ignore
@@ -2657,24 +2662,24 @@ export class Parser {
     
             if (this.token !== Token.Semicolon) {
     
-                    const VarDeclStart = this.getLocations();
+                const VarDeclStart = this.getLocations();
     
-                    if (this.parseOptional(context, Token.VarKeyword)) {
-                        declarations = this.parseVariableDeclarationList(context);
-                    } else if (this.parseOptional(context, Token.ConstKeyword)) {
-                        declarations = this.parseVariableDeclarationList(context | Context.Const);
-                    } else if (this.isLexical(context) && this.parseOptional(context, Token.LetKeyword)) {
-                        declarations = this.parseVariableDeclarationList(context | Context.Let);
-                    } else {
-                        init = this.parseExpression(context & ~Context.AllowIn, pos);
-                    }
-                    if (declarations) {
-                        init = this.finishNode(context, VarDeclStart, {
-                            type: 'VariableDeclaration',
-                            declarations,
-                            kind: tokenDesc(token)
-                        });
-                    }
+                if (this.parseOptional(context, Token.VarKeyword)) {
+                    declarations = this.parseVariableDeclarationList(context);
+                } else if (this.parseOptional(context, Token.ConstKeyword)) {
+                    declarations = this.parseVariableDeclarationList(context | Context.Const);
+                } else if (this.isLexical(context) && this.parseOptional(context, Token.LetKeyword)) {
+                    declarations = this.parseVariableDeclarationList(context | Context.Let);
+                } else {
+                    init = this.parseExpression(context & ~Context.AllowIn, pos);
+                }
+                if (declarations) {
+                    init = this.finishNode(context, VarDeclStart, {
+                        type: 'VariableDeclaration',
+                        declarations,
+                        kind: tokenDesc(token)
+                    });
+                }
             }
     
             this.flags |= Flags.IterationStatement;
@@ -3052,7 +3057,7 @@ export class Parser {
                     if (context & Context.ForStatement) {
                         if (this.token === Token.OfKeyword) this.error(Errors.InvalidVarInitForOf);
                         if (this.token === Token.InKeyword && (context & (Context.Strict | Context.Lexical))) {
-                                this.error(Errors.InvalidVarDeclInForIn);
+                            this.error(Errors.InvalidVarDeclInForIn);
                         }
                     }
                 } else if (context & Context.Const && !isInOrOfKeyword(this.token)) {
@@ -4126,7 +4131,8 @@ export class Parser {
                     if (mask & FieldState.Method) {
                         if (method === undefined) method = {};
                         method[key] = mask;
-                    } if (mask & FieldState.Scope) {
+                    }
+                    if (mask & FieldState.Scope) {
                         if (scope === undefined) scope = {};
                         else if (scope[key]) this.error(Errors.DuplicateBinding, '#' + key);
                         scope[key] = true;
@@ -4223,7 +4229,7 @@ export class Parser {
                 this.error(Errors.UnexpectedReservedWord);
             }
             this.parseOptional(context, Token.Comma);
-                return this.finishNode(context, pos as Location, {
+            return this.finishNode(context, pos as Location, {
                 type: 'ClassProperty',
                 key,
                 value,
@@ -4738,8 +4744,8 @@ export class Parser {
                     if (this.token === Token.RightParen) {
                         const token = this.token;
                         this.expect(context, Token.RightParen);
-                        if (this.token === Token.Arrow) 
-                        return this.parseArrowFunctionExpression(context & ~(Context.Await | Context.Yield), pos, expressions);
+                        if (this.token === Token.Arrow)
+                            return this.parseArrowFunctionExpression(context & ~(Context.Await | Context.Yield), pos, expressions);
                     } else if (this.token === Token.Ellipsis) {
                         expressions.push(this.parseRestElement(context));
                         this.expect(context, Token.RightParen);

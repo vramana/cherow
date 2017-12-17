@@ -1781,8 +1781,11 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
                     }
                     else if (code !== -1 /* Empty */ && context & 1048576 /* TaggedTemplate */) {
                         ret = null;
-                        ch = this$1.scanLooserTemplateSegment();
+                        ch = this$1.scanLooserTemplateSegment(this$1.lastChar);
                         if (ch < 0) {
+                            // Before: '-36'
+                            ch = -ch;
+                            // After: '36'
                             tail = false;
                         }
                         break loop;
@@ -1790,6 +1793,7 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
                     else {
                         this$1.handleStringError(context | 524288 /* Template */, code);
                     }
+                    ch = this$1.lastChar;
                 }
                 break;
             // Line terminators
@@ -1817,10 +1821,9 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
         return 262152 /* TemplateCont */;
     }
 };
-Parser.prototype.scanLooserTemplateSegment = function scanLooserTemplateSegment () {
+Parser.prototype.scanLooserTemplateSegment = function scanLooserTemplateSegment (ch) {
         var this$1 = this;
 
-    var ch = this.lastChar;
     while (ch !== 96 /* Backtick */) {
         switch (ch) {
             // '$'
@@ -1834,6 +1837,8 @@ Parser.prototype.scanLooserTemplateSegment = function scanLooserTemplateSegment 
                         return -ch;
                     }
                 }
+            case 92 /* Backslash */:
+                ch = this$1.scanNext();
             default:
         }
         ch = this$1.scanNext();

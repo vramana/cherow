@@ -18,4 +18,8 @@ describe('Expressions - Compaund assignment', () => {
         source: '1 &= 1;',
     });
 
+    fail(`1 |= 1;`, {
+        source: '1 |= 1;',
+    });
+    
 });
