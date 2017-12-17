@@ -3784,10 +3784,9 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 274526 /* ThisKeyword */:
             return this.parseThisExpression(context);
         case 274439 /* NullKeyword */:
-            return this.parseNullExpression(context);
         case 274438 /* TrueKeyword */:
         case 274437 /* FalseKeyword */:
-            return this.parseTrueOrFalseExpression(context);
+            return this.parseNullOrTrueOrFalseExpression(context);
         case 262155 /* LeftParen */:
             return this.parseParenthesizedExpression(context | 64 /* InParenthesis */ | 4 /* AllowIn */);
         case 393235 /* LeftBracket */:
@@ -4587,10 +4586,11 @@ Parser.prototype.parseLiteral = function parseLiteral (context) {
         { node.raw = raw; }
     return node;
 };
-Parser.prototype.parseTrueOrFalseExpression = function parseTrueOrFalseExpression (context) {
+Parser.prototype.parseNullOrTrueOrFalseExpression = function parseNullOrTrueOrFalseExpression (context) {
     var pos = this.getLocations();
-    var value = this.tokenValue === 'true';
-    var raw = this.tokenValue;
+    var t = this.token;
+    var raw = tokenDesc(t);
+    var value = t === 274439 /* NullKeyword */ ? null : raw === 'true';
     if (this.flags & 2 /* ExtendedUnicodeEscape */)
         { this.error(64 /* UnexpectedEscapedKeyword */); }
     var node = this.finishNode(context, pos, {
@@ -4606,16 +4606,6 @@ Parser.prototype.parseThisExpression = function parseThisExpression (context) {
     return this.finishNode(context, pos, {
         type: 'ThisExpression'
     }, true);
-};
-Parser.prototype.parseNullExpression = function parseNullExpression (context) {
-    var pos = this.getLocations();
-    var node = this.finishNode(context, pos, {
-        type: 'Literal',
-        value: null
-    }, true);
-    if (this.flags & 4194304 /* OptionsRaw */)
-        { node.raw = 'null'; }
-    return node;
 };
 Parser.prototype.parseIdentifier = function parseIdentifier (context) {
     var name = this.tokenValue;

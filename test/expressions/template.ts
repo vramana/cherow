@@ -129,6 +129,7 @@ describe('Expressions - Template', () => {
     
         fail('`${a', {
             source: '`${a',
+            module: true
         });
     
         fail('`${a}a${b}', {
@@ -145,6 +146,7 @@ describe('Expressions - Template', () => {
     
         fail('`\\x{1}`;', {
             source: '`\\x{1}`;',
+            module: true
         });
     
         fail('"use strict"; `\\00`;', {
@@ -159,6 +161,14 @@ describe('Expressions - Template', () => {
             source: '`\\1`',
         });
     
+        fail('`\\8`', {
+            source: '`\\8`',
+        });
+
+        fail('`\\9`', {
+            source: '`\\9`',
+        });
+    
         fail('`\\4`', {
             source: '`\\4`',
         });
@@ -169,6 +179,7 @@ describe('Expressions - Template', () => {
     
         fail('`\\41`', {
             source: '`\\41`',
+            module: true
         });
     
         fail('`\\00`', {

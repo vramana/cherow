@@ -101,24 +101,74 @@ describe('Miscellaneous - Failure', () => {
         fail('3ea', {
             source: `3ea`
         });
+        
         fail('3in []', {
             source: `3in []`
         });
+
         fail('3e', {
             source: `3e`
         });
+        
         fail('3x0', {
             source: `3x0`
         });
         fail('3in[]', {
             source: `3in[]`
         });
+        
         fail('x\\u002a', {
             source: `x\\u002a`
         });
+        
         fail('\\ua', {
             source: `\\ua`
         });
+        
+        fail(`(a, ...b)`, {
+            source: `(a, ...b)`,
+        });
+
+        fail(`(..a)`, {
+            source: `(..a)`,
+        });
+
+        fail(`(((...a)))`, {
+            source: `(((...a)))`,
+        });
+
+        fail(`(((a, ...b))`, {
+            source: `(((a, ...b))`,
+        });
+
+        fail(`[...new a] = 0;`, {
+            source: `[...new a] = 0;`,
+        });
+
+        fail(`[...0] = 0;`, {
+            source: `[...0] = 0;`,
+        });
+
+        fail(`[...[0]] = 0;`, {
+            source: `[...[0]] = 0;`,
+        });
+
+        fail(`[...{a: 0}] = 0;`, {
+            source: `[...{a: 0}] = 0;`,
+        });
+
+        fail(`({get a(){}} = 0)`, {
+            source: `({get a(){}} = 0)`,
+        });
+
+        fail(`({set a(b){}} = 0)`, {
+            source: `({set a(b){}} = 0)`,
+        });
+
+        fail(`[0] = 0`, {
+            source: `[0] = 0`,
+        });
+
         fail('for((1 + 1) in list) process(x);', {
             source: `for((1 + 1) in list) process(x);`
         });
@@ -1049,8 +1099,5 @@ describe('Miscellaneous - Failure', () => {
         fail('super.a', {
             source: `super.a`,
         });
-    
-        fail('try {} catch(e) { function e(){} }', {
-            source: `try {} catch(e) { function e(){} }`,
-        });
+         
     });

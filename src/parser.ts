@@ -4039,10 +4039,9 @@ export class Parser {
                 case Token.ThisKeyword:
                     return this.parseThisExpression(context);
                 case Token.NullKeyword:
-                    return this.parseNullExpression(context);
                 case Token.TrueKeyword:
                 case Token.FalseKeyword:
-                    return this.parseTrueOrFalseExpression(context);
+                    return this.parseNullOrTrueOrFalseExpression(context);
                 case Token.LeftParen:
                     return this.parseParenthesizedExpression(context | Context.InParenthesis | Context.AllowIn);
                 case Token.LeftBracket:
@@ -4924,14 +4923,14 @@ export class Parser {
             return node;
         }
     
-        private parseTrueOrFalseExpression(context: Context): ESTree.Literal {
-            const pos = this.getLocations();
-            const value = this.tokenValue === 'true';
-            const raw = this.tokenValue;
+        private parseNullOrTrueOrFalseExpression(context: Context): ESTree.Literal {
             if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
+            const pos = this.getLocations();
+            const t = this.token;
+            const raw =  tokenDesc(t);
             const node = this.finishNode(context, pos, {
                 type: 'Literal',
-                value
+                value: t === Token.NullKeyword ? null : raw === 'true'
             }, true);
     
             if (this.flags & Flags.OptionsRaw) node.raw = raw;
@@ -4944,17 +4943,6 @@ export class Parser {
             return this.finishNode(context, pos, {
                 type: 'ThisExpression'
             }, true);
-        }
-    
-        private parseNullExpression(context: Context): ESTree.Literal {
-            const pos = this.getLocations();
-            const node = this.finishNode(context, pos, {
-                type: 'Literal',
-                value: null
-            }, true);
-    
-            if (this.flags & Flags.OptionsRaw) node.raw = 'null';
-            return node;
         }
     
         private parseIdentifier(context: Context): ESTree.Identifier {

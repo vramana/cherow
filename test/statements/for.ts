@@ -3451,6 +3451,30 @@ describe('Statements - For', () => {
             source: 'for (const x; false; ) { var x; }',
         });
 
+        fail(`for (let {a: b = let};;) {}`, {
+            source: 'for (let {a: b = let};;) {}',
+        });
+
+        fail(`for (let [a = let];;) {}`, {
+            source: 'for (let [a = let];;) {}',
+        });
+
+        fail(`"use strict"; for (let [a = let];;) {}`, {
+            source: '"use strict"; for (let [a = let];;) {}',
+        });
+
+        fail(`"use strict"; for (let {a: b = let};;) {}`, {
+            source: '"use strict"; for (let {a: b = let};;) {}',
+        });
+
+        fail(`for(let [let];;);`, {
+            source: 'for(let [let];;);',
+        });
+
+        fail(`for(let [a, a];;)`, {
+            source: 'for(let [a, a];;)',
+        });
+
 /*
         fail(`for(let {a, a} of 0);`, {
             source: 'for(let {a, a} of 0);',
