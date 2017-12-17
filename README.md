@@ -14,15 +14,13 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 ## Features
 
 * Full support for ECMAScript® 2017 [(ECMA-262 8th Edition)](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
-* 27% faster than all other ECMAScript parsers -  (*36% for larger libraries*) 
 * ECmaScript Next (*Stage 3 proposals*)
 * [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), a syntax extension for React
 * Skips hashbang comment nodes by default
 * Skips BOM (*U+FEFF*) by default
-* Optimized for handheld devices
 * Optional tracking of syntax node location (index-based and line-column)
-* 98.4% [Test262 coverage](https://github.com/tc39/test262) coverage
-* Heavily tested (*~36 000 tests*)
+* Supports 98.4% of all [Test262](https://github.com/tc39/test262) tests
+* Heavily tested (*~37 000 tests*)
 * Parameterized plugin system
 
 
