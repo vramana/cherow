@@ -31,7 +31,6 @@ export const enum Context {
     ValidateEscape         = 1 << 27,  // If node was parsed in a context where escaped keywords are forbidden
     Let                    = 1 << 28,  // Variable declaration
     Const                  = 1 << 29,  // Variable declaration
-    ImportExport           = 1 << 30,  // Variable declaration
     
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
@@ -60,27 +59,21 @@ export const enum Flags {
     SimpleParameterList          = 1 << 14,
     ParenthesizedPattern         = 1 << 15,
     Octal                        = 1 << 16, // e.g. `0777`
+    ContainsSeparator            = 1 << 17,
 
     /* Options */
-    OptionsRanges                = 1 << 17, // Enable / disable "ranges"
-    OptionsLoc                   = 1 << 18, // Enable / disable location tracking on the node
-    OptionsSource                = 1 << 19,
-    OptionsJSX                   = 1 << 20, // Enable / disable JSX extension
-    OptionsRaw                   = 1 << 21, // Enable / disable "raw" property on the node
-    OptionsNext                  = 1 << 22, // Enable / disable Stage 3 proposals
-    OptionsDirectives            = 1 << 23, // Enable / disable directives on the node
-    OptionsDelegate              = 1 << 24, // Enable / disable token syntax delegate
-    OptionsGlobalReturn          = 1 << 25, // Allow return statement in global scope,
-    OptionsSourceType            = 1 << 26, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
-    OptionsTolerant              = 1 << 27,
-    OptionsPlugins               = 1 << 28,
-    Duplicate                    = 1 << 29,
-    ContainsSeparator            = 1 << 30,
-
-    // Common mask used to verify if either ranges or locations are enabled
-    LocationTracking = OptionsRanges | OptionsLoc,
-
-    GlobalReturn = OptionsGlobalReturn |  InFunctionBody
+    OptionsRanges                = 1 << 18, // Enable / disable "ranges"
+    OptionsLoc                   = 1 << 19, // Enable / disable location tracking on the node
+    OptionsSource                = 1 << 20,
+    OptionsJSX                   = 1 << 21, // Enable / disable JSX extension
+    OptionsRaw                   = 1 << 22, // Enable / disable "raw" property on the node
+    OptionsNext                  = 1 << 23, // Enable / disable Stage 3 proposals
+    OptionsDirectives            = 1 << 24, // Enable / disable directives on the node
+    OptionsDelegate              = 1 << 25, // Enable / disable token syntax delegate
+    OptionsGlobalReturn          = 1 << 26, // Allow return statement in global scope,
+    OptionsSourceType            = 1 << 27, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
+    OptionsTolerant              = 1 << 28,
+    OptionsPlugins               = 1 << 29
 }
 
 // Flags used in parenthesized to validate arrow formal list
@@ -92,7 +85,7 @@ export const enum ParenthesizedState {
     Trailing        = 1 << 3, // Tracks trailing commas
     Pattern         = 1 << 4,
     FutureReserved  = 1 << 5,
-    Yield  = 1 << 6,
+    Yield           = 1 << 6,
 }
 
 // Flags used by both object expression and class decl / expr

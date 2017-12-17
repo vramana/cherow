@@ -943,7 +943,7 @@ export class Parser {
     
             let start = this.index;
             let state = NumericState.None;
-            let ret = '';
+            let ret: string | null = '';
     
             const next = this.flags & Flags.OptionsNext;
     
@@ -1615,7 +1615,6 @@ export class Parser {
     
                     switch (ch) {
     
-                        // '$'
                         case Chars.Dollar:
                             {
                                 const index = this.index + 1;
@@ -1630,7 +1629,6 @@ export class Parser {
                                 break;
                             }
     
-                            // '/'
                         case Chars.Backslash:
     
                             ch = this.scanNext(Errors.UnterminatedTemplate);
@@ -2935,7 +2933,7 @@ export class Parser {
         private parseReturnStatement(context: Context): ESTree.ReturnStatement {
             const pos = this.getLocations();
     
-            if (!(this.flags & Flags.GlobalReturn)) this.error(Errors.IllegalReturn);
+            if (!(this.flags & (Flags.OptionsGlobalReturn | Flags.InFunctionBody))) this.error(Errors.IllegalReturn);
     
             this.expect(context, Token.ReturnKeyword);
     
@@ -3591,7 +3589,7 @@ export class Parser {
                         {
                             const quasiPos = this.getLocations();
                             const quasi = this.token === Token.TemplateCont ?
-                                this.parseTemplate(context | Context.TaggedTemplate, quasiPos) : this.parseTemplateTail(context | Context.TaggedTemplate, quasiPos);
+                                this.parseTemplate(context | Context.TaggedTemplate, quasiPos) : this.parseTemplateLiteral(context | Context.TaggedTemplate, quasiPos);
                             expr = this.parseTaggedTemplateExpression(context, expr, quasi, pos);
                             break;
                         }
@@ -4058,7 +4056,7 @@ export class Parser {
                 case Token.LeftBrace:
                     return this.parseObjectExpression(context);
                 case Token.TemplateTail:
-                    return this.parseTemplateTail(context, pos);
+                    return this.parseTemplateLiteral(context, pos);
                 case Token.TemplateCont:
                     return this.parseTemplate(context, pos);
                 case Token.Divide:
@@ -4810,7 +4808,7 @@ export class Parser {
             return node;
         }
     
-        private parseTemplateTail(context: Context, pos: Location): ESTree.TemplateLiteral {
+        private parseTemplateLiteral(context: Context, pos: Location): ESTree.TemplateLiteral {
             return this.finishNode(context, pos, {
                 type: 'TemplateLiteral',
                 expressions: [],
@@ -4835,7 +4833,7 @@ export class Parser {
             const pos = this.getLocations();
             const cooked = this.tokenValue;
             const raw = this.tokenRaw;
-    
+           
             this.expect(context, Token.TemplateTail);
     
             return this.finishNode(context, pos, {
@@ -4861,27 +4859,29 @@ export class Parser {
             });
         }
     
-        private parseTemplate(context: Context, pos: Location): ESTree.TemplateLiteral {
-    
-            const expressions: ESTree.Expression[] = [];
-            const quasis: ESTree.TemplateElement[] = [];
-    
-            while (this.token === Token.TemplateCont) {
-    
-                const cooked = this.tokenValue;
-                const raw = this.tokenRaw;
-                this.expect(context, Token.TemplateCont);
-                // Note: A TemplateSpan should always be followed by an Expression, while a
-                // 'TemplateTail' terminates a TemplateLiteral and does not need to be
-                // followed by an Expression.
-                expressions.push(this.parseExpression(context, pos));
-                quasis.push(this.parseTemplateHead(context, cooked, raw));
-            }
-    
-            while (this.token === Token.TemplateTail) {
+        private parseTemplate(
+            context: Context, 
+            pos: Location, 
+            expressions: ESTree.Expression[] = [], 
+            quasis: ESTree.TemplateElement[] = []
+        ): ESTree.TemplateLiteral {
+
+            const cooked = this.tokenValue;
+            const raw = this.tokenRaw;
+
+            this.expect(context, Token.TemplateCont);
+
+            expressions.push(this.parseExpression(context, pos));
+            quasis.push(this.parseTemplateHead(context, cooked, raw));
+
+            if (this.token === Token.TemplateTail) {
                 quasis.push(this.parseTemplateElement(context));
             }
-    
+            
+            if (this.token === Token.TemplateCont) {
+                this.parseTemplate(context, pos, expressions, quasis);
+            }
+
             return this.finishNode(context, pos, {
                 type: 'TemplateLiteral',
                 expressions,
@@ -5385,7 +5385,7 @@ export class Parser {
     
         private scanJSXString(quote: number): Token {
     
-            let ret = '';
+            let ret: string | null = '';
             this.advance();
             let ch = this.nextChar();
     
