@@ -21,8 +21,10 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 * Skips BOM (*U+FEFF*) by default
 * Optimized for handheld devices
 * Optional tracking of syntax node location (index-based and line-column)
-* Parameterized plugin system
+* 98.4% [Test262 coverage](https://github.com/tc39/test262) coverage
 * Heavily tested (*~36 000 tests*)
+* Parameterized plugin system
+
 
 ## ESNext features
 
