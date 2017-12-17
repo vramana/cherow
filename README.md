@@ -14,7 +14,7 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 ## Features
 
 * Full support for ECMAScript® 2017 [(ECMA-262 8th Edition)](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
-* 27% faster (*36% for larger libraries*) than all other ECMAScript parsers
+* 27% faster than all other ECMAScript parsers -  (*36% for larger libraries*) 
 * ECmaScript Next (*Stage 3 proposals*)
 * [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), a syntax extension for React
 * Skips hashbang comment nodes by default
