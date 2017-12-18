@@ -4015,6 +4015,8 @@ Parser.prototype.parsePrivateName = function parsePrivateName (context) {
     var pos = this.getLocations();
     this.expect(context, 117 /* Hash */);
     this.errorLocation = pos;
+    if (this.fieldSet === undefined)
+        { this.fieldSet = []; }
     this.fieldSet.push({
         key: this.tokenValue,
         mask: 1 /* Method */
@@ -4555,7 +4557,7 @@ Parser.prototype.parseTemplate = function parseTemplate (context, pos, expressio
     if (this.token === 262153 /* TemplateTail */) {
         quasis.push(this.parseTemplateElement(context));
     }
-    if (this.token === 262152 /* TemplateCont */) {
+    else {
         this.parseTemplate(context, pos, expressions, quasis);
     }
     return this.finishNode(context, pos, {
@@ -4593,15 +4595,14 @@ Parser.prototype.parseLiteral = function parseLiteral (context) {
     return node;
 };
 Parser.prototype.parseNullOrTrueOrFalseExpression = function parseNullOrTrueOrFalseExpression (context) {
+    if (this.flags & 2 /* ExtendedUnicodeEscape */)
+        { this.error(64 /* UnexpectedEscapedKeyword */); }
     var pos = this.getLocations();
     var t = this.token;
     var raw = tokenDesc(t);
-    var value = t === 274439 /* NullKeyword */ ? null : raw === 'true';
-    if (this.flags & 2 /* ExtendedUnicodeEscape */)
-        { this.error(64 /* UnexpectedEscapedKeyword */); }
     var node = this.finishNode(context, pos, {
         type: 'Literal',
-        value: value
+        value: t === 274439 /* NullKeyword */ ? null : raw === 'true'
     }, true);
     if (this.flags & 4194304 /* OptionsRaw */)
         { node.raw = raw; }

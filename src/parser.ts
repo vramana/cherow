@@ -4254,7 +4254,7 @@ export class Parser {
             if (this.fieldSet === undefined) this.fieldSet = [];
     
             this.errorLocation = pos;
-    
+            
             this.fieldSet.push({
                 key: fieldValue,
                 mask: FieldState.Scope
@@ -4280,7 +4280,9 @@ export class Parser {
             this.expect(context, Token.Hash);
     
             this.errorLocation = pos;
-    
+            
+            if (this.fieldSet === undefined) this.fieldSet = [];
+
             this.fieldSet.push({
                 key: this.tokenValue,
                 mask: FieldState.Method

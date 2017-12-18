@@ -5,6 +5,12 @@ describe('Next - Class fields', () => {
         source: 'var C = class { static "prototype"; }',
         next: true
     });
+    
+    fail('class a {  constructor () { #foo  }  }', {
+        source: 'class a {  constructor () { #foo  }  }',
+        next: true
+    });
+    
     fail('static class field with constructor', {
         source: 'class C { static "constructor"; }',
         next: true
@@ -5448,7 +5454,7 @@ describe('Next - Class fields', () => {
             }
         }
     });
-
+    
     pass(`no conflict between private and public name`, {
         source: 'class foo { #a, a }',
         loc: true,

@@ -85,3 +85,6 @@
 
 *2017-12-12: Version 0.17.6*
 - Fixed a couple of HTML single line comments issues in sloppy mode code
+
+*2017-12-18: Version 0.17.12*
+- Fixed a issue with class fields. Couldn't push to undefined.
