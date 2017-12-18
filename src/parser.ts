@@ -1655,7 +1655,7 @@ export class Parser {
                                     this.handleStringError(context | Context.Template, code as Escape);
                                 }
                             }
-
+    
                             break;
     
                             // Line terminators
@@ -3365,8 +3365,8 @@ export class Parser {
                 const argument = this.parseUnaryExpression(context);
                 if (this.token === Token.Exponentiate) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 if (context & Context.Strict && t === Token.DeleteKeyword) {
-                    if (argument.type === 'Identifier' || (this.flags & Flags.OptionsNext 
-                        && !(context & Context.Module) && this.isPrivateName(argument))) {
+                    if (argument.type === 'Identifier' || (this.flags & Flags.OptionsNext &&
+                            !(context & Context.Module) && this.isPrivateName(argument))) {
                         this.error(Errors.StrictDelete);
                     }
                 }
@@ -3400,23 +3400,19 @@ export class Parser {
             if (hasMask(t, Token.UpdateOperator)) {
                 this.nextToken(context);
                 hasPrefix = true;
-            } 
-                expr = this.parseLeftHandSideExpression(context, startLoc);
-    
-                if (!hasPrefix) {
+            }
 
-                    if (hasMask(this.token, Token.UpdateOperator) && !(this.flags & Flags.PrecedingLineBreak)) {
-                        t = this.token;
-                        this.nextToken(context);
-                        hasPrefix = false;
-                    }
-        
-                    if (hasPrefix === undefined) return expr;
-                }
-            
+            expr = this.parseLeftHandSideExpression(context, startLoc);
     
+            if (!hasPrefix) {
+                if (hasMask(this.token, Token.UpdateOperator) && !(this.flags & Flags.PrecedingLineBreak)) {
+                    t = this.token;
+                    this.nextToken(context);
+                } else return expr;
+            }
+        
             if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
-                this.error(Errors.StrictLHSPostfix);
+                this.error(hasPrefix ? Errors.StrictLHSPrefix : Errors.StrictLHSPostfix);
             }
     
             if (!isValidSimpleAssignmentTarget(expr)) {
@@ -3427,7 +3423,7 @@ export class Parser {
                 type: 'UpdateExpression',
                 argument: expr,
                 operator: tokenDesc(t),
-                prefix: hasPrefix
+                prefix: !!hasPrefix
             });
         }
     
