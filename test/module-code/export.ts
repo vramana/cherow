@@ -1,6 +1,13 @@
 import { pass, fail } from '../utils';
 
 describe('Miscellaneous - Export', () => {
+/*
+    fail(`export default x;
+    export { y as default };`, {
+        source: `export default x;
+        export { y as default };`,
+        module: true
+    });*/
     
         fail(`export {default} +`, {
             source: `export {default} +`,

@@ -3355,7 +3355,9 @@ export class Parser {
             const startLoc = this.getLocations();
             let t = this.token;
     
-            if (t & Token.IsAwait && context & Context.Await) return this.parseAwaitExpression(context);
+            if (t & Token.IsAwait && context & Context.Await) {
+                return this.parseAwaitExpression(context, startLoc);
+            }
     
             if (hasMask(t, Token.UnaryOperator)) {
                 t = this.token;
@@ -3363,9 +3365,8 @@ export class Parser {
                 const argument = this.parseUnaryExpression(context);
                 if (this.token === Token.Exponentiate) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 if (context & Context.Strict && t === Token.DeleteKeyword) {
-                    if (argument.type === 'Identifier') {
-                        this.error(Errors.StrictDelete);
-                    } else if (this.flags & Flags.OptionsNext && !(context & Context.Module) && this.isPrivateName(argument)) {
+                    if (argument.type === 'Identifier' || (this.flags & Flags.OptionsNext 
+                        && !(context & Context.Module) && this.isPrivateName(argument))) {
                         this.error(Errors.StrictDelete);
                     }
                 }
@@ -3381,8 +3382,7 @@ export class Parser {
             return this.parseUpdateExpression(context, startLoc);
         }
     
-        private parseAwaitExpression(context: Context): ESTree.AwaitExpression {
-            const startLoc = this.getLocations();
+        private parseAwaitExpression(context: Context, startLoc: Location): ESTree.AwaitExpression {
             if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
             this.expect(context, Token.AwaitKeyword);
             return this.finishNode(context, startLoc, {
@@ -3394,39 +3394,40 @@ export class Parser {
         private parseUpdateExpression(context: Context, startLoc: Location) {
     
             let expr: ESTree.Expression;
-            let prefix;
+            let hasPrefix;
             let t = this.token;
     
             if (hasMask(t, Token.UpdateOperator)) {
                 this.nextToken(context);
-                expr = this.parseLeftHandSideExpression(context, startLoc);
-                prefix = true;
-            } else {
-    
+                hasPrefix = true;
+            } 
                 expr = this.parseLeftHandSideExpression(context, startLoc);
     
-                if (hasMask(this.token, Token.UpdateOperator) && !(this.flags & Flags.PrecedingLineBreak)) {
-                    t = this.token;
-                    this.nextToken(context);
-                    prefix = false;
+                if (!hasPrefix) {
+
+                    if (hasMask(this.token, Token.UpdateOperator) && !(this.flags & Flags.PrecedingLineBreak)) {
+                        t = this.token;
+                        this.nextToken(context);
+                        hasPrefix = false;
+                    }
+        
+                    if (hasPrefix === undefined) return expr;
                 }
-    
-                if (prefix === undefined) return expr;
-            }
+            
     
             if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                 this.error(Errors.StrictLHSPostfix);
             }
     
             if (!isValidSimpleAssignmentTarget(expr)) {
-                this.error(prefix ? Errors.InvalidLhsInPrefixOp : Errors.InvalidLhsInPostfixOp);
+                this.error(hasPrefix ? Errors.InvalidLhsInPrefixOp : Errors.InvalidLhsInPostfixOp);
             }
     
             return this.finishNode(context, startLoc, {
                 type: 'UpdateExpression',
                 argument: expr,
                 operator: tokenDesc(t),
-                prefix
+                prefix: hasPrefix
             });
         }
     

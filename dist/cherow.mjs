@@ -3214,8 +3214,9 @@ Parser.prototype.isPrivateName = function isPrivateName (expr) {
 Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) {
     var startLoc = this.getLocations();
     var t = this.token;
-    if (t & 1073741824 /* IsAwait */ && context & 32 /* Await */)
-        { return this.parseAwaitExpression(context); }
+    if (t & 1073741824 /* IsAwait */ && context & 32 /* Await */) {
+        return this.parseAwaitExpression(context, startLoc);
+    }
     if (hasMask(t, 4456448 /* UnaryOperator */)) {
         t = this.token;
         this.nextToken(context);
@@ -3223,10 +3224,8 @@ Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) 
         if (this.token === 2100022 /* Exponentiate */)
             { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
         if (context & 2 /* Strict */ && t === 4468779 /* DeleteKeyword */) {
-            if (argument.type === 'Identifier') {
-                this.error(44 /* StrictDelete */);
-            }
-            else if (this.flags & 8388608 /* OptionsNext */ && !(context & 1 /* Module */) && this.isPrivateName(argument)) {
+            if (argument.type === 'Identifier' || (this.flags & 8388608 /* OptionsNext */
+                && !(context & 1 /* Module */) && this.isPrivateName(argument))) {
                 this.error(44 /* StrictDelete */);
             }
         }
@@ -3239,8 +3238,7 @@ Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) 
     }
     return this.parseUpdateExpression(context, startLoc);
 };
-Parser.prototype.parseAwaitExpression = function parseAwaitExpression (context) {
-    var startLoc = this.getLocations();
+Parser.prototype.parseAwaitExpression = function parseAwaitExpression (context, startLoc) {
     if (this.flags & 2 /* ExtendedUnicodeEscape */)
         { this.error(64 /* UnexpectedEscapedKeyword */); }
     this.expect(context, 1074073709 /* AwaitKeyword */);
@@ -3251,34 +3249,33 @@ Parser.prototype.parseAwaitExpression = function parseAwaitExpression (context) 
 };
 Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context, startLoc) {
     var expr;
-    var prefix;
+    var hasPrefix;
     var t = this.token;
     if (hasMask(t, 786432 /* UpdateOperator */)) {
         this.nextToken(context);
-        expr = this.parseLeftHandSideExpression(context, startLoc);
-        prefix = true;
+        hasPrefix = true;
     }
-    else {
-        expr = this.parseLeftHandSideExpression(context, startLoc);
+    expr = this.parseLeftHandSideExpression(context, startLoc);
+    if (!hasPrefix) {
         if (hasMask(this.token, 786432 /* UpdateOperator */) && !(this.flags & 1 /* PrecedingLineBreak */)) {
             t = this.token;
             this.nextToken(context);
-            prefix = false;
+            hasPrefix = false;
         }
-        if (prefix === undefined)
+        if (hasPrefix === undefined)
             { return expr; }
     }
     if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name)) {
         this.error(46 /* StrictLHSPostfix */);
     }
     if (!isValidSimpleAssignmentTarget(expr)) {
-        this.error(prefix ? 115 /* InvalidLhsInPrefixOp */ : 114 /* InvalidLhsInPostfixOp */);
+        this.error(hasPrefix ? 115 /* InvalidLhsInPrefixOp */ : 114 /* InvalidLhsInPostfixOp */);
     }
     return this.finishNode(context, startLoc, {
         type: 'UpdateExpression',
         argument: expr,
         operator: tokenDesc(t),
-        prefix: prefix
+        prefix: hasPrefix
     });
 };
 Parser.prototype.parseSuper = function parseSuper (context) {

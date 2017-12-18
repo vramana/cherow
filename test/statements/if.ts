@@ -5,22 +5,251 @@ describe('Statements - If', () => {
     fail(`if (true) async function f() {  }`, {
       source: 'if (true) async function f() {  }',
   });
-/*
-  pass(`if (morning) goodMorning()`, {
+
+  pass(`label: function g() {}`, {
     source: 'label: function g() {}',
     loc: true,
     ranges: true,
     raw: true,
-    expected: {}
+    expected: {
+      "type": "Program",
+      "body": [
+          {
+              "type": "LabeledStatement",
+              "label": {
+                  "type": "Identifier",
+                  "name": "label",
+                  "start": 0,
+                  "end": 5,
+                  "loc": {
+                      "start": {
+                          "line": 1,
+                          "column": 0
+                      },
+                      "end": {
+                          "line": 1,
+                          "column": 5
+                      }
+                  }
+              },
+              "body": {
+                  "type": "FunctionDeclaration",
+                  "params": [],
+                  "body": {
+                      "type": "BlockStatement",
+                      "body": [],
+                      "start": 20,
+                      "end": 22,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 20
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 22
+                          }
+                      }
+                  },
+                  "async": false,
+                  "generator": false,
+                  "expression": false,
+                  "id": {
+                      "type": "Identifier",
+                      "name": "g",
+                      "start": 16,
+                      "end": 17,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 16
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 17
+                          }
+                      }
+                  },
+                  "start": 7,
+                  "end": 22,
+                  "loc": {
+                      "start": {
+                          "line": 1,
+                          "column": 7
+                      },
+                      "end": {
+                          "line": 1,
+                          "column": 22
+                      }
+                  }
+              },
+              "start": 0,
+              "end": 22,
+              "loc": {
+                  "start": {
+                      "line": 1,
+                      "column": 0
+                  },
+                  "end": {
+                      "line": 1,
+                      "column": 22
+                  }
+              }
+          }
+      ],
+      "sourceType": "script",
+      "start": 0,
+      "end": 22,
+      "loc": {
+          "start": {
+              "line": 1,
+              "column": 0
+          },
+          "end": {
+              "line": 1,
+              "column": 22
+          }
+      }
+  }
   });
 
-  pass(`if (morning) goodMorning()`, {
+  pass(`label1: label2: function f() {}`, {
     source: 'label1: label2: function f() {}',
     loc: true,
     ranges: true,
     raw: true,
-    expected: {}
-  });*/
+    expected: {
+      "type": "Program",
+      "body": [
+          {
+              "type": "LabeledStatement",
+              "label": {
+                  "type": "Identifier",
+                  "name": "label1",
+                  "start": 0,
+                  "end": 6,
+                  "loc": {
+                      "start": {
+                          "line": 1,
+                          "column": 0
+                      },
+                      "end": {
+                          "line": 1,
+                          "column": 6
+                      }
+                  }
+              },
+              "body": {
+                  "type": "LabeledStatement",
+                  "label": {
+                      "type": "Identifier",
+                      "name": "label2",
+                      "start": 8,
+                      "end": 14,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 8
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 14
+                          }
+                      }
+                  },
+                  "body": {
+                      "type": "FunctionDeclaration",
+                      "params": [],
+                      "body": {
+                          "type": "BlockStatement",
+                          "body": [],
+                          "start": 29,
+                          "end": 31,
+                          "loc": {
+                              "start": {
+                                  "line": 1,
+                                  "column": 29
+                              },
+                              "end": {
+                                  "line": 1,
+                                  "column": 31
+                              }
+                          }
+                      },
+                      "async": false,
+                      "generator": false,
+                      "expression": false,
+                      "id": {
+                          "type": "Identifier",
+                          "name": "f",
+                          "start": 25,
+                          "end": 26,
+                          "loc": {
+                              "start": {
+                                  "line": 1,
+                                  "column": 25
+                              },
+                              "end": {
+                                  "line": 1,
+                                  "column": 26
+                              }
+                          }
+                      },
+                      "start": 16,
+                      "end": 31,
+                      "loc": {
+                          "start": {
+                              "line": 1,
+                              "column": 16
+                          },
+                          "end": {
+                              "line": 1,
+                              "column": 31
+                          }
+                      }
+                  },
+                  "start": 8,
+                  "end": 31,
+                  "loc": {
+                      "start": {
+                          "line": 1,
+                          "column": 8
+                      },
+                      "end": {
+                          "line": 1,
+                          "column": 31
+                      }
+                  }
+              },
+              "start": 0,
+              "end": 31,
+              "loc": {
+                  "start": {
+                      "line": 1,
+                      "column": 0
+                  },
+                  "end": {
+                      "line": 1,
+                      "column": 31
+                  }
+              }
+          }
+      ],
+      "sourceType": "script",
+      "start": 0,
+      "end": 31,
+      "loc": {
+          "start": {
+              "line": 1,
+              "column": 0
+          },
+          "end": {
+              "line": 1,
+              "column": 31
+          }
+      }
+  }
+  });
 
       pass(`if (morning) goodMorning()`, {
           source: 'if (morning) goodMorning()',
