@@ -3355,16 +3355,18 @@ export class Parser {
     
             const startLoc = this.getLocations();
             let t = this.token;
-            if (t & Token.IsAwait && context & Context.Await) {
-                return this.parseAwaitExpression(context);
-            } else if (hasMask(t, Token.UnaryOperator)) {
+
+            if (t & Token.IsAwait && context & Context.Await) return this.parseAwaitExpression(context);
+            
+            if (hasMask(t, Token.UnaryOperator)) {
                 t = this.token;
                 this.nextToken(context);
-                const operand = this.parseUnaryExpression(context);
+                const argument = this.parseUnaryExpression(context);
+                if (this.token === Token.Exponentiate) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 if (context & Context.Strict && t === Token.DeleteKeyword) {
-                    if (operand.type === 'Identifier') {
+                    if (argument.type === 'Identifier') {
                         this.error(Errors.StrictDelete);
-                    } else if (this.flags & Flags.OptionsNext && !(context & Context.Module) && this.isPrivateName(operand)) {
+                    } else if (this.flags & Flags.OptionsNext && !(context & Context.Module) && this.isPrivateName(argument)) {
                         this.error(Errors.StrictDelete);
                     }
                 }
@@ -3372,18 +3374,12 @@ export class Parser {
                 return this.finishNode(context, startLoc, {
                     type: 'UnaryExpression',
                     operator: tokenDesc(t),
-                    argument: operand,
+                    argument,
                     prefix: true
                 });
             }
-    
-            const updateExpression = this.parseUpdateExpression(context, startLoc);
-    
-            if (this.token === Token.Exponentiate) {
-               return this.parseBinaryExpression(context, t & Token.Precedence, startLoc, updateExpression);
-            }
-    
-            return updateExpression;
+                        
+            return this.parseUpdateExpression(context, startLoc);
         }
     
         private parseAwaitExpression(context: Context): ESTree.AwaitExpression {

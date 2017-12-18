@@ -3222,33 +3222,30 @@ Parser.prototype.isPrivateName = function isPrivateName (expr) {
 Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) {
     var startLoc = this.getLocations();
     var t = this.token;
-    if (t & 1073741824 /* IsAwait */ && context & 32 /* Await */) {
-        return this.parseAwaitExpression(context);
-    }
-    else if (hasMask(t, 4456448 /* UnaryOperator */)) {
+    if (t & 1073741824 /* IsAwait */ && context & 32 /* Await */)
+        { return this.parseAwaitExpression(context); }
+    if (hasMask(t, 4456448 /* UnaryOperator */)) {
         t = this.token;
         this.nextToken(context);
-        var operand = this.parseUnaryExpression(context);
+        var argument = this.parseUnaryExpression(context);
+        if (this.token === 2100022 /* Exponentiate */)
+            { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
         if (context & 2 /* Strict */ && t === 4468779 /* DeleteKeyword */) {
-            if (operand.type === 'Identifier') {
+            if (argument.type === 'Identifier') {
                 this.error(44 /* StrictDelete */);
             }
-            else if (this.flags & 8388608 /* OptionsNext */ && !(context & 1 /* Module */) && this.isPrivateName(operand)) {
+            else if (this.flags & 8388608 /* OptionsNext */ && !(context & 1 /* Module */) && this.isPrivateName(argument)) {
                 this.error(44 /* StrictDelete */);
             }
         }
         return this.finishNode(context, startLoc, {
             type: 'UnaryExpression',
             operator: tokenDesc(t),
-            argument: operand,
+            argument: argument,
             prefix: true
         });
     }
-    var updateExpression = this.parseUpdateExpression(context, startLoc);
-    if (this.token === 2100022 /* Exponentiate */) {
-        return this.parseBinaryExpression(context, t & 3840 /* Precedence */, startLoc, updateExpression);
-    }
-    return updateExpression;
+    return this.parseUpdateExpression(context, startLoc);
 };
 Parser.prototype.parseAwaitExpression = function parseAwaitExpression (context) {
     var pos = this.getLocations();
