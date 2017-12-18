@@ -3379,8 +3379,8 @@ export class Parser {
     
             const updateExpression = this.parseUpdateExpression(context, startLoc);
     
-            if (t === Token.Exponentiate) {
-                return this.parseBinaryExpression(context, t & Token.Precedence, startLoc, updateExpression);
+            if (this.token === Token.Exponentiate) {
+               return this.parseBinaryExpression(context, t & Token.Precedence, startLoc, updateExpression);
             }
     
             return updateExpression;

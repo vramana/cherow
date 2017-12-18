@@ -3239,7 +3239,7 @@ Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) 
         });
     }
     var updateExpression = this.parseUpdateExpression(context, startLoc);
-    if (t === 2100022 /* Exponentiate */) {
+    if (this.token === 2100022 /* Exponentiate */) {
         return this.parseBinaryExpression(context, t & 3840 /* Precedence */, startLoc, updateExpression);
     }
     return updateExpression;
