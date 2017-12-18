@@ -3828,8 +3828,9 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
             if (this.flags & 2097152 /* OptionsJSX */)
                 { return this.parseJSXElement(context | 33554432 /* Expression */); }
         case 117 /* Hash */:
-            if (context & 32768 /* Method */)
+            if (context & 32768 /* Method */ && this.flags & 8388608 /* OptionsNext */)
                 { return this.parsePrivateName(context); }
+        // falls through
         case 282730 /* YieldKeyword */:
             if (context & 16 /* Yield */)
                 { this.error(79 /* DisallowedInContext */, tokenDesc(this.token)); }
@@ -4006,6 +4007,9 @@ Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty 
     });
 };
 Parser.prototype.parsePrivateName = function parsePrivateName (context) {
+    if (context & 1 /* Module */) {
+        this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
+    }
     var pos = this.getLocations();
     this.expect(context, 117 /* Hash */);
     this.errorLocation = pos;

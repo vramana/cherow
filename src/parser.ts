@@ -331,7 +331,7 @@ export class Parser {
                             } else if (this.consume(Chars.EqualSign)) {
                                 return Token.DivideAssign;
                             }
-
+    
                             return Token.Divide;
                         }
     
@@ -4080,7 +4080,8 @@ export class Parser {
                 case Token.LessThan:
                     if (this.flags & Flags.OptionsJSX) return this.parseJSXElement(context | Context.Expression);
                 case Token.Hash:
-                    if (context & Context.Method) return this.parsePrivateName(context);
+                    if (context & Context.Method && this.flags & Flags.OptionsNext) return this.parsePrivateName(context);
+                    // falls through
                 case Token.YieldKeyword:
                     if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                     // falls through
@@ -4254,7 +4255,7 @@ export class Parser {
             if (this.fieldSet === undefined) this.fieldSet = [];
     
             this.errorLocation = pos;
-            
+    
             this.fieldSet.push({
                 key: fieldValue,
                 mask: FieldState.Scope
@@ -4276,13 +4277,16 @@ export class Parser {
         }
     
         private parsePrivateName(context: Context) {
+            if (context & Context.Module) {
+                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+            }
             const pos = this.getLocations();
             this.expect(context, Token.Hash);
     
             this.errorLocation = pos;
-            
+    
             if (this.fieldSet === undefined) this.fieldSet = [];
-
+    
             this.fieldSet.push({
                 key: this.tokenValue,
                 mask: FieldState.Method
@@ -4834,7 +4838,7 @@ export class Parser {
             const pos = this.getLocations();
             const cooked = this.tokenValue;
             const raw = this.tokenRaw;
-           
+    
             this.expect(context, Token.TemplateTail);
     
             return this.finishNode(context, pos, {
@@ -4861,26 +4865,26 @@ export class Parser {
         }
     
         private parseTemplate(
-            context: Context, 
-            pos: Location, 
-            expressions: ESTree.Expression[] = [], 
+            context: Context,
+            pos: Location,
+            expressions: ESTree.Expression[] = [],
             quasis: ESTree.TemplateElement[] = []
         ): ESTree.TemplateLiteral {
-
+    
             const cooked = this.tokenValue;
             const raw = this.tokenRaw;
-
+    
             this.expect(context, Token.TemplateCont);
-
+    
             expressions.push(this.parseExpression(context, pos));
             quasis.push(this.parseTemplateHead(context, cooked, raw));
-
+    
             if (this.token === Token.TemplateTail) {
                 quasis.push(this.parseTemplateElement(context));
             } else {
                 this.parseTemplate(context, pos, expressions, quasis);
             }
-
+    
             return this.finishNode(context, pos, {
                 type: 'TemplateLiteral',
                 expressions,
@@ -4927,7 +4931,7 @@ export class Parser {
             if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
             const pos = this.getLocations();
             const t = this.token;
-            const raw =  tokenDesc(t);
+            const raw = tokenDesc(t);
             const node = this.finishNode(context, pos, {
                 type: 'Literal',
                 value: t === Token.NullKeyword ? null : raw === 'true'

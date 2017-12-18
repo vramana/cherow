@@ -10,6 +10,16 @@ describe('Next - Class fields', () => {
         source: 'class a {  constructor () { #foo  }  }',
         next: true
     });
+
+    fail('class a {  constructor () { #foo  }  }', {
+        source: 'class a {  constructor () { #foo  }  }',
+    });
+
+    fail('class C {  f() { this.#x;  class D extends C { #x; } } }', {
+        source: 'class C {  f() { this.#x;  class D extends C { #x; } } }',
+        next: true,
+        module: true
+    });
     
     fail('static class field with constructor', {
         source: 'class C { static "constructor"; }',
