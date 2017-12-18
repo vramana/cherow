@@ -1791,7 +1791,6 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
                     else {
                         this$1.handleStringError(context | 524288 /* Template */, code);
                     }
-                    ch = this$1.lastChar;
                 }
                 break;
             // Line terminators
@@ -1835,8 +1834,6 @@ Parser.prototype.scanLooserTemplateSegment = function scanLooserTemplateSegment 
                         return -ch;
                     }
                 }
-            case 92 /* Backslash */:
-                ch = this$1.scanNext();
             default:
         }
         ch = this$1.scanNext();
@@ -1865,11 +1862,11 @@ Parser.prototype.parseModuleItemList = function parseModuleItemList (context) {
     return statements;
 };
 Parser.prototype.parseDirective = function parseDirective (context) {
-    var pos = this.getLocations();
-    var expr = this.parseExpression(context | 4 /* AllowIn */, pos);
+    var startLoc = this.getLocations();
+    var expr = this.parseExpression(context | 4 /* AllowIn */, startLoc);
     var directive = this.tokenRaw.slice(1, -1);
     this.consumeSemicolon(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ExpressionStatement',
         expression: expr,
         directive: directive
@@ -2035,7 +2032,7 @@ Parser.prototype.nextTokenIsFuncKeywordOnSameLine = function nextTokenIsFuncKeyw
     this.rewindState(savedState);
     return line === this.line && next === 274519 /* FunctionKeyword */;
 };
-Parser.prototype.parseExportDefault = function parseExportDefault (context, pos) {
+Parser.prototype.parseExportDefault = function parseExportDefault (context, startLoc) {
     this.expect(context, 12368 /* DefaultKeyword */);
     var declaration;
     switch (this.token) {
@@ -2059,7 +2056,7 @@ Parser.prototype.parseExportDefault = function parseExportDefault (context, pos)
             declaration = this.parseAssignmentExpression(context);
             this.consumeSemicolon(context);
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ExportDefaultDeclaration',
         declaration: declaration
     });
@@ -2073,7 +2070,7 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
     //'export' VariableStatement
     //'export' Declaration
     //'export' 'default' ... (handled in ParseExportDefault)
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var specifiers = [];
     var source = null;
     var declaration = null;
@@ -2081,9 +2078,9 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
     switch (this.token) {
         // export * FromClause ;
         case 270535219 /* Multiply */:
-            return this.parseExportAllDeclaration(context, pos);
+            return this.parseExportAllDeclaration(context, startLoc);
         case 12368 /* DefaultKeyword */:
-            return this.parseExportDefault(context, pos);
+            return this.parseExportDefault(context, startLoc);
         case 393228 /* LeftBrace */:
             var isReserved = false;
             var functionScope = this.functionScope;
@@ -2142,7 +2139,7 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
         default:
             this.error(50 /* MissingMsgDeclarationAfterExport */);
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ExportNamedDeclaration',
         source: source,
         specifiers: specifiers,
@@ -2150,7 +2147,7 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
     });
 };
 Parser.prototype.parseNamedExportDeclaration = function parseNamedExportDeclaration (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     if (this.token & 67108864 /* IsIdentifier */)
         { this.addBlockName(this.tokenValue); }
     var local = this.parseIdentifierName(context | 134217728 /* ValidateEscape */, this.token);
@@ -2159,17 +2156,17 @@ Parser.prototype.parseNamedExportDeclaration = function parseNamedExportDeclarat
         this.checkIfExistInBlockScope(this.tokenValue, true);
         exported = this.parseIdentifierName(context, this.token);
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ExportSpecifier',
         local: local,
         exported: exported
     });
 };
-Parser.prototype.parseExportAllDeclaration = function parseExportAllDeclaration (context, pos) {
+Parser.prototype.parseExportAllDeclaration = function parseExportAllDeclaration (context, startLoc) {
     this.expect(context, 270535219 /* Multiply */);
     var source = this.parseFromClause(context);
     this.consumeSemicolon(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ExportAllDeclaration',
         source: source
     });
@@ -2182,7 +2179,7 @@ Parser.prototype.parseFromClause = function parseFromClause (context) {
 };
 // import {<foo as bar>} ...;
 Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var value = this.tokenValue;
     var t = this.token;
     var imported = this.parseIdentifierName(context | 134217728 /* ValidateEscape */, t);
@@ -2207,7 +2204,7 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
     }
     else
         { local = this.parseBindingIdentifier(context); }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ImportSpecifier',
         local: local,
         imported: imported
@@ -2229,12 +2226,12 @@ Parser.prototype.parseNamedImport = function parseNamedImport (context, specifie
 };
 // import <* as foo> ...;
 Parser.prototype.parseImportNamespaceSpecifier = function parseImportNamespaceSpecifier (context, specifiers) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context | 134217728 /* ValidateEscape */, 270535219 /* Multiply */);
     this.expect(context, 69739 /* AsKeyword */, 37 /* NoAsAfterImportNamespace */);
     this.checkIfExistInBlockScope(this.tokenValue, true);
     var local = this.parseBindingIdentifier(context);
-    specifiers.push(this.finishNode(context, pos, {
+    specifiers.push(this.finishNode(context, startLoc, {
         type: 'ImportNamespaceSpecifier',
         local: local
     }));
@@ -2247,31 +2244,32 @@ Parser.prototype.parseImportDefaultSpecifier = function parseImportDefaultSpecif
     });
 };
 Parser.prototype.parseImportDeclaration = function parseImportDeclaration (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 274521 /* ImportKeyword */);
     var blockScope = this.blockScope;
     var parentScope = this.parentScope;
+    var source;
     if (blockScope != null)
         { this.parentScope = blockScope; }
     this.blockScope = undefined;
     // import 'foo';
     if (this.token === 262147 /* StringLiteral */) {
         this.addBlockName(this.tokenValue);
-        var source$1 = this.parseLiteral(context);
+        source = this.parseLiteral(context);
         this.consumeSemicolon(context);
-        return this.finishNode(context, pos, {
+        return this.finishNode(context, startLoc, {
             type: 'ImportDeclaration',
             specifiers: [],
-            source: source$1
+            source: source
         });
     }
     var specifiers = this.parseImportClause(context);
-    var source = this.parseFromClause(context);
+    source = this.parseFromClause(context);
     this.consumeSemicolon(context);
     this.blockScope = blockScope;
     if (parentScope != null)
         { this.parentScope = parentScope; }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ImportDeclaration',
         specifiers: specifiers,
         source: source
@@ -2437,7 +2435,7 @@ Parser.prototype.parseStatement = function parseStatement (context) {
 Parser.prototype.parseBlockStatement = function parseBlockStatement (context) {
         var this$1 = this;
 
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var body = [];
     this.expect(context, 393228 /* LeftBrace */);
     if (this.token !== 15 /* RightBrace */) {
@@ -2456,13 +2454,13 @@ Parser.prototype.parseBlockStatement = function parseBlockStatement (context) {
             { this.parentScope = parentScope; }
     }
     this.expect(context, 15 /* RightBrace */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'BlockStatement',
         body: body
     });
 };
 Parser.prototype.parseTryStatement = function parseTryStatement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 12384 /* TryKeyword */);
     var block = this.parseBlockStatement(context);
     var handler = null;
@@ -2475,7 +2473,7 @@ Parser.prototype.parseTryStatement = function parseTryStatement (context) {
     }
     if (!handler && !finalizer)
         { this.error(20 /* NoCatchOrFinally */); }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'TryStatement',
         block: block,
         handler: handler,
@@ -2483,7 +2481,7 @@ Parser.prototype.parseTryStatement = function parseTryStatement (context) {
     });
 };
 Parser.prototype.parseCatchClause = function parseCatchClause (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 12364 /* CatchKeyword */);
     // Create a lexical scope node around the whole catch clause
     var blockScope = this.blockScope;
@@ -2502,58 +2500,58 @@ Parser.prototype.parseCatchClause = function parseCatchClause (context) {
     this.blockScope = blockScope;
     if (blockScope !== undefined)
         { this.parentScope = parentScope; }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'CatchClause',
         param: param,
         body: body
     });
 };
 Parser.prototype.parseThrowStatement = function parseThrowStatement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 12383 /* ThrowKeyword */);
     if (this.flags & 1 /* PrecedingLineBreak */)
         { this.error(21 /* LineBreakAfterThrow */); }
-    var argument = this.parseExpression(context | 4 /* AllowIn */, pos);
+    var argument = this.parseExpression(context | 4 /* AllowIn */, startLoc);
     this.consumeSemicolon(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ThrowStatement',
         argument: argument
     });
 };
 Parser.prototype.parseWithStatement = function parseWithStatement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     // Strict mode code may not include a WithStatement. The occurrence of a WithStatement in such
     // a context is an grammar error
     if (context & 2 /* Strict */)
         { this.error(22 /* StrictModeWith */); }
     this.expect(context, 12386 /* WithKeyword */);
     this.expect(context, 262155 /* LeftParen */);
-    var object = this.parseExpression(context | 4 /* AllowIn */, pos);
+    var object = this.parseExpression(context | 4 /* AllowIn */, startLoc);
     this.expect(context, 16 /* RightParen */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'WithStatement',
         object: object,
         body: this.parseStatement(context | 4194304 /* Statement */ | 1024 /* Declaration */)
     });
 };
 Parser.prototype.parseWhileStatement = function parseWhileStatement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 12385 /* WhileKeyword */);
     this.expect(context, 262155 /* LeftParen */);
-    var test = this.parseExpression(context | 4 /* AllowIn */, pos);
+    var test = this.parseExpression(context | 4 /* AllowIn */, startLoc);
     this.expect(context, 16 /* RightParen */);
     var savedFlag = this.flags;
     this.flags |= 32 /* IterationStatement */;
     var body = this.parseStatement(context & ~1024 /* Declaration */);
     this.flags = savedFlag;
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'WhileStatement',
         test: test,
         body: body
     });
 };
 Parser.prototype.parseDoWhileStatement = function parseDoWhileStatement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 12369 /* DoKeyword */);
     var savedFlag = this.flags;
     this.flags |= 32 /* IterationStatement */;
@@ -2561,10 +2559,10 @@ Parser.prototype.parseDoWhileStatement = function parseDoWhileStatement (context
     this.flags = savedFlag;
     this.expect(context, 12385 /* WhileKeyword */);
     this.expect(context, 262155 /* LeftParen */);
-    var test = this.parseExpression(context & ~1024 /* Declaration */ | 4 /* AllowIn */, pos);
+    var test = this.parseExpression(context & ~1024 /* Declaration */ | 4 /* AllowIn */, startLoc);
     this.expect(context, 16 /* RightParen */);
     this.parseOptional(context, 17 /* Semicolon */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'DoWhileStatement',
         body: body,
         test: test
@@ -2573,7 +2571,7 @@ Parser.prototype.parseDoWhileStatement = function parseDoWhileStatement (context
 Parser.prototype.parseContinueStatement = function parseContinueStatement (context) {
     if (!(this.flags & 32 /* IterationStatement */))
         { this.error(100 /* InvalidNestedContinue */); }
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 12366 /* ContinueKeyword */);
     var label = null;
     if (!(this.flags & 1 /* PrecedingLineBreak */) && this.token & 67108864 /* IsIdentifier */) {
@@ -2583,13 +2581,13 @@ Parser.prototype.parseContinueStatement = function parseContinueStatement (conte
         }
     }
     this.consumeSemicolon(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ContinueStatement',
         label: label
     });
 };
 Parser.prototype.parseBreakStatement = function parseBreakStatement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 12362 /* BreakKeyword */);
     var label = null;
     if (!(this.flags & 1 /* PrecedingLineBreak */) && this.token & 67108864 /* IsIdentifier */) {
@@ -2602,13 +2600,13 @@ Parser.prototype.parseBreakStatement = function parseBreakStatement (context) {
         this.error(17 /* IllegalBreak */);
     }
     this.consumeSemicolon(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'BreakStatement',
         label: label
     });
 };
 Parser.prototype.parseForStatement = function parseForStatement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 12374 /* ForKeyword */);
     var declarations = null;
     var init = null;
@@ -2636,7 +2634,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
             declarations = this.parseVariableDeclarationList(context | 268435456 /* Let */);
         }
         else {
-            init = this.parseExpression(context & ~4 /* AllowIn */, pos);
+            init = this.parseExpression(context & ~4 /* AllowIn */, startLoc);
         }
         if (declarations) {
             init = this.finishNode(context, VarDeclStart, {
@@ -2674,7 +2672,7 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
         if (blockScope !== undefined)
             { this.parentScope = parentScope; }
         this.flags = savedFlag;
-        return this.finishNode(context, pos, isForOfStatement ? {
+        return this.finishNode(context, startLoc, isForOfStatement ? {
             type: 'ForOfStatement',
             body: body,
             left: init,
@@ -2691,17 +2689,17 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
     var test = null;
     this.expect(context, 17 /* Semicolon */);
     if (this.token !== 17 /* Semicolon */)
-        { test = this.parseExpression(context, pos); }
+        { test = this.parseExpression(context, startLoc); }
     this.expect(context, 17 /* Semicolon */);
     if (this.token !== 16 /* RightParen */)
-        { update = this.parseExpression(context, pos); }
+        { update = this.parseExpression(context, startLoc); }
     this.expect(context, 16 /* RightParen */);
     body = this.parseStatement(context & ~1024 /* Declaration */);
     this.blockScope = blockScope;
     if (blockScope !== undefined)
         { this.parentScope = parentScope; }
     this.flags = savedFlag;
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ForStatement',
         body: body,
         init: init,
@@ -2716,13 +2714,13 @@ Parser.prototype.parseIfStatementChild = function parseIfStatementChild (context
     return this.parseStatement(context | (4096 /* AnnexB */ | 1024 /* Declaration */ | 4194304 /* Statement */));
 };
 Parser.prototype.parseIfStatement = function parseIfStatement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     if (this.flags & 2 /* ExtendedUnicodeEscape */)
         { this.error(64 /* UnexpectedEscapedKeyword */); }
     this.expect(context, 12376 /* IfKeyword */);
     this.expect(context, 262155 /* LeftParen */);
     // An IF node has three kids: test, alternate, and optional else
-    var test = this.parseExpression(context | 4 /* AllowIn */, pos);
+    var test = this.parseExpression(context | 4 /* AllowIn */, startLoc);
     this.expect(context, 16 /* RightParen */);
     var savedFlag = this.flags;
     var consequent = this.parseIfStatementChild(context);
@@ -2730,7 +2728,7 @@ Parser.prototype.parseIfStatement = function parseIfStatement (context) {
     if (this.parseOptional(context, 12370 /* ElseKeyword */))
         { alternate = this.parseIfStatementChild(context); }
     this.flags = savedFlag;
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'IfStatement',
         test: test,
         alternate: alternate,
@@ -2738,20 +2736,20 @@ Parser.prototype.parseIfStatement = function parseIfStatement (context) {
     });
 };
 Parser.prototype.parseDebuggerStatement = function parseDebuggerStatement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 12367 /* DebuggerKeyword */);
     this.consumeSemicolon(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'DebuggerStatement'
     });
 };
 Parser.prototype.parseSwitchStatement = function parseSwitchStatement (context) {
         var this$1 = this;
 
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 274525 /* SwitchKeyword */);
     this.expect(context, 262155 /* LeftParen */);
-    var discriminant = this.parseExpression(context, pos);
+    var discriminant = this.parseExpression(context, startLoc);
     this.expect(context, 16 /* RightParen */);
     this.expect(context, 393228 /* LeftBrace */);
     var blockScope = this.blockScope;
@@ -2778,7 +2776,7 @@ Parser.prototype.parseSwitchStatement = function parseSwitchStatement (context) 
     this.blockScope = blockScope;
     if (blockScope !== undefined)
         { this.parentScope = parentScope; }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'SwitchStatement',
         discriminant: discriminant,
         cases: cases
@@ -2787,13 +2785,13 @@ Parser.prototype.parseSwitchStatement = function parseSwitchStatement (context) 
 Parser.prototype.parseSwitchCase = function parseSwitchCase (context) {
         var this$1 = this;
 
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var test = null;
     switch (this.token) {
         // 'case'
         case 12363 /* CaseKeyword */:
             this.nextToken(context);
-            test = this.parseExpression(context, pos);
+            test = this.parseExpression(context, startLoc);
             break;
         // 'default'
         case 12368 /* DefaultKeyword */:
@@ -2816,16 +2814,16 @@ Parser.prototype.parseSwitchCase = function parseSwitchCase (context) {
                 consequent.push(this$1.parseStatementListItem(context));
         }
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'SwitchCase',
         test: test,
         consequent: consequent,
     });
 };
 Parser.prototype.parseEmptyStatement = function parseEmptyStatement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.nextToken(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'EmptyStatement'
     });
 };
@@ -2843,24 +2841,24 @@ Parser.prototype.canParseArgument = function canParseArgument () {
     }
 };
 Parser.prototype.parseReturnStatement = function parseReturnStatement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     if (!(this.flags & (67108864 /* OptionsGlobalReturn */ | 4 /* InFunctionBody */)))
         { this.error(19 /* IllegalReturn */); }
     this.expect(context, 12379 /* ReturnKeyword */);
     var argument = null;
     if (this.canParseArgument()) {
-        argument = this.parseExpression(context | 4 /* AllowIn */, pos);
+        argument = this.parseExpression(context | 4 /* AllowIn */, startLoc);
     }
     this.consumeSemicolon(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ReturnStatement',
         argument: argument
     });
 };
 Parser.prototype.parseExpressionOrLabeledStatement = function parseExpressionOrLabeledStatement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var token = this.token;
-    var expr = this.parseExpression(context | 134217728 /* ValidateEscape */ | 4 /* AllowIn */, pos);
+    var expr = this.parseExpression(context | 134217728 /* ValidateEscape */ | 4 /* AllowIn */, startLoc);
     if (this.token === 21 /* Colon */ && expr.type === 'Identifier') {
         this.expect(context, 21 /* Colon */);
         var key = '$' + expr.name;
@@ -2878,7 +2876,7 @@ Parser.prototype.parseExpressionOrLabeledStatement = function parseExpressionOrL
         }
         var body = this.parseStatement(context | 4096 /* AnnexB */ | 1024 /* Declaration */);
         this.labelSet[key] = false;
-        return this.finishNode(context, pos, {
+        return this.finishNode(context, startLoc, {
             type: 'LabeledStatement',
             label: expr,
             body: body
@@ -2886,23 +2884,23 @@ Parser.prototype.parseExpressionOrLabeledStatement = function parseExpressionOrL
     }
     else {
         this.consumeSemicolon(context);
-        return this.finishNode(context, pos, {
+        return this.finishNode(context, startLoc, {
             type: 'ExpressionStatement',
             expression: expr
         });
     }
 };
 Parser.prototype.parseExpressionStatement = function parseExpressionStatement (context) {
-    var pos = this.getLocations();
-    var expr = this.parseExpression(context, pos);
+    var startLoc = this.getLocations();
+    var expr = this.parseExpression(context, startLoc);
     this.consumeSemicolon(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ExpressionStatement',
         expression: expr
     });
 };
 Parser.prototype.parseVariableStatement = function parseVariableStatement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var token = this.token;
     if (this.flags & 2 /* ExtendedUnicodeEscape */) {
         this.error(64 /* UnexpectedEscapedKeyword */);
@@ -2910,7 +2908,7 @@ Parser.prototype.parseVariableStatement = function parseVariableStatement (conte
     this.nextToken(context);
     var declarations = this.parseVariableDeclarationList(context);
     this.consumeSemicolon(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'VariableDeclaration',
         declarations: declarations,
         kind: tokenDesc(token)
@@ -2927,7 +2925,7 @@ Parser.prototype.parseVariableDeclarationList = function parseVariableDeclaratio
     return list;
 };
 Parser.prototype.parseVariableDeclaration = function parseVariableDeclaration (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var token = this.token;
     var id = this.parseBindingIdentifierOrPattern(context);
     var init = null;
@@ -2961,13 +2959,13 @@ Parser.prototype.parseVariableDeclaration = function parseVariableDeclaration (c
             this.error(86 /* MissingInitializer */, 'const');
         }
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'VariableDeclarator',
         init: init,
         id: id
     });
 };
-Parser.prototype.parseExpression = function parseExpression (context, pos) {
+Parser.prototype.parseExpression = function parseExpression (context, startLoc) {
         var this$1 = this;
 
     var expr = this.parseAssignmentExpression(context);
@@ -2977,12 +2975,12 @@ Parser.prototype.parseExpression = function parseExpression (context, pos) {
     while (this.parseOptional(context, 18 /* Comma */)) {
         expressions.push(this$1.parseAssignmentExpression(context));
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'SequenceExpression',
         expressions: expressions
     });
 };
-Parser.prototype.parseYieldExpression = function parseYieldExpression (context, pos) {
+Parser.prototype.parseYieldExpression = function parseYieldExpression (context, startLoc) {
     if (this.flags & 2 /* ExtendedUnicodeEscape */)
         { this.error(64 /* UnexpectedEscapedKeyword */); }
     this.expect(context, 537153642 /* YieldKeyword */);
@@ -2997,24 +2995,24 @@ Parser.prototype.parseYieldExpression = function parseYieldExpression (context, 
             argument = this.parseAssignmentExpression(context);
         }
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'YieldExpression',
         argument: argument,
         delegate: delegate
     });
 };
 Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     if (context & 16 /* Yield */ && this.token & 536870912 /* IsYield */) {
         // Invalid: 'function* foo(a = 1 + (yield 2)) { }'
         if (context & 128 /* InParameter */ && !(this.flags & 4 /* InFunctionBody */)) {
             this.error(101 /* InvalidGeneratorParam */);
         }
-        return this.parseYieldExpression(context, pos);
+        return this.parseYieldExpression(context, startLoc);
     }
     var token = this.token;
     var tokenValue = this.tokenValue;
-    var expr = this.parseConditionalExpression(context, pos);
+    var expr = this.parseConditionalExpression(context, startLoc);
     // If that's the case - parse out a arrow function with a single un-parenthesized parameter.
     // An async one, will be parsed out in 'parsePrimaryExpression'
     if (this.token === 10 /* Arrow */ && (this.isIdentifier(context | 8 /* Arrow */, token))) {
@@ -3024,7 +3022,7 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
                     { this.error(76 /* UnexpectedStrictReserved */); }
                 this.flags |= 2048 /* Binding */;
             }
-            return this.parseArrowFunctionExpression(context & ~(32 /* Await */) | 8 /* Arrow */, pos, [expr]);
+            return this.parseArrowFunctionExpression(context & ~(32 /* Await */) | 8 /* Arrow */, startLoc, [expr]);
         }
     }
     if (hasMask(this.token, 1310720 /* AssignOperator */)) {
@@ -3050,7 +3048,7 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
             this.flags |= 256 /* Yield */;
         }
         var right = this.parseAssignmentExpression(context | 4 /* AllowIn */);
-        return this.finishNode(context, pos, {
+        return this.finishNode(context, startLoc, {
             type: 'AssignmentExpression',
             left: expr,
             operator: tokenDesc(operator),
@@ -3121,7 +3119,7 @@ Parser.prototype.reinterpretAsPattern = function reinterpretAsPattern (context, 
             this.error(116 /* InvalidDestructuringTarget */);
     }
 };
-Parser.prototype.parseArrowFunctionExpression = function parseArrowFunctionExpression (context, pos, params) {
+Parser.prototype.parseArrowFunctionExpression = function parseArrowFunctionExpression (context, startLoc, params) {
         var this$1 = this;
 
     // A line terminator between ArrowParameters and the => should trigger a SyntaxError.
@@ -3165,7 +3163,7 @@ Parser.prototype.parseArrowFunctionExpression = function parseArrowFunctionExpre
     this.functionScope = functionScope;
     this.blockScope = blockScope;
     this.parentScope = parentScope;
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ArrowFunctionExpression',
         body: body,
         params: params,
@@ -3175,8 +3173,8 @@ Parser.prototype.parseArrowFunctionExpression = function parseArrowFunctionExpre
         expression: expression
     });
 };
-Parser.prototype.parseConditionalExpression = function parseConditionalExpression (context, pos) {
-    var expr = this.parseBinaryExpression(context, 0, pos);
+Parser.prototype.parseConditionalExpression = function parseConditionalExpression (context, startLoc) {
+    var expr = this.parseBinaryExpression(context, 0, startLoc);
     if (!this.parseOptional(context, 22 /* QuestionMark */))
         { return expr; }
     var consequent = this.parseAssignmentExpression(context | 4 /* AllowIn */);
@@ -3185,7 +3183,7 @@ Parser.prototype.parseConditionalExpression = function parseConditionalExpressio
         this.error(76 /* UnexpectedStrictReserved */);
     }
     var alternate = this.parseAssignmentExpression(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ConditionalExpression',
         test: expr,
         consequent: consequent,
@@ -3248,57 +3246,49 @@ Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) 
     return this.parseUpdateExpression(context, startLoc);
 };
 Parser.prototype.parseAwaitExpression = function parseAwaitExpression (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     if (this.flags & 2 /* ExtendedUnicodeEscape */)
         { this.error(64 /* UnexpectedEscapedKeyword */); }
     this.expect(context, 1074073709 /* AwaitKeyword */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'AwaitExpression',
         argument: this.parseUnaryExpression(context)
     });
 };
-Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context, pos) {
+Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context, startLoc) {
     var expr;
-    if (hasMask(this.token, 786432 /* UpdateOperator */)) {
-        var operator = this.token;
+    var prefix;
+    var t = this.token;
+    if (hasMask(t, 786432 /* UpdateOperator */)) {
         this.nextToken(context);
-        expr = this.parseLeftHandSideExpression(context, pos);
-        if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name)) {
-            this.error(45 /* StrictLHSPrefix */);
-        }
-        else if (!isValidSimpleAssignmentTarget(expr))
-            { this.error(115 /* InvalidLhsInPrefixOp */); }
-        return this.finishNode(context, pos, {
-            type: 'UpdateExpression',
-            operator: tokenDesc(operator),
-            prefix: true,
-            argument: expr
-        });
+        expr = this.parseLeftHandSideExpression(context, startLoc);
+        prefix = true;
     }
-    expr = this.parseLeftHandSideExpression(context, pos);
-    if (hasMask(this.token, 786432 /* UpdateOperator */) && !(this.flags & 1 /* PrecedingLineBreak */)) {
-        // The identifier eval or arguments may not appear as the LeftHandSideExpression of an
-        // Assignment operator(12.15) or of a PostfixExpression or as the UnaryExpression
-        // operated upon by a Prefix Increment(12.4.6) or a Prefix Decrement(12.4.7) operator.
-        if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name)) {
-            this.error(46 /* StrictLHSPostfix */);
+    else {
+        expr = this.parseLeftHandSideExpression(context, startLoc);
+        if (hasMask(this.token, 786432 /* UpdateOperator */) && !(this.flags & 1 /* PrecedingLineBreak */)) {
+            t = this.token;
+            this.nextToken(context);
+            prefix = false;
         }
-        else if (!isValidSimpleAssignmentTarget(expr)) {
-            this.error(114 /* InvalidLhsInPostfixOp */);
-        }
-        var operator$1 = this.token;
-        this.nextToken(context);
-        return this.finishNode(context, pos, {
-            type: 'UpdateExpression',
-            argument: expr,
-            operator: tokenDesc(operator$1),
-            prefix: false
-        });
+        if (prefix === undefined)
+            { return expr; }
     }
-    return expr;
+    if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name)) {
+        this.error(46 /* StrictLHSPostfix */);
+    }
+    if (!isValidSimpleAssignmentTarget(expr)) {
+        this.error(prefix ? 115 /* InvalidLhsInPrefixOp */ : 114 /* InvalidLhsInPostfixOp */);
+    }
+    return this.finishNode(context, startLoc, {
+        type: 'UpdateExpression',
+        argument: expr,
+        operator: tokenDesc(t),
+        prefix: prefix
+    });
 };
 Parser.prototype.parseSuper = function parseSuper (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 274524 /* SuperKeyword */);
     switch (this.token) {
         // '('
@@ -3320,11 +3310,11 @@ Parser.prototype.parseSuper = function parseSuper (context) {
         default:
             this.throwUnexpectedToken();
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'Super'
     });
 };
-Parser.prototype.parseImportCall = function parseImportCall (context, pos) {
+Parser.prototype.parseImportCall = function parseImportCall (context, startLoc) {
     var id = this.parseIdentifier(context);
     switch (this.token) {
         // Import.meta - Stage 3 proposal
@@ -3334,15 +3324,15 @@ Parser.prototype.parseImportCall = function parseImportCall (context, pos) {
             this.expect(context, 13 /* Period */);
             if (this.tokenValue !== 'meta')
                 { this.error(0 /* Unexpected */); }
-            return this.parseMetaProperty(context, id, pos);
+            return this.parseMetaProperty(context, id, startLoc);
         default:
-            return this.finishNode(context, pos, {
+            return this.finishNode(context, startLoc, {
                 type: 'Import'
             });
     }
 };
 // 12.3 Left-Hand-Side Expressions
-Parser.prototype.parseLeftHandSideExpression = function parseLeftHandSideExpression (context, pos) {
+Parser.prototype.parseLeftHandSideExpression = function parseLeftHandSideExpression (context, startLoc) {
     // LeftHandSideExpression[Yield]:
     // NewExpression[?Yield]
     // CallExpression[?Yield]
@@ -3358,19 +3348,19 @@ Parser.prototype.parseLeftHandSideExpression = function parseLeftHandSideExpress
                 this.throwUnexpectedToken();
             }
             context |= 8192 /* Import */;
-            expr = this.parseImportCall(context | 4 /* AllowIn */, pos);
+            expr = this.parseImportCall(context | 4 /* AllowIn */, startLoc);
             break;
         default:
-            expr = this.parseMemberExpression(context | 4 /* AllowIn */, pos);
+            expr = this.parseMemberExpression(context | 4 /* AllowIn */, startLoc);
     }
     if (!(this.flags & 8 /* AllowCall */) && expr.type === 'ArrowFunctionExpression') {
         return expr;
     }
-    return this.parseCallExpression(context | 4 /* AllowIn */, pos, expr);
+    return this.parseCallExpression(context | 4 /* AllowIn */, startLoc, expr);
 };
-Parser.prototype.parseMemberExpression = function parseMemberExpression (context, pos, expr) {
+Parser.prototype.parseMemberExpression = function parseMemberExpression (context, startLoc, expr) {
         var this$1 = this;
-        if ( expr === void 0 ) expr = this.parsePrimaryExpression(context, pos);
+        if ( expr === void 0 ) expr = this.parsePrimaryExpression(context, startLoc);
 
     while (true) {
         switch (this$1.token) {
@@ -3381,10 +3371,10 @@ Parser.prototype.parseMemberExpression = function parseMemberExpression (context
                     var property = this$1.flags & 8388608 /* OptionsNext */ && context & 32768 /* Method */ && this$1.token === 117 /* Hash */ ?
                         this$1.parsePrivateName(context) : this$1.parseIdentifierName(context, this$1.token);
                     if (context & 262144 /* ForStatement */ && this$1.token === 69746 /* OfKeyword */) {
-                        this$1.errorLocation = pos;
+                        this$1.errorLocation = startLoc;
                         this$1.error(34 /* InvalidLHSInForOf */);
                     }
-                    expr = this$1.finishNode(context, pos, {
+                    expr = this$1.finishNode(context, startLoc, {
                         type: 'MemberExpression',
                         object: expr,
                         computed: false,
@@ -3399,7 +3389,7 @@ Parser.prototype.parseMemberExpression = function parseMemberExpression (context
                     var start = this$1.getLocations();
                     var property$1 = this$1.parseExpression(context | 4 /* AllowIn */, start);
                     this$1.expect(context, 20 /* RightBracket */);
-                    expr = this$1.finishNode(context, pos, {
+                    expr = this$1.finishNode(context, startLoc, {
                         type: 'MemberExpression',
                         object: expr,
                         computed: true,
@@ -3410,10 +3400,10 @@ Parser.prototype.parseMemberExpression = function parseMemberExpression (context
             case 262152 /* TemplateCont */:
             case 262153 /* TemplateTail */:
                 {
-                    var quasiPos = this$1.getLocations();
+                    var quasiStart = this$1.getLocations();
                     var quasi = this$1.token === 262152 /* TemplateCont */ ?
-                        this$1.parseTemplate(context | 1048576 /* TaggedTemplate */, quasiPos) : this$1.parseTemplateLiteral(context | 1048576 /* TaggedTemplate */, quasiPos);
-                    expr = this$1.parseTaggedTemplateExpression(context, expr, quasi, pos);
+                        this$1.parseTemplate(context | 1048576 /* TaggedTemplate */, quasiStart) : this$1.parseTemplateLiteral(context | 1048576 /* TaggedTemplate */, quasiStart);
+                    expr = this$1.parseTaggedTemplateExpression(context, expr, quasi, startLoc);
                     break;
                 }
             default:
@@ -3421,18 +3411,18 @@ Parser.prototype.parseMemberExpression = function parseMemberExpression (context
         }
     }
 };
-Parser.prototype.parseCallExpression = function parseCallExpression (context, pos, expr) {
+Parser.prototype.parseCallExpression = function parseCallExpression (context, startLoc, expr) {
         var this$1 = this;
 
     while (true) {
-        expr = this$1.parseMemberExpression(context, pos, expr);
+        expr = this$1.parseMemberExpression(context, startLoc, expr);
         switch (this$1.token) {
             case 262155 /* LeftParen */:
-                var args = this$1.parseArguments(context & ~128 /* InParameter */, pos);
+                var args = this$1.parseArguments(context & ~128 /* InParameter */, startLoc);
                 if (context & 8192 /* Import */ && args.length !== 1 &&
                     expr.type === 'Import')
                     { this$1.error(14 /* BadImportCallArity */); }
-                expr = this$1.finishNode(context, pos, {
+                expr = this$1.finishNode(context, startLoc, {
                     type: 'CallExpression',
                     callee: expr,
                     arguments: args
@@ -3453,7 +3443,7 @@ Parser.prototype.parseFunctionExpression = function parseFunctionExpression (con
 Parser.prototype.parseFunction = function parseFunction (context, parentContext /* None */) {
         if ( parentContext === void 0 ) parentContext = 0;
 
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     if (this.token & 134217728 /* IsAsync */) {
         if (this.flags & 2 /* ExtendedUnicodeEscape */)
             { this.error(0 /* Unexpected */); }
@@ -3511,7 +3501,7 @@ Parser.prototype.parseFunction = function parseFunction (context, parentContext 
     this.functionScope = functionScope;
     this.blockScope = blockScope;
     this.parentScope = parentScope;
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: (context & 33554432 /* Expression */) !== 0 ? 'FunctionExpression' : 'FunctionDeclaration',
         params: params,
         body: body,
@@ -3551,16 +3541,16 @@ Parser.prototype.parseParameterList = function parseParameterList (context, stat
     return result;
 };
 Parser.prototype.parseFormalParameters = function parseFormalParameters (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     // Handle non-identifiers; Default values and destructuring
     if (!(this.token & 67108864 /* IsIdentifier */)) {
-        this.errorLocation = pos;
+        this.errorLocation = startLoc;
         this.flags |= 16384 /* SimpleParameterList */;
     }
     if (this.isEvalOrArguments(this.tokenValue)) {
         if (context & 2 /* Strict */)
             { this.error(35 /* StrictLHSAssignment */); }
-        this.errorLocation = pos;
+        this.errorLocation = startLoc;
         this.flags |= 2048 /* Binding */;
     }
     var left = this.parseBindingIdentifierOrPattern(context);
@@ -3571,13 +3561,13 @@ Parser.prototype.parseFormalParameters = function parseFormalParameters (context
         this.error(79 /* DisallowedInContext */, tokenDesc(this.token));
     }
     this.flags |= 16384 /* SimpleParameterList */;
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'AssignmentPattern',
         left: left,
         right: this.parseAssignmentExpression(context)
     });
 };
-Parser.prototype.parseAsyncFunctionExpression = function parseAsyncFunctionExpression (context, pos) {
+Parser.prototype.parseAsyncFunctionExpression = function parseAsyncFunctionExpression (context, startLoc) {
     var isEscaped = (this.flags & 2 /* ExtendedUnicodeEscape */) !== 0;
     // Valid: `(\u0061sync ())`
     if (isEscaped && !(context & 64 /* InParenthesis */)) {
@@ -3594,19 +3584,19 @@ Parser.prototype.parseAsyncFunctionExpression = function parseAsyncFunctionExpre
                 { return id; }
             var expr = this.parseIdentifier(context);
             if (this.token === 10 /* Arrow */)
-                { return this.parseArrowFunctionExpression(context & ~16 /* Yield */ | 4 /* AllowIn */ | 32 /* Await */, pos, [expr]); }
+                { return this.parseArrowFunctionExpression(context & ~16 /* Yield */ | 4 /* AllowIn */ | 32 /* Await */, startLoc, [expr]); }
             // Invalid: 'async abc'
             this.throwUnexpectedToken();
         // CoverCallExpressionAndAsyncArrowHead[Yield, Await]:
         case 262155 /* LeftParen */:
             // This could be either a CallExpression or the head of an async arrow function
-            return this.parseAsyncArguments(context & ~16 /* Yield */ | 4 /* AllowIn */, pos, id, flags, isEscaped);
+            return this.parseAsyncArguments(context & ~16 /* Yield */ | 4 /* AllowIn */, startLoc, id, flags, isEscaped);
         default:
             // Async as Identifier
             return id;
     }
 };
-Parser.prototype.parseAsyncArguments = function parseAsyncArguments (context, pos, id, flags, isEscaped) {
+Parser.prototype.parseAsyncArguments = function parseAsyncArguments (context, startLoc, id, flags, isEscaped) {
         var this$1 = this;
 
     // Modified ArgumentList production to deal with async stuff. This so we can
@@ -3664,19 +3654,19 @@ Parser.prototype.parseAsyncArguments = function parseAsyncArguments (context, po
             { this.error(66 /* InvalidParenthesizedPattern */); }
         if (state & 8 /* Trailing */)
             { this.throwUnexpectedToken(); }
-        return this.parseArrowFunctionExpression(context | 32 /* Await */, pos, args);
+        return this.parseArrowFunctionExpression(context | 32 /* Await */, startLoc, args);
     }
     // We are done, so unset the bitmask
     this.flags &= ~512 /* Await */;
     this.errorLocation = undefined;
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'CallExpression',
         callee: id,
         arguments: args
     });
 };
 Parser.prototype.parseFunctionBody = function parseFunctionBody (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 393228 /* LeftBrace */);
     var body = [];
     if (this.token !== 15 /* RightBrace */) {
@@ -3690,24 +3680,24 @@ Parser.prototype.parseFunctionBody = function parseFunctionBody (context) {
         this.flags = savedFlags;
     }
     this.expect(context, 15 /* RightBrace */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'BlockStatement',
         body: body
     });
 };
 Parser.prototype.parseSpreadExpression = function parseSpreadExpression (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     // Disallow SpreadElement inside dynamic import
     if (context & 8192 /* Import */)
         { this.throwUnexpectedToken(); }
     this.expect(context, 14 /* Ellipsis */);
     var arg = this.parseAssignmentExpression(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'SpreadElement',
         argument: arg
     });
 };
-Parser.prototype.parseArguments = function parseArguments (context, pos) {
+Parser.prototype.parseArguments = function parseArguments (context, startLoc) {
         var this$1 = this;
 
     this.expect(context, 262155 /* LeftParen */);
@@ -3722,15 +3712,15 @@ Parser.prototype.parseArguments = function parseArguments (context, pos) {
     this.expect(context, 16 /* RightParen */);
     return args;
 };
-Parser.prototype.parseMetaProperty = function parseMetaProperty (context, meta, pos) {
-    return this.finishNode(context, pos, {
+Parser.prototype.parseMetaProperty = function parseMetaProperty (context, meta, startLoc) {
+    return this.finishNode(context, startLoc, {
         meta: meta,
         type: 'MetaProperty',
         property: this.parseIdentifier(context)
     });
 };
 Parser.prototype.parseNewExpression = function parseNewExpression (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     if (this.flags & 2 /* ExtendedUnicodeEscape */)
         { this.error(64 /* UnexpectedEscapedKeyword */); }
     var id = this.parseIdentifier(context);
@@ -3742,26 +3732,26 @@ Parser.prototype.parseNewExpression = function parseNewExpression (context) {
                 if (this.tokenValue !== 'target')
                     { this.error(29 /* MetaNotInFunctionBody */); }
                 if (context & 128 /* InParameter */)
-                    { return this.parseMetaProperty(context, id, pos); }
+                    { return this.parseMetaProperty(context, id, startLoc); }
                 if (context & 8 /* Arrow */ && context & 1024 /* Declaration */)
                     { this.error(107 /* NewTargetArrow */); }
                 if (!(this.flags & 4 /* InFunctionBody */))
                     { this.error(29 /* MetaNotInFunctionBody */); }
             }
-            var meta = this.parseMetaProperty(context, id, pos);
+            var meta = this.parseMetaProperty(context, id, startLoc);
             if (this.token === 1310749 /* Assign */) {
                 this.error(36 /* InvalidLHSInAssignment */);
             }
             return meta;
         default:
-            return this.finishNode(context, pos, {
+            return this.finishNode(context, startLoc, {
                 type: 'NewExpression',
-                callee: this.parseMemberExpression(context, pos),
-                arguments: this.token === 262155 /* LeftParen */ ? this.parseArguments(context, pos) : []
+                callee: this.parseMemberExpression(context, startLoc),
+                arguments: this.token === 262155 /* LeftParen */ ? this.parseArguments(context, startLoc) : []
             });
     }
 };
-Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (context, pos) {
+Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (context, startLoc) {
     switch (this.token) {
         case 262146 /* NumericLiteral */:
         case 262147 /* StringLiteral */:
@@ -3791,9 +3781,9 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 393228 /* LeftBrace */:
             return this.parseObjectExpression(context);
         case 262153 /* TemplateTail */:
-            return this.parseTemplateLiteral(context, pos);
+            return this.parseTemplateLiteral(context, startLoc);
         case 262152 /* TemplateCont */:
-            return this.parseTemplate(context, pos);
+            return this.parseTemplate(context, startLoc);
         case 2361909 /* Divide */:
         case 1310757 /* DivideAssign */:
             return this.parseRegularExpression(context);
@@ -3801,7 +3791,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
             if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
                 return this.parseFunctionExpression(context | 32 /* Await */ | 33554432 /* Expression */);
             }
-            return this.parseAsyncFunctionExpression(context, pos);
+            return this.parseAsyncFunctionExpression(context, startLoc);
         case 12383 /* ThrowKeyword */:
             return this.parseThrowExpression(context);
         case 1074073709 /* AwaitKeyword */:
@@ -3834,7 +3824,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
 };
 Parser.prototype.parseLet = function parseLet (context) {
     var name = this.tokenValue;
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     if (this.flags & 2 /* ExtendedUnicodeEscape */) {
         this.error(64 /* UnexpectedEscapedKeyword */);
     }
@@ -3848,7 +3838,7 @@ Parser.prototype.parseLet = function parseLet (context) {
     if (this.token === 8671304 /* LetKeyword */) {
         this.error(84 /* InvalidStrictExpPostion */, tokenDesc(this.token));
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'Identifier',
         name: name
     });
@@ -3884,7 +3874,7 @@ Parser.prototype.validateClassFields = function validateClassFields () {
     }
 };
 Parser.prototype.parseClassDeclaration = function parseClassDeclaration (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var id = null;
     this.expect(context, 274509 /* ClassKeyword */);
     if (this.isIdentifier(context, this.token)) {
@@ -3895,22 +3885,22 @@ Parser.prototype.parseClassDeclaration = function parseClassDeclaration (context
     }
     else if (!(context & 16384 /* Optional */))
         { this.error(82 /* UnNamedClassStmt */); }
-    return this.parseClassTail(context, id, pos);
+    return this.parseClassTail(context, id, startLoc);
 };
 Parser.prototype.parseClassExpression = function parseClassExpression (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 274509 /* ClassKeyword */);
     var id = null;
     if (this.isIdentifier(context, this.token)) {
         id = this.parseBindingIdentifier(context);
     }
-    return this.parseClassTail(context, id, pos);
+    return this.parseClassTail(context, id, startLoc);
 };
-Parser.prototype.parseClassTail = function parseClassTail (context, id, pos) {
+Parser.prototype.parseClassTail = function parseClassTail (context, id, startLoc) {
     var superClass = null;
     var flags = 0;
     if (this.parseOptional(context, 12372 /* ExtendsKeyword */)) {
-        superClass = this.parseLeftHandSideExpression(context & ~16384 /* Optional */ | 2 /* Strict */, pos);
+        superClass = this.parseLeftHandSideExpression(context & ~16384 /* Optional */ | 2 /* Strict */, startLoc);
         flags |= 256 /* Heritage */;
     }
     if (this.flags & 8388608 /* OptionsNext */ && !(context & 32768 /* Method */))
@@ -3918,7 +3908,7 @@ Parser.prototype.parseClassTail = function parseClassTail (context, id, pos) {
     var body = this.parseClassBody(context | 2 /* Strict */, flags);
     if (this.flags & 8388608 /* OptionsNext */)
         { this.validateClassFields(); }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: context & 33554432 /* Expression */ ? 'ClassExpression' : 'ClassDeclaration',
         id: id,
         superClass: superClass,
@@ -3940,18 +3930,18 @@ Parser.prototype.parseClassElementList = function parseClassElementList (context
     return body;
 };
 Parser.prototype.parseClassBody = function parseClassBody (context, flags) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context | 134217728 /* ValidateEscape */, 393228 /* LeftBrace */);
     var body = [];
     if (this.token !== 15 /* RightBrace */)
         { body = this.parseClassElementList(context, flags); }
     this.expect(context, 15 /* RightBrace */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ClassBody',
         body: body
     });
 };
-Parser.prototype.parsePrivateProperty = function parsePrivateProperty (context, pos, key) {
+Parser.prototype.parsePrivateProperty = function parsePrivateProperty (context, startLoc, key) {
     var value = null;
     if (this.parseOptional(context, 1310749 /* Assign */))
         { value = this.parseAssignmentExpression(context); }
@@ -3959,14 +3949,14 @@ Parser.prototype.parsePrivateProperty = function parsePrivateProperty (context, 
         this.error(72 /* UnexpectedReservedWord */);
     }
     this.parseOptional(context, 18 /* Comma */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ClassProperty',
         key: key,
         value: value,
     });
 };
 Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty (context, state) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 117 /* Hash */);
     if (this.token === 393235 /* LeftBracket */)
         { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
@@ -3981,7 +3971,7 @@ Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty 
     var fieldValue = tokenValue;
     if (this.fieldSet === undefined)
         { this.fieldSet = []; }
-    this.errorLocation = pos;
+    this.errorLocation = startLoc;
     this.fieldSet.push({
         key: fieldValue,
         mask: 2 /* Scope */
@@ -3992,7 +3982,7 @@ Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty 
         value = this.parseAssignmentExpression(context | 8388608 /* Fields */);
     }
     this.parseOptional(context, 18 /* Comma */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'PrivateProperty',
         key: key,
         value: value,
@@ -4003,23 +3993,23 @@ Parser.prototype.parsePrivateName = function parsePrivateName (context) {
     if (context & 1 /* Module */) {
         this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
     }
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 117 /* Hash */);
-    this.errorLocation = pos;
+    this.errorLocation = startLoc;
     if (this.fieldSet === undefined)
         { this.fieldSet = []; }
     this.fieldSet.push({
         key: this.tokenValue,
         mask: 1 /* Method */
     });
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'PrivateName',
         id: this.parseIdentifierName(context, this.token),
     });
 };
-Parser.prototype.parseClassFields = function parseClassFields (context, key, pos) {
+Parser.prototype.parseClassFields = function parseClassFields (context, key, startLoc) {
     if (this.token === 1310749 /* Assign */) {
-        key = this.parsePrivateProperty(context | 8388608 /* Fields */, pos, key);
+        key = this.parsePrivateProperty(context | 8388608 /* Fields */, startLoc, key);
     }
     this.parseOptional(context, 18 /* Comma */);
     return key;
@@ -4032,13 +4022,13 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
         if (!(context & 1 /* Module */))
             { return this.parseClassPrivateProperty(context | 4 /* AllowIn */, state); }
     }
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var token = this.token;
     var currentState = 0;
     var count = 0;
     var key;
     var value;
-    var fieldPos;
+    var fieldstartLoc;
     loop: while (this.isIdentifierOrKeyword(token)) {
         switch (this$1.token) {
             case 16797801 /* StaticKeyword */:
@@ -4090,13 +4080,13 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
         case 262147 /* StringLiteral */:
             if (this.tokenValue === 'constructor')
                 { state |= 1024 /* Constructor */; }
-            fieldPos = this.getLocations();
+            fieldstartLoc = this.getLocations();
             key = this.parseLiteral(context);
             // Stage 3 Proposal - Class-fields
             if (this.flags & 8388608 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
                 if (state & (4096 /* Prototype */ | 1024 /* Constructor */))
                     { this.error(0 /* Unexpected */); }
-                return this.parseClassFields(context | 4 /* AllowIn */ | 8388608 /* Fields */, key, fieldPos);
+                return this.parseClassFields(context | 4 /* AllowIn */ | 8388608 /* Fields */, key, fieldstartLoc);
             }
             break;
         case 117 /* Hash */:
@@ -4108,17 +4098,17 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
             }
         case 393235 /* LeftBracket */:
             state |= 4 /* Computed */;
-            fieldPos = this.getLocations();
-            key = this.parseComputedPropertyName(context | 4 /* AllowIn */, pos);
+            fieldstartLoc = this.getLocations();
+            key = this.parseComputedPropertyName(context | 4 /* AllowIn */, startLoc);
             if (this.flags & 8388608 /* OptionsNext */ && this.token !== 262155 /* LeftParen */) {
-                return this.parseClassFields(context | 4 /* AllowIn */ | 8388608 /* Fields */, key, fieldPos);
+                return this.parseClassFields(context | 4 /* AllowIn */ | 8388608 /* Fields */, key, fieldstartLoc);
             }
             break;
         default:
             if (this.isIdentifier(context & ~2 /* Strict */, this.token)) {
                 if (this.tokenValue === 'constructor')
                     { state |= 1024 /* Constructor */; }
-                fieldPos = this.getLocations();
+                fieldstartLoc = this.getLocations();
                 key = this.parseIdentifier(context);
                 if (this.token === 393235 /* LeftBracket */)
                     { this.throwUnexpectedToken(); }
@@ -4127,7 +4117,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                     if (this.flags & 8388608 /* OptionsNext */) {
                         if (state & (4096 /* Prototype */ | 1024 /* Constructor */))
                             { this.error(0 /* Unexpected */); }
-                        return this.parseClassFields(context | 4 /* AllowIn */ | 8388608 /* Fields */, key, fieldPos);
+                        return this.parseClassFields(context | 4 /* AllowIn */ | 8388608 /* Fields */, key, fieldstartLoc);
                     }
                     this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
                 }
@@ -4159,7 +4149,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     else {
         this.error(0 /* Unexpected */);
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'MethodDefinition',
         key: key,
         kind: (state & 1024 /* Constructor */) ? 'constructor' : (state & 16 /* Get */) ? 'get' :
@@ -4172,7 +4162,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
 Parser.prototype.parseObjectExpression = function parseObjectExpression (context) {
         var this$1 = this;
 
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 393228 /* LeftBrace */);
     var properties = [];
     var firstProto;
@@ -4195,13 +4185,13 @@ Parser.prototype.parseObjectExpression = function parseObjectExpression (context
             { this$1.expect(context, 18 /* Comma */); }
     }
     this.expect(context, 15 /* RightBrace */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ObjectExpression',
         properties: properties
     });
 };
 Parser.prototype.parseObjectElement = function parseObjectElement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var t = this.token;
     var state = 0;
     var currentState = 0;
@@ -4249,7 +4239,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
             break;
         case 393235 /* LeftBracket */:
             state |= 4 /* Computed */;
-            key = this.parseComputedPropertyName(context, pos);
+            key = this.parseComputedPropertyName(context, startLoc);
             break;
         default:
             if (this.isIdentifierOrKeyword(this.token)) {
@@ -4298,13 +4288,13 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
             }
             state |= 8 /* Shorthand */;
             if (this.token === 1310749 /* Assign */) {
-                value = this.parseAssignmentPattern(context, pos, key);
+                value = this.parseAssignmentPattern(context, startLoc, key);
             }
             else {
                 value = key;
             }
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'Property',
         key: key,
         value: value,
@@ -4315,7 +4305,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
     });
 };
 Parser.prototype.parseMethodDefinition = function parseMethodDefinition (context, state) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     if (state & 1 /* Yield */ && !(state & 16 /* Get */))
         { context |= 16 /* Yield */; }
     if (state & 2 /* Async */)
@@ -4331,7 +4321,7 @@ Parser.prototype.parseMethodDefinition = function parseMethodDefinition (context
     this.functionScope = functionScope;
     this.blockScope = blockScope;
     this.parentScope = parentScope;
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'FunctionExpression',
         params: params,
         body: body,
@@ -4342,7 +4332,7 @@ Parser.prototype.parseMethodDefinition = function parseMethodDefinition (context
     });
 };
 Parser.prototype.parseRestElement = function parseRestElement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 14 /* Ellipsis */);
     var argument = this.parseBindingIdentifierOrPattern(context);
     if (this.token === 1310749 /* Assign */)
@@ -4350,7 +4340,7 @@ Parser.prototype.parseRestElement = function parseRestElement (context) {
     if (this.token !== 16 /* RightParen */) {
         this.error(27 /* ParameterAfterRestParameter */);
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'RestElement',
         argument: argument
     });
@@ -4359,9 +4349,9 @@ Parser.prototype.parseThrowExpression = function parseThrowExpression (context) 
     if (!(this.flags & 8388608 /* OptionsNext */)) {
         this.error(97 /* UnsupportedFeature */, tokenDesc(this.token), 'next');
     }
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.nextToken(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ThrowExpression',
         expressions: this.parseUnaryExpression(context)
     });
@@ -4369,7 +4359,7 @@ Parser.prototype.parseThrowExpression = function parseThrowExpression (context) 
 Parser.prototype.parseArrayInitializer = function parseArrayInitializer (context) {
         var this$1 = this;
 
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 393235 /* LeftBracket */);
     var elements = [];
     while (this.token !== 20 /* RightBracket */) {
@@ -4393,7 +4383,7 @@ Parser.prototype.parseArrayInitializer = function parseArrayInitializer (context
         }
     }
     this.expect(context, 20 /* RightBracket */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ArrayExpression',
         elements: elements
     });
@@ -4403,12 +4393,12 @@ Parser.prototype.parseArrayInitializer = function parseArrayInitializer (context
 Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpression (context) {
         var this$1 = this;
 
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 262155 /* LeftParen */);
     var state = 0;
     if (this.parseOptional(context, 16 /* RightParen */)) {
         if (this.token === 10 /* Arrow */) {
-            return this.parseArrowFunctionExpression(context & ~(32 /* Await */ | 16 /* Yield */), pos, []);
+            return this.parseArrowFunctionExpression(context & ~(32 /* Await */ | 16 /* Yield */), startLoc, []);
         }
         this.error(65 /* MissingArrowAfterParentheses */);
     }
@@ -4416,10 +4406,10 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
     if (this.token === 14 /* Ellipsis */) {
         expr = this.parseRestElement(context);
         this.expect(context, 16 /* RightParen */);
-        return this.parseArrowFunctionExpression(context & ~(32 /* Await */ | 16 /* Yield */), pos, [expr]);
+        return this.parseArrowFunctionExpression(context & ~(32 /* Await */ | 16 /* Yield */), startLoc, [expr]);
     }
-    var sequencePos = this.getLocations();
-    this.errorLocation = pos;
+    var sequenceStartLoc = this.getLocations();
+    this.errorLocation = startLoc;
     var isSequence = false;
     if (context & 16 /* Yield */ && this.token & 536870912 /* IsYield */)
         { this.flags |= 256 /* Yield */; }
@@ -4437,14 +4427,14 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
                 var token = this$1.token;
                 this$1.expect(context, 16 /* RightParen */);
                 if (this$1.token === 10 /* Arrow */)
-                    { return this$1.parseArrowFunctionExpression(context & ~(32 /* Await */ | 16 /* Yield */), pos, expressions); }
+                    { return this$1.parseArrowFunctionExpression(context & ~(32 /* Await */ | 16 /* Yield */), startLoc, expressions); }
             }
             else if (this$1.token === 14 /* Ellipsis */) {
                 expressions.push(this$1.parseRestElement(context));
                 this$1.expect(context, 16 /* RightParen */);
                 if (state & 4 /* Parenthesized */)
                     { this$1.error(66 /* InvalidParenthesizedPattern */); }
-                return this$1.parseArrowFunctionExpression(context & ~(32 /* Await */ | 16 /* Yield */), pos, expressions);
+                return this$1.parseArrowFunctionExpression(context & ~(32 /* Await */ | 16 /* Yield */), startLoc, expressions);
             }
             else {
                 this$1.errorLocation = this$1.getLocations();
@@ -4454,7 +4444,7 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
             }
         }
         isSequence = true;
-        expr = this.finishNode(context, sequencePos, {
+        expr = this.finishNode(context, sequenceStartLoc, {
             type: 'SequenceExpression',
             expressions: expressions
         });
@@ -4472,7 +4462,7 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
             { this.error(95 /* InvalidArrowYieldParam */); }
         if (state & 4 /* Parenthesized */)
             { this.error(66 /* InvalidParenthesizedPattern */); }
-        return this.parseArrowFunctionExpression(context, pos, isSequence ? expr.expressions : [expr]);
+        return this.parseArrowFunctionExpression(context, startLoc, isSequence ? expr.expressions : [expr]);
     }
     this.errorLocation = undefined;
     if (state & 16 /* Pattern */) {
@@ -4482,12 +4472,12 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
 };
 Parser.prototype.parseRegularExpression = function parseRegularExpression (context) {
     this.scanRegularExpression();
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var regex = this.tokenRegExp;
     var value = this.tokenValue;
     var raw = this.tokenRaw;
     this.nextToken(context);
-    var node = this.finishNode(context, pos, {
+    var node = this.finishNode(context, startLoc, {
         type: 'Literal',
         value: value,
         regex: regex
@@ -4496,17 +4486,17 @@ Parser.prototype.parseRegularExpression = function parseRegularExpression (conte
         { node.raw = raw; }
     return node;
 };
-Parser.prototype.parseTemplateLiteral = function parseTemplateLiteral (context, pos) {
-    return this.finishNode(context, pos, {
+Parser.prototype.parseTemplateLiteral = function parseTemplateLiteral (context, startLoc) {
+    return this.finishNode(context, startLoc, {
         type: 'TemplateLiteral',
         expressions: [],
         quasis: [this.parseTemplateElement(context)]
     });
 };
 Parser.prototype.parseTemplateHead = function parseTemplateHead (context, cooked, raw) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.token = this.scanTemplateNext(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'TemplateElement',
         value: {
             cooked: cooked,
@@ -4516,11 +4506,11 @@ Parser.prototype.parseTemplateHead = function parseTemplateHead (context, cooked
     });
 };
 Parser.prototype.parseTemplateElement = function parseTemplateElement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var cooked = this.tokenValue;
     var raw = this.tokenRaw;
     this.expect(context, 262153 /* TemplateTail */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'TemplateElement',
         value: {
             cooked: cooked,
@@ -4529,39 +4519,39 @@ Parser.prototype.parseTemplateElement = function parseTemplateElement (context) 
         tail: true
     });
 };
-Parser.prototype.parseTaggedTemplateExpression = function parseTaggedTemplateExpression (context, expr, quasi, pos) {
-    return this.finishNode(context, pos, {
+Parser.prototype.parseTaggedTemplateExpression = function parseTaggedTemplateExpression (context, expr, quasi, startLoc) {
+    return this.finishNode(context, startLoc, {
         type: 'TaggedTemplateExpression',
         tag: expr,
         quasi: quasi
     });
 };
-Parser.prototype.parseTemplate = function parseTemplate (context, pos, expressions, quasis) {
+Parser.prototype.parseTemplate = function parseTemplate (context, startLoc, expressions, quasis) {
         if ( expressions === void 0 ) expressions = [];
         if ( quasis === void 0 ) quasis = [];
 
     var cooked = this.tokenValue;
     var raw = this.tokenRaw;
     this.expect(context, 262152 /* TemplateCont */);
-    expressions.push(this.parseExpression(context, pos));
+    expressions.push(this.parseExpression(context, startLoc));
     quasis.push(this.parseTemplateHead(context, cooked, raw));
     if (this.token === 262153 /* TemplateTail */) {
         quasis.push(this.parseTemplateElement(context));
     }
     else {
-        this.parseTemplate(context, pos, expressions, quasis);
+        this.parseTemplate(context, startLoc, expressions, quasis);
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'TemplateLiteral',
         expressions: expressions,
         quasis: quasis
     });
 };
 Parser.prototype.parseBigIntLiteral = function parseBigIntLiteral (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var value = this.tokenValue;
     var raw = this.tokenRaw;
-    var node = this.finishNode(context, pos, {
+    var node = this.finishNode(context, startLoc, {
         type: 'Literal',
         value: value,
         bigint: raw
@@ -4571,13 +4561,13 @@ Parser.prototype.parseBigIntLiteral = function parseBigIntLiteral (context) {
     return node;
 };
 Parser.prototype.parseLiteral = function parseLiteral (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var value = this.tokenValue;
     var raw = this.tokenRaw;
     if (context & 2 /* Strict */ && this.flags & 65536 /* Octal */) {
         this.error(9 /* StrictOctalLiteral */);
     }
-    var node = this.finishNode(context, pos, {
+    var node = this.finishNode(context, startLoc, {
         type: 'Literal',
         value: value
     }, true);
@@ -4588,10 +4578,10 @@ Parser.prototype.parseLiteral = function parseLiteral (context) {
 Parser.prototype.parseNullOrTrueOrFalseExpression = function parseNullOrTrueOrFalseExpression (context) {
     if (this.flags & 2 /* ExtendedUnicodeEscape */)
         { this.error(64 /* UnexpectedEscapedKeyword */); }
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var t = this.token;
     var raw = tokenDesc(t);
-    var node = this.finishNode(context, pos, {
+    var node = this.finishNode(context, startLoc, {
         type: 'Literal',
         value: t === 274439 /* NullKeyword */ ? null : raw === 'true'
     }, true);
@@ -4600,15 +4590,15 @@ Parser.prototype.parseNullOrTrueOrFalseExpression = function parseNullOrTrueOrFa
     return node;
 };
 Parser.prototype.parseThisExpression = function parseThisExpression (context) {
-    var pos = this.getLocations();
-    return this.finishNode(context, pos, {
+    var startLoc = this.getLocations();
+    return this.finishNode(context, startLoc, {
         type: 'ThisExpression'
     }, true);
 };
 Parser.prototype.parseIdentifier = function parseIdentifier (context) {
     var name = this.tokenValue;
-    var pos = this.getLocations();
-    return this.finishNode(context | 1048576 /* TaggedTemplate */, pos, {
+    var startLoc = this.getLocations();
+    return this.finishNode(context | 1048576 /* TaggedTemplate */, startLoc, {
         type: 'Identifier',
         name: name
     }, true);
@@ -4690,8 +4680,8 @@ Parser.prototype.addBlockName = function addBlockName (name) {
     this.checkIfExistInBlockScope(name);
     this.blockScope[name] = 2 /* NonShadowable */;
 };
-Parser.prototype.parseAssignmentPattern = function parseAssignmentPattern (context, pos, pattern) {
-        if ( pos === void 0 ) pos = this.getLocations();
+Parser.prototype.parseAssignmentPattern = function parseAssignmentPattern (context, startLoc, pattern) {
+        if ( startLoc === void 0 ) startLoc = this.getLocations();
         if ( pattern === void 0 ) pattern = this.parseBindingIdentifierOrPattern(context);
 
     if (!this.parseOptional(context, 1310749 /* Assign */))
@@ -4700,7 +4690,7 @@ Parser.prototype.parseAssignmentPattern = function parseAssignmentPattern (conte
         if (context & 16 /* Yield */)
             { this.error(79 /* DisallowedInContext */, tokenDesc(this.token)); }
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'AssignmentPattern',
         left: pattern,
         right: this.parseAssignmentExpression(context)
@@ -4732,7 +4722,7 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
     else if (context & 805306368 /* Lexical */ && this.token === 8671304 /* LetKeyword */) {
         this.error(52 /* LetInLexicalBinding */);
     }
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var name = this.tokenValue;
     if (!(context & 2048 /* ExistingScope */) && this.isEvalOrArguments(name)) {
         if (context & 2 /* Strict */)
@@ -4743,18 +4733,18 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
     }
     this.addVarOrBlock(context, name);
     this.nextToken(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'Identifier',
         name: name
     });
 };
 Parser.prototype.parseAssignmentRestElement = function parseAssignmentRestElement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 14 /* Ellipsis */);
     var argument = this.parseBindingIdentifierOrPattern(context);
     if (this.token === 1310749 /* Assign */)
         { this.throwUnexpectedToken(); }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'RestElement',
         argument: argument
     });
@@ -4762,7 +4752,7 @@ Parser.prototype.parseAssignmentRestElement = function parseAssignmentRestElemen
 Parser.prototype.parseArrayElementsBindingPattern = function parseArrayElementsBindingPattern (context) {
         var this$1 = this;
 
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 393235 /* LeftBracket */);
     var elements = [];
     while (this.token !== 20 /* RightBracket */) {
@@ -4780,15 +4770,15 @@ Parser.prototype.parseArrayElementsBindingPattern = function parseArrayElementsB
         }
     }
     this.expect(context, 20 /* RightBracket */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ArrayPattern',
         elements: elements
     });
 };
-Parser.prototype.parseComputedPropertyName = function parseComputedPropertyName (context, pos) {
+Parser.prototype.parseComputedPropertyName = function parseComputedPropertyName (context, startLoc) {
     this.expect(context, 393235 /* LeftBracket */);
     if (this.token & 536870912 /* IsYield */) {
-        this.errorLocation = pos;
+        this.errorLocation = startLoc;
         this.flags |= 256 /* Yield */;
     }
     var expression = this.parseAssignmentExpression(context | 4 /* AllowIn */);
@@ -4798,7 +4788,7 @@ Parser.prototype.parseComputedPropertyName = function parseComputedPropertyName 
 Parser.prototype.ObjectAssignmentPattern = function ObjectAssignmentPattern (context) {
         var this$1 = this;
 
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var properties = [];
     this.expect(context, 393228 /* LeftBrace */);
     while (this.token !== 15 /* RightBrace */) {
@@ -4809,26 +4799,26 @@ Parser.prototype.ObjectAssignmentPattern = function ObjectAssignmentPattern (con
             { this$1.parseOptional(context, 18 /* Comma */); }
     }
     this.expect(context, 15 /* RightBrace */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'ObjectPattern',
         properties: properties
     });
 };
 Parser.prototype.parseRestProperty = function parseRestProperty (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 14 /* Ellipsis */);
     if (!(this.token & 67108864 /* IsIdentifier */))
         { this.throwUnexpectedToken(); }
     var arg = this.parseBindingIdentifierOrPattern(context);
     if (this.token === 1310749 /* Assign */)
         { this.throwUnexpectedToken(); }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'RestElement',
         argument: arg
     });
 };
 Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var state = 0;
     var key;
     var value;
@@ -4844,7 +4834,7 @@ Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (con
                 this.error(79 /* DisallowedInContext */, tokenDesc(token));
             }
             if (this.token === 1310749 /* Assign */) {
-                value = this.parseAssignmentPattern(context, pos, key);
+                value = this.parseAssignmentPattern(context, startLoc, key);
             }
             else {
                 value = key;
@@ -4865,7 +4855,7 @@ Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (con
         this.expect(context, 21 /* Colon */);
         value = this.parseAssignmentPattern(context);
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'Property',
         kind: 'init',
         key: key,
@@ -4885,7 +4875,7 @@ Parser.prototype.parseJSXChildren = function parseJSXChildren (context) {
     }
     return children;
 };
-Parser.prototype.parseJSXChild = function parseJSXChild (context, pos) {
+Parser.prototype.parseJSXChild = function parseJSXChild (context, startLoc) {
     switch (this.token) {
         case 116 /* JSXText */:
         case 67371009 /* Identifier */:
@@ -4898,20 +4888,20 @@ Parser.prototype.parseJSXChild = function parseJSXChild (context, pos) {
     }
 };
 Parser.prototype.parseJSXSpreadChild = function parseJSXSpreadChild (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 14 /* Ellipsis */);
-    var expression = this.parseExpression(context, pos);
+    var expression = this.parseExpression(context, startLoc);
     this.expect(context, 15 /* RightBrace */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'JSXSpreadChild',
         expression: expression
     });
 };
 Parser.prototype.parseJSXText = function parseJSXText (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var value = this.source.slice(this.startIndex, this.index);
     this.nextJSXToken();
-    var node = this.finishNode(context, pos, {
+    var node = this.finishNode(context, startLoc, {
         type: 'JSXText',
         value: value
     });
@@ -4919,32 +4909,32 @@ Parser.prototype.parseJSXText = function parseJSXText (context) {
         { node.raw = value; }
     return node;
 };
-Parser.prototype.parseJSXEmptyExpression = function parseJSXEmptyExpression (context, pos) {
-    return this.finishNode(context, pos, {
+Parser.prototype.parseJSXEmptyExpression = function parseJSXEmptyExpression (context, startLoc) {
+    return this.finishNode(context, startLoc, {
         type: 'JSXEmptyExpression'
     });
 };
 Parser.prototype.parseJSXExpressionContainer = function parseJSXExpressionContainer (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 393228 /* LeftBrace */);
     if (this.token === 14 /* Ellipsis */) {
         return this.parseJSXSpreadChild(context);
     }
     var expression = this.token === 15 /* RightBrace */ ?
-        this.parseJSXEmptyExpression(context, pos) :
+        this.parseJSXEmptyExpression(context, startLoc) :
         this.parseAssignmentExpression(context);
     this.nextJSXToken();
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'JSXExpressionContainer',
         expression: expression
     });
 };
 Parser.prototype.parseJSXClosingElement = function parseJSXClosingElement (context, isFragment) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 25 /* JSXClose */);
     if (isFragment) {
         this.expect(context, 2099008 /* GreaterThan */);
-        return this.finishNode(context, pos, {
+        return this.finishNode(context, startLoc, {
             type: 'JSXClosingFragment'
         });
     }
@@ -4955,7 +4945,7 @@ Parser.prototype.parseJSXClosingElement = function parseJSXClosingElement (conte
     else {
         this.nextJSXToken();
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'JSXClosingElement',
         name: name
     });
@@ -4990,25 +4980,25 @@ Parser.prototype.scanJSXAttributeValue = function scanJSXAttributeValue (context
     }
 };
 Parser.prototype.parseJSXSpreadAttribute = function parseJSXSpreadAttribute (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 393228 /* LeftBrace */);
     this.expect(context, 14 /* Ellipsis */);
-    var expression = this.parseExpression(context, pos);
+    var expression = this.parseExpression(context, startLoc);
     this.expect(context, 15 /* RightBrace */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'JSXSpreadAttribute',
         argument: expression
     });
 };
 Parser.prototype.parseJSXAttributeName = function parseJSXAttributeName (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var identifier = this.parseJSXIdentifier(context);
     if (this.token === 21 /* Colon */)
-        { return this.parseJSXNamespacedName(context, identifier, pos); }
+        { return this.parseJSXNamespacedName(context, identifier, startLoc); }
     return identifier;
 };
 Parser.prototype.parseJSXAttribute = function parseJSXAttribute (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var value = null;
     var attrName = this.parseJSXAttributeName(context);
     if (this.token === 1310749 /* Assign */) {
@@ -5020,18 +5010,18 @@ Parser.prototype.parseJSXAttribute = function parseJSXAttribute (context) {
                 value = this.parseJSXExpressionAttribute(context);
         }
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'JSXAttribute',
         value: value,
         name: attrName
     });
 };
 Parser.prototype.parseJSXExpressionAttribute = function parseJSXExpressionAttribute (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.expect(context, 393228 /* LeftBrace */);
     var expression = this.parseAssignmentExpression(context);
     this.expect(context, 15 /* RightBrace */);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'JSXExpressionContainer',
         expression: expression
     });
@@ -5077,24 +5067,24 @@ Parser.prototype.nextJSXToken = function nextJSXToken () {
 };
 Parser.prototype.parseJSXIdentifier = function parseJSXIdentifier (context) {
     var name = this.tokenValue;
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.nextToken(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'JSXIdentifier',
         name: name
     });
 };
-Parser.prototype.parseJSXNamespacedName = function parseJSXNamespacedName (context, namespace, pos) {
+Parser.prototype.parseJSXNamespacedName = function parseJSXNamespacedName (context, namespace, startLoc) {
     this.expect(context, 21 /* Colon */);
     var name = this.parseJSXIdentifier(context);
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'JSXNamespacedName',
         namespace: namespace,
         name: name
     });
 };
-Parser.prototype.parseJSXMemberExpression = function parseJSXMemberExpression (context, expr, pos) {
-    return this.finishNode(context, pos, {
+Parser.prototype.parseJSXMemberExpression = function parseJSXMemberExpression (context, expr, startLoc) {
+    return this.finishNode(context, startLoc, {
         type: 'JSXMemberExpression',
         object: expr,
         property: this.parseJSXIdentifier(context)
@@ -5103,20 +5093,20 @@ Parser.prototype.parseJSXMemberExpression = function parseJSXMemberExpression (c
 Parser.prototype.parseJSXElementName = function parseJSXElementName (context) {
         var this$1 = this;
 
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     this.scanJSXIdentifier(context);
     var expression = this.parseJSXIdentifier(context | 33554432 /* Expression */);
     // Namespace
     if (this.token === 21 /* Colon */)
-        { return this.parseJSXNamespacedName(context, expression, pos); }
+        { return this.parseJSXNamespacedName(context, expression, startLoc); }
     // Member expression
     while (this.parseOptional(context, 13 /* Period */)) {
-        expression = this$1.parseJSXMemberExpression(context, expression, pos);
+        expression = this$1.parseJSXMemberExpression(context, expression, startLoc);
     }
     return expression;
 };
 Parser.prototype.parseJSXElement = function parseJSXElement (context) {
-    var pos = this.getLocations();
+    var startLoc = this.getLocations();
     var openingElement = null;
     var selfClosing = false;
     var isFragment = false;
@@ -5124,7 +5114,7 @@ Parser.prototype.parseJSXElement = function parseJSXElement (context) {
     if (this.token === 2099008 /* GreaterThan */) {
         isFragment = true;
         this.nextJSXToken();
-        openingElement = this.finishNode(context, pos, {
+        openingElement = this.finishNode(context, startLoc, {
             type: 'JSXOpeningFragment'
         });
     }
@@ -5139,7 +5129,7 @@ Parser.prototype.parseJSXElement = function parseJSXElement (context) {
             this.expect(context, 2099008 /* GreaterThan */);
             selfClosing = true;
         }
-        openingElement = this.finishNode(context, pos, {
+        openingElement = this.finishNode(context, startLoc, {
             type: 'JSXOpeningElement',
             name: tagName,
             attributes: attributes,
@@ -5152,7 +5142,7 @@ Parser.prototype.parseJSXElement = function parseJSXElement (context) {
         children = this.parseJSXChildren(context);
         closingElement = this.parseJSXClosingElement(context, isFragment);
         if (isFragment) {
-            return this.finishNode(context, pos, {
+            return this.finishNode(context, startLoc, {
                 type: 'JSXFragment',
                 children: children,
                 openingElement: openingElement,
@@ -5166,7 +5156,7 @@ Parser.prototype.parseJSXElement = function parseJSXElement (context) {
                 { this.error(40 /* ExpectedJSXClosingTag */, close); }
         }
     }
-    return this.finishNode(context, pos, {
+    return this.finishNode(context, startLoc, {
         type: 'JSXElement',
         children: children,
         openingElement: openingElement,

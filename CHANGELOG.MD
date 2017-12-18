@@ -88,3 +88,10 @@
 
 *2017-12-18: Version 0.17.12*
 - Fixed a issue with class fields. Couldn't push to undefined.
+
+*2017-12-18: Version 0.18*
+- Improved performance
+- Reduced code size
+- Improved expression parsing
+
+
