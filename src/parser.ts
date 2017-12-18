@@ -1941,18 +1941,18 @@ export class Parser {
     
                 // export default HoistableDeclaration[Default]
                 case Token.FunctionKeyword:
-                    declaration = this.parseFunction(context | (Context.OptionalIdentifier | Context.Declaration));
+                    declaration = this.parseFunctionDeclaration(context | (Context.Optional | Context.Declaration));
                     break;
     
                     // export default ClassDeclaration[Default]
                 case Token.ClassKeyword:
-                    declaration = this.parseClassDeclaration(context | (Context.OptionalIdentifier | Context.Declaration));
+                    declaration = this.parseClassDeclaration(context | (Context.Optional | Context.Declaration));
                     break;
     
                     // export default HoistableDeclaration[Default]
                 case Token.AsyncKeyword:
                     if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                        declaration = this.parseFunction(context | (Context.OptionalIdentifier | Context.Declaration));
+                        declaration = this.parseFunctionDeclaration(context | (Context.Optional | Context.Declaration));
                         break;
                     }
                     // falls through
@@ -2048,13 +2048,13 @@ export class Parser {
     
                     // export HoistableDeclaration
                 case Token.FunctionKeyword:
-                    declaration = this.parseFunction(context | Context.Declaration);
+                    declaration = this.parseFunctionDeclaration(context | Context.Declaration);
                     break;
     
                     // export HoistableDeclaration
                 case Token.AsyncKeyword:
                     if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                        declaration = this.parseFunction(context | Context.Declaration);
+                        declaration = this.parseFunctionDeclaration(context | Context.Declaration);
                         break;
                     }
                     // Falls through
@@ -2293,7 +2293,7 @@ export class Parser {
     
             switch (this.token) {
                 case Token.FunctionKeyword:
-                    return this.parseFunction(context);
+                    return this.parseFunctionDeclaration(context);
                 case Token.ClassKeyword:
                     return this.parseClassDeclaration(context);
                 case Token.LetKeyword:
@@ -2386,12 +2386,12 @@ export class Parser {
                         if (context & Context.Declaration || this.flags & Flags.IterationStatement) {
                             this.error(Errors.AsyncFunctionInSingleStatementContext);
                         }
-                        return this.parseFunction(context);
+                        return this.parseFunctionDeclaration(context);
                     }
                     return this.parseExpressionOrLabeledStatement(context | Context.Declaration);
     
                 case Token.FunctionKeyword:
-                    if (context & Context.AnnexB) return this.parseFunction(context);
+                    if (context & Context.AnnexB) return this.parseFunctionDeclaration(context);
                     // falls through
     
                 case Token.ClassKeyword:
@@ -3630,12 +3630,18 @@ export class Parser {
             }
         }
     
-        private parseFunction(context: Context): any {
+        private parseFunctionDeclaration(context: Context): ESTree.FunctionDeclaration {
+            const parentContext = context;
+            return this.parseFunction(context &= ~(Context.Method | Context.Yield | Context.Await), parentContext) as ESTree.FunctionDeclaration;
+        }
+    
+        private parseFunctionExpression(context: Context): ESTree.FunctionExpression {
+            return this.parseFunction(context, context) as ESTree.FunctionExpression;
+        }
+    
+        private parseFunction(context: Context, parent: Context = Context.None): ESTree.FunctionDeclaration | ESTree.FunctionExpression {
     
             const pos = this.getLocations();
-            const parent = context;
-    
-            if (!(context & Context.Expression)) context &= ~(Context.Await | Context.Yield | Context.Method);
     
             if (this.token === Token.AsyncKeyword) {
                 if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.Unexpected);
@@ -3665,45 +3671,33 @@ export class Parser {
     
                 if (!this.isIdentifier(context, token)) this.throwUnexpectedToken();
     
-                if (this.isEvalOrArguments(name)) {
-                    if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
-                }
+                if (context & (Context.Expression | Context.AnnexB)) {
     
-                if (context & Context.Expression) {
-    
-                    if (context & Context.Await && token === Token.AwaitKeyword) {
-                        this.error(Errors.DisallowedInContext, tokenDesc(token));
+                    if (context & Context.Strict && this.isEvalOrArguments(name)) {
+                        this.error(Errors.StrictLHSAssignment);
                     }
     
-                    if (context & (Context.Await | Context.Yield) && token === Token.YieldKeyword) {
+                    if (context & (Context.Await | Context.Yield) &&
+                        (token === Token.AwaitKeyword || token === Token.YieldKeyword)) {
                         this.error(Errors.DisallowedInContext, tokenDesc(token));
                     }
-    
+                    id = this.parseIdentifier(context);
                 } else {
     
-                    if (context & Context.Await && this.flags & Flags.InFunctionBody && token === Token.AwaitKeyword) {
+                    if (parent & (Context.Await | Context.Yield) &&
+                        (token === Token.AwaitKeyword || token === Token.YieldKeyword)) {
                         this.error(Errors.DisallowedInContext, tokenDesc(token));
                     }
-    
-                    if (parent & Context.Yield && token === Token.YieldKeyword) {
-                        this.error(Errors.DisallowedInContext, tokenDesc(token));
-                    }
-                    // Can not use 'await' as identifier inside an async function
-                    if (parent & Context.Await && this.token === Token.AwaitKeyword) {
-                        this.error(Errors.InvalidAwaitInAsyncFunc);
-                    }
-    
-                    if (context & Context.Declaration && !(context & Context.AnnexB)) {
+            
+                    if (context & Context.Declaration) {
                         this.checkIfExistInFunctionScope(name);
                         this.blockScope[name] = ScopeMasks.Shadowable;
                     }
+            
+                    id = this.parseBindingIdentifier(context);
                 }
     
-                id = context & (Context.Expression | Context.AnnexB) ?
-                    this.parseIdentifier(context) :
-                    this.parseBindingIdentifier(context);
-    
-            } else if (!(context & (Context.Expression | Context.OptionalIdentifier))) this.error(Errors.UnNamedFunctionStmt);
+            } else if (!(context & (Context.Expression | Context.Optional))) this.error(Errors.UnNamedFunctionStmt);
     
             const functionScope = this.functionScope;
             const blockScope = this.blockScope;
@@ -4035,7 +4029,7 @@ export class Parser {
                 case Token.Identifier:
                     return this.parseIdentifier(context);
                 case Token.FunctionKeyword:
-                    return this.parseFunction(context & ~(Context.Yield | Context.Method) | Context.Expression | Context.InParenthesis);
+                    return this.parseFunctionExpression(context & ~(Context.Yield | Context.Method) | Context.Expression | Context.InParenthesis);
                 case Token.ThisKeyword:
                     return this.parseThisExpression(context);
                 case Token.NullKeyword:
@@ -4063,7 +4057,7 @@ export class Parser {
                     return this.parseRegularExpression(context);
                 case Token.AsyncKeyword:
                     if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                        return this.parseFunction(context | Context.Await | Context.Expression);
+                        return this.parseFunctionExpression(context | Context.Await | Context.Expression);
                     }
                     return this.parseAsyncFunctionExpression(context, pos);
                 case Token.ThrowKeyword:
@@ -4154,7 +4148,7 @@ export class Parser {
                 this.checkIfExistInFunctionScope(name);
                 this.blockScope[name] = ScopeMasks.Shadowable;
                 id = this.parseBindingIdentifier(context);
-            } else if (!(context & Context.OptionalIdentifier)) this.error(Errors.UnNamedClassStmt);
+            } else if (!(context & Context.Optional)) this.error(Errors.UnNamedClassStmt);
     
             return this.parseClassTail(context, id, pos) as ESTree.ClassDeclaration;
         }
@@ -4179,7 +4173,7 @@ export class Parser {
             let flags = ObjectState.None;
     
             if (this.parseOptional(context, Token.ExtendsKeyword)) {
-                superClass = this.parseLeftHandSideExpression(context & ~Context.OptionalIdentifier | Context.Strict, pos);
+                superClass = this.parseLeftHandSideExpression(context & ~Context.Optional | Context.Strict, pos);
                 flags |= ObjectState.Heritage;
             }
     

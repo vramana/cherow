@@ -15,7 +15,7 @@ export const enum Context {
     ExistingScope          = 1 << 11,  // If node was parsed in a context where the scope shouldn't be undefined
     AnnexB                 = 1 << 12,  // If node was parsed in the 'if statement' with the AnnexB semtantic
     Import                 = 1 << 13,  // Module ( strict and non-strict)
-    OptionalIdentifier     = 1 << 14,  // Optional identifier for export of either anonymous class or function declaration
+    Optional     = 1 << 14,  // Optional identifier for export of either anonymous class or function declaration
     Method                 = 1 << 15,  // If node was parsed in a object / class method definition context
     HasConstructor         = 1 << 16,  // If node was parsed inside Class and allow super
     Constructor            = 1 << 17,  // Class declaration / expression

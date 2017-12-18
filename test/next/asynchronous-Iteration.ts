@@ -12,6 +12,16 @@ describe('Next - Asynchronous Iteration', () => {
           }`,
             next: true
         });
+
+        fail(`(async function* yield() { });`, {
+            source: `(async function* yield() { });`,
+            next: true
+        });
+
+        fail(`var g = function* yield() {};`, {
+            source: `var g = function* yield() {};`,
+            next: true
+        });
     
         fail(`var C = class { async *gen() {} }`, {
             source: `var C = class { async *gen() {} }`
