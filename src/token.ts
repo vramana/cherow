@@ -20,6 +20,10 @@ export const enum Token {
     Modifiers       = 1 << 24,
     IsLogical       = 1 << 25,
     IsIdentifier    = 1 << 26,
+    IsAsync         = 1 << 27,
+    IsGenerator     = 1 << 28,
+    IsYield         = 1 << 29,
+    IsAwait         = 1 << 30,
 
     /* Node types */
     EndOfSource = 0, // Pseudo
@@ -85,7 +89,7 @@ export const enum Token {
     Subtract           = 48 | UnaryOperator   | BinaryOperator | 9 << PrecStart, // -
     InKeyword          = 49 | BinaryOperator  | 7 << PrecStart | Reserved,
     InstanceofKeyword  = 50 | BinaryOperator  | 7 << PrecStart | Reserved,
-    Multiply           = 51 | BinaryOperator  | 10 << PrecStart, // *
+    Multiply           = 51 | BinaryOperator  | IsGenerator | 10 << PrecStart, // *
     Modulo             = 52 | BinaryOperator  | 10 << PrecStart, // %
     Divide             = 53 | ExpressionStart | BinaryOperator | 10 << PrecStart, // /
     Exponentiate       = 54 | BinaryOperator  | 11 << PrecStart, // **
@@ -146,12 +150,12 @@ export const enum Token {
     ProtectedKeyword  = 103 | FutureReserved,
     PublicKeyword     = 104 | FutureReserved,
     StaticKeyword     = 105 | FutureReserved | Modifiers,
-    YieldKeyword      = 106 | FutureReserved | ExpressionStart,
+    YieldKeyword      = 106 | FutureReserved | ExpressionStart | IsYield,
 
     /* Contextual keywords */
     AsKeyword          = 107 | Contextual,
-    AsyncKeyword       = 108 | Contextual | Modifiers,
-    AwaitKeyword       = 109 | Contextual | ExpressionStart,
+    AsyncKeyword       = 108 | Contextual | Modifiers | IsAsync,
+    AwaitKeyword       = 109 | Contextual | ExpressionStart | IsAwait,
     ConstructorKeyword = 110 | Contextual,
     GetKeyword         = 111 | Contextual | Modifiers,
     SetKeyword         = 112 | Contextual | Modifiers,
