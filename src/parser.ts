@@ -3354,14 +3354,14 @@ export class Parser {
         private parseUnaryExpression(context: Context): ESTree.UnaryExpression | ESTree.Expression {
     
             const startLoc = this.getLocations();
-    
-            if (context & Context.Await && this.token & Token.IsAwait) {
+            let t = this.token;
+            if (t & Token.IsAwait && context & Context.Await) {
                 return this.parseAwaitExpression(context);
-            } else if (hasMask(this.token, Token.UnaryOperator)) {
-                const operator = this.token;
+            } else if (hasMask(t, Token.UnaryOperator)) {
+                t = this.token;
                 this.nextToken(context);
                 const operand = this.parseUnaryExpression(context);
-                if (context & Context.Strict && operator === Token.DeleteKeyword) {
+                if (context & Context.Strict && t === Token.DeleteKeyword) {
                     if (operand.type === 'Identifier') {
                         this.error(Errors.StrictDelete);
                     } else if (this.flags & Flags.OptionsNext && !(context & Context.Module) && this.isPrivateName(operand)) {
@@ -3371,7 +3371,7 @@ export class Parser {
     
                 return this.finishNode(context, startLoc, {
                     type: 'UnaryExpression',
-                    operator: tokenDesc(operator),
+                    operator: tokenDesc(t),
                     argument: operand,
                     prefix: true
                 });
@@ -3379,8 +3379,8 @@ export class Parser {
     
             const updateExpression = this.parseUpdateExpression(context, startLoc);
     
-            if (this.token === Token.Exponentiate) {
-                return this.parseBinaryExpression(context, this.token & Token.Precedence, startLoc, updateExpression);
+            if (t === Token.Exponentiate) {
+                return this.parseBinaryExpression(context, t & Token.Precedence, startLoc, updateExpression);
             }
     
             return updateExpression;
@@ -3649,12 +3649,12 @@ export class Parser {
             this.expect(context, Token.FunctionKeyword);
     
             if (this.token & Token.IsGenerator) {
-    
-                // Annex B.3.4 doesn't allow generators functions
-                if (context & Context.AnnexB) this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
-                // If we are in the 'await' context. Check if the 'Next' option are set
-                // and allow use of async generators. Throw a decent error message if this isn't the case
-                if (context & Context.Await && !(this.flags & Flags.OptionsNext)) this.error(Errors.InvalidAsyncGenerator);
+                if (context & Context.AnnexB) {
+                    this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
+                }
+                if (context & Context.Await && !(this.flags & Flags.OptionsNext)) {
+                    this.error(Errors.InvalidAsyncGenerator);
+                }
                 this.expect(context, Token.Multiply);
                 context |= Context.Yield;
             }
@@ -3775,13 +3775,9 @@ export class Parser {
             if (this.token !== Token.Assign) return left;
     
             this.expect(context, Token.Assign);
-    
-            switch (this.token) {
-                case Token.YieldKeyword:
-                    if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                case Token.AwaitKeyword:
-                    if (context & Context.Await) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                default: // ignore
+
+            if (this.token & (Token.IsYield | Token.IsAwait) && context & (Context.Yield | Context.Await)) {
+                this.error(Errors.DisallowedInContext, tokenDesc(this.token));
             }
     
             this.flags |= Flags.SimpleParameterList;
@@ -3862,7 +3858,7 @@ export class Parser {
                             state |= ParenthesizedState.EvalOrArg;
                         }
                     }
-                    if (!(state & ParenthesizedState.Await) && this.token & Token.IsAwait) {
+                    if (this.token & Token.IsAwait && !(state & ParenthesizedState.Await)) {
                         this.errorLocation = this.getLocations();
                         state |= ParenthesizedState.Await;
                     }

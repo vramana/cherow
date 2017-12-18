@@ -3221,14 +3221,15 @@ Parser.prototype.isPrivateName = function isPrivateName (expr) {
 };
 Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) {
     var startLoc = this.getLocations();
-    if (context & 32 /* Await */ && this.token & 1073741824 /* IsAwait */) {
+    var t = this.token;
+    if (t & 1073741824 /* IsAwait */ && context & 32 /* Await */) {
         return this.parseAwaitExpression(context);
     }
-    else if (hasMask(this.token, 4456448 /* UnaryOperator */)) {
-        var operator = this.token;
+    else if (hasMask(t, 4456448 /* UnaryOperator */)) {
+        t = this.token;
         this.nextToken(context);
         var operand = this.parseUnaryExpression(context);
-        if (context & 2 /* Strict */ && operator === 4468779 /* DeleteKeyword */) {
+        if (context & 2 /* Strict */ && t === 4468779 /* DeleteKeyword */) {
             if (operand.type === 'Identifier') {
                 this.error(44 /* StrictDelete */);
             }
@@ -3238,14 +3239,14 @@ Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) 
         }
         return this.finishNode(context, startLoc, {
             type: 'UnaryExpression',
-            operator: tokenDesc(operator),
+            operator: tokenDesc(t),
             argument: operand,
             prefix: true
         });
     }
     var updateExpression = this.parseUpdateExpression(context, startLoc);
-    if (this.token === 2100022 /* Exponentiate */) {
-        return this.parseBinaryExpression(context, this.token & 3840 /* Precedence */, startLoc, updateExpression);
+    if (t === 2100022 /* Exponentiate */) {
+        return this.parseBinaryExpression(context, t & 3840 /* Precedence */, startLoc, updateExpression);
     }
     return updateExpression;
 };
@@ -3464,13 +3465,12 @@ Parser.prototype.parseFunction = function parseFunction (context, parentContext 
     }
     this.expect(context, 274519 /* FunctionKeyword */);
     if (this.token & 268435456 /* IsGenerator */) {
-        // Annex B.3.4 doesn't allow generators functions
-        if (context & 4096 /* AnnexB */)
-            { this.error(93 /* ForbiddenAsStatement */, tokenDesc(this.token)); }
-        // If we are in the 'await' context. Check if the 'Next' option are set
-        // and allow use of async generators. Throw a decent error message if this isn't the case
-        if (context & 32 /* Await */ && !(this.flags & 8388608 /* OptionsNext */))
-            { this.error(94 /* InvalidAsyncGenerator */); }
+        if (context & 4096 /* AnnexB */) {
+            this.error(93 /* ForbiddenAsStatement */, tokenDesc(this.token));
+        }
+        if (context & 32 /* Await */ && !(this.flags & 8388608 /* OptionsNext */)) {
+            this.error(94 /* InvalidAsyncGenerator */);
+        }
         this.expect(context, 270535219 /* Multiply */);
         context |= 16 /* Yield */;
     }
@@ -3570,14 +3570,8 @@ Parser.prototype.parseFormalParameters = function parseFormalParameters (context
     if (this.token !== 1310749 /* Assign */)
         { return left; }
     this.expect(context, 1310749 /* Assign */);
-    switch (this.token) {
-        case 537153642 /* YieldKeyword */:
-            if (context & 16 /* Yield */)
-                { this.error(79 /* DisallowedInContext */, tokenDesc(this.token)); }
-        case 1074073709 /* AwaitKeyword */:
-            if (context & 32 /* Await */)
-                { this.error(79 /* DisallowedInContext */, tokenDesc(this.token)); }
-        default: // ignore
+    if (this.token & (536870912 /* IsYield */ | 1073741824 /* IsAwait */) && context & (16 /* Yield */ | 32 /* Await */)) {
+        this.error(79 /* DisallowedInContext */, tokenDesc(this.token));
     }
     this.flags |= 16384 /* SimpleParameterList */;
     return this.finishNode(context, pos, {
@@ -3642,7 +3636,7 @@ Parser.prototype.parseAsyncArguments = function parseAsyncArguments (context, po
                     state |= 1 /* EvalOrArg */;
                 }
             }
-            if (!(state & 2 /* Await */) && this$1.token & 1073741824 /* IsAwait */) {
+            if (this$1.token & 1073741824 /* IsAwait */ && !(state & 2 /* Await */)) {
                 this$1.errorLocation = this$1.getLocations();
                 state |= 2 /* Await */;
             }
