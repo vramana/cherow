@@ -15,22 +15,20 @@ export const enum Context {
     ExistingScope          = 1 << 11,  // If node was parsed in a context where the scope shouldn't be undefined
     AnnexB                 = 1 << 12,  // If node was parsed in the 'if statement' with the AnnexB semtantic
     Import                 = 1 << 13,  // Module ( strict and non-strict)
-    Optional     = 1 << 14,  // Optional identifier for export of either anonymous class or function declaration
+    Optional               = 1 << 14,  // Optional identifier for export of either anonymous class or function declaration
     Method                 = 1 << 15,  // If node was parsed in a object / class method definition context
     HasConstructor         = 1 << 16,  // If node was parsed inside Class and allow super
     Constructor            = 1 << 17,  // Class declaration / expression
     ForStatement           = 1 << 18,  // If node was parsed in a for / for - in / for -of context
     Template               = 1 << 19,  //
     TaggedTemplate         = 1 << 20,  //
-    Labelled               = 1 << 21,  //
-    Statement              = 1 << 22,  //
-    Fields                 = 1 << 23,  // If node was parsed in a class fields context
-    LocationTracking       = 1 << 24,
-    Expression             = 1 << 25,
-    Pattern                = 1 << 26,
-    ValidateEscape         = 1 << 27,  // If node was parsed in a context where escaped keywords are forbidden
-    Let                    = 1 << 28,  // Variable declaration
-    Const                  = 1 << 29,  // Variable declaration
+    Statement              = 1 << 21,  //
+    ClassFields            = 1 << 22,  // If node was parsed in a class fields context
+    Expression             = 1 << 23,
+    Pattern                = 1 << 24,
+    ValidateEscape         = 1 << 25,  // If node was parsed in a context where escaped keywords are forbidden
+    Let                    = 1 << 26,  // Variable declaration
+    Const                  = 1 << 27,  // Variable declaration
     
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,

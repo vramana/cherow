@@ -2400,7 +2400,7 @@ export class Parser {
     
                 const blockScope = this.blockScope;
                 const parentScope = this.parentScope;
-                if (blockScope != null) this.parentScope = blockScope;
+                if (blockScope !== undefined) this.parentScope = blockScope;
                 this.blockScope = context & Context.ExistingScope ? blockScope : undefined;
                 const flag = this.flags;
     
@@ -2410,8 +2410,8 @@ export class Parser {
     
                 this.flags = flag;
     
-                this.blockScope = blockScope;
-                if (parentScope != null) this.parentScope = parentScope;
+                this.blockScope = context & Context.ExistingScope ? undefined : blockScope;
+                if (parentScope !== undefined) this.parentScope = parentScope;
             }
     
             this.expect(context, Token.RightBrace);
@@ -3268,7 +3268,7 @@ export class Parser {
             if (this.token === Token.LeftBrace) {
                 body = this.parseFunctionBody(context | Context.Arrow);
             } else {
-                if (context & Context.Fields && this.isEvalOrArguments(this.tokenValue)) {
+                if (context & Context.ClassFields && this.isEvalOrArguments(this.tokenValue)) {
                     this.error(Errors.UnexpectedStrictReserved);
                 }
                 body = this.parseAssignmentExpression(context);
@@ -3295,7 +3295,7 @@ export class Parser {
             if (!this.parseOptional(context, Token.QuestionMark)) return expr;
             const consequent = this.parseAssignmentExpression(context | Context.AllowIn);
             this.expect(context, Token.Colon);
-            if (context & Context.Fields && this.isEvalOrArguments(this.tokenValue)) {
+            if (context & Context.ClassFields && this.isEvalOrArguments(this.tokenValue)) {
                 this.error(Errors.UnexpectedStrictReserved);
             }
             const alternate = this.parseAssignmentExpression(context);
@@ -3656,7 +3656,12 @@ export class Parser {
                     }
     
                     if (context & Context.Declaration) {
-                        this.checkIfExistInFunctionScope(this.tokenValue);
+                        let name = this.tokenValue;
+                        if (!this.initBlockScope() && name in this.blockScope) {
+                            if (this.blockScope[name] & ScopeMasks.NonShadowable || this.blockScope !== this.functionScope) {
+                                this.error(Errors.DuplicateBinding, name)
+                            }
+                        }
                         this.blockScope[this.tokenValue] = ScopeMasks.Shadowable;
                     }
     
@@ -4220,7 +4225,7 @@ export class Parser {
     
             if (this.parseOptional(context, Token.Assign)) {
                 if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
-                value = this.parseAssignmentExpression(context | Context.Fields);
+                value = this.parseAssignmentExpression(context | Context.ClassFields);
             }
     
             this.parseOptional(context, Token.Comma);
@@ -4254,7 +4259,7 @@ export class Parser {
     
         private parseClassFields(context: Context, key: any, startLoc: Location): any {
             if (this.token === Token.Assign) {
-                key = this.parsePrivateProperty(context | Context.Fields, startLoc, key);
+                key = this.parsePrivateProperty(context | Context.ClassFields, startLoc, key);
             }
             this.parseOptional(context, Token.Comma);
             return key;
@@ -4337,7 +4342,7 @@ export class Parser {
                     // Stage 3 Proposal - Class-fields
                     if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
                         if (state & (ObjectState.Prototype | ObjectState.Constructor)) this.error(Errors.Unexpected);
-                        return this.parseClassFields(context | Context.AllowIn | Context.Fields, key, fieldstartLoc);
+                        return this.parseClassFields(context | Context.AllowIn | Context.ClassFields, key, fieldstartLoc);
                     }
                     break;
     
@@ -4353,7 +4358,7 @@ export class Parser {
                     fieldstartLoc = this.getLocations();
                     key = this.parseComputedPropertyName(context | Context.AllowIn, startLoc);
                     if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
-                        return this.parseClassFields(context | Context.AllowIn | Context.Fields, key, fieldstartLoc);
+                        return this.parseClassFields(context | Context.AllowIn | Context.ClassFields, key, fieldstartLoc);
                     }
                     break;
     
@@ -4368,7 +4373,7 @@ export class Parser {
                         if (this.token !== Token.LeftParen) {
                             if (this.flags & Flags.OptionsNext) {
                                 if (state & (ObjectState.Prototype | ObjectState.Constructor)) this.error(Errors.Unexpected);
-                                return this.parseClassFields(context | Context.AllowIn | Context.Fields, key, fieldstartLoc);
+                                return this.parseClassFields(context | Context.AllowIn | Context.ClassFields, key, fieldstartLoc);
                             }
                             this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                         }
@@ -4998,8 +5003,16 @@ export class Parser {
                 default: // ignore
             }
     
-            this.checkIfExistInBlockScope(name);
-            this.blockScope[name] = ScopeMasks.NonShadowable;
+            if (!this.initBlockScope() && (
+                // Check variables in current block only
+                Object.prototype.hasOwnProperty.call(this.blockScope, name) ||
+                // Check `var` variables in the current or parent scopes
+                (this.blockScope[name] & ScopeMasks.Shadowable) !== 0
+            )) {
+                this.error(Errors.DuplicateIdentifier, name)
+            }
+    
+            this.blockScope[name] = ScopeMasks.NonShadowable
         }
     
         private parseAssignmentPattern(
