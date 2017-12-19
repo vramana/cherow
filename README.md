@@ -85,7 +85,12 @@ This will return when serialized in json:
 
 ### Options
 
-Cherow supports several options as listed below, and they can be used as the second argument during parsing: `parseScript('1', { ranges: true, loc: true });`:
+Cherow supports several options as listed below, and they can be used as the second argument during parsing: 
+
+```js
+parseScript('1', { ranges: true, loc: true });`:
+```
+
 
 | Option        | Description |
 | ----------- | ------------------------------------------------------------ |
@@ -105,8 +110,6 @@ Cherow supports several options as listed below, and they can be used as the sec
 Single line, multiline and HTML comments are supported by Cherow, and the parser can be instructed to collect comments by setting the `comments option` to either an array or an function.
 
 The type of each comment can either be `Line` for a single-line comment (`//`) og Block for a MultiLineComment (`/* */`).
-
-**Note** If the location tracking isn't enabled, an empty object will be returned, and if the `ranges option` isn't set - `undefined` will be returned.
 
 A function will be called with the following parameters
 
