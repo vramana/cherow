@@ -1839,6 +1839,52 @@ describe('Statements - For', () => {
             }
         });
     
+        pass(`for (; false; ) let // ASI
+        x = 1;`, {
+            source: `for (; false; ) let // ASI
+            x = 1;`,
+            raw: true,
+            expected: {
+                  "body": [
+                    {
+                      "body": {
+                        "expression": {
+                          "name": "let",
+                          "type": "Identifier"
+                        },
+                        "type": "ExpressionStatement"
+                      },
+                      "init": null,
+                      "test": {
+                        "raw": "false",
+                       "type": "Literal",
+                        "value": false,
+                      },
+                      "type": "ForStatement",
+                      "update": null,
+                    },
+                    {
+                      "expression": {
+                        "left": {
+                          "name": "x",
+                          "type": "Identifier"
+                        },
+                       "operator": "=",
+                        "right": {
+                          "raw": "1",
+                          "type": "Literal",
+                          "value": 1,
+                        },
+                        "type": "AssignmentExpression"
+                      },
+                      "type": "ExpressionStatement"
+                    }
+                 ],
+                  "sourceType": "script",
+                  "type": "Program"
+                }
+        });
+
         pass(`for(var a = 0;;) { let a; }`, {
             source: 'for(var a = 0;;) { let a; }',
             loc: true,

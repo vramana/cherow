@@ -1894,10 +1894,12 @@ export class Parser {
     
         private isLexical(context: Context): boolean {
             const savedState = this.saveState();
-            const t = this.nextToken(context | Context.ValidateEscape);
+            const savedFlag = this.flags;
+            const t = this.nextToken(context);
+            const flags = this.flags;
             this.rewindState(savedState);
-            return !!(t & (Token.BindingPattern | Token.IsIdentifier | Token.IsYield) || 
-                    (t & Token.Contextual) === Token.Contextual);
+            return !(savedFlag & Flags.ExtendedUnicodeEscape && flags & Flags.PrecedingLineBreak) && !!(t & (Token.BindingPattern | Token.IsIdentifier | Token.IsYield) ||
+                (t & Token.Contextual) === Token.Contextual);
         }
     
         private isIdentifier(context: Context, t: Token): boolean {
@@ -2991,19 +2993,15 @@ export class Parser {
     
         private parseVariableStatement(context: Context): ESTree.VariableDeclaration {
             const startLoc = this.getLocations();
-            const token = this.token;
-    
-            if (this.flags & Flags.ExtendedUnicodeEscape) {
-                this.error(Errors.UnexpectedEscapedKeyword);
-            }
-    
+            const t = this.token;
+            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
             this.nextToken(context);
             const declarations = this.parseVariableDeclarationList(context);
             this.consumeSemicolon(context);
             return this.finishNode(context, startLoc, {
                 type: 'VariableDeclaration',
                 declarations,
-                kind: tokenDesc(token)
+                kind: tokenDesc(t)
             });
         }
     
@@ -3391,7 +3389,7 @@ export class Parser {
                 this.nextToken(context);
                 hasPrefix = true;
             }
-
+    
             expr = this.parseLeftHandSideExpression(context, startLoc);
     
             if (!hasPrefix) {
@@ -3400,7 +3398,7 @@ export class Parser {
                     this.nextToken(context);
                 } else return expr;
             }
-        
+    
             if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                 this.error(hasPrefix ? Errors.StrictLHSPrefix : Errors.StrictLHSPostfix);
             }
@@ -4051,16 +4049,20 @@ export class Parser {
         private parseLet(context: Context): ESTree.Identifier {
             const name = this.tokenValue;
             const startLoc = this.getLocations();
-            if (this.flags & Flags.ExtendedUnicodeEscape) {
-                this.error(Errors.UnexpectedEscapedKeyword);
-            }
+            const flag = this.flags;
             if (context & Context.Strict) {
                 this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
             }
+    
             this.nextToken(context);
-            if (!(context & Context.ForStatement) && this.flags & Flags.PrecedingLineBreak) {
+    
+            if (flag & Flags.ExtendedUnicodeEscape && !(this.flags & Flags.PrecedingLineBreak)) {
+                this.error(Errors.UnexpectedEscapedKeyword);
+            } else if (!(context & Context.ForStatement) && this.flags & Flags.IterationStatement &&
+                this.flags & Flags.PrecedingLineBreak) {
                 this.throwUnexpectedToken();
             }
+    
             if (this.token === Token.LetKeyword) {
                 this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
             }
@@ -4414,7 +4416,7 @@ export class Parser {
                 static: (state & ObjectState.Static) !== 0
             });
         }
-        
+    
         // TODO! Remove this when Object Rest / Spread reach Stage 4
         private parseObjectSpreadExpression(context: Context): ESTree.SpreadElement {
             if (!(this.flags & Flags.OptionsNext)) {
@@ -4437,11 +4439,11 @@ export class Parser {
     
             this.expect(context, Token.LeftBrace);
             const properties: (ESTree.Property | ESTree.SpreadElement)[] = [];
-
+    
             while (this.token !== Token.RightBrace) {
-                properties.push(this.token === Token.Ellipsis 
-                    ? this.parseObjectSpreadExpression(context) 
-                    : this.parseObjectElement(context));
+                properties.push(this.token === Token.Ellipsis ?
+                    this.parseObjectSpreadExpression(context) :
+                    this.parseObjectElement(context));
                 if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
             }
             this.expect(context, Token.RightBrace);

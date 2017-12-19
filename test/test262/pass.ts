@@ -20,7 +20,9 @@ describe('test262 tests', () => parserTest262({
         'test/language/block-scope/syntax/redeclaration/class-declaration-attempt-to-redeclare-with-var-declaration.js',
         'test/language/block-scope/syntax/redeclaration/var-declaration-attempt-to-redeclare-with-class-declaration.js',
         'test/language/block-scope/syntax/redeclaration/var-declaration-attempt-to-redeclare-with-class-declaration.js',
-        'test/language/asi/S7.9_A5.7_T1.js',
+        'test/language/statements/if/let-array-with-newline.js',
+        'test/language/statements/labeled/let-array-with-newline.js',
+        'test/language/statements/with/let-array-with-newline.js',
         'test/language/asi/S7.9_A5.7_T1.js',
         'test/language/expressions/this/S11.1.1_A1.js',
         'test/language/expressions/this/S11.1.1_A1.js',
@@ -197,13 +199,9 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/generators/use-strict-with-non-simple-param.js',
         'test/language/statements/if/let-block-with-newline.js',
         'test/language/statements/if/let-identifier-with-newline.js',
-        
         'test/language/statements/labeled/continue.js',
         'test/language/statements/labeled/let-block-with-newline.js',
         'test/language/statements/labeled/let-identifier-with-newline.js',
-        
-        'test/language/statements/let/syntax/escaped-let.js',
-        
         'test/language/statements/switch/syntax/redeclaration/class-declaration-attempt-to-redeclare-with-var-declaration.js',
         'test/language/statements/switch/syntax/redeclaration/function-declaration-attempt-to-redeclare-with-var-declaration.js',
         'test/language/statements/switch/syntax/redeclaration/generator-declaration-attempt-to-redeclare-with-var-declaration.js',

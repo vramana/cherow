@@ -5,9 +5,16 @@ describe('Declarations - Let', () => {
     fail('let Infinity', {
         source: 'let Infinity'
     });
+    
     fail('let let| split across two lines', {
         source: `let
     let = foo;`
+    });
+    
+    fail('l\\u0065t', {
+        source: `do let
+        [x] = 0
+        while (false);`
     });
     fail('l\\u0065t', {
         source: 'l\\u0065t'
@@ -1174,5 +1181,59 @@ describe('Declarations - Let', () => {
             }
         }
     }
+    });
+
+    pass(`let // ASI
+    a;`, {
+        source: `let // ASI
+        a;`,
+        raw: true,
+        expected: {
+              "body": [
+                {
+                  "declarations": [
+                    {
+                      "id": {
+                       "name": "a",
+                        "type": "Identifier"
+                      },
+                     "init": null,
+                      "type": "VariableDeclarator"
+                    }
+                  ],
+                  "kind": "let",
+                  "type": "VariableDeclaration"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
+    });
+
+    pass(`let // ASI
+    a;`, {
+        source: `l\\u0065t // ASI
+        a;`,
+        raw: true,
+        expected: {
+              "body": [
+               {
+                  "expression": {
+                    "name": "let",
+                    "type": "Identifier"
+                  },
+                  "type": "ExpressionStatement"
+                },
+                {
+                 "expression": {
+                    "name": "a",
+                    "type": "Identifier"
+                  },
+                 "type": "ExpressionStatement"
+                },
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
     });
     })

@@ -1,7 +1,7 @@
 import { pass, fail } from '../utils';
 
 describe('Statements - Variable', () => {
-    
+
         pass(`var x`, {
             source: 'var x',
             loc: true,
@@ -1633,6 +1633,20 @@ describe('Statements - Variable', () => {
 
         fail(`var a.b;`, {
             source: 'var a.b;',
+        });
+
+        fail(`var x=0, y=0;
+        var z=
+        x
+        ++
+        ++
+        y`, {
+            source: `var x=0, y=0;
+            var z=
+            x
+            ++
+            ++
+            y`,
         });
 
         fail(`"use strict"; function foo() { var a, arguments, b;}`, {
