@@ -83,9 +83,9 @@ This will return when serialized in json:
 }
 ```
 
-## Options
+### Options
 
-Cherow supports several options as listed below:
+Cherow supports several options as listed below, and they can be used as the second argument during parsing: `parseScript('1', { ranges: true, loc: true });`:
 
 | Option        | Description |
 | ----------- | ------------------------------------------------------------ |
@@ -99,9 +99,8 @@ Cherow supports several options as listed below:
 | `next`            | Allow experimental ECMAScript features - stage 3 proposals |
 | `plugins`         | Let you add an array of plugins    |
 | `raw`             | Attach raw property on literal nodes (*Esprima and Acorn feature*)     |
-| `sourceType`      | Specify which type of script you're parsing ("script" or "module") |
 
-## Comments and comment collection
+### Comments and comment collection
 
 Single line, multiline and HTML comments are supported by Cherow, and the parser can be instructed to collect comments by setting the `comments option` to either an array or an function.
 
@@ -138,7 +137,7 @@ cherow.parseScript('// foo',
 );
 
 ```
-## Plugins
+### Plugins
 
 Cherow is designed to support parameterized plugins wich, within reasonable bounds, redefine the way the parser works. A  parameterized plugin gives 
 you far more benefits than a traditional one , and let you extend the parser with code from 3rd party libraries or 
@@ -155,7 +154,7 @@ function plugin() {
    }
 }
 ```
-###  Create a plugin
+####  Create a plugin
 
 Here is a simple example plugin wich creates a new literal node with a pre-defined value `123`.
 
