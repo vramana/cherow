@@ -59,7 +59,6 @@ export class Parser {
         private comments: EmitComments;
         private locSource: void | string;
         private lastChar: void | Chars;
-        private firstProto: void | boolean;
         private tokenRegExp: void | {
             pattern: string;
             flags: string;
@@ -89,7 +88,6 @@ export class Parser {
             this.parentScope = undefined;
             this.comments = undefined;
             this.lastChar = undefined;
-            this.firstProto = undefined;
     
             if (options != null) {
                 if (options.next) this.flags |= Flags.OptionsNext;
@@ -4416,31 +4414,39 @@ export class Parser {
                 static: (state & ObjectState.Static) !== 0
             });
         }
+        
+        // TODO! Remove this when Object Rest / Spread reach Stage 4
+        private parseObjectSpreadExpression(context: Context): ESTree.SpreadElement {
+            if (!(this.flags & Flags.OptionsNext)) {
+                this.throwUnexpectedToken();
+            }
+            const startLoc = this.getLocations();
+            this.expect(context, Token.Ellipsis);
+            const arg = this.parseAssignmentExpression(context);
+            if (context & Context.ForStatement && this.token === Token.Comma) {
+                this.error(Errors.Unexpected);
+            }
+            return this.finishNode(context, startLoc, {
+                type: 'SpreadElement',
+                argument: arg
+            });
+        }
     
         private parseObjectExpression(context: Context): ESTree.ObjectExpression {
-    
             const startLoc = this.getLocations();
     
             this.expect(context, Token.LeftBrace);
-    
             const properties: (ESTree.Property | ESTree.SpreadElement)[] = [];
-            let firstProto;
-    
+
             while (this.token !== Token.RightBrace) {
-    
-                if (this.token === Token.Ellipsis) {
-                    if (!(this.flags & Flags.OptionsNext)) this.throwUnexpectedToken();
-                    properties.push(this.parseSpreadExpression(context));
-                    if (context & Context.ForStatement && this.token === Token.Comma) this.error(Errors.Unexpected);
-                } else {
-                    this.firstProto = firstProto;
-                    const elem = this.parseObjectElement(context);
-                    if (!firstProto && this.firstProto) firstProto = this.firstProto;
-                    properties.push(elem);
-                }
+                properties.push(this.token === Token.Ellipsis 
+                    ? this.parseObjectSpreadExpression(context) 
+                    : this.parseObjectElement(context));
                 if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
             }
             this.expect(context, Token.RightBrace);
+            // Unset the 'HasProtoField' flag now, we are done!
+            this.flags &= ~Flags.HasProtoField;
             return this.finishNode(context, startLoc, {
                 type: 'ObjectExpression',
                 properties
@@ -4456,11 +4462,9 @@ export class Parser {
             let count = 0;
             let key;
             let value;
-            const firstProto = this.firstProto;
             const isEscaped = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
             const tokenValue = this.tokenValue;
     
-            // can be a async/getter/setter or a shorthand binding or a property with init...
             if (t & Token.Modifiers) {
                 if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
                 if (t === Token.GetKeyword) {
@@ -4521,8 +4525,8 @@ export class Parser {
                 case Token.Colon:
                     if (state & ObjectState.Special) this.error(Errors.Unexpected);
                     if (!(state & ObjectState.Computed) && this.tokenValue === '__proto__') {
-                        if (firstProto) this.error(Errors.DuplicateProtoProperty);
-                        this.firstProto = true;
+                        if (this.flags & Flags.HasProtoField) this.error(Errors.DuplicateProtoProperty);
+                        this.flags |= Flags.HasProtoField;
                     }
                     this.expect(context, Token.Colon);
     

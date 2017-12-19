@@ -2,6 +2,742 @@ import { pass, fail } from '../utils';
 
 describe('Expressions - Object', () => {
 
+    pass(`object = { __proto__: undefined };`, {
+        source: 'object = { __proto__: undefined };',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "AssignmentExpression",
+                        "left": {
+                            "type": "Identifier",
+                            "name": "object",
+                            "start": 0,
+                            "end": 6,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 6
+                                }
+                            }
+                        },
+                        "operator": "=",
+                        "right": {
+                            "type": "ObjectExpression",
+                            "properties": [
+                                {
+                                    "type": "Property",
+                                    "key": {
+                                        "type": "Identifier",
+                                        "name": "__proto__",
+                                        "start": 11,
+                                        "end": 20,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 11
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 20
+                                            }
+                                        }
+                                    },
+                                    "value": {
+                                        "type": "Identifier",
+                                        "name": "undefined",
+                                        "start": 22,
+                                        "end": 31,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 22
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 31
+                                            }
+                                        }
+                                    },
+                                    "kind": "init",
+                                    "computed": false,
+                                    "method": false,
+                                    "shorthand": false,
+                                    "start": 11,
+                                    "end": 31,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 11
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 31
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 9,
+                            "end": 33,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 9
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 33
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 33,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 33
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 34,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 34
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 34,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 34
+                }
+            }
+        }
+    });
+
+    pass(`object = { __proto__: 1 };`, {
+        source: 'object = { __proto__: 1 };',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "AssignmentExpression",
+                        "left": {
+                            "type": "Identifier",
+                            "name": "object",
+                            "start": 0,
+                            "end": 6,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 6
+                                }
+                            }
+                        },
+                        "operator": "=",
+                        "right": {
+                            "type": "ObjectExpression",
+                            "properties": [
+                                {
+                                    "type": "Property",
+                                    "key": {
+                                        "type": "Identifier",
+                                        "name": "__proto__",
+                                        "start": 11,
+                                        "end": 20,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 11
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 20
+                                            }
+                                        }
+                                    },
+                                    "value": {
+                                        "type": "Literal",
+                                        "value": 1,
+                                        "start": 22,
+                                        "end": 23,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 22
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 23
+                                            }
+                                        },
+                                        "raw": "1"
+                                    },
+                                    "kind": "init",
+                                    "computed": false,
+                                    "method": false,
+                                    "shorthand": false,
+                                    "start": 11,
+                                    "end": 23,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 11
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 23
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 9,
+                            "end": 25,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 9
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 25
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 25,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 25
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 26,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 26
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 26,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 26
+                }
+            }
+        }
+    });
+    pass(`object = { __proto__: false };`, {
+        source: 'object = { __proto__: false };',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "AssignmentExpression",
+                        "left": {
+                            "type": "Identifier",
+                            "name": "object",
+                            "start": 0,
+                            "end": 6,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 6
+                                }
+                            }
+                        },
+                        "operator": "=",
+                        "right": {
+                            "type": "ObjectExpression",
+                            "properties": [
+                                {
+                                    "type": "Property",
+                                    "key": {
+                                        "type": "Identifier",
+                                        "name": "__proto__",
+                                        "start": 11,
+                                        "end": 20,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 11
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 20
+                                            }
+                                        }
+                                    },
+                                    "value": {
+                                        "type": "Literal",
+                                        "value": false,
+                                        "start": 22,
+                                        "end": 27,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 22
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 27
+                                            }
+                                        },
+                                        "raw": "false"
+                                    },
+                                    "kind": "init",
+                                    "computed": false,
+                                    "method": false,
+                                    "shorthand": false,
+                                    "start": 11,
+                                    "end": 27,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 11
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 27
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 9,
+                            "end": 29,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 9
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 29
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 29,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 29
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 30,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 30
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 30,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 30
+                }
+            }
+        }
+    });
+
+    pass(`object = { __proto__: 'string literal' };`, {
+        source: 'object = { __proto__: "string literal" };',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "AssignmentExpression",
+                        "left": {
+                            "type": "Identifier",
+                            "name": "object",
+                            "start": 0,
+                            "end": 6,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 6
+                                }
+                            }
+                        },
+                        "operator": "=",
+                        "right": {
+                            "type": "ObjectExpression",
+                            "properties": [
+                                {
+                                    "type": "Property",
+                                    "key": {
+                                        "type": "Identifier",
+                                        "name": "__proto__",
+                                        "start": 11,
+                                        "end": 20,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 11
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 20
+                                            }
+                                        }
+                                    },
+                                    "value": {
+                                        "type": "Literal",
+                                        "value": "string literal",
+                                        "start": 22,
+                                        "end": 38,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 22
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 38
+                                            }
+                                        },
+                                        "raw": "\"string literal\""
+                                    },
+                                    "kind": "init",
+                                    "computed": false,
+                                    "method": false,
+                                    "shorthand": false,
+                                    "start": 11,
+                                    "end": 38,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 11
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 38
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 9,
+                            "end": 40,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 9
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 40
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 40,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 40
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 41,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 41
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 41,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 41
+                }
+            }
+        }
+    });
+
+    pass(`object = { __proto__: Symbol("") };`, {
+        source: 'object = { __proto__: Symbol("") };',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "AssignmentExpression",
+                        "left": {
+                            "type": "Identifier",
+                            "name": "object",
+                            "start": 0,
+                            "end": 6,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 6
+                                }
+                            }
+                        },
+                        "operator": "=",
+                        "right": {
+                            "type": "ObjectExpression",
+                            "properties": [
+                                {
+                                    "type": "Property",
+                                    "key": {
+                                        "type": "Identifier",
+                                        "name": "__proto__",
+                                        "start": 11,
+                                        "end": 20,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 11
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 20
+                                            }
+                                        }
+                                    },
+                                    "value": {
+                                        "type": "CallExpression",
+                                        "callee": {
+                                            "type": "Identifier",
+                                            "name": "Symbol",
+                                            "start": 22,
+                                            "end": 28,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 1,
+                                                    "column": 22
+                                                },
+                                                "end": {
+                                                    "line": 1,
+                                                    "column": 28
+                                                }
+                                            }
+                                        },
+                                        "arguments": [
+                                            {
+                                                "type": "Literal",
+                                                "value": "",
+                                                "start": 29,
+                                                "end": 31,
+                                                "loc": {
+                                                    "start": {
+                                                        "line": 1,
+                                                        "column": 29
+                                                    },
+                                                    "end": {
+                                                        "line": 1,
+                                                        "column": 31
+                                                    }
+                                                },
+                                                "raw": "\"\""
+                                            }
+                                        ],
+                                        "start": 22,
+                                        "end": 32,
+                                        "loc": {
+                                            "start": {
+                                                "line": 1,
+                                                "column": 22
+                                            },
+                                            "end": {
+                                                "line": 1,
+                                                "column": 32
+                                            }
+                                        }
+                                    },
+                                    "kind": "init",
+                                    "computed": false,
+                                    "method": false,
+                                    "shorthand": false,
+                                    "start": 11,
+                                    "end": 32,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 11
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 32
+                                        }
+                                    }
+                                }
+                            ],
+                            "start": 9,
+                            "end": 34,
+                            "loc": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 9
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 34
+                                }
+                            }
+                        },
+                        "start": 0,
+                        "end": 34,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 34
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 35,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 35
+                        }
+                    }
+                }
+            ],
+            "sourceType": "script",
+            "start": 0,
+            "end": 35,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 35
+                }
+            }
+        }
+    });
+
     pass(`({})`, {
         source: '({})',
         loc: true,
