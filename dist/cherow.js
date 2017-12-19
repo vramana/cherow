@@ -1841,7 +1841,7 @@ Parser.prototype.scanLooserTemplateSegment = function scanLooserTemplateSegment 
     return ch;
 };
 Parser.prototype.scanJSXIdentifier = function scanJSXIdentifier (context) {
-    if (this.isIdentifierOrKeyword(this.token)) {
+    if (this.token & (67108864 /* IsIdentifier */ | 4096 /* Keyword */)) {
         var firstCharPosition = this.index;
         this.tokenValue += this.source.slice(firstCharPosition, this.index - firstCharPosition);
     }
@@ -2001,9 +2001,8 @@ Parser.prototype.isLexical = function isLexical (context) {
     this.nextToken(context | 134217728 /* ValidateEscape */);
     var t = this.token;
     this.rewindState(savedState);
-    if (t & (131072 /* BindingPattern */ | 67108864 /* IsIdentifier */) || (t & 69632 /* Contextual */) === 69632 /* Contextual */)
-        { return true; }
-    return t === 537153642 /* YieldKeyword */;
+    return !!(t & (131072 /* BindingPattern */ | 67108864 /* IsIdentifier */ | 536870912 /* IsYield */) ||
+        (t & 69632 /* Contextual */) === 69632 /* Contextual */);
 };
 Parser.prototype.isIdentifier = function isIdentifier (context, t) {
     if (context & 2 /* Strict */) {
@@ -2016,13 +2015,10 @@ Parser.prototype.isIdentifier = function isIdentifier (context, t) {
         (t & 69632 /* Contextual */) === 69632 /* Contextual */ ||
         (t & 20480 /* FutureReserved */) === 20480 /* FutureReserved */;
 };
-Parser.prototype.isIdentifierOrKeyword = function isIdentifierOrKeyword (t) {
-    return t & 67108864 /* IsIdentifier */ || hasMask(t, 4096 /* Keyword */);
-};
 Parser.prototype.parseIdentifierName = function parseIdentifierName (context, t) {
-    if (!this.isIdentifierOrKeyword(t))
-        { this.throwUnexpectedToken(); }
-    return this.parseIdentifier(context);
+    if (t & (67108864 /* IsIdentifier */ | 4096 /* Keyword */))
+        { return this.parseIdentifier(context); }
+    this.error(1 /* UnexpectedToken */, tokenDesc(t));
 };
 Parser.prototype.nextTokenIsFuncKeywordOnSameLine = function nextTokenIsFuncKeywordOnSameLine (context) {
     var savedState = this.saveState();
@@ -2926,10 +2922,10 @@ Parser.prototype.parseVariableDeclarationList = function parseVariableDeclaratio
 };
 Parser.prototype.parseVariableDeclaration = function parseVariableDeclaration (context) {
     var startLoc = this.getLocations();
-    var token = this.token;
+    var t = this.token;
     var id = this.parseBindingIdentifierOrPattern(context);
     var init = null;
-    if (hasMask(token, 131072 /* BindingPattern */)) {
+    if (t & 131072 /* BindingPattern */) {
         if (this.parseOptional(context, 1310749 /* Assign */)) {
             init = this.parseAssignmentExpression(context & ~(805306368 /* Lexical */ | 262144 /* ForStatement */));
             if (!(context & 805306368 /* Lexical */) && context & 262144 /* ForStatement */) {
@@ -3230,8 +3226,8 @@ Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) 
         if (this.token === 2100022 /* Exponentiate */)
             { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
         if (context & 2 /* Strict */ && t === 4468779 /* DeleteKeyword */) {
-            if (argument.type === 'Identifier' || (this.flags & 8388608 /* OptionsNext */
-                && !(context & 1 /* Module */) && this.isPrivateName(argument))) {
+            if (argument.type === 'Identifier' || (this.flags & 8388608 /* OptionsNext */ &&
+                !(context & 1 /* Module */) && this.isPrivateName(argument))) {
                 this.error(44 /* StrictDelete */);
             }
         }
@@ -3266,13 +3262,12 @@ Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context
         if (hasMask(this.token, 786432 /* UpdateOperator */) && !(this.flags & 1 /* PrecedingLineBreak */)) {
             t = this.token;
             this.nextToken(context);
-            hasPrefix = false;
         }
-        if (hasPrefix === undefined)
+        else
             { return expr; }
     }
     if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name)) {
-        this.error(46 /* StrictLHSPostfix */);
+        this.error(hasPrefix ? 45 /* StrictLHSPrefix */ : 46 /* StrictLHSPostfix */);
     }
     if (!isValidSimpleAssignmentTarget(expr)) {
         this.error(hasPrefix ? 115 /* InvalidLhsInPrefixOp */ : 114 /* InvalidLhsInPostfixOp */);
@@ -3281,7 +3276,7 @@ Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context
         type: 'UpdateExpression',
         argument: expr,
         operator: tokenDesc(t),
-        prefix: hasPrefix
+        prefix: !!hasPrefix
     });
 };
 Parser.prototype.parseSuper = function parseSuper (context) {
@@ -4026,7 +4021,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     var key;
     var value;
     var fieldstartLoc;
-    loop: while (this.isIdentifierOrKeyword(token)) {
+    loop: while (token & (67108864 /* IsIdentifier */ | 4096 /* Keyword */)) {
         switch (this$1.token) {
             case 16797801 /* StaticKeyword */:
                 state |= currentState = 512 /* Static */;
@@ -4239,7 +4234,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
             key = this.parseComputedPropertyName(context, startLoc);
             break;
         default:
-            if (this.isIdentifierOrKeyword(this.token)) {
+            if (this.token & (67108864 /* IsIdentifier */ | 4096 /* Keyword */)) {
                 key = this.parseIdentifier(context);
             }
             else if (count && currentState !== 1 /* Yield */) {

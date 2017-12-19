@@ -1715,7 +1715,7 @@ export class Parser {
         }
     
         private scanJSXIdentifier(context: Context): Token {
-            if (this.isIdentifierOrKeyword(this.token)) {
+            if (this.token & (Token.IsIdentifier | Token.Keyword)) {
                 const firstCharPosition = this.index;
                 this.tokenValue += this.source.slice(firstCharPosition, this.index - firstCharPosition);
     
@@ -1893,8 +1893,8 @@ export class Parser {
             this.nextToken(context | Context.ValidateEscape);
             const t = this.token;
             this.rewindState(savedState);
-            if (t & (Token.BindingPattern | Token.IsIdentifier) || (t & Token.Contextual) === Token.Contextual) return true;
-            return t === Token.YieldKeyword;
+            return !!(t & (Token.BindingPattern | Token.IsIdentifier | Token.IsYield) || 
+                    (t & Token.Contextual) === Token.Contextual);
         }
     
         private isIdentifier(context: Context, t: Token): boolean {
@@ -1910,13 +1910,9 @@ export class Parser {
                 (t & Token.FutureReserved) === Token.FutureReserved;
         }
     
-        private isIdentifierOrKeyword(t: Token): boolean | number {
-            return t & Token.IsIdentifier || hasMask(t, Token.Keyword);
-        }
-    
         private parseIdentifierName(context: Context, t: Token) {
-            if (!this.isIdentifierOrKeyword(t)) this.throwUnexpectedToken();
-            return this.parseIdentifier(context);
+            if (t & (Token.IsIdentifier | Token.Keyword)) return this.parseIdentifier(context);
+            this.error(Errors.UnexpectedToken, tokenDesc(t));
         }
     
         private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
@@ -2586,7 +2582,7 @@ export class Parser {
     
             this.expect(context, Token.ContinueKeyword);
     
-            let label: ESTree.Identifier | null = null;
+            let label: any = null;
             if (!(this.flags & Flags.PrecedingLineBreak) && this.token & Token.IsIdentifier) {
                 label = this.parseIdentifierName(context, this.token);
     
@@ -2609,7 +2605,7 @@ export class Parser {
     
             this.expect(context, Token.BreakKeyword);
     
-            let label: ESTree.Identifier | null = null;
+            let label: any = null;
     
             if (!(this.flags & Flags.PrecedingLineBreak) && this.token & Token.IsIdentifier) {
                 label = this.parseIdentifierName(context, this.token);
@@ -3027,12 +3023,12 @@ export class Parser {
         private parseVariableDeclaration(context: Context): ESTree.VariableDeclarator {
     
             const startLoc = this.getLocations();
-            const token = this.token;
+            const t = this.token;
             const id = this.parseBindingIdentifierOrPattern(context);
     
             let init: ESTree.Expression | null = null;
     
-            if (hasMask(token, Token.BindingPattern)) {
+            if (t & Token.BindingPattern) {
     
                 if (this.parseOptional(context, Token.Assign)) {
                     init = this.parseAssignmentExpression(context & ~(Context.Lexical | Context.ForStatement));
@@ -4289,7 +4285,7 @@ export class Parser {
             let value;
             let fieldstartLoc;
     
-            loop: while (this.isIdentifierOrKeyword(token)) {
+            loop: while (token & (Token.IsIdentifier | Token.Keyword)) {
     
                 switch (this.token) {
     
@@ -4510,7 +4506,7 @@ export class Parser {
                     key = this.parseComputedPropertyName(context, startLoc);
                     break;
                 default:
-                    if (this.isIdentifierOrKeyword(this.token)) {
+                    if (this.token & (Token.IsIdentifier | Token.Keyword)) {
                         key = this.parseIdentifier(context);
                     } else if (count && currentState !== ObjectState.Yield) {
                         state &= ~currentState;
