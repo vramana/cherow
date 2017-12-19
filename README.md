@@ -57,8 +57,11 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 | `raw`             | Attach raw property on literal nodes (*Esprima and Acorn feature*)     |
 | `sourceType`      | Specify which type of script you're parsing ("script" or "module") |
 ## API
+
 Cherow can be used to perform [syntactic analysis](https://en.wikipedia.org/wiki/Parsing) (parsing) of a JavaScript program, and a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and
 both are accepted by Cherow to perform syntactic analysis of JavaScript programs.
+
+With ES2015 and later, a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/6.0/index.html#sec-ecmascript-language-scripts-and-modules) and this is achieved by choosing [`parseScript`](http://www.ecma-international.org/ecma-262/8.0/#sec-parse-script) function to parse a script and [`parseModule`](http://www.ecma-international.org/ecma-262/8.0/#sec-parsemodule) function to parse a module.
 
 ```js
 
@@ -196,19 +199,6 @@ parseScript('1', {
 ```
 
 You can find and try the plugin example in the [cherow-dummy-plugin repo](https://github.com/cherow/cherow-dummy-plugin) repo
-
-## Rationale
-
-Existing parsers have many issues with them:
-
-Acorn is the most commonly used tool out there because of its support for recent ES standards, but it's slow and it often is too permissive in what it accepts. It's also a bit bloated.
-
-Esprima is faster than Acorn, but only recently added async function support, and it misses some edge cases.
-
-Babylon is highly coupled to Babel, and is comparatively very slow and buggy, failing to correctly handle even stable ECMAScript standard features.
-
-None of these parsers would fare any chance against the official Test262 suite, and most fail a substantial number of them. Also, more and more JS tools require parsing support, and slower parsers result in slower tools. ESLint already spends a significant portion of its time parsing, often upwards of 1/4 of its time.
-
 
 ## Bug reporting
 
