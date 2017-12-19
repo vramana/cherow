@@ -1873,25 +1873,30 @@ export class Parser {
     
         private nextTokenIsAssign(context: Context) {
             const savedState = this.saveState();
-            this.nextToken(context);
-            const next = this.token;
+            const t = this.nextToken(context);
             this.rewindState(savedState);
-            return next === Token.Assign;
+            return t === Token.Assign;
         }
     
         // 'import', 'import.meta'
         private nextTokenIsLeftParenOrPeriod(context: Context): boolean {
             const savedState = this.saveState();
-            this.nextToken(context);
-            const t = this.token;
+            const t = this.nextToken(context);
             this.rewindState(savedState);
             return t === Token.LeftParen || t === Token.Period;
         }
     
+        private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
+            const savedState = this.saveState();
+            const t = this.nextToken(context);
+            const line = this.line;
+            this.rewindState(savedState);
+            return line === this.line && t === Token.FunctionKeyword;
+        }
+    
         private isLexical(context: Context): boolean {
             const savedState = this.saveState();
-            this.nextToken(context | Context.ValidateEscape);
-            const t = this.token;
+            const t = this.nextToken(context | Context.ValidateEscape);
             this.rewindState(savedState);
             return !!(t & (Token.BindingPattern | Token.IsIdentifier | Token.IsYield) || 
                     (t & Token.Contextual) === Token.Contextual);
@@ -1913,15 +1918,6 @@ export class Parser {
         private parseIdentifierName(context: Context, t: Token) {
             if (t & (Token.IsIdentifier | Token.Keyword)) return this.parseIdentifier(context);
             this.error(Errors.UnexpectedToken, tokenDesc(t));
-        }
-    
-        private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
-            const savedState = this.saveState();
-            this.nextToken(context);
-            const next = this.token;
-            const line = this.line;
-            this.rewindState(savedState);
-            return line === this.line && next === Token.FunctionKeyword;
         }
     
         private parseExportDefault(context: Context, startLoc: Location): ESTree.ExportDefaultDeclaration {
