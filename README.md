@@ -40,22 +40,6 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 * [Import.meta](https://github.com/tc39/proposal-import-meta)
 * [Throw expressions](https://github.com/tc39/proposal-throw-expressions)
 
-## Options
-
-
-| Option        | Description |
-| ----------- | ------------------------------------------------------------ |
-| `comments`        | Let you collect comments. Accepts either an array or function  |
-| `directives`      | Allow use of the [`ESTree`](https://github.com/estree/estree/blob/1da8e603237144f44710360f8feb7a9977e905e0/es5.md#directive) directive node |
-| `globalReturn`    | Enable return in global scope     |
-| `impliedStrict`   | Enable global strict mode in sloppy mode |
-| `jsx`             | Enable JSX parsing   |
-| `loc      `       | Attach line/column location information to each node |
-| `ranges`          | Attach range information to each node |
-| `next`            | Allow experimental ECMAScript features - stage 3 proposals |
-| `plugins`         | Let you add an array of plugins    |
-| `raw`             | Attach raw property on literal nodes (*Esprima and Acorn feature*)     |
-| `sourceType`      | Specify which type of script you're parsing ("script" or "module") |
 ## API
 
 Cherow can be used to perform [syntactic analysis](https://en.wikipedia.org/wiki/Parsing) (parsing) of a JavaScript program, and a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and
@@ -63,17 +47,15 @@ both are accepted by Cherow to perform syntactic analysis of JavaScript programs
 
 With ES2015 and later, a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/6.0/index.html#sec-ecmascript-language-scripts-and-modules) and this is achieved by choosing [`parseScript`](http://www.ecma-international.org/ecma-262/8.0/#sec-parse-script) function to parse a script and [`parseModule`](http://www.ecma-international.org/ecma-262/8.0/#sec-parsemodule) function to parse a module.
 
+Here is a quick example:
+
 ```js
 
-// Parsing script
 cherow.parseScript('const fooBar = 123;');
-
-// Parsing module code
-cherow.parseModule('const fooBar = 123;');
 
 ```
 
-Will return this when serialized in json:
+This will return when serialized in json:
 
 ```js
 {
@@ -101,17 +83,25 @@ Will return this when serialized in json:
 }
 ```
 
+## Options
 
-### Parsing with options
+Cherow supports several options as listed below:
 
-```js
+| Option        | Description |
+| ----------- | ------------------------------------------------------------ |
+| `comments`        | Let you collect comments. Accepts either an array or function  |
+| `directives`      | Allow use of the [`ESTree`](https://github.com/estree/estree/blob/1da8e603237144f44710360f8feb7a9977e905e0/es5.md#directive) directive node |
+| `globalReturn`    | Enable return in global scope     |
+| `impliedStrict`   | Enable global strict mode in sloppy mode |
+| `jsx`             | Enable JSX parsing   |
+| `loc      `       | Attach line/column location information to each node |
+| `ranges`          | Attach range information to each node |
+| `next`            | Allow experimental ECMAScript features - stage 3 proposals |
+| `plugins`         | Let you add an array of plugins    |
+| `raw`             | Attach raw property on literal nodes (*Esprima and Acorn feature*)     |
+| `sourceType`      | Specify which type of script you're parsing ("script" or "module") |
 
-// Parsing script
-cherow.parseScript('const fooBar = 123;', { ranges: true, raw: true, next: true});
-
-```
-
-### Comments and comment collection
+## Comments and comment collection
 
 Single line, multiline and HTML comments are supported by Cherow, and the parser can be instructed to collect comments by setting the `comments option` to either an array or an function.
 
@@ -148,7 +138,7 @@ cherow.parseScript('// foo',
 );
 
 ```
-### Plugins
+## Plugins
 
 Cherow is designed to support parameterized plugins wich, within reasonable bounds, redefine the way the parser works. A  parameterized plugin gives 
 you far more benefits than a traditional one , and let you extend the parser with code from 3rd party libraries or 
