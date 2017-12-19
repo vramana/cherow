@@ -1898,8 +1898,9 @@ export class Parser {
             const t = this.nextToken(context);
             const flags = this.flags;
             this.rewindState(savedState);
-            return !(savedFlag & Flags.ExtendedUnicodeEscape && flags & Flags.PrecedingLineBreak) && !!(t & (Token.BindingPattern | Token.IsIdentifier | Token.IsYield) ||
-                (t & Token.Contextual) === Token.Contextual);
+            return !(savedFlag & Flags.ExtendedUnicodeEscape && flags & Flags.PrecedingLineBreak) &&
+                !!(t & (Token.BindingPattern | Token.IsIdentifier | Token.IsYield) ||
+                    (t & Token.Contextual) === Token.Contextual);
         }
     
         private isIdentifier(context: Context, t: Token): boolean {
@@ -4050,22 +4051,18 @@ export class Parser {
             const name = this.tokenValue;
             const startLoc = this.getLocations();
             const flag = this.flags;
-            if (context & Context.Strict) {
-                this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
-            }
+            if (context & Context.Strict) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
     
             this.nextToken(context);
     
-            if (flag & Flags.ExtendedUnicodeEscape && !(this.flags & Flags.PrecedingLineBreak)) {
-                this.error(Errors.UnexpectedEscapedKeyword);
-            } else if (!(context & Context.ForStatement) && this.flags & Flags.IterationStatement &&
+            if (this.token === Token.LeftBracket &&
                 this.flags & Flags.PrecedingLineBreak) {
-                this.throwUnexpectedToken();
+                // Note: ExpressionStatement has a lookahead restriction for `let [`.
+                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             }
     
-            if (this.token === Token.LetKeyword) {
-                this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
-            }
+            if (this.token === Token.LetKeyword) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
+            
             return this.finishNode(context, startLoc, {
                 type: 'Identifier',
                 name

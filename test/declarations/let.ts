@@ -11,14 +11,35 @@ describe('Declarations - Let', () => {
     let = foo;`
     });
     
-    fail('l\\u0065t', {
+    fail(`do let
+    [x] = 0
+    while (false);`, {
         source: `do let
         [x] = 0
         while (false);`
     });
-    fail('l\\u0065t', {
-        source: 'l\\u0065t'
+
+    fail(`do let
+    [x] = 0
+    while (false);`, {
+        source: `do let
+        [x] = 0
+        while (false);`
     });
+
+    fail(`for (var x in null) let
+    [a] = 0;`, {
+        source: `for (var x in null) let
+        [a] = 0;`
+    });
+
+    fail(`if (false) let
+    [a] = 0;`, {
+        source: `if (false) let
+        [a] = 0;`
+    });
+
+    
     fail('"use strict"; for (let in o) { }', {
         source: '"use strict"; for (let in o) { }'
     });

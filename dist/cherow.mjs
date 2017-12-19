@@ -2000,8 +2000,9 @@ Parser.prototype.isLexical = function isLexical (context) {
     var t = this.nextToken(context);
     var flags = this.flags;
     this.rewindState(savedState);
-    return !(savedFlag & 2 /* ExtendedUnicodeEscape */ && flags & 1 /* PrecedingLineBreak */) && !!(t & (131072 /* BindingPattern */ | 67108864 /* IsIdentifier */ | 536870912 /* IsYield */) ||
-        (t & 69632 /* Contextual */) === 69632 /* Contextual */);
+    return !(savedFlag & 2 /* ExtendedUnicodeEscape */ && flags & 1 /* PrecedingLineBreak */) &&
+        !!(t & (131072 /* BindingPattern */ | 67108864 /* IsIdentifier */ | 536870912 /* IsYield */) ||
+            (t & 69632 /* Contextual */) === 69632 /* Contextual */);
 };
 Parser.prototype.isIdentifier = function isIdentifier (context, t) {
     if (context & 2 /* Strict */) {
@@ -3808,20 +3809,16 @@ Parser.prototype.parseLet = function parseLet (context) {
     var name = this.tokenValue;
     var startLoc = this.getLocations();
     var flag = this.flags;
-    if (context & 2 /* Strict */) {
-        this.error(84 /* InvalidStrictExpPostion */, tokenDesc(this.token));
-    }
+    if (context & 2 /* Strict */)
+        { this.error(84 /* InvalidStrictExpPostion */, tokenDesc(this.token)); }
     this.nextToken(context);
-    if (flag & 2 /* ExtendedUnicodeEscape */ && !(this.flags & 1 /* PrecedingLineBreak */)) {
-        this.error(64 /* UnexpectedEscapedKeyword */);
+    if (this.token === 393235 /* LeftBracket */ &&
+        this.flags & 1 /* PrecedingLineBreak */) {
+        // Note: ExpressionStatement has a lookahead restriction for `let [`.
+        this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
     }
-    else if (!(context & 262144 /* ForStatement */) && this.flags & 32 /* IterationStatement */
-        && this.flags & 1 /* PrecedingLineBreak */) {
-        this.throwUnexpectedToken();
-    }
-    if (this.token === 8671304 /* LetKeyword */) {
-        this.error(84 /* InvalidStrictExpPostion */, tokenDesc(this.token));
-    }
+    if (this.token === 8671304 /* LetKeyword */)
+        { this.error(84 /* InvalidStrictExpPostion */, tokenDesc(this.token)); }
     return this.finishNode(context, startLoc, {
         type: 'Identifier',
         name: name
@@ -4166,9 +4163,9 @@ Parser.prototype.parseObjectExpression = function parseObjectExpression (context
     this.expect(context, 393228 /* LeftBrace */);
     var properties = [];
     while (this.token !== 15 /* RightBrace */) {
-        properties.push(this$1.token === 14 /* Ellipsis */
-            ? this$1.parseObjectSpreadExpression(context)
-            : this$1.parseObjectElement(context));
+        properties.push(this$1.token === 14 /* Ellipsis */ ?
+            this$1.parseObjectSpreadExpression(context) :
+            this$1.parseObjectElement(context));
         if (this$1.token !== 15 /* RightBrace */)
             { this$1.expect(context, 18 /* Comma */); }
     }
