@@ -3971,9 +3971,6 @@ Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty 
     });
 };
 Parser.prototype.parsePrivateName = function parsePrivateName (context) {
-    if (context & 1 /* Module */) {
-        this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
-    }
     var startLoc = this.getLocations();
     this.expect(context, 117 /* Hash */);
     this.errorLocation = startLoc;

@@ -19,7 +19,6 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 * Skips hashbang comment nodes by default
 * Skips BOM (*U+FEFF*) by default
 * Optional tracking of syntax node location (index-based and line-column)
-* Supports 98.4% of all [Test262](https://github.com/tc39/test262) tests
 * Heavily tested (*~37 000 tests*)
 * Parameterized plugin system
 

@@ -14,13 +14,7 @@ describe('Next - Class fields', () => {
     fail('class a {  constructor () { #foo  }  }', {
         source: 'class a {  constructor () { #foo  }  }',
     });
-
-    fail('class C {  f() { this.#x;  class D extends C { #x; } } }', {
-        source: 'class C {  f() { this.#x;  class D extends C { #x; } } }',
-        next: true,
-        module: true
-    });
-    
+   
     fail('static class field with constructor', {
         source: 'class C { static "constructor"; }',
         next: true
@@ -1650,6 +1644,152 @@ describe('Next - Class fields', () => {
                 }
             }
         }
+    });
+
+    pass(`privatename in module code`, {
+        source: `class outer {
+            #x = 42;
+          
+            f() {
+              var self = this;
+              return class inner {
+                g() {
+              return self.#x;
+                }
+              }
+            }
+          }`,
+        next: true,
+        raw: true,
+        module: true,
+        expected: {
+              "body": [
+                {
+                  "body": {
+                    "body": [
+                      {
+                        "key": {
+                          "name": "x",
+                          "type": "Identifier"
+                        },
+                       "static": false,
+                        "type": "PrivateProperty",
+                       "value": {
+                          "raw": "42",
+                          "type": "Literal",
+                          "value": 42
+                        }
+                      },
+                      {
+                        "computed": false,
+                        "key": {
+                          "name": "f",
+                          "type": "Identifier"
+                        },
+                        "kind": "method",
+                        "static": false,
+                        "type": "MethodDefinition",
+                        "value": {
+                          "async": false,
+                          "body": {
+                            "body": [
+                              {
+                                "declarations": [
+                                  {
+                                    "id": {
+                                      "name": "self",
+                                      "type": "Identifier"
+                                    },
+                                    "init": {
+                                      "type": "ThisExpression"
+                                    },
+                                    "type": "VariableDeclarator"
+                                  }
+                                ],
+                                "kind": "var",
+                                "type": "VariableDeclaration"
+                              },
+                              {
+                                "argument": {
+                                  "body": {
+                                    "body": [
+                                      {
+                                        "computed": false,
+                                        "key": {
+                                          "name": "g",
+                                          "type": "Identifier"
+                                        },
+                                        "kind": "method",
+                                        "static": false,
+                                        "type": "MethodDefinition",
+                                        "value": {
+                                          "async": false,
+                                          "body": {
+                                            "body": [
+                                              {
+                                                "argument": {
+                                                  "computed": false,
+                                                  "object": {
+                                                    "name": "self",
+                                                   "type": "Identifier"
+                                                  },
+                                                  "property": {
+                                                    "id": {
+                                                      "name": "x",
+                                                      "type": "Identifier",
+                                                    },
+                                                    "type": "PrivateName"
+                                                  },
+                                                  "type": "MemberExpression",
+                                                },
+                                                "type": "ReturnStatement"
+                                              }
+                                            ],
+                                            "type": "BlockStatement"
+                                          },
+                                          "expression": false,
+                                         "generator": false,
+                                          "id": null,
+                                          "params": [],
+                                          "type": "FunctionExpression"
+                                        }
+                                      }
+                                    ],
+                                    "type": "ClassBody"
+                                  },
+                                  "id": {
+                                    "name": "inner",
+                                    "type": "Identifier",
+                                  },
+                                  "superClass": null,
+                                  "type": "ClassExpression"
+                                },
+                                "type": "ReturnStatement"
+                              }
+                           ],
+                            "type": "BlockStatement"
+                          },
+                          "expression": false,
+                          "generator": false,
+                         "id": null,
+                          "params": [],
+                          "type": "FunctionExpression",
+                        }
+                      }
+                    ],
+                    "type": "ClassBody",
+                  },
+                  "id": {
+                    "name": "outer",
+                    "type": "Identifier",
+                  },
+                  "superClass": null,
+                  "type": "ClassDeclaration",
+                },
+              ],
+              "sourceType": "module",
+              "type": "Program"
+            }
     });
 
     pass(`undeclared bindings`, {

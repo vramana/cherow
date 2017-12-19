@@ -4234,9 +4234,6 @@ export class Parser {
         }
     
         private parsePrivateName(context: Context) {
-            if (context & Context.Module) {
-                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-            }
             const startLoc = this.getLocations();
             this.expect(context, Token.Hash);
     
