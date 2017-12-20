@@ -27,14 +27,15 @@ export const enum Context {
     Expression             = 1 << 23,
     Pattern                = 1 << 24,
     ValidateEscape         = 1 << 25,  // If node was parsed in a context where escaped keywords are forbidden
-    Let                    = 1 << 26,  // Variable declaration
-    Const                  = 1 << 27,  // Variable declaration
+    StrictReserved         = 1 << 26,  // Variable declaration
+    Let                    = 1 << 27,  // Variable declaration
+    Const                  = 1 << 28,  // Variable declaration
     
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
 
     // Duplicate formal params in either strict mode or async / await in sloppy mode
-    MaskAsParamDuplicate = Strict | Yield | Await | Pattern
+    MarkAsParamDuplicate = Strict | Yield | Await | Pattern
 }
 
 // Mutable parser flags

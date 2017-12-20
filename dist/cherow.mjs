@@ -1868,6 +1868,8 @@ Parser.prototype.parseStatementList = function parseStatementList (context, endT
         if (!isPrologueDirective(item))
             { break; }
         if (this$1.flags & 4096 /* DirectivePrologue */) {
+            if (context & 67108864 /* StrictReserved */)
+                { this$1.error(73 /* UnexpectedStrictReserved */); }
             if (this$1.flags & 16384 /* SimpleParameterList */)
                 { this$1.error(26 /* IllegalUseStrict */); }
             if (this$1.flags & 2048 /* Binding */)
@@ -2093,11 +2095,11 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
             break;
         // export LexicalDeclaration
         case 8663113 /* ConstKeyword */:
-            declaration = this.parseVariableStatement(context | 134217728 /* Const */);
+            declaration = this.parseVariableStatement(context | 268435456 /* Const */);
             break;
         // export LexicalDeclaration
         case 8671304 /* LetKeyword */:
-            declaration = this.parseVariableStatement(context | 67108864 /* Let */);
+            declaration = this.parseVariableStatement(context | 134217728 /* Let */);
             break;
         // export VariableDeclaration
         case 8663111 /* VarKeyword */:
@@ -2316,11 +2318,11 @@ Parser.prototype.parseStatementListItem = function parseStatementListItem (conte
         case 8671304 /* LetKeyword */:
             // If let follows identifier on the same line, it is an declaration. Parse it as a variable statement
             if (this.isLexical(context)) {
-                return this.parseVariableStatement(context | 67108864 /* Let */ | 4 /* AllowIn */);
+                return this.parseVariableStatement(context | 134217728 /* Let */ | 4 /* AllowIn */);
             }
             return this.parseStatement(context & ~1024 /* Declaration */);
         case 8663113 /* ConstKeyword */:
-            return this.parseVariableStatement(context | 134217728 /* Const */ | 4 /* AllowIn */);
+            return this.parseVariableStatement(context | 268435456 /* Const */ | 4 /* AllowIn */);
         // VariableStatement[?Yield]
         case 12371 /* ExportKeyword */:
             if (context & 1 /* Module */)
@@ -2606,10 +2608,10 @@ Parser.prototype.parseForStatement = function parseForStatement (context) {
             declarations = this.parseVariableDeclarationList(context);
         }
         else if (this.parseOptional(context, 8663113 /* ConstKeyword */)) {
-            declarations = this.parseVariableDeclarationList(context | 134217728 /* Const */);
+            declarations = this.parseVariableDeclarationList(context | 268435456 /* Const */);
         }
         else if (this.isLexical(context) && this.parseOptional(context, 8671304 /* LetKeyword */)) {
-            declarations = this.parseVariableDeclarationList(context | 67108864 /* Let */);
+            declarations = this.parseVariableDeclarationList(context | 134217728 /* Let */);
         }
         else {
             init = this.parseExpression(context & ~4 /* AllowIn */, startLoc);
@@ -2908,8 +2910,8 @@ Parser.prototype.parseVariableDeclaration = function parseVariableDeclaration (c
     var init = null;
     if (t & 131072 /* BindingPattern */) {
         if (this.parseOptional(context, 1310749 /* Assign */)) {
-            init = this.parseAssignmentExpression(context & ~(201326592 /* Lexical */ | 262144 /* ForStatement */));
-            if (!(context & 201326592 /* Lexical */) && context & 262144 /* ForStatement */) {
+            init = this.parseAssignmentExpression(context & ~(402653184 /* Lexical */ | 262144 /* ForStatement */));
+            if (!(context & 402653184 /* Lexical */) && context & 262144 /* ForStatement */) {
                 if (this.token === 2111281 /* InKeyword */) {
                     this.error(83 /* InvalidVarDeclInForIn */);
                 }
@@ -2923,16 +2925,16 @@ Parser.prototype.parseVariableDeclaration = function parseVariableDeclaration (c
     }
     else {
         if (this.parseOptional(context, 1310749 /* Assign */)) {
-            init = this.parseAssignmentExpression(context & ~(201326592 /* Lexical */ | 262144 /* ForStatement */));
+            init = this.parseAssignmentExpression(context & ~(402653184 /* Lexical */ | 262144 /* ForStatement */));
             if (context & 262144 /* ForStatement */) {
                 if (this.token === 69746 /* OfKeyword */)
                     { this.error(31 /* InvalidVarInitForOf */); }
-                if (this.token === 2111281 /* InKeyword */ && (context & (2 /* Strict */ | 201326592 /* Lexical */))) {
+                if (this.token === 2111281 /* InKeyword */ && (context & (2 /* Strict */ | 402653184 /* Lexical */))) {
                     this.error(83 /* InvalidVarDeclInForIn */);
                 }
             }
         }
-        else if (context & 134217728 /* Const */ && !isInOrOfKeyword(this.token)) {
+        else if (context & 268435456 /* Const */ && !isInOrOfKeyword(this.token)) {
             this.error(82 /* MissingInitializer */, 'const');
         }
     }
@@ -3441,10 +3443,13 @@ Parser.prototype.parseFunction = function parseFunction (context, parentContext 
         var t = this.token;
         if (!this.isIdentifier(context, t))
             { this.throwUnexpectedToken(); }
+        if (this.isEvalOrArguments(this.tokenValue)) {
+            if (context & 2 /* Strict */)
+                { this.error(35 /* StrictLHSAssignment */); }
+            else
+                { context |= 67108864 /* StrictReserved */; }
+        }
         if (context & (8388608 /* Expression */ | 4096 /* AnnexB */)) {
-            if (context & 2 /* Strict */ && this.isEvalOrArguments(this.tokenValue)) {
-                this.error(35 /* StrictLHSAssignment */);
-            }
             if (context & (32 /* Await */ | 16 /* Yield */) &&
                 (t & (1073741824 /* IsAwait */ | 536870912 /* IsYield */))) {
                 this.error(75 /* DisallowedInContext */, tokenDesc(t));
@@ -3459,7 +3464,7 @@ Parser.prototype.parseFunction = function parseFunction (context, parentContext 
             if (context & 1024 /* Declaration */) {
                 var name = this.tokenValue;
                 if (!this.initBlockScope() && name in this.blockScope) {
-                    if (this.blockScope[name] & 2 /* NonShadowable */ || this.blockScope !== this.functionScope) {
+                    if (this.blockScope[name] & 1 /* Shadowable */ || this.blockScope !== this.functionScope) {
                         this.error(67 /* DuplicateBinding */, name);
                     }
                 }
@@ -3655,7 +3660,7 @@ Parser.prototype.parseFunctionBody = function parseFunctionBody (context) {
         var savedFlags = this.flags;
         this.flags |= 4 /* InFunctionBody */;
         this.flags &= ~(64 /* SwitchStatement */ | 16 /* BreakStatement */ | 32 /* IterationStatement */);
-        body = this.parseStatementList(context & ~201326592 /* Lexical */, 15 /* RightBrace */);
+        body = this.parseStatementList(context & ~402653184 /* Lexical */, 15 /* RightBrace */);
         this.labelSet = previousLabelSet;
         this.flags = savedFlags;
     }
@@ -4624,7 +4629,7 @@ Parser.prototype.addFunctionArg = function addFunctionArg (name) {
     this.functionScope[name] = 1 /* Shadowable */;
 };
 Parser.prototype.addVarOrBlock = function addVarOrBlock (context, name) {
-    if (context & 201326592 /* Lexical */) {
+    if (context & 402653184 /* Lexical */) {
         this.addBlockName(name);
     }
     else {
@@ -4704,7 +4709,7 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
     if (!this.isIdentifier(context, this.token)) {
         this.throwUnexpectedToken();
     }
-    else if (context & 201326592 /* Lexical */ && this.token === 8671304 /* LetKeyword */) {
+    else if (context & 402653184 /* Lexical */ && this.token === 8671304 /* LetKeyword */) {
         this.error(52 /* LetInLexicalBinding */);
     }
     var startLoc = this.getLocations();
@@ -4713,7 +4718,7 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
         if (context & 2 /* Strict */)
             { this.error(35 /* StrictLHSAssignment */); }
     }
-    if (context & 128 /* InParameter */ && context & 16777266 /* MaskAsParamDuplicate */) {
+    if (context & 128 /* InParameter */ && context & 16777266 /* MarkAsParamDuplicate */) {
         this.addFunctionArg(name);
     }
     else

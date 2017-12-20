@@ -1763,6 +1763,7 @@ export class Parser {
                 if (!isPrologueDirective(item)) break;
     
                 if (this.flags & Flags.DirectivePrologue) {
+                    if (context & Context.StrictReserved) this.error(Errors.UnexpectedStrictReserved);
                     if (this.flags & Flags.SimpleParameterList) this.error(Errors.IllegalUseStrict);
                     if (this.flags & Flags.Binding) this.error(Errors.UnexpectedStrictReserved);
                     context |= Context.Strict;
@@ -3636,11 +3637,12 @@ export class Parser {
     
                 if (!this.isIdentifier(context, t)) this.throwUnexpectedToken();
     
+                if (this.isEvalOrArguments(this.tokenValue)) {
+                    if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
+                    else context |= Context.StrictReserved;
+                 }
+
                 if (context & (Context.Expression | Context.AnnexB)) {
-    
-                    if (context & Context.Strict && this.isEvalOrArguments(this.tokenValue)) {
-                        this.error(Errors.StrictLHSAssignment);
-                    }
     
                     if (context & (Context.Await | Context.Yield) &&
                         (t & (Token.IsAwait | Token.IsYield))) {
@@ -3659,7 +3661,7 @@ export class Parser {
                     if (context & Context.Declaration) {
                         let name = this.tokenValue;
                         if (!this.initBlockScope() && name in this.blockScope) {
-                            if (this.blockScope[name] & ScopeMasks.NonShadowable || this.blockScope !== this.functionScope) {
+                            if (this.blockScope[name] & ScopeMasks.Shadowable || this.blockScope !== this.functionScope) {
                                 this.error(Errors.DuplicateBinding, name)
                             }
                         }
@@ -5081,7 +5083,7 @@ export class Parser {
                 if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
             }
     
-            if (context & Context.InParameter && context & Context.MaskAsParamDuplicate) {
+            if (context & Context.InParameter && context & Context.MarkAsParamDuplicate) {
                 this.addFunctionArg(name);
             } else this.addVarOrBlock(context, name);
     

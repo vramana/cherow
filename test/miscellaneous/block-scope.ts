@@ -345,12 +345,7 @@ describe('Miscellaneous - Block scope', () => {
             fail(`redeclaration with VariableDeclaration`, {
                 source: `{ var f; function f() {} } }`,
             });
-    
-            // fail(`redeclaration with VariableDeclaration`, {
-               //  source: `{ var f; var f; }`,
-            // });
-    
-    
+        
             fail(`redeclaration with LexicalDeclaration`, {
                 source: `{ var f; let f; }`,
             });
@@ -359,21 +354,17 @@ describe('Miscellaneous - Block scope', () => {
                 source: `{ function* f() {} function f() {} }`,
             });
     
-            // fail(`redeclaration with LexicdddalDeclaration`, {
-               //  source: `{ var f; function f() {} }`,
-            // });
+            fail(`redeclaration with LexicdddalDeclaration`, {
+                 source: `{ var f; function f() {} }`,
+            });
     
             fail(`redeclaration with LexicdddalDeclaration`, {
                 source: `{ function f() {}; function f() {} }`,
             });
     
-            // fail(`redeclaration with GeneratorDeclaration (VariableDeclaration in BlockStatement)`, {
-               //  source: `{ var f; function* f() {} }`,
-            // });
-    
-            // fail(`redeclaration with VariableDeclaration (VariableDeclaration in BlockStatement)`, {
-            //     source: `{ var f; var f; }`,
-            // });
+             fail(`redeclaration with GeneratorDeclaration (VariableDeclaration in BlockStatement)`, {
+                 source: `{ var f; function* f() {} }`,
+             });
     
             fail(`redeclaration with AsyncFunctionDeclaration (LexicalDeclaration (let) in BlockStatement)`, {
                 source: `{ let f; async function f() {} }`,
@@ -423,17 +414,17 @@ describe('Miscellaneous - Block scope', () => {
                 source: `{ const f = 0; async function* f() {} }`,
             });
     
-            // fail(`redeclaration with VariableDeclaration (AsyncGeneratorDeclaration in BlockStatement)`, {
-               //  source: `{ async function* f() {} var f; }`,
-            // });
+             fail(`redeclaration with VariableDeclaration (AsyncGeneratorDeclaration in BlockStatement)`, {
+                 source: `{ async function* f() {} var f; }`,
+             });
     
             fail(`redeclaration with let-LexicalDeclaration (AsyncGeneratorDeclaration in BlockStatement)`, {
                 source: `{ async function* f() {} let f; }`,
             });
     
-            //fail(`redeclaration with VariableDeclaration (AsyncFunctionDeclaration in BlockStatement)`, {
-                //source: `{ async function f() {} var f; }`,
-            //});
+            fail(`redeclaration with VariableDeclaration (AsyncFunctionDeclaration in BlockStatement)`, {
+                source: `{ async function f() {} var f; }`,
+            });
     
             fail(`redeclaration with const-LexicalDeclaration (AsyncFunctionDeclaration in BlockStatement)`, {
                 source: `{ async function f() {} const f = 0; }`,

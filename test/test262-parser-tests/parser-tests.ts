@@ -6,12 +6,21 @@ const Test262Dir = 'node_modules/test262-parser-tests';
 
 const expectations = {
     pass: [
+
         '110fa1efdd0868b8.js',
         '1a1c717109ab67e1.js',
         '206ebb4e67a6daa9.js',
         '4ad6e3a59e27e9b1.js',
         'a62c6323a3696fa8.js',
         'fc020c065098cbd5.js',
+
+        // This tests violate the specs, and should not pass
+        // See: https://github.com/tc39/test262/blob/master/test/language/statements/function/13.1-42-s.js
+        '040001f3b0eb3bde.js',
+        '050a006ae573e260.js',
+        '574ea84fc61bdc31.js',
+        '6c4fe38464c16309.js',
+        '8643da76fe7e95c7.js',
 
     ],
     explicit: [
@@ -22,6 +31,14 @@ const expectations = {
         'a62c6323a3696fa8.js',
         'fc020c065098cbd5.js',
         '4ad6e3a59e27e9b1.js',
+
+        // This tests violate the specs, and should not pass
+        // See: https://github.com/tc39/test262/blob/master/test/language/statements/function/13.1-42-s.js
+        '040001f3b0eb3bde.js',
+        '050a006ae573e260.js',
+        '574ea84fc61bdc31.js',
+        '6c4fe38464c16309.js',
+        '8643da76fe7e95c7.js',
     ],
     fail: [
         'fd2a45941e114896.js',

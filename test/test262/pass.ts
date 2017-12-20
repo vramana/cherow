@@ -16,8 +16,6 @@ describe('test262 tests', () => parserTest262({
         'test/annexB/language/comments/multi-line-html-close.js',
         'test/annexB/language/statements/for-in/nonstrict-initializer.js',
         'test/language/block-scope/syntax/redeclaration/class-declaration-attempt-to-redeclare-with-var-declaration.js',
-        'test/language/block-scope/syntax/redeclaration/class-declaration-attempt-to-redeclare-with-var-declaration.js',
-        'test/language/block-scope/syntax/redeclaration/var-declaration-attempt-to-redeclare-with-class-declaration.js',
         'test/language/block-scope/syntax/redeclaration/var-declaration-attempt-to-redeclare-with-class-declaration.js',
         'test/language/asi/S7.9_A5.7_T1.js',
         'test/language/expressions/this/S11.1.1_A1.js',
@@ -91,14 +89,12 @@ describe('test262 tests', () => parserTest262({
         'test/language/module-code/early-dup-export-id.js',
         'test/language/module-code/early-export-unresolvable.js',
         'test/language/module-code/eval-gtbndng*.js',
-       'test/language/module-code/eval-rqstd*.js',
+        'test/language/module-code/eval-rqstd*.js',
         'test/language/module-code/instn*.js',
-
         'test/language/module-code/parse-err-hoist-lex-fun.js',
         'test/language/module-code/parse-err-hoist-lex-gen.js',
         'test/language/module-code/parse-err-reference.js',
         'test/language/module-code/privatename-not-valid-earlyerr-module-4.js',
-
         'test/language/block-scope/shadowing/const-declarations-shadowing-parameter-name-let-const-and-var-variables.js',
         'test/language/block-scope/shadowing/let-declarations-shadowing-parameter-name-let-const-and-var.js',
         'test/language/block-scope/syntax/redeclaration/var-declaration-attempt-to-redeclare-with-var-declaration.js', //
@@ -106,9 +102,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/block-scope/syntax/redeclaration/async-generator-declaration-attempt-to-redeclare-with-var-declaration.js', //
         'test/language/block-scope/syntax/redeclaration/function-declaration-attempt-to-redeclare-with-var-declaration.js', //
         'test/language/block-scope/syntax/redeclaration/generator-declaration-attempt-to-redeclare-with-var-declaration.js', //
-        'test/language/block-scope/syntax/redeclaration/var-declaration-attempt-to-redeclare-with-async-generator-declaration.js', //
-        'test/language/block-scope/syntax/redeclaration/var-declaration-attempt-to-redeclare-with-function-declaration.js', //
-        'test/language/block-scope/syntax/redeclaration/var-declaration-attempt-to-redeclare-with-generator-declaration.js',
         'test/language/directive-prologue/10.1.1-23-s.js',
         'test/language/directive-prologue/10.1.1-24-s.js',
         'test/language/directive-prologue/14.1-4-s.js',
@@ -147,18 +140,20 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/for-of/dstr-array-rest-before-rest.js',
         'test/language/statements/for-of/dstr-array-rest-elision-invalid.js',
         'test/language/statements/for-of/head-lhs-member.js',
-        'test/language/statements/function/13.1-40-s.js',
-        'test/language/statements/function/13.1-42-s.js',
-        'test/language/statements/function/13.1-12-s.js',
+
+        // 'test/language/statements/function/13.1-40-s.js',
+        //'test/language/statements/function/13.1-42-s.js',
+        //'test/language/statements/function/13.1-12-s.js',
         'test/language/statements/function/13.1-24-s.js',
         'test/language/statements/function/13.1-26-s.js',
         'test/language/statements/function/13.1-28-s.js',
         'test/language/statements/function/13.1-30-s.js',
         'test/language/statements/function/13.1-32-s.js',
         'test/language/statements/function/13.1-34-s.js',
-        'test/language/statements/function/13.1-36-s.js',
-        'test/language/statements/function/13.1-38-s.js',
+        //'test/language/statements/function/13.1-36-s.js',
+        //'test/language/statements/function/13.1-38-s.js',
         'test/language/statements/function/dflt-params-duplicates.js',
+
         'test/language/statements/labeled/continue.js',
         'test/language/statements/switch/syntax/redeclaration/class-declaration-attempt-to-redeclare-with-var-declaration.js',
         'test/language/statements/switch/syntax/redeclaration/function-declaration-attempt-to-redeclare-with-var-declaration.js',

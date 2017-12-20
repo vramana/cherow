@@ -2,6 +2,14 @@ import { pass, fail } from '../utils';
 
 describe('Declarations - Functions', () => {
 
+    fail(`function arguments() { 'use strict'; };`, {
+        source: 'function arguments() { "use strict"; };',
+    });
+
+    fail(`function arguments() { 'use strict'; };`, {
+        source: 'function eval() { "use strict"; };',
+    });
+    
     fail(`(function(...a, b){})`, {
         source: '(function(...a, b){})',
         loc: true,
