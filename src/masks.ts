@@ -33,8 +33,8 @@ export const enum Context {
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
 
-    YieldAwait = Yield | Await
-    
+    // Duplicate formal params in either strict mode or async / await in sloppy mode
+    MaskAsParamDuplicate = Strict | Yield | Await | Pattern
 }
 
 // Mutable parser flags

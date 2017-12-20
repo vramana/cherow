@@ -116,7 +116,8 @@ export const enum Errors {
     InvalidRegExpGroup,
     AsyncFunctionInSingleStatementContext,
     GeneratorInSingleStatementContext,
-    SloppyFunction
+    SloppyFunction,
+    YieldInParameter
 }
 
 export const ErrorMessages: {
@@ -231,8 +232,8 @@ export const ErrorMessages: {
     [Errors.UnterminatedEscape]: 'Unterminated escape in regular expression',
     [Errors.AsyncFunctionInSingleStatementContext]: 'Async functions can only be declared at the top level or inside a block',
     [Errors.InvalidRegExpGroup]: 'Generators can only be declared at the top level or inside a block',
-    [Errors.SloppyFunction]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement'
-    
+    [Errors.SloppyFunction]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
+    [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter'
 };
 
 function constructError(msg: string, column: number): Error {

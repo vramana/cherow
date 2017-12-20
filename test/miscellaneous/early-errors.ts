@@ -380,4 +380,24 @@ describe('Miscellaneous - Early errors', () => {
         fail(`!{ __proto__: null, "__proto__": null };`, {
             source: `!{ __proto__: null, "__proto__": null };`,
         });
+
+        fail(`function* a(){ ({b = yield}) => 1; }`, {
+            source: `function* a(){ ({b = yield}) => 1; }`,
+        });
+    
+      /*  fail(`function* a(){ (b = c + d(yield)) => 1; }`, {
+            source: `function* a(){ (b = c + d(yield)) => 1; }`,
+        });*/
+    
+        fail(`function *a() { ({b = yield}) => {} }`, {
+            source: `function *a() { ({b = yield}) => {} }`,
+        });
+    
+        fail(`function* a(){ ({ *b(c = d + e(yield)){} }); }`, {
+            source: `function* a(){ ({ *b(c = d + e(yield)){} }); }`,
+        });
+    
+            fail(`function* a(){ !function*(b = c + d(yield)){} }`, {
+                source: `function* a(){ !function*(b = c + d(yield)){} }`,
+            });
 });

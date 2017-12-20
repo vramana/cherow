@@ -2,7 +2,6 @@ import { pass, fail } from '../utils';
 
 describe('Declarations - Functions', () => {
 
-    
     fail(`(function(...a, b){})`, {
         source: '(function(...a, b){})',
         loc: true,

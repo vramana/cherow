@@ -285,6 +285,7 @@ ErrorMessages[110 /* UnterminatedEscape */] = 'Unterminated escape in regular ex
 ErrorMessages[115 /* AsyncFunctionInSingleStatementContext */] = 'Async functions can only be declared at the top level or inside a block';
 ErrorMessages[114 /* InvalidRegExpGroup */] = 'Generators can only be declared at the top level or inside a block';
 ErrorMessages[117 /* SloppyFunction */] = 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement';
+ErrorMessages[118 /* YieldInParameter */] = 'Yield expression not allowed in formal parameter';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -2136,7 +2137,7 @@ Parser.prototype.parseNamedExportDeclaration = function parseNamedExportDeclarat
     var local = this.parseIdentifierName(context | 33554432 /* ValidateEscape */, this.token);
     var exported = local;
     if (this.parseOptional(context, 69739 /* AsKeyword */)) {
-        this.checkIfExistInBlockScope(this.tokenValue, true);
+        this.checkIfExistInBlockScope(this.tokenValue);
         exported = this.parseIdentifierName(context, this.token);
     }
     return this.finishNode(context, startLoc, {
@@ -2169,7 +2170,7 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
     var hasAs = false;
     if (this.token & 69632 /* Contextual */) {
         this.expect(context, 69739 /* AsKeyword */);
-        this.checkIfExistInBlockScope(this.tokenValue, true);
+        this.checkIfExistInBlockScope(this.tokenValue);
         hasAs = true;
     }
     else {
@@ -2212,7 +2213,7 @@ Parser.prototype.parseImportNamespaceSpecifier = function parseImportNamespaceSp
     var startLoc = this.getLocations();
     this.expect(context | 33554432 /* ValidateEscape */, 270535219 /* Multiply */);
     this.expect(context, 69739 /* AsKeyword */, 37 /* NoAsAfterImportNamespace */);
-    this.checkIfExistInBlockScope(this.tokenValue, true);
+    this.checkIfExistInBlockScope(this.tokenValue);
     var local = this.parseBindingIdentifier(context);
     specifiers.push(this.finishNode(context, startLoc, {
         type: 'ImportNamespaceSpecifier',
@@ -2965,6 +2966,8 @@ Parser.prototype.parseExpression = function parseExpression (context, startLoc) 
 Parser.prototype.parseYieldExpression = function parseYieldExpression (context, startLoc) {
     if (this.flags & 2 /* ExtendedUnicodeEscape */)
         { this.error(63 /* UnexpectedEscapedKeyword */); }
+    if (context & 128 /* InParameter */)
+        { this.error(118 /* YieldInParameter */); }
     this.expect(context, 537153642 /* YieldKeyword */);
     var argument = null;
     var delegate = false;
@@ -3396,7 +3399,7 @@ Parser.prototype.parseCallExpression = function parseCallExpression (context, st
         expr = this$1.parseMemberExpression(context, startLoc, expr);
         switch (this$1.token) {
             case 262155 /* LeftParen */:
-                var args = this$1.parseArguments(context & ~128 /* InParameter */, startLoc);
+                var args = this$1.parseArguments(context, startLoc);
                 if (context & 8192 /* Import */ && args.length !== 1 &&
                     expr.type === 'Import')
                     { this$1.error(14 /* BadImportCallArity */); }
@@ -4269,8 +4272,14 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
                 this.flags |= 512 /* Await */;
             }
             state |= 8 /* Shorthand */;
-            if (this.token === 1310749 /* Assign */) {
-                value = this.parseAssignmentPattern(context, startLoc, key);
+            if (this.parseOptional(context, 1310749 /* Assign */)) {
+                if (this.token & 536870912 /* IsYield */ && context & 16 /* Yield */)
+                    { this.flags |= 256 /* Yield */; }
+                value = this.finishNode(context, startLoc, {
+                    type: 'AssignmentPattern',
+                    left: key,
+                    right: this.parseAssignmentExpression(context)
+                });
             }
             else {
                 value = key;
@@ -4641,12 +4650,10 @@ Parser.prototype.checkIfExistInFunctionScope = function checkIfExistInFunctionSc
         this.error(66 /* DuplicateIdentifier */, name);
     }
 };
-Parser.prototype.checkIfExistInBlockScope = function checkIfExistInBlockScope (name, binding) {
-        if ( binding === void 0 ) binding = false;
-
+Parser.prototype.checkIfExistInBlockScope = function checkIfExistInBlockScope (name) {
     if (!this.initBlockScope() && ((this.blockScope[name] & 1 /* Shadowable */) !== 0 ||
         Object.prototype.hasOwnProperty.call(this.blockScope, name))) {
-        this.error(binding ? 67 /* DuplicateBinding */ : 66 /* DuplicateIdentifier */, name);
+        this.error(66 /* DuplicateIdentifier */, name);
     }
 };
 Parser.prototype.addBlockName = function addBlockName (name) {
@@ -4674,10 +4681,6 @@ Parser.prototype.parseAssignmentPattern = function parseAssignmentPattern (conte
 
     if (!this.parseOptional(context, 1310749 /* Assign */))
         { return pattern; }
-    if (context & 128 /* InParameter */ && this.token & 536870912 /* IsYield */) {
-        if (context & 16 /* Yield */)
-            { this.error(75 /* DisallowedInContext */, tokenDesc(this.token)); }
-    }
     return this.finishNode(context, startLoc, {
         type: 'AssignmentPattern',
         left: pattern,
@@ -4716,10 +4719,11 @@ Parser.prototype.parseBindingIdentifier = function parseBindingIdentifier (conte
         if (context & 2 /* Strict */)
             { this.error(35 /* StrictLHSAssignment */); }
     }
-    if (context & 128 /* InParameter */ && context & (2 /* Strict */ | 48 /* YieldAwait */ | 16777216 /* Pattern */)) {
+    if (context & 128 /* InParameter */ && context & 16777266 /* MaskAsParamDuplicate */) {
         this.addFunctionArg(name);
     }
-    this.addVarOrBlock(context, name);
+    else
+        { this.addVarOrBlock(context, name); }
     this.nextToken(context);
     return this.finishNode(context, startLoc, {
         type: 'Identifier',

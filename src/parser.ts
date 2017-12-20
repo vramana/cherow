@@ -2070,7 +2070,7 @@ export class Parser {
             let exported = local;
     
             if (this.parseOptional(context, Token.AsKeyword)) {
-                this.checkIfExistInBlockScope(this.tokenValue, true);
+                this.checkIfExistInBlockScope(this.tokenValue);
                 exported = this.parseIdentifierName(context, this.token);
             }
     
@@ -2108,7 +2108,7 @@ export class Parser {
     
             if (this.token & Token.Contextual) {
                 this.expect(context, Token.AsKeyword);
-                this.checkIfExistInBlockScope(this.tokenValue, true);
+                this.checkIfExistInBlockScope(this.tokenValue);
                 hasAs = true;
             } else {
                 hasAs = this.parseOptional(context, Token.AsKeyword);
@@ -2159,7 +2159,7 @@ export class Parser {
             const startLoc = this.getLocations();
             this.expect(context | Context.ValidateEscape, Token.Multiply);
             this.expect(context, Token.AsKeyword, Errors.NoAsAfterImportNamespace);
-            this.checkIfExistInBlockScope(this.tokenValue, true);
+            this.checkIfExistInBlockScope(this.tokenValue);
             const local = this.parseBindingIdentifier(context);
             specifiers.push(this.finishNode(context, startLoc, {
                 type: 'ImportNamespaceSpecifier',
@@ -3077,7 +3077,7 @@ export class Parser {
         ): ESTree.YieldExpression {
     
             if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
-    
+            if (context & Context.InParameter) this.error(Errors.YieldInParameter);
             this.expect(context, Token.YieldKeyword);
     
             let argument: ESTree.Expression | null = null;
@@ -3571,13 +3571,14 @@ export class Parser {
         ): ESTree.Expression {
     
             while (true) {
-    
+                
                 expr = this.parseMemberExpression(context, startLoc, expr);
     
                 switch (this.token) {
     
                     case Token.LeftParen:
-                        const args = this.parseArguments(context & ~Context.InParameter, startLoc);
+                    
+                        const args = this.parseArguments(context, startLoc);
     
                         if (context & Context.Import && args.length !== 1 &&
                             expr.type as string === 'Import') this.error(Errors.BadImportCallArity);
@@ -4557,8 +4558,13 @@ export class Parser {
     
                     state |= ObjectState.Shorthand;
     
-                    if (this.token === Token.Assign) {
-                        value = this.parseAssignmentPattern(context, startLoc, key);
+                    if (this.parseOptional(context, Token.Assign)) {
+                        if (this.token & Token.IsYield && context & Context.Yield) this.flags |= Flags.Yield;
+                        value = this.finishNode(context, startLoc, {
+                            type: 'AssignmentPattern',
+                            left: key,
+                            right: this.parseAssignmentExpression(context)
+                        });
                     } else {
                         value = key;
                     }
@@ -4982,13 +4988,13 @@ export class Parser {
             }
         }
     
-        private checkIfExistInBlockScope(name: string, binding: boolean = false) {
+        private checkIfExistInBlockScope(name: string) {
             if (!this.initBlockScope() && (
                     (this.blockScope[name] & ScopeMasks.Shadowable) !== 0 ||
                     Object.prototype.hasOwnProperty.call(this.blockScope, name)
                 )) {
     
-                this.error(binding ? Errors.DuplicateBinding : Errors.DuplicateIdentifier, name);
+                this.error(Errors.DuplicateIdentifier, name);
             }
         }
     
@@ -5022,10 +5028,6 @@ export class Parser {
         ): ESTree.AssignmentPattern {
     
             if (!this.parseOptional(context, Token.Assign)) return pattern;
-    
-            if (context & Context.InParameter && this.token & Token.IsYield) {
-                if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-            }
     
             return this.finishNode(context, startLoc, {
                 type: 'AssignmentPattern',
@@ -5079,11 +5081,9 @@ export class Parser {
                 if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
             }
     
-            if (context & Context.InParameter && context & (Context.Strict | Context.YieldAwait | Context.Pattern)) {
+            if (context & Context.InParameter && context & Context.MaskAsParamDuplicate) {
                 this.addFunctionArg(name);
-            }
-    
-            this.addVarOrBlock(context, name);
+            } else this.addVarOrBlock(context, name);
     
             this.nextToken(context);
     

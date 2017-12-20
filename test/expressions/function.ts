@@ -30,6 +30,10 @@ describe('Statements - Function', () => {
         source: '(function(a){ let a; })',
     });
 
+    fail(`(function(a){ const a; })`, {
+        source: '(function(a){ const a; })',
+    });
+
     fail(`(function ({ a(){} }) {})`, {
         source: '(function ({ a(){} }) {})',
     });
