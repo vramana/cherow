@@ -1480,15 +1480,5 @@ describe('Statements - For In', () => {
         fail(`for(([a]) in 0);`, {
             source: 'for(([a]) in 0);',
         });
-        
-
-        fail(`for(this of 0);`, {
-            source: 'for(this of 0);',
-        });
-
-        fail(`for(let.let of 0);`, {
-            source: 'for(let.let of 0);',
-        }); 
-        
 });
             

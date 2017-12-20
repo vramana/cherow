@@ -3,401 +3,213 @@ import { pass, fail } from '../utils';
 describe('Miscellaneous - Early errors', () => {
     /**/
     
-        fail(`0++`, {
-            source: `0++`,
+        fail(`class a extends b { constructor() { function c(d = super()){} } }`, {
+            source: `class a extends b { constructor() { function c(d = super()){} } }`,
         });
 
-        fail(`0--`, {
-            source: `0--`,
+        fail(`({ a(){ super(); } });`, {
+            source: `({ a(){ super(); } });`,
         });
 
-        fail(`++0`, {
-            source: `++0`,
+        fail(`({ a(){ {{ if(0) (( super() )); }} } });`, {
+            source: `({ a(){ {{ if(0) (( super() )); }} } });`,
         });
 
-        fail(`--0`, {
-            source: `--0`,
+        fail(`class A extends B { constructor() { !{*constructor() { super(); }}; } }`, {
+            source: `class A extends B { constructor() { !{*constructor() { super(); }}; } }`,
         });
 
-        fail(`0=0;`, {
-            source: `0=0;`,
+        fail(`class A extends B { constructor() { !{get constructor() { super(); }}; } }`, {
+            source: `class A extends B { constructor() { !{get constructor() { super(); }}; } }`,
         });
 
-        fail(`({a} += 0)`, {
-            source: `({a} += 0)`,
+        fail(`class A extends B { constructor() { !{set constructor(a) { super(); }}; } }`, {
+            source: `class A extends B { constructor() { !{set constructor(a) { super(); }}; } }`,
         });
 
-        fail(`[a] *= 0;`, {
-            source: `[a] *= 0;`,
+        fail(`!{ *f(a = super()){} };`, {
+            source: `!{ *f(a = super()){} };`,
         });
 
-        fail(`for({a: 0} in 0);`, {
-            source: `for({a: 0} in 0);`,
+        fail(`!{ *f(a) { super() } };`, {
+            source: `!{ *f(a) { super() } };`,
         });
 
-        fail(`for([0] in 0);`, {
-            source: `for([0] in 0);`,
+        fail(`function* f(a = super()){}`, {
+            source: `function* f(a = super()){}`,
         });
 
-        fail(`for({a: 0} of 0);`, {
-            source: `for({a: 0} of 0);`,
+        fail(`function* f(a){ super.b }`, {
+            source: `function* f(a){ super.b }`,
         });
 
-        fail(`for([0] of 0);`, {
-            source: `for([0] of 0);`,
+        fail(`function f(a){ super() }`, {
+            source: `function f(a){ super() }`,
         });
 
-        fail(`for(0 in 0)`, {
-            source: `for(0 in 0)`,
+        fail(`!function(a){ super() }`, {
+            source: `!function(a){ super() }`,
         });
 
-        fail(`for(0 of 0);`, {
-            source: `for(0 of 0);`,
+        fail(`class A extends B { constructor() { !function(){ super(); } } }`, {
+            source: `class A extends B { constructor() { !function(){ super(); } } }`,
         });
 
-        fail(`for(({a: 0}) in 0);`, {
-            source: `for(({a: 0}) in 0);`,
+        fail(`!function f(a = super[0]){}`, {
+            source: `!function f(a = super[0]){}`,
         });
 
-        fail(`for(([0]) in 0);`, {
-            source: `for(([0]) in 0);`,
+        fail(`function f(a = super.b){}`, {
+            source: `function f(a = super.b){}`,
         });
 
-        fail(`for(({a: 0}) of 0);`, {
-            source: `for(({a: 0}) of 0);`,
+        fail(`!function f(a = super[0]){}`, {
+            source: `!function f(a = super[0]){}`,
         });
 
-        fail(`for(([0]) of 0);`, {
-            source: `for(([0]) of 0);`,
+        fail(`function f(a = super.b){}`, {
+            source: `function f(a = super.b){}`,
         });
 
-        fail(`for((0) in 0);`, {
-            source: `for((0) in 0);`,
+        fail(`!function f(a = super[0]){}`, {
+            source: `!function f(a = super[0]){}`,
         });
 
-        fail(`for((0) of 0);`, {
-            source: `for((0) of 0);`,
+        fail(`class A extends B { a() { !function(a = super.b()){} } }`, {
+            source: `class A extends B { a() { !function(a = super.b()){} } }`,
         });
 
-        fail(`"use strict"; function x(a, ...[a]){}`, {
-            source: `"use strict"; function x(a, ...[a]){}`,
+        fail(`class A extends B { constructor() { !function(a = super()){} } }`, {
+            source: `class A extends B { constructor() { !function(a = super()){} } }`,
         });
 
-        fail(`(a,...[a]) => 0;`, {
-            source: `(a,...[a]) => 0;`,
-        });
-
-        fail(`"use strict"; 1, { arguments } = [];`, {
-            source: `"use strict"; 1, { arguments } = [];`,
-        });
-
-        fail(`'use strict'; [...eval] = a`, {
-            source: `'use strict'; [...eval] = a`,
-        });
-
-        fail(`a: { continue a; }`, {
-            source: `a:  continue a;`,
-        });
-
-        fail(`'use strict'; [...eval] = a`, {
-            source: `'use strict'; [...eval] = a`,
-        });
-
-        fail(`(...a)`, {
-            source: `(...a)`,
-        });
-
-        fail(`({get a(){}} = 0)`, {
-            source: `({get a(){}} = 0)`,
-        });
-
-        fail(`({a(b){}} = 0)`, {
-            source: `({a(b){}} = 0)`,
-        });
-
-        fail(`({a}) = 0;`, {
-            source: `({a}) = 0;`,
-        });
-
-        fail(`[...new a] = 0;`, {
-            source: `[...new a] = 0;`,
-        });
-
-        fail(`\\u{0}`, {
-            source: `\\u{0}`,
-        });
-
-        fail(`\\u0000`, {
-            source: `\\u0000`,
-        });
-
-        fail(`("\\u{110000}")`, {
-            source: `("\\u{110000}")`,
-        });
-
-        fail(`("\\u{FFFFFFF}")`, {
-            source: `("\\u{FFFFFFF}")`,
-        });
-
-        fail(`/./\\u0069`, {
-            source: `/./\\u0069`,
-        });
-
-        fail(`/./\\u{69}`, {
-            source: `/./\\u{69}`,
-        });
-
-        fail(`'use strict'; [,,,arguments,] = 0`, {
-            source: `'use strict'; [,,,arguments,] = 0`,
-        });
-
-        fail(`'use strict'; ({a: arguments = 0} = 0)`, {
-            source: `'use strict'; ({a: arguments = 0} = 0)`,
-        });
-
-        fail(`'use strict'; var eval;`, {
-            source: `'use strict'; var eval;`,
-        });
-
-        fail(`'use strict'; let [eval] = 0;`, {
-            source: `'use strict'; let [eval] = 0;`,
-        });
-
-        fail(`'use strict'; eval=>0`, {
-            source: `'use strict'; eval=>0`,
-        });
-
-        fail(`'use strict'; (arguments)=>0`, {
-            source: `'use strict'; (arguments)=>0`,
-        });
-
-        fail(`'use strict'; function f(eval){}`, {
-            source: `'use strict'; function f(eval){}`,
-        });
-
-        fail(`class A { f(eval){} };`, {
-            source: `class A { f(eval){} };`,
-        });
-
-        fail(`'use strict'; +let;`, {
-            source: `'use strict'; +let;`,
-        });
-
-        fail(`'use strict'; +private;`, {
-            source: `'use strict'; +private;`,
-        });
-
-        fail(`function a(){ 'use strict'; function a(a=yield){}}`, {
-            source: `function a(){ 'use strict'; function a(a=yield){}}`,
-        });
-
-        fail(`class A {set a(yield){}}`, {
-            source: `class A {set a(yield){}}`,
-        });
-
-        fail(`!{ get a() { 'use strict'; +let; } }`, {
-            source: `!{ get a() { 'use strict'; +let; } }`,
-        });
-
-        fail(`{ let a; const a = 0; }`, {
-            source: `{ let a; const a = 0; }`,
-        });
-
-        fail(`{ let a; var a; }`, {
-            source: `{ let a; var a; }`,
-        });
-
-        fail(`let a, b, a;`, {
-            source: `let a, b, a;`,
-        });
-
-        fail(`let a, [a] = 0;`, {
-            source: `let a, [a] = 0;`,
-        });
-
-        fail(`let \\u{61}, \\u{0061};`, {
-            source: `let \\u{61}, \\u{0061};`,
-        });
-
-        fail(`let \\u0061, \\u{0061};`, {
-            source: `let \\u0061, \\u{0061};`,
-        });
-
-        fail(`let x\\u{61}, x\\u{0061};`, {
-            source: `let x\\u{61}, x\\u{0061};`,
-        });
-
-        fail(`let x\\u{E01D5}, x\uDB40\uDDD5;`, {
-            source: `let x\\u{E01D5}, x\uDB40\uDDD5;`,
-        });
-
-        fail(`for(let [a, a] = 0;;);`, {
-            source: `for(let [a, a] = 0;;);`,
-        });
-
-        fail(`'use strict'; [...eval] = a`, {
-            source: `'use strict'; [...eval] = a`,
-        });
-         
-        fail(`for(const [a, a] = 0;;);`, {
-            source: `for(const [a, a] = 0;;);`,
-        });
-
-        fail(`const a, b = 0;`, {
-            source: `const a, b = 0;`,
-        });
-
-        fail(`function f(){ const a; }`, {
-            source: `function f(){ const a; }`,
-        });
-
-        fail(`for(const a = 0, b;;);`, {
-            source: `for(const a = 0, b;;);`,
-        });
-
-        fail(`if(0) ; else label: function f(){}`, {
-            source: `if(0) ; else label: function f(){}`,
-        });
-
-        fail(`do label: function f(){} while (0);`, {
-            source: `do label: function f(){} while (0);`,
-        });
-
-        fail(`for(var a;;) label: function f(){}`, {
-            source: `for(var a;;) label: function f(){}`,
-        });
-
-        fail(`for(var a in b) label: function f(){}`, {
-            source: `for(var a in b) label: function f(){}`,
-        });
-
-        fail(`for(let a in b) label: function f(){}`, {
-            source: `for(let a in b) label: function f(){}`,
-        });
 
-        fail(`for(;;) labelA: labelB: labelC: function f(){}`, {
-            source: `for(;;) labelA: labelB: labelC: function f(){}`,
+        fail(`class a extends b { constructor() { function c(d = super()){} } }`, {
+            source: `class a extends b { constructor() { function c(d = super()){} } }`,
         });
 
-        fail(`while(0) !function(){ continue; };`, {
-            source: `while(0) !function(){ continue; };`,
+        fail(`({ a(){ super(); } });`, {
+            source: `({ a(){ super(); } });`,
         });
 
-        fail(`label: while(0) !function(){ continue label; };`, {
-            source: `label: while(0) !function(){ continue label; };`,
+        fail(`({ a(){ {{ if(0) (( super() )); }} } });`, {
+            source: `({ a(){ {{ if(0) (( super() )); }} } });`,
         });
 
-        fail(`if(0) break;`, {
-            source: `if(0) break;`,
+        fail(`class A extends B { constructor() { !{*constructor() { super(); }}; } }`, {
+            source: `class A extends B { constructor() { !{*constructor() { super(); }}; } }`,
         });
 
-        fail(`while(0) { function f(){ break; } }`, {
-            source: `while(0) { function f(){ break; } }`,
+        fail(`class A extends B { constructor() { !{get constructor() { super(); }}; } }`, {
+            source: `class A extends B { constructor() { !{get constructor() { super(); }}; } }`,
         });
 
-        fail(`switch(0) { case 0: function f(){ break; } }`, {
-            source: `switch(0) { case 0: function f(){ break; } }`,
+        fail(`class A extends B { constructor() { !{set constructor(a) { super(); }}; } }`, {
+            source: `class A extends B { constructor() { !{set constructor(a) { super(); }}; } }`,
         });
 
-        fail(`'switch(0) { case 0: let a; case 1: let a; }`, {
-            source: `switch(0) { case 0: let a; case 1: let a; }`,
+        fail(`!{ *f(a = super()){} };`, {
+            source: `!{ *f(a = super()){} };`,
         });
 
-        fail(`switch(0) { default: function a(){} case 0: let a  }`, {
-            source: `switch(0) { default: function a(){} case 0: let a  }`,
+        fail(`!{ *f(a) { super() } };`, {
+            source: `!{ *f(a) { super() } };`,
         });
 
-        fail(`switch(0) { default: var a; case 0: const a = 0; }`, {
-            source: `switch(0) { default: var a; case 0: const a = 0; }`,
+        fail(`function* f(a = super()){}`, {
+            source: `function* f(a = super()){}`,
         });
 
-        fail(`'use strict'; function arguments(){}`, {
-            source: `'use strict'; function arguments(){}`,
+        fail(`function* f(a){ super.b }`, {
+            source: `function* f(a){ super.b }`,
         });
 
-        fail(`'use strict'; !function arguments(){}`, {
-            source: `'use strict'; !function arguments(){}`,
+        fail(`function f(a){ super() }`, {
+            source: `function f(a){ super() }`,
         });
 
-        fail(`export default function(a){ let a; }`, {
-            source: `export default function(a){ let a; }`,
-            module: true
+        fail(`!function(a){ super() }`, {
+            source: `!function(a){ super() }`,
         });
 
-        fail(`export default function(a){ const a = 0; }`, {
-            source: `export default function(a){ const a = 0; }`,
-            module: true
+        fail(`class A extends B { constructor() { !function(){ super(); } } }`, {
+            source: `class A extends B { constructor() { !function(){ super(); } } }`,
         });
 
-        fail(`!function(a){ const a = 0; }`, {
-            source: `!function(a){ const a = 0; }`,
+        fail(`!function f(a = super[0]){}`, {
+            source: `!function f(a = super[0]){}`,
         });
 
-        fail(`!{ a() { function f(a = super.b()){} } };`, {
-            source: `!{ a() { function f(a = super.b()){} } };`,
+        fail(`function f(a = super.b){}`, {
+            source: `function f(a = super.b){}`,
         });
 
-        fail(`(a, a) => 0;`, {
-            source: `(a, a) => 0;`,
+        fail(`!function f(a = super[0]){}`, {
+            source: `!function f(a = super[0]){}`,
         });
 
-        fail(`(function({a: x, b: x}){})`, {
-            source: `(function({a: x, b: x}){})`,
+        fail(`function f(a = super.b){}`, {
+            source: `function f(a = super.b){}`,
         });
 
-        fail(`function f(){ let a; const a = 0; }`, {
-            source: `function f(){ let a; const a = 0; }`,
+        fail(`!function f(a = super[0]){}`, {
+            source: `!function f(a = super[0]){}`,
         });
 
-        fail(`function f(){ const a = 0; var a; }`, {
-            source: `function f(){ const a = 0; var a; }`,
+        fail(`class A extends B { a() { !function(a = super.b()){} } }`, {
+            source: `class A extends B { a() { !function(a = super.b()){} } }`,
         });
 
-        fail(`function f(){ var a; const a = 0; }`, {
-            source: `function f(){ var a; const a = 0; }`,
+        fail(`class A extends B { constructor() { !function(a = super()){} } }`, {
+            source: `class A extends B { constructor() { !function(a = super()){} } }`,
         });
 
-        fail(`!{ get f(){ let a; var a; } };`, {
-            source: `!{ get f(){ let a; var a; } };`,
+        fail(`!function* (a){ super.b }`, {
+            source: `!function* (a){ super.b }`,
         });
 
-        fail(`() => { let a; var a; }`, {
-            source: `() => { let a; var a; }`,
+        fail(`!{ a() { function* f(){ super.b(); } } };`, {
+            source: `!{ a() { function* f(){ super.b(); } } };`,
         });
 
-        fail(`function* g(){ ({[yield]: a}) => 0; }`, {
-            source: `function* g(){ ({[yield]: a}) => 0; }`,
+        fail(`!{ a() { !function* (){ super.b(); } } };`, {
+            source: `!{ a() { !function* (){ super.b(); } } };`,
         });
 
-        fail(`({a}) => { const a = 0; }`, {
-            source: `({a}) => { const a = 0; }`,
+        fail(`class A extends B { a() { !function* (){ super.b(); } } }`, {
+            source: `class A extends B { a() { !function* (){ super.b(); } } }`,
         });
 
-        fail(`let a; const a = 0;`, {
-            source: `let a; const a = 0;`,
+        fail(`class A { constructor() { super(); } }`, {
+            source: `class A { constructor() { super(); } }`,
         });
 
-        fail(`!{ __proto__: null, "__proto__": null };`, {
-            source: `!{ __proto__: null, "__proto__": null };`,
+        fail(`class A { constructor() { {{ (( super() )); }} } }`, {
+            source: `class A { constructor() { {{ (( super() )); }} } }`,
         });
 
-        fail(`function* a(){ ({b = yield}) => 1; }`, {
-            source: `function* a(){ ({b = yield}) => 1; }`,
+        fail(`class A { constructor() { (class {[super()](){}}); } }`, {
+            source: `class A { constructor() { (class {[super()](){}}); } }`,
         });
-    
-      /*  fail(`function* a(){ (b = c + d(yield)) => 1; }`, {
-            source: `function* a(){ (b = c + d(yield)) => 1; }`,
+/*
+        fail(`class A extends B { f() { super(); } }`, {
+            source: `class A extends B { f() { super(); } }`,
         });*/
-    
-        fail(`function *a() { ({b = yield}) => {} }`, {
-            source: `function *a() { ({b = yield}) => {} }`,
+
+        fail(`class A extends B { static f() { super(); } }`, {
+            source: `class A extends B { static f() { super(); } }`,
         });
-    
-        fail(`function* a(){ ({ *b(c = d + e(yield)){} }); }`, {
-            source: `function* a(){ ({ *b(c = d + e(yield)){} }); }`,
+
+        fail(`(class {[super.a](){}});`, {
+            source: `(class {[super.a](){}});`,
         });
-    
-            fail(`function* a(){ !function*(b = c + d(yield)){} }`, {
-                source: `function* a(){ !function*(b = c + d(yield)){} }`,
-            });
+
+        fail(`(class {[super()](){}});`, {
+            source: `(class {[super()](){}});`,
+        });
+
+        fail(`(class {a(b = super()){}});`, {
+            source: `(class {a(b = super()){}});`,
+        });
+        
 });

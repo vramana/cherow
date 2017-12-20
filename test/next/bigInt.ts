@@ -58,7 +58,7 @@ describe('Next - BigInt', () => {
                     "expression": {
                         "type": "BinaryExpression",
                         "left": {
-                            "type": "Literal",
+                            "type": "BigIntLiteral",
                             "value": 0,
                             "bigint": "0n",
                             "start": 0,
@@ -167,7 +167,7 @@ describe('Next - BigInt', () => {
                             "raw": "1"
                         },
                         "right": {
-                            "type": "Literal",
+                            "type": "BigIntLiteral",
                             "value": 1,
                             "bigint": "1n",
                             "start": 5,
@@ -241,7 +241,7 @@ describe('Next - BigInt', () => {
                 "expression": {
                     "type": "BinaryExpression",
                     "left": {
-                        "type": "Literal",
+                        "type": "BigIntLiteral",
                         "value": 5,
                         "bigint": "0b101n",
                         "start": 1,
@@ -259,7 +259,7 @@ describe('Next - BigInt', () => {
                         "raw": "0b101n"
                     },
                     "right": {
-                        "type": "Literal",
+                        "type": "BigIntLiteral",
                         "value": 1,
                         "bigint": "1n",
                         "start": 12,
@@ -332,7 +332,7 @@ describe('Next - BigInt', () => {
                 "expression": {
                     "type": "BinaryExpression",
                     "left": {
-                        "type": "Literal",
+                        "type": "BigIntLiteral",
                         "value": 5,
                         "bigint": "0b101n",
                         "start": 0,
@@ -353,7 +353,7 @@ describe('Next - BigInt', () => {
                         "type": "UnaryExpression",
                         "operator": "-",
                         "argument": {
-                            "type": "Literal",
+                            "type": "BigIntLiteral",
                             "value": 1,
                             "bigint": "1n",
                             "start": 11,
@@ -440,7 +440,7 @@ describe('Next - BigInt', () => {
                 "expression": {
                     "type": "BinaryExpression",
                     "left": {
-                        "type": "Literal",
+                        "type": "BigIntLiteral",
                         "value": 582,
                         "bigint": "0x246n",
                         "start": 0,
@@ -461,7 +461,7 @@ describe('Next - BigInt', () => {
                         "type": "UnaryExpression",
                         "operator": "-",
                         "argument": {
-                            "type": "Literal",
+                            "type": "BigIntLiteral",
                             "value": 128,
                             "bigint": "128n",
                             "start": 11,
@@ -548,7 +548,7 @@ describe('Next - BigInt', () => {
                 "expression": {
                     "type": "BinaryExpression",
                     "left": {
-                        "type": "Literal",
+                        "type": "BigIntLiteral",
                         "value": 305419896,
                         "bigint": "0x123456789abcdef0fedcba9876543212345678n",
                         "start": 0,
@@ -566,7 +566,7 @@ describe('Next - BigInt', () => {
                         "raw": "0x123456789abcdef0fedcba9876543212345678n"
                     },
                     "right": {
-                        "type": "Literal",
+                        "type": "BigIntLiteral",
                         "value": 32,
                         "bigint": "32n",
                         "start": 45,
@@ -639,7 +639,7 @@ describe('Next - BigInt', () => {
                 "expression": {
                     "type": "BinaryExpression",
                     "left": {
-                        "type": "Literal",
+                        "type": "BigIntLiteral",
                         "value": 5,
                         "bigint": "5n",
                         "start": 0,
@@ -657,7 +657,7 @@ describe('Next - BigInt', () => {
                         "raw": "5n"
                     },
                     "right": {
-                        "type": "Literal",
+                        "type": "BigIntLiteral",
                         "value": 2,
                         "bigint": "2n",
                         "start": 6,
@@ -728,7 +728,7 @@ describe('Next - BigInt', () => {
             "body": [{
                 "type": "ExpressionStatement",
                 "expression": {
-                    "type": "Literal",
+                    "type": "BigIntLiteral",
                     "value": 349,
                     "bigint": "0b101011101n",
                     "start": 0,
@@ -785,7 +785,7 @@ describe('Next - BigInt', () => {
             "body": [{
                 "type": "ExpressionStatement",
                 "expression": {
-                    "type": "Literal",
+                    "type": "BigIntLiteral",
                     "bigint": "0o16432n",
                     "value": 7450,
                     "start": 0,
@@ -842,7 +842,7 @@ describe('Next - BigInt', () => {
             "body": [{
                 "type": "ExpressionStatement",
                 "expression": {
-                    "type": "Literal",
+                    "type": "BigIntLiteral",
                     "value": 16773411,
                     "bigint": "0xFFF123n",
                     "start": 0,
@@ -912,7 +912,7 @@ describe('Next - BigInt', () => {
                     },
                     "raw": "100n",
                     "start": 0,
-                    "type": "Literal",
+                    "type": "BigIntLiteral",
                     "value": 100,
                 },
                 "loc": {
@@ -969,7 +969,7 @@ describe('Next - BigInt', () => {
                     },
                     "raw": "9223372036854775807n",
                     "start": 0,
-                    "type": "Literal",
+                    "type": "BigIntLiteral",
                     "value": 9223372036854776000
                 },
                 "loc": {
@@ -1019,7 +1019,7 @@ describe('Next - BigInt', () => {
                         "type": "UnaryExpression",
                         "operator": "-",
                         "argument": {
-                            "type": "Literal",
+                            "type": "BigIntLiteral",
                             "value": 1,
                             "bigint": "1n",
                             "start": 3,
@@ -1110,7 +1110,7 @@ describe('Next - BigInt', () => {
                         "type": "UnaryExpression",
                         "operator": "-",
                         "argument": {
-                            "type": "Literal",
+                            "type": "BigIntLiteral",
                             "value": 1,
                             "bigint": "1n",
                             "start": 4,
@@ -1209,7 +1209,7 @@ describe('Next - BigInt', () => {
                     },
                     "raw": "0o0_11n",
                     "start": 0,
-                    "type": "Literal",
+                    "type": "BigIntLiteral",
                     "value": 9,
                   },
                   "loc": {
@@ -1252,7 +1252,7 @@ describe('Next - BigInt', () => {
                 "expression": {
                     "bigint": "123456789_8n",
                     "raw": "123456789_8n",
-                    "type": "Literal",
+                    "type": "BigIntLiteral",
                     "value": 1234567898,
                 },
                 "type": "ExpressionStatement",
@@ -1399,7 +1399,7 @@ describe('Next - BigInt', () => {
                                                                 }
                                                             },
                                                             "right": {
-                                                                "type": "Literal",
+                                                                "type": "BigIntLiteral",
                                                                 "value": 0,
                                                                 "bigint": "0n",
                                                                 "start": 134,
@@ -1496,7 +1496,7 @@ describe('Next - BigInt', () => {
                                                     {
                                                         "type": "VariableDeclarator",
                                                         "init": {
-                                                            "type": "Literal",
+                                                            "type": "BigIntLiteral",
                                                             "value": 2,
                                                             "bigint": "2n",
                                                             "start": 86,
@@ -1827,7 +1827,7 @@ describe('Next - BigInt', () => {
                                                                 }
                                                             },
                                                             "right": {
-                                                                "type": "Literal",
+                                                                "type": "BigIntLiteral",
                                                                 "value": 0,
                                                                 "bigint": "0n",
                                                                 "start": 309,
@@ -1950,7 +1950,7 @@ describe('Next - BigInt', () => {
                                         {
                                             "type": "VariableDeclarator",
                                             "init": {
-                                                "type": "Literal",
+                                                "type": "BigIntLiteral",
                                                 "value": 2,
                                                 "bigint": "2n",
                                                 "start": 234,

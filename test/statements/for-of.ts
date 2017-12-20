@@ -1131,10 +1131,6 @@ describe('Statements - For of', () => {
             source: 'for(this of 0);',
         });
 
-        fail(`for(let.let of 0);`, {
-            source: 'for(let.let of 0);',
-        }); 
-
         fail(`for (a=12 of e) break;`, {
             source: 'for (a=12 of e) break;',
         });

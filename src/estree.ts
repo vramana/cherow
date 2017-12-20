@@ -127,7 +127,8 @@ interface _Expression<T extends string> extends _Node<T> {}
 
 interface T_Expression {
     'Identifier': Identifier;
-    'Literal': Literal | RegExpLiteral;
+    'Literal': Literal | RegExpLiteral | BigIntLiteral;
+    'BigIntLiteral': Literal;
     'ThisExpression': ThisExpression;
     'ArrayExpression': ArrayExpression;
     'ObjectExpression': ObjectExpression;
@@ -156,6 +157,7 @@ interface T_Expression {
 export type Expression =
     | Identifier
     | Literal
+    | BigIntLiteral
     | RegExpLiteral
     | ThisExpression
     | ArrayExpression
@@ -470,6 +472,11 @@ export interface ImportSpecifier extends _ModuleSpecifier<'ImportSpecifier'> {
 export interface LabeledStatement extends _Statement<'LabeledStatement'> {
     label: Identifier;
     body: Statement;
+}
+export interface BigIntLiteral extends _Expression<'Literal'> {
+    value: number | null;
+    bigint: string;
+    raw?: string;
 }
 
 export interface Literal extends _Expression<'Literal'> {

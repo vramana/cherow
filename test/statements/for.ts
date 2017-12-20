@@ -1,19 +1,6 @@
 import { pass, fail } from '../utils';
 
 describe('Statements - For', () => {
-/*
-    pass(`for(x, y;;);`, {
-        source: `  var c = 1;
-        {
-          const b = 2;
-         var c = 2;
-        }
-      `,
-        loc: true,
-        ranges: true,
-        raw: true,
-        expected: {}
-    });*/
 
         pass(`for(x, y;;);`, {
             source: 'for(x, y;;);',
@@ -3537,4 +3524,406 @@ describe('Statements - For', () => {
         /*fail(`for({a=0};;);`, {
             source: 'for({a=0};;);',
         }); */
+
+        pass(`for (x in null, { key: 0 }) { }`, {
+            source: `for (x in null, { key: 0 }) { }`,
+            raw: true,
+            expected: {
+                  "body": [
+                    {
+                      "body": {
+                        "body": [],
+                        "type": "BlockStatement"
+                      },
+                      "left": {
+                        "name": "x",
+                        "type": "Identifier"
+                      },
+                      "right": {
+                        "expressions": [
+                          {
+                            "raw": "null",
+                            "type": "Literal",
+                            "value": null,
+                          },
+                          {
+                            "properties": [
+                              {
+                                "computed": false,
+                                "key": {
+                                  "name": "key",
+                                  "type": "Identifier"
+                                },
+                                "kind": "init",
+                                "method": false,
+                                "shorthand": false,
+                               "type": "Property",
+                                "value": {
+                                  "raw": "0",
+                                  "type": "Literal",
+                                  "value": 0
+                                }
+                              }
+                            ],
+                            "type": "ObjectExpression"
+                          }
+                        ],
+                        "type": "SequenceExpression"
+                      },
+                      "type": "ForInStatement"
+                    }
+                  ],
+                  "sourceType": "script",
+                  "type": "Program"
+                }
+        });
+    
+    
+        pass(`for (let x in null, { key: 0 }) {}`, {
+            source: `for (let x in null, { key: 0 }) {}`,
+            raw: true,
+            expected: {
+                  "body": [
+                    {
+                      "body": {
+                        "body": [],
+                        "type": "BlockStatement"
+                      },
+                      "left": {
+                       "declarations": [
+                          {
+                            "id": {
+                              "name": "x",
+                              "type": "Identifier"
+                            },
+                            "init": null,
+                           "type": "VariableDeclarator"
+                         }
+                        ],
+                        "kind": "let",
+                        "type": "VariableDeclaration"
+                      },
+                      "right": {
+                        "expressions": [
+                          {
+                            "raw": "null",
+                            "type": "Literal",
+                            "value": null,
+                          },
+                          {
+                            "properties": [
+                              {
+                                "computed": false,
+                                "key": {
+                                  "name": "key",
+                                  "type": "Identifier"
+                                },
+                                "kind": "init",
+                               "method": false,
+                                "shorthand": false,
+                                "type": "Property",
+                                "value": {
+                                 "raw": "0",
+                                  "type": "Literal",
+                                  "value": 0,
+                                }
+                              }
+                            ],
+                           "type": "ObjectExpression"
+                          }
+                        ],
+                        "type": "SequenceExpression"
+                     },
+                      "type": "ForInStatement"
+                    }
+                  ],
+                  "sourceType": "script",
+                  "type": "Program"
+                }
+        });
+    
+        pass(`for (x.y of [23]) { }`, {
+            source: `for (x.y of [23]) { }`,
+            raw: true,
+            expected: {
+                  "body": [
+                   {
+                      "await": false,
+                      "body": {
+                        "body": [],
+                        "type": "BlockStatement"
+                      },
+                      "left": {
+                        "computed": false,
+                       "object": {
+                          "name": "x",
+                          "type": "Identifier"
+                        },
+                        "property": {
+                          "name": "y",
+                          "type": "Identifier"
+                        },
+                        "type": "MemberExpression"
+                      },
+                     "right": {
+                        "elements": [
+                          {
+                            "raw": "23",
+                            "type": "Literal",
+                            "value": 23,
+                          },
+                        ],
+                        "type": "ArrayExpression"
+                      },
+                     "type": "ForOfStatement"
+                    },
+                  ],
+                  "sourceType": "script",
+                  "type": "Program"
+                }
+        });
+    
+        pass(`for(x, y;;);`, {
+            source: `var c = 1;
+            {
+              const b = 2;
+             var c = 2;
+            }`,
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                "type": "Program",
+                "body": [
+                    {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "init": {
+                                    "type": "Literal",
+                                    "value": 1,
+                                    "start": 8,
+                                    "end": 9,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 8
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 9
+                                        }
+                                    },
+                                    "raw": "1"
+                                },
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "c",
+                                    "start": 4,
+                                    "end": 5,
+                                    "loc": {
+                                        "start": {
+                                            "line": 1,
+                                            "column": 4
+                                        },
+                                        "end": {
+                                            "line": 1,
+                                            "column": 5
+                                        }
+                                    }
+                                },
+                                "start": 4,
+                                "end": 9,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 4
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 9
+                                    }
+                                }
+                            }
+                        ],
+                        "kind": "var",
+                        "start": 0,
+                        "end": 10,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 10
+                            }
+                        }
+                    },
+                    {
+                        "type": "BlockStatement",
+                        "body": [
+                            {
+                                "type": "VariableDeclaration",
+                                "declarations": [
+                                    {
+                                        "type": "VariableDeclarator",
+                                        "init": {
+                                            "type": "Literal",
+                                            "value": 2,
+                                            "start": 49,
+                                            "end": 50,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 3,
+                                                    "column": 24
+                                                },
+                                                "end": {
+                                                    "line": 3,
+                                                    "column": 25
+                                                }
+                                            },
+                                            "raw": "2"
+                                        },
+                                        "id": {
+                                            "type": "Identifier",
+                                            "name": "b",
+                                            "start": 45,
+                                            "end": 46,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 3,
+                                                    "column": 20
+                                                },
+                                                "end": {
+                                                    "line": 3,
+                                                    "column": 21
+                                                }
+                                            }
+                                        },
+                                        "start": 45,
+                                        "end": 50,
+                                        "loc": {
+                                            "start": {
+                                                "line": 3,
+                                                "column": 20
+                                            },
+                                            "end": {
+                                                "line": 3,
+                                                "column": 25
+                                            }
+                                        }
+                                    }
+                                ],
+                                "kind": "const",
+                                "start": 39,
+                                "end": 51,
+                                "loc": {
+                                    "start": {
+                                        "line": 3,
+                                        "column": 14
+                                    },
+                                    "end": {
+                                        "line": 3,
+                                        "column": 26
+                                    }
+                                }
+                            },
+                            {
+                                "type": "VariableDeclaration",
+                                "declarations": [
+                                    {
+                                        "type": "VariableDeclarator",
+                                        "init": {
+                                            "type": "Literal",
+                                            "value": 2,
+                                            "start": 73,
+                                            "end": 74,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 4,
+                                                    "column": 21
+                                                },
+                                                "end": {
+                                                    "line": 4,
+                                                    "column": 22
+                                                }
+                                            },
+                                            "raw": "2"
+                                        },
+                                        "id": {
+                                            "type": "Identifier",
+                                            "name": "c",
+                                            "start": 69,
+                                            "end": 70,
+                                            "loc": {
+                                                "start": {
+                                                    "line": 4,
+                                                    "column": 17
+                                                },
+                                                "end": {
+                                                    "line": 4,
+                                                    "column": 18
+                                                }
+                                            }
+                                        },
+                                        "start": 69,
+                                        "end": 74,
+                                        "loc": {
+                                            "start": {
+                                                "line": 4,
+                                                "column": 17
+                                            },
+                                            "end": {
+                                                "line": 4,
+                                                "column": 22
+                                            }
+                                        }
+                                    }
+                                ],
+                                "kind": "var",
+                                "start": 65,
+                                "end": 75,
+                                "loc": {
+                                    "start": {
+                                        "line": 4,
+                                        "column": 13
+                                    },
+                                    "end": {
+                                        "line": 4,
+                                        "column": 23
+                                    }
+                                }
+                            }
+                        ],
+                        "start": 23,
+                        "end": 89,
+                        "loc": {
+                            "start": {
+                                "line": 2,
+                                "column": 12
+                            },
+                            "end": {
+                                "line": 5,
+                                "column": 13
+                            }
+                        }
+                    }
+                ],
+                "sourceType": "script",
+                "start": 0,
+                "end": 89,
+                "loc": {
+                    "start": {
+                        "line": 1,
+                        "column": 0
+                    },
+                    "end": {
+                        "line": 5,
+                        "column": 13
+                    }
+                }
+            }
+        });
     });
