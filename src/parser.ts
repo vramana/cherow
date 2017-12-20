@@ -3720,15 +3720,14 @@ export class Parser {
         private parseFormalParameters(
             context: Context,
         ): ESTree.AssignmentPattern | ESTree.Identifier | ESTree.ObjectPattern | ESTree.ArrayPattern | ESTree.RestElement {
+           
             const pos = this.getLocations();
-    
+            
             // Handle non-identifiers; Default values and destructuring
             if (!(this.token & Token.IsIdentifier)) {
                 this.errorLocation = pos;
                 this.flags |= Flags.SimpleParameterList;
-            }
-    
-            if (this.isEvalOrArguments(this.tokenValue)) {
+            } else if (this.isEvalOrArguments(this.tokenValue)) {
                 if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
                 this.errorLocation = pos;
                 this.flags |= Flags.Binding;

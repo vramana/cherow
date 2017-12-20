@@ -113,16 +113,12 @@ describe('test262 tests', () => parserTest262({
         'test/language/eval-code/indirect/global-env-rec-eval.js',
         'test/language/eval-code/indirect/switch-case-decl-strict.js',
         'test/language/eval-code/indirect/switch-dflt-decl-strict.js',
-
         'test/language/statements/break/S12.8_A1_T2.js',
         'test/language/statements/break/S12.8_A1_T4.js',
         'test/language/statements/break/S12.8_A5_T3.js',
         'test/language/statements/class/accessor-name-inst-literal-string-line-continuation.js',
         'test/language/statements/class/accessor-name-static-literal-string-line-continuation.js',
-        'test/language/statements/class/definition/early-errors-class-method-NSPL-with-USD.js',
-
         'test/language/statements/class/privatename-not-valid-earlyerr-script-4.js',
-        
         'test/language/statements/continue/S12.7_A5_T3.js',
         'test/language/statements/do-while/S12.6.1_A8.js',
         'test/language/statements/for-await-of/async-func-decl-dstr-obj-id-put-unresolvable-no-strict.js',
@@ -134,13 +130,10 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/for-in/dstr-array-rest-before-rest.js',
         'test/language/statements/for-in/dstr-array-rest-elision-invalid.js',
         'test/language/statements/for/head-let-bound-names-in-stmt.js',
-        
         'test/language/statements/for-of/dstr-array-rest-before-element.js',
         'test/language/statements/for-of/dstr-array-rest-before-elision.js',
         'test/language/statements/for-of/dstr-array-rest-before-rest.js',
         'test/language/statements/for-of/dstr-array-rest-elision-invalid.js',
-     
-
         'test/language/statements/function/13.1-24-s.js',
         'test/language/statements/function/13.1-26-s.js',
         'test/language/statements/function/13.1-28-s.js',
@@ -148,7 +141,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/function/13.1-32-s.js',
         'test/language/statements/function/13.1-34-s.js',
         'test/language/statements/function/dflt-params-duplicates.js',
-
         'test/language/statements/labeled/continue.js',
         'test/language/statements/switch/syntax/redeclaration/var-declaration-attempt-to-redeclare-with-class-declaration.js',
         'test/language/statements/switch/syntax/redeclaration/class-declaration-attempt-to-redeclare-with-var-declaration.js',
@@ -161,7 +153,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/with/12.10.1-12-s.js',
         'test/language/statements/with/12.10.1-4-s.js',
         'test/language/statements/with/12.10.1-8-s.js',
-
         'test/language/statements/class/fields-private-typeof-init-err-contains-arguments.js',
         'test/language/statements/class/privatefieldget-typeerror*.js',
         'test/language/statements/class/privatefieldset-typeerror-1.js',

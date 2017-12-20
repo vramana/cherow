@@ -3516,7 +3516,7 @@ Parser.prototype.parseFormalParameters = function parseFormalParameters (context
         this.errorLocation = pos;
         this.flags |= 16384 /* SimpleParameterList */;
     }
-    if (this.isEvalOrArguments(this.tokenValue)) {
+    else if (this.isEvalOrArguments(this.tokenValue)) {
         if (context & 2 /* Strict */)
             { this.error(35 /* StrictLHSAssignment */); }
         this.errorLocation = pos;
