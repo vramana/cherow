@@ -806,7 +806,7 @@ export class Parser {
             this.error(Errors.UnterminatedComment);
         }
 
-        if (state & ScanState.Collectable && this.comments !== undefined) {
+        if (state & ScanState.Collectible && this.comments !== undefined) {
             let loc;
             const start = this.startIndex;
             const end = this.index;
@@ -1651,9 +1651,6 @@ export class Parser {
                                 ret = null;
                                 ch = this.scanLooserTemplateSegment(this.lastChar);
                                 if (ch < 0) {
-                                    // Before: '-36'
-                                    ch = -ch;
-                                    // After: '36'
                                     tail = false;
                                 }
                                 break loop;
@@ -4831,7 +4828,7 @@ export class Parser {
         const raw = this.tokenRaw;
 
         const node = this.finishNode(context, pos, {
-            type: 'BigIntLiteral',
+            type: 'Literal',
             value,
             bigint: raw
         }, true);

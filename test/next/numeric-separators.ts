@@ -2,6 +2,21 @@ import { fail, pass } from '../utils';
 
 describe('Statements - Numeric separators', () => {
 
+    fail(`"\\u{12_34}"`, {
+        source: '"\\u{12_34}"',
+        next: true
+    });
+
+    fail(`"let a\\u{12_34} = 5"`, {
+        source: '"let a\\u{12_34} = 5"',
+        next: true
+    });
+
+    fail(`"\\u12_34"`, {
+        source: '"\\u12_34"',
+        next: true
+    });
+
     fail(`5_______2;`, {
         source: '5_______2;',
         next: true
@@ -345,6 +360,36 @@ describe('Statements - Numeric separators', () => {
         next: true
     });
 
+    fail(`2__4`, {
+        source: '2__4',
+        next: true
+    });
+
+    fail(`._4`, {
+        source: '._4',
+        next: true
+    });
+
+    fail(`_.4`, {
+        source: '_.4',
+        next: true
+    });
+
+    fail(`1._43`, {
+        source: '1._43',
+        next: true
+    });
+
+    fail(`1.4_e2`, {
+        source: '1.4_e2',
+        next: true
+    });
+
+    fail(`1.4e_2`, {
+        source: '1.4e_2',
+        next: true
+    });
+
     pass(`0X0_11_0101;`, {
         source: '0X0_11_0101;',
         loc: true,
@@ -401,6 +446,486 @@ describe('Statements - Numeric separators', () => {
         }
     }
 }
+    });
+
+    pass(`for (let i = 10; i < 1_4_5;++i) {}`, {
+        source: 'for (let i = 10; i < 1_4_5;++i) {}',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ForStatement',
+                    body: {
+                        type: 'BlockStatement',
+                        body: [],
+                        start: 32,
+                        end: 34,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 32
+                            },
+                            end: {
+                                line: 1,
+                                column: 34
+                            }
+                        }
+                    },
+                    init: {
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                init: {
+                                    type: 'Literal',
+                                    value: 10,
+                                    start: 13,
+                                    end: 15,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 13
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 15
+                                        }
+                                    },
+                                    raw: '10'
+                                },
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'i',
+                                    start: 9,
+                                    end: 10,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 9
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 10
+                                        }
+                                    }
+                                },
+                                start: 9,
+                                end: 15,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 9
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 15
+                                    }
+                                }
+                            }
+                        ],
+                        kind: 'let',
+                        start: 5,
+                        end: 15,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 5
+                            },
+                            end: {
+                                line: 1,
+                                column: 15
+                            }
+                        }
+                    },
+                    test: {
+                        type: 'BinaryExpression',
+                        left: {
+                            type: 'Identifier',
+                            name: 'i',
+                            start: 17,
+                            end: 18,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 17
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 18
+                                }
+                            }
+                        },
+                        right: {
+                            type: 'Literal',
+                            value: 145,
+                            start: 21,
+                            end: 26,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 21
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 26
+                                }
+                            },
+                            raw: '1_4_5'
+                        },
+                        operator: '<',
+                        start: 17,
+                        end: 26,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 17
+                            },
+                            end: {
+                                line: 1,
+                                column: 26
+                            }
+                        }
+                    },
+                    update: {
+                        type: 'UpdateExpression',
+                        argument: {
+                            type: 'Identifier',
+                            name: 'i',
+                            start: 29,
+                            end: 30,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 29
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 30
+                                }
+                            }
+                        },
+                        operator: '++',
+                        prefix: true,
+                        start: 27,
+                        end: 30,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 27
+                            },
+                            end: {
+                                line: 1,
+                                column: 30
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 34,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 34
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 34,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 34
+                }
+            }
+        }
+    });
+
+    pass(`i + 0o12_1`, {
+        source: 'i + 0o12_1',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'BinaryExpression',
+                        left: {
+                            type: 'Identifier',
+                            name: 'i',
+                            start: 0,
+                            end: 1,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 1
+                                }
+                            }
+                        },
+                        right: {
+                            type: 'Literal',
+                            value: 81,
+                            start: 4,
+                            end: 10,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 10
+                                }
+                            },
+                            raw: '0o12_1'
+                        },
+                        operator: '+',
+                        start: 0,
+                        end: 10,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 10
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 10,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 10
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 10,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 10
+                }
+            }
+        }
+    });
+
+    pass(`((i = 1_1) => {})`, {
+        source: '((i = 1_1) => {})',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'BlockStatement',
+                            body: [],
+                            start: 14,
+                            end: 16,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 14
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 16
+                                }
+                            }
+                        },
+                        params: [
+                            {
+                                type: 'AssignmentPattern',
+                                left: {
+                                    type: 'Identifier',
+                                    name: 'i',
+                                    start: 2,
+                                    end: 3,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 2
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 3
+                                        }
+                                    }
+                                },
+                                right: {
+                                    type: 'Literal',
+                                    value: 11,
+                                    start: 6,
+                                    end: 9,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 6
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 9
+                                        }
+                                    },
+                                    raw: '1_1'
+                                },
+                                start: 2,
+                                end: 9,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 2
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 9
+                                    }
+                                }
+                            }
+                        ],
+                        id: null,
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        start: 1,
+                        end: 16,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 1
+                            },
+                            end: {
+                                line: 1,
+                                column: 16
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 17,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 17
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 17,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 17
+                }
+            }
+        }
+    });
+
+    pass(`0b1010_1001`, {
+        source: '0b1010_1001',
+        loc: true,
+        ranges: true,
+        raw: true,
+        module: true,
+        next: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Literal',
+                        value: 169,
+                        start: 0,
+                        end: 11,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 11
+                            }
+                        },
+                        raw: '0b1010_1001'
+                    },
+                    start: 0,
+                    end: 11,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 11
+                        }
+                    }
+                }
+            ],
+            sourceType: 'module',
+            start: 0,
+            end: 11,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 11
+                }
+            }
+        }
     });
 
     pass(`0o1100_0011;`, {

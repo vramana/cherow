@@ -122,7 +122,7 @@ export const enum ScanState {
     SameLine        = 1 << 7, // If the node was closed or not
 
     // Collectable comments - single and multiline (shebang excluded)
-    Collectable = SingleLine | MultiLine
+    Collectible = SingleLine | MultiLine
 }
 
 export const enum NumericState {

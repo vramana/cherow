@@ -5,13 +5,23 @@
     "forin": false,
      "indent": [
       true,
-      "tabs"
+      "spaces"
     ],
+    "semicolon": [
+			true,
+			"always"
+    ],
+    "no-unused-expression": true,
+    "no-duplicate-variable": true,
+    "no-unused-variable": true, 
+    "class-name": false,
+    "curly": false,
     "interface-name": false,
      "max-line-length": false,
     "max-classes-per-file": [false, 0],
-    "member-access": false,
+    "member-access": true,
     "no-bitwise": false,
+    "no-empty-interface": false,
     "no-use-before-declare": true,
     "no-conditional-assignment": false,
     "no-consecutive-blank-lines": true,
@@ -20,7 +30,6 @@
     "object-literal-sort-keys": false,
     "one-variable-per-declaration": false,
     "prefer-for-of": false,
-    "curly": false,
     "quotemark": [true, "single"],
     "trailing-comma": [false],
     "ordered-imports": [

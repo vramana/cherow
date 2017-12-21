@@ -2735,4 +2735,1424 @@ describe('Declarations - Class', () => {
             }
         }
     });
+
+    pass(`class Foo { static *bar() { } }`, {
+        source: 'class Foo { static *bar() { } }',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'Foo',
+                        start: 6,
+                        end: 9,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 9
+                            }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [
+                            {
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'bar',
+                                    start: 20,
+                                    end: 23,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 20
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 23
+                                        }
+                                    }
+                                },
+                                kind: 'method',
+                                computed: false,
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 26,
+                                        end: 29,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 26
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 29
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: true,
+                                    expression: false,
+                                    id: null,
+                                    start: 23,
+                                    end: 29,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 23
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 29
+                                        }
+                                    }
+                                },
+                                static: true,
+                                start: 12,
+                                end: 29,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 29
+                                    }
+                                }
+                            }
+                        ],
+                        start: 10,
+                        end: 31,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 10
+                            },
+                            end: {
+                                line: 1,
+                                column: 31
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 31,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 31
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 31,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 31
+                }
+            }
+        }
+    });
+
+    pass(`class A {constructor(){}};`, {
+        source: 'class A {constructor(){}};',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'A',
+                        start: 6,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [
+                            {
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'constructor',
+                                    start: 9,
+                                    end: 20,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 9
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 20
+                                        }
+                                    }
+                                },
+                                kind: 'constructor',
+                                computed: false,
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 22,
+                                        end: 24,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 22
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 24
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 20,
+                                    end: 24,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 20
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 24
+                                        }
+                                    }
+                                },
+                                static: false,
+                                start: 9,
+                                end: 24,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 9
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 24
+                                    }
+                                }
+                            }
+                        ],
+                        start: 8,
+                        end: 25,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 8
+                            },
+                            end: {
+                                line: 1,
+                                column: 25
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 25,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 25
+                        }
+                    }
+                },
+                {
+                    type: 'EmptyStatement',
+                    start: 25,
+                    end: 26,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 25
+                        },
+                        end: {
+                            line: 1,
+                            column: 26
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 26,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 26
+                }
+            }
+        }
+    });
+
+    pass(`class A {static[a](){}; static[b](){}};`, {
+        source: 'class A {static[a](){}; static[b](){}};',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'A',
+                        start: 6,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [
+                            {
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    start: 16,
+                                    end: 17,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 16
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 17
+                                        }
+                                    }
+                                },
+                                kind: 'method',
+                                computed: true,
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 20,
+                                        end: 22,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 20
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 22
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 18,
+                                    end: 22,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 18
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 22
+                                        }
+                                    }
+                                },
+                                static: true,
+                                start: 9,
+                                end: 22,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 9
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 22
+                                    }
+                                }
+                            },
+                            {
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'b',
+                                    start: 31,
+                                    end: 32,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 31
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 32
+                                        }
+                                    }
+                                },
+                                kind: 'method',
+                                computed: true,
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 35,
+                                        end: 37,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 35
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 37
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 33,
+                                    end: 37,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 33
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 37
+                                        }
+                                    }
+                                },
+                                static: true,
+                                start: 24,
+                                end: 37,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 24
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 37
+                                    }
+                                }
+                            }
+                        ],
+                        start: 8,
+                        end: 38,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 8
+                            },
+                            end: {
+                                line: 1,
+                                column: 38
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 38,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 38
+                        }
+                    }
+                },
+                {
+                    type: 'EmptyStatement',
+                    start: 38,
+                    end: 39,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 38
+                        },
+                        end: {
+                            line: 1,
+                            column: 39
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 39,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 39
+                }
+            }
+        }
+    });
+
+    pass(`class A {static a(){} static get a(){} static set a(b){} };`, {
+        source: 'class A {static a(){} static get a(){} static set a(b){} };',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'A',
+                        start: 6,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [
+                            {
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    start: 16,
+                                    end: 17,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 16
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 17
+                                        }
+                                    }
+                                },
+                                kind: 'method',
+                                computed: false,
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 19,
+                                        end: 21,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 21
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 17,
+                                    end: 21,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 17
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 21
+                                        }
+                                    }
+                                },
+                                static: true,
+                                start: 9,
+                                end: 21,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 9
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 21
+                                    }
+                                }
+                            },
+                            {
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    start: 33,
+                                    end: 34,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 33
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 34
+                                        }
+                                    }
+                                },
+                                kind: 'get',
+                                computed: false,
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 36,
+                                        end: 38,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 36
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 38
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 34,
+                                    end: 38,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 34
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 38
+                                        }
+                                    }
+                                },
+                                static: true,
+                                start: 22,
+                                end: 38,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 22
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 38
+                                    }
+                                }
+                            },
+                            {
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    start: 50,
+                                    end: 51,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 50
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 51
+                                        }
+                                    }
+                                },
+                                kind: 'set',
+                                computed: false,
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [
+                                        {
+                                            type: 'Identifier',
+                                            name: 'b',
+                                            start: 52,
+                                            end: 53,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 52
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 53
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 54,
+                                        end: 56,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 54
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 56
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 51,
+                                    end: 56,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 51
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 56
+                                        }
+                                    }
+                                },
+                                static: true,
+                                start: 39,
+                                end: 56,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 39
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 56
+                                    }
+                                }
+                            }
+                        ],
+                        start: 8,
+                        end: 58,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 8
+                            },
+                            end: {
+                                line: 1,
+                                column: 58
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 58,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 58
+                        }
+                    }
+                },
+                {
+                    type: 'EmptyStatement',
+                    start: 58,
+                    end: 59,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 58
+                        },
+                        end: {
+                            line: 1,
+                            column: 59
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 59,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 59
+                }
+            }
+        }
+    });
+
+    pass(`class A {static ["prototype"](){}};`, {
+        source: 'class A {static ["prototype"](){}};',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'A',
+                        start: 6,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [
+                            {
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Literal',
+                                    value: 'prototype',
+                                    start: 17,
+                                    end: 28,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 17
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 28
+                                        }
+                                    },
+                                    raw: '"prototype"'
+                                },
+                                kind: 'method',
+                                computed: true,
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 31,
+                                        end: 33,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 31
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 33
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 29,
+                                    end: 33,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 29
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 33
+                                        }
+                                    }
+                                },
+                                static: true,
+                                start: 9,
+                                end: 33,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 9
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 33
+                                    }
+                                }
+                            }
+                        ],
+                        start: 8,
+                        end: 34,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 8
+                            },
+                            end: {
+                                line: 1,
+                                column: 34
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 34,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 34
+                        }
+                    }
+                },
+                {
+                    type: 'EmptyStatement',
+                    start: 34,
+                    end: 35,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 34
+                        },
+                        end: {
+                            line: 1,
+                            column: 35
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 35,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 35
+                }
+            }
+        }
+    });
+
+    pass(`class A {static(){};};`, {
+        source: 'class A {static(){};};',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'A',
+                        start: 6,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [
+                            {
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'static',
+                                    start: 9,
+                                    end: 15,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 9
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 15
+                                        }
+                                    }
+                                },
+                                kind: 'method',
+                                computed: false,
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 17,
+                                        end: 19,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 17
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 19
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 15,
+                                    end: 19,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 19
+                                        }
+                                    }
+                                },
+                                static: false,
+                                start: 9,
+                                end: 19,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 9
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 19
+                                    }
+                                }
+                            }
+                        ],
+                        start: 8,
+                        end: 21,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 8
+                            },
+                            end: {
+                                line: 1,
+                                column: 21
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 21,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 21
+                        }
+                    }
+                },
+                {
+                    type: 'EmptyStatement',
+                    start: 21,
+                    end: 22,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 21
+                        },
+                        end: {
+                            line: 1,
+                            column: 22
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 22,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 22
+                }
+            }
+        }
+    });
+
+    pass(`class A {get a(){} set b(c){};};`, {
+        source: 'class A {get a(){} set b(c){};};',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'A',
+                        start: 6,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [
+                            {
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    start: 13,
+                                    end: 14,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 13
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 14
+                                        }
+                                    }
+                                },
+                                kind: 'get',
+                                computed: false,
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 16,
+                                        end: 18,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 16
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 18
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 14,
+                                    end: 18,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 14
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 18
+                                        }
+                                    }
+                                },
+                                static: false,
+                                start: 9,
+                                end: 18,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 9
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 18
+                                    }
+                                }
+                            },
+                            {
+                                type: 'MethodDefinition',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'b',
+                                    start: 23,
+                                    end: 24,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 23
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 24
+                                        }
+                                    }
+                                },
+                                kind: 'set',
+                                computed: false,
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [
+                                        {
+                                            type: 'Identifier',
+                                            name: 'c',
+                                            start: 25,
+                                            end: 26,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 25
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 26
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 27,
+                                        end: 29,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 27
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 29
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 24,
+                                    end: 29,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 24
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 29
+                                        }
+                                    }
+                                },
+                                static: false,
+                                start: 19,
+                                end: 29,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 19
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 29
+                                    }
+                                }
+                            }
+                        ],
+                        start: 8,
+                        end: 31,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 8
+                            },
+                            end: {
+                                line: 1,
+                                column: 31
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 31,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 31
+                        }
+                    }
+                },
+                {
+                    type: 'EmptyStatement',
+                    start: 31,
+                    end: 32,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 31
+                        },
+                        end: {
+                            line: 1,
+                            column: 32
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 32,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 32
+                }
+            }
+        }
+    });
 });

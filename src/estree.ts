@@ -479,7 +479,7 @@ export interface LabeledStatement extends _Statement<'LabeledStatement'> {
     body: Statement;
 }
 export interface BigIntLiteral extends _Expression<'Literal'> {
-    value: number | null;
+    value: number;
     bigint: string;
     raw?: string;
 }

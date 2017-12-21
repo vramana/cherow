@@ -2,6 +2,184 @@ import { pass, fail } from '../utils';
 
 describe('Expressions - Object', () => {
 
+    pass(`({ x([ a, b ]){} });`, {
+        source: '({ x([ a, b ]){} });',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ObjectExpression',
+                        properties: [
+                            {
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'x',
+                                    start: 3,
+                                    end: 4,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 3
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 4
+                                        }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [
+                                        {
+                                            type: 'ArrayPattern',
+                                            elements: [
+                                                {
+                                                    type: 'Identifier',
+                                                    name: 'a',
+                                                    start: 7,
+                                                    end: 8,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 7
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 8
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    type: 'Identifier',
+                                                    name: 'b',
+                                                    start: 10,
+                                                    end: 11,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 10
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 11
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            start: 5,
+                                            end: 13,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 5
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 13
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 14,
+                                        end: 16,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 14
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 16
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 4,
+                                    end: 16,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 4
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 16
+                                        }
+                                    }
+                                },
+                                kind: 'init',
+                                computed: false,
+                                method: true,
+                                shorthand: false,
+                                start: 3,
+                                end: 16,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 3
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 16
+                                    }
+                                }
+                            }
+                        ],
+                        start: 1,
+                        end: 18,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 1
+                            },
+                            end: {
+                                line: 1,
+                                column: 18
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 20,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 20
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 20,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 20
+                }
+            }
+        }
+    });
+
     pass(`object = { __proto__: undefined };`, {
         source: 'object = { __proto__: undefined };',
         loc: true,
@@ -8978,6 +9156,1229 @@ describe('Expressions - Object', () => {
               }
         });
 
+    pass(`"use strict";
+
+        var x = {
+            baz(a = 10) {},
+            foo(a, b = 10) {},
+            toast(a, b = 10, c) {}
+        };`, {
+            source: `"use strict";
+
+            var x = {
+                baz(a = 10) {},
+                foo(a, b = 10) {},
+                toast(a, b = 10, c) {}
+            };`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'Literal',
+                            value: 'use strict',
+                            raw: '"use strict"'
+                        },
+                        directive: 'use strict'
+                    },
+                    {
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                init: {
+                                    type: 'ObjectExpression',
+                                    properties: [
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'baz'
+                                            },
+                                            value: {
+                                                type: 'FunctionExpression',
+                                                params: [
+                                                    {
+                                                        type: 'AssignmentPattern',
+                                                        left: {
+                                                            type: 'Identifier',
+                                                            name: 'a'
+                                                        },
+                                                        right: {
+                                                            type: 'Literal',
+                                                            value: 10,
+                                                            raw: '10'
+                                                        }
+                                                    }
+                                                ],
+                                                body: {
+                                                    type: 'BlockStatement',
+                                                    body: []
+                                                },
+                                                async: false,
+                                                generator: false,
+                                                expression: false,
+                                                id: null
+                                            },
+                                            kind: 'init',
+                                            computed: false,
+                                            method: true,
+                                            shorthand: false
+                                        },
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'foo'
+                                            },
+                                            value: {
+                                                type: 'FunctionExpression',
+                                                params: [
+                                                    {
+                                                        type: 'Identifier',
+                                                        name: 'a'
+                                                    },
+                                                    {
+                                                        type: 'AssignmentPattern',
+                                                        left: {
+                                                            type: 'Identifier',
+                                                            name: 'b'
+                                                        },
+                                                        right: {
+                                                            type: 'Literal',
+                                                            value: 10,
+                                                            raw: '10'
+                                                        }
+                                                    }
+                                                ],
+                                                body: {
+                                                    type: 'BlockStatement',
+                                                    body: []
+                                                },
+                                                async: false,
+                                                generator: false,
+                                                expression: false,
+                                                id: null
+                                            },
+                                            kind: 'init',
+                                            computed: false,
+                                            method: true,
+                                            shorthand: false
+                                        },
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'toast'
+                                            },
+                                            value: {
+                                                type: 'FunctionExpression',
+                                                params: [
+                                                    {
+                                                        type: 'Identifier',
+                                                        name: 'a'
+                                                    },
+                                                    {
+                                                        type: 'AssignmentPattern',
+                                                        left: {
+                                                            type: 'Identifier',
+                                                            name: 'b'
+                                                        },
+                                                        right: {
+                                                            type: 'Literal',
+                                                            value: 10,
+                                                            raw: '10'
+                                                        }
+                                                    },
+                                                    {
+                                                        type: 'Identifier',
+                                                        name: 'c'
+                                                    }
+                                                ],
+                                                body: {
+                                                    type: 'BlockStatement',
+                                                    body: []
+                                                },
+                                                async: false,
+                                                generator: false,
+                                                expression: false,
+                                                id: null
+                                            },
+                                            kind: 'init',
+                                            computed: false,
+                                            method: true,
+                                            shorthand: false
+                                        }
+                                    ]
+                                },
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'x'
+                                }
+                            }
+                        ],
+                        kind: 'var'
+                    }
+                ],
+                sourceType: 'script'
+            }
+        });
+
+    pass(`var foo,
+        get,
+        set;
+
+    var x = {
+        foo,
+        get,
+        set
+    };`, {
+            source: `var foo,
+            get,
+            set;
+
+        var x = {
+            foo,
+            get,
+            set
+        };`,
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                init: null,
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'foo',
+                                    start: 4,
+                                    end: 7,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 4
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 7
+                                        }
+                                    }
+                                },
+                                start: 4,
+                                end: 7,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 7
+                                    }
+                                }
+                            },
+                            {
+                                type: 'VariableDeclarator',
+                                init: null,
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'get',
+                                    start: 21,
+                                    end: 24,
+                                    loc: {
+                                        start: {
+                                            line: 2,
+                                            column: 12
+                                        },
+                                        end: {
+                                            line: 2,
+                                            column: 15
+                                        }
+                                    }
+                                },
+                                start: 21,
+                                end: 24,
+                                loc: {
+                                    start: {
+                                        line: 2,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 2,
+                                        column: 15
+                                    }
+                                }
+                            },
+                            {
+                                type: 'VariableDeclarator',
+                                init: null,
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'set',
+                                    start: 38,
+                                    end: 41,
+                                    loc: {
+                                        start: {
+                                            line: 3,
+                                            column: 12
+                                        },
+                                        end: {
+                                            line: 3,
+                                            column: 15
+                                        }
+                                    }
+                                },
+                                start: 38,
+                                end: 41,
+                                loc: {
+                                    start: {
+                                        line: 3,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 3,
+                                        column: 15
+                                    }
+                                }
+                            }
+                        ],
+                        kind: 'var',
+                        start: 0,
+                        end: 42,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 3,
+                                column: 16
+                            }
+                        }
+                    },
+                    {
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                init: {
+                                    type: 'ObjectExpression',
+                                    properties: [
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'foo',
+                                                start: 74,
+                                                end: 77,
+                                                loc: {
+                                                    start: {
+                                                        line: 6,
+                                                        column: 12
+                                                    },
+                                                    end: {
+                                                        line: 6,
+                                                        column: 15
+                                                    }
+                                                }
+                                            },
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'foo',
+                                                start: 74,
+                                                end: 77,
+                                                loc: {
+                                                    start: {
+                                                        line: 6,
+                                                        column: 12
+                                                    },
+                                                    end: {
+                                                        line: 6,
+                                                        column: 15
+                                                    }
+                                                }
+                                            },
+                                            kind: 'init',
+                                            computed: false,
+                                            method: false,
+                                            shorthand: true,
+                                            start: 74,
+                                            end: 77,
+                                            loc: {
+                                                start: {
+                                                    line: 6,
+                                                    column: 12
+                                                },
+                                                end: {
+                                                    line: 6,
+                                                    column: 15
+                                                }
+                                            }
+                                        },
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'get',
+                                                start: 91,
+                                                end: 94,
+                                                loc: {
+                                                    start: {
+                                                        line: 7,
+                                                        column: 12
+                                                    },
+                                                    end: {
+                                                        line: 7,
+                                                        column: 15
+                                                    }
+                                                }
+                                            },
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'get',
+                                                start: 91,
+                                                end: 94,
+                                                loc: {
+                                                    start: {
+                                                        line: 7,
+                                                        column: 12
+                                                    },
+                                                    end: {
+                                                        line: 7,
+                                                        column: 15
+                                                    }
+                                                }
+                                            },
+                                            kind: 'init',
+                                            computed: false,
+                                            method: false,
+                                            shorthand: true,
+                                            start: 91,
+                                            end: 94,
+                                            loc: {
+                                                start: {
+                                                    line: 7,
+                                                    column: 12
+                                                },
+                                                end: {
+                                                    line: 7,
+                                                    column: 15
+                                                }
+                                            }
+                                        },
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'set',
+                                                start: 108,
+                                                end: 111,
+                                                loc: {
+                                                    start: {
+                                                        line: 8,
+                                                        column: 12
+                                                    },
+                                                    end: {
+                                                        line: 8,
+                                                        column: 15
+                                                    }
+                                                }
+                                            },
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'set',
+                                                start: 108,
+                                                end: 111,
+                                                loc: {
+                                                    start: {
+                                                        line: 8,
+                                                        column: 12
+                                                    },
+                                                    end: {
+                                                        line: 8,
+                                                        column: 15
+                                                    }
+                                                }
+                                            },
+                                            kind: 'init',
+                                            computed: false,
+                                            method: false,
+                                            shorthand: true,
+                                            start: 108,
+                                            end: 111,
+                                            loc: {
+                                                start: {
+                                                    line: 8,
+                                                    column: 12
+                                                },
+                                                end: {
+                                                    line: 8,
+                                                    column: 15
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 60,
+                                    end: 121,
+                                    loc: {
+                                        start: {
+                                            line: 5,
+                                            column: 16
+                                        },
+                                        end: {
+                                            line: 9,
+                                            column: 9
+                                        }
+                                    }
+                                },
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'x',
+                                    start: 56,
+                                    end: 57,
+                                    loc: {
+                                        start: {
+                                            line: 5,
+                                            column: 12
+                                        },
+                                        end: {
+                                            line: 5,
+                                            column: 13
+                                        }
+                                    }
+                                },
+                                start: 56,
+                                end: 121,
+                                loc: {
+                                    start: {
+                                        line: 5,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 9,
+                                        column: 9
+                                    }
+                                }
+                            }
+                        ],
+                        kind: 'var',
+                        start: 52,
+                        end: 122,
+                        loc: {
+                            start: {
+                                line: 5,
+                                column: 8
+                            },
+                            end: {
+                                line: 9,
+                                column: 10
+                            }
+                        }
+                    }
+                ],
+                sourceType: 'script',
+                start: 0,
+                end: 122,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 9,
+                        column: 10
+                    }
+                }
+            }
+        });
+
+    pass(`var x = { ["hey"]: foo  };`, {
+            source: 'var x = { ["hey"]: foo  };',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                init: {
+                                    type: 'ObjectExpression',
+                                    properties: [
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Literal',
+                                                value: 'hey',
+                                                start: 11,
+                                                end: 16,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 11
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 16
+                                                    }
+                                                },
+                                                raw: '"hey"'
+                                            },
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'foo',
+                                                start: 19,
+                                                end: 22,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 19
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 22
+                                                    }
+                                                }
+                                            },
+                                            kind: 'init',
+                                            computed: true,
+                                            method: false,
+                                            shorthand: false,
+                                            start: 10,
+                                            end: 22,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 10
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 22
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 8,
+                                    end: 25,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 8
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 25
+                                        }
+                                    }
+                                },
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'x',
+                                    start: 4,
+                                    end: 5,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 4
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 5
+                                        }
+                                    }
+                                },
+                                start: 4,
+                                end: 25,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 25
+                                    }
+                                }
+                            }
+                        ],
+                        kind: 'var',
+                        start: 0,
+                        end: 26,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 26
+                            }
+                        }
+                    }
+                ],
+                sourceType: 'script',
+                start: 0,
+                end: 26,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 26
+                    }
+                }
+            }
+        });
+
+    pass(`({[x]: 10});`, {
+            source: '({[x]: 10});',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Identifier',
+                                        name: 'x',
+                                        start: 3,
+                                        end: 4,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 3
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 4
+                                            }
+                                        }
+                                    },
+                                    value: {
+                                        type: 'Literal',
+                                        value: 10,
+                                        start: 7,
+                                        end: 9,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 7
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 9
+                                            }
+                                        },
+                                        raw: '10'
+                                    },
+                                    kind: 'init',
+                                    computed: true,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 2,
+                                    end: 9,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 2
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 9
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 1,
+                            end: 10,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 1
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 10
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 12,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 12
+                            }
+                        }
+                    }
+                ],
+                sourceType: 'script',
+                start: 0,
+                end: 12,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 12
+                    }
+                }
+            }
+        });
+
+    pass(`"use strict";
+
+        var proto = {};
+
+        var x = {
+            ["__proto__"]: proto,
+            ["__proto__"]: proto,
+            ["__" + "proto" + "__"]: proto
+        };`, {
+            source: `"use strict";
+
+            var proto = {};
+
+            var x = {
+                ["__proto__"]: proto,
+                ["__proto__"]: proto,
+                ["__" + "proto" + "__"]: proto
+            };`,
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'Literal',
+                            value: 'use strict',
+                            start: 0,
+                            end: 12,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 12
+                                }
+                            },
+                            raw: '"use strict"'
+                        },
+                        directive: 'use strict',
+                        start: 0,
+                        end: 13,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 13
+                            }
+                        }
+                    },
+                    {
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                init: {
+                                    type: 'ObjectExpression',
+                                    properties: [],
+                                    start: 39,
+                                    end: 41,
+                                    loc: {
+                                        start: {
+                                            line: 3,
+                                            column: 24
+                                        },
+                                        end: {
+                                            line: 3,
+                                            column: 26
+                                        }
+                                    }
+                                },
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'proto',
+                                    start: 31,
+                                    end: 36,
+                                    loc: {
+                                        start: {
+                                            line: 3,
+                                            column: 16
+                                        },
+                                        end: {
+                                            line: 3,
+                                            column: 21
+                                        }
+                                    }
+                                },
+                                start: 31,
+                                end: 41,
+                                loc: {
+                                    start: {
+                                        line: 3,
+                                        column: 16
+                                    },
+                                    end: {
+                                        line: 3,
+                                        column: 26
+                                    }
+                                }
+                            }
+                        ],
+                        kind: 'var',
+                        start: 27,
+                        end: 42,
+                        loc: {
+                            start: {
+                                line: 3,
+                                column: 12
+                            },
+                            end: {
+                                line: 3,
+                                column: 27
+                            }
+                        }
+                    },
+                    {
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                init: {
+                                    type: 'ObjectExpression',
+                                    properties: [
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Literal',
+                                                value: '__proto__',
+                                                start: 83,
+                                                end: 94,
+                                                loc: {
+                                                    start: {
+                                                        line: 6,
+                                                        column: 17
+                                                    },
+                                                    end: {
+                                                        line: 6,
+                                                        column: 28
+                                                    }
+                                                },
+                                                raw: '"__proto__"'
+                                            },
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'proto',
+                                                start: 97,
+                                                end: 102,
+                                                loc: {
+                                                    start: {
+                                                        line: 6,
+                                                        column: 31
+                                                    },
+                                                    end: {
+                                                        line: 6,
+                                                        column: 36
+                                                    }
+                                                }
+                                            },
+                                            kind: 'init',
+                                            computed: true,
+                                            method: false,
+                                            shorthand: false,
+                                            start: 82,
+                                            end: 102,
+                                            loc: {
+                                                start: {
+                                                    line: 6,
+                                                    column: 16
+                                                },
+                                                end: {
+                                                    line: 6,
+                                                    column: 36
+                                                }
+                                            }
+                                        },
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Literal',
+                                                value: '__proto__',
+                                                start: 121,
+                                                end: 132,
+                                                loc: {
+                                                    start: {
+                                                        line: 7,
+                                                        column: 17
+                                                    },
+                                                    end: {
+                                                        line: 7,
+                                                        column: 28
+                                                    }
+                                                },
+                                                raw: '"__proto__"'
+                                            },
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'proto',
+                                                start: 135,
+                                                end: 140,
+                                                loc: {
+                                                    start: {
+                                                        line: 7,
+                                                        column: 31
+                                                    },
+                                                    end: {
+                                                        line: 7,
+                                                        column: 36
+                                                    }
+                                                }
+                                            },
+                                            kind: 'init',
+                                            computed: true,
+                                            method: false,
+                                            shorthand: false,
+                                            start: 120,
+                                            end: 140,
+                                            loc: {
+                                                start: {
+                                                    line: 7,
+                                                    column: 16
+                                                },
+                                                end: {
+                                                    line: 7,
+                                                    column: 36
+                                                }
+                                            }
+                                        },
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'BinaryExpression',
+                                                left: {
+                                                    type: 'BinaryExpression',
+                                                    left: {
+                                                        type: 'Literal',
+                                                        value: '__',
+                                                        start: 159,
+                                                        end: 163,
+                                                        loc: {
+                                                            start: {
+                                                                line: 8,
+                                                                column: 17
+                                                            },
+                                                            end: {
+                                                                line: 8,
+                                                                column: 21
+                                                            }
+                                                        },
+                                                        raw: '"__"'
+                                                    },
+                                                    right: {
+                                                        type: 'Literal',
+                                                        value: 'proto',
+                                                        start: 166,
+                                                        end: 173,
+                                                        loc: {
+                                                            start: {
+                                                                line: 8,
+                                                                column: 24
+                                                            },
+                                                            end: {
+                                                                line: 8,
+                                                                column: 31
+                                                            }
+                                                        },
+                                                        raw: '"proto"'
+                                                    },
+                                                    operator: '+',
+                                                    start: 159,
+                                                    end: 173,
+                                                    loc: {
+                                                        start: {
+                                                            line: 8,
+                                                            column: 17
+                                                        },
+                                                        end: {
+                                                            line: 8,
+                                                            column: 31
+                                                        }
+                                                    }
+                                                },
+                                                right: {
+                                                    type: 'Literal',
+                                                    value: '__',
+                                                    start: 176,
+                                                    end: 180,
+                                                    loc: {
+                                                        start: {
+                                                            line: 8,
+                                                            column: 34
+                                                        },
+                                                        end: {
+                                                            line: 8,
+                                                            column: 38
+                                                        }
+                                                    },
+                                                    raw: '"__"'
+                                                },
+                                                operator: '+',
+                                                start: 159,
+                                                end: 180,
+                                                loc: {
+                                                    start: {
+                                                        line: 8,
+                                                        column: 17
+                                                    },
+                                                    end: {
+                                                        line: 8,
+                                                        column: 38
+                                                    }
+                                                }
+                                            },
+                                            value: {
+                                                type: 'Identifier',
+                                                name: 'proto',
+                                                start: 183,
+                                                end: 188,
+                                                loc: {
+                                                    start: {
+                                                        line: 8,
+                                                        column: 41
+                                                    },
+                                                    end: {
+                                                        line: 8,
+                                                        column: 46
+                                                    }
+                                                }
+                                            },
+                                            kind: 'init',
+                                            computed: true,
+                                            method: false,
+                                            shorthand: false,
+                                            start: 158,
+                                            end: 188,
+                                            loc: {
+                                                start: {
+                                                    line: 8,
+                                                    column: 16
+                                                },
+                                                end: {
+                                                    line: 8,
+                                                    column: 46
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 64,
+                                    end: 202,
+                                    loc: {
+                                        start: {
+                                            line: 5,
+                                            column: 20
+                                        },
+                                        end: {
+                                            line: 9,
+                                            column: 13
+                                        }
+                                    }
+                                },
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'x',
+                                    start: 60,
+                                    end: 61,
+                                    loc: {
+                                        start: {
+                                            line: 5,
+                                            column: 16
+                                        },
+                                        end: {
+                                            line: 5,
+                                            column: 17
+                                        }
+                                    }
+                                },
+                                start: 60,
+                                end: 202,
+                                loc: {
+                                    start: {
+                                        line: 5,
+                                        column: 16
+                                    },
+                                    end: {
+                                        line: 9,
+                                        column: 13
+                                    }
+                                }
+                            }
+                        ],
+                        kind: 'var',
+                        start: 56,
+                        end: 203,
+                        loc: {
+                            start: {
+                                line: 5,
+                                column: 12
+                            },
+                            end: {
+                                line: 9,
+                                column: 14
+                            }
+                        }
+                    }
+                ],
+                sourceType: 'script',
+                start: 0,
+                end: 203,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 9,
+                        column: 14
+                    }
+                }
+            }
+        });
+
     fail(`({[1,2]:3})`, {
             source: '({[1,2]:3})',
         });
@@ -9025,4 +10426,17 @@ describe('Expressions - Object', () => {
     fail(`({ "__proto__": null, '__proto__': null })`, {
             source: '({ "__proto__": null, "__proto__": null })',
         });
+
+    fail(`var x = { this };`, {
+            source: 'var x = { this };',
+        });
+
+    fail(`({[x]});`, {
+            source: '({[x]});',
+        });
+
+    fail(`var x = { [bar] };`, {
+            source: 'var x = { [bar] };',
+        });
+
 });
