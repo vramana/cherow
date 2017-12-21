@@ -4229,8 +4229,13 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
             }
             state |= 8 /* Shorthand */;
             if (this.parseOptional(context, 1310749 /* Assign */)) {
-                if (this.token & 536870912 /* IsYield */ && context & 16 /* Yield */)
-                    { this.flags |= 256 /* Yield */; }
+                if (this.token & (536870912 /* IsYield */ | 1073741824 /* IsAwait */)) {
+                    this.errorLocation = this.getLocations();
+                    if (this.token & 536870912 /* IsYield */ && context & 16 /* Yield */)
+                        { this.flags |= 256 /* Yield */; }
+                    if (this.token & 1073741824 /* IsAwait */)
+                        { this.flags |= 512 /* Await */; }
+                }
                 value = this.finishNode(context, pos, {
                     type: 'AssignmentPattern',
                     left: key,
@@ -4401,6 +4406,8 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
         if (state & 16 /* Pattern */) {
             this.flags |= 16384 /* SimpleParameterList */;
         }
+        if (this.flags & 512 /* Await */)
+            { this.error(90 /* InvalidAwaitInArrowParam */); }
         if (state & 32 /* FutureReserved */)
             { this.flags |= 2048 /* Binding */; }
         if (this.flags & 256 /* Yield */)
@@ -5109,9 +5116,7 @@ Parser.prototype.parseJSXElement = function parseJSXElement (context) {
 
 // https://tc39.github.io/ecma262/#sec-scripts
 function parseScript(source, options) {
-    if (options && options.impliedStrict)
-        { source = '"use strict";' + source; }
-    return new Parser(source, options).parseProgram(0 /* None */);
+    return new Parser(source, options).parseProgram(options && options.impliedStrict ? 2 /* Strict */ : 0 /* None */);
 }
 // https://tc39.github.io/ecma262/#sec-modules
 function parseModule(source, options) {
