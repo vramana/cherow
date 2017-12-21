@@ -1,4 +1,4 @@
-import { pass, fail } from '../utils';
+import { pass, fail, n } from '../utils';
 
 describe('Statements - Block', () => {
 
@@ -8,6 +8,7 @@ describe('Statements - Block', () => {
             ranges: true,
             raw: true,
             expected: {
+
                 type: 'Program',
                 start: 0,
                 end: 2,

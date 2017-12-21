@@ -1193,7 +1193,240 @@ describe('Statements - Generator', () => {
         }
     });
 
-    pass(`double yield`, {
+    pass(`(function* () { yield *v });`, {
+        source: '(function* () { yield *v });',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'FunctionExpression',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'YieldExpression',
+                                        argument: {
+                                            type: 'Identifier',
+                                            name: 'v',
+                                            start: 23,
+                                            end: 24,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 23
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 24
+                                                }
+                                            }
+                                        },
+                                        delegate: true,
+                                        start: 16,
+                                        end: 24,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 16
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 24
+                                            }
+                                        }
+                                    },
+                                    start: 16,
+                                    end: 24,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 16
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 24
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 14,
+                            end: 26,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 14
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 26
+                                }
+                            }
+                        },
+                        async: false,
+                        generator: true,
+                        expression: false,
+                        id: null,
+                        start: 1,
+                        end: 26,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 1
+                            },
+                            end: {
+                                line: 1,
+                                column: 26
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 28,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 28
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 28,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 28
+                }
+            }
+        }
+    });
+
+    pass(`(function* () { yield; });`, {
+        source: '(function* () { yield; });',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'FunctionExpression',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'YieldExpression',
+                                        argument: null,
+                                        delegate: false,
+                                        start: 16,
+                                        end: 21,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 16
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 21
+                                            }
+                                        }
+                                    },
+                                    start: 16,
+                                    end: 22,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 16
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 22
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 14,
+                            end: 24,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 14
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 24
+                                }
+                            }
+                        },
+                        async: false,
+                        generator: true,
+                        expression: false,
+                        id: null,
+                        start: 1,
+                        end: 24,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 1
+                            },
+                            end: {
+                                line: 1,
+                                column: 24
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 26,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 26
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 26,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 26
+                }
+            }
+        }
+    });
+
+    pass(`(function* () { yield yield 10 });`, {
         source: '(function* () { yield yield 10 });',
         loc: true,
         ranges: true,

@@ -1,6 +1,7 @@
 import { writeFileSync, readdir, readFileSync, statSync } from 'fs';
 import { join, resolve, extname, basename } from 'path';
 import { parseScript, parseModule } from '../src/cherow';
+import { Program } from '../src/estree';
 import * as t from 'assert';
 
 interface Opts {
@@ -38,8 +39,9 @@ export const pass = (name: string, opts: Opts) => {
     };
 
     it('Should pass "' + name + '"', () => {
-        const parser = opts.module ? parseModule(opts.source, CherowOpts) : parseScript(opts.source, CherowOpts);
-        t.deepEqual(parser, opts.expected);
+        opts.module
+        ? t.deepEqual(parseModule(opts.source, CherowOpts) as Program, opts.expected)
+        : t.deepEqual(parseScript(opts.source, CherowOpts) as Program, opts.expected);
     });
 };
 
@@ -55,8 +57,15 @@ export const fail = (name: string, opts: Opts) => {
 
     it('Should fail on ' + name, () => {
         t.throws(() => {
-            opts.module ? parseModule(opts.source, CherowOpts) : parseScript(opts.source, CherowOpts);
+            opts.module
+            ? t.deepEqual(parseModule(opts.source, CherowOpts) as Program, opts.expected)
+            : t.deepEqual(parseScript(opts.source, CherowOpts) as Program, opts.expected);
         });
     });
-
 };
+
+export function n(type: string, opts?: any): any {
+    if (opts == null) return {type};
+    opts.type = type;
+    return opts;
+}

@@ -2,6 +2,426 @@ import { pass, fail } from '../utils';
 
 describe('Expressions - Rest params', () => {
 
+    pass(`function f(...b) {};`, {
+        source: 'function f(...b) {};',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+    type: 'Program',
+    body: [
+        {
+            type: 'FunctionDeclaration',
+            params: [
+                {
+                    type: 'RestElement',
+                    argument: {
+                        type: 'Identifier',
+                        name: 'b',
+                        start: 14,
+                        end: 15,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 14
+                            },
+                            end: {
+                                line: 1,
+                                column: 15
+                            }
+                        }
+                    },
+                    start: 11,
+                    end: 15,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 11
+                        },
+                        end: {
+                            line: 1,
+                            column: 15
+                        }
+                    }
+                }
+            ],
+            body: {
+                type: 'BlockStatement',
+                body: [],
+                start: 17,
+                end: 19,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 17
+                    },
+                    end: {
+                        line: 1,
+                        column: 19
+                    }
+                }
+            },
+            async: false,
+            generator: false,
+            expression: false,
+            id: {
+                type: 'Identifier',
+                name: 'f',
+                start: 9,
+                end: 10,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 9
+                    },
+                    end: {
+                        line: 1,
+                        column: 10
+                    }
+                }
+            },
+            start: 0,
+            end: 19,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 19
+                }
+            }
+        },
+        {
+            type: 'EmptyStatement',
+            start: 19,
+            end: 20,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 19
+                },
+                end: {
+                    line: 1,
+                    column: 20
+                }
+            }
+        }
+    ],
+    sourceType: 'script',
+    start: 0,
+    end: 20,
+    loc: {
+        start: {
+            line: 1,
+            column: 0
+        },
+        end: {
+            line: 1,
+            column: 20
+        }
+    }
+}
+    });
+
+    pass(`var x = function(a, ...b) {};`, {
+        source: 'var x = function(a, ...b) {};',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'VariableDeclaration',
+                    declarations: [
+                        {
+                            type: 'VariableDeclarator',
+                            init: {
+                                type: 'FunctionExpression',
+                                params: [
+                                    {
+                                        type: 'Identifier',
+                                        name: 'a',
+                                        start: 17,
+                                        end: 18,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 17
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 18
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'RestElement',
+                                        argument: {
+                                            type: 'Identifier',
+                                            name: 'b',
+                                            start: 23,
+                                            end: 24,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 23
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 24
+                                                }
+                                            }
+                                        },
+                                        start: 20,
+                                        end: 24,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 20
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 24
+                                            }
+                                        }
+                                    }
+                                ],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    start: 26,
+                                    end: 28,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 26
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 28
+                                        }
+                                    }
+                                },
+                                async: false,
+                                generator: false,
+                                expression: false,
+                                id: null,
+                                start: 8,
+                                end: 28,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 8
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 28
+                                    }
+                                }
+                            },
+                            id: {
+                                type: 'Identifier',
+                                name: 'x',
+                                start: 4,
+                                end: 5,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 5
+                                    }
+                                }
+                            },
+                            start: 4,
+                            end: 28,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 28
+                                }
+                            }
+                        }
+                    ],
+                    kind: 'var',
+                    start: 0,
+                    end: 29,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 29
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 29,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 29
+                }
+            }
+        }
+    });
+
+    pass(`function f(a, ...b) {};`, {
+        source: 'function f(a, ...b) {};',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [
+                        {
+                            type: 'Identifier',
+                            name: 'a',
+                            start: 11,
+                            end: 12,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 11
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 12
+                                }
+                            }
+                        },
+                        {
+                            type: 'RestElement',
+                            argument: {
+                                type: 'Identifier',
+                                name: 'b',
+                                start: 17,
+                                end: 18,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 17
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 18
+                                    }
+                                }
+                            },
+                            start: 14,
+                            end: 18,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 14
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 18
+                                }
+                            }
+                        }
+                    ],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [],
+                        start: 20,
+                        end: 22,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 20
+                            },
+                            end: {
+                                line: 1,
+                                column: 22
+                            }
+                        }
+                    },
+                    async: false,
+                    generator: false,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'f',
+                        start: 9,
+                        end: 10,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 9
+                            },
+                            end: {
+                                line: 1,
+                                column: 10
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 22,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 22
+                        }
+                    }
+                },
+                {
+                    type: 'EmptyStatement',
+                    start: 22,
+                    end: 23,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 22
+                        },
+                        end: {
+                            line: 1,
+                            column: 23
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 23,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 23
+                }
+            }
+        }
+    });
+
     pass(`var fn = (a, b, ...c) => c;`, {
         source: 'var fn = (a, b, ...c) => c;',
         loc: true,
@@ -2421,4 +2841,11 @@ describe('Expressions - Rest params', () => {
         }
     });
 
+    fail(`function f(a, ...b, c);`, {
+        source: 'function f(a, ...b, c);',
+    });
+
+    fail(`function f(a, ...b = 0);`, {
+        source: 'function f(a, ...b = 0);',
+    });
 });

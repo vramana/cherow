@@ -2,7 +2,98 @@ import { pass, fail } from '../utils';
 
 describe('Declarations - Generator', () => {
 
-      pass(`function* a(){}`, {
+    pass(`function* t() {};`, {
+        source: 'function* t() {};',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [],
+                        start: 14,
+                        end: 16,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 14
+                            },
+                            end: {
+                                line: 1,
+                                column: 16
+                            }
+                        }
+                    },
+                    async: false,
+                    generator: true,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 't',
+                        start: 10,
+                        end: 11,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 10
+                            },
+                            end: {
+                                line: 1,
+                                column: 11
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 16,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 16
+                        }
+                    }
+                },
+                {
+                    type: 'EmptyStatement',
+                    start: 16,
+                    end: 17,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 16
+                        },
+                        end: {
+                            line: 1,
+                            column: 17
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 17,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 17
+                }
+            }
+        }
+    });
+
+    pass(`function* a(){}`, {
           source: 'function* a(){}',
           loc: true,
           ranges: true,
@@ -76,7 +167,7 @@ describe('Declarations - Generator', () => {
           }
       });
 
-      pass(`function* a(){yield a}`, {
+    pass(`function* a(){yield a}`, {
           source: 'function* a(){yield a}',
           loc: true,
           ranges: true,
@@ -196,7 +287,7 @@ describe('Declarations - Generator', () => {
           }
       });
 
-      pass(`function* yield(){}`, {
+    pass(`function* yield(){}`, {
           source: 'function* yield(){}',
           loc: true,
           ranges: true,
@@ -270,7 +361,7 @@ describe('Declarations - Generator', () => {
           }
       });
 
-      pass(`function* a(){({[yield]:a}=0)}`, {
+    pass(`function* a(){({[yield]:a}=0)}`, {
           source: 'function* a(){({[yield]:a}=0)}',
           loc: true,
           ranges: true,
@@ -458,7 +549,7 @@ describe('Declarations - Generator', () => {
           }
       });
 
-      pass(`function* a() {} function a() {}`, {
+    pass(`function* a() {} function a() {}`, {
           source: 'function* a() {} function a() {}',
           loc: true,
           ranges: true,
@@ -584,7 +675,7 @@ describe('Declarations - Generator', () => {
           }
       });
 
-      pass(`function a() { function* a() {} function a() {} }`, {
+    pass(`function a() { function* a() {} function a() {} }`, {
           source: 'function a() { function* a() {} function a() {} }',
           loc: true,
           ranges: true,
@@ -760,7 +851,7 @@ describe('Declarations - Generator', () => {
           }
       });
 
-      pass(`function* a(){({yield:a}=0)}`, {
+    pass(`function* a(){({yield:a}=0)}`, {
         source: 'function* a(){({yield:a}=0)}',
         loc: true,
         ranges: true,
@@ -953,7 +1044,7 @@ describe('Declarations - Generator', () => {
       }
       });
 
-      pass(`function* a(){yield}`, {
+    pass(`function* a(){yield}`, {
           source: 'function* a(){yield}',
           loc: true,
           ranges: true,
@@ -1058,94 +1149,94 @@ describe('Declarations - Generator', () => {
           }
       });
 
-      fail(`function*g(yield){}`, {
+    fail(`function*g(yield){}`, {
           source: 'function*g(yield){}',
       });
 
-      fail(`function*g({yield}){}`, {
+    fail(`function*g({yield}){}`, {
           source: 'function*g({yield}){}',
       });
 
-      fail(`function*g([yield]){}`, {
+    fail(`function*g([yield]){}`, {
           source: 'function*g([yield]){}',
       });
 
-      fail(`function*g({a: yield}){}`, {
+    fail(`function*g({a: yield}){}`, {
           source: 'function*g({a: yield}){}',
       });
 
-      fail(`function*g(yield = 0){}`, {
+    fail(`function*g(yield = 0){}`, {
           source: 'function*g(yield = 0){}',
       });
 
-      fail(`function*g(){ var yield = 1; }`, {
+    fail(`function*g(){ var yield = 1; }`, {
           source: 'function*g(){ var yield = 1; }',
       });
 
-      fail(`function*g(){ function yield(){}; }`, {
+    fail(`function*g(){ function yield(){}; }`, {
           source: 'function*g(){ function yield(){}; }',
       });
 
-      fail(`function*g() { var yield; }`, {
+    fail(`function*g() { var yield; }`, {
           source: 'function*g() { var yield; }',
       });
 
-      fail(`function*g() { let yield; }`, {
+    fail(`function*g() { let yield; }`, {
           source: 'function*g() { let yield; }',
       });
 
-      fail(`function*g() { try {} catch (yield) {} }`, {
+    fail(`function*g() { try {} catch (yield) {} }`, {
           source: 'function*g() { try {} catch (yield) {} }',
       });
 
-      fail(`function*g() { ({yield}); }`, {
+    fail(`function*g() { ({yield}); }`, {
           source: 'function*g() { ({yield}); }',
       });
-      fail(`function*g() { ({yield} = 0); }`, {
+    fail(`function*g() { ({yield} = 0); }`, {
           source: 'function*g() { ({yield} = 0); }',
       });
 
-      fail(`function*g() { var {yield} = 0; }`, {
+    fail(`function*g() { var {yield} = 0; }`, {
           source: 'function*g() { var {yield} = 0; }',
       });
 
-      fail(`function*g() { for ({yield} in 0); }`, {
+    fail(`function*g() { for ({yield} in 0); }`, {
           source: 'function*g() { for ({yield} in 0); }',
       });
 
-      fail(`function*g() { ({yield = 0}); }`, {
+    fail(`function*g() { ({yield = 0}); }`, {
           source: 'function*g() { ({yield = 0}); }',
       });
 
-      fail(`function*g() { ({yield = 0} = 0); }`, {
+    fail(`function*g() { ({yield = 0} = 0); }`, {
           source: 'function*g() { ({yield = 0} = 0); }',
       });
 
-      fail(`function*g() { var {yield = 0} = 0; }`, {
+    fail(`function*g() { var {yield = 0} = 0; }`, {
           source: 'function*g() { var {yield = 0} = 0; }',
       });
 
-      fail(`function*g() { for ({yield = 0} in 0); }`, {
+    fail(`function*g() { for ({yield = 0} in 0); }`, {
           source: 'function*g() { for ({yield = 0} in 0); }',
       });
 
-      fail(`label: function* a(){}`, {
+    fail(`label: function* a(){}`, {
           source: 'label: function* a(){}',
       });
 
-      fail(`function*g(){ var yield; }`, {
+    fail(`function*g(){ var yield; }`, {
           source: 'function*g(){ var yield; }',
       });
 
-      fail(`function*g() { ({yield = 0} = 0); }`, {
+    fail(`function*g() { ({yield = 0} = 0); }`, {
           source: 'function*g() { ({yield = 0} = 0); }',
       });
 
-      fail(`function*g() { var {yield = 0} = 0; }`, {
+    fail(`function*g() { var {yield = 0} = 0; }`, {
           source: 'function*g() { var {yield = 0} = 0; }',
       });
 
-      fail(`function*g() { for ({yield = 0} in 0); }`, {
+    fail(`function*g() { for ({yield = 0} in 0); }`, {
           source: 'function*g() { for ({yield = 0} in 0); }',
       });
 

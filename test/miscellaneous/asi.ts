@@ -1,4 +1,4 @@
-import { pass, fail } from '../utils';
+import { pass, fail, n } from '../utils';
 
 describe('Miscellaneous - ASI', () => {
 
@@ -792,5 +792,200 @@ describe('Miscellaneous - ASI', () => {
           ],
           sourceType: 'script'
       }
+    });
+
+  pass(`for(false\n    ;;false\n) {\n  break;\n}`, {
+      source: `for(false\n    ;;false\n) {\n  break;\n}`,
+      expected:  n('Program', {
+        sourceType: 'script',
+        body: [
+            n('ForStatement', {
+                init: n('Literal', {value: false}),
+                test: null,
+                update: n('Literal', {value: false}),
+                body: n('BlockStatement', {body: [
+                    n('BreakStatement', {label: null}),
+                ]}),
+            }),
+        ]
+    })
+    });
+
+  pass(`for(;\n  ;\n) {\n  break;\n}`, {
+      source: `for(;\n  ;\n) {\n  break;\n}`,
+      expected: n('Program', {
+        sourceType: 'script',
+        body: [
+            n('ForStatement', {
+                init: null,
+                test: null,
+                update: null,
+                body: n('BlockStatement', {body: [
+                    n('BreakStatement', {label: null}),
+                ]}),
+            }),
+        ],
+    })
+    });
+
+  pass(`var x =\n1`, {
+      source: `var x =\n1`,
+      expected: n('Program', {
+        sourceType: 'script',
+        body: [
+            n('VariableDeclaration', {kind: 'var', declarations: [
+                n('VariableDeclarator', {
+                    id: n('Identifier', {name: 'x'}),
+                    init: n('Literal', {value: 1}),
+                }),
+            ]}),
+        ],
+    })
+    });
+
+  pass(`var x\ny`, {
+      source: `var x\ny`,
+      expected: n('Program', {
+        sourceType: 'script',
+        body: [
+            n('VariableDeclaration', {kind: 'var', declarations: [
+                n('VariableDeclarator', {
+                    id: n('Identifier', {name: 'x'}),
+                    init: null,
+                }),
+            ]}),
+            n('ExpressionStatement', {expression: n('Identifier', {name: 'y'})}),
+        ],
+    })
+    });
+
+  pass(`;1;\n;1\n;1;\n;1`, {
+      source: `;1;\n;1\n;1;\n;1`,
+      expected: n('Program', {
+        sourceType: 'script',
+        body: [
+            n('EmptyStatement'),
+            n('ExpressionStatement', {expression: n('Literal', {value: 1})}),
+            n('EmptyStatement'),
+            n('ExpressionStatement', {expression: n('Literal', {value: 1})}),
+            n('ExpressionStatement', {expression: n('Literal', {value: 1})}),
+            n('EmptyStatement'),
+            n('ExpressionStatement', {expression: n('Literal', {value: 1})}),
+        ],
+    })
+    });
+
+  pass(`var\nx\n=\n1`, {
+      source: `var\nx\n=\n1`,
+      expected:  n('Program', {
+        sourceType: 'script',
+        body: [
+            n('VariableDeclaration', {kind: 'var', declarations: [
+                n('VariableDeclarator', {
+                    id: n('Identifier', {name: 'x'}),
+                    init: n('Literal', {value: 1}),
+                }),
+            ]}),
+        ],
+    })
+    });
+
+  pass(`var x /* comment */;`, {
+      source: `var x /* comment */;`,
+      expected: n('Program', {
+        sourceType: 'script',
+        body: [
+            n('VariableDeclaration', {kind: 'var', declarations: [
+                n('VariableDeclarator', {
+                    id: n('Identifier', {name: 'x'}),
+                    init: null,
+                }),
+            ]}),
+        ],
+    })
+    });
+
+  pass(`0\n;`, {
+      source: `0\n;`,
+      expected: n('Program', {
+        sourceType: 'script',
+        body: [
+            n('ExpressionStatement', {expression: n('Literal', {value: 0})}),
+        ],
+    })
+    });
+
+  pass(`debugger\n;`, {
+      source: `debugger\n;`,
+      expected: n('Program', {
+        sourceType: 'script',
+        body: [
+            n('DebuggerStatement'),
+        ],
+    })
+    });
+
+  pass(`while(true) { break\n; }`, {
+      source: `while(true) { break\n; }`,
+      expected: n('Program', {
+        sourceType: 'script',
+        body: [
+            n('WhileStatement', {
+                test: n('Literal', {value: true}),
+                body: n('BlockStatement', {body: [
+                    n('BreakStatement', {label: null}),
+                ]}),
+            }),
+        ],
+    })
+    });
+
+  pass(`var x /* comment */;`, {
+      source: `var x /* comment */;`,
+      expected: n('Program', {
+        sourceType: 'script',
+        body: [
+            n('VariableDeclaration', {kind: 'var', declarations: [
+                n('VariableDeclarator', {
+                    id: n('Identifier', {name: 'x'}),
+                    init: null,
+                }),
+            ]}),
+        ],
+    })
+    });
+
+  pass(`x: while(true) { continue x\n; }`, {
+      source: `x: while(true) { continue x\n; }`,
+      expected: n('Program', {
+        sourceType: 'script',
+        body: [
+            n('LabeledStatement', {
+                label: n('Identifier', {name: 'x'}),
+                body: n('WhileStatement', {
+                    test: n('Literal', {value: true}),
+                    body: n('BlockStatement', {body: [
+                        n('ContinueStatement', {label: n('Identifier', {name: 'x'})}),
+                    ]}),
+                }),
+            }),
+        ],
+    })
+    });
+
+  pass(`var x\n;`, {
+      source: `var x\n;`,
+      module: true,
+      expected:  n('Program', {
+        sourceType: 'module',
+        body: [
+            n('VariableDeclaration', {kind: 'var', declarations: [
+                n('VariableDeclarator', {
+                    id: n('Identifier', {name: 'x'}),
+                    init: null,
+                }),
+            ]}),
+        ],
+    })
     });
 });
