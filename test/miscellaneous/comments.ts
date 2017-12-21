@@ -1,9 +1,9 @@
 import { pass, fail } from '../utils';
 
 describe('Miscellaneous - Comments', () => {
- 
+
     fail(`single and multi line comments used together`, {
-        source: `// var /* 
+        source: `// var /*
         x*/`,
     });
 
@@ -16,7 +16,7 @@ describe('Miscellaneous - Comments', () => {
     });
 
     fail(`single and multi line comments used together`, {
-        source: `// var /* 
+        source: `// var /*
         x*/`,
     });
 
@@ -36,7 +36,7 @@ describe('Miscellaneous - Comments', () => {
     });
 
     fail(`multiline comment at the end of single line comment`, {
-        source:`// var /* 
+        source: `// var /*
         x*/`,
     });
 
@@ -81,21 +81,21 @@ describe('Miscellaneous - Comments', () => {
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 17,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 0
+            type: 'Program',
+            start: 0,
+            end: 17,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
                 },
-                "end": {
-                    "line": 1,
-                    "column": 17
+                end: {
+                    line: 1,
+                    column: 17
                 }
             },
-            "body": [],
-            "sourceType": "script"
+            body: [],
+            sourceType: 'script'
         }
     });
 
@@ -104,15 +104,15 @@ describe('Miscellaneous - Comments', () => {
         ranges: true,
         raw: true,
         expected: {
-            "body": [{
-                "end": 1,
-                "start": 0,
-                "type": "EmptyStatement"
+            body: [{
+                end: 1,
+                start: 0,
+                type: 'EmptyStatement'
             }],
-            "end": 18,
-            "sourceType": "script",
-            "start": 0,
-            "type": "Program"
+            end: 18,
+            sourceType: 'script',
+            start: 0,
+            type: 'Program'
         }
     });
 
@@ -121,21 +121,21 @@ describe('Miscellaneous - Comments', () => {
         ranges: true,
         raw: true,
         expected: {
-            "body": [{
-                "end": 6,
-                "expression": {
-                    "end": 6,
-                    "name": "foo",
-                    "start": 3,
-                    "type": "Identifier"
+            body: [{
+                end: 6,
+                expression: {
+                    end: 6,
+                    name: 'foo',
+                    start: 3,
+                    type: 'Identifier'
                 },
-                "start": 3,
-                "type": "ExpressionStatement"
+                start: 3,
+                type: 'ExpressionStatement'
             }],
-            "end": 7,
-            "sourceType": "script",
-            "start": 0,
-            "type": "Program"
+            end: 7,
+            sourceType: 'script',
+            start: 0,
+            type: 'Program'
         }
     });
 
@@ -144,21 +144,21 @@ describe('Miscellaneous - Comments', () => {
         ranges: true,
         raw: true,
         expected: {
-            "body": [{
-                "end": 6,
-                "expression": {
-                    "end": 6,
-                    "name": "foo",
-                    "start": 3,
-                    "type": "Identifier"
+            body: [{
+                end: 6,
+                expression: {
+                    end: 6,
+                    name: 'foo',
+                    start: 3,
+                    type: 'Identifier'
                 },
-                "start": 3,
-                "type": "ExpressionStatement"
+                start: 3,
+                type: 'ExpressionStatement'
             }],
-            "end": 8,
-            "sourceType": "script",
-            "start": 0,
-            "type": "Program"
+            end: 8,
+            sourceType: 'script',
+            start: 0,
+            type: 'Program'
         }
     });
 
@@ -168,21 +168,21 @@ describe('Miscellaneous - Comments', () => {
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 6,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 0
+            type: 'Program',
+            start: 0,
+            end: 6,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
                 },
-                "end": {
-                    "line": 1,
-                    "column": 6
+                end: {
+                    line: 1,
+                    column: 6
                 }
             },
-            "body": [],
-            "sourceType": "script"
+            body: [],
+            sourceType: 'script'
         }
     });
 
@@ -192,52 +192,52 @@ describe('Miscellaneous - Comments', () => {
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 6,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 0
+            type: 'Program',
+            start: 0,
+            end: 6,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
                 },
-                "end": {
-                    "line": 1,
-                    "column": 6
+                end: {
+                    line: 1,
+                    column: 6
                 }
             },
-            "body": [{
-                "type": "ExpressionStatement",
-                "start": 4,
-                "end": 6,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 4
+            body: [{
+                type: 'ExpressionStatement',
+                start: 4,
+                end: 6,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 4
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 6
+                    end: {
+                        line: 1,
+                        column: 6
                     }
                 },
-                "expression": {
-                    "type": "Literal",
-                    "start": 4,
-                    "end": 6,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 4
+                expression: {
+                    type: 'Literal',
+                    start: 4,
+                    end: 6,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 4
                         },
-                        "end": {
-                            "line": 1,
-                            "column": 6
+                        end: {
+                            line: 1,
+                            column: 6
                         }
                     },
-                    "value": 42,
-                    "raw": "42"
+                    value: 42,
+                    raw: '42'
                 }
             }],
-            "sourceType": "script"
+            sourceType: 'script'
         }
     });
 
@@ -247,90 +247,90 @@ describe('Miscellaneous - Comments', () => {
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 38,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 38,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 1,
-                "column": 38
+              end: {
+                line: 1,
+                column: 38
               }
             },
-            "body": [
+            body: [
               {
-                "type": "FunctionDeclaration",
-                "start": 0,
-                "end": 38,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'FunctionDeclaration',
+                start: 0,
+                end: 38,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 1,
-                    "column": 38
+                  end: {
+                    line: 1,
+                    column: 38
                   }
                 },
-                "id": {
-                  "type": "Identifier",
-                  "start": 9,
-                  "end": 10,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 9
+                id: {
+                  type: 'Identifier',
+                  start: 9,
+                  end: 10,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 9
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 10
+                    end: {
+                      line: 1,
+                      column: 10
                     }
                   },
-                  "name": "x"
+                  name: 'x'
                 },
-                "generator": false,
-                "expression": false,
-                "async": false,
-                "params": [],
-                "body": {
-                  "type": "BlockStatement",
-                  "start": 12,
-                  "end": 38,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 12
+                generator: false,
+                expression: false,
+                async: false,
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  start: 12,
+                  end: 38,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 12
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 38
+                    end: {
+                      line: 1,
+                      column: 38
                     }
                   },
-                  "body": [
+                  body: [
                     {
-                      "type": "ReturnStatement",
-                      "start": 22,
-                      "end": 29,
-                      "loc": {
-                        "start": {
-                          "line": 1,
-                          "column": 22
+                      type: 'ReturnStatement',
+                      start: 22,
+                      end: 29,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 22
                         },
-                        "end": {
-                          "line": 1,
-                          "column": 29
+                        end: {
+                          line: 1,
+                          column: 29
                         }
                       },
-                      "argument": null
+                      argument: null
                     }
                   ]
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
     });
 
@@ -340,54 +340,54 @@ describe('Miscellaneous - Comments', () => {
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 20,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 20,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 1,
-                "column": 20
+              end: {
+                line: 1,
+                column: 20
               }
             },
-            "body": [
+            body: [
               {
-                "type": "ExpressionStatement",
-                "start": 0,
-                "end": 1,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 1,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 1,
-                    "column": 1
+                  end: {
+                    line: 1,
+                    column: 1
                   }
                 },
-                "expression": {
-                  "type": "Literal",
-                  "start": 0,
-                  "end": 1,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 0
+                expression: {
+                  type: 'Literal',
+                  start: 0,
+                  end: 1,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 1
+                    end: {
+                      line: 1,
+                      column: 1
                     }
                   },
-                  "value": 0,
-                  "raw": "0"
+                  value: 0,
+                  raw: '0'
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
     });
 
@@ -397,114 +397,114 @@ describe('Miscellaneous - Comments', () => {
         ranges: true,
         raw: true,
         expected: {
-            "body": [{
-                "alternate": null,
-                "consequent": {
-                    "body": [{
-                        "end": 34,
-                        "expression": {
-                            "arguments": [],
-                            "callee": {
-                                "end": 31,
-                                "loc": {
-                                    "end": {
-                                        "column": 6,
-                                        "line": 2,
+            body: [{
+                alternate: null,
+                consequent: {
+                    body: [{
+                        end: 34,
+                        expression: {
+                            arguments: [],
+                            callee: {
+                                end: 31,
+                                loc: {
+                                    end: {
+                                        column: 6,
+                                        line: 2,
                                     },
-                                    "start": {
-                                        "column": 0,
-                                        "line": 2,
+                                    start: {
+                                        column: 0,
+                                        line: 2,
                                     }
                                 },
-                                "name": "doThat",
-                                "start": 25,
-                                "type": "Identifier",
+                                name: 'doThat',
+                                start: 25,
+                                type: 'Identifier',
                             },
-                            "end": 33,
-                            "loc": {
-                                "end": {
-                                    "column": 8,
-                                    "line": 2,
+                            end: 33,
+                            loc: {
+                                end: {
+                                    column: 8,
+                                    line: 2,
                                 },
-                                "start": {
-                                    "column": 0,
-                                    "line": 2,
+                                start: {
+                                    column: 0,
+                                    line: 2,
                                 }
                             },
-                            "start": 25,
-                            "type": "CallExpression",
+                            start: 25,
+                            type: 'CallExpression',
                         },
-                        "loc": {
-                            "end": {
-                                "column": 9,
-                                "line": 2,
+                        loc: {
+                            end: {
+                                column: 9,
+                                line: 2,
                             },
-                            "start": {
-                                "column": 0,
-                                "line": 2,
+                            start: {
+                                column: 0,
+                                line: 2,
                             },
                         },
-                        "start": 25,
-                        "type": "ExpressionStatement"
+                        start: 25,
+                        type: 'ExpressionStatement'
                     }, ],
-                    "end": 36,
-                    "loc": {
-                        "end": {
-                            "column": 11,
-                            "line": 2,
+                    end: 36,
+                    loc: {
+                        end: {
+                            column: 11,
+                            line: 2,
                         },
-                        "start": {
-                            "column": 7,
-                            "line": 1,
+                        start: {
+                            column: 7,
+                            line: 1,
                         },
                     },
-                    "start": 7,
-                    "type": "BlockStatement",
+                    start: 7,
+                    type: 'BlockStatement',
                 },
-                "end": 36,
-                "loc": {
-                    "end": {
-                        "column": 11,
-                        "line": 2,
+                end: 36,
+                loc: {
+                    end: {
+                        column: 11,
+                        line: 2,
                     },
-                    "start": {
-                        "column": 0,
-                        "line": 1,
+                    start: {
+                        column: 0,
+                        line: 1,
                     }
                 },
-                "start": 0,
-                "test": {
-                    "end": 5,
-                    "loc": {
-                        "end": {
-                            "column": 5,
-                            "line": 1,
+                start: 0,
+                test: {
+                    end: 5,
+                    loc: {
+                        end: {
+                            column: 5,
+                            line: 1,
                         },
-                        "start": {
-                            "column": 4,
-                            "line": 1,
+                        start: {
+                            column: 4,
+                            line: 1,
                         },
                     },
-                    "name": "x",
-                    "start": 4,
-                    "type": "Identifier",
+                    name: 'x',
+                    start: 4,
+                    type: 'Identifier',
                 },
-                "type": "IfStatement"
+                type: 'IfStatement'
             }],
-            "end": 36,
-            "loc": {
-                "end": {
-                    "column": 11,
-                    "line": 2,
+            end: 36,
+            loc: {
+                end: {
+                    column: 11,
+                    line: 2,
                 },
-                "start": {
-                    "column": 0,
-                    "line": 1,
+                start: {
+                    column: 0,
+                    line: 1,
                 },
             },
-            "sourceType": "script",
-            "start": 0,
-            "type": "Program",
+            sourceType: 'script',
+            start: 0,
+            type: 'Program',
         }
     });
 
@@ -514,125 +514,125 @@ describe('Miscellaneous - Comments', () => {
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 39,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 39,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 1,
-                "column": 39
+              end: {
+                line: 1,
+                column: 39
               }
             },
-            "body": [
+            body: [
               {
-                "type": "FunctionDeclaration",
-                "start": 5,
-                "end": 39,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 5
+                type: 'FunctionDeclaration',
+                start: 5,
+                end: 39,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 5
                   },
-                  "end": {
-                    "line": 1,
-                    "column": 39
+                  end: {
+                    line: 1,
+                    column: 39
                   }
                 },
-                "id": {
-                  "type": "Identifier",
-                  "start": 14,
-                  "end": 15,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 14
+                id: {
+                  type: 'Identifier',
+                  start: 14,
+                  end: 15,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 14
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 15
+                    end: {
+                      line: 1,
+                      column: 15
                     }
                   },
-                  "name": "a"
+                  name: 'a'
                 },
-                "generator": false,
-                "expression": false,
-                "async": false,
-                "params": [],
-                "body": {
-                  "type": "BlockStatement",
-                  "start": 18,
-                  "end": 39,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 18
+                generator: false,
+                expression: false,
+                async: false,
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  start: 18,
+                  end: 39,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 18
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 39
+                    end: {
+                      line: 1,
+                      column: 39
                     }
                   },
-                  "body": [
+                  body: [
                     {
-                      "type": "FunctionDeclaration",
-                      "start": 23,
-                      "end": 38,
-                      "loc": {
-                        "start": {
-                          "line": 1,
-                          "column": 23
+                      type: 'FunctionDeclaration',
+                      start: 23,
+                      end: 38,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 23
                         },
-                        "end": {
-                          "line": 1,
-                          "column": 38
+                        end: {
+                          line: 1,
+                          column: 38
                         }
                       },
-                      "id": {
-                        "type": "Identifier",
-                        "start": 32,
-                        "end": 33,
-                        "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 32
+                      id: {
+                        type: 'Identifier',
+                        start: 32,
+                        end: 33,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 32
                           },
-                          "end": {
-                            "line": 1,
-                            "column": 33
+                          end: {
+                            line: 1,
+                            column: 33
                           }
                         },
-                        "name": "o"
+                        name: 'o'
                       },
-                      "generator": false,
-                      "expression": false,
-                      "async": false,
-                      "params": [],
-                      "body": {
-                        "type": "BlockStatement",
-                        "start": 36,
-                        "end": 38,
-                        "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 36
+                      generator: false,
+                      expression: false,
+                      async: false,
+                      params: [],
+                      body: {
+                        type: 'BlockStatement',
+                        start: 36,
+                        end: 38,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 36
                           },
-                          "end": {
-                            "line": 1,
-                            "column": 38
+                          end: {
+                            line: 1,
+                            column: 38
                           }
                         },
-                        "body": []
+                        body: []
                       }
                     }
                   ]
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
     });
 });

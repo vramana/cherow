@@ -272,15 +272,15 @@ export interface Comment {
 
 export interface Program extends _Node<'Program'> {
     sourceType: 'script' | 'module';
-    body: Array<Statement | ModuleDeclaration>;
+    body: (Statement | ModuleDeclaration)[];
 }
 
 export interface ArrayExpression extends _Expression<'ArrayExpression'> {
-    elements: Array<Expression | SpreadElement | null>;
+    elements: (Expression | SpreadElement | null)[];
 }
 
 export interface ArrayPattern extends _Pattern<'ArrayPattern'> {
-    elements: Array<Pattern | null>;
+    elements: (Pattern | null)[];
     typeAnnotation?: TypeAnnotation | null;
 }
 
@@ -333,7 +333,7 @@ export interface BreakStatement extends _Statement<'BreakStatement'> {
 
 export interface CallExpression extends _Expression<'CallExpression'> {
     callee: Expression | Import | Super;
-    arguments: Array<Expression | SpreadElement>;
+    arguments: (Expression | SpreadElement)[];
 }
 
 export interface CatchClause extends _Node<'CatchClause'> {
@@ -462,7 +462,7 @@ export interface IfStatement extends _Statement<'IfStatement'> {
 export interface Import extends _Node<'Import'> {}
 
 export interface ImportDeclaration extends _ModuleDeclaration<'ImportDeclaration'> {
-    specifiers: Array<ImportDefaultSpecifier | ImportNamespaceSpecifier | ImportSpecifier>;
+    specifiers: (ImportDefaultSpecifier | ImportNamespaceSpecifier | ImportSpecifier)[];
     source: Literal;
 }
 
@@ -511,7 +511,7 @@ export interface MethodDefinition extends _Node<'MethodDefinition'> {
 
 export interface NewExpression extends _Expression<'NewExpression'> {
     callee: Expression;
-    arguments: Array<Expression | SpreadElement>;
+    arguments: (Expression | SpreadElement)[];
 }
 
 export interface Property extends _Node<'Property'> {
@@ -524,7 +524,7 @@ export interface Property extends _Node<'Property'> {
 }
 
 export interface ObjectExpression extends _Expression<'ObjectExpression'> {
-    properties: Array<Property | SpreadElement>;
+    properties: (Property | SpreadElement)[];
 }
 
 export interface AssignmentProperty extends _Node<'Property'> {
@@ -537,7 +537,7 @@ export interface AssignmentProperty extends _Node<'Property'> {
 }
 
 export interface ObjectPattern extends _Pattern<'ObjectPattern'> {
-    properties: Array<AssignmentProperty | RestElement>;
+    properties: (AssignmentProperty | RestElement)[];
     typeAnnotation?: TypeAnnotation | null;
 }
 
@@ -682,7 +682,7 @@ type JSXBoundaryElement = JSXOpeningElement | JSXClosingElement;
 
 export interface JSXOpeningElement extends _JSXBoundaryElement<'JSXOpeningElement'> {
     selfClosing: boolean;
-    attributes: Array<JSXAttribute | JSXSpreadAttribute>;
+    attributes: (JSXAttribute | JSXSpreadAttribute)[];
 }
 
 export interface JSXText extends _Node<'JSXText'> {
@@ -703,6 +703,6 @@ export interface JSXSpreadAttribute extends _Node<'JSXSpreadAttribute'> {
 
 export interface JSXElement extends _Expression<'JSXElement'> {
     openingElement: JSXOpeningElement;
-    children: Array<JSXText | JSXExpressionContainer | JSXSpreadChild | JSXElement>;
+    children: (JSXText | JSXExpressionContainer | JSXSpreadChild | JSXElement)[];
     closingElement: JSXClosingElement | null;
 }

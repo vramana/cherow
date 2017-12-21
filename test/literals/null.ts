@@ -8,54 +8,54 @@ describe('Literal - Null', () => {
     ranges: true,
     raw: true,
     expected: {
-      "type": "Program",
-      "start": 0,
-      "end": 4,
-      "loc": {
-        "start": {
-          "line": 1,
-          "column": 0
+      type: 'Program',
+      start: 0,
+      end: 4,
+      loc: {
+        start: {
+          line: 1,
+          column: 0
         },
-        "end": {
-          "line": 1,
-          "column": 4
+        end: {
+          line: 1,
+          column: 4
         }
       },
-      "body": [
+      body: [
         {
-          "type": "ExpressionStatement",
-          "start": 0,
-          "end": 4,
-          "loc": {
-            "start": {
-              "line": 1,
-              "column": 0
+          type: 'ExpressionStatement',
+          start: 0,
+          end: 4,
+          loc: {
+            start: {
+              line: 1,
+              column: 0
             },
-            "end": {
-              "line": 1,
-              "column": 4
+            end: {
+              line: 1,
+              column: 4
             }
           },
-          "expression": {
-            "type": "Literal",
-            "start": 0,
-            "end": 4,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+          expression: {
+            type: 'Literal',
+            start: 0,
+            end: 4,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 1,
-                "column": 4
+              end: {
+                line: 1,
+                column: 4
               }
             },
-            "value": null,
-            "raw": "null"
+            value: null,
+            raw: 'null'
           }
         }
       ],
-      "sourceType": "script"
+      sourceType: 'script'
     }
   });
 });

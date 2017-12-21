@@ -25,51 +25,51 @@ describe('Plugins - Literal node with pre-defined value', () => {
         plugins: [plugin(123)],
         raw: true,
         expected: {
-            "body": [{
-                "end": 1,
-                "expression": {
-                    "end": 1,
-                    "loc": {
-                        "end": {
-                            "column": 1,
-                            "line": 1,
+            body: [{
+                end: 1,
+                expression: {
+                    end: 1,
+                    loc: {
+                        end: {
+                            column: 1,
+                            line: 1,
                         },
-                        "start": {
-                            "column": 0,
-                            "line": 1,
+                        start: {
+                            column: 0,
+                            line: 1,
                         }
                     },
-                    "start": 0,
-                    "type": "Literal",
-                    "value": 123,
+                    start: 0,
+                    type: 'Literal',
+                    value: 123,
                 },
-                "loc": {
-                    "end": {
-                        "column": 1,
-                        "line": 1,
+                loc: {
+                    end: {
+                        column: 1,
+                        line: 1,
                     },
-                    "start": {
-                        "column": 0,
-                        "line": 1,
+                    start: {
+                        column: 0,
+                        line: 1,
                     },
                 },
-                "start": 0,
-                "type": "ExpressionStatement",
+                start: 0,
+                type: 'ExpressionStatement',
             }],
-            "end": 1,
-            "loc": {
-                "end": {
-                    "column": 1,
-                    "line": 1,
+            end: 1,
+            loc: {
+                end: {
+                    column: 1,
+                    line: 1,
                 },
-                "start": {
-                    "column": 0,
-                    "line": 1,
+                start: {
+                    column: 0,
+                    line: 1,
                 }
             },
-            "sourceType": "script",
-            "start": 0,
-            "type": "Program"
+            sourceType: 'script',
+            start: 0,
+            type: 'Program'
         }
     });
 });

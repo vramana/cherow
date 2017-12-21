@@ -1,7 +1,7 @@
 import { pass, fail } from '../utils';
 
 describe('Module-code - Miscellaneous', () => {
-    
+
         fail(`yield;`, {
             source: `yield;`,
             module: true

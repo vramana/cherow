@@ -7,4 +7,3 @@ describe('Statements - For Await of', () => {
             next: true
         });
 });
-            

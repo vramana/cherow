@@ -8,72 +8,72 @@ describe('Miscellaneous - Surrogate pair', () => {
     ranges: true,
     raw: true,
     expected: {
-      "body": [
+      body: [
         {
-          "declarations": [
+          declarations: [
             {
-              "end": 14,
-              "id": {
-               "end": 14,
-                "loc": {
-                  "end": {
-                    "column": 14,
-                    "line": 1,
+              end: 14,
+              id: {
+               end: 14,
+                loc: {
+                  end: {
+                    column: 14,
+                    line: 1,
                   },
-                  "start": {
-                    "column": 4,
-                    "line": 1,
+                  start: {
+                    column: 4,
+                    line: 1,
                  },
                 },
-                "name": "_𞸃",
-                "start": 4,
-                "type": "Identifier",
+                name: '_𞸃',
+                start: 4,
+                type: 'Identifier',
               },
-              "init": null,
-              "loc": {
-                "end": {
-                  "column": 14,
-                  "line": 1,
+              init: null,
+              loc: {
+                end: {
+                  column: 14,
+                  line: 1,
                 },
-                "start": {
-                  "column": 4,
-                  "line": 1,
+                start: {
+                  column: 4,
+                  line: 1,
                 }
              },
-              "start": 4,
-              "type": "VariableDeclarator",
+              start: 4,
+              type: 'VariableDeclarator',
             },
           ],
-          "end": 14,
-          "kind": "var",
-          "loc": {
-           "end": {
-              "column": 14,
-              "line": 1,
+          end: 14,
+          kind: 'var',
+          loc: {
+           end: {
+              column: 14,
+              line: 1,
             },
-            "start": {
-              "column": 0,
-              "line": 1,
+            start: {
+              column: 0,
+              line: 1,
            },
           },
-          "start": 0,
-          "type": "VariableDeclaration",
+          start: 0,
+          type: 'VariableDeclaration',
         },
      ],
-      "end": 14,
-      "loc": {
-        "end": {
-          "column": 14,
-          "line": 1,
+      end: 14,
+      loc: {
+        end: {
+          column: 14,
+          line: 1,
         },
-        "start": {
-          "column": 0,
-          "line": 1,
+        start: {
+          column: 0,
+          line: 1,
         }
       },
-     "sourceType": "script",
-      "start": 0,
-      "type": "Program"
+     sourceType: 'script',
+      start: 0,
+      type: 'Program'
     }
   });
 
@@ -83,72 +83,72 @@ describe('Miscellaneous - Surrogate pair', () => {
     ranges: true,
     raw: true,
     expected: {
-      "body": [
+      body: [
         {
-          "declarations": [
+          declarations: [
             {
-              "end": 22,
-             "id": {
-                "end": 22,
-                "loc": {
-                  "end": {
-                    "column": 22,
-                    "line": 1,
+              end: 22,
+             id: {
+                end: 22,
+                loc: {
+                  end: {
+                    column: 22,
+                    line: 1,
                   },
-                  "start": {
-                    "column": 4,
-                    "line": 1,
+                  start: {
+                    column: 4,
+                    line: 1,
                   },
                 },
-                "name": "𞸊𞸋",
-                "start": 4,
-                "type": "Identifier",
+                name: '𞸊𞸋',
+                start: 4,
+                type: 'Identifier',
               },
-              "init": null,
-              "loc": {
-                "end": {
-                  "column": 22,
-                  "line": 1,
+              init: null,
+              loc: {
+                end: {
+                  column: 22,
+                  line: 1,
                 },
-                "start": {
-                  "column": 4,
-                  "line": 1,
+                start: {
+                  column: 4,
+                  line: 1,
                 }
               },
-              "start": 4,
-              "type": "VariableDeclarator",
+              start: 4,
+              type: 'VariableDeclarator',
             },
           ],
-          "end": 22,
-         "kind": "var",
-          "loc": {
-            "end": {
-              "column": 22,
-              "line": 1,
+          end: 22,
+         kind: 'var',
+          loc: {
+            end: {
+              column: 22,
+              line: 1,
             },
-            "start": {
-              "column": 0,
-              "line": 1,
+            start: {
+              column: 0,
+              line: 1,
             }
           },
-          "start": 0,
-          "type": "VariableDeclaration",
+          start: 0,
+          type: 'VariableDeclaration',
         },
      ],
-      "end": 22,
-      "loc": {
-        "end": {
-          "column": 22,
-          "line": 1,
+      end: 22,
+      loc: {
+        end: {
+          column: 22,
+          line: 1,
         },
-        "start": {
-          "column": 0,
-          "line": 1,
+        start: {
+          column: 0,
+          line: 1,
         }
       },
-     "sourceType": "script",
-      "start": 0,
-      "type": "Program"
+     sourceType: 'script',
+      start: 0,
+      type: 'Program'
     }
   });
 
@@ -158,72 +158,72 @@ describe('Miscellaneous - Surrogate pair', () => {
     ranges: true,
     raw: true,
     expected: {
-      "body": [
+      body: [
         {
-          "declarations": [
+          declarations: [
             {
-              "end": 15,
-              "id": {
-                "end": 15,
-                "loc": {
-                  "end": {
-                    "column": 15,
-                    "line": 1,
+              end: 15,
+              id: {
+                end: 15,
+                loc: {
+                  end: {
+                    column: 15,
+                    line: 1,
                  },
-                  "start": {
-                    "column": 4,
-                    "line": 1,
+                  start: {
+                    column: 4,
+                    line: 1,
                   }
                 },
-                "name": "𞸆_$",
-                "start": 4,
-                "type": "Identifier",
+                name: '𞸆_$',
+                start: 4,
+                type: 'Identifier',
               },
-              "init": null,
-              "loc": {
-                "end": {
-                  "column": 15,
-                  "line": 1,
+              init: null,
+              loc: {
+                end: {
+                  column: 15,
+                  line: 1,
                },
-                "start": {
-                  "column": 4,
-                  "line": 1,
+                start: {
+                  column: 4,
+                  line: 1,
                 }
               },
-              "start": 4,
-              "type": "VariableDeclarator",
+              start: 4,
+              type: 'VariableDeclarator',
             },
           ],
-          "end": 15,
-          "kind": "var",
-          "loc": {
-            "end": {
-              "column": 15,
-              "line": 1,
+          end: 15,
+          kind: 'var',
+          loc: {
+            end: {
+              column: 15,
+              line: 1,
             },
-            "start": {
-              "column": 0,
-              "line": 1,
+            start: {
+              column: 0,
+              line: 1,
             }
           },
-          "start": 0,
-          "type": "VariableDeclaration",
+          start: 0,
+          type: 'VariableDeclaration',
         }
       ],
-      "end": 15,
-      "loc": {
-        "end": {
-          "column": 15,
-          "line": 1,
+      end: 15,
+      loc: {
+        end: {
+          column: 15,
+          line: 1,
         },
-        "start": {
-          "column": 0,
-          "line": 1,
+        start: {
+          column: 0,
+          line: 1,
         }
       },
-      "sourceType": "script",
-      "start": 0,
-      "type": "Program"
+      sourceType: 'script',
+      start: 0,
+      type: 'Program'
     }
   });
 
@@ -233,72 +233,72 @@ describe('Miscellaneous - Surrogate pair', () => {
     ranges: true,
     raw: true,
     expected: {
-      "body": [
+      body: [
         {
-          "declarations": [
+          declarations: [
             {
-             "end": 6,
-              "id": {
-                "end": 6,
-                "loc": {
-                  "end": {
-                    "column": 6,
-                   "line": 1,
+             end: 6,
+              id: {
+                end: 6,
+                loc: {
+                  end: {
+                    column: 6,
+                   line: 1,
                   },
-                 "start": {
-                    "column": 4,
-                    "line": 1,
+                 start: {
+                    column: 4,
+                    line: 1,
                   },
                 },
-                "name": "𞸀",
-                "start": 4,
-                "type": "Identifier",
+                name: '𞸀',
+                start: 4,
+                type: 'Identifier',
               },
-              "init": null,
-              "loc": {
-                "end": {
-                  "column": 6,
-                  "line": 1,
+              init: null,
+              loc: {
+                end: {
+                  column: 6,
+                  line: 1,
                 },
-                "start": {
-                  "column": 4,
-                  "line": 1,
+                start: {
+                  column: 4,
+                  line: 1,
                 }
               },
-              "start": 4,
-              "type": "VariableDeclarator",
+              start: 4,
+              type: 'VariableDeclarator',
             }
           ],
-          "end": 6,
-          "kind": "var",
-          "loc": {
-            "end": {
-              "column": 6,
-              "line": 1,
+          end: 6,
+          kind: 'var',
+          loc: {
+            end: {
+              column: 6,
+              line: 1,
             },
-            "start": {
-              "column": 0,
-              "line": 1,
+            start: {
+              column: 0,
+              line: 1,
             },
           },
-          "start": 0,
-          "type": "VariableDeclaration",
+          start: 0,
+          type: 'VariableDeclaration',
         },
       ],
-      "end": 6,
-      "loc": {
-        "end": {
-          "column": 6,
-          "line": 1,
+      end: 6,
+      loc: {
+        end: {
+          column: 6,
+          line: 1,
         },
-        "start": {
-          "column": 0,
-          "line": 1,
+        start: {
+          column: 0,
+          line: 1,
         }
       },
-      "sourceType": "script",
-      "start": 0,
-      "type": "Program",
+      sourceType: 'script',
+      start: 0,
+      type: 'Program',
     }
   });
 
@@ -320,72 +320,72 @@ describe('Miscellaneous - Surrogate pair', () => {
     ranges: true,
     raw: true,
     expected: {
-      "body": [
+      body: [
        {
-          "declarations": [
+          declarations: [
             {
-              "end": 8,
-              "id": {
-                "end": 8,
-                "loc": {
-                  "end": {
-                    "column": 8,
-                    "line": 1,
+              end: 8,
+              id: {
+                end: 8,
+                loc: {
+                  end: {
+                    column: 8,
+                    line: 1,
                   },
-                  "start": {
-                   "column": 4,
-                    "line": 1,
+                  start: {
+                   column: 4,
+                    line: 1,
                   },
                 },
-                "name": "𞸊𞸋",
-                "start": 4,
-                "type": "Identifier",
+                name: '𞸊𞸋',
+                start: 4,
+                type: 'Identifier',
               },
-              "init": null,
-              "loc": {
-                "end": {
-                  "column": 8,
-                  "line": 1,
+              init: null,
+              loc: {
+                end: {
+                  column: 8,
+                  line: 1,
                 },
-                "start": {
-                 "column": 4,
-                  "line": 1,
+                start: {
+                 column: 4,
+                  line: 1,
                 }
               },
-              "start": 4,
-             "type": "VariableDeclarator",
+              start: 4,
+             type: 'VariableDeclarator',
             }
           ],
-          "end": 8,
-          "kind": "var",
-          "loc": {
-            "end": {
-              "column": 8,
-              "line": 1,
+          end: 8,
+          kind: 'var',
+          loc: {
+            end: {
+              column: 8,
+              line: 1,
             },
-            "start": {
-              "column": 0,
-              "line": 1,
+            start: {
+              column: 0,
+              line: 1,
             }
           },
-          "start": 0,
-          "type": "VariableDeclaration",
+          start: 0,
+          type: 'VariableDeclaration',
         }
       ],
-      "end": 8,
-      "loc": {
-        "end": {
-          "column": 8,
-          "line": 1,
+      end: 8,
+      loc: {
+        end: {
+          column: 8,
+          line: 1,
         },
-        "start": {
-          "column": 0,
-          "line": 1,
+        start: {
+          column: 0,
+          line: 1,
         }
       },
-      "sourceType": "script",
-      "start": 0,
-      "type": "Program"
+      sourceType: 'script',
+      start: 0,
+      type: 'Program'
     }
   });
 
@@ -395,72 +395,72 @@ describe('Miscellaneous - Surrogate pair', () => {
     ranges: true,
     raw: true,
     expected: {
-      "body": [
+      body: [
         {
-          "declarations": [
+          declarations: [
             {
-              "end": 13,
-             "id": {
-                "end": 13,
-                "loc": {
-                  "end": {
-                    "column": 13,
-                    "line": 1,
+              end: 13,
+             id: {
+                end: 13,
+                loc: {
+                  end: {
+                    column: 13,
+                    line: 1,
                   },
-                  "start": {
-                    "column": 4,
-                    "line": 1,
+                  start: {
+                    column: 4,
+                    line: 1,
                   }
                 },
-                "name": "𞸀",
-                "start": 4,
-                "type": "Identifier",
+                name: '𞸀',
+                start: 4,
+                type: 'Identifier',
               },
-              "init": null,
-              "loc": {
-                "end": {
-                  "column": 13,
-                  "line": 1,
+              init: null,
+              loc: {
+                end: {
+                  column: 13,
+                  line: 1,
                 },
-                "start": {
-                  "column": 4,
-                 "line": 1,
+                start: {
+                  column: 4,
+                 line: 1,
                 },
              },
-              "start": 4,
-              "type": "VariableDeclarator",
+              start: 4,
+              type: 'VariableDeclarator',
             },
           ],
-          "end": 13,
-          "kind": "var",
-          "loc": {
-            "end": {
-              "column": 13,
-              "line": 1,
+          end: 13,
+          kind: 'var',
+          loc: {
+            end: {
+              column: 13,
+              line: 1,
             },
-            "start": {
-              "column": 0,
-              "line": 1,
+            start: {
+              column: 0,
+              line: 1,
             }
           },
-         "start": 0,
-          "type": "VariableDeclaration",
+         start: 0,
+          type: 'VariableDeclaration',
         }
       ],
-      "end": 13,
-      "loc": {
-        "end": {
-          "column": 13,
-          "line": 1,
+      end: 13,
+      loc: {
+        end: {
+          column: 13,
+          line: 1,
         },
-        "start": {
-          "column": 0,
-          "line": 1
+        start: {
+          column: 0,
+          line: 1
        },
       },
-      "sourceType": "script",
-      "start": 0,
-      "type": "Program"
+      sourceType: 'script',
+      start: 0,
+      type: 'Program'
     }
   });
 });

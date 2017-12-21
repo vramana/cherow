@@ -1,75 +1,75 @@
 import { pass, fail } from '../utils';
 
 describe('Miscellaneous - Meta', () => {
- 
+
     pass(`nothing before a lone exclamation`, {
         source: '! foo',
         loc: true,
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "body": [
+            type: 'Program',
+            body: [
                 {
-                    "type": "ExpressionStatement",
-                    "expression": {
-                        "type": "UnaryExpression",
-                        "operator": "!",
-                        "argument": {
-                            "type": "Identifier",
-                            "name": "foo",
-                            "start": 2,
-                            "end": 5,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 2
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'UnaryExpression',
+                        operator: '!',
+                        argument: {
+                            type: 'Identifier',
+                            name: 'foo',
+                            start: 2,
+                            end: 5,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 2
                                 },
-                                "end": {
-                                    "line": 1,
-                                    "column": 5
+                                end: {
+                                    line: 1,
+                                    column: 5
                                 }
                             }
                         },
-                        "prefix": true,
-                        "start": 0,
-                        "end": 5,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 0
+                        prefix: true,
+                        start: 0,
+                        end: 5,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
                             },
-                            "end": {
-                                "line": 1,
-                                "column": 5
+                            end: {
+                                line: 1,
+                                column: 5
                             }
                         }
                     },
-                    "start": 0,
-                    "end": 5,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 0
+                    start: 0,
+                    end: 5,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
                         },
-                        "end": {
-                            "line": 1,
-                            "column": 5
+                        end: {
+                            line: 1,
+                            column: 5
                         }
                     }
                 }
             ],
-            "sourceType": "script",
-            "start": 0,
-            "end": 5,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 0
+            sourceType: 'script',
+            start: 0,
+            end: 5,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
                 },
-                "end": {
-                    "line": 1,
-                    "column": 5
+                end: {
+                    line: 1,
+                    column: 5
                 }
             }
         }
@@ -81,21 +81,21 @@ describe('Miscellaneous - Meta', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 1,
-              "loc": {
-                "end": {
-                  "column": 1,
-                  "line": 1,
+              body: [],
+              end: 1,
+              loc: {
+                end: {
+                  column: 1,
+                  line: 1,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 }
               },
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -103,17 +103,17 @@ describe('Miscellaneous - Meta', () => {
         source: '\uFFEFfoo',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "name": "foo",
-                    "type": "Identifier"
+                  expression: {
+                    name: 'foo',
+                    type: 'Identifier'
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program"
+              sourceType: 'script',
+              type: 'Program'
             }
     });
 
@@ -123,21 +123,21 @@ describe('Miscellaneous - Meta', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 20,
-              "loc": {
-                "end": {
-                  "column": 0,
-                  "line": 2,
+              body: [],
+              end: 20,
+              loc: {
+                end: {
+                  column: 0,
+                  line: 2,
                 },
-               "start": {
-                  "column": 0,
-                  "line": 1,
+               start: {
+                  column: 0,
+                  line: 1,
                 }
               },
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -145,22 +145,22 @@ describe('Miscellaneous - Meta', () => {
         source: '#!/foo/bar/baz -abc\n! foo',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "argument": {
-                      "name": "foo",
-                      "type": "Identifier",
+                  expression: {
+                    argument: {
+                      name: 'foo',
+                      type: 'Identifier',
                    },
-                    "operator": "!",
-                    "prefix": true,
-                    "type": "UnaryExpression",
+                    operator: '!',
+                    prefix: true,
+                    type: 'UnaryExpression',
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program",
+              sourceType: 'script',
+              type: 'Program',
             }
     });
 
@@ -168,34 +168,34 @@ describe('Miscellaneous - Meta', () => {
         source: '#!/foo/bar/baz -abc\rfoo',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "name": "foo",
-                    "type": "Identifier"
+                  expression: {
+                    name: 'foo',
+                    type: 'Identifier'
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program",
+              sourceType: 'script',
+              type: 'Program',
             }
     });
 
     pass(`shebang+LF before a lone exclamation`, {
         source: '#!/foo/bar/baz -abc\r\nfoo',
         expected: {
-              "body": [
+              body: [
                {
-                  "expression": {
-                    "name": "foo",
-                    "type": "Identifier"
+                  expression: {
+                    name: 'foo',
+                    type: 'Identifier'
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program"
+              sourceType: 'script',
+              type: 'Program'
             }
     });
 
@@ -203,9 +203,9 @@ describe('Miscellaneous - Meta', () => {
         source: '#!/foo/bar/baz -abc\u2028',
         raw: true,
         expected: {
-              "body": [],
-              "sourceType": "script",
-              "type": "Program"
+              body: [],
+              sourceType: 'script',
+              type: 'Program'
             }
     });
 
@@ -213,22 +213,22 @@ describe('Miscellaneous - Meta', () => {
         source: '#!/foo/bar/baz -abc\u2029! foo',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "argument": {
-                      "name": "foo",
-                      "type": "Identifier"
+                  expression: {
+                    argument: {
+                      name: 'foo',
+                      type: 'Identifier'
                     },
-                    "operator": "!",
-                    "prefix": true,
-                    "type": "UnaryExpression"
+                    operator: '!',
+                    prefix: true,
+                    type: 'UnaryExpression'
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program"
+              sourceType: 'script',
+              type: 'Program'
             }
     });
 
@@ -236,22 +236,22 @@ describe('Miscellaneous - Meta', () => {
         source: '\uFFEF#!/foo/bar/baz -abc\u2029! foo',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "argument": {
-                      "name": "foo",
-                      "type": "Identifier"
+                  expression: {
+                    argument: {
+                      name: 'foo',
+                      type: 'Identifier'
                     },
-                    "operator": "!",
-                    "prefix": true,
-                    "type": "UnaryExpression"
+                    operator: '!',
+                    prefix: true,
+                    type: 'UnaryExpression'
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program"
+              sourceType: 'script',
+              type: 'Program'
             }
     });
 
@@ -259,22 +259,22 @@ describe('Miscellaneous - Meta', () => {
         source: '#!/foo/bar/baz -abc\n! foo',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "argument": {
-                      "name": "foo",
-                      "type": "Identifier"
+                  expression: {
+                    argument: {
+                      name: 'foo',
+                      type: 'Identifier'
                     },
-                    "operator": "!",
-                    "prefix": true,
-                    "type": "UnaryExpression"
+                    operator: '!',
+                    prefix: true,
+                    type: 'UnaryExpression'
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program"
+              sourceType: 'script',
+              type: 'Program'
             }
     });
 });

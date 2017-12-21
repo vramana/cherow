@@ -1,110 +1,110 @@
 import { pass, fail } from '../utils';
 
 describe('Statements - Expression', () => {
-  
+
       pass(`x, y`, {
           source: 'x, y',
           loc: true,
           ranges: true,
           raw: true,
           expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 4,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 4,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 1,
-                "column": 4
+              end: {
+                line: 1,
+                column: 4
               }
             },
-            "body": [
+            body: [
               {
-                "type": "ExpressionStatement",
-                "start": 0,
-                "end": 4,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 4,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 1,
-                    "column": 4
+                  end: {
+                    line: 1,
+                    column: 4
                   }
                 },
-                "expression": {
-                  "type": "SequenceExpression",
-                  "start": 0,
-                  "end": 4,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 0
+                expression: {
+                  type: 'SequenceExpression',
+                  start: 0,
+                  end: 4,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 4
+                    end: {
+                      line: 1,
+                      column: 4
                     }
                   },
-                  "expressions": [
+                  expressions: [
                     {
-                      "type": "Identifier",
-                      "start": 0,
-                      "end": 1,
-                      "loc": {
-                        "start": {
-                          "line": 1,
-                          "column": 0
+                      type: 'Identifier',
+                      start: 0,
+                      end: 1,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 0
                         },
-                        "end": {
-                          "line": 1,
-                          "column": 1
+                        end: {
+                          line: 1,
+                          column: 1
                         }
                       },
-                      "name": "x"
+                      name: 'x'
                     },
                     {
-                      "type": "Identifier",
-                      "start": 3,
-                      "end": 4,
-                      "loc": {
-                        "start": {
-                          "line": 1,
-                          "column": 3
+                      type: 'Identifier',
+                      start: 3,
+                      end: 4,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 3
                         },
-                        "end": {
-                          "line": 1,
-                          "column": 4
+                        end: {
+                          line: 1,
+                          column: 4
                         }
                       },
-                      "name": "y"
+                      name: 'y'
                     }
                   ]
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
       });
-  
+
       pass(`a\\u0061`, {
           source: 'a\\u0061',
           expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "name": "aa",
-                    "type": "Identifier",
+                  expression: {
+                    name: 'aa',
+                    type: 'Identifier',
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program"
+              sourceType: 'script',
+              type: 'Program'
             }
       });
   // \u0061

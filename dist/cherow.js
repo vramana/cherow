@@ -414,7 +414,7 @@ Parser.prototype.parseProgram = function parseProgram (context) {
     var node = {
         type: 'Program',
         body: body,
-        sourceType: isModule ? "module" : "script",
+        sourceType: isModule ? 'module' : 'script',
     };
     if (this.flags & 1048576 /* OptionsRanges */) {
         node.start = 0;

@@ -12,4 +12,3 @@ describe('Statements - Generators', () => {
         next: true
     });
 });
-

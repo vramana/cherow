@@ -1,6 +1,6 @@
 import parserTest262 from '../tools/test262';
 import * as path from 'path';
-import { parseScript, parseModule} from '../../src/cherow';
+import { parseScript, parseModule } from '../../src/cherow';
 
 describe('test262 tests', () => parserTest262({
     test262Dir: path.join(__dirname, '../../', 'node_modules', 'test262'),
@@ -11,7 +11,7 @@ describe('test262 tests', () => parserTest262({
 
         // Note! Many of the tests that are skipped here, either parse or throws as they should.
         // "Local" tests have been added for this.
-        
+
         'test/annexB/language/global-code/block-decl-global-no-skip-try.js',
         'test/annexB/language/comments/multi-line-html-close.js',
         'test/annexB/language/statements/for-in/nonstrict-initializer.js',

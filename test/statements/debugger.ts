@@ -1,44 +1,44 @@
 import { pass, fail } from '../utils';
 
 describe('Statements - Continue', () => {
-  
+
       pass(`debugger`, {
           source: 'debugger',
           loc: true,
           ranges: true,
           raw: true,
           expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 8,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 8,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 1,
-                "column": 8
+              end: {
+                line: 1,
+                column: 8
               }
             },
-            "body": [
+            body: [
               {
-                "type": "DebuggerStatement",
-                "start": 0,
-                "end": 8,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'DebuggerStatement',
+                start: 0,
+                end: 8,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 1,
-                    "column": 8
+                  end: {
+                    line: 1,
+                    column: 8
                   }
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
       });
 
@@ -48,37 +48,37 @@ describe('Statements - Continue', () => {
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 9,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 9,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 1,
-                "column": 9
+              end: {
+                line: 1,
+                column: 9
               }
             },
-            "body": [
+            body: [
               {
-                "type": "DebuggerStatement",
-                "start": 0,
-                "end": 9,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'DebuggerStatement',
+                start: 0,
+                end: 9,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 1,
-                    "column": 9
+                  end: {
+                    line: 1,
+                    column: 9
                   }
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
     });
 });

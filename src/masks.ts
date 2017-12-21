@@ -11,7 +11,7 @@ export const enum Context {
     InParameter            = 1 << 7,   // If node was parsed in the formal list of an function
     InAsyncArgs            = 1 << 8,   // If node was parsed in the formal list of an async arrow function
     InArrowParameterList   = 1 << 9,   // If node was parsed in the formal list of an arrow function
-    Declaration            = 1 << 10,  
+    Declaration            = 1 << 10,
     ExistingScope          = 1 << 11,  // If node was parsed in a context where the scope shouldn't be undefined
     AnnexB                 = 1 << 12,  // If node was parsed in the 'if statement' with the AnnexB semtantic
     Import                 = 1 << 13,  // Module ( strict and non-strict)
@@ -30,7 +30,7 @@ export const enum Context {
     StrictReserved         = 1 << 26,  // Variable declaration
     Let                    = 1 << 27,  // Variable declaration
     Const                  = 1 << 28,  // Variable declaration
-    
+
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
 
@@ -72,8 +72,7 @@ export const enum Flags {
     OptionsSourceType            = 1 << 27, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
     OptionsTolerant              = 1 << 28,
     OptionsPlugins               = 1 << 29,
-    
-    
+
 }
 
 // Flags used in parenthesized to validate arrow formal list
@@ -139,7 +138,7 @@ export const enum NumericState {
    AllowSeparator           = 1 << 8, // Numeric Separator specific
 
    Noctal = ImplicitOctal | DecimalWithLeadingZero,
-   
+
    Boh = Binary | Octal | Hex
 }
 

@@ -1,148 +1,148 @@
 import { pass, fail } from '../utils';
 
 describe('Statements - Throw', () => {
-  
+
       pass(`throw x;`, {
           source: 'throw x;',
           loc: true,
           ranges: true,
           raw: true,
           expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 8,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 8,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 1,
-                "column": 8
+              end: {
+                line: 1,
+                column: 8
               }
             },
-            "body": [
+            body: [
               {
-                "type": "ThrowStatement",
-                "start": 0,
-                "end": 8,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'ThrowStatement',
+                start: 0,
+                end: 8,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 1,
-                    "column": 8
+                  end: {
+                    line: 1,
+                    column: 8
                   }
                 },
-                "argument": {
-                  "type": "Identifier",
-                  "start": 6,
-                  "end": 7,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 6
+                argument: {
+                  type: 'Identifier',
+                  start: 6,
+                  end: 7,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 6
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 7
+                    end: {
+                      line: 1,
+                      column: 7
                     }
                   },
-                  "name": "x"
+                  name: 'x'
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
       });
-  
+
       pass(`throw x * y`, {
           source: 'throw x * y',
           loc: true,
           ranges: true,
           raw: true,
           expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 11,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 11,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 1,
-                "column": 11
+              end: {
+                line: 1,
+                column: 11
               }
             },
-            "body": [
+            body: [
               {
-                "type": "ThrowStatement",
-                "start": 0,
-                "end": 11,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'ThrowStatement',
+                start: 0,
+                end: 11,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 1,
-                    "column": 11
+                  end: {
+                    line: 1,
+                    column: 11
                   }
                 },
-                "argument": {
-                  "type": "BinaryExpression",
-                  "start": 6,
-                  "end": 11,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 6
+                argument: {
+                  type: 'BinaryExpression',
+                  start: 6,
+                  end: 11,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 6
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 11
+                    end: {
+                      line: 1,
+                      column: 11
                     }
                   },
-                  "left": {
-                    "type": "Identifier",
-                    "start": 6,
-                    "end": 7,
-                    "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 6
+                  left: {
+                    type: 'Identifier',
+                    start: 6,
+                    end: 7,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 6
                       },
-                      "end": {
-                        "line": 1,
-                        "column": 7
+                      end: {
+                        line: 1,
+                        column: 7
                       }
                     },
-                    "name": "x"
+                    name: 'x'
                   },
-                  "operator": "*",
-                  "right": {
-                    "type": "Identifier",
-                    "start": 10,
-                    "end": 11,
-                    "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 10
+                  operator: '*',
+                  right: {
+                    type: 'Identifier',
+                    start: 10,
+                    end: 11,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 10
                       },
-                      "end": {
-                        "line": 1,
-                        "column": 11
+                      end: {
+                        line: 1,
+                        column: 11
                       }
                     },
-                    "name": "y"
+                    name: 'y'
                   }
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
       });
     });

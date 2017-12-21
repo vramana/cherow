@@ -1,7 +1,7 @@
 import { pass, fail } from '../utils';
 
 describe('Next - Asynchronous Iteration', () => {
-    
+
         fail('assignment expression in a function body with yield as an identifier in strict mode', {
             source: `"use strict"; async function *gen() {
             return {
@@ -22,11 +22,11 @@ describe('Next - Asynchronous Iteration', () => {
             source: `var g = function* yield() {};`,
             next: true
         });
-    
+
         fail(`var C = class { async *gen() {} }`, {
             source: `var C = class { async *gen() {} }`
         });
-    
+
         fail('rest parameter has an initializer', {
             source: `0, async function* g(...x = []) {};`,
             next: true
@@ -75,7 +75,7 @@ describe('Next - Asynchronous Iteration', () => {
             source: `async function*() { yield 1; };`,
             next: true
         });
-    
+
         fail('async generator await as binding identifier escaped', {
             source: `var obj = {
             async *method() {
@@ -84,52 +84,52 @@ describe('Next - Asynchronous Iteration', () => {
           };`,
             next: true
         });
-    
+
         pass(`async function *g() { yield; }`, {
             source: 'async function *g() { yield; }',
             ranges: true,
             next: true,
             raw: true,
             expected: {
-                "body": [{
-                    "async": true,
-                    "body": {
-                        "body": [{
-                            "end": 28,
-                            "expression": {
-                                "argument": null,
-                                "delegate": false,
-                                "end": 27,
-                                "start": 22,
-                                "type": "YieldExpression"
+                body: [{
+                    async: true,
+                    body: {
+                        body: [{
+                            end: 28,
+                            expression: {
+                                argument: null,
+                                delegate: false,
+                                end: 27,
+                                start: 22,
+                                type: 'YieldExpression'
                             },
-                            "start": 22,
-                            "type": "ExpressionStatement"
+                            start: 22,
+                            type: 'ExpressionStatement'
                         }, ],
-                        "end": 30,
-                        "start": 20,
-                        "type": "BlockStatement"
+                        end: 30,
+                        start: 20,
+                        type: 'BlockStatement'
                     },
-                    "end": 30,
-                    "expression": false,
-                    "generator": true,
-                    "id": {
-                        "end": 17,
-                        "name": "g",
-                        "start": 16,
-                        "type": "Identifier"
+                    end: 30,
+                    expression: false,
+                    generator: true,
+                    id: {
+                        end: 17,
+                        name: 'g',
+                        start: 16,
+                        type: 'Identifier'
                     },
-                    "params": [],
-                    "start": 0,
-                    "type": "FunctionDeclaration"
+                    params: [],
+                    start: 0,
+                    type: 'FunctionDeclaration'
                 }, ],
-                "end": 30,
-                "sourceType": "script",
-                "start": 0,
-                "type": "Program"
+                end: 30,
+                sourceType: 'script',
+                start: 0,
+                type: 'Program'
             }
         });
-    
+
         pass(`Non object returned by [Symbol.asyncIterator]()`, {
             source: `async function *gen() {
                 yield* obj;
@@ -137,33 +137,33 @@ describe('Next - Asynchronous Iteration', () => {
             next: true,
             raw: true,
             expected: {
-                "body": [{
-                    "async": true,
-                    "body": {
-                        "body": [{
-                            "expression": {
-                                "argument": {
-                                    "name": "obj",
-                                    "type": "Identifier"
+                body: [{
+                    async: true,
+                    body: {
+                        body: [{
+                            expression: {
+                                argument: {
+                                    name: 'obj',
+                                    type: 'Identifier'
                                 },
-                                "delegate": true,
-                                "type": "YieldExpression"
+                                delegate: true,
+                                type: 'YieldExpression'
                             },
-                            "type": "ExpressionStatement"
+                            type: 'ExpressionStatement'
                         }],
-                        "type": "BlockStatement"
+                        type: 'BlockStatement'
                     },
-                    "expression": false,
-                    "generator": true,
-                    "id": {
-                        "name": "gen",
-                        "type": "Identifier"
+                    expression: false,
+                    generator: true,
+                    id: {
+                        name: 'gen',
+                        type: 'Identifier'
                     },
-                    "params": [],
-                    "type": "FunctionDeclaration"
+                    params: [],
+                    type: 'FunctionDeclaration'
                 }],
-                "sourceType": "script",
-                "type": "Program"
+                sourceType: 'script',
+                type: 'Program'
             }
         });
     });

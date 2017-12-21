@@ -9,515 +9,515 @@ describe('Miscellaneous - ASI', () => {
     ++
     ++
     y`,
-});    
+});
 
-fail(`invalid Do-While Statement ASI`, {
+  fail(`invalid Do-While Statement ASI`, {
   source: `do {}; \n while(false)`,
-});    
+});
 
-fail(`for header is (false \n false \n)`, {
+  fail(`for header is (false \n false \n)`, {
   source: `for(false
     false
 ) {
   break;
 }`,
-});    
+});
 
-fail(`for header is (\n false \n)`, {
+  fail(`for header is (\n false \n)`, {
   source: `for(
     false
 ) {
   break;
 }`,
-});    
+});
 
-fail(`for header is (\n semicolon false)`, {
+  fail(`for header is (\n semicolon false)`, {
   source: `for(
     ;false) {
       break;
     }`,
-});    
+});
 
   fail(`for(false;false;;false) { break; }`, {
         source: `for(false;false;;false) {
             break;
           }`,
-    });    
+    });
 
-    fail(`\n while(false)`, {
+  fail(`\n while(false)`, {
         source: `\n while(false)`,
-    });    
+    });
 
-    pass(`;;1;;1;;1`, {
+  pass(`;;1;;1;;1`, {
       source: `;;1;;1;;1`,
       loc: true,
       ranges: true,
       raw: true,
       expected: {
-        "type": "Program",
-        "body": [
+        type: 'Program',
+        body: [
             {
-                "type": "EmptyStatement",
-                "start": 0,
-                "end": 1,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
+                type: 'EmptyStatement',
+                start: 0,
+                end: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 1
+                    end: {
+                        line: 1,
+                        column: 1
                     }
                 }
             },
             {
-                "type": "EmptyStatement",
-                "start": 1,
-                "end": 2,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 1
+                type: 'EmptyStatement',
+                start: 1,
+                end: 2,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 1
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 2
+                    end: {
+                        line: 1,
+                        column: 2
                     }
                 }
             },
             {
-                "type": "ExpressionStatement",
-                "expression": {
-                    "type": "Literal",
-                    "value": 1,
-                    "start": 2,
-                    "end": 3,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 2
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Literal',
+                    value: 1,
+                    start: 2,
+                    end: 3,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 2
                         },
-                        "end": {
-                            "line": 1,
-                            "column": 3
+                        end: {
+                            line: 1,
+                            column: 3
                         }
                     },
-                    "raw": "1"
+                    raw: '1'
                 },
-                "start": 2,
-                "end": 4,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 2
+                start: 2,
+                end: 4,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 2
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 4
+                    end: {
+                        line: 1,
+                        column: 4
                     }
                 }
             },
             {
-                "type": "EmptyStatement",
-                "start": 4,
-                "end": 5,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 4
+                type: 'EmptyStatement',
+                start: 4,
+                end: 5,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 4
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 5
+                    end: {
+                        line: 1,
+                        column: 5
                     }
                 }
             },
             {
-                "type": "ExpressionStatement",
-                "expression": {
-                    "type": "Literal",
-                    "value": 1,
-                    "start": 5,
-                    "end": 6,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 5
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Literal',
+                    value: 1,
+                    start: 5,
+                    end: 6,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 5
                         },
-                        "end": {
-                            "line": 1,
-                            "column": 6
+                        end: {
+                            line: 1,
+                            column: 6
                         }
                     },
-                    "raw": "1"
+                    raw: '1'
                 },
-                "start": 5,
-                "end": 7,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 5
+                start: 5,
+                end: 7,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 5
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 7
+                    end: {
+                        line: 1,
+                        column: 7
                     }
                 }
             },
             {
-                "type": "EmptyStatement",
-                "start": 7,
-                "end": 8,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 7
+                type: 'EmptyStatement',
+                start: 7,
+                end: 8,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 7
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 8
+                    end: {
+                        line: 1,
+                        column: 8
                     }
                 }
             },
             {
-                "type": "ExpressionStatement",
-                "expression": {
-                    "type": "Literal",
-                    "value": 1,
-                    "start": 8,
-                    "end": 9,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 8
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Literal',
+                    value: 1,
+                    start: 8,
+                    end: 9,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 8
                         },
-                        "end": {
-                            "line": 1,
-                            "column": 9
+                        end: {
+                            line: 1,
+                            column: 9
                         }
                     },
-                    "raw": "1"
+                    raw: '1'
                 },
-                "start": 8,
-                "end": 9,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 8
+                start: 8,
+                end: 9,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 8
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 9
+                    end: {
+                        line: 1,
+                        column: 9
                     }
                 }
             }
         ],
-        "sourceType": "script",
-        "start": 0,
-        "end": 9,
-        "loc": {
-            "start": {
-                "line": 1,
-                "column": 0
+        sourceType: 'script',
+        start: 0,
+        end: 9,
+        loc: {
+            start: {
+                line: 1,
+                column: 0
             },
-            "end": {
-                "line": 1,
-                "column": 9
+            end: {
+                line: 1,
+                column: 9
             }
         }
     }
     });
 
-    pass(`;;;;`, {
+  pass(`;;;;`, {
       source: `;;;;`,
       loc: true,
       ranges: true,
       raw: true,
       expected: {
-        "type": "Program",
-        "body": [
+        type: 'Program',
+        body: [
             {
-                "type": "EmptyStatement",
-                "start": 0,
-                "end": 1,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
+                type: 'EmptyStatement',
+                start: 0,
+                end: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 1
+                    end: {
+                        line: 1,
+                        column: 1
                     }
                 }
             },
             {
-                "type": "EmptyStatement",
-                "start": 1,
-                "end": 2,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 1
+                type: 'EmptyStatement',
+                start: 1,
+                end: 2,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 1
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 2
+                    end: {
+                        line: 1,
+                        column: 2
                     }
                 }
             },
             {
-                "type": "EmptyStatement",
-                "start": 2,
-                "end": 3,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 2
+                type: 'EmptyStatement',
+                start: 2,
+                end: 3,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 2
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 3
+                    end: {
+                        line: 1,
+                        column: 3
                     }
                 }
             },
             {
-                "type": "EmptyStatement",
-                "start": 3,
-                "end": 4,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 3
+                type: 'EmptyStatement',
+                start: 3,
+                end: 4,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 3
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 4
+                    end: {
+                        line: 1,
+                        column: 4
                     }
                 }
             }
         ],
-        "sourceType": "script",
-        "start": 0,
-        "end": 4,
-        "loc": {
-            "start": {
-                "line": 1,
-                "column": 0
+        sourceType: 'script',
+        start: 0,
+        end: 4,
+        loc: {
+            start: {
+                line: 1,
+                column: 0
             },
-            "end": {
-                "line": 1,
-                "column": 4
+            end: {
+                line: 1,
+                column: 4
             }
         }
     }
     });
 
-    pass(`0\n;`, {
+  pass(`0\n;`, {
       source: `0\n;`,
       raw: true,
       expected: {
-          "body": [
+          body: [
             {
-              "expression": {
-                "raw": "0",
-                "type": "Literal",
-                "value": 0,
+              expression: {
+                raw: '0',
+                type: 'Literal',
+                value: 0,
               },
-              "type": "ExpressionStatement"
+              type: 'ExpressionStatement'
             }
           ],
-          "sourceType": "script",
-          "type": "Program"
+          sourceType: 'script',
+          type: 'Program'
         }
     });
 
-    pass(`x: while(true) { continue x\n; }`, {
+  pass(`x: while(true) { continue x\n; }`, {
       source: `    \t \f\v 'abc'  \t `,
       raw: true,
       expected: {
-          "body": [
+          body: [
             {
-              "directive": "abc",
-              "expression": {
-                "raw": "'abc'",
-                "type": "Literal",
-                "value": "abc"
+              directive: 'abc',
+              expression: {
+                raw: '\'abc\'',
+                type: 'Literal',
+                value: 'abc'
               },
-             "type": "ExpressionStatement"
+             type: 'ExpressionStatement'
             }
           ],
-          "sourceType": "script",
-          "type": "Program"
+          sourceType: 'script',
+          type: 'Program'
         }
     });
 
-    pass(`    \t \f\v\n 'abc'  \t `, {
+  pass(`    \t \f\v\n 'abc'  \t `, {
       source: `    \t \f\v\n 'abc'  \t `,
       raw: true,
       expected: {
-          "body": [
+          body: [
             {
-              "directive": "abc",
-              "expression": {
-                "raw": "'abc'",
-                "type": "Literal",
-                "value": "abc",
+              directive: 'abc',
+              expression: {
+                raw: '\'abc\'',
+                type: 'Literal',
+                value: 'abc',
               },
-              "type": "ExpressionStatement"
+              type: 'ExpressionStatement'
             },
           ],
-          "sourceType": "script",
-          "type": "Program"
+          sourceType: 'script',
+          type: 'Program'
         }
     });
 
-    pass(`    \t \f\v\n`, {
+  pass(`    \t \f\v\n`, {
       source: `    \t \f\v\n`,
       raw: true,
       expected: {
-          "body": [],
-          "sourceType": "script",
-          "type": "Program"
+          body: [],
+          sourceType: 'script',
+          type: 'Program'
         }
     });
 
-    pass(`x: while(true) { continue x\n; }`, {
+  pass(`x: while(true) { continue x\n; }`, {
         source: `x: while(true) { continue x
             ; }`,
         loc: true,
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 43,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 43,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 2,
-                "column": 15
+              end: {
+                line: 2,
+                column: 15
               }
             },
-            "body": [
+            body: [
               {
-                "type": "LabeledStatement",
-                "start": 0,
-                "end": 43,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'LabeledStatement',
+                start: 0,
+                end: 43,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 2,
-                    "column": 15
+                  end: {
+                    line: 2,
+                    column: 15
                   }
                 },
-                "body": {
-                  "type": "WhileStatement",
-                  "start": 3,
-                  "end": 43,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 3
+                body: {
+                  type: 'WhileStatement',
+                  start: 3,
+                  end: 43,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 3
                     },
-                    "end": {
-                      "line": 2,
-                      "column": 15
+                    end: {
+                      line: 2,
+                      column: 15
                     }
                   },
-                  "test": {
-                    "type": "Literal",
-                    "start": 9,
-                    "end": 13,
-                    "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 9
+                  test: {
+                    type: 'Literal',
+                    start: 9,
+                    end: 13,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 9
                       },
-                      "end": {
-                        "line": 1,
-                        "column": 13
+                      end: {
+                        line: 1,
+                        column: 13
                       }
                     },
-                    
-                    "value": true,
-                    "raw": "true"
+
+                    value: true,
+                    raw: 'true'
                   },
-                  "body": {
-                    "type": "BlockStatement",
-                    "start": 15,
-                    "end": 43,
-                    "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 15
+                  body: {
+                    type: 'BlockStatement',
+                    start: 15,
+                    end: 43,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 15
                       },
-                      "end": {
-                        "line": 2,
-                        "column": 15
+                      end: {
+                        line: 2,
+                        column: 15
                       }
                     },
-                    "body": [
+                    body: [
                       {
-                        "type": "ContinueStatement",
-                        "start": 17,
-                        "end": 41,
-                        "loc": {
-                          "start": {
-                            "line": 1,
-                            "column": 17
+                        type: 'ContinueStatement',
+                        start: 17,
+                        end: 41,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 17
                           },
-                          "end": {
-                            "line": 2,
-                            "column": 13
+                          end: {
+                            line: 2,
+                            column: 13
                           }
                         },
-                        "label": {
-                          "type": "Identifier",
-                          "start": 26,
-                          "end": 27,
-                          "loc": {
-                            "start": {
-                              "line": 1,
-                              "column": 26
+                        label: {
+                          type: 'Identifier',
+                          start: 26,
+                          end: 27,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 26
                             },
-                            "end": {
-                              "line": 1,
-                              "column": 27
+                            end: {
+                              line: 1,
+                              column: 27
                             }
                           },
-                          "name": "x"
+                          name: 'x'
                         }
                       }
                     ]
                   }
                 },
-                "label": {
-                  "type": "Identifier",
-                  "start": 0,
-                  "end": 1,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 0
+                label: {
+                  type: 'Identifier',
+                  start: 0,
+                  end: 1,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 1
+                    end: {
+                      line: 1,
+                      column: 1
                     }
                   },
-                  "name": "x"
+                  name: 'x'
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
     });
 /*
@@ -526,7 +526,7 @@ fail(`for header is (\n semicolon false)`, {
           ; }`,
       loc: true,
       ranges: true,
-      raw: true,    
+      raw: true,
       expected: {}
     });
 
@@ -535,7 +535,7 @@ fail(`for header is (\n semicolon false)`, {
           ; }`,
       loc: true,
       ranges: true,
-      raw: true,    
+      raw: true,
       expected: {}
     });
 
@@ -544,7 +544,7 @@ fail(`for header is (\n semicolon false)`, {
           ; }`,
       loc: true,
       ranges: true,
-      raw: true,    
+      raw: true,
       expected: {}
     });
 
@@ -553,294 +553,244 @@ fail(`for header is (\n semicolon false)`, {
           ; }`,
       loc: true,
       ranges: true,
-      raw: true,    
+      raw: true,
       expected: {}
     });
 */
-    pass(`function f() { return\n; }`, {
+  pass(`function f() { return\n; }`, {
         source: `function f() { return
             ; }`,
         loc: true,
         ranges: true,
-        raw: true,    
+        raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 37,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 37,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 2,
-                "column": 15
+              end: {
+                line: 2,
+                column: 15
               }
             },
-            "body": [
+            body: [
               {
-                "type": "FunctionDeclaration",
-                "start": 0,
-                "end": 37,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'FunctionDeclaration',
+                start: 0,
+                end: 37,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 2,
-                    "column": 15
+                  end: {
+                    line: 2,
+                    column: 15
                   }
                 },
-                "id": {
-                  "type": "Identifier",
-                  "start": 9,
-                  "end": 10,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 9
+                id: {
+                  type: 'Identifier',
+                  start: 9,
+                  end: 10,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 9
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 10
+                    end: {
+                      line: 1,
+                      column: 10
                     }
                   },
-                  "name": "f"
+                  name: 'f'
                 },
-                "generator": false,
-                "expression": false,
-                "async": false,
-                "params": [],
-                "body": {
-                  "type": "BlockStatement",
-                  "start": 13,
-                  "end": 37,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 13
+                generator: false,
+                expression: false,
+                async: false,
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  start: 13,
+                  end: 37,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 13
                     },
-                    "end": {
-                      "line": 2,
-                      "column": 15
+                    end: {
+                      line: 2,
+                      column: 15
                     }
                   },
-                  "body": [
+                  body: [
                     {
-                      "type": "ReturnStatement",
-                      "start": 15,
-                      "end": 35,
-                      "loc": {
-                        "start": {
-                          "line": 1,
-                          "column": 15
+                      type: 'ReturnStatement',
+                      start: 15,
+                      end: 35,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 15
                         },
-                        "end": {
-                          "line": 2,
-                          "column": 13
+                        end: {
+                          line: 2,
+                          column: 13
                         }
                       },
-                      "argument": null
+                      argument: null
                     }
                   ]
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
     });
 
-    pass(`if(a)b\n;else c;`, {
+  pass(`if(a)b\n;else c;`, {
         source: `if(a)b
         ;else c;`,
         loc: true,
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 23,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 23,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 2,
-                "column": 16
+              end: {
+                line: 2,
+                column: 16
               }
             },
-            "body": [
+            body: [
               {
-                "type": "IfStatement",
-                "start": 0,
-                "end": 23,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'IfStatement',
+                start: 0,
+                end: 23,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 2,
-                    "column": 16
+                  end: {
+                    line: 2,
+                    column: 16
                   }
                 },
-                "test": {
-                  "type": "Identifier",
-                  "start": 3,
-                  "end": 4,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 3
+                test: {
+                  type: 'Identifier',
+                  start: 3,
+                  end: 4,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 3
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 4
+                    end: {
+                      line: 1,
+                      column: 4
                     }
                   },
-                  "name": "a"
+                  name: 'a'
                 },
-                "consequent": {
-                  "type": "ExpressionStatement",
-                  "start": 5,
-                  "end": 16,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 5
+                consequent: {
+                  type: 'ExpressionStatement',
+                  start: 5,
+                  end: 16,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 5
                     },
-                    "end": {
-                      "line": 2,
-                      "column": 9
+                    end: {
+                      line: 2,
+                      column: 9
                     }
                   },
-                  "expression": {
-                    "type": "Identifier",
-                    "start": 5,
-                    "end": 6,
-                    "loc": {
-                      "start": {
-                        "line": 1,
-                        "column": 5
+                  expression: {
+                    type: 'Identifier',
+                    start: 5,
+                    end: 6,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 5
                       },
-                      "end": {
-                        "line": 1,
-                        "column": 6
+                      end: {
+                        line: 1,
+                        column: 6
                       }
                     },
-                    "name": "b"
+                    name: 'b'
                   }
                 },
-                "alternate": {
-                  "type": "ExpressionStatement",
-                  "start": 21,
-                  "end": 23,
-                  "loc": {
-                    "start": {
-                      "line": 2,
-                      "column": 14
+                alternate: {
+                  type: 'ExpressionStatement',
+                  start: 21,
+                  end: 23,
+                  loc: {
+                    start: {
+                      line: 2,
+                      column: 14
                     },
-                    "end": {
-                      "line": 2,
-                      "column": 16
+                    end: {
+                      line: 2,
+                      column: 16
                     }
                   },
-                  "expression": {
-                    "type": "Identifier",
-                    "start": 21,
-                    "end": 22,
-                    "loc": {
-                      "start": {
-                        "line": 2,
-                        "column": 14
+                  expression: {
+                    type: 'Identifier',
+                    start: 21,
+                    end: 22,
+                    loc: {
+                      start: {
+                        line: 2,
+                        column: 14
                       },
-                      "end": {
-                        "line": 2,
-                        "column": 15
+                      end: {
+                        line: 2,
+                        column: 15
                       }
                     },
-                    "name": "c"
+                    name: 'c'
                   }
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
     });
 
-    pass(`do {} \n while(false)`, {
-        source: `do {} 
+  pass(`do {} \n while(false)`, {
+        source: `do {}
          while(false)`,
-        loc: true,
-        ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 28,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
-              },
-              "end": {
-                "line": 2,
-                "column": 21
-              }
-            },
-            "body": [
+          type: 'Program',
+          body: [
               {
-                "type": "DoWhileStatement",
-                "start": 0,
-                "end": 28,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                  type: 'DoWhileStatement',
+                  body: {
+                      type: 'BlockStatement',
+                      body: []
                   },
-                  "end": {
-                    "line": 2,
-                    "column": 21
+                  test: {
+                      type: 'Literal',
+                      value: false,
+                      raw: 'false'
                   }
-                },
-                "body": {
-                  "type": "BlockStatement",
-                  "start": 3,
-                  "end": 5,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 3
-                    },
-                    "end": {
-                      "line": 1,
-                      "column": 5
-                    }
-                  },
-                  "body": []
-                },
-                "test": {
-                  "type": "Literal",
-                  "start": 22,
-                  "end": 27,
-                  "loc": {
-                    "start": {
-                      "line": 2,
-                      "column": 15
-                    },
-                    "end": {
-                      "line": 2,
-                      "column": 20
-                    }
-                  },
-                  "value": false,
-                  "raw": "false"
-                }
               }
-            ],
-            "sourceType": "script"
-          }
+          ],
+          sourceType: 'script'
+      }
     });
 });

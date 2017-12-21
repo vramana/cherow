@@ -26,7 +26,7 @@ describe('Expressions - Prefix decreement', () => {
         source: '--1;',
     });
 
-     fail(`++1;`, {
+    fail(`++1;`, {
         source: '++1;',
     });
 
@@ -34,5 +34,4 @@ describe('Expressions - Prefix decreement', () => {
         source: '"use strict"; --arguments;',
     });
 
-    
 });

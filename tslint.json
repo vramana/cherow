@@ -4,14 +4,11 @@
     "eofline": false,
     "forin": false,
      "indent": [
-      false,
+      true,
       "tabs"
     ],
     "interface-name": false,
-     "max-line-length": [
-      false,
-      180
-    ],
+     "max-line-length": false,
     "max-classes-per-file": [false, 0],
     "member-access": false,
     "no-bitwise": false,

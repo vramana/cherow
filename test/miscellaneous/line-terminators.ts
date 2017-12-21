@@ -13,7 +13,7 @@ describe('Miscellaneous - Line terminators', () => {
   });
 
   fail(`ingle line comment contains line feed`, {
-      source: `//single 
+      source: `//single
       line comment`,
       loc: true,
       ranges: true,
@@ -21,7 +21,7 @@ describe('Miscellaneous - Line terminators', () => {
   });
 
   fail(`single line comment contains line feed`, {
-      source: `//single 
+      source: `//single
     line comment`,
       loc: true,
       ranges: true,
@@ -61,117 +61,117 @@ describe('Miscellaneous - Line terminators', () => {
     ranges: true,
     raw: true,
     expected: {
-      "type": "Program",
-      "body": [
+      type: 'Program',
+      body: [
           {
-              "type": "VariableDeclaration",
-              "declarations": [
+              type: 'VariableDeclaration',
+              declarations: [
                   {
-                      "type": "VariableDeclarator",
-                      "init": {
-                          "type": "BinaryExpression",
-                          "left": {
-                              "type": "Identifier",
-                              "name": "y",
-                              "start": 20,
-                              "end": 21,
-                              "loc": {
-                                  "start": {
-                                      "line": 4,
-                                      "column": 4
+                      type: 'VariableDeclarator',
+                      init: {
+                          type: 'BinaryExpression',
+                          left: {
+                              type: 'Identifier',
+                              name: 'y',
+                              start: 20,
+                              end: 21,
+                              loc: {
+                                  start: {
+                                      line: 4,
+                                      column: 4
                                   },
-                                  "end": {
-                                      "line": 4,
-                                      "column": 5
+                                  end: {
+                                      line: 4,
+                                      column: 5
                                   }
                               }
                           },
-                          "right": {
-                              "type": "Identifier",
-                              "name": "z",
-                              "start": 32,
-                              "end": 33,
-                              "loc": {
-                                  "start": {
-                                      "line": 6,
-                                      "column": 4
+                          right: {
+                              type: 'Identifier',
+                              name: 'z',
+                              start: 32,
+                              end: 33,
+                              loc: {
+                                  start: {
+                                      line: 6,
+                                      column: 4
                                   },
-                                  "end": {
-                                      "line": 6,
-                                      "column": 5
+                                  end: {
+                                      line: 6,
+                                      column: 5
                                   }
                               }
                           },
-                          "operator": "-",
-                          "start": 20,
-                          "end": 33,
-                          "loc": {
-                              "start": {
-                                  "line": 4,
-                                  "column": 4
+                          operator: '-',
+                          start: 20,
+                          end: 33,
+                          loc: {
+                              start: {
+                                  line: 4,
+                                  column: 4
                               },
-                              "end": {
-                                  "line": 6,
-                                  "column": 5
+                              end: {
+                                  line: 6,
+                                  column: 5
                               }
                           }
                       },
-                      "id": {
-                          "type": "Identifier",
-                          "name": "x",
-                          "start": 8,
-                          "end": 9,
-                          "loc": {
-                              "start": {
-                                  "line": 2,
-                                  "column": 4
+                      id: {
+                          type: 'Identifier',
+                          name: 'x',
+                          start: 8,
+                          end: 9,
+                          loc: {
+                              start: {
+                                  line: 2,
+                                  column: 4
                               },
-                              "end": {
-                                  "line": 2,
-                                  "column": 5
+                              end: {
+                                  line: 2,
+                                  column: 5
                               }
                           }
                       },
-                      "start": 8,
-                      "end": 33,
-                      "loc": {
-                          "start": {
-                              "line": 2,
-                              "column": 4
+                      start: 8,
+                      end: 33,
+                      loc: {
+                          start: {
+                              line: 2,
+                              column: 4
                           },
-                          "end": {
-                              "line": 6,
-                              "column": 5
+                          end: {
+                              line: 6,
+                              column: 5
                           }
                       }
                   }
               ],
-              "kind": "var",
-              "start": 0,
-              "end": 39,
-              "loc": {
-                  "start": {
-                      "line": 1,
-                      "column": 0
+              kind: 'var',
+              start: 0,
+              end: 39,
+              loc: {
+                  start: {
+                      line: 1,
+                      column: 0
                   },
-                  "end": {
-                      "line": 7,
-                      "column": 5
+                  end: {
+                      line: 7,
+                      column: 5
                   }
               }
           }
       ],
-      "sourceType": "script",
-      "start": 0,
-      "end": 39,
-      "loc": {
-          "start": {
-              "line": 1,
-              "column": 0
+      sourceType: 'script',
+      start: 0,
+      end: 39,
+      loc: {
+          start: {
+              line: 1,
+              column: 0
           },
-          "end": {
-              "line": 7,
-              "column": 5
+          end: {
+              line: 7,
+              column: 5
           }
       }
   }

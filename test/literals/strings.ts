@@ -1,7 +1,7 @@
 import { pass, fail } from '../utils';
 
 describe('Literals - Strings', () => {
-    
+
         fail('"\\u{g0g}"',  { source: '"\\u{g0g}"'});
         fail('"\\u{g0g}"',  { source: '"\\u{g}"'});
         fail('"\\u{g}"',  { source: '"\\u{g}"'});
@@ -64,53 +64,53 @@ describe('Literals - Strings', () => {
             ranges: true,
             raw: true,
             expected: {
-                "type": "Program",
-                "body": [
+                type: 'Program',
+                body: [
                     {
-                        "type": "ExpressionStatement",
-                        "directive": "abc",
-                        "expression": {
-                            "type": "Literal",
-                            "value": "abc",
-                            "start": 0,
-                            "end": 5,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 0
+                        type: 'ExpressionStatement',
+                        directive: 'abc',
+                        expression: {
+                            type: 'Literal',
+                            value: 'abc',
+                            start: 0,
+                            end: 5,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
                                 },
-                                "end": {
-                                    "line": 1,
-                                    "column": 5
+                                end: {
+                                    line: 1,
+                                    column: 5
                                 }
                             },
-                            "raw": "\"abc\""
+                            raw: '"abc"'
                         },
-                        "start": 0,
-                        "end": 5,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 0
+                        start: 0,
+                        end: 5,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
                             },
-                            "end": {
-                                "line": 1,
-                                "column": 5
+                            end: {
+                                line: 1,
+                                column: 5
                             }
                         }
                     }
                 ],
-                "sourceType": "script",
-                "start": 0,
-                "end": 5,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
+                sourceType: 'script',
+                start: 0,
+                end: 5,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 5
+                    end: {
+                        line: 1,
+                        column: 5
                     }
                 }
             }
@@ -122,74 +122,73 @@ describe('Literals - Strings', () => {
             ranges: true,
             raw: true,
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "end": 4,
-                      "directive": "\\б",
-                      "expression": {
-                       "end": 4,
-                        "loc": {
-                          "end": {
-                            "column": 4,
-                            "line": 1,
+                      end: 4,
+                      directive: '\\б',
+                      expression: {
+                       end: 4,
+                        loc: {
+                          end: {
+                            column: 4,
+                            line: 1,
                           },
-                          "start": {
-                            "column": 0,
-                            "line": 1,
+                          start: {
+                            column: 0,
+                            line: 1,
                           }
                         },
-                        "raw": "\"\\б\"",
-                       "start": 0,
-                        "type": "Literal",
-                        "value": "б",
+                        raw: '"\\б"',
+                       start: 0,
+                        type: 'Literal',
+                        value: 'б',
                      },
-                      "loc": {
-                        "end": {
-                          "column": 4,
-                          "line": 1,
+                      loc: {
+                        end: {
+                          column: 4,
+                          line: 1,
                         },
-                        "start": {
-                          "column": 0,
-                          "line": 1,
+                        start: {
+                          column: 0,
+                          line: 1,
                         }
                       },
-                      "start": 0,
-                      "type": "ExpressionStatement"
+                      start: 0,
+                      type: 'ExpressionStatement'
                     }
                   ],
-                  "end": 4,
-                  "loc": {
-                    "end": {
-                      "column": 4,
-                      "line": 1,
+                  end: 4,
+                  loc: {
+                    end: {
+                      column: 4,
+                      line: 1,
                     },
-                    "start": {
-                      "column": 0,
-                      "line": 1,
+                    start: {
+                      column: 0,
+                      line: 1,
                     },
                  },
-                  "sourceType": "script",
-                  "start": 0,
-                  "type": "Program"
+                  sourceType: 'script',
+                  start: 0,
+                  type: 'Program'
                 }
         });
-
 
         pass(`"\\u0435"`, {
             source: '"\\n\\r\\t\\v\\b\\f"',
             expected:  {
-                  "body": [
+                  body: [
                     {
-                      "directive": "\\n\\r\\t\\v\\b\\f",
-                      "expression": {
-                        "type": "Literal",
-                        "value": "\n\r\t\u000b\b\f",
+                      directive: '\\n\\r\\t\\v\\b\\f',
+                      expression: {
+                        type: 'Literal',
+                        value: '\n\r\t\u000b\b\f',
                       },
-                      "type": "ExpressionStatement",
+                      type: 'ExpressionStatement',
                     },
                   ],
-                  "sourceType": "script",
-                 "type": "Program"
+                  sourceType: 'script',
+                 type: 'Program'
                 }
         });
 
@@ -199,25 +198,25 @@ describe('Literals - Strings', () => {
             ranges: true,
             raw: true,
             expected:  {
-                  "body": [
+                  body: [
                     {
-                      "directive": "Hello\\nworld",
-                      "end": 14,
-                      "expression": {
-                        "end": 14,
-                        "raw": "\"Hello\\nworld\"",
-                        "start": 0,
-                        "type": "Literal",
-                        "value": "Hello\nworld",
+                      directive: 'Hello\\nworld',
+                      end: 14,
+                      expression: {
+                        end: 14,
+                        raw: '"Hello\\nworld"',
+                        start: 0,
+                        type: 'Literal',
+                        value: 'Hello\nworld',
                       },
-                      "start": 0,
-                      "type": "ExpressionStatement",
+                      start: 0,
+                      type: 'ExpressionStatement',
                     }
                   ],
-                 "end": 14,
-                  "sourceType": "script",
-                  "start": 0,
-                  "type": "Program"
+                 end: 14,
+                  sourceType: 'script',
+                  start: 0,
+                  type: 'Program'
                 }
         });
 
@@ -228,7 +227,7 @@ describe('Literals - Strings', () => {
             ranges: true,
             raw: true,
             expected:  {
-                type: "Program",
+                type: 'Program',
                 start: 0,
                 end: 8,
                 loc: {
@@ -242,7 +241,7 @@ describe('Literals - Strings', () => {
                     }
                 },
                 body: [{
-                    type: "ExpressionStatement",
+                    type: 'ExpressionStatement',
                     start: 0,
                     end: 8,
                     loc: {
@@ -255,9 +254,9 @@ describe('Literals - Strings', () => {
                             column: 8
                         }
                     },
-                    directive: "\\u0435",
+                    directive: '\\u0435',
                     expression: {
-                        type: "Literal",
+                        type: 'Literal',
                         start: 0,
                         end: 8,
                         loc: {
@@ -270,11 +269,11 @@ describe('Literals - Strings', () => {
                                 column: 8
                             }
                         },
-                        value: "е",
-                        raw: "\"\\u0435\""
+                        value: 'е',
+                        raw: '"\\u0435"'
                     }
                 }],
-                sourceType: "script"
+                sourceType: 'script'
             }
         });
 
@@ -285,7 +284,7 @@ describe('Literals - Strings', () => {
             directives: true,
             raw: true,
             expected: {
-                type: "Program",
+                type: 'Program',
                 start: 0,
                 end: 8,
                 loc: {
@@ -299,7 +298,7 @@ describe('Literals - Strings', () => {
                     }
                 },
                 body: [{
-                    type: "ExpressionStatement",
+                    type: 'ExpressionStatement',
                     start: 0,
                     end: 8,
                     loc: {
@@ -312,9 +311,9 @@ describe('Literals - Strings', () => {
                             column: 8
                         }
                     },
-                    directive: "\\u0432",
+                    directive: '\\u0432',
                     expression: {
-                        type: "Literal",
+                        type: 'Literal',
                         start: 0,
                         end: 8,
                         loc: {
@@ -327,11 +326,11 @@ describe('Literals - Strings', () => {
                                 column: 8
                             }
                         },
-                        value: "в",
-                        raw: "\"\\u0432\""
+                        value: 'в',
+                        raw: '"\\u0432"'
                     }
                 }],
-                sourceType: "script"
+                sourceType: 'script'
             }
         });
 
@@ -343,7 +342,7 @@ describe('Literals - Strings', () => {
             raw: true,
             expected: {
                 body: [{
-                    directive: "\\u180E",
+                    directive: '\\u180E',
                     end: 8,
                     expression: {
                         end: 8,
@@ -357,10 +356,10 @@ describe('Literals - Strings', () => {
                                 line: 1
                             }
                         },
-                        raw: "\"\\u180E\"",
+                        raw: '"\\u180E"',
                         start: 0,
-                        type: "Literal",
-                        value: "᠎",
+                        type: 'Literal',
+                        value: '᠎',
                     },
                     loc: {
                         end: {
@@ -373,7 +372,7 @@ describe('Literals - Strings', () => {
                         }
                     },
                     start: 0,
-                    type: "ExpressionStatement",
+                    type: 'ExpressionStatement',
                 }],
                 end: 8,
                 loc: {
@@ -386,9 +385,9 @@ describe('Literals - Strings', () => {
                         line: 1,
                     },
                 },
-                sourceType: "script",
+                sourceType: 'script',
                 start: 0,
-                type: "Program"
+                type: 'Program'
             }
         });
 
@@ -400,7 +399,7 @@ describe('Literals - Strings', () => {
             directives: true,
             expected: {
                 body: [{
-                    directive: "\\7",
+                    directive: '\\7',
                     end: 4,
                     expression: {
                         end: 4,
@@ -414,10 +413,10 @@ describe('Literals - Strings', () => {
                                 line: 1,
                             },
                         },
-                        raw: "\"\\7\"",
+                        raw: '"\\7"',
                         start: 0,
-                        type: "Literal",
-                        value: "\u0007",
+                        type: 'Literal',
+                        value: '\u0007',
                     },
                     loc: {
                         end: {
@@ -430,7 +429,7 @@ describe('Literals - Strings', () => {
                         },
                     },
                     start: 0,
-                    type: "ExpressionStatement",
+                    type: 'ExpressionStatement',
                 }],
                 end: 4,
                 loc: {
@@ -443,9 +442,9 @@ describe('Literals - Strings', () => {
                         line: 1,
                     },
                 },
-                sourceType: "script",
+                sourceType: 'script',
                 start: 0,
-                type: "Program"
+                type: 'Program'
             }
         });
 
@@ -456,7 +455,7 @@ describe('Literals - Strings', () => {
             directives: true,
             raw: true,
             expected: {
-                type: "Program",
+                type: 'Program',
                 start: 0,
                 end: 16,
                 loc: {
@@ -470,7 +469,7 @@ describe('Literals - Strings', () => {
                     }
                 },
                 body: [{
-                    type: "ExpressionStatement",
+                    type: 'ExpressionStatement',
                     start: 0,
                     end: 16,
                     loc: {
@@ -483,9 +482,9 @@ describe('Literals - Strings', () => {
                             column: 16
                         }
                     },
-                    directive: "Hello\\012World",
+                    directive: 'Hello\\012World',
                     expression: {
-                        type: "Literal",
+                        type: 'Literal',
                         start: 0,
                         end: 16,
                         loc: {
@@ -498,11 +497,11 @@ describe('Literals - Strings', () => {
                                 column: 16
                             }
                         },
-                        value: "Hello\nWorld",
-                        raw: "\"Hello\\012World\""
+                        value: 'Hello\nWorld',
+                        raw: '"Hello\\012World"'
                     }
                 }],
-                sourceType: "script"
+                sourceType: 'script'
             }
         });
 
@@ -513,7 +512,7 @@ describe('Literals - Strings', () => {
             directives: true,
             raw: true,
             expected: {
-                type: "Program",
+                type: 'Program',
                 start: 0,
                 end: 16,
                 loc: {
@@ -527,7 +526,7 @@ describe('Literals - Strings', () => {
                     }
                 },
                 body: [{
-                    type: "ExpressionStatement",
+                    type: 'ExpressionStatement',
                     start: 0,
                     end: 16,
                     loc: {
@@ -540,9 +539,9 @@ describe('Literals - Strings', () => {
                             column: 16
                         }
                     },
-                    directive: "Hello\\412World",
+                    directive: 'Hello\\412World',
                     expression: {
-                        type: "Literal",
+                        type: 'Literal',
                         start: 0,
                         end: 16,
                         loc: {
@@ -555,11 +554,11 @@ describe('Literals - Strings', () => {
                                 column: 16
                             }
                         },
-                        value: "Hello!2World",
-                        raw: "\"Hello\\412World\""
+                        value: 'Hello!2World',
+                        raw: '"Hello\\412World"'
                     }
                 }],
-                sourceType: "script"
+                sourceType: 'script'
             }
         });
 
@@ -570,7 +569,7 @@ describe('Literals - Strings', () => {
             raw: true,
             directives: true,
             expected: {
-                type: "Program",
+                type: 'Program',
                 start: 0,
                 end: 16,
                 loc: {
@@ -584,7 +583,7 @@ describe('Literals - Strings', () => {
                     }
                 },
                 body: [{
-                    type: "ExpressionStatement",
+                    type: 'ExpressionStatement',
                     start: 0,
                     end: 16,
                     loc: {
@@ -597,9 +596,9 @@ describe('Literals - Strings', () => {
                             column: 16
                         }
                     },
-                    directive: "Hello\\712World",
+                    directive: 'Hello\\712World',
                     expression: {
-                        type: "Literal",
+                        type: 'Literal',
                         start: 0,
                         end: 16,
                         loc: {
@@ -612,11 +611,11 @@ describe('Literals - Strings', () => {
                                 column: 16
                             }
                         },
-                        value: "Hello92World",
-                        raw: "\"Hello\\712World\""
+                        value: 'Hello92World',
+                        raw: '"Hello\\712World"'
                     }
                 }],
-                sourceType: "script"
+                sourceType: 'script'
             }
         });
 
@@ -627,7 +626,7 @@ describe('Literals - Strings', () => {
             directives: true,
             raw: true,
             expected: {
-                type: "Program",
+                type: 'Program',
                 start: 0,
                 end: 14,
                 loc: {
@@ -641,7 +640,7 @@ describe('Literals - Strings', () => {
                     }
                 },
                 body: [{
-                    type: "ExpressionStatement",
+                    type: 'ExpressionStatement',
                     start: 0,
                     end: 14,
                     loc: {
@@ -654,9 +653,9 @@ describe('Literals - Strings', () => {
                             column: 14
                         }
                     },
-                    directive: "Hello\\1World",
+                    directive: 'Hello\\1World',
                     expression: {
-                        type: "Literal",
+                        type: 'Literal',
                         start: 0,
                         end: 14,
                         loc: {
@@ -669,11 +668,11 @@ describe('Literals - Strings', () => {
                                 column: 14
                             }
                         },
-                        value: "Hello\u0001World",
-                        raw: "\"Hello\\1World\""
+                        value: 'Hello\u0001World',
+                        raw: '"Hello\\1World"'
                     }
                 }],
-                sourceType: "script"
+                sourceType: 'script'
             }
         });
 
@@ -684,7 +683,7 @@ describe('Literals - Strings', () => {
             directives: true,
             raw: true,
             expected:  {
-                type: "Program",
+                type: 'Program',
                 start: 0,
                 end: 6,
                 loc: {
@@ -698,7 +697,7 @@ describe('Literals - Strings', () => {
                     }
                 },
                 body: [{
-                    type: "ExpressionStatement",
+                    type: 'ExpressionStatement',
                     start: 0,
                     end: 6,
                     loc: {
@@ -711,9 +710,9 @@ describe('Literals - Strings', () => {
                             column: 6
                         }
                     },
-                    directive: "\\xff",
+                    directive: '\\xff',
                     expression: {
-                        type: "Literal",
+                        type: 'Literal',
                         start: 0,
                         end: 6,
                         loc: {
@@ -726,11 +725,11 @@ describe('Literals - Strings', () => {
                                 column: 6
                             }
                         },
-                        value: "ÿ",
-                        raw: "\"\\xff\""
+                        value: 'ÿ',
+                        raw: '"\\xff"'
                     }
                 }],
-                sourceType: "script"
+                sourceType: 'script'
             }
         });
 
@@ -740,53 +739,53 @@ describe('Literals - Strings', () => {
             ranges: true,
             raw: true,
             expected: {
-                "type": "Program",
-                "body": [
+                type: 'Program',
+                body: [
                     {
-                        "type": "ExpressionStatement",
-                        "directive": "\\u{11000}",
-                        "expression": {
-                            "type": "Literal",
-                            "value": "𑀀",
-                            "start": 0,
-                            "end": 11,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 0
+                        type: 'ExpressionStatement',
+                        directive: '\\u{11000}',
+                        expression: {
+                            type: 'Literal',
+                            value: '𑀀',
+                            start: 0,
+                            end: 11,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
                                 },
-                                "end": {
-                                    "line": 1,
-                                    "column": 11
+                                end: {
+                                    line: 1,
+                                    column: 11
                                 }
                             },
-                            "raw": "\"\\u{11000}\""
+                            raw: '"\\u{11000}"'
                         },
-                        "start": 0,
-                        "end": 11,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 0
+                        start: 0,
+                        end: 11,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
                             },
-                            "end": {
-                                "line": 1,
-                                "column": 11
+                            end: {
+                                line: 1,
+                                column: 11
                             }
                         }
                     }
                 ],
-                "sourceType": "script",
-                "start": 0,
-                "end": 11,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
+                sourceType: 'script',
+                start: 0,
+                end: 11,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 11
+                    end: {
+                        line: 1,
+                        column: 11
                     }
                 }
             }
@@ -796,19 +795,19 @@ describe('Literals - Strings', () => {
             source: '"\\Щ"',
             raw: true,
             expected: {
-                  "body": [
+                  body: [
                     {
-                        "directive": "\\Щ",
-                        "expression": {
-                        "raw": "\"\\Щ\"",
-                        "type": "Literal",
-                       "value": "Щ"
+                        directive: '\\Щ',
+                        expression: {
+                        raw: '"\\Щ"',
+                        type: 'Literal',
+                       value: 'Щ'
                       },
-                     "type": "ExpressionStatement"
+                     type: 'ExpressionStatement'
                     }
                   ],
-                  "sourceType": "script",
-                  "type": "Program"
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
 
@@ -816,19 +815,19 @@ describe('Literals - Strings', () => {
             source: '"\\З"',
             raw: true,
             expected: {
-                  "body": [
+                  body: [
                     {
-                    "directive": "\\З",
-                    "expression": {
-                        "raw": "\"\\З\"",
-                        "type": "Literal",
-                       "value": "З"
+                    directive: '\\З',
+                    expression: {
+                        raw: '"\\З"',
+                        type: 'Literal',
+                       value: 'З'
                       },
-                     "type": "ExpressionStatement"
+                     type: 'ExpressionStatement'
                     }
                   ],
-                  "sourceType": "script",
-                  "type": "Program"
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
 
@@ -836,19 +835,19 @@ describe('Literals - Strings', () => {
             source: '"\\ю"',
             raw: true,
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "directive": "\\ю",
-                      "expression": {
-                        "raw": "\"\\ю\"",
-                        "type": "Literal",
-                       "value": "ю"
+                      directive: '\\ю',
+                      expression: {
+                        raw: '"\\ю"',
+                        type: 'Literal',
+                       value: 'ю'
                       },
-                     "type": "ExpressionStatement"
+                     type: 'ExpressionStatement'
                     }
                   ],
-                  "sourceType": "script",
-                  "type": "Program"
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
 
@@ -856,19 +855,19 @@ describe('Literals - Strings', () => {
             source: '"\\б"',
             raw: true,
             expected: {
-                  "body": [
+                  body: [
                     {
-                     "directive": "\\б",
-                      "expression": {
-                        "raw": "\"\\б\"",
-                        "type": "Literal",
-                       "value": "б"
+                     directive: '\\б',
+                      expression: {
+                        raw: '"\\б"',
+                        type: 'Literal',
+                       value: 'б'
                       },
-                     "type": "ExpressionStatement"
+                     type: 'ExpressionStatement'
                     }
                   ],
-                  "sourceType": "script",
-                  "type": "Program"
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
 
@@ -876,19 +875,19 @@ describe('Literals - Strings', () => {
             source: '"a\\r\\nb"',
             raw: true,
             expected: {
-                  "body": [
+                  body: [
                    {
-                      "directive": "a\\r\\nb",
-                      "expression": {
-                        "raw": "\"a\\r\\nb\"",
-                        "type": "Literal",
-                        "value": "a\r\nb",
+                      directive: 'a\\r\\nb',
+                      expression: {
+                        raw: '"a\\r\\nb"',
+                        type: 'Literal',
+                        value: 'a\r\nb',
                      },
-                      "type": "ExpressionStatement",
+                      type: 'ExpressionStatement',
                     },
                   ],
-                  "sourceType": "script",
-                  "type": "Program"
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
 
@@ -898,53 +897,53 @@ describe('Literals - Strings', () => {
             ranges: true,
             raw: true,
             expected: {
-                "type": "Program",
-                "body": [
+                type: 'Program',
+                body: [
                     {
-                        "type": "ExpressionStatement",
-                        "expression": {
-                            "type": "Literal",
-                            "value": "ё",
-                            "start": 0,
-                            "end": 8,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 0
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'Literal',
+                            value: 'ё',
+                            start: 0,
+                            end: 8,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
                                 },
-                                "end": {
-                                    "line": 1,
-                                    "column": 8
+                                end: {
+                                    line: 1,
+                                    column: 8
                                 }
                             },
-                            "raw": "\"\\u0451\""
+                            raw: '"\\u0451"'
                         },
-                        "start": 0,
-                        "end": 8,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 0
+                        start: 0,
+                        end: 8,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
                             },
-                            "end": {
-                                "line": 1,
-                                "column": 8
+                            end: {
+                                line: 1,
+                                column: 8
                             }
                         },
-                        "directive": "\\u0451"
+                        directive: '\\u0451'
                     }
                 ],
-                "sourceType": "script",
-                "start": 0,
-                "end": 8,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
+                sourceType: 'script',
+                start: 0,
+                end: 8,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 8
+                    end: {
+                        line: 1,
+                        column: 8
                     }
                 }
             }
@@ -956,53 +955,53 @@ describe('Literals - Strings', () => {
             ranges: true,
             raw: true,
             expected: {
-                "type": "Program",
-                "body": [
+                type: 'Program',
+                body: [
                     {
-                        "type": "ExpressionStatement",
-                        "expression": {
-                            "type": "Literal",
-                            "value": "\u0006A",
-                            "start": 0,
-                            "end": 9,
-                            "loc": {
-                                "start": {
-                                    "line": 1,
-                                    "column": 0
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'Literal',
+                            value: '\u0006A',
+                            start: 0,
+                            end: 9,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
                                 },
-                                "end": {
-                                    "line": 1,
-                                    "column": 9
+                                end: {
+                                    line: 1,
+                                    column: 9
                                 }
                             },
-                            "raw": "\"\\u0006A\""
+                            raw: '"\\u0006A"'
                         },
-                        "start": 0,
-                        "end": 9,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 0
+                        start: 0,
+                        end: 9,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
                             },
-                            "end": {
-                                "line": 1,
-                                "column": 9
+                            end: {
+                                line: 1,
+                                column: 9
                             }
                         },
-                        "directive": "\\u0006A"
+                        directive: '\\u0006A'
                     }
                 ],
-                "sourceType": "script",
-                "start": 0,
-                "end": 9,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
+                sourceType: 'script',
+                start: 0,
+                end: 9,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 9
+                    end: {
+                        line: 1,
+                        column: 9
                     }
                 }
             }

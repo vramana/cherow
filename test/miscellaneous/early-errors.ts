@@ -2,7 +2,7 @@ import { pass, fail } from '../utils';
 
 describe('Miscellaneous - Early errors', () => {
     /**/
-    
+
         fail(`class a extends b { constructor() { function c(d = super()){} } }`, {
             source: `class a extends b { constructor() { function c(d = super()){} } }`,
         });
@@ -82,7 +82,6 @@ describe('Miscellaneous - Early errors', () => {
         fail(`class A extends B { constructor() { !function(a = super()){} } }`, {
             source: `class A extends B { constructor() { !function(a = super()){} } }`,
         });
-
 
         fail(`class a extends b { constructor() { function c(d = super()){} } }`, {
             source: `class a extends b { constructor() { function c(d = super()){} } }`,
@@ -211,5 +210,5 @@ describe('Miscellaneous - Early errors', () => {
         fail(`(class {a(b = super()){}});`, {
             source: `(class {a(b = super()){}});`,
         });
-        
+
 });

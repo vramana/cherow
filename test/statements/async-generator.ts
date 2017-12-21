@@ -12,4 +12,3 @@ describe('Statements - Async generator', () => {
         next: true
     });
 });
-

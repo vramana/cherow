@@ -1,28 +1,28 @@
 import { pass, fail } from '../utils';
 
 describe('Miscellaneous - Whitespace', () => {
- 
+
     pass(`spaces`, {
         source: '        ',
         loc: true,
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 8,
-             "loc": {
-                "end": {
-                  "column": 8,
-                  "line": 1,
+              body: [],
+              end: 8,
+             loc: {
+                end: {
+                  column: 8,
+                  line: 1,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 },
               },
-             "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+             sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -32,21 +32,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 8,
-             "loc": {
-                "end": {
-                  "column": 8,
-                  "line": 1,
+              body: [],
+              end: 8,
+             loc: {
+                end: {
+                  column: 8,
+                  line: 1,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 },
               },
-             "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+             sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -56,21 +56,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 8,
-             "loc": {
-                "end": {
-                  "column": 8,
-                  "line": 1,
+              body: [],
+              end: 8,
+             loc: {
+                end: {
+                  column: 8,
+                  line: 1,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 },
               },
-             "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+             sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -80,21 +80,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 8,
-             "loc": {
-                "end": {
-                  "column": 0,
-                  "line": 9,
+              body: [],
+              end: 8,
+             loc: {
+                end: {
+                  column: 0,
+                  line: 9,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 },
               },
-             "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+             sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -104,81 +104,81 @@ describe('Miscellaneous - Whitespace', () => {
       ranges: true,
       raw: true,
       expected: {
-        "type": "Program",
-        "body": [{
-                "type": "ExpressionStatement",
-                "expression": {
-                    "type": "Identifier",
-                    "name": "a",
-                    "start": 0,
-                    "end": 1,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 0
+        type: 'Program',
+        body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Identifier',
+                    name: 'a',
+                    start: 0,
+                    end: 1,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
                         },
-                        "end": {
-                            "line": 1,
-                            "column": 1
+                        end: {
+                            line: 1,
+                            column: 1
                         }
                     }
                 },
-                "start": 0,
-                "end": 1,
-                "loc": {
-                    "start": {
-                        "line": 1,
-                        "column": 0
+                start: 0,
+                end: 1,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
                     },
-                    "end": {
-                        "line": 1,
-                        "column": 1
+                    end: {
+                        line: 1,
+                        column: 1
                     }
                 }
             },
             {
-                "type": "ExpressionStatement",
-                "expression": {
-                    "type": "Identifier",
-                    "name": "b",
-                    "start": 3,
-                    "end": 4,
-                    "loc": {
-                        "start": {
-                            "line": 2,
-                            "column": 0
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Identifier',
+                    name: 'b',
+                    start: 3,
+                    end: 4,
+                    loc: {
+                        start: {
+                            line: 2,
+                            column: 0
                         },
-                        "end": {
-                            "line": 2,
-                            "column": 1
+                        end: {
+                            line: 2,
+                            column: 1
                         }
                     }
                 },
-                "start": 3,
-                "end": 4,
-                "loc": {
-                    "start": {
-                        "line": 2,
-                        "column": 0
+                start: 3,
+                end: 4,
+                loc: {
+                    start: {
+                        line: 2,
+                        column: 0
                     },
-                    "end": {
-                        "line": 2,
-                        "column": 1
+                    end: {
+                        line: 2,
+                        column: 1
                     }
                 }
             }
         ],
-        "sourceType": "script",
-        "start": 0,
-        "end": 4,
-        "loc": {
-            "start": {
-                "line": 1,
-                "column": 0
+        sourceType: 'script',
+        start: 0,
+        end: 4,
+        loc: {
+            start: {
+                line: 1,
+                column: 0
             },
-            "end": {
-                "line": 2,
-                "column": 1
+            end: {
+                line: 2,
+                column: 1
             }
         }
     }
@@ -190,21 +190,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 8,
-             "loc": {
-                "end": {
-                  "column": 0,
-                  "line": 9,
+              body: [],
+              end: 8,
+             loc: {
+                end: {
+                  column: 0,
+                  line: 9,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 },
               },
-             "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+             sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -214,21 +214,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 8,
-             "loc": {
-                "end": {
-                  "column": 0,
-                  "line": 9,
+              body: [],
+              end: 8,
+             loc: {
+                end: {
+                  column: 0,
+                  line: 9,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 },
               },
-             "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+             sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -238,21 +238,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 8,
-             "loc": {
-                "end": {
-                  "column": 0,
-                  "line": 9,
+              body: [],
+              end: 8,
+             loc: {
+                end: {
+                  column: 0,
+                  line: 9,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 },
               },
-             "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+             sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -262,21 +262,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 8,
-             "loc": {
-                "end": {
-                  "column": 0,
-                  "line": 9,
+              body: [],
+              end: 8,
+             loc: {
+                end: {
+                  column: 0,
+                  line: 9,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 },
               },
-             "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+             sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -286,21 +286,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 26,
-              "loc": {
-               "end": {
-                  "column": 5,
-                  "line": 2,
+              body: [],
+              end: 26,
+              loc: {
+               end: {
+                  column: 5,
+                  line: 2,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 }
              },
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -310,21 +310,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 26,
-              "loc": {
-               "end": {
-                  "column": 5,
-                  "line": 2,
+              body: [],
+              end: 26,
+              loc: {
+               end: {
+                  column: 5,
+                  line: 2,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 }
              },
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -334,21 +334,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 32,
-              "loc": {
-                "end": {
-                  "column": 4,
-                  "line": 2,
+              body: [],
+              end: 32,
+              loc: {
+                end: {
+                  column: 4,
+                  line: 2,
                 },
-                "start": {
-                  "column": 0,
-                 "line": 1,
+                start: {
+                  column: 0,
+                 line: 1,
                }
               },
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -358,21 +358,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 37,
-              "loc": {
-                "end": {
-                  "column": 5,
-                  "line": 2,
+              body: [],
+              end: 37,
+              loc: {
+                end: {
+                  column: 5,
+                  line: 2,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 }
               },
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -382,21 +382,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 33,
-              "loc": {
-                "end": {
-                  "column": 5,
-                  "line": 3,
+              body: [],
+              end: 33,
+              loc: {
+                end: {
+                  column: 5,
+                  line: 3,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 }
              },
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -406,21 +406,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-             "end": 9,
-              "loc": {
-                "end": {
-                  "column": 4,
-                  "line": 2,
+              body: [],
+             end: 9,
+              loc: {
+                end: {
+                  column: 4,
+                  line: 2,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 }
               },
-             "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+             sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -430,21 +430,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-             "end": 52,
-              "loc": {
-                "end": {
-                  "column": 2,
-                  "line": 3,
+              body: [],
+             end: 52,
+              loc: {
+                end: {
+                  column: 2,
+                  line: 3,
                 },
-                "start": {
-                 "column": 0,
-                  "line": 1,
+                start: {
+                 column: 0,
+                  line: 1,
                 }
               },
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -455,21 +455,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 116,
-              "loc": {
-                "end": {
-                  "column": 1,
-                  "line": 5,
+              body: [],
+              end: 116,
+              loc: {
+                end: {
+                  column: 1,
+                  line: 5,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 }
               },
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -479,21 +479,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 54,
-              "loc": {
-                "end": {
-                  "column": 54,
-                  "line": 1,
+              body: [],
+              end: 54,
+              loc: {
+                end: {
+                  column: 54,
+                  line: 1,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                },
               },
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 
@@ -503,21 +503,21 @@ describe('Miscellaneous - Whitespace', () => {
         ranges: true,
         raw: true,
         expected: {
-              "body": [],
-              "end": 9,
-              "loc": {
-                "end": {
-                  "column": 9,
-                  "line": 1,
+              body: [],
+              end: 9,
+              loc: {
+                end: {
+                  column: 9,
+                  line: 1,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 }
               },
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 });

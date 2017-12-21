@@ -124,7 +124,7 @@ export class Parser {
         const node: ESTree.Program = {
             type: 'Program',
             body,
-            sourceType: isModule ? "module" : "script",
+            sourceType: isModule ? 'module' : 'script',
         };
 
         if (this.flags & Flags.OptionsRanges) {
@@ -1175,7 +1175,7 @@ export class Parser {
                 state |= NumericState.Float;
                 // Invalid: '06.7'
                 if (state & NumericState.ImplicitOctal) {
-                    const next = this.source.charCodeAt(this.index + 1)
+                    const next = this.source.charCodeAt(this.index + 1);
                     if (next >= Chars.Zero && next <= Chars.Nine) this.error(Errors.UnexpectedNumber);
                 } else {
                     this.advance();
@@ -1779,7 +1779,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: any,
         node: any,
@@ -1838,7 +1838,7 @@ export class Parser {
                 break;
             default:
                 if (this.flags & Flags.PrecedingLineBreak) break;
-                this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         }
     }
 
@@ -1973,7 +1973,7 @@ export class Parser {
 
                 if (this.token === Token.FromKeyword) {
                     source = this.parseFromClause(context);
-                } else if (isReserved) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+                } else if (isReserved) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
 
                 this.functionScope = functionScope;
                 this.blockScope = blockScope;
@@ -2085,9 +2085,9 @@ export class Parser {
         let local;
 
         if (!hasAs) {
-            if (t & Token.Reserved) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+            if (t & Token.Reserved) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             if (this.isEvalOrArguments(value)) {
-                this.error(Errors.UnexpectedStrictReserved)
+                this.error(Errors.UnexpectedStrictReserved);
             }
             local = imported;
         } else local = this.parseBindingIdentifier(context);
@@ -3163,7 +3163,7 @@ export class Parser {
                 return;
 
             case 'AssignmentExpression':
-                if (node.operator !== '=') this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+                if (node.operator !== '=') this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 node.type = 'AssignmentPattern';
                 delete node.operator; // operator is not relevant for assignment pattern
                 // Fall through
@@ -3407,7 +3407,7 @@ export class Parser {
                 break;
 
             default:
-                this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         }
 
         return this.finishNode(context, pos, {
@@ -3452,7 +3452,7 @@ export class Parser {
                 // 'import'
             case Token.ImportKeyword:
                 if (!(this.flags & Flags.OptionsNext)) {
-                    this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+                    this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 }
                 context |= Context.Import;
                 expr = this.parseImportCall(context | Context.AllowIn, pos);
@@ -3597,7 +3597,7 @@ export class Parser {
 
             const t = this.token;
 
-            if (!this.isIdentifier(context, t)) this.error(Errors.UnexpectedToken, tokenDesc(t))
+            if (!this.isIdentifier(context, t)) this.error(Errors.UnexpectedToken, tokenDesc(t));
 
             if (this.isEvalOrArguments(this.tokenValue)) {
                 if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
@@ -3621,10 +3621,10 @@ export class Parser {
                 }
 
                 if (context & Context.Declaration) {
-                    let name = this.tokenValue;
+                    const name = this.tokenValue;
                     if (!this.initBlockScope() && name in this.blockScope) {
                         if (this.blockScope[name] & ScopeMasks.Shadowable || this.blockScope !== this.functionScope) {
-                            this.error(Errors.DuplicateBinding, name)
+                            this.error(Errors.DuplicateBinding, name);
                         }
                     }
                     this.blockScope[this.tokenValue] = ScopeMasks.Shadowable;
@@ -3749,7 +3749,7 @@ export class Parser {
                 const expr = this.parseIdentifier(context);
                 if (this.token === Token.Arrow) return this.parseArrowFunctionExpression(context & ~Context.Yield | Context.AllowIn | Context.Await, pos, [expr]);
                 // Invalid: 'async abc'
-                this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
 
                 // CoverCallExpressionAndAsyncArrowHead[Yield, Await]:
             case Token.LeftParen:
@@ -3823,7 +3823,7 @@ export class Parser {
             if (this.flags & Flags.Await) this.error(Errors.InvalidAwaitInArrowParam);
             if (state & ParenthesizedState.EvalOrArg) this.error(Errors.StrictParamName);
             if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
-            if (state & ParenthesizedState.Trailing) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+            if (state & ParenthesizedState.Trailing) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
             return this.parseArrowFunctionExpression(context | Context.Await, pos, args);
         }
 
@@ -3869,7 +3869,7 @@ export class Parser {
     private parseSpreadExpression(context: Context): ESTree.SpreadElement {
         const pos = this.getLocations();
         // Disallow SpreadElement inside dynamic import
-        if (context & Context.Import) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+        if (context & Context.Import) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         this.expect(context, Token.Ellipsis);
 
         const arg = this.parseAssignmentExpression(context);
@@ -3997,7 +3997,7 @@ export class Parser {
                 if (context & Context.InAsyncArgs) this.flags |= Flags.Await;
                 if (context & Context.Module) {
                     // Valid: 'await = 0;'
-                    if (!this.nextTokenIsAssign(context)) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+                    if (!this.nextTokenIsAssign(context)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 }
                 return this.parseIdentifier(context);
             case Token.LetKeyword:
@@ -4011,7 +4011,7 @@ export class Parser {
                 if (context & Context.Yield) this.error(Errors.DisallowedInContext, tokenDesc(this.token));
                 // falls through
             default:
-                if (!this.isIdentifier(context, this.token)) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+                if (!this.isIdentifier(context, this.token)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 return this.parseIdentifier(context);
         }
     }
@@ -4332,7 +4332,7 @@ export class Parser {
                     if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
                     fieldpos = this.getLocations();
                     key = this.parseIdentifier(context);
-                    if (this.token === Token.LeftBracket) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+                    if (this.token === Token.LeftBracket) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                     // Stage 3 Proposal - Class-fields
                     if (this.token !== Token.LeftParen) {
                         if (this.flags & Flags.OptionsNext) {
@@ -4382,7 +4382,7 @@ export class Parser {
 
     // TODO! Remove this when Object Rest / Spread reach Stage 4
     private parseObjectSpreadExpression(context: Context): ESTree.SpreadElement {
-        if (!(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+        if (!(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         const pos = this.getLocations();
         this.expect(context, Token.Ellipsis);
         const arg = this.parseAssignmentExpression(context);
@@ -4504,7 +4504,7 @@ export class Parser {
             default:
 
                 if (state & ObjectState.Special || !this.isIdentifier(context, t)) {
-                    this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+                    this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 }
 
                 if (context & Context.Yield && t & Token.IsYield) {
@@ -4512,7 +4512,7 @@ export class Parser {
                 }
 
                 if (t & Token.IsAwait) {
-                    if (context & Context.Await) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+                    if (context & Context.Await) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                     this.errorLocation = this.getLocations();
                     this.flags |= Flags.Await;
                 }
@@ -4976,10 +4976,10 @@ export class Parser {
                 // Check `var` variables in the current or parent scopes
                 (this.blockScope[name] & ScopeMasks.Shadowable) !== 0
             )) {
-            this.error(Errors.DuplicateIdentifier, name)
+            this.error(Errors.DuplicateIdentifier, name);
         }
 
-        this.blockScope[name] = ScopeMasks.NonShadowable
+        this.blockScope[name] = ScopeMasks.NonShadowable;
     }
 
     private parseAssignmentPattern(
@@ -5016,7 +5016,7 @@ export class Parser {
                 return this.parseBindingIdentifier(context);
 
             case Token.AwaitKeyword:
-                if (context & (Context.Module | Context.Await)) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+                if (context & (Context.Module | Context.Await)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
 
             default:
 
@@ -5029,7 +5029,7 @@ export class Parser {
         const t = this.token;
 
         if (!this.isIdentifier(context, t)) {
-            this.error(Errors.UnexpectedToken, tokenDesc(t))
+            this.error(Errors.UnexpectedToken, tokenDesc(t));
         } else if (context & Context.Lexical && t === Token.LetKeyword) {
             this.error(Errors.LetInLexicalBinding);
         }
@@ -5058,7 +5058,7 @@ export class Parser {
         const pos = this.getLocations();
         this.expect(context, Token.Ellipsis);
         const argument = this.parseBindingIdentifierOrPattern(context);
-        if (this.token === Token.Assign) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+        if (this.token === Token.Assign) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         return this.finishNode(context, pos, {
             type: 'RestElement',
             argument
@@ -5129,9 +5129,9 @@ export class Parser {
         const pos = this.getLocations();
         this.expect(context, Token.Ellipsis);
 
-        if (!(this.token & Token.IsIdentifier)) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+        if (!(this.token & Token.IsIdentifier)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         const arg = this.parseBindingIdentifierOrPattern(context);
-        if (this.token === Token.Assign) this.error(Errors.UnexpectedToken, tokenDesc(this.token))
+        if (this.token === Token.Assign) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
 
         return this.finishNode(context, pos, {
             type: 'RestElement',
@@ -5265,7 +5265,7 @@ export class Parser {
     private parseJSXExpressionContainer(
         context: Context
     ): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
-        const pos = this.getLocations()
+        const pos = this.getLocations();
         this.expect(context, Token.LeftBrace);
 
         if (this.token === Token.Ellipsis) {
@@ -5485,7 +5485,6 @@ export class Parser {
 
         return expression;
     }
-
 
     private parseJSXElement(context: Context) {
         const pos = this.getLocations();

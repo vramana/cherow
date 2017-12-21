@@ -18,6 +18,4 @@ describe('Expressions - Postfix decrement', () => {
         source: '1--;',
     });
 
-    
-    
 });
