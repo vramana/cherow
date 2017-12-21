@@ -8,7 +8,6 @@ export interface Options {
     comments?: EmitComments;
     loc?: boolean;
     raw?: boolean;
-    directives?: boolean;
     jsx?: boolean;
     flow?: boolean;
     source?: string;

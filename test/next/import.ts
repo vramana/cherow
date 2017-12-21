@@ -73,7 +73,8 @@ describe('Next - Dynamic Import', () => {
                                 "line": 1,
                                 "column": 13
                             }
-                        }
+                        },
+                        "directive": "use strict"
                     },
                     {
                         "type": "ExpressionStatement",

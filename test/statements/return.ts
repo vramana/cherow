@@ -427,6 +427,7 @@ describe('Statements - Return', () => {
         expected: {
               "body": [
                 {
+                  "directive": "use strict",
                   "expression": {
                     "type": "Literal",
                     "value": "use strict",

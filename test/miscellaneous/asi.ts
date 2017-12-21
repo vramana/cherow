@@ -339,6 +339,7 @@ fail(`for header is (\n semicolon false)`, {
       expected: {
           "body": [
             {
+              "directive": "abc",
               "expression": {
                 "raw": "'abc'",
                 "type": "Literal",
@@ -358,6 +359,7 @@ fail(`for header is (\n semicolon false)`, {
       expected: {
           "body": [
             {
+              "directive": "abc",
               "expression": {
                 "raw": "'abc'",
                 "type": "Literal",
@@ -444,6 +446,7 @@ fail(`for header is (\n semicolon false)`, {
                         "column": 13
                       }
                     },
+                    
                     "value": true,
                     "raw": "true"
                   },

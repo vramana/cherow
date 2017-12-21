@@ -59,6 +59,7 @@ describe('Declarations - Functions', () => {
                                 },
                                 "start": 14,
                                 "end": 27,
+                                "directive": "use strict",
                                 "loc": {
                                     "start": {
                                         "line": 1,

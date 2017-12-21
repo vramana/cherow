@@ -8218,7 +8218,8 @@ describe('Miscellaneous - AnnexB', () => {
                                     "line": 1,
                                     "column": 13
                                 }
-                            }
+                            },
+                            "directive": "use strict"
                         },
                         {
                             "type": "VariableDeclaration",

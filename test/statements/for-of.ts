@@ -40,7 +40,8 @@ describe('Statements - For of', () => {
                             "line": 1,
                             "column": 13
                         }
-                    }
+                    },
+                    "directive": "use strict"
                 },
                 {
                     "type": "ForOfStatement",
@@ -892,7 +893,8 @@ describe('Statements - For of', () => {
                                             "line": 1,
                                             "column": 35
                                         }
-                                    }
+                                    },
+                                    "directive": "use strict"
                                 },
                                 {
                                     "type": "ForOfStatement",

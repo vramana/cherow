@@ -38,6 +38,7 @@ export type Node =
     | SwitchCase
     | CatchClause
     | Statement
+    | Directive
     | Expression
     | Property
     | AssignmentProperty
@@ -340,6 +341,10 @@ export interface CatchClause extends _Node<'CatchClause'> {
     body: BlockStatement;
 }
 
+export interface Directive extends _Node<'ExpressionStatement'> {
+    expression: Expression | Literal;
+    directive: string;
+}
 export interface ClassBody extends _Node<'ClassBody'> {
     body: MethodDefinition[];
 }

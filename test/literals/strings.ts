@@ -68,6 +68,7 @@ describe('Literals - Strings', () => {
                 "body": [
                     {
                         "type": "ExpressionStatement",
+                        "directive": "abc",
                         "expression": {
                             "type": "Literal",
                             "value": "abc",
@@ -124,6 +125,7 @@ describe('Literals - Strings', () => {
                   "body": [
                     {
                       "end": 4,
+                      "directive": "\\б",
                       "expression": {
                        "end": 4,
                         "loc": {
@@ -178,6 +180,7 @@ describe('Literals - Strings', () => {
             expected:  {
                   "body": [
                     {
+                      "directive": "\\n\\r\\t\\v\\b\\f",
                       "expression": {
                         "type": "Literal",
                         "value": "\n\r\t\u000b\b\f",
@@ -741,6 +744,7 @@ describe('Literals - Strings', () => {
                 "body": [
                     {
                         "type": "ExpressionStatement",
+                        "directive": "\\u{11000}",
                         "expression": {
                             "type": "Literal",
                             "value": "𑀀",
@@ -794,7 +798,8 @@ describe('Literals - Strings', () => {
             expected: {
                   "body": [
                     {
-                      "expression": {
+                        "directive": "\\Щ",
+                        "expression": {
                         "raw": "\"\\Щ\"",
                         "type": "Literal",
                        "value": "Щ"
@@ -813,7 +818,8 @@ describe('Literals - Strings', () => {
             expected: {
                   "body": [
                     {
-                      "expression": {
+                    "directive": "\\З",
+                    "expression": {
                         "raw": "\"\\З\"",
                         "type": "Literal",
                        "value": "З"
@@ -832,6 +838,7 @@ describe('Literals - Strings', () => {
             expected: {
                   "body": [
                     {
+                      "directive": "\\ю",
                       "expression": {
                         "raw": "\"\\ю\"",
                         "type": "Literal",
@@ -851,6 +858,7 @@ describe('Literals - Strings', () => {
             expected: {
                   "body": [
                     {
+                     "directive": "\\б",
                       "expression": {
                         "raw": "\"\\б\"",
                         "type": "Literal",
@@ -870,6 +878,7 @@ describe('Literals - Strings', () => {
             expected: {
                   "body": [
                    {
+                      "directive": "a\\r\\nb",
                       "expression": {
                         "raw": "\"a\\r\\nb\"",
                         "type": "Literal",
@@ -921,7 +930,8 @@ describe('Literals - Strings', () => {
                                 "line": 1,
                                 "column": 8
                             }
-                        }
+                        },
+                        "directive": "\\u0451"
                     }
                 ],
                 "sourceType": "script",
@@ -978,7 +988,8 @@ describe('Literals - Strings', () => {
                                 "line": 1,
                                 "column": 9
                             }
-                        }
+                        },
+                        "directive": "\\u0006A"
                     }
                 ],
                 "sourceType": "script",

@@ -5988,6 +5988,7 @@ describe('Expressions - Arrow', () => {
                         "async": false,
                         "body": {
                             "body": [{
+                                "directive": "use strict",
                                 "end": 19,
                                 "expression": {
                                     "end": 18,

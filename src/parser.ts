@@ -7,6 +7,7 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location, EmitComments } from './interface';
+
 export class Parser {
     
         // The program to be parsed
@@ -96,7 +97,6 @@ export class Parser {
                 if (options.ranges) this.flags |= Flags.OptionsRanges;
                 if (options.raw) this.flags |= Flags.OptionsRaw;
                 if (options.globalReturn) this.flags |= Flags.OptionsGlobalReturn;
-                if (options.directives) this.flags |= Flags.OptionsDirectives;
                 if (options.comments) this.comments = options.comments;
     
                 if (options.source) {
@@ -185,10 +185,9 @@ export class Parser {
             this.lastIndex = this.index;
             this.lastColumn = this.column;
             this.lastLine = this.line;
-    
-            if (!(context & Context.Strict) && this.flags & Flags.DirectivePrologue) {
-                context |= Context.Strict;
-            }
+            
+            if (this.flags & Flags.StrictDirective) context |= Context.Strict;
+            
             this.token = this.scan(context);
     
             return this.token;
@@ -1380,7 +1379,7 @@ export class Parser {
         private scanString(context: Context, quote: number): Token {
     
             let ret = '';
-    
+            let isEscaped = false;
             this.advance(); // Consume the quote
             let ch = this.nextChar();
     
@@ -1405,8 +1404,8 @@ export class Parser {
                             } else {
                                 this.handleStringError(context, code as Escape);
                             }
-    
                             this.flags |= Flags.ExtendedUnicodeEscape;
+                            isEscaped = true;
                         }
                         break;
     
@@ -1416,14 +1415,17 @@ export class Parser {
     
                 ch = this.scanNext();
             }
-    
-            if (!(this.flags & Flags.ExtendedUnicodeEscape) && ret === 'use strict') {
-                this.flags |= Flags.DirectivePrologue;
-            }
-    
+                
             this.advance(); // Consume the quote
-            if (this.flags & (Flags.OptionsRaw | Flags.OptionsDirectives)) this.storeRaw(this.startIndex);
+    
+            this.storeRaw(this.startIndex);
+    
+            if (isEscaped) {
+                this.flags |= Flags.ExtendedUnicodeEscape;
+            } else if (ret === 'use strict') this.flags |= Flags.StrictDirective;
+    
             this.tokenValue = ret;
+    
             return Token.StringLiteral;
         }
     
@@ -1723,22 +1725,23 @@ export class Parser {
     
         private parseModuleItemList(context: Context): ESTree.Statement[] {
             const statements: ESTree.Statement[] = [];
+
+            while (this.token === Token.StringLiteral) {
+                statements.push(this.parseDirective(context));
+                break;
+                            }
     
             while (this.token !== Token.EndOfSource) {
-                if (this.token === Token.StringLiteral && this.flags & Flags.OptionsDirectives) {
-                    statements.push(this.parseDirective(context));
-                } else {
                     statements.push(this.parseModuleItem(context | Context.AllowIn));
-                }
             }
     
             return statements;
         }
     
-        private parseDirective(context: Context): ESTree.ExpressionStatement {
+        private parseDirective(context: Context): ESTree.Directive {
             const pos = this.getLocations();
-            const expr = this.parseExpression(context | Context.AllowIn, pos);
             const directive = this.tokenRaw.slice(1, -1);
+            const expr = this.parseExpression(context | Context.AllowIn, pos);
             this.consumeSemicolon(context);
             return this.finishNode(context, pos, {
                 type: 'ExpressionStatement',
@@ -1750,19 +1753,16 @@ export class Parser {
         private parseStatementList(context: Context, endToken: Token): ESTree.Statement[] {
     
             const statements: ESTree.Statement[] = [];
-            const enableDirectiveNode = (this.flags & Flags.OptionsDirectives) !== 0;
-    
+            
             while (this.token === Token.StringLiteral) {
-    
-                const item: ESTree.Statement = enableDirectiveNode ?
-                    this.parseDirective(context) :
-                    this.parseStatementListItem(context);
-    
+
+                const item = this.parseDirective(context);
+   
                 statements.push(item);
     
                 if (!isPrologueDirective(item)) break;
     
-                if (this.flags & Flags.DirectivePrologue) {
+                if (this.flags & Flags.StrictDirective) {
                     if (context & Context.StrictReserved) this.error(Errors.UnexpectedStrictReserved);
                     if (this.flags & Flags.SimpleParameterList) this.error(Errors.IllegalUseStrict);
                     if (this.flags & Flags.Binding) this.error(Errors.UnexpectedStrictReserved);

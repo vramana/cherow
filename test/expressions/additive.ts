@@ -219,7 +219,8 @@ describe('Expressions - Additive', () => {
                             "line": 1,
                             "column": 17
                         }
-                    }
+                    },
+                    "directive": "use strict"
                 }
             ],
             "sourceType": "script",

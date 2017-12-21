@@ -95,7 +95,6 @@ parseScript('1', { ranges: true, loc: true });`:
 | Option        | Description |
 | ----------- | ------------------------------------------------------------ |
 | `comments`        | Let you collect comments. Accepts either an array or function  |
-| `directives`      | Allow use of the [`ESTree`](https://github.com/estree/estree/blob/1da8e603237144f44710360f8feb7a9977e905e0/es5.md#directive) directive node |
 | `globalReturn`    | Enable return in global scope     |
 | `impliedStrict`   | Enable global strict mode in sloppy mode |
 | `jsx`             | Enable JSX parsing   |

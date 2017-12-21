@@ -150,7 +150,7 @@ describe('Statements - Try', () => {
         }
     });
 
-    pass(`try{}catch(a){}`, {
+    pass(`"use strict"; try {} catch (evil) {}`, {
         source: '"use strict"; try {} catch (evil) {}',
         loc: true,
         ranges: true,
@@ -188,7 +188,8 @@ describe('Statements - Try', () => {
                             "line": 1,
                             "column": 13
                         }
-                    }
+                    },
+                    "directive": "use strict"
                 },
                 {
                     "type": "TryStatement",

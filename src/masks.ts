@@ -60,20 +60,18 @@ export const enum Flags {
     Octal                        = 1 << 16, // e.g. `0777`
     ContainsSeparator            = 1 << 17,
     HasProtoField                = 1 << 18,
-
+    StrictDirective              = 1 << 19,
     /* Options */
-    OptionsRanges                = 1 << 19, // Enable / disable "ranges"
-    OptionsLoc                   = 1 << 20, // Enable / disable location tracking on the node
-    OptionsSource                = 1 << 21,
-    OptionsJSX                   = 1 << 22, // Enable / disable JSX extension
-    OptionsRaw                   = 1 << 23, // Enable / disable "raw" property on the node
-    OptionsNext                  = 1 << 24, // Enable / disable Stage 3 proposals
-    OptionsDirectives            = 1 << 25, // Enable / disable directives on the node
-    OptionsDelegate              = 1 << 26, // Enable / disable token syntax delegate
-    OptionsGlobalReturn          = 1 << 27, // Allow return statement in global scope,
-    OptionsSourceType            = 1 << 28, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
-    OptionsTolerant              = 1 << 29,
-    OptionsPlugins               = 1 << 30,
+    OptionsRanges                = 1 << 20, // Enable / disable "ranges"
+    OptionsLoc                   = 1 << 21, // Enable / disable location tracking on the node
+    OptionsSource                = 1 << 22,
+    OptionsJSX                   = 1 << 23, // Enable / disable JSX extension
+    OptionsRaw                   = 1 << 24, // Enable / disable "raw" property on the node
+    OptionsNext                  = 1 << 25, // Enable / disable Stage 3 proposals
+    OptionsGlobalReturn          = 1 << 26, // Allow return statement in global scope,
+    OptionsSourceType            = 1 << 27, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
+    OptionsTolerant              = 1 << 28,
+    OptionsPlugins               = 1 << 29,
     
     
 }

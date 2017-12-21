@@ -121,7 +121,8 @@ describe('Expressions - Delete', () => {
                 "raw": "\"use strict\""
             },
             "start": 0,
-            "end": 13
+            "end": 13,
+            "directive": "use strict"
         },
         {
             "type": "VariableDeclaration",
