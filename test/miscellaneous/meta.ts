@@ -85,7 +85,7 @@ describe('Miscellaneous - Meta', () => {
               "end": 1,
               "loc": {
                 "end": {
-                  "column": 0,
+                  "column": 1,
                   "line": 1,
                 },
                 "start": {
