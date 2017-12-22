@@ -3889,9 +3889,8 @@ Parser.prototype.parsePrivateProperty = function parsePrivateProperty (context, 
     var value = null;
     if (this.parseOptional(context, 1310749 /* Assign */))
         { value = this.parseAssignmentExpression(context); }
-    if (this.isEvalOrArguments(this.tokenValue)) {
-        this.error(70 /* UnexpectedReservedWord */);
-    }
+    if (this.isEvalOrArguments(this.tokenValue))
+        { this.error(70 /* UnexpectedReservedWord */); }
     this.parseOptional(context, 18 /* Comma */);
     return this.finishNode(context, pos, {
         type: 'ClassProperty',
@@ -4032,6 +4031,8 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
             break;
         case 117 /* Hash */:
             if (this.flags & 33554432 /* OptionsNext */) {
+                if (state & 512 /* Static */)
+                    { this.error(0 /* Unexpected */); }
                 key = this.parseClassPrivateProperty(context, state);
                 if (this.token !== 262155 /* LeftParen */)
                     { return key; }
@@ -4056,7 +4057,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                 // Stage 3 Proposal - Class-fields
                 if (this.token !== 262155 /* LeftParen */) {
                     if (this.flags & 33554432 /* OptionsNext */) {
-                        if (state & (4096 /* Prototype */ | 1024 /* Constructor */))
+                        if (state & (4096 /* Prototype */ | 1024 /* Constructor */ | 512 /* Static */))
                             { this.error(0 /* Unexpected */); }
                         return this.parseClassFields(context | 4 /* AllowIn */ | 4194304 /* ClassFields */, key, fieldpos);
                     }

@@ -4146,9 +4146,7 @@ export class Parser {
     private parsePrivateProperty(context: Context, pos: Location | undefined, key: ESTree.Expression) {
         let value: ESTree.Expression | null = null;
         if (this.parseOptional(context, Token.Assign)) value = this.parseAssignmentExpression(context);
-        if (this.isEvalOrArguments(this.tokenValue)) {
-            this.error(Errors.UnexpectedReservedWord);
-        }
+        if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
         this.parseOptional(context, Token.Comma);
         return this.finishNode(context, pos as Location, {
             type: 'ClassProperty',
@@ -4309,6 +4307,7 @@ export class Parser {
 
             case Token.Hash:
                 if (this.flags & Flags.OptionsNext) {
+                    if (state & ObjectState.Static) this.error(Errors.Unexpected);
                     key = this.parseClassPrivateProperty(context, state);
 
                     if (this.token !== Token.LeftParen) return key;
@@ -4333,7 +4332,7 @@ export class Parser {
                     // Stage 3 Proposal - Class-fields
                     if (this.token !== Token.LeftParen) {
                         if (this.flags & Flags.OptionsNext) {
-                            if (state & (ObjectState.Prototype | ObjectState.Constructor)) this.error(Errors.Unexpected);
+                            if (state & (ObjectState.Prototype | ObjectState.Constructor | ObjectState.Static)) this.error(Errors.Unexpected);
                             return this.parseClassFields(context | Context.AllowIn | Context.ClassFields, key, fieldpos);
                         }
                         this.error(Errors.UnexpectedToken, tokenDesc(this.token));

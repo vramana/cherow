@@ -170,16 +170,7 @@ describe('test262 tests', () => parserTest262({
         'test/language/types/boolean/S8.3_A2.1.js',
         'test/language/types/boolean/S8.3_A2.2.js',
         'test/language/types/reference/S8.7.2_A1_T1.js',
-        'test/language/types/reference/S8.7.2_A1_T2.js',
-        'test/language/expressions/class/fields-initializer-static-private-fields-forbidden.js',
-        'test/language/expressions/class/fields-initializer-static-public-fields-forbidden.js',
-        'test/language/expressions/class/fields-prop-name-static-public-fields-forbidden.js',
-        'test/language/statements/class/fields-initializer-static-private-fields-forbidden.js',
-        'test/language/statements/class/fields-initializer-static-public-fields-forbidden.js',
-        'test/language/statements/class/fields-prop-name-static-private-fields-forbidden.js',
-        'test/language/statements/class/fields-prop-name-static-public-fields-forbidden.js',
-        'test/language/expressions/class/fields-prop-name-static-private-fields-forbidden.js',
-        'test/language/expressions/class/fields-prop-name-static-private-fields-forbidden.js'
+        'test/language/types/reference/S8.7.2_A1_T2.js'
     ],
     parse: (file: string, source: string, opts: any) => {
         const cherowOpts = {
