@@ -42,9 +42,21 @@ describe('Declarations - Class', () => {
         fail(test('[]], '), {
             source: test('[], ')
         });
+
+        fail(test('[]], '), {
+            module: true,
+            source: test('[], ')
+        });
+
         fail(test('{}, '), {
             source: test('{}, ')
         });
+
+        fail(test('{}, '), {
+            module: true,
+            source: test('{}, ')
+        });
+
         fail(test('a = 0, '), {
             source: test('a = 0, ')
         });
@@ -68,6 +80,11 @@ describe('Declarations - Class', () => {
             source: test('a, ...b, ')
         });
         fail(test('a, , b'), {
+            source: test('a, , b')
+        });
+
+        fail(test('a, , b'), {
+            module: true,
             source: test('a, , b')
         });
     }

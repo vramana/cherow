@@ -118,7 +118,8 @@ describe('Miscellaneous - Simple parameter list', () => {
 
     for (const nonSimpleParameters of testCases) {
         for (const def of functionDefinitions) {
-            // Non-strict script code.
+            
+            // Sloppy mode
             fail(def(nonSimpleParameters), {
                 source: def(nonSimpleParameters)
             });
@@ -126,6 +127,12 @@ describe('Miscellaneous - Simple parameter list', () => {
             // Strict script code.
             fail('"use strict"; ' + def(nonSimpleParameters), {
                 source: '"use strict"; ' + def(nonSimpleParameters)
+            });
+
+             // Module code.
+             fail(def(nonSimpleParameters), {
+                module: true,
+                source: def(nonSimpleParameters)
             });
         }
     }
@@ -169,6 +176,11 @@ describe('Miscellaneous - Simple parameter list', () => {
 
     fail(`function a([ option1, option2 ]) { "use strict"; }`, {
         source: 'function a([ option1, option2 ]) { "use strict"; }',
+    });
+
+    fail(`function a([ option1, option2 ]) { "use strict"; }`, {
+        source: 'function a([ option1, option2 ]) { "use strict"; }',
+        module: true
     });
 
 });
