@@ -14789,6 +14789,1405 @@ describe('Expressions - Object', () => {
             }
         });
 
+    pass(`({ get "0"() { } });
+        ({ get 0() { } });
+        ({ get 0.0() { } });
+        ({ get 0.() { } });
+        ({ get 1.() { } });
+        ({ get 5.2322341234123() { } });
+
+        ({ set "0"(q) { } });
+        ({ set 0(q) { } });
+        ({ set 0.0(q) { } });
+        ({ set 0.(q) { } });
+        ({ set 1.(q) { } });
+        ({ set 5.2322341234123(q) { } });`, {
+            source: `({ get "0"() { } });
+            ({ get 0() { } });
+            ({ get 0.0() { } });
+            ({ get 0.() { } });
+            ({ get 1.() { } });
+            ({ get 5.2322341234123() { } });
+
+            ({ set "0"(q) { } });
+            ({ set 0(q) { } });
+            ({ set 0.0(q) { } });
+            ({ set 0.(q) { } });
+            ({ set 1.(q) { } });
+            ({ set 5.2322341234123(q) { } });`,
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Literal',
+                                        value: '0',
+                                        start: 7,
+                                        end: 10,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 7
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 10
+                                            }
+                                        },
+                                        raw: '"0"'
+                                    },
+                                    value: {
+                                        type: 'FunctionExpression',
+                                        params: [],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 13,
+                                            end: 16,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 13
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 16
+                                                }
+                                            }
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: null,
+                                        start: 10,
+                                        end: 16,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 10
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 16
+                                            }
+                                        }
+                                    },
+                                    kind: 'get',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 3,
+                                    end: 16,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 3
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 16
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 1,
+                            end: 18,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 1
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 18
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 20,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 20
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Literal',
+                                        value: 0,
+                                        start: 40,
+                                        end: 41,
+                                        loc: {
+                                            start: {
+                                                line: 2,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 2,
+                                                column: 20
+                                            }
+                                        },
+                                        raw: '0'
+                                    },
+                                    value: {
+                                        type: 'FunctionExpression',
+                                        params: [],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 44,
+                                            end: 47,
+                                            loc: {
+                                                start: {
+                                                    line: 2,
+                                                    column: 23
+                                                },
+                                                end: {
+                                                    line: 2,
+                                                    column: 26
+                                                }
+                                            }
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: null,
+                                        start: 41,
+                                        end: 47,
+                                        loc: {
+                                            start: {
+                                                line: 2,
+                                                column: 20
+                                            },
+                                            end: {
+                                                line: 2,
+                                                column: 26
+                                            }
+                                        }
+                                    },
+                                    kind: 'get',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 36,
+                                    end: 47,
+                                    loc: {
+                                        start: {
+                                            line: 2,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 2,
+                                            column: 26
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 34,
+                            end: 49,
+                            loc: {
+                                start: {
+                                    line: 2,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 2,
+                                    column: 28
+                                }
+                            }
+                        },
+                        start: 33,
+                        end: 51,
+                        loc: {
+                            start: {
+                                line: 2,
+                                column: 12
+                            },
+                            end: {
+                                line: 2,
+                                column: 30
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Literal',
+                                        value: 0,
+                                        start: 71,
+                                        end: 74,
+                                        loc: {
+                                            start: {
+                                                line: 3,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 3,
+                                                column: 22
+                                            }
+                                        },
+                                        raw: '0.0'
+                                    },
+                                    value: {
+                                        type: 'FunctionExpression',
+                                        params: [],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 77,
+                                            end: 80,
+                                            loc: {
+                                                start: {
+                                                    line: 3,
+                                                    column: 25
+                                                },
+                                                end: {
+                                                    line: 3,
+                                                    column: 28
+                                                }
+                                            }
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: null,
+                                        start: 74,
+                                        end: 80,
+                                        loc: {
+                                            start: {
+                                                line: 3,
+                                                column: 22
+                                            },
+                                            end: {
+                                                line: 3,
+                                                column: 28
+                                            }
+                                        }
+                                    },
+                                    kind: 'get',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 67,
+                                    end: 80,
+                                    loc: {
+                                        start: {
+                                            line: 3,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 3,
+                                            column: 28
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 65,
+                            end: 82,
+                            loc: {
+                                start: {
+                                    line: 3,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 3,
+                                    column: 30
+                                }
+                            }
+                        },
+                        start: 64,
+                        end: 84,
+                        loc: {
+                            start: {
+                                line: 3,
+                                column: 12
+                            },
+                            end: {
+                                line: 3,
+                                column: 32
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Literal',
+                                        value: 0,
+                                        start: 104,
+                                        end: 106,
+                                        loc: {
+                                            start: {
+                                                line: 4,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 4,
+                                                column: 21
+                                            }
+                                        },
+                                        raw: '0.'
+                                    },
+                                    value: {
+                                        type: 'FunctionExpression',
+                                        params: [],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 109,
+                                            end: 112,
+                                            loc: {
+                                                start: {
+                                                    line: 4,
+                                                    column: 24
+                                                },
+                                                end: {
+                                                    line: 4,
+                                                    column: 27
+                                                }
+                                            }
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: null,
+                                        start: 106,
+                                        end: 112,
+                                        loc: {
+                                            start: {
+                                                line: 4,
+                                                column: 21
+                                            },
+                                            end: {
+                                                line: 4,
+                                                column: 27
+                                            }
+                                        }
+                                    },
+                                    kind: 'get',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 100,
+                                    end: 112,
+                                    loc: {
+                                        start: {
+                                            line: 4,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 4,
+                                            column: 27
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 98,
+                            end: 114,
+                            loc: {
+                                start: {
+                                    line: 4,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 4,
+                                    column: 29
+                                }
+                            }
+                        },
+                        start: 97,
+                        end: 116,
+                        loc: {
+                            start: {
+                                line: 4,
+                                column: 12
+                            },
+                            end: {
+                                line: 4,
+                                column: 31
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Literal',
+                                        value: 1,
+                                        start: 136,
+                                        end: 138,
+                                        loc: {
+                                            start: {
+                                                line: 5,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 5,
+                                                column: 21
+                                            }
+                                        },
+                                        raw: '1.'
+                                    },
+                                    value: {
+                                        type: 'FunctionExpression',
+                                        params: [],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 141,
+                                            end: 144,
+                                            loc: {
+                                                start: {
+                                                    line: 5,
+                                                    column: 24
+                                                },
+                                                end: {
+                                                    line: 5,
+                                                    column: 27
+                                                }
+                                            }
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: null,
+                                        start: 138,
+                                        end: 144,
+                                        loc: {
+                                            start: {
+                                                line: 5,
+                                                column: 21
+                                            },
+                                            end: {
+                                                line: 5,
+                                                column: 27
+                                            }
+                                        }
+                                    },
+                                    kind: 'get',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 132,
+                                    end: 144,
+                                    loc: {
+                                        start: {
+                                            line: 5,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 5,
+                                            column: 27
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 130,
+                            end: 146,
+                            loc: {
+                                start: {
+                                    line: 5,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 5,
+                                    column: 29
+                                }
+                            }
+                        },
+                        start: 129,
+                        end: 148,
+                        loc: {
+                            start: {
+                                line: 5,
+                                column: 12
+                            },
+                            end: {
+                                line: 5,
+                                column: 31
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Literal',
+                                        value: 5.2322341234123,
+                                        start: 168,
+                                        end: 183,
+                                        loc: {
+                                            start: {
+                                                line: 6,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 6,
+                                                column: 34
+                                            }
+                                        },
+                                        raw: '5.2322341234123'
+                                    },
+                                    value: {
+                                        type: 'FunctionExpression',
+                                        params: [],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 186,
+                                            end: 189,
+                                            loc: {
+                                                start: {
+                                                    line: 6,
+                                                    column: 37
+                                                },
+                                                end: {
+                                                    line: 6,
+                                                    column: 40
+                                                }
+                                            }
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: null,
+                                        start: 183,
+                                        end: 189,
+                                        loc: {
+                                            start: {
+                                                line: 6,
+                                                column: 34
+                                            },
+                                            end: {
+                                                line: 6,
+                                                column: 40
+                                            }
+                                        }
+                                    },
+                                    kind: 'get',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 164,
+                                    end: 189,
+                                    loc: {
+                                        start: {
+                                            line: 6,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 6,
+                                            column: 40
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 162,
+                            end: 191,
+                            loc: {
+                                start: {
+                                    line: 6,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 6,
+                                    column: 42
+                                }
+                            }
+                        },
+                        start: 161,
+                        end: 193,
+                        loc: {
+                            start: {
+                                line: 6,
+                                column: 12
+                            },
+                            end: {
+                                line: 6,
+                                column: 44
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Literal',
+                                        value: '0',
+                                        start: 214,
+                                        end: 217,
+                                        loc: {
+                                            start: {
+                                                line: 8,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 8,
+                                                column: 22
+                                            }
+                                        },
+                                        raw: '"0"'
+                                    },
+                                    value: {
+                                        type: 'FunctionExpression',
+                                        params: [
+                                            {
+                                                type: 'Identifier',
+                                                name: 'q',
+                                                start: 218,
+                                                end: 219,
+                                                loc: {
+                                                    start: {
+                                                        line: 8,
+                                                        column: 23
+                                                    },
+                                                    end: {
+                                                        line: 8,
+                                                        column: 24
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 221,
+                                            end: 224,
+                                            loc: {
+                                                start: {
+                                                    line: 8,
+                                                    column: 26
+                                                },
+                                                end: {
+                                                    line: 8,
+                                                    column: 29
+                                                }
+                                            }
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: null,
+                                        start: 217,
+                                        end: 224,
+                                        loc: {
+                                            start: {
+                                                line: 8,
+                                                column: 22
+                                            },
+                                            end: {
+                                                line: 8,
+                                                column: 29
+                                            }
+                                        }
+                                    },
+                                    kind: 'set',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 210,
+                                    end: 224,
+                                    loc: {
+                                        start: {
+                                            line: 8,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 8,
+                                            column: 29
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 208,
+                            end: 226,
+                            loc: {
+                                start: {
+                                    line: 8,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 8,
+                                    column: 31
+                                }
+                            }
+                        },
+                        start: 207,
+                        end: 228,
+                        loc: {
+                            start: {
+                                line: 8,
+                                column: 12
+                            },
+                            end: {
+                                line: 8,
+                                column: 33
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Literal',
+                                        value: 0,
+                                        start: 248,
+                                        end: 249,
+                                        loc: {
+                                            start: {
+                                                line: 9,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 9,
+                                                column: 20
+                                            }
+                                        },
+                                        raw: '0'
+                                    },
+                                    value: {
+                                        type: 'FunctionExpression',
+                                        params: [
+                                            {
+                                                type: 'Identifier',
+                                                name: 'q',
+                                                start: 250,
+                                                end: 251,
+                                                loc: {
+                                                    start: {
+                                                        line: 9,
+                                                        column: 21
+                                                    },
+                                                    end: {
+                                                        line: 9,
+                                                        column: 22
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 253,
+                                            end: 256,
+                                            loc: {
+                                                start: {
+                                                    line: 9,
+                                                    column: 24
+                                                },
+                                                end: {
+                                                    line: 9,
+                                                    column: 27
+                                                }
+                                            }
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: null,
+                                        start: 249,
+                                        end: 256,
+                                        loc: {
+                                            start: {
+                                                line: 9,
+                                                column: 20
+                                            },
+                                            end: {
+                                                line: 9,
+                                                column: 27
+                                            }
+                                        }
+                                    },
+                                    kind: 'set',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 244,
+                                    end: 256,
+                                    loc: {
+                                        start: {
+                                            line: 9,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 9,
+                                            column: 27
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 242,
+                            end: 258,
+                            loc: {
+                                start: {
+                                    line: 9,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 9,
+                                    column: 29
+                                }
+                            }
+                        },
+                        start: 241,
+                        end: 260,
+                        loc: {
+                            start: {
+                                line: 9,
+                                column: 12
+                            },
+                            end: {
+                                line: 9,
+                                column: 31
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Literal',
+                                        value: 0,
+                                        start: 280,
+                                        end: 283,
+                                        loc: {
+                                            start: {
+                                                line: 10,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 10,
+                                                column: 22
+                                            }
+                                        },
+                                        raw: '0.0'
+                                    },
+                                    value: {
+                                        type: 'FunctionExpression',
+                                        params: [
+                                            {
+                                                type: 'Identifier',
+                                                name: 'q',
+                                                start: 284,
+                                                end: 285,
+                                                loc: {
+                                                    start: {
+                                                        line: 10,
+                                                        column: 23
+                                                    },
+                                                    end: {
+                                                        line: 10,
+                                                        column: 24
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 287,
+                                            end: 290,
+                                            loc: {
+                                                start: {
+                                                    line: 10,
+                                                    column: 26
+                                                },
+                                                end: {
+                                                    line: 10,
+                                                    column: 29
+                                                }
+                                            }
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: null,
+                                        start: 283,
+                                        end: 290,
+                                        loc: {
+                                            start: {
+                                                line: 10,
+                                                column: 22
+                                            },
+                                            end: {
+                                                line: 10,
+                                                column: 29
+                                            }
+                                        }
+                                    },
+                                    kind: 'set',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 276,
+                                    end: 290,
+                                    loc: {
+                                        start: {
+                                            line: 10,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 10,
+                                            column: 29
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 274,
+                            end: 292,
+                            loc: {
+                                start: {
+                                    line: 10,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 10,
+                                    column: 31
+                                }
+                            }
+                        },
+                        start: 273,
+                        end: 294,
+                        loc: {
+                            start: {
+                                line: 10,
+                                column: 12
+                            },
+                            end: {
+                                line: 10,
+                                column: 33
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Literal',
+                                        value: 0,
+                                        start: 314,
+                                        end: 316,
+                                        loc: {
+                                            start: {
+                                                line: 11,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 11,
+                                                column: 21
+                                            }
+                                        },
+                                        raw: '0.'
+                                    },
+                                    value: {
+                                        type: 'FunctionExpression',
+                                        params: [
+                                            {
+                                                type: 'Identifier',
+                                                name: 'q',
+                                                start: 317,
+                                                end: 318,
+                                                loc: {
+                                                    start: {
+                                                        line: 11,
+                                                        column: 22
+                                                    },
+                                                    end: {
+                                                        line: 11,
+                                                        column: 23
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 320,
+                                            end: 323,
+                                            loc: {
+                                                start: {
+                                                    line: 11,
+                                                    column: 25
+                                                },
+                                                end: {
+                                                    line: 11,
+                                                    column: 28
+                                                }
+                                            }
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: null,
+                                        start: 316,
+                                        end: 323,
+                                        loc: {
+                                            start: {
+                                                line: 11,
+                                                column: 21
+                                            },
+                                            end: {
+                                                line: 11,
+                                                column: 28
+                                            }
+                                        }
+                                    },
+                                    kind: 'set',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 310,
+                                    end: 323,
+                                    loc: {
+                                        start: {
+                                            line: 11,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 11,
+                                            column: 28
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 308,
+                            end: 325,
+                            loc: {
+                                start: {
+                                    line: 11,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 11,
+                                    column: 30
+                                }
+                            }
+                        },
+                        start: 307,
+                        end: 327,
+                        loc: {
+                            start: {
+                                line: 11,
+                                column: 12
+                            },
+                            end: {
+                                line: 11,
+                                column: 32
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Literal',
+                                        value: 1,
+                                        start: 347,
+                                        end: 349,
+                                        loc: {
+                                            start: {
+                                                line: 12,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 12,
+                                                column: 21
+                                            }
+                                        },
+                                        raw: '1.'
+                                    },
+                                    value: {
+                                        type: 'FunctionExpression',
+                                        params: [
+                                            {
+                                                type: 'Identifier',
+                                                name: 'q',
+                                                start: 350,
+                                                end: 351,
+                                                loc: {
+                                                    start: {
+                                                        line: 12,
+                                                        column: 22
+                                                    },
+                                                    end: {
+                                                        line: 12,
+                                                        column: 23
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 353,
+                                            end: 356,
+                                            loc: {
+                                                start: {
+                                                    line: 12,
+                                                    column: 25
+                                                },
+                                                end: {
+                                                    line: 12,
+                                                    column: 28
+                                                }
+                                            }
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: null,
+                                        start: 349,
+                                        end: 356,
+                                        loc: {
+                                            start: {
+                                                line: 12,
+                                                column: 21
+                                            },
+                                            end: {
+                                                line: 12,
+                                                column: 28
+                                            }
+                                        }
+                                    },
+                                    kind: 'set',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 343,
+                                    end: 356,
+                                    loc: {
+                                        start: {
+                                            line: 12,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 12,
+                                            column: 28
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 341,
+                            end: 358,
+                            loc: {
+                                start: {
+                                    line: 12,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 12,
+                                    column: 30
+                                }
+                            }
+                        },
+                        start: 340,
+                        end: 360,
+                        loc: {
+                            start: {
+                                line: 12,
+                                column: 12
+                            },
+                            end: {
+                                line: 12,
+                                column: 32
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'ObjectExpression',
+                            properties: [
+                                {
+                                    type: 'Property',
+                                    key: {
+                                        type: 'Literal',
+                                        value: 5.2322341234123,
+                                        start: 380,
+                                        end: 395,
+                                        loc: {
+                                            start: {
+                                                line: 13,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 13,
+                                                column: 34
+                                            }
+                                        },
+                                        raw: '5.2322341234123'
+                                    },
+                                    value: {
+                                        type: 'FunctionExpression',
+                                        params: [
+                                            {
+                                                type: 'Identifier',
+                                                name: 'q',
+                                                start: 396,
+                                                end: 397,
+                                                loc: {
+                                                    start: {
+                                                        line: 13,
+                                                        column: 35
+                                                    },
+                                                    end: {
+                                                        line: 13,
+                                                        column: 36
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 399,
+                                            end: 402,
+                                            loc: {
+                                                start: {
+                                                    line: 13,
+                                                    column: 38
+                                                },
+                                                end: {
+                                                    line: 13,
+                                                    column: 41
+                                                }
+                                            }
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: null,
+                                        start: 395,
+                                        end: 402,
+                                        loc: {
+                                            start: {
+                                                line: 13,
+                                                column: 34
+                                            },
+                                            end: {
+                                                line: 13,
+                                                column: 41
+                                            }
+                                        }
+                                    },
+                                    kind: 'set',
+                                    computed: false,
+                                    method: false,
+                                    shorthand: false,
+                                    start: 376,
+                                    end: 402,
+                                    loc: {
+                                        start: {
+                                            line: 13,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 13,
+                                            column: 41
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 374,
+                            end: 404,
+                            loc: {
+                                start: {
+                                    line: 13,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 13,
+                                    column: 43
+                                }
+                            }
+                        },
+                        start: 373,
+                        end: 406,
+                        loc: {
+                            start: {
+                                line: 13,
+                                column: 12
+                            },
+                            end: {
+                                line: 13,
+                                column: 45
+                            }
+                        }
+                    }
+                ],
+                sourceType: 'script',
+                start: 0,
+                end: 406,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 13,
+                        column: 45
+                    }
+                }
+            }
+        });
+
     fail(`({[1,2]:3})`, {
             source: '({[1,2]:3})',
         });
