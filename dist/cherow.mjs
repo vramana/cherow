@@ -2429,7 +2429,7 @@ Parser.prototype.parseCatchClause = function parseCatchClause (context) {
         { this.parentScope = blockScope; }
     this.blockScope = undefined;
     var param = null;
-    if (!(this.flags & 33554432 /* OptionsNext */) || this.token === 262155 /* LeftParen */) {
+    if (this.token === 262155 /* LeftParen */) {
         this.expect(context, 262155 /* LeftParen */);
         this.addCatchArg(this.tokenValue);
         param = this.parseBindingIdentifierOrPattern(context);

@@ -1182,20 +1182,10 @@ describe('Statements - For of', () => {
             next: true
         });
 
-    for (const decl of ['', 'var', 'let', 'const']) {
-            for (const head of ['a', 'a = 0', 'a, b', '[a]', '[a] = 0', '{a}', '{a} = 0']) {
+        fail(`for (const a of b, c);`, {
+            source: 'for (const a of b, c);',
+            next: true
+        });
 
-                // Ends with C-style for loop syntax.
-                fail(`for await (${decl} ${head} ;;) ;`, {
-                    source: `for await (${decl} ${head} ;;) ;`,
-                    next: true
-                });
-
-                // Ends with for-in loop syntax.
-                fail(`for await (${decl} ${head} in null) ;`, {
-                    source: `for await (${decl} ${head} in null) ;`,
-                    next: true
-                });
-            }
-        }
+ 
 });

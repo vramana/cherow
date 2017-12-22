@@ -32,6 +32,7 @@ describe('Miscellaneous - Simple parameter list', () => {
         '{p: o = 0}',
         'x, {p: o = 0}',
         '{p: o = 0}, x',
+
         // Object destructuring with shorthand identifier form.
         '{o}',
         'x, {o}',
@@ -42,6 +43,10 @@ describe('Miscellaneous - Simple parameter list', () => {
         'x, {o = 0}',
         '{o = 0}, x',
 
+        // Object setter
+
+        '{ set f(a = 1) }, x',
+
         // Default parameter.
         'd = 0',
         'x, d = 0',
@@ -50,6 +55,7 @@ describe('Miscellaneous - Simple parameter list', () => {
         // Rest parameter.
         '...rest',
         'x, ...rest',
+        '...x',
 
         // Rest parameter with array destructuring.
         '...[]',
@@ -81,7 +87,7 @@ describe('Miscellaneous - Simple parameter list', () => {
         // GeneratorDeclaration
         (parameters: string) => `function* g(${parameters}) { "use strict"; }`,
 
-        // AsyncDeclaration
+        // AsyncFunctionDeclaration
         (parameters: string) => `async function g(${parameters}) { "use strict"; }`,
 
         // AsyncGeneratorDeclaration
@@ -107,11 +113,13 @@ describe('Miscellaneous - Simple parameter list', () => {
         (parameters: string) => `({ get m(${parameters}) { "use strict"; } });`,
         (parameters: string) => `(class { get m(${parameters}) { "use strict"; } });`,
         (parameters: string) => `class C { get m(${parameters}) { "use strict"; } }`,
+        (parameters: string) => `class C { async m(${parameters}) { "use strict"; } }`,
 
         // MethodDefinition (setter)
         (parameters: string) => `({ set m(${parameters}) { "use strict"; } });`,
         (parameters: string) => `(class { set m(${parameters}) { "use strict"; } });`,
         (parameters: string) => `class C { set m(${parameters}) { "use strict"; } }`,
+        (parameters: string) => `({ async set m(${parameters}) { "use strict"; } });`,
 
         // GeneratorMethod
         (parameters: string) => `({ *m(${parameters}) { "use strict"; } });`,
@@ -120,6 +128,9 @@ describe('Miscellaneous - Simple parameter list', () => {
 
         // ArrowFunction
         (parameters: string) => `(${parameters}) => { "use strict"; };`,
+
+        // AsyncArrowFunction
+        (parameters: string) => `async (${parameters}) => { "use strict"; };`,
     ];
 
     for (const nonSimpleParameters of testCases) {
@@ -153,6 +164,10 @@ describe('Miscellaneous - Simple parameter list', () => {
 
     fail(`function foo({a}) { "use strict"; }`, {
         source: 'function foo({a}) { "use strict"; }',
+    });
+
+    fail(`function foo([a]) { "use strict"; }`, {
+        source: 'function foo([a]) { "use strict"; }',
     });
 
     fail(`function foo({a}) { "use strict"; }`, {

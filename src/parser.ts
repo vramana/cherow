@@ -2428,10 +2428,8 @@ export class Parser {
 
         let param = null;
 
-        if (!(this.flags & Flags.OptionsNext) || this.token === Token.LeftParen) {
-            this.expect(context, Token.LeftParen);
-            this.addCatchArg(this.tokenValue);
-
+        if (this.parseOptional(context, Token.LeftParen)) {
+            if (this.token & Token.IsIdentifier) this.addCatchArg(this.tokenValue);
             param = this.parseBindingIdentifierOrPattern(context);
             this.expect(context, Token.RightParen);
         }
@@ -2565,12 +2563,12 @@ export class Parser {
 
         this.expect(context, Token.BreakKeyword);
 
-        let label: any = null;
+        let label: ESTree.Identifier | undefined | null = null;
 
         if (!(this.flags & Flags.PrecedingLineBreak) && this.token & Token.IsIdentifier) {
             label = this.parseIdentifierName(context, this.token);
-            if (this.labelSet === undefined || !('$' + label.name in this.labelSet)) {
-                this.error(Errors.UnknownLabel, label.name);
+            if (this.labelSet === undefined || !('$' + (label as ESTree.Identifier).name in this.labelSet)) {
+                this.error(Errors.UnknownLabel, (label as ESTree.Identifier).name);
             }
         }
 

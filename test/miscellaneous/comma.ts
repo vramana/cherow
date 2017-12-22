@@ -3,84 +3,58 @@ import { parseScript, parseModule } from '../../src/cherow';
 
 describe('Miscellaneous - Comma (ES2017)', () => {
 
-    const conciseBody = (arg: string, returnExpr = 'null') => `let fun = (${arg}) => ${returnExpr};`;
-    const arrow = (arg: string, returnExpr = 'null') => `
-            let fun = (${arg}) => {
-                return ${returnExpr};
-            }
-        `;
-
-    const asyncArrow = (arg: string, returnExpr = 'null') => `
-        async (${arg}) => {
-            return ${returnExpr};
-        }
-    `;
-
-    const functionExpression =  (arg: string, returnExpr = 'null') => `function* f(${arg}) {
-                return ${returnExpr};
-            }`;
-
-    const generatorExpression = (arg: string, returnExpr = 'null') => `function* f(${arg}) {
-                return ${returnExpr};
-            }`;
-
-    const asyncExpression = (arg: string, returnExpr = 'null') => `async function f(${arg}) {
-                return ${returnExpr};
-            }`;
-
-    const objectMethod = (arg: string, returnExpr = 'null') => `({
+    const conciseBody = (arg: string) => `let fun = (${arg}) => foo`;
+    const arrow = (arg: string) => `let fun = (${arg}) => {}`;
+    const asyncArrow = (arg: string) => `async (${arg}) => a
+    async (${arg}) => {}`;
+    const functionExpression =  (arg: string) => `function* f(${arg}) {}`;
+    const generatorExpression = (arg: string) => `function* f(${arg}) {}`;
+    const asyncExpression = (arg: string) => `async function f(${arg}) {}`;
+    const callExpression = (arg: string) => `new foo(${arg})`;
+    const objectMethod = (arg: string) => `({
                 m(${arg}) {
                     var fun = this.m;
-                    return ${returnExpr};
                 }
             })`;
 
-    const objectGeneratorMethod = (arg: string, returnExpr = 'null') => `({
+    const objectGeneratorMethod = (arg: string) => `({
                 * m(${arg}) {
-                    var fun = this.m;
-                    return ${returnExpr};
                 }
             })`;
 
-    const classMethod = (arg: string, returnExpr = 'null') => `(new class {
+    const classMethod = (arg: string) => `(new class {
                 m(${arg}) {
                     var fun = this.m;
-                    return ${returnExpr};
                 }
             })`;
 
-    const classAsyncMethod = (arg: string, returnExpr = 'null') => `(new class {
+    const classAsyncMethod = (arg: string) => `(new class {
                 *m(${arg}) {
                     var fun = this.m;
-                    return ${returnExpr};
                 }
             })`;
 
-    const classStaticMethod = (arg: string, returnExpr = 'null') => `(class {
+    const classStaticMethod = (arg: string) => `(class {
                 static m(${arg}) {
                     var fun = this.m;
-                    return ${returnExpr};
                 }
             })`;
 
-    const classGeneratorMethod = (arg: string, returnExpr = 'null') => `(new class {
+    const classGeneratorMethod = (arg: string) => `(new class {
                 * m(${arg}) {
                     var fun = this.m;
-                    return ${returnExpr};
                 }
             })`;
 
-    const classStaticGeneratorMethod = (arg: string, returnExpr = 'null') => `(class {
+    const classStaticGeneratorMethod = (arg: string) => `(class {
                 static * m(${arg}) {
                     var fun = this.m;
-                    return ${returnExpr};
                 }
             })`;
 
-    const classConstructorMethod = (arg: string, returnExpr = 'null') => `new (class {
+    const classConstructorMethod = (arg: string) => `new (class {
                 constructor(${arg}) {
                     var fun = this.constructor;
-                    return { value: ${returnExpr} };
                 }
             })`;
 
@@ -97,120 +71,120 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         classStaticMethod,
         classConstructorMethod,
         classGeneratorMethod,
-        asyncExpression
+        asyncExpression,
+        callExpression
     ];
 
-    // We are re-parsing
     for (const test of tests) {
 
-        pass(test('a, ', 'a'), {
-            source: test('a, b, ', 'a + b'),
+        pass(test('a, '), {
+            source: test('a, b, '),
             next: true,
-            expected: parseScript(test('a, b, ', 'a + b'))
+            expected: parseScript(test('a, b, '))
         });
 
-        pass(test('a, ', 'a'), {
-            source: test('a, b, ', 'a + b'),
+        pass(test('a, '), {
+            source: test('a, b, '),
             module: true,
             next: true,
-            expected: parseModule(test('a, b, ', 'a + b'))
+            expected: parseModule(test('a, b, '))
         });
 
-        pass(test('{a}, {b}, ', 'a + b'), {
-            source: test('{a}, {b}, ', 'a + b'),
+        pass(test('{a}, {b}, '), {
+            source: test('{a}, {b}, '),
             next: true,
-            expected: parseScript(test('{a}, {b}, ', 'a + b'))
+            expected: parseScript(test('{a}, {b}, '))
         });
 
-        pass(test('{a} = {a: 30}, {b} = {b: 40}, ', 'a'), {
-            source: test('{a} = {a: 30}, {b} = {b: 40}, ', 'a + b'),
+        pass(test('{a} = {a: 30}, {b} = {b: 40}, '), {
+            source: test('{a} = {a: 30}, {b} = {b: 40}, '),
             next: true,
-            expected: parseScript(test('{a} = {a: 30}, {b} = {b: 40}, ', 'a + b'))
+            expected: parseScript(test('{a} = {a: 30}, {b} = {b: 40}, '))
         });
 
-        pass(test('{a} = {a: 30}, {b} = {b: 40}, ', 'a'), {
-            source: test('{a} = {a: 30}, {b} = {b: 40}, ', 'a + b'),
+        pass(test('{a} = {a: 30}, {b} = {b: 40}, '), {
+            source: test('{a} = {a: 30}, {b} = {b: 40}, '),
             module: true,
             next: true,
-            expected: parseModule(test('{a} = {a: 30}, {b} = {b: 40}, ', 'a + b'))
+            expected: parseModule(test('{a} = {a: 30}, {b} = {b: 40}, '))
         });
 
-        pass(test('[a], ', 'a'), {
-            source: test('[a], ', 'a + b'),
+        pass(test('[a], '), {
+            source: test('[a], '),
             next: true,
-            expected: parseScript(test('[a], ', 'a + b'))
+            expected: parseScript(test('[a], '))
         });
 
-        pass(test('[a] = [30], ', 'a'), {
-            source: test('[a] = [30], ', 'a + b'),
+        pass(test('[a] = [30], '), {
+            source: test('[a] = [30], '),
             next: true,
-            expected: parseScript(test('[a] = [30], ', 'a + b'))
+            expected: parseScript(test('[a] = [30], '))
         });
 
-        pass(test('[a] = [30], [b] = [40], ', 'a'), {
-            source: test('[a] = [30], [b] = [40], ', 'a + b'),
+        pass(test('[a] = [30], [b] = [40], '), {
+            source: test('[a] = [30], [b] = [40], '),
             next: true,
-            expected: parseScript(test('[a] = [30], [b] = [40], ', 'a + b'))
+            expected: parseScript(test('[a] = [30], [b] = [40], '))
         });
 
-        pass(test('a, b, ', 'a'), {
-            source: test('a, b, ', 'a + b'),
+        pass(test('a, b, '), {
+            source: test('a, b, '),
             next: true,
-            expected: parseScript(test('a, b, ', 'a + b'))
+            expected: parseScript(test('a, b, '))
         });
 
-        pass(test('a, b, ', 'a'), {
-            source: test('a, b, ', 'a + b'),
+        pass(test('a, b, '), {
+            source: test('a, b, '),
             next: true,
-            expected: parseScript(test('a, b, ', 'a + b'))
+            expected: parseScript(test('a, b, '))
         });
 
-        pass(test('{a}, {b}, ', 'a'), {
-            source: test('{a}, {b}, ', 'a + b'),
+        pass(test('{a}, {b}, '), {
+            source: test('{a}, {b}, '),
             next: true,
-            expected: parseScript(test('{a}, {b}, ', 'a + b'))
+            expected: parseScript(test('{a}, {b}, '))
         });
 
-        pass(test('{a}, {b}, ', 'a'), {
-            source: test('{a}, {b}, ', 'a + b'),
+        pass(test('{a}, {b}, '), {
+            source: test('{a}, {b}, '),
             module: true,
             next: true,
-            expected: parseModule(test('{a}, {b}, ', 'a + b'))
+            expected: parseModule(test('{a}, {b}, '))
         });
 
-        pass(test('a = 30, ', 'a'), {
-            source: test('a = 30, ', 'a + b'),
+        pass(test('a = 30, '), {
+            source: test('a = 30, '),
             next: true,
-            expected: parseScript(test('a = 30, ', 'a + b'))
+            expected: parseScript(test('a = 30, '))
         });
 
-        fail(test(',', 'a'), {
-            source: test(',', 'a + b'),
+        fail(test('...a,'), {
+            source: test('...a,'),
             next: true
         });
 
-        fail(test(',', 'a'), {
-            source: test(',', 'a + b'),
+        fail(test(','), {
+            source: test(','),
             next: true
         });
 
-        fail(test(', a', 'a'), {
-            source: test(', a', 'a + b'),
+        fail(test(', a'), {
+            source: test(', a'),
             next: true
         });
 
-        fail(test('a..., , ', 'a'), {
-            source: test('a..., , ', 'a + b'),
+        fail(test('a..., , '), {
+            source: test('a..., , '),
             next: true
         });
 
-        fail(test('a, ...b, ', 'a'), {
-            source: test('a, ...b, ', 'a + b'),
+        fail(test('a, ...b, '), {
+            source: test('a, ...b, '),
             next: true
         });
 
-        fail(test('a, ...b, ', 'a'), {
-            source: test('a, ...b, ', 'a + b'),
+        fail(test('a, ...b, '), {
+            source: test('a, ...b, '),
             next: true,
             module: true
         });
