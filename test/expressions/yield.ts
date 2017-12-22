@@ -2,80 +2,7 @@ import { pass, fail } from '../utils';
 
 describe('Expressions - Yield', () => {
 
-    const yieldInParameters = [
-        `(a = yield) => {}`,
-        `(a = yield /a/g) => {}`, // Should parse as division, not yield expression with regexp.
-        `yield => {};`,
-        `(yield) => {};`,
-        `(yield = 0) => {};`,
-        `([yield]) => {};`,
-        `([yield = 0]) => {};`,
-        `([...yield]) => {};`,
-        `({a: yield}) => {};`,
-        `({yield}) => {};`,
-        `({yield = 0}) => {};`,
-    ];
-
-    const yieldInBody = [
-        `() => yield;`,
-        `() => yield /a/g;`,
-        `() => { var x = yield; }`,
-        `() => { var x = yield /a/g; }`,
-
-        `() => { var yield; };`,
-        `() => { var yield = 0; };`,
-        `() => { var [yield] = []; };`,
-        `() => { var [yield = 0] = []; };`,
-        `() => { var [...yield] = []; };`,
-        `() => { var {a: yield} = {}; };`,
-        `() => { var {yield} = {}; };`,
-        `() => { var {yield = 0} = {}; };`,
-
-        `() => { let yield; };`,
-        `() => { let yield = 0; };`,
-        `() => { let [yield] = []; };`,
-        `() => { let [yield = 0] = []; };`,
-        `() => { let [...yield] = []; };`,
-        `() => { let {a: yield} = {}; };`,
-        `() => { let {yield} = {}; };`,
-        `() => { let {yield = 0} = {}; };`,
-
-        `() => { const yield = 0; };`,
-        `() => { const [yield] = []; };`,
-        `() => { const [yield = 0] = []; };`,
-        `() => { const [...yield] = []; };`,
-        `() => { const {a: yield} = {}; };`,
-        `() => { const {yield} = {}; };`,
-        `() => { const {yield = 0} = {}; };`,
-    ];
-
-    // Script context.
-    for (const test of [...yieldInParameters, ...yieldInBody]) {
-        fail(`"use strict"; ${test}`, {
-            source: `"use strict"; ${test}`
-        });
-    }
-
-    // Function context.
-    for (const test of [...yieldInParameters, ...yieldInBody]) {
-    fail(`"use strict"; function f() { ${test} }`, {
-        source: `"use strict"; function f() { ${test} }`
-    });
-}
-
-// Generator context.
-    for (const test of yieldInParameters) {
-    fail(`function* g() { ${test} }`, {
-        source: `function* g() { ${test} }`
-    });
-}
-
-    for (const test of [...yieldInParameters, ...yieldInBody]) {
-    fail(`"use strict"; function* g() { ${test} }`, {
-        source: `"use strict"; function* g() { ${test} }`
-    });
-}
-    pass(`function *a(){yield 0}`, {
+        pass(`function *a(){yield 0}`, {
             source: 'function *a(){yield 0}',
             loc: true,
             ranges: true,
@@ -200,7 +127,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function *a(){yield null}`, {
+        pass(`function *a(){yield null}`, {
             source: 'function *a(){yield null}',
             loc: true,
             ranges: true,
@@ -325,7 +252,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function *a(){yield+0}`, {
+        pass(`function *a(){yield+0}`, {
             source: 'function *a(){yield+0}',
             loc: true,
             ranges: true,
@@ -467,7 +394,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function *a(){yield "a"}`, {
+        pass(`function *a(){yield "a"}`, {
             source: 'function *a(){yield "a"}',
             loc: true,
             ranges: true,
@@ -592,7 +519,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function *a(){yield delete 0}`, {
+        pass(`function *a(){yield delete 0}`, {
             source: 'function *a(){yield delete 0}',
             loc: true,
             ranges: true,
@@ -734,7 +661,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function *a(){yield typeof 0}`, {
+        pass(`function *a(){yield typeof 0}`, {
             source: 'function *a(){yield typeof 0}',
             loc: true,
             ranges: true,
@@ -876,7 +803,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function *a(){yield 2e308}`, {
+        pass(`function *a(){yield 2e308}`, {
             source: 'function *a(){yield 2e308}',
             loc: true,
             ranges: true,
@@ -1001,7 +928,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function*a(){yield*a}`, {
+        pass(`function*a(){yield*a}`, {
             source: 'function*a(){yield*a}',
             loc: true,
             ranges: true,
@@ -1125,7 +1052,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function a(){yield*a}`, {
+        pass(`function a(){yield*a}`, {
             source: 'function a(){yield*a}',
             loc: true,
             ranges: true,
@@ -1265,7 +1192,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function *a(){({get b(){yield}})}`, {
+        pass(`function *a(){({get b(){yield}})}`, {
             source: 'function *a(){({get b(){yield}})}',
             loc: true,
             ranges: true,
@@ -1477,7 +1404,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function a(){({*[yield](){}})}`, {
+        pass(`function a(){({*[yield](){}})}`, {
             source: 'function a(){({*[yield](){}})}',
             loc: true,
             ranges: true,
@@ -1657,7 +1584,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function *a(){({*[yield](){}})}`, {
+        pass(`function *a(){({*[yield](){}})}`, {
             source: 'function *a(){({*[yield](){}})}',
             loc: true,
             ranges: true,
@@ -1838,7 +1765,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function *a(){({set b(yield){}})}`, {
+        pass(`function *a(){({set b(yield){}})}`, {
             source: 'function *a(){({set b(yield){}})}',
             loc: true,
             ranges: true,
@@ -2035,7 +1962,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function *a(){yield delete 0}`, {
+        pass(`function *a(){yield delete 0}`, {
             source: 'function *a(){yield delete 0}',
             loc: true,
             ranges: true,
@@ -2177,7 +2104,7 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    pass(`function *a(){yield ++a;}`, {
+        pass(`function *a(){yield ++a;}`, {
             source: 'function *a(){yield ++a;}',
             loc: true,
             ranges: true,
@@ -2318,35 +2245,15 @@ describe('Expressions - Yield', () => {
             }
         });
 
-    fail(`function *a(){yield\n*a}`, {
+        fail(`function *a(){yield\n*a}`, {
             source: 'function *a(){yield\n*a}',
         });
 
-    fail(`function *a(){yield*}`, {
+        fail(`function *a(){yield*}`, {
             source: 'function *a(){yield*}',
         });
 
-    fail(`(function* () { y\\u0069eld 10 })`, {
+        fail(`(function* () { y\\u0069eld 10 })`, {
             source: '(function* () { y\\u0069eld 10 })',
-        });
-
-    fail(`(a = yield 3) {}`, {
-            source: '(a = yield 3) {}',
-        });
-
-    fail(`(yield 3) {}`, {
-            source: '(yield 3) {}',
-        });
-
-    fail(`(a = yield) {}`, {
-            source: '(a = yield) {}',
-        });
-
-    fail(`(yield = 1) {}`, {
-            source: '(yield = 1) {}',
-        });
-
-    fail(`(yield) {}`, {
-            source: '(yield) {}',
         });
 });
