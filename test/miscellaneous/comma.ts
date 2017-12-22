@@ -87,7 +87,7 @@ describe('Miscellaneous - Comma (ES2017)', () => {
             source: test('a, b, ', 'a + b'),
             expected: parseScript(test('a, b, ', 'a + b'))
         });
-        
+
         pass(test('a, ', 'a'), {
             source: test('a, b, ', 'a + b'),
             module: true,
@@ -668,7 +668,6 @@ describe('Miscellaneous - Comma (ES2017)', () => {
             end: 23
         }
     });
-
 
     pass(`f(x,);`, {
         source: 'f(x,);',

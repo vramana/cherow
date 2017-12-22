@@ -2,31 +2,39 @@ import { pass, fail } from '../utils';
 
 describe('Declarations - Class', () => {
 
-    const objectGetter = (argList: string) => `({
-        get m(${argList}) {}
+    const objectGetter = (arg: string) => `({
+        get m(${arg}) {}
     })`;
 
-    const objectSetter = (argList: string) => `({
-        set m(${argList}) {}
+    const objectSetter = (arg: string) => `({
+        set m(${arg}) {}
     })`;
 
-    const getter = (argList: string) => `(class {
-        get m(${argList}) {}
+    const getter = (arg: string) => `(class {
+        get m(${arg}) {}
     })`;
 
-    const staticGetter = (argList: string) => `(class {
-        static get m(${argList}) {}
+    const AllTogether = (arg: string) => `(class {
+        get m(${arg}) {}
+        static get m(${arg}) {}
+        set m(${arg}) {}
+        static set m(${arg}) {}
     })`;
 
-    const Setter = (argList: string) => `(class {
-        set m(${argList}) {}
+    const staticGetter = (arg: string) => `(class {
+        static get m(${arg}) {}
     })`;
 
-    const staticSetter = (argList: string) => `(class {
-        static set m(${argList}) {}
+    const Setter = (arg: string) => `(class {
+        set m(${arg}) {}
+    })`;
+
+    const staticSetter = (arg: string) => `(class {
+        static set m(${arg}) {}
     })`;
 
     const tests = [
+        AllTogether,
         objectGetter,
         objectSetter,
         getter,

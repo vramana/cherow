@@ -118,7 +118,7 @@ describe('Miscellaneous - Simple parameter list', () => {
 
     for (const nonSimpleParameters of testCases) {
         for (const def of functionDefinitions) {
-            
+
             // Sloppy mode
             fail(def(nonSimpleParameters), {
                 source: def(nonSimpleParameters)
@@ -130,7 +130,7 @@ describe('Miscellaneous - Simple parameter list', () => {
             });
 
              // Module code.
-             fail(def(nonSimpleParameters), {
+            fail(def(nonSimpleParameters), {
                 module: true,
                 source: def(nonSimpleParameters)
             });
