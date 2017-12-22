@@ -1182,10 +1182,9 @@ describe('Statements - For of', () => {
             next: true
         });
 
-        fail(`for (const a of b, c);`, {
+    fail(`for (const a of b, c);`, {
             source: 'for (const a of b, c);',
             next: true
         });
 
- 
 });

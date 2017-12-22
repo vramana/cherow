@@ -11,6 +11,13 @@ describe('Miscellaneous - Comma (ES2017)', () => {
     const generatorExpression = (arg: string) => `function* f(${arg}) {}`;
     const asyncExpression = (arg: string) => `async function f(${arg}) {}`;
     const callExpression = (arg: string) => `new foo(${arg})`;
+    const superCall = (arg: string) => `(new foo(${arg}))`;
+    const newCall = (arg: string)  => `(new class extends Cherow {
+        constructor() {
+            super(${arg});
+        }
+    })`;
+
     const objectMethod = (arg: string) => `({
                 m(${arg}) {
                     var fun = this.m;
@@ -237,7 +244,56 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         fail('(...a, , )' + trail, {
             source: '(...a, , )' + trail
         });
+    }
 
+    for (const test of [newCall, superCall]) {
+        pass(test('...[10, 20], ...[30], '), {
+            source: test('...[10, 20], ...[30], '),
+            next: true,
+            expected: parseScript(test('...[10, 20], ...[30], '))
+        });
+
+        pass(test('10, 20, '), {
+            source: test('10, 20, '),
+            next: true,
+            expected: parseScript(test('10, 20, '))
+        });
+
+        pass(test('...[10, 20], ...[30], '), {
+            source: test('...[10, 20], ...[30], '),
+            next: true,
+            expected: parseScript(test('...[10, 20], ...[30], '))
+        });
+
+        pass(test('10, 20, 30, 40, '), {
+            source: test('10, 20, 30, 40, '),
+            next: true,
+            expected: parseScript(test('10, 20, 30, 40, '))
+        });
+
+        fail(test('() => test(",")'), {
+            source: test('() => test(",")'),
+            next: true,
+            module: true
+        });
+
+        fail(test('() => test("...a, , ")'), {
+            source: test('() => test("...a, , ")'),
+            next: true,
+            module: true
+        });
+
+        fail(test('() => test(", a")'), {
+            source: test('() => test(", a")'),
+            next: true,
+            module: true
+        });
+
+        fail(test('() => test("...a, , '), {
+            source: test('() => test("...a, , '),
+            next: true,
+            module: true
+        });
     }
 
     fail(`{ foo(a, b,) {} };`, {
