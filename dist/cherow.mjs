@@ -513,7 +513,7 @@ Parser.prototype.advance = function advance () {
 Parser.prototype.advanceNewline = function advanceNewline (skipLF) {
         if ( skipLF === void 0 ) skipLF = true;
 
-    this.flags |= 1 /* PrecedingLineBreak */;
+    this.flags |= 1 /* LineTerminator */;
     this.index++;
     if (skipLF) {
         this.column = 0;
@@ -535,7 +535,7 @@ Parser.prototype.consume = function consume (code) {
 Parser.prototype.scan = function scan (context) {
         var this$1 = this;
 
-    this.flags &= ~(1 /* PrecedingLineBreak */ | 2 /* ExtendedUnicodeEscape */);
+    this.flags &= ~(1 /* LineTerminator */ | 2 /* ExtendedUnicodeEscape */);
     var state = this.index === 0 ? 4 /* LineStart */ : 0;
     while (this.hasNext()) {
         var first = this$1.nextChar();
@@ -624,22 +624,20 @@ Parser.prototype.scan = function scan (context) {
                             return 2099005 /* LessThanOrEqual */;
                         case 33 /* Exclamation */:
                             {
-                                if (!(context & 1 /* Module */)) {
-                                    this$1.advance(); // skip `<`
-                                    // Double 'hyphen' because of the "look and feel" of
-                                    // the HTML single line comment (<!--)
-                                    if (this$1.consume(45 /* Hyphen */)) {
-                                        if (this$1.consume(45 /* Hyphen */)) {
-                                            this$1.skipComments(state | 16 /* SingleLine */);
-                                            continue;
-                                        }
-                                    }
+                                if (context & 1 /* Module */)
+                                    { continue; }
+                                this$1.advance(); // skip `<`
+                                // Double 'hyphen' because of the "look and feel" of
+                                // the HTML single line comment (<!--)
+                                if (this$1.consume(45 /* Hyphen */) && this$1.consume(45 /* Hyphen */)) {
+                                    this$1.skipComments(state | 16 /* SingleLine */);
+                                    continue;
                                 }
                             }
                         case 47 /* Slash */:
                             {
                                 if (!(this$1.flags & 8388608 /* OptionsJSX */))
-                                    { break; }
+                                    { continue; }
                                 this$1.advance();
                                 return 25 /* JSXClose */;
                             }
@@ -656,9 +654,9 @@ Parser.prototype.scan = function scan (context) {
                         case 45 /* Hyphen */:
                             {
                                 this$1.advance();
-                                if (context & 1 /* Module */ || !(state & 4 /* LineStart */))
-                                    { return 786460 /* Decrement */; }
-                                if (this$1.consume(62 /* GreaterThan */)) {
+                                if (this$1.nextChar() === 62 /* GreaterThan */
+                                    && !(context & 1 /* Module */ || !(state & 4 /* LineStart */))) {
+                                    this$1.advance();
                                     this$1.skipComments(state | 16 /* SingleLine */);
                                     continue;
                                 }
@@ -1931,7 +1929,7 @@ Parser.prototype.consumeSemicolon = function consumeSemicolon (context) {
         case 0 /* EndOfSource */:
             break;
         default:
-            if (this.flags & 1 /* PrecedingLineBreak */)
+            if (this.flags & 1 /* LineTerminator */)
                 { break; }
             this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
     }
@@ -1962,7 +1960,7 @@ Parser.prototype.isLexical = function isLexical (context) {
     var t = this.nextToken(context);
     var flags = this.flags;
     this.rewindState(savedState);
-    return !(savedFlag & 2 /* ExtendedUnicodeEscape */ && flags & 1 /* PrecedingLineBreak */) &&
+    return !(savedFlag & 2 /* ExtendedUnicodeEscape */ && flags & 1 /* LineTerminator */) &&
         !!(t & (131072 /* BindingPattern */ | 67108864 /* IsIdentifier */ | 536870912 /* IsYield */) ||
             (t & 69632 /* Contextual */) === 69632 /* Contextual */);
 };
@@ -2429,9 +2427,9 @@ Parser.prototype.parseCatchClause = function parseCatchClause (context) {
         { this.parentScope = blockScope; }
     this.blockScope = undefined;
     var param = null;
-    if (this.token === 262155 /* LeftParen */) {
-        this.expect(context, 262155 /* LeftParen */);
-        this.addCatchArg(this.tokenValue);
+    if (this.parseOptional(context, 262155 /* LeftParen */)) {
+        if (this.token & 67108864 /* IsIdentifier */)
+            { this.addCatchArg(this.tokenValue); }
         param = this.parseBindingIdentifierOrPattern(context);
         this.expect(context, 16 /* RightParen */);
     }
@@ -2448,7 +2446,7 @@ Parser.prototype.parseCatchClause = function parseCatchClause (context) {
 Parser.prototype.parseThrowStatement = function parseThrowStatement (context) {
     var pos = this.getLocations();
     this.expect(context, 12383 /* ThrowKeyword */);
-    if (this.flags & 1 /* PrecedingLineBreak */)
+    if (this.flags & 1 /* LineTerminator */)
         { this.error(21 /* LineBreakAfterThrow */); }
     var argument = this.parseExpression(context | 4 /* AllowIn */, pos);
     this.consumeSemicolon(context);
@@ -2513,7 +2511,7 @@ Parser.prototype.parseContinueStatement = function parseContinueStatement (conte
     var pos = this.getLocations();
     this.expect(context, 12366 /* ContinueKeyword */);
     var label = null;
-    if (!(this.flags & 1 /* PrecedingLineBreak */) && this.token & 67108864 /* IsIdentifier */) {
+    if (!(this.flags & 1 /* LineTerminator */) && this.token & 67108864 /* IsIdentifier */) {
         label = this.parseIdentifierName(context, this.token);
         if (this.labelSet === undefined || !('$' + label.name in this.labelSet)) {
             this.error(69 /* UnknownLabel */, label.name);
@@ -2529,7 +2527,7 @@ Parser.prototype.parseBreakStatement = function parseBreakStatement (context) {
     var pos = this.getLocations();
     this.expect(context, 12362 /* BreakKeyword */);
     var label = null;
-    if (!(this.flags & 1 /* PrecedingLineBreak */) && this.token & 67108864 /* IsIdentifier */) {
+    if (!(this.flags & 1 /* LineTerminator */) && this.token & 67108864 /* IsIdentifier */) {
         label = this.parseIdentifierName(context, this.token);
         if (this.labelSet === undefined || !('$' + label.name in this.labelSet)) {
             this.error(69 /* UnknownLabel */, label.name);
@@ -2769,7 +2767,7 @@ Parser.prototype.parseEmptyStatement = function parseEmptyStatement (context) {
 };
 Parser.prototype.canParseArgument = function canParseArgument () {
     // Bail out quickly if we have seen a LineTerminator
-    if (this.flags & 1 /* PrecedingLineBreak */)
+    if (this.flags & 1 /* LineTerminator */)
         { return false; }
     switch (this.token) {
         case 17 /* Semicolon */:
@@ -2927,7 +2925,7 @@ Parser.prototype.parseYieldExpression = function parseYieldExpression (context, 
     this.expect(context, 537153642 /* YieldKeyword */);
     var argument = null;
     var delegate = false;
-    if (!(this.flags & 1 /* PrecedingLineBreak */)) {
+    if (!(this.flags & 1 /* LineTerminator */)) {
         delegate = this.parseOptional(context, 270535219 /* Multiply */);
         if (delegate) {
             argument = this.parseAssignmentExpression(context);
@@ -2957,7 +2955,7 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
     // If that's the case - parse out a arrow function with a single un-parenthesized parameter.
     // An async one, will be parsed out in 'parsePrimaryExpression'
     if (this.token === 10 /* Arrow */ && (this.isIdentifier(context | 8 /* Arrow */, token))) {
-        if (!(this.flags & 1 /* PrecedingLineBreak */)) {
+        if (!(this.flags & 1 /* LineTerminator */)) {
             if (this.isEvalOrArguments(expr.name)) {
                 if (context & 2 /* Strict */)
                     { this.error(73 /* UnexpectedStrictReserved */); }
@@ -3064,7 +3062,7 @@ Parser.prototype.parseArrowFunctionExpression = function parseArrowFunctionExpre
         var this$1 = this;
 
     // A line terminator between ArrowParameters and the => should trigger a SyntaxError.
-    if (this.flags & 1 /* PrecedingLineBreak */)
+    if (this.flags & 1 /* LineTerminator */)
         { this.error(62 /* LineBreakAfterAsync */); }
     this.expect(context, 10 /* Arrow */);
     // Unsetting the 'AllowCall' mask here, let the parser fail correctly
@@ -3204,7 +3202,7 @@ Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context
     }
     expr = this.parseLeftHandSideExpression(context, pos);
     if (!hasPrefix) {
-        if (hasMask(this.token, 786432 /* UpdateOperator */) && !(this.flags & 1 /* PrecedingLineBreak */)) {
+        if (hasMask(this.token, 786432 /* UpdateOperator */) && !(this.flags & 1 /* LineTerminator */)) {
             t = this.token;
             this.nextToken(context);
         }
@@ -3520,7 +3518,7 @@ Parser.prototype.parseAsyncFunctionExpression = function parseAsyncFunctionExpre
         case 67371009 /* Identifier */:
             // The specs says "async[no LineTerminator here]", so just return an plain identifier in case
             // we got an LineTerminator. The 'ArrowFunctionExpression' will be parsed out in 'parseAssignmentExpression'
-            if (this.flags & 1 /* PrecedingLineBreak */)
+            if (this.flags & 1 /* LineTerminator */)
                 { return id; }
             var expr = this.parseIdentifier(context);
             if (this.token === 10 /* Arrow */)
@@ -3584,7 +3582,7 @@ Parser.prototype.parseAsyncArguments = function parseAsyncArguments (context, po
         if (isEscaped)
             { this.error(63 /* UnexpectedEscapedKeyword */); }
         // async arrows cannot have a line terminator between "async" and the formals
-        if (flags & 1 /* PrecedingLineBreak */)
+        if (flags & 1 /* LineTerminator */)
             { this.error(62 /* LineBreakAfterAsync */); }
         if (this.flags & 512 /* Await */)
             { this.error(90 /* InvalidAwaitInArrowParam */); }
@@ -3770,7 +3768,7 @@ Parser.prototype.parseLet = function parseLet (context) {
         { this.error(80 /* InvalidStrictExpPostion */, tokenDesc(this.token)); }
     this.nextToken(context);
     if (this.token === 393235 /* LeftBracket */ &&
-        this.flags & 1 /* PrecedingLineBreak */) {
+        this.flags & 1 /* LineTerminator */) {
         // Note: ExpressionStatement has a lookahead restriction for `let [`.
         this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
     }
@@ -4166,7 +4164,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
         this.expect(context, 270535219 /* Multiply */);
         count++;
     }
-    if (state & 2 /* Async */ && this.flags & 1 /* PrecedingLineBreak */) {
+    if (state & 2 /* Async */ && this.flags & 1 /* LineTerminator */) {
         this.error(62 /* LineBreakAfterAsync */);
     }
     if (this.token === 69742 /* ConstructorKeyword */)

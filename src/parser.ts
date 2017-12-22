@@ -233,7 +233,7 @@ export class Parser {
     }
 
     private advanceNewline(skipLF = true) {
-        this.flags |= Flags.PrecedingLineBreak;
+        this.flags |= Flags.LineTerminator;
         this.index++;
         if (skipLF) {
             this.column = 0;
@@ -255,7 +255,7 @@ export class Parser {
      */
     private scan(context: Context): Token {
 
-        this.flags &= ~(Flags.PrecedingLineBreak | Flags.ExtendedUnicodeEscape);
+        this.flags &= ~(Flags.LineTerminator | Flags.ExtendedUnicodeEscape);
 
         let state = this.index === 0 ? ScanState.LineStart : ScanState.None;
 
@@ -362,21 +362,19 @@ export class Parser {
 
                             case Chars.Exclamation:
                                 {
-                                    if (!(context & Context.Module)) {
-                                        this.advance(); // skip `<`
+                                    if (context & Context.Module) continue;
+                                    this.advance(); // skip `<`
                                         // Double 'hyphen' because of the "look and feel" of
                                         // the HTML single line comment (<!--)
-                                        if (this.consume(Chars.Hyphen)) {
-                                            if (this.consume(Chars.Hyphen)) {
+                                    if (this.consume(Chars.Hyphen) && this.consume(Chars.Hyphen)) {
                                                 this.skipComments(state | ScanState.SingleLine);
                                                 continue;
-                                            }
                                         }
-                                    }
+
                                 }
                             case Chars.Slash:
                                 {
-                                    if (!(this.flags & Flags.OptionsJSX)) break;
+                                    if (!(this.flags & Flags.OptionsJSX)) continue;
                                     this.advance();
                                     return Token.JSXClose;
                                 }
@@ -398,10 +396,9 @@ export class Parser {
                             case Chars.Hyphen:
                                 {
                                     this.advance();
-
-                                    if (context & Context.Module || !(state & ScanState.LineStart)) return Token.Decrement;
-
-                                    if (this.consume(Chars.GreaterThan)) {
+                                    if (this.nextChar() === Chars.GreaterThan
+                                        && !(context & Context.Module || !(state & ScanState.LineStart))) {
+                                        this.advance();
                                         this.skipComments(state | ScanState.SingleLine);
                                         continue;
                                     }
@@ -1834,7 +1831,7 @@ export class Parser {
             case Token.EndOfSource:
                 break;
             default:
-                if (this.flags & Flags.PrecedingLineBreak) break;
+                if (this.flags & Flags.LineTerminator) break;
                 this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         }
     }
@@ -1868,7 +1865,7 @@ export class Parser {
         const t = this.nextToken(context);
         const flags = this.flags;
         this.rewindState(savedState);
-        return !(savedFlag & Flags.ExtendedUnicodeEscape && flags & Flags.PrecedingLineBreak) &&
+        return !(savedFlag & Flags.ExtendedUnicodeEscape && flags & Flags.LineTerminator) &&
             !!(t & (Token.BindingPattern | Token.IsIdentifier | Token.IsYield) ||
                 (t & Token.Contextual) === Token.Contextual);
     }
@@ -2453,7 +2450,7 @@ export class Parser {
 
         this.expect(context, Token.ThrowKeyword);
 
-        if (this.flags & Flags.PrecedingLineBreak) this.error(Errors.LineBreakAfterThrow);
+        if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterThrow);
 
         const argument: ESTree.Expression = this.parseExpression(context | Context.AllowIn, pos);
 
@@ -2541,7 +2538,7 @@ export class Parser {
         this.expect(context, Token.ContinueKeyword);
 
         let label: any = null;
-        if (!(this.flags & Flags.PrecedingLineBreak) && this.token & Token.IsIdentifier) {
+        if (!(this.flags & Flags.LineTerminator) && this.token & Token.IsIdentifier) {
             label = this.parseIdentifierName(context, this.token);
 
             if (this.labelSet === undefined || !('$' + label.name in this.labelSet)) {
@@ -2565,7 +2562,7 @@ export class Parser {
 
         let label: ESTree.Identifier | undefined | null = null;
 
-        if (!(this.flags & Flags.PrecedingLineBreak) && this.token & Token.IsIdentifier) {
+        if (!(this.flags & Flags.LineTerminator) && this.token & Token.IsIdentifier) {
             label = this.parseIdentifierName(context, this.token);
             if (this.labelSet === undefined || !('$' + (label as ESTree.Identifier).name in this.labelSet)) {
                 this.error(Errors.UnknownLabel, (label as ESTree.Identifier).name);
@@ -2870,7 +2867,7 @@ export class Parser {
     private canParseArgument(): boolean {
 
         // Bail out quickly if we have seen a LineTerminator
-        if (this.flags & Flags.PrecedingLineBreak) return false;
+        if (this.flags & Flags.LineTerminator) return false;
 
         switch (this.token) {
             case Token.Semicolon:
@@ -3045,7 +3042,7 @@ export class Parser {
         let argument: ESTree.Expression | null = null;
         let delegate = false;
 
-        if (!(this.flags & Flags.PrecedingLineBreak)) {
+        if (!(this.flags & Flags.LineTerminator)) {
             delegate = this.parseOptional(context, Token.Multiply);
             if (delegate) {
                 argument = this.parseAssignmentExpression(context);
@@ -3079,7 +3076,7 @@ export class Parser {
         // An async one, will be parsed out in 'parsePrimaryExpression'
         if (this.token === Token.Arrow && (this.isIdentifier(context | Context.Arrow, token))) {
 
-            if (!(this.flags & Flags.PrecedingLineBreak)) {
+            if (!(this.flags & Flags.LineTerminator)) {
                 if (this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                     if (context & Context.Strict) this.error(Errors.UnexpectedStrictReserved);
                     this.flags |= Flags.Binding;
@@ -3195,7 +3192,7 @@ export class Parser {
     ): ESTree.ArrowFunctionExpression {
 
         // A line terminator between ArrowParameters and the => should trigger a SyntaxError.
-        if (this.flags & Flags.PrecedingLineBreak) this.error(Errors.LineBreakAfterAsync);
+        if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
 
         this.expect(context, Token.Arrow);
 
@@ -3356,7 +3353,7 @@ export class Parser {
         expr = this.parseLeftHandSideExpression(context, pos);
 
         if (!hasPrefix) {
-            if (hasMask(this.token, Token.UpdateOperator) && !(this.flags & Flags.PrecedingLineBreak)) {
+            if (hasMask(this.token, Token.UpdateOperator) && !(this.flags & Flags.LineTerminator)) {
                 t = this.token;
                 this.nextToken(context);
             } else return expr;
@@ -3740,7 +3737,7 @@ export class Parser {
             case Token.Identifier:
                 // The specs says "async[no LineTerminator here]", so just return an plain identifier in case
                 // we got an LineTerminator. The 'ArrowFunctionExpression' will be parsed out in 'parseAssignmentExpression'
-                if (this.flags & Flags.PrecedingLineBreak) return id;
+                if (this.flags & Flags.LineTerminator) return id;
                 const expr = this.parseIdentifier(context);
                 if (this.token === Token.Arrow) return this.parseArrowFunctionExpression(context & ~Context.Yield | Context.AllowIn | Context.Await, pos, [expr]);
                 // Invalid: 'async abc'
@@ -3814,7 +3811,7 @@ export class Parser {
 
             if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
             // async arrows cannot have a line terminator between "async" and the formals
-            if (flags & Flags.PrecedingLineBreak) this.error(Errors.LineBreakAfterAsync);
+            if (flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
             if (this.flags & Flags.Await) this.error(Errors.InvalidAwaitInArrowParam);
             if (state & ParenthesizedState.EvalOrArg) this.error(Errors.StrictParamName);
             if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
@@ -4020,7 +4017,7 @@ export class Parser {
         this.nextToken(context);
 
         if (this.token === Token.LeftBracket &&
-            this.flags & Flags.PrecedingLineBreak) {
+            this.flags & Flags.LineTerminator) {
             // Note: ExpressionStatement has a lookahead restriction for `let [`.
             this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         }
@@ -4447,7 +4444,7 @@ export class Parser {
             count++;
         }
 
-        if (state & ObjectState.Async && this.flags & Flags.PrecedingLineBreak) {
+        if (state & ObjectState.Async && this.flags & Flags.LineTerminator) {
             this.error(Errors.LineBreakAfterAsync);
         }
 

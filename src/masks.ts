@@ -41,7 +41,7 @@ export const enum Context {
 // Mutable parser flags
 export const enum Flags {
     None                         = 0,
-    PrecedingLineBreak           = 1 << 0,
+    LineTerminator           = 1 << 0,
     ExtendedUnicodeEscape        = 1 << 1, // If node has any escaped unicode sequences (escaped characters in keywords).
     InFunctionBody               = 1 << 2, // If node was parsed in a function body
     AllowCall                    = 1 << 3, // If node was parsed in a context where call should be allowed
