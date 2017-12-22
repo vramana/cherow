@@ -17,12 +17,12 @@ describe('Literals - Strings', () => {
         Zero = 0x30,
         Nine = 0x39,
     }
-    
+
     const testChar = (code: number) => {
         const letter = String.fromCharCode(code);
         return `'\\${letter}'`;
-    }
-    const getHex = (code: number) => code < 0x10 ? `0${code.toString(16)}` : code.toString(16)
+    };
+    const getHex = (code: number) => code < 0x10 ? `0${code.toString(16)}` : code.toString(16);
 
     for (let code = Chars.EnglishUpperA; code <= Chars.EnglishUpperZ; code++) {
 

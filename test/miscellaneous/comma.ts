@@ -10,11 +10,21 @@ describe('Miscellaneous - Comma (ES2017)', () => {
             }
         `;
 
+    const asyncArrow = (arg: string, returnExpr = 'null') => `
+        async (${arg}) => {
+            return ${returnExpr};
+        }
+    `;
+
     const functionExpression =  (arg: string, returnExpr = 'null') => `function* f(${arg}) {
                 return ${returnExpr};
             }`;
 
     const generatorExpression = (arg: string, returnExpr = 'null') => `function* f(${arg}) {
+                return ${returnExpr};
+            }`;
+
+    const asyncExpression = (arg: string, returnExpr = 'null') => `async function f(${arg}) {
                 return ${returnExpr};
             }`;
 
@@ -34,6 +44,13 @@ describe('Miscellaneous - Comma (ES2017)', () => {
 
     const classMethod = (arg: string, returnExpr = 'null') => `(new class {
                 m(${arg}) {
+                    var fun = this.m;
+                    return ${returnExpr};
+                }
+            })`;
+
+    const classAsyncMethod = (arg: string, returnExpr = 'null') => `(new class {
+                *m(${arg}) {
                     var fun = this.m;
                     return ${returnExpr};
                 }
@@ -69,15 +86,18 @@ describe('Miscellaneous - Comma (ES2017)', () => {
 
     const tests = [
         arrow,
+        asyncArrow,
         conciseBody,
         functionExpression,
         generatorExpression,
         objectMethod,
         objectGeneratorMethod,
         classMethod,
+        classAsyncMethod,
         classStaticMethod,
         classConstructorMethod,
-        classGeneratorMethod
+        classGeneratorMethod,
+        asyncExpression
     ];
 
     // We are re-parsing
@@ -85,94 +105,113 @@ describe('Miscellaneous - Comma (ES2017)', () => {
 
         pass(test('a, ', 'a'), {
             source: test('a, b, ', 'a + b'),
+            next: true,
             expected: parseScript(test('a, b, ', 'a + b'))
         });
 
         pass(test('a, ', 'a'), {
             source: test('a, b, ', 'a + b'),
             module: true,
+            next: true,
             expected: parseModule(test('a, b, ', 'a + b'))
         });
 
         pass(test('{a}, {b}, ', 'a + b'), {
             source: test('{a}, {b}, ', 'a + b'),
+            next: true,
             expected: parseScript(test('{a}, {b}, ', 'a + b'))
         });
 
         pass(test('{a} = {a: 30}, {b} = {b: 40}, ', 'a'), {
             source: test('{a} = {a: 30}, {b} = {b: 40}, ', 'a + b'),
+            next: true,
             expected: parseScript(test('{a} = {a: 30}, {b} = {b: 40}, ', 'a + b'))
         });
 
         pass(test('{a} = {a: 30}, {b} = {b: 40}, ', 'a'), {
             source: test('{a} = {a: 30}, {b} = {b: 40}, ', 'a + b'),
             module: true,
+            next: true,
             expected: parseModule(test('{a} = {a: 30}, {b} = {b: 40}, ', 'a + b'))
         });
 
         pass(test('[a], ', 'a'), {
             source: test('[a], ', 'a + b'),
+            next: true,
             expected: parseScript(test('[a], ', 'a + b'))
         });
 
         pass(test('[a] = [30], ', 'a'), {
             source: test('[a] = [30], ', 'a + b'),
+            next: true,
             expected: parseScript(test('[a] = [30], ', 'a + b'))
         });
 
         pass(test('[a] = [30], [b] = [40], ', 'a'), {
             source: test('[a] = [30], [b] = [40], ', 'a + b'),
+            next: true,
             expected: parseScript(test('[a] = [30], [b] = [40], ', 'a + b'))
         });
 
         pass(test('a, b, ', 'a'), {
             source: test('a, b, ', 'a + b'),
+            next: true,
             expected: parseScript(test('a, b, ', 'a + b'))
         });
 
         pass(test('a, b, ', 'a'), {
             source: test('a, b, ', 'a + b'),
+            next: true,
             expected: parseScript(test('a, b, ', 'a + b'))
         });
 
         pass(test('{a}, {b}, ', 'a'), {
             source: test('{a}, {b}, ', 'a + b'),
+            next: true,
             expected: parseScript(test('{a}, {b}, ', 'a + b'))
         });
 
         pass(test('{a}, {b}, ', 'a'), {
             source: test('{a}, {b}, ', 'a + b'),
             module: true,
+            next: true,
             expected: parseModule(test('{a}, {b}, ', 'a + b'))
         });
 
         pass(test('a = 30, ', 'a'), {
             source: test('a = 30, ', 'a + b'),
+            next: true,
             expected: parseScript(test('a = 30, ', 'a + b'))
         });
 
         fail(test(',', 'a'), {
-            source: test(',', 'a + b')
+            source: test(',', 'a + b'),
+            next: true
         });
 
         fail(test(',', 'a'), {
-            source: test(',', 'a + b')
+            source: test(',', 'a + b'),
+            next: true
         });
 
         fail(test(', a', 'a'), {
-            source: test(', a', 'a + b')
+            source: test(', a', 'a + b'),
+            next: true
         });
 
         fail(test('a..., , ', 'a'), {
-            source: test('a..., , ', 'a + b')
-        });
-
-        fail(test('a, ...b, ', 'a'), {
-            source: test('a, ...b, ', 'a + b')
+            source: test('a..., , ', 'a + b'),
+            next: true
         });
 
         fail(test('a, ...b, ', 'a'), {
             source: test('a, ...b, ', 'a + b'),
+            next: true
+        });
+
+        fail(test('a, ...b, ', 'a'), {
+            source: test('a, ...b, ', 'a + b'),
+            next: true,
             module: true
         });
     }
@@ -304,6 +343,7 @@ describe('Miscellaneous - Comma (ES2017)', () => {
     pass(`var foo = (a, b,) => {};`, {
         source: 'var foo = (a, b,) => {};',
         ranges: true,
+        next: true,
         loc: true,
         raw: true,
         expected: {

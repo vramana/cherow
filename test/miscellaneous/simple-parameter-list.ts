@@ -81,6 +81,12 @@ describe('Miscellaneous - Simple parameter list', () => {
         // GeneratorDeclaration
         (parameters: string) => `function* g(${parameters}) { "use strict"; }`,
 
+        // AsyncDeclaration
+        (parameters: string) => `async function g(${parameters}) { "use strict"; }`,
+
+        // AsyncGeneratorDeclaration
+        (parameters: string) => `async function *g(${parameters}) { "use strict"; }`,
+
         // GeneratorExpression
         (parameters: string) => `void function*(${parameters}) { "use strict"; };`,
         (parameters: string) => `void function* g(${parameters}) { "use strict"; };`,

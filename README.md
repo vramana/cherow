@@ -19,9 +19,8 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 * Skips hashbang comment nodes by default
 * Skips BOM (*U+FEFF*) by default
 * Optional tracking of syntax node location (index-based and line-column)
-* Heavily tested (*~40 000 tests*)
+* Heavily tested (~40 000 [unut tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
 * Parameterized plugin system
-
 
 ## ESNext features
 
