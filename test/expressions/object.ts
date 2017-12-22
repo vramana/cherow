@@ -2,6 +2,3478 @@ import { pass, fail } from '../utils';
 
 describe('Expressions - Object', () => {
 
+    pass(`"use strict;" ({x:1,   "x":1})`, {
+        source: '"use strict;" ({x:1,   "x":1})',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Literal',
+                            value: 'use strict;',
+                            start: 0,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            },
+                            raw: '"use strict;"'
+                        },
+                        arguments: [
+                            {
+                                type: 'ObjectExpression',
+                                properties: [
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'x',
+                                            start: 16,
+                                            end: 17,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 16
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 17
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 18,
+                                            end: 19,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 18
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 19
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 16,
+                                        end: 19,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 16
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 19
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Literal',
+                                            value: 'x',
+                                            start: 23,
+                                            end: 26,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 23
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 26
+                                                }
+                                            },
+                                            raw: '"x"'
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 27,
+                                            end: 28,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 27
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 28
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 23,
+                                        end: 28,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 23
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 28
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 15,
+                                end: 29,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 15
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 29
+                                    }
+                                }
+                            }
+                        ],
+                        start: 0,
+                        end: 30,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 30
+                            }
+                        }
+                    },
+                    directive: 'use strict;',
+                    start: 0,
+                    end: 30,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 30
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 30,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 30
+                }
+            }
+        }
+    });
+
+    pass(`"use strict;" ({1.5:1, 1.5:1})`, {
+        source: '"use strict;" ({1.5:1, 1.5:1})',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Literal',
+                            value: 'use strict;',
+                            start: 0,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            },
+                            raw: '"use strict;"'
+                        },
+                        arguments: [
+                            {
+                                type: 'ObjectExpression',
+                                properties: [
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Literal',
+                                            value: 1.5,
+                                            start: 16,
+                                            end: 19,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 16
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 19
+                                                }
+                                            },
+                                            raw: '1.5'
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 20,
+                                            end: 21,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 20
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 21
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 16,
+                                        end: 21,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 16
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 21
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Literal',
+                                            value: 1.5,
+                                            start: 23,
+                                            end: 26,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 23
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 26
+                                                }
+                                            },
+                                            raw: '1.5'
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 27,
+                                            end: 28,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 27
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 28
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 23,
+                                        end: 28,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 23
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 28
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 15,
+                                end: 29,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 15
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 29
+                                    }
+                                }
+                            }
+                        ],
+                        start: 0,
+                        end: 30,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 30
+                            }
+                        }
+                    },
+                    directive: 'use strict;',
+                    start: 0,
+                    end: 30,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 30
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 30,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 30
+                }
+            }
+        }
+    });
+
+    pass(`"use strict;" ({6.02214179e23:1, 6.02214179e23:1})`, {
+        source: '"use strict;" ({6.02214179e23:1, 6.02214179e23:1})',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Literal',
+                            value: 'use strict;',
+                            start: 0,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            },
+                            raw: '"use strict;"'
+                        },
+                        arguments: [
+                            {
+                                type: 'ObjectExpression',
+                                properties: [
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Literal',
+                                            value: 6.02214179e+23,
+                                            start: 16,
+                                            end: 29,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 16
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 29
+                                                }
+                                            },
+                                            raw: '6.02214179e23'
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 30,
+                                            end: 31,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 30
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 31
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 16,
+                                        end: 31,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 16
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 31
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Literal',
+                                            value: 6.02214179e+23,
+                                            start: 33,
+                                            end: 46,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 33
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 46
+                                                }
+                                            },
+                                            raw: '6.02214179e23'
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 47,
+                                            end: 48,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 47
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 48
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 33,
+                                        end: 48,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 33
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 48
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 15,
+                                end: 49,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 15
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 49
+                                    }
+                                }
+                            }
+                        ],
+                        start: 0,
+                        end: 50,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 50
+                            }
+                        }
+                    },
+                    directive: 'use strict;',
+                    start: 0,
+                    end: 50,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 50
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 50,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 50
+                }
+            }
+        }
+    });
+
+    pass(`"use strict;" ({ "1": 1, 1: 2 })`, {
+        source: '"use strict;" ({ "1": 1, 1: 2 })',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Literal',
+                            value: 'use strict;',
+                            start: 0,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            },
+                            raw: '"use strict;"'
+                        },
+                        arguments: [
+                            {
+                                type: 'ObjectExpression',
+                                properties: [
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Literal',
+                                            value: '1',
+                                            start: 17,
+                                            end: 20,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 17
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 20
+                                                }
+                                            },
+                                            raw: '"1"'
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 22,
+                                            end: 23,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 22
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 23
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 17,
+                                        end: 23,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 17
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 23
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 25,
+                                            end: 26,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 25
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 26
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 2,
+                                            start: 28,
+                                            end: 29,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 28
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 29
+                                                }
+                                            },
+                                            raw: '2'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 25,
+                                        end: 29,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 25
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 29
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 15,
+                                end: 31,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 15
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 31
+                                    }
+                                }
+                            }
+                        ],
+                        start: 0,
+                        end: 32,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 32
+                            }
+                        }
+                    },
+                    directive: 'use strict;',
+                    start: 0,
+                    end: 32,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 32
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 32,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 32
+                }
+            }
+        }
+    });
+
+    pass(`"use strict;" ({ "2.5": 1, 2.5: 2 })`, {
+        source: '"use strict;" ({ "2.5": 1, 2.5: 2 })',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Literal',
+                            value: 'use strict;',
+                            start: 0,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            },
+                            raw: '"use strict;"'
+                        },
+                        arguments: [
+                            {
+                                type: 'ObjectExpression',
+                                properties: [
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Literal',
+                                            value: '2.5',
+                                            start: 17,
+                                            end: 22,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 17
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 22
+                                                }
+                                            },
+                                            raw: '"2.5"'
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 24,
+                                            end: 25,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 24
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 25
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 17,
+                                        end: 25,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 17
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 25
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Literal',
+                                            value: 2.5,
+                                            start: 27,
+                                            end: 30,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 27
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 30
+                                                }
+                                            },
+                                            raw: '2.5'
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 2,
+                                            start: 32,
+                                            end: 33,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 32
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 33
+                                                }
+                                            },
+                                            raw: '2'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 27,
+                                        end: 33,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 27
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 33
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 15,
+                                end: 35,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 15
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 35
+                                    }
+                                }
+                            }
+                        ],
+                        start: 0,
+                        end: 36,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 36
+                            }
+                        }
+                    },
+                    directive: 'use strict;',
+                    start: 0,
+                    end: 36,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 36
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 36,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 36
+                }
+            }
+        }
+    });
+
+    pass(`"use strict;" ({a:1, b:1, c:1, d:1, e:1, f:1, g:1, h:1, i:1, j:1, k:1, l:1, m:1, n:1, o:1, p:1, q:1, r:1, s:1, t:1, u:1, v:1, w:1, x:1, y:1, a:1})`, {
+        source: '"use strict;" ({a:1, b:1, c:1, d:1, e:1, f:1, g:1, h:1, i:1, j:1, k:1, l:1, m:1, n:1, o:1, p:1, q:1, r:1, s:1, t:1, u:1, v:1, w:1, x:1, y:1, a:1})',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Literal',
+                            value: 'use strict;',
+                            start: 0,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            },
+                            raw: '"use strict;"'
+                        },
+                        arguments: [
+                            {
+                                type: 'ObjectExpression',
+                                properties: [
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'a',
+                                            start: 16,
+                                            end: 17,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 16
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 17
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 18,
+                                            end: 19,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 18
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 19
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 16,
+                                        end: 19,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 16
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 19
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'b',
+                                            start: 21,
+                                            end: 22,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 21
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 22
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 23,
+                                            end: 24,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 23
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 24
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 21,
+                                        end: 24,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 21
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 24
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'c',
+                                            start: 26,
+                                            end: 27,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 26
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 27
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 28,
+                                            end: 29,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 28
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 29
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 26,
+                                        end: 29,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 26
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 29
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'd',
+                                            start: 31,
+                                            end: 32,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 31
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 32
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 33,
+                                            end: 34,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 33
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 34
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 31,
+                                        end: 34,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 31
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 34
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'e',
+                                            start: 36,
+                                            end: 37,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 36
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 37
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 38,
+                                            end: 39,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 38
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 39
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 36,
+                                        end: 39,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 36
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 39
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'f',
+                                            start: 41,
+                                            end: 42,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 41
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 42
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 43,
+                                            end: 44,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 43
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 44
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 41,
+                                        end: 44,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 41
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 44
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'g',
+                                            start: 46,
+                                            end: 47,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 46
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 47
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 48,
+                                            end: 49,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 48
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 49
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 46,
+                                        end: 49,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 46
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 49
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'h',
+                                            start: 51,
+                                            end: 52,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 51
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 52
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 53,
+                                            end: 54,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 53
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 54
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 51,
+                                        end: 54,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 51
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 54
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'i',
+                                            start: 56,
+                                            end: 57,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 56
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 57
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 58,
+                                            end: 59,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 58
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 59
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 56,
+                                        end: 59,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 56
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 59
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'j',
+                                            start: 61,
+                                            end: 62,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 61
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 62
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 63,
+                                            end: 64,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 63
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 64
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 61,
+                                        end: 64,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 61
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 64
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'k',
+                                            start: 66,
+                                            end: 67,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 66
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 67
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 68,
+                                            end: 69,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 68
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 69
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 66,
+                                        end: 69,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 66
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 69
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'l',
+                                            start: 71,
+                                            end: 72,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 71
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 72
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 73,
+                                            end: 74,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 73
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 74
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 71,
+                                        end: 74,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 71
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 74
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'm',
+                                            start: 76,
+                                            end: 77,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 76
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 77
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 78,
+                                            end: 79,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 78
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 79
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 76,
+                                        end: 79,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 76
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 79
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'n',
+                                            start: 81,
+                                            end: 82,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 81
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 82
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 83,
+                                            end: 84,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 83
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 84
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 81,
+                                        end: 84,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 81
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 84
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'o',
+                                            start: 86,
+                                            end: 87,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 86
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 87
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 88,
+                                            end: 89,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 88
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 89
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 86,
+                                        end: 89,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 86
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 89
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'p',
+                                            start: 91,
+                                            end: 92,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 91
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 92
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 93,
+                                            end: 94,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 93
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 94
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 91,
+                                        end: 94,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 91
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 94
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'q',
+                                            start: 96,
+                                            end: 97,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 96
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 97
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 98,
+                                            end: 99,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 98
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 99
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 96,
+                                        end: 99,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 96
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 99
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'r',
+                                            start: 101,
+                                            end: 102,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 101
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 102
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 103,
+                                            end: 104,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 103
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 104
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 101,
+                                        end: 104,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 101
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 104
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 's',
+                                            start: 106,
+                                            end: 107,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 106
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 107
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 108,
+                                            end: 109,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 108
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 109
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 106,
+                                        end: 109,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 106
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 109
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 't',
+                                            start: 111,
+                                            end: 112,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 111
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 112
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 113,
+                                            end: 114,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 113
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 114
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 111,
+                                        end: 114,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 111
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 114
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'u',
+                                            start: 116,
+                                            end: 117,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 116
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 117
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 118,
+                                            end: 119,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 118
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 119
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 116,
+                                        end: 119,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 116
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 119
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'v',
+                                            start: 121,
+                                            end: 122,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 121
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 122
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 123,
+                                            end: 124,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 123
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 124
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 121,
+                                        end: 124,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 121
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 124
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'w',
+                                            start: 126,
+                                            end: 127,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 126
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 127
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 128,
+                                            end: 129,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 128
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 129
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 126,
+                                        end: 129,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 126
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 129
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'x',
+                                            start: 131,
+                                            end: 132,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 131
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 132
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 133,
+                                            end: 134,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 133
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 134
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 131,
+                                        end: 134,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 131
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 134
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'y',
+                                            start: 136,
+                                            end: 137,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 136
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 137
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 138,
+                                            end: 139,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 138
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 139
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 136,
+                                        end: 139,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 136
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 139
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'a',
+                                            start: 141,
+                                            end: 142,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 141
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 142
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 143,
+                                            end: 144,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 143
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 144
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 141,
+                                        end: 144,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 141
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 144
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 15,
+                                end: 145,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 15
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 145
+                                    }
+                                }
+                            }
+                        ],
+                        start: 0,
+                        end: 146,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 146
+                            }
+                        }
+                    },
+                    directive: 'use strict;',
+                    start: 0,
+                    end: 146,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 146
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 146,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 146
+                }
+            }
+        }
+    });
+
+    pass(`"use strict;" ({get x() {}, set x(q) {}})`, {
+        source: '"use strict;" ({get x() {}, set x(q) {}})',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Literal',
+                            value: 'use strict;',
+                            start: 0,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            },
+                            raw: '"use strict;"'
+                        },
+                        arguments: [
+                            {
+                                type: 'ObjectExpression',
+                                properties: [
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'x',
+                                            start: 20,
+                                            end: 21,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 20
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 21
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'FunctionExpression',
+                                            params: [],
+                                            body: {
+                                                type: 'BlockStatement',
+                                                body: [],
+                                                start: 24,
+                                                end: 26,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 24
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 26
+                                                    }
+                                                }
+                                            },
+                                            async: false,
+                                            generator: false,
+                                            expression: false,
+                                            id: null,
+                                            start: 21,
+                                            end: 26,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 21
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 26
+                                                }
+                                            }
+                                        },
+                                        kind: 'get',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 16,
+                                        end: 26,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 16
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 26
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'x',
+                                            start: 32,
+                                            end: 33,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 32
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 33
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'FunctionExpression',
+                                            params: [
+                                                {
+                                                    type: 'Identifier',
+                                                    name: 'q',
+                                                    start: 34,
+                                                    end: 35,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 34
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 35
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            body: {
+                                                type: 'BlockStatement',
+                                                body: [],
+                                                start: 37,
+                                                end: 39,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 37
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 39
+                                                    }
+                                                }
+                                            },
+                                            async: false,
+                                            generator: false,
+                                            expression: false,
+                                            id: null,
+                                            start: 33,
+                                            end: 39,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 33
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 39
+                                                }
+                                            }
+                                        },
+                                        kind: 'set',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 28,
+                                        end: 39,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 28
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 39
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 15,
+                                end: 40,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 15
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 40
+                                    }
+                                }
+                            }
+                        ],
+                        start: 0,
+                        end: 41,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 41
+                            }
+                        }
+                    },
+                    directive: 'use strict;',
+                    start: 0,
+                    end: 41,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 41
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 41,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 41
+                }
+            }
+        }
+    });
+
+    pass(`"use strict;" ({set x(q) {}, get x() {}})`, {
+        source: '"use strict;" ({set x(q) {}, get x() {}})',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Literal',
+                            value: 'use strict;',
+                            start: 0,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            },
+                            raw: '"use strict;"'
+                        },
+                        arguments: [
+                            {
+                                type: 'ObjectExpression',
+                                properties: [
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'x',
+                                            start: 20,
+                                            end: 21,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 20
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 21
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'FunctionExpression',
+                                            params: [
+                                                {
+                                                    type: 'Identifier',
+                                                    name: 'q',
+                                                    start: 22,
+                                                    end: 23,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 22
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 23
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            body: {
+                                                type: 'BlockStatement',
+                                                body: [],
+                                                start: 25,
+                                                end: 27,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 25
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 27
+                                                    }
+                                                }
+                                            },
+                                            async: false,
+                                            generator: false,
+                                            expression: false,
+                                            id: null,
+                                            start: 21,
+                                            end: 27,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 21
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 27
+                                                }
+                                            }
+                                        },
+                                        kind: 'set',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 16,
+                                        end: 27,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 16
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 27
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'x',
+                                            start: 33,
+                                            end: 34,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 33
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 34
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'FunctionExpression',
+                                            params: [],
+                                            body: {
+                                                type: 'BlockStatement',
+                                                body: [],
+                                                start: 37,
+                                                end: 39,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 37
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 39
+                                                    }
+                                                }
+                                            },
+                                            async: false,
+                                            generator: false,
+                                            expression: false,
+                                            id: null,
+                                            start: 34,
+                                            end: 39,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 34
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 39
+                                                }
+                                            }
+                                        },
+                                        kind: 'get',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 29,
+                                        end: 39,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 29
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 39
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 15,
+                                end: 40,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 15
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 40
+                                    }
+                                }
+                            }
+                        ],
+                        start: 0,
+                        end: 41,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 41
+                            }
+                        }
+                    },
+                    directive: 'use strict;',
+                    start: 0,
+                    end: 41,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 41
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 41,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 41
+                }
+            }
+        }
+    });
+
+    pass(`"use strict;" ({get x() {}, get x() {}})`, {
+        source: '"use strict;" ({get x() {}, get x() {}})',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Literal',
+                            value: 'use strict;',
+                            start: 0,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            },
+                            raw: '"use strict;"'
+                        },
+                        arguments: [
+                            {
+                                type: 'ObjectExpression',
+                                properties: [
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'x',
+                                            start: 20,
+                                            end: 21,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 20
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 21
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'FunctionExpression',
+                                            params: [],
+                                            body: {
+                                                type: 'BlockStatement',
+                                                body: [],
+                                                start: 24,
+                                                end: 26,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 24
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 26
+                                                    }
+                                                }
+                                            },
+                                            async: false,
+                                            generator: false,
+                                            expression: false,
+                                            id: null,
+                                            start: 21,
+                                            end: 26,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 21
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 26
+                                                }
+                                            }
+                                        },
+                                        kind: 'get',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 16,
+                                        end: 26,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 16
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 26
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'x',
+                                            start: 32,
+                                            end: 33,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 32
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 33
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'FunctionExpression',
+                                            params: [],
+                                            body: {
+                                                type: 'BlockStatement',
+                                                body: [],
+                                                start: 36,
+                                                end: 38,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 36
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 38
+                                                    }
+                                                }
+                                            },
+                                            async: false,
+                                            generator: false,
+                                            expression: false,
+                                            id: null,
+                                            start: 33,
+                                            end: 38,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 33
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 38
+                                                }
+                                            }
+                                        },
+                                        kind: 'get',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 28,
+                                        end: 38,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 28
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 38
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 15,
+                                end: 39,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 15
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 39
+                                    }
+                                }
+                            }
+                        ],
+                        start: 0,
+                        end: 40,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 40
+                            }
+                        }
+                    },
+                    directive: 'use strict;',
+                    start: 0,
+                    end: 40,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 40
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 40,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 40
+                }
+            }
+        }
+    });
+
+    pass(`"use strict;" ({get x() {}, set x(q) {}, y:1})`, {
+        source: '"use strict;" ({get x() {}, set x(q) {}, y:1})',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Literal',
+                            value: 'use strict;',
+                            start: 0,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            },
+                            raw: '"use strict;"'
+                        },
+                        arguments: [
+                            {
+                                type: 'ObjectExpression',
+                                properties: [
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'x',
+                                            start: 20,
+                                            end: 21,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 20
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 21
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'FunctionExpression',
+                                            params: [],
+                                            body: {
+                                                type: 'BlockStatement',
+                                                body: [],
+                                                start: 24,
+                                                end: 26,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 24
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 26
+                                                    }
+                                                }
+                                            },
+                                            async: false,
+                                            generator: false,
+                                            expression: false,
+                                            id: null,
+                                            start: 21,
+                                            end: 26,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 21
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 26
+                                                }
+                                            }
+                                        },
+                                        kind: 'get',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 16,
+                                        end: 26,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 16
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 26
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'x',
+                                            start: 32,
+                                            end: 33,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 32
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 33
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'FunctionExpression',
+                                            params: [
+                                                {
+                                                    type: 'Identifier',
+                                                    name: 'q',
+                                                    start: 34,
+                                                    end: 35,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 34
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 35
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            body: {
+                                                type: 'BlockStatement',
+                                                body: [],
+                                                start: 37,
+                                                end: 39,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 37
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 39
+                                                    }
+                                                }
+                                            },
+                                            async: false,
+                                            generator: false,
+                                            expression: false,
+                                            id: null,
+                                            start: 33,
+                                            end: 39,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 33
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 39
+                                                }
+                                            }
+                                        },
+                                        kind: 'set',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 28,
+                                        end: 39,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 28
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 39
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'y',
+                                            start: 41,
+                                            end: 42,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 41
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 42
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 43,
+                                            end: 44,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 43
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 44
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 41,
+                                        end: 44,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 41
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 44
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 15,
+                                end: 45,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 15
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 45
+                                    }
+                                }
+                            }
+                        ],
+                        start: 0,
+                        end: 46,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 46
+                            }
+                        }
+                    },
+                    directive: 'use strict;',
+                    start: 0,
+                    end: 46,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 46
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 46,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 46
+                }
+            }
+        }
+    });
+
     pass(`({ x([ a, b ]){} });`, {
         source: '({ x([ a, b ]){} });',
         loc: true,

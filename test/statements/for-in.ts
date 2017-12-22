@@ -2034,4 +2034,57 @@ describe('Statements - For In', () => {
     fail(`class C extends D { constructor() { for (super() = 0 in {}); } }`, {
             source: 'class C extends D { constructor() { for (super() = 0 in {}); } }',
         });
+
+    fail(`for (var [x] = [] in null);`, {
+            source: 'for (var [x] = [] in null);',
+        });
+
+    fail(`for (var [x] = x in y) var x;`, {
+            source: 'for (var [x] = x in y) var x;',
+        });
+
+    fail(`for (var [arguments] = ({ get y(){} }) in y ) (x);`, {
+            source: 'for (var [arguments] = ({ get y(){} }) in y ) (x);',
+        });
+
+    fail(`for (var [arguments] = ({ get y(){} }) in y ) (x);`, {
+            source: 'try {\n' +
+            '    for (var [e] = /x/ in d) {\n' +
+            '        (function () {});\n' +
+            '    }\n' +
+            '} catch (e) {}\n' +
+            'try {\n' +
+            '    let(x = Object.freeze(this, /x/))\n' +
+            '    e = {}.toString\n' +
+            '    function y() {}\n' +
+            '} catch (e) {}',
+        });
+        // Declarations in for-in loop heads must not contain "in"-expression initializers
+    fail(`for (var x = 3 in {}; ; ) break;`, {
+            source: 'for (var x = 3 in {}; ; ) break;',
+        });
+
+    fail(`for (var x, y = 3 in {}; ; ) break;`, {
+            source: 'for (var x, y = 3 in {}; ; ) break;',
+        });
+
+    fail(`for (var x = 5, y = 3 in {}; ; ) break;`, {
+            source: 'for (var x = 5, y = 3 in {}; ; ) break;',
+        });
+
+    fail(`for (const x = 3 in {}; ; ) break;`, {
+            source: 'for (const x = 3 in {}; ; ) break;',
+        });
+
+    fail(`for (const x = 5, y = 3 in {}; ; ) break;`, {
+            source: 'for (const x = 5, y = 3 in {}; ; ) break;',
+        });
+
+    fail(`for (let x, y = 3 in {}; ; ) break;`, {
+            source: 'for (let x, y = 3 in {}; ; ) break;',
+        });
+
+    fail(`for (let x = 2, y = 3 in {}; ; ) break;`, {
+            source: 'for (let x = 2, y = 3 in {}; ; ) break;',
+        });
 });

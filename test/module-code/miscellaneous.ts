@@ -18,4 +18,29 @@ describe('Module-code - Miscellaneous', () => {
             function* g() {}';`,
             module: true
         });
+
+        fail(`var await = 5;`, {
+            source: `var await = 5;`,
+            module: true
+        });
+
+        fail(`await 5;`, {
+            source: `await 5;';`,
+            module: true
+        });
+
+        fail(`function f() { await 5; }`, {
+            source: `function f() { await 5; }`,
+            module: true
+        });
+
+        fail(`export var await;`, {
+            source: `export var await;`,
+            module: true
+        });
+
+        fail(`await => 1;`, {
+            source: `await => 1;';`,
+            module: true
+        });
 });

@@ -1,6 +1,198 @@
 import { pass, fail } from '../utils';
+import { parseScript } from '../../src/cherow';
 
 describe('Miscellaneous - Comma (ES2017)', () => {
+
+    const conciseBody = (argList: any, returnExpr = 'null') => `let fun = (${argList}) => ${returnExpr};`;
+    const arrow = (argList: any, returnExpr = '') => `
+            let fun = (${argList}) => {
+                return ${returnExpr};
+            }
+        `;
+
+    const functionExpression =  (argList: any, returnExpr = 'null') => `function* f(${argList}) {
+                return ${returnExpr};
+            }`;
+
+    const generatorExpression = (argList: any, returnExpr = 'null') => `function* f(${argList}) {
+                return ${returnExpr};
+            }`;
+
+    const objectMethod = (argList: any, returnExpr = '') => `({
+                m(${argList}) {
+                    var fun = this.m;
+                    return ${returnExpr};
+                }
+            })`;
+
+    const objectGeneratorMethod = (argList: any, returnExpr = '') => `({
+                * m(${argList}) {
+                    var fun = this.m;
+                    return ${returnExpr};
+                }
+            })`;
+
+    const classMethod = (argList: any, parameters = '', returnExpr = '') => `(new class {
+                m(${argList}) {
+                    var fun = this.m;
+                    return ${returnExpr};
+                }
+            })`;
+
+    const classStaticMethod = (argList: any, parameters = '', returnExpr = '') => `(class {
+                static m(${argList}) {
+                    var fun = this.m;
+                    return ${returnExpr};
+                }
+            })`;
+
+    const classGeneratorMethod = (argList: string, parameters = '', returnExpr = '') => `(new class {
+                * m(${argList}) {
+                    var fun = this.m;
+                    return ${returnExpr};
+                }
+            })`;
+
+    const classStaticGeneratorMethod = (argList: string, parameters = '', returnExpr = '') => `(class {
+                static * m(${argList}) {
+                    var fun = this.m;
+                    return ${returnExpr};
+                }
+            })`;
+
+    const classConstructorMethod = (argList: string, returnExpr = 'null') => `new (class {
+                constructor(${argList}) {
+                    var fun = this.constructor;
+                    return { value: ${returnExpr} };
+                }
+            })`;
+
+    const tests = [
+        arrow,
+        conciseBody,
+        functionExpression,
+        generatorExpression,
+        objectMethod,
+        objectGeneratorMethod,
+        classMethod,
+        classStaticMethod,
+        classConstructorMethod,
+        classGeneratorMethod
+
+    ];
+
+    for (const test of tests) {
+
+        pass(test('a, ', 'a'), {
+            source: test('a, b, ', 'a + b'),
+            expected: parseScript(test('a, b, ', 'a + b'))
+        });
+
+        pass(test('{a}, {b}, ', 'a + b'), {
+            source: test('{a}, {b}, ', 'a + b'),
+            expected: parseScript(test('{a}, {b}, ', 'a + b'))
+        });
+
+        pass(test('{a} = {a: 30}, {b} = {b: 40}, ', 'a'), {
+            source: test('{a} = {a: 30}, {b} = {b: 40}, ', 'a + b'),
+            expected: parseScript(test('{a} = {a: 30}, {b} = {b: 40}, ', 'a + b'))
+        });
+
+        pass(test('[a], ', 'a'), {
+            source: test('[a], ', 'a + b'),
+            expected: parseScript(test('[a], ', 'a + b'))
+        });
+
+        pass(test('[a] = [30], ', 'a'), {
+            source: test('[a] = [30], ', 'a + b'),
+            expected: parseScript(test('[a] = [30], ', 'a + b'))
+        });
+
+        pass(test('[a] = [30], [b] = [40], ', 'a'), {
+            source: test('[a] = [30], [b] = [40], ', 'a + b'),
+            expected: parseScript(test('[a] = [30], [b] = [40], ', 'a + b'))
+        });
+
+        pass(test('a, b, ', 'a'), {
+            source: test('a, b, ', 'a + b'),
+            expected: parseScript(test('a, b, ', 'a + b'))
+        });
+
+        pass(test('a, b, ', 'a'), {
+            source: test('a, b, ', 'a + b'),
+            expected: parseScript(test('a, b, ', 'a + b'))
+        });
+
+        pass(test('{a}, {b}, ', 'a'), {
+            source: test('{a}, {b}, ', 'a + b'),
+            expected: parseScript(test('{a}, {b}, ', 'a + b'))
+        });
+
+        pass(test('a = 30, ', 'a'), {
+            source: test('a = 30, ', 'a + b'),
+            expected: parseScript(test('a = 30, ', 'a + b'))
+        });
+
+        fail(test(',', 'a'), {
+            source: test(',', 'a + b')
+        });
+
+        fail(test(',', 'a'), {
+            source: test(',', 'a + b')
+        });
+
+        fail(test(', a', 'a'), {
+            source: test(', a', 'a + b')
+        });
+
+        fail(test('a..., , ', 'a'), {
+            source: test('a..., , ', 'a + b')
+        });
+
+        fail(test('a, ...b, ', 'a'), {
+            source: test('a, ...b, ', 'a + b')
+        });
+    }
+
+    for (const trail of ['', ';', '\n => {}']) {
+
+        fail('(a,)' + trail, {
+            source: '(a,)' + trail
+        });
+
+        fail('(a, b,)' + trail, {
+            source: '(a, b,)' + trail
+        });
+
+        fail('(...a, )' + trail, {
+            source: '(...a, )' + trail
+        });
+
+        fail('(a, ...b, )' + trail, {
+            source: '(a, ...b, )' + trail
+        });
+
+        fail('(a, , b)' + trail, {
+            source: '(a, , b)' + trail
+        });
+
+        fail('(, a)' + trail, {
+            source: '(, a)' + trail
+        });
+
+        fail('(, ...a)' + trail, {
+            source: '(, ...a)' + trail
+        });
+
+        fail('(a, , )' + trail, {
+            source: '(a, , )' + trail
+        });
+
+        fail('(...a, , )' + trail, {
+            source: '(...a, , )' + trail
+        });
+
+    }
 
     fail(`{ foo(a, b,) {} };`, {
         source: `{ foo(a, b,) {} };`,

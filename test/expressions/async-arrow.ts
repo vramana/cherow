@@ -71,6 +71,472 @@ describe('Expressions - Async arrow', () => {
         source: '(async)(a) => 12',
     });
 
+    fail(`async await => 1`, {
+        source: 'async await => 1',
+    });
+
+    fail(`async (await) => 1`, {
+        source: 'async (await) => 1',
+    });
+
+    fail(`async ({await}) => 1`, {
+        source: 'async ({await}) => 1',
+    });
+
+    fail(`async (a=await) => 1`, {
+        source: 'async (a=await) => 1',
+    });
+
+    fail(`async ({a=await}) => 1`, {
+        source: 'async ({a=await}) => 1',
+    });
+
+    fail(`async (a=await 1) => 1`, {
+        source: 'async (a=await 1) => 1',
+    });
+
+    fail(`async ({a=await 1}) => 1`, {
+        source: 'async ({a=await 1}) => 1',
+    });
+
+    fail(`async [a] => 1`, {
+        source: 'async [a] => 1',
+    });
+
+    fail(`async {a: b} => 1`, {
+        source: 'async {a: b} => 1',
+    });
+
+    fail(`async a => await async X => Y`, {
+        source: 'async a => await async X => Y',
+    });
+
+    fail(`'use strict'; async X => {yield}`, {
+        source: '"use strict"; async X => {yield}',
+    });
+
+    fail(`'use strict'; async (yield) => X`, {
+        source: '"use strict"; async (yield) => X',
+    });
+
+    fail(`'use strict';  async X => {yield}`, {
+        source: '"use strict";  async X => {yield}',
+    });
+
+    fail(`function* g() { async yield => X }`, {
+        source: 'function* g() { async yield => X }',
+    });
+
+    fail(`function* g() { async (yield) => X }`, {
+        source: 'function* g() { async (yield) => X }',
+    });
+
+    fail(`function* g() { async ([yield]) => X }`, {
+        source: 'function* g() { async ([yield]) => X }',
+    });
+
+    fail(`function* g() { async ({yield}) => X }`, {
+        source: 'function* g() { async ({yield}) => X }',
+    });
+
+    fail(`async () => {1} ? a : b`, {
+        source: 'async () => {1} ? a : b',
+    });
+
+    pass(`async X => {yield}`, {
+        source: 'async X => {yield}',
+        ranges: true,
+        raw: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'Identifier',
+                                        name: 'yield',
+                                        start: 12,
+                                        end: 17,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 12
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 17
+                                            }
+                                        }
+                                    },
+                                    start: 12,
+                                    end: 17,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 12
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 17
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 11,
+                            end: 18,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 11
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 18
+                                }
+                            }
+                        },
+                        params: [
+                            {
+                                type: 'Identifier',
+                                name: 'X',
+                                start: 6,
+                                end: 7,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 6
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 7
+                                    }
+                                }
+                            }
+                        ],
+                        id: null,
+                        async: true,
+                        generator: false,
+                        expression: false,
+                        start: 0,
+                        end: 18,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 18
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 18,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 18
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 18,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 18
+                }
+            }
+        }
+    });
+
+    pass(`a ? b : async () => {1}`, {
+        source: 'a ? b : async () => {1}',
+        ranges: true,
+        raw: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ConditionalExpression',
+                        test: {
+                            type: 'Identifier',
+                            name: 'a',
+                            start: 0,
+                            end: 1,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 1
+                                }
+                            }
+                        },
+                        consequent: {
+                            type: 'Identifier',
+                            name: 'b',
+                            start: 4,
+                            end: 5,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 5
+                                }
+                            }
+                        },
+                        alternate: {
+                            type: 'ArrowFunctionExpression',
+                            body: {
+                                type: 'BlockStatement',
+                                body: [
+                                    {
+                                        type: 'ExpressionStatement',
+                                        expression: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 21,
+                                            end: 22,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 21
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 22
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        start: 21,
+                                        end: 22,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 21
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 22
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 20,
+                                end: 23,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 20
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 23
+                                    }
+                                }
+                            },
+                            params: [],
+                            id: null,
+                            async: true,
+                            generator: false,
+                            expression: false,
+                            start: 8,
+                            end: 23,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 8
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 23
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 23,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 23
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 23,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 23
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 23,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 23
+                }
+            }
+        }
+    });
+
+    pass(`async a => async function() {}`, {
+        source: 'async a => async function() {}',
+        ranges: true,
+        raw: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'FunctionExpression',
+                            params: [],
+                            body: {
+                                type: 'BlockStatement',
+                                body: [],
+                                start: 28,
+                                end: 30,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 28
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 30
+                                    }
+                                }
+                            },
+                            async: true,
+                            generator: false,
+                            expression: false,
+                            id: null,
+                            start: 11,
+                            end: 30,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 11
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 30
+                                }
+                            }
+                        },
+                        params: [
+                            {
+                                type: 'Identifier',
+                                name: 'a',
+                                start: 6,
+                                end: 7,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 6
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 7
+                                    }
+                                }
+                            }
+                        ],
+                        id: null,
+                        async: true,
+                        generator: false,
+                        expression: true,
+                        start: 0,
+                        end: 30,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 30
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 30,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 30
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 30,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 30
+                }
+            }
+        }
+    });
+
     pass(`(async (a) => await a)`, {
             source: '(async (a) => await a)',
             ranges: true,
