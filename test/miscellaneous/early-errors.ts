@@ -211,4 +211,39 @@ describe('Miscellaneous - Early errors', () => {
             source: `(class {a(b = super()){}});`,
         });
 
+        fail(`({ a(){ super(); } });`, {
+            source: `({ a(){ super(); } });`,
+        });
+
+        fail(`async function a(k = super.prop) { }`, {
+            source: `async function a(k = super.prop) { }`,
+        });
+
+        fail(`(async function(k = super.prop) {})`, {
+            source: `(async function(k = super.prop) {})`,
+        });
+
+        fail(`async function a() { super.prop(); }`, {
+            source: `async function a() { super.prop(); }`,
+        });
+
+        fail(`(async function a(k = super()) {})`, {
+            source: `(async function a(k = super()) {})`,
+        });
+
+        fail(`(async function a() { super(); })`, {
+            source: `(async function a() { super(); })`,
+        });
+
+        fail(`(async function a(k = await 3) {})`, {
+            source: `(async function a(k = await 3) {})`,
+        });
+
+        fail(`'use strict'; async function eval() {}`, {
+            source: `'use strict'; async function eval() {}`,
+        });
+
+        fail(`async function a(x) { let x; }`, {
+            source: `async function a(x) { let x; }`,
+        });
 });

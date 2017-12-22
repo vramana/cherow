@@ -1022,7 +1022,7 @@ Parser.prototype.skipComments = function skipComments (state) {
     if (state & 8 /* MultiLine */ && !(state & 32 /* Terminated */)) {
         this.error(2 /* UnterminatedComment */);
     }
-    if (state & 24 /* Collectable */ && this.comments !== undefined) {
+    if (state & 24 /* Collectible */ && this.comments !== undefined) {
         var loc;
         var start = this.startIndex;
         var end = this.index;
@@ -1776,9 +1776,6 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
                         ret = null;
                         ch = this$1.scanLooserTemplateSegment(this$1.lastChar);
                         if (ch < 0) {
-                            // Before: '-36'
-                            ch = -ch;
-                            // After: '36'
                             tail = false;
                         }
                         break loop;
@@ -3414,8 +3411,8 @@ Parser.prototype.parseFunction = function parseFunction (context, parentContext 
             context |= 67108864 /* StrictReserved */;
         }
         if (context & (8388608 /* Expression */ | 4096 /* AnnexB */)) {
-            if (context & (32 /* Await */ | 16 /* Yield */) &&
-                (t & (1073741824 /* IsAwait */ | 536870912 /* IsYield */))) {
+            if ((context & 32 /* Await */ && t & 1073741824 /* IsAwait */) ||
+                (context & 16 /* Yield */ && t & 536870912 /* IsYield */)) {
                 this.error(75 /* DisallowedInContext */, tokenDesc(t));
             }
             id = this.parseIdentifier(context);
@@ -4509,7 +4506,7 @@ Parser.prototype.parseBigIntLiteral = function parseBigIntLiteral (context, pos)
     var value = this.tokenValue;
     var raw = this.tokenRaw;
     var node = this.finishNode(context, pos, {
-        type: 'BigIntLiteral',
+        type: 'Literal',
         value: value,
         bigint: raw
     }, true);

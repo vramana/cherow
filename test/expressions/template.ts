@@ -1,263 +1,306 @@
 import { pass, fail } from '../utils';
+import { parseScript } from '../../src/cherow';
 
 describe('Expressions - Template', () => {
 
-        fail('`\\341`', {
+    for (let i = 0; i < 0xFF; ++i) {
+        const c = String.fromCharCode(i);
+        if (c == '`' || c == '\\' || c == '\r') continue;
+        pass('`' + c + '`', {
+            source: '`' + c + '`',
+            // Parse it here to get the ast to compare the output against
+            expected: parseScript('`' + c + '`')
+        });
+    }
+
+    fail('`$', {
+        source: '`$',
+    });
+
+    fail('`${', {
+        source: '`${',
+    });
+
+    fail('`${1 + 2}', {
+        source: '`${1 + 2}',
+    });
+
+    fail('`\\x0`', {
+        source: '`\\x0`',
+    });
+
+    fail('`\\xZ`', {
+        source: '`\\xZ`',
+    });
+
+    fail('`\\341`', {
+        source: '`\\341`',
+    });
+
+    fail('`\\341`', {
+        source: '`\\341`',
+    });
+
+    fail('`\\341`', {
+        source: '`\\341`',
+    });
+
+    fail('`\\341`', {
             source: '`\\341`',
         });
 
-        fail('`\\376`', {
+    fail('`\\376`', {
             source: '`\\376`',
         });
 
-        fail('`\\77`', {
+    fail('`\\77`', {
             source: '`\\77`',
         });
 
-        fail('`\\341`', {
+    fail('`\\341`', {
             source: '`\\341`',
         });
 
-        fail('`\\56`', {
+    fail('`\\56`', {
             source: '`\\56`',
         });
 
-        fail('`\\41`', {
+    fail('`\\41`', {
             source: '`\\41`',
         });
 
-        fail('`\\32`', {
+    fail('`\\32`', {
             source: '`\\32`',
         });
 
-        fail('`\\006`', {
+    fail('`\\006`', {
             source: '`\\006`',
         });
 
-        fail('`\\003`', {
+    fail('`\\003`', {
             source: '`\\003`',
         });
 
-        fail('`\\004`', {
+    fail('`\\004`', {
             source: '`\\004`',
         });
 
-        fail('`\\005`', {
+    fail('`\\005`', {
             source: '`\\005`',
         });
 
-        fail('`\\002`', {
+    fail('`\\002`', {
             source: '`\\002`',
         });
 
-        fail('`\\001`', {
+    fail('`\\001`', {
             source: '`\\001`',
         });
 
-        fail('`\\000`', {
+    fail('`\\000`', {
             source: '`\\000`',
         });
 
-        fail('`\\006`', {
+    fail('`\\006`', {
             source: '`\\006`',
         });
 
-        fail('`\\03`', {
+    fail('`\\03`', {
             source: '`\\03`',
         });
 
-        fail('`\\04`', {
+    fail('`\\04`', {
             source: '`\\04`',
         });
 
-        fail('`\\05`', {
+    fail('`\\05`', {
             source: '`\\05`',
         });
 
-        fail('`\\02`', {
+    fail('`\\02`', {
             source: '`\\02`',
         });
 
-        fail('`\\01`', {
+    fail('`\\01`', {
             source: '`\\01`',
         });
 
-        fail('`\\00`', {
+    fail('`\\00`', {
             source: '`\\00`',
         });
 
-        fail('`\\6`', {
+    fail('`\\6`', {
             source: '`\\6`',
         });
 
-        fail('`\\3`', {
+    fail('`\\3`', {
             source: '`\\3`',
         });
 
-        fail('`\\4`', {
+    fail('`\\4`', {
             source: '`\\4`',
         });
 
-        fail('`\\5`', {
+    fail('`\\5`', {
             source: '`\\5`',
         });
 
-        fail('`\\2`', {
+    fail('`\\2`', {
             source: '`\\2`',
         });
 
-        fail('`\\1`', {
+    fail('`\\1`', {
             source: '`\\1`',
         });
 
-        fail('`\\u{abcdx`', {
+    fail('`\\u{abcdx`', {
             source: '`\\u{abcdx`',
         });
 
-        fail('`\\xylophone`', {
+    fail('`\\xylophone`', {
             source: '`\\xylophone`',
         });
 
-        fail('a++``', {
+    fail('a++``', {
             source: 'a++``',
         });
 
-        fail('a++``', {
+    fail('a++``', {
             source: 'a++``',
         });
 
-        fail('`${a', {
+    fail('`${a', {
             source: '`${a',
             module: true
         });
 
-        fail('`${a}a${b}', {
+    fail('`${a}a${b}', {
             source: '`${a}a${b}',
         });
 
-        fail('switch `test`', {
+    fail('switch `test`', {
             source: 'switch `test`',
         });
 
-        fail('switch `test`', {
+    fail('switch `test`', {
             source: 'switch `test`',
         });
 
-        fail('`\\x{1}`;', {
+    fail('`\\x{1}`;', {
             source: '`\\x{1}`;',
             module: true
         });
 
-        fail('"use strict"; `\\00`;', {
+    fail('"use strict"; `\\00`;', {
             source: '"use strict"; `\\00`;',
         });
 
-        fail('switch `test`', {
+    fail('switch `test`', {
             source: 'switch `test`',
         });
 
-        fail('`\\1`', {
+    fail('`\\1`', {
             source: '`\\1`',
         });
 
-        fail('`\\8`', {
+    fail('`\\8`', {
             source: '`\\8`',
         });
 
-        fail('`\\9`', {
+    fail('`\\9`', {
             source: '`\\9`',
         });
 
-        fail('`\\4`', {
+    fail('`\\4`', {
             source: '`\\4`',
         });
 
-        fail('`\\11`', {
+    fail('`\\11`', {
             source: '`\\11`',
         });
 
-        fail('`\\41`', {
+    fail('`\\41`', {
             source: '`\\41`',
             module: true
         });
 
-        fail('`\\00`', {
+    fail('`\\00`', {
             source: '`\\00`',
         });
 
-        fail('`\\123`', {
+    fail('`\\123`', {
             source: '`\\123`',
         });
 
-        fail('`${a}a${b}', {
+    fail('`${a}a${b}', {
             source: '`${a}a${b}',
         });
 
-        fail('`\\u`', {
+    fail('`\\u`', {
             source: '`\\u`',
         });
 
-        fail('`${a', {
+    fail('`${a', {
             source: '`${a',
         });
 
-        fail('`\\u000g`;', {
+    fail('`\\u000g`;', {
             source: '`\\u000g`;',
         });
 
-        fail('let bad = `bad escape sequence: \\unicode`;', {
+    fail('let bad = `bad escape sequence: \\unicode`;', {
             source: 'let bad = `bad escape sequence: \\unicode`;',
         });
 
-        fail('let bracingOurselves = `\\u{shouldntDoThis}`;', {
+    fail('let bracingOurselves = `\\u{shouldntDoThis}`;', {
             source: 'let bracingOurselves = `\\u{shouldntDoThis}`;',
         });
 
-        fail('`\\u{10FFFFF}${"inner"}right`', {
+    fail('`\\u{10FFFFF}${"inner"}right`', {
             source: '`\\u{10FFFFF}${"inner"}right`',
         });
 
-        fail('`\\u{\\${0}right`', {
+    fail('`\\u{\\${0}right`', {
             source: '`\\u{\\${0}right`',
         });
 
-        fail('`\\u{abcdx}`', {
+    fail('`\\u{abcdx}`', {
             source: '`\\u{abcdx}`',
         });
 
-        fail('`left${0}\\u0`', {
+    fail('`left${0}\\u0`', {
             source: '`left${0}\\u0`',
         });
 
-        fail('`\\u0g`;', {
+    fail('`\\u0g`;', {
             source: '`\\u0g`;',
         });
 
-        fail('`\\u000g`;', {
+    fail('`\\u000g`;', {
             source: '`\\u000g`;',
         });
 
-        fail('`\\u{10FFFFF}${"inner"}right`;', {
+    fail('`\\u{10FFFFF}${"inner"}right`;', {
             source: '`\\u{10FFFFF}${"inner"}right`;',
         });
 
-        fail('`\\u{0`;', {
+    fail('`\\u{0`;', {
             source: '`\\u{0`;',
         });
 
-        fail('`\\u{10FFFFF}`;;', {
+    fail('`\\u{10FFFFF}`;;', {
             source: '`\\u{10FFFFF}`;',
         });
 
-        fail('`\\x0G`;', {
+    fail('`\\x0G`;', {
             source: '`\\x0G`;',
         });
 
-        fail('`\\u{10FFFFF}`;;', {
+    fail('`\\u{10FFFFF}`;;', {
             source: '`\\u{10FFFFF}`;',
         });
 
-        pass('sampleTag`\\01`', {
+    pass('sampleTag`\\01`', {
             source: 'sampleTag`\\01`',
             raw: true,
             expected: {
@@ -288,7 +331,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('sampleTag`\\xg${0}right` ', {
+    pass('sampleTag`\\xg${0}right` ', {
             source: 'sampleTag`\\xg${0}right` ',
             raw: true,
             loc: true,
@@ -413,7 +456,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('sampleTag`\\u0${0}right`', {
+    pass('sampleTag`\\u0${0}right`', {
             source: 'sampleTag`\\u0${0}right`',
             raw: true,
             loc: true,
@@ -538,7 +581,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('sampleTag`left${0}\\u0g${1}right`', {
+    pass('sampleTag`left${0}\\u0g${1}right`', {
             source: 'sampleTag`left${0}\\u0g${1}right`',
             raw: true,
             loc: true,
@@ -697,7 +740,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('sampleTag`left${0}\\u000g` ', {
+    pass('sampleTag`left${0}\\u000g` ', {
             source: 'sampleTag`left${0}\\u000g` ',
             raw: true,
             loc: true,
@@ -822,7 +865,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('sampleTag`\\u{-0}` ', {
+    pass('sampleTag`\\u{-0}` ', {
             source: 'sampleTag`\\u{-0}`',
             raw: true,
             loc: true,
@@ -914,7 +957,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('sampleTag`\\u{g}`', {
+    pass('sampleTag`\\u{g}`', {
             source: 'sampleTag`\\u{g}`',
             raw: true,
             loc: true,
@@ -1006,7 +1049,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('stag`\\01`;', {
+    pass('stag`\\01`;', {
             source: 'stag`\\01`;',
             raw: true,
             expected: {
@@ -1037,7 +1080,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('tag`left${0}\\u000g${1}right`;', {
+    pass('tag`left${0}\\u000g${1}right`;', {
             source: 'tag`left${0}\\u000g${1}right`;',
             raw: true,
             loc: true,
@@ -1196,7 +1239,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('tag`left${0}\\u{-0}${1}right`;', {
+    pass('tag`left${0}\\u{-0}${1}right`;', {
             source: 'tag`left${0}\\u{-0}${1}right`;',
             raw: true,
             loc: true,
@@ -1355,187 +1398,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('tag`left${0}\\u{-0}${1}right`;', {
-            source: 'tag`left${0}\\u{-0}${1}right`;',
-            raw: true,
-            ranges: true,
-            loc: true,
-            expected: {
-                type: 'Program',
-                body: [{
-                    type: 'ExpressionStatement',
-                    expression: {
-                        type: 'TaggedTemplateExpression',
-                        tag: {
-                            type: 'Identifier',
-                            name: 'tag',
-                            start: 0,
-                            end: 3,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 0
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 3
-                                }
-                            }
-                        },
-                        quasi: {
-                            type: 'TemplateLiteral',
-                            expressions: [{
-                                    type: 'Literal',
-                                    value: 0,
-                                    start: 10,
-                                    end: 11,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 10
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 11
-                                        }
-                                    },
-                                    raw: '0'
-                                },
-                                {
-                                    type: 'Literal',
-                                    value: 1,
-                                    start: 20,
-                                    end: 21,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 20
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 21
-                                        }
-                                    },
-                                    raw: '1'
-                                }
-                            ],
-                            quasis: [{
-                                    type: 'TemplateElement',
-                                    value: {
-                                        cooked: 'left',
-                                        raw: 'left'
-                                    },
-                                    tail: false,
-                                    start: 11,
-                                    end: 11,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 11
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 11
-                                        }
-                                    }
-                                },
-                                {
-                                    type: 'TemplateElement',
-                                    value: {
-                                        cooked: null,
-                                        raw: '\\u{-0}'
-                                    },
-                                    tail: false,
-                                    start: 21,
-                                    end: 21,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 21
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 21
-                                        }
-                                    }
-                                },
-                                {
-                                    type: 'TemplateElement',
-                                    value: {
-                                        cooked: 'right',
-                                        raw: 'right'
-                                    },
-                                    tail: true,
-                                    start: 21,
-                                    end: 28,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 21
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 28
-                                        }
-                                    }
-                                }
-                            ],
-                            start: 3,
-                            end: 28,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 3
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 28
-                                }
-                            }
-                        },
-                        start: 0,
-                        end: 28,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 28
-                            }
-                        }
-                    },
-                    start: 0,
-                    end: 29,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 1,
-                            column: 29
-                        }
-                    }
-                }],
-                sourceType: 'script',
-                start: 0,
-                end: 29,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 1,
-                        column: 29
-                    }
-                }
-            }
-        });
-
-        pass('tag`left${0}\\u{-0}${1}right`;', {
+    pass('tag`left${0}\\u{-0}${1}right`;', {
             source: 'tag`left${0}\\u{-0}${1}right`;',
             raw: true,
             ranges: true,
@@ -1715,7 +1578,187 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`$$$${a}`', {
+    pass('tag`left${0}\\u{-0}${1}right`;', {
+            source: 'tag`left${0}\\u{-0}${1}right`;',
+            raw: true,
+            ranges: true,
+            loc: true,
+            expected: {
+                type: 'Program',
+                body: [{
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'TaggedTemplateExpression',
+                        tag: {
+                            type: 'Identifier',
+                            name: 'tag',
+                            start: 0,
+                            end: 3,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 3
+                                }
+                            }
+                        },
+                        quasi: {
+                            type: 'TemplateLiteral',
+                            expressions: [{
+                                    type: 'Literal',
+                                    value: 0,
+                                    start: 10,
+                                    end: 11,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 10
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 11
+                                        }
+                                    },
+                                    raw: '0'
+                                },
+                                {
+                                    type: 'Literal',
+                                    value: 1,
+                                    start: 20,
+                                    end: 21,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 20
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 21
+                                        }
+                                    },
+                                    raw: '1'
+                                }
+                            ],
+                            quasis: [{
+                                    type: 'TemplateElement',
+                                    value: {
+                                        cooked: 'left',
+                                        raw: 'left'
+                                    },
+                                    tail: false,
+                                    start: 11,
+                                    end: 11,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 11
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 11
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'TemplateElement',
+                                    value: {
+                                        cooked: null,
+                                        raw: '\\u{-0}'
+                                    },
+                                    tail: false,
+                                    start: 21,
+                                    end: 21,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 21
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 21
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'TemplateElement',
+                                    value: {
+                                        cooked: 'right',
+                                        raw: 'right'
+                                    },
+                                    tail: true,
+                                    start: 21,
+                                    end: 28,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 21
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 28
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 3,
+                            end: 28,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 3
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 28
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 28,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 28
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 29,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 29
+                        }
+                    }
+                }],
+                sourceType: 'script',
+                start: 0,
+                end: 29,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 29
+                    }
+                }
+            }
+        });
+
+    pass('`$$$${a}`', {
             source: '`$$$${a}`',
             raw: true,
             ranges: true,
@@ -1825,7 +1868,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('a()``', {
+    pass('a()``', {
             source: 'a()``',
             raw: true,
             ranges: true,
@@ -1946,7 +1989,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('raw`hello ${name}`', {
+    pass('raw`hello ${name}`', {
             source: 'raw`hello ${name}`',
             raw: true,
             ranges: true,
@@ -2087,7 +2130,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`foo${bar}\\u25a0`', {
+    pass('`foo${bar}\\u25a0`', {
             source: '`foo${bar}\\u25a0`',
             raw: true,
             ranges: true,
@@ -2197,7 +2240,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('foo`foo${bar}\\unicode`', {
+    pass('foo`foo${bar}\\unicode`', {
             source: 'foo`foo${bar}\\unicode`',
             raw: true,
             ranges: true,
@@ -2338,7 +2381,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('foo`\\u`', {
+    pass('foo`\\u`', {
             source: 'foo`\\u`',
             raw: true,
             ranges: true,
@@ -2443,7 +2486,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('foo`\\u{abcdx`', {
+    pass('foo`\\u{abcdx`', {
             source: 'foo`\\u{abcdx`',
             raw: true,
             ranges: true,
@@ -2547,7 +2590,7 @@ describe('Expressions - Template', () => {
                 }
             }
         });
-        pass('foo`\\unicode\\\\`', {
+    pass('foo`\\unicode\\\\`', {
             source: 'foo`\\unicode\\\\`',
             raw: true,
             loc: true,
@@ -2639,7 +2682,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\r`', {
+    pass('`\\r`', {
             source: '`\\r`',
             raw: true,
             loc: true,
@@ -2704,7 +2747,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`"${0x401}"`', {
+    pass('`"${0x401}"`', {
             source: '`"${0x401}"`',
             raw: true,
             loc: true,
@@ -2802,7 +2845,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\u180E`', {
+    pass('`\\u180E`', {
             source: '`\\u180E`',
             raw: true,
             loc: true,
@@ -2867,7 +2910,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('var object = { fn: function() { return `result`; } };', {
+    pass('var object = { fn: function() { return `result`; } };', {
             source: 'var object = { fn: function() { return `result`; } };',
             ranges: true,
             raw: true,
@@ -3073,7 +3116,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`$`', {
+    pass('`$`', {
             source: '`$`',
             ranges: true,
             raw: true,
@@ -3147,7 +3190,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('` foo ${ b + `baz ${ c }` }`;', {
+    pass('` foo ${ b + `baz ${ c }` }`;', {
             source: '` foo ${ b + `baz ${ c }` }`;',
             raw: true,
             expected: {
@@ -3211,7 +3254,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`//# ${SOURCEMAPPING_URL}=${url}\n`', {
+    pass('`//# ${SOURCEMAPPING_URL}=${url}\n`', {
             source: '`//# ${SOURCEMAPPING_URL}=${url}\n`',
             raw: true,
             module: true,
@@ -3261,7 +3304,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('var source = `\b`;', {
+    pass('var source = `\b`;', {
             source: 'var source = `\b`;',
             raw: true,
             expected: {
@@ -3293,7 +3336,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('var source = `a\r\nb`;', {
+    pass('var source = `a\r\nb`;', {
             source: 'var source = `a\r\nb`;',
             raw: true,
             expected: {
@@ -3325,7 +3368,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('var source = `a\r\nb`;', {
+    pass('var source = `a\r\nb`;', {
             source: '`a\\r\\nb\\n\\r\\na\\r\\nb\\n\\r\\n`;',
             raw: true,
             expected: {
@@ -3349,7 +3392,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('var source = `\n\r\n`;', {
+    pass('var source = `\n\r\n`;', {
             source: 'var source = `\n\r\n`;',
             raw: true,
             expected: {
@@ -3381,7 +3424,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('new raw`42`', {
+    pass('new raw`42`', {
             source: 'new raw`42`',
             raw: true,
             expected: {
@@ -3416,7 +3459,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\r\n\t\n`', {
+    pass('`\r\n\t\n`', {
             source: '`\r\n\t\n`',
             raw: true,
             expected: {
@@ -3440,7 +3483,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('doSmth(`${x} + ${y} = ${x + y}`)', {
+    pass('doSmth(`${x} + ${y} = ${x + y}`)', {
             source: 'doSmth(`${x} + ${y} = ${x + y}`)',
             raw: true,
             expected: {
@@ -3516,7 +3559,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`${{}}`', {
+    pass('`${{}}`', {
             source: '`${{}}`',
             ranges: true,
             raw: true,
@@ -3565,7 +3608,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('sampleTag`left${0}\\u{\\u{0}`', {
+    pass('sampleTag`left${0}\\u{\\u{0}`', {
             source: 'sampleTag`left${0}\\u{\\u{0}`',
             raw: true,
             expected: {
@@ -3609,7 +3652,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('sampleTag`left${0}\\u{`', {
+    pass('sampleTag`left${0}\\u{`', {
             source: 'sampleTag`left${0}\\u{`',
             raw: true,
             expected: {
@@ -3653,7 +3696,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('sampleTag`left${0}\\u{-0}${1}right`', {
+    pass('sampleTag`left${0}\\u{-0}${1}right`', {
             source: 'sampleTag`left${0}\\u{-0}${1}right`',
             raw: true,
             expected: {
@@ -3711,7 +3754,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\\"`', {
+    pass('`\\\"`', {
             source: '`\\\"`',
             raw: true,
             ranges: true,
@@ -3785,7 +3828,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('sampleTag`left${0}\\u{g}${1}right`', {
+    pass('sampleTag`left${0}\\u{g}${1}right`', {
             source: 'sampleTag`left${0}\\u{g}${1}right`',
             raw: true,
             expected: {
@@ -3843,7 +3886,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('sampleTag`left${0}\\1`', {
+    pass('sampleTag`left${0}\\1`', {
             source: 'sampleTag`left${0}\\1`',
             raw: true,
             ranges: true,
@@ -3904,7 +3947,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('sampleTag`left${0}\\u000g${1}right`', {
+    pass('sampleTag`left${0}\\u000g${1}right`', {
             source: 'sampleTag`left${0}\\u000g${1}right`',
             raw: true,
             expected: {
@@ -3962,7 +4005,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('foo`\\unicode`', {
+    pass('foo`\\unicode`', {
             source: 'foo`\\unicode`',
             ranges: true,
             raw: true,
@@ -4067,7 +4110,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('foo`\\unicode`', {
+    pass('foo`\\unicode`', {
             source: 'foo`\\unicode`',
             loc: true,
             raw: true,
@@ -4159,7 +4202,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('foo`\\u{abcdx`', {
+    pass('foo`\\u{abcdx`', {
             source: 'foo`\\u{abcdx`',
             loc: true,
             raw: true,
@@ -4251,7 +4294,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`a`', {
+    pass('`a`', {
             source: '`a`',
             loc: true,
             raw: true,
@@ -4316,7 +4359,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`${a}$`', {
+    pass('`${a}$`', {
             source: '`${a}$`',
             expected: {
                 type: 'Program',
@@ -4351,7 +4394,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('``````', {
+    pass('``````', {
             source: '``````',
             raw: true,
             expected: {
@@ -4405,7 +4448,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('a``', {
+    pass('a``', {
             source: 'a``',
             raw: true,
             expected: {
@@ -4436,7 +4479,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('new a()``', {
+    pass('new a()``', {
             source: 'new a()``',
             loc: true,
             raw: true,
@@ -4542,7 +4585,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`outer${{x: {y: 10}}}bar${`nested${function(){return 1;}}endnest`}end`', {
+    pass('`outer${{x: {y: 10}}}bar${`nested${function(){return 1;}}endnest`}end`', {
             source: '`outer${{x: {y: 10}}}bar${`nested${function(){return 1;}}endnest`}end`',
             raw: true,
             expected: {
@@ -4655,7 +4698,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('foo`T\\u200C`', {
+    pass('foo`T\\u200C`', {
             source: 'foo`T\\u200C`',
             raw: true,
             expected: {
@@ -4686,7 +4729,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('foo`\\u{00000000034}`', {
+    pass('foo`\\u{00000000034}`', {
             source: 'foo`\\u{00000000034}`',
             raw: true,
             expected: {
@@ -4717,7 +4760,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\ю`', {
+    pass('`\\ю`', {
             source: '`\\ю`',
             raw: true,
             expected: {
@@ -4741,7 +4784,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\б`', {
+    pass('`\\б`', {
             source: '`\\б`',
             raw: true,
             expected: {
@@ -4765,7 +4808,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\Щ`', {
+    pass('`\\Щ`', {
             source: '`\\Щ`',
             raw: true,
             expected: {
@@ -4788,7 +4831,7 @@ describe('Expressions - Template', () => {
                 sourceType: 'script'
             }
         });
-        pass('`\\u{10f000}`', {
+    pass('`\\u{10f000}`', {
             source: '`\\u{10f000}`',
             raw: true,
             expected: {
@@ -4812,7 +4855,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\u{10f000}`', {
+    pass('`\\u{10f000}`', {
             source: '`\\u{10f000}`',
             raw: true,
             expected: {
@@ -4836,7 +4879,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\u{11000}`', {
+    pass('`\\u{11000}`', {
             source: '`\\u{11000}`',
             raw: true,
             expected: {
@@ -4860,7 +4903,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\u{4c000}`', {
+    pass('`\\u{4c000}`', {
             source: '`\\u{4c000}`',
             raw: true,
             expected: {
@@ -4884,7 +4927,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\u{80000}`', {
+    pass('`\\u{80000}`', {
             source: '`\\u{80000}`',
             raw: true,
             expected: {
@@ -4908,7 +4951,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\u{f0000}`', {
+    pass('`\\u{f0000}`', {
             source: '`\\u{f0000}`',
             raw: true,
             expected: {
@@ -4932,7 +4975,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\u{8dfff}`', {
+    pass('`\\u{8dfff}`', {
             source: '`\\u{8dfff}`',
             raw: true,
             expected: {
@@ -4956,7 +4999,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\u{9cfff}`', {
+    pass('`\\u{9cfff}`', {
             source: '`\\u{9cfff}`',
             raw: true,
             expected: {
@@ -4980,7 +5023,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\u{67fff}`', {
+    pass('`\\u{67fff}`', {
             source: '`\\u{67fff}`',
             raw: true,
             expected: {
@@ -5004,7 +5047,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\u{26fff}`', {
+    pass('`\\u{26fff}`', {
             source: '`\\u{26fff}`',
             raw: true,
             expected: {
@@ -5028,7 +5071,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\u{31fff}`', {
+    pass('`\\u{31fff}`', {
             source: '`\\u{31fff}`',
             raw: true,
             expected: {
@@ -5052,7 +5095,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\u{fff}`', {
+    pass('`\\u{fff}`', {
             source: '`\\u{fff}`',
             raw: true,
             expected: {
@@ -5076,7 +5119,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\x6a`', {
+    pass('`\\x6a`', {
             source: '`\\x6a`',
             raw: true,
             expected: {
@@ -5100,7 +5143,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\x3f`', {
+    pass('`\\x3f`', {
             source: '`\\x3f`',
             raw: true,
             expected: {
@@ -5124,7 +5167,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\x87`', {
+    pass('`\\x87`', {
             source: '`\\x87`',
             raw: true,
             expected: {
@@ -5148,7 +5191,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\xb1`', {
+    pass('`\\xb1`', {
             source: '`\\xb1`',
             raw: true,
             expected: {
@@ -5172,7 +5215,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\xb1`', {
+    pass('`\\xb1`', {
             source: '`\\xb1`',
             raw: true,
             expected: {
@@ -5196,7 +5239,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\x00`', {
+    pass('`\\x00`', {
             source: '`\\x00`',
             raw: true,
             expected: {
@@ -5219,7 +5262,7 @@ describe('Expressions - Template', () => {
                 type: 'Program'
             }
         });
-        pass('`\\x3c`', {
+    pass('`\\x3c`', {
             source: '`\\x3c`',
             raw: true,
             expected: {
@@ -5243,7 +5286,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\x5a`', {
+    pass('`\\x5a`', {
             source: '`\\x5a`',
             raw: true,
             expected: {
@@ -5267,7 +5310,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`\\xd1`', {
+    pass('`\\xd1`', {
             source: '`\\xd1`',
             raw: true,
             expected: {
@@ -5291,7 +5334,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`Ф`', {
+    pass('`Ф`', {
             source: '`Ф`',
             raw: true,
             expected: {
@@ -5315,7 +5358,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('`Н`', {
+    pass('`Н`', {
             source: '`Н`',
             raw: true,
             expected: {
@@ -5339,7 +5382,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('foo`\\u00g0`', {
+    pass('foo`\\u00g0`', {
             source: 'foo`\\u00g0`',
             raw: true,
             expected: {
@@ -5370,7 +5413,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('foo`\\ugggg`', {
+    pass('foo`\\ugggg`', {
             source: 'foo`\\ugggg`',
             raw: true,
             expected: {
@@ -5401,7 +5444,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('foo`\\u1`', {
+    pass('foo`\\u1`', {
             source: 'foo`\\u1`',
             raw: true,
             expected: {
@@ -5431,7 +5474,7 @@ describe('Expressions - Template', () => {
                 sourceType: 'script'
             }
         });
-        pass('a\r\nb`\n\\r\nb\\u{g`;', {
+    pass('a\r\nb`\n\\r\nb\\u{g`;', {
             source: 'a\r\nb`\n\r\nb\\u{g`;',
             raw: true,
             expected: {
@@ -5470,7 +5513,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('latex`\\unicode{blah}`', {
+    pass('latex`\\unicode{blah}`', {
             source: 'latex`\\unicode{blah}`',
             ranges: true,
             loc: true,
@@ -5575,7 +5618,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('foo`\\u{10FFFFF}${"inner"}right`', {
+    pass('foo`\\u{10FFFFF}${"inner"}right`', {
             source: 'foo`\\u{10FFFFF}${"inner"}right`',
             ranges: true,
             loc: true,
@@ -5717,7 +5760,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('foo`\\u{00000000034}`', {
+    pass('foo`\\u{00000000034}`', {
             source: 'foo`\\u{00000000034}`',
             raw: true,
             expected: {
@@ -5748,7 +5791,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('let x = tag `\\u{hello} ${ 100 } \\xtraordinary ${ 200 } wonderful ${ 300 } \\uworld`;', {
+    pass('let x = tag `\\u{hello} ${ 100 } \\xtraordinary ${ 200 } wonderful ${ 300 } \\uworld`;', {
             source: 'let x = tag `\\u{hello} ${ 100 } \\xtraordinary ${ 200 } wonderful ${ 300 } \\uworld`;',
             raw: true,
             ranges: true,
@@ -6003,7 +6046,7 @@ describe('Expressions - Template', () => {
             }
         });
 
-        pass('css` color: ${ props => props.whiteColor ? "white": "black" }`;', {
+    pass('css` color: ${ props => props.whiteColor ? "white": "black" }`;', {
             source: 'css` color: ${ props => props.whiteColor ? "white": "black" }`;',
             raw: true,
             ranges: true,
@@ -6258,5 +6301,762 @@ describe('Expressions - Template', () => {
                     }
                 }
             }
+        });
+
+    pass('args`hey${4}`', {
+            source: 'args`hey${4}`',
+            raw: true,
+            ranges: true,
+            loc: true,
+            expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'TaggedTemplateExpression',
+                            tag: {
+                                type: 'Identifier',
+                                name: 'args',
+                                start: 0,
+                                end: 4,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 0
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 4
+                                    }
+                                }
+                            },
+                            quasi: {
+                                type: 'TemplateLiteral',
+                                expressions: [
+                                    {
+                                        type: 'Literal',
+                                        value: 4,
+                                        start: 10,
+                                        end: 11,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 10
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 11
+                                            }
+                                        },
+                                        raw: '4'
+                                    }
+                                ],
+                                quasis: [
+                                    {
+                                        type: 'TemplateElement',
+                                        value: {
+                                            cooked: 'hey',
+                                            raw: 'hey'
+                                        },
+                                        tail: false,
+                                        start: 11,
+                                        end: 11,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 11
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 11
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'TemplateElement',
+                                        value: {
+                                            cooked: '',
+                                            raw: ''
+                                        },
+                                        tail: true,
+                                        start: 11,
+                                        end: 13,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 11
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 13
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 4,
+                                end: 13,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 13
+                                    }
+                                }
+                            },
+                            start: 0,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 13,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 13
+                            }
+                        }
+                    }
+                ],
+                sourceType: 'script',
+                start: 0,
+                end: 13,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 13
+                    }
+                }
+            }
+        });
+
+    pass('args`${4 + a}${5 + b}c`', {
+            source: 'args`${4 + a}${5 + b}c`',
+            raw: true,
+            ranges: true,
+            loc: true,
+            expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'TaggedTemplateExpression',
+                            tag: {
+                                type: 'Identifier',
+                                name: 'args',
+                                start: 0,
+                                end: 4,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 0
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 4
+                                    }
+                                }
+                            },
+                            quasi: {
+                                type: 'TemplateLiteral',
+                                expressions: [
+                                    {
+                                        type: 'BinaryExpression',
+                                        left: {
+                                            type: 'Literal',
+                                            value: 4,
+                                            start: 7,
+                                            end: 8,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 7
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 8
+                                                }
+                                            },
+                                            raw: '4'
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'a',
+                                            start: 11,
+                                            end: 12,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 11
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 12
+                                                }
+                                            }
+                                        },
+                                        operator: '+',
+                                        start: 7,
+                                        end: 12,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 7
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 12
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'BinaryExpression',
+                                        left: {
+                                            type: 'Literal',
+                                            value: 5,
+                                            start: 15,
+                                            end: 16,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 15
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 16
+                                                }
+                                            },
+                                            raw: '5'
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'b',
+                                            start: 19,
+                                            end: 20,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 19
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 20
+                                                }
+                                            }
+                                        },
+                                        operator: '+',
+                                        start: 15,
+                                        end: 20,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 15
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 20
+                                            }
+                                        }
+                                    }
+                                ],
+                                quasis: [
+                                    {
+                                        type: 'TemplateElement',
+                                        value: {
+                                            cooked: '',
+                                            raw: ''
+                                        },
+                                        tail: false,
+                                        start: 12,
+                                        end: 12,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 12
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 12
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'TemplateElement',
+                                        value: {
+                                            cooked: '',
+                                            raw: ''
+                                        },
+                                        tail: false,
+                                        start: 20,
+                                        end: 20,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 20
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 20
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'TemplateElement',
+                                        value: {
+                                            cooked: 'c',
+                                            raw: 'c'
+                                        },
+                                        tail: true,
+                                        start: 20,
+                                        end: 23,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 20
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 23
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 4,
+                                end: 23,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 23
+                                    }
+                                }
+                            },
+                            start: 0,
+                            end: 23,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 23
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 23,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 23
+                            }
+                        }
+                    }
+                ],
+                sourceType: 'script',
+                start: 0,
+                end: 23,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 23
+                    }
+                }
+            }
+        });
+
+    pass('args`a${"b"}`', {
+            source: 'args`a${"b"}`',
+            raw: true,
+            ranges: true,
+            loc: true,
+            expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'TaggedTemplateExpression',
+                            tag: {
+                                type: 'Identifier',
+                                name: 'args',
+                                start: 0,
+                                end: 4,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 0
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 4
+                                    }
+                                }
+                            },
+                            quasi: {
+                                type: 'TemplateLiteral',
+                                expressions: [
+                                    {
+                                        type: 'Literal',
+                                        value: 'b',
+                                        start: 8,
+                                        end: 11,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 8
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 11
+                                            }
+                                        },
+                                        raw: '"b"'
+                                    }
+                                ],
+                                quasis: [
+                                    {
+                                        type: 'TemplateElement',
+                                        value: {
+                                            cooked: 'a',
+                                            raw: 'a'
+                                        },
+                                        tail: false,
+                                        start: 11,
+                                        end: 11,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 11
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 11
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'TemplateElement',
+                                        value: {
+                                            cooked: '',
+                                            raw: ''
+                                        },
+                                        tail: true,
+                                        start: 11,
+                                        end: 13,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 11
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 13
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 4,
+                                end: 13,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 13
+                                    }
+                                }
+                            },
+                            start: 0,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 13,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 13
+                            }
+                        }
+                    }
+                ],
+                sourceType: 'script',
+                start: 0,
+                end: 13,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 13
+                    }
+                }
+            }
+        });
+
+        // Template substitutions can have side effects.
+    pass('args`${x += 1}`', {
+            source: 'args`${x += 1}`',
+            raw: true,
+            ranges: true,
+            loc: true,
+            expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'TaggedTemplateExpression',
+                            tag: {
+                                type: 'Identifier',
+                                name: 'args',
+                                start: 0,
+                                end: 4,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 0
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 4
+                                    }
+                                }
+                            },
+                            quasi: {
+                                type: 'TemplateLiteral',
+                                expressions: [
+                                    {
+                                        type: 'AssignmentExpression',
+                                        left: {
+                                            type: 'Identifier',
+                                            name: 'x',
+                                            start: 7,
+                                            end: 8,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 7
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 8
+                                                }
+                                            }
+                                        },
+                                        operator: '+=',
+                                        right: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 12,
+                                            end: 13,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 12
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 13
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        start: 7,
+                                        end: 13,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 7
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 13
+                                            }
+                                        }
+                                    }
+                                ],
+                                quasis: [
+                                    {
+                                        type: 'TemplateElement',
+                                        value: {
+                                            cooked: '',
+                                            raw: ''
+                                        },
+                                        tail: false,
+                                        start: 13,
+                                        end: 13,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 13
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 13
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'TemplateElement',
+                                        value: {
+                                            cooked: '',
+                                            raw: ''
+                                        },
+                                        tail: true,
+                                        start: 13,
+                                        end: 15,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 13
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 15
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 4,
+                                end: 15,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 15
+                                    }
+                                }
+                            },
+                            start: 0,
+                            end: 15,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 15
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 15,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 15
+                            }
+                        }
+                    }
+                ],
+                sourceType: 'script',
+                start: 0,
+                end: 15,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 15
+                    }
+                }
+            }
+        });
+
+    pass('cooked`\r\r\n`', {
+            source: 'cooked`\r\r\n`',
+            raw: true,
+            expected: {
+                  body: [
+                    {
+                      expression: {
+                        quasi: {
+                          expressions: [],
+                          quasis: [
+                            {
+                              tail: true,
+                              type: 'TemplateElement',
+                              value: {
+                                cooked: '\r\r\n',
+                                raw: '\r\r\n',
+                              }
+                            }
+                          ],
+                          type: 'TemplateLiteral'
+                        },
+                        tag: {
+                          name: 'cooked',
+                          type: 'Identifier',
+                        },
+                        type: 'TaggedTemplateExpression'
+                      },
+                      type: 'ExpressionStatement'
+                    }
+                  ],
+                  sourceType: 'script',
+                  type: 'Program'
+                }
         });
     });

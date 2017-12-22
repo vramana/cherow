@@ -3603,8 +3603,8 @@ export class Parser {
 
             if (context & (Context.Expression | Context.AnnexB)) {
 
-                if (context & (Context.Await | Context.Yield) &&
-                    (t & (Token.IsAwait | Token.IsYield))) {
+                if ((context & Context.Await && t & Token.IsAwait) ||
+                    (context & Context.Yield && t & Token.IsYield)) {
                     this.error(Errors.DisallowedInContext, tokenDesc(t));
                 }
 

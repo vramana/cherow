@@ -6,6 +6,30 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         source: `{ foo(a, b,) {} };`,
     });
 
+    fail(`() => (...a, )`, {
+        source: `() => (...a, )`,
+    });
+
+    fail(`() => (a, , b)`, {
+        source: `() => (a, , b)`,
+    });
+
+    fail(`() => (, a)`, {
+        source: `() => (, a)`,
+    });
+
+    fail(`() => (a, , )`, {
+        source: `() => (a, , )`,
+    });
+
+    fail(`() => (...a, , )`, {
+        source: `() => (...a, , )`,
+    });
+
+    fail(`() => (a, => null)`, {
+        source: `() => (a, => null)`,
+    });
+
     pass(`var foo = (a, b,) => {};`, {
         source: 'var foo = (a, b,) => {};',
         ranges: true,
