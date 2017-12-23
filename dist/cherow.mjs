@@ -3636,7 +3636,7 @@ Parser.prototype.parseSpreadExpression = function parseSpreadExpression (context
     }
     this.expect(context, 14 /* Ellipsis */);
     var arg = this.parseAssignmentExpression(context);
-    // Object rest element needs to be the last AssignmenProperty in 
+    // Object rest element needs to be the last AssignmenProperty in
     // ObjectAssignmentPattern. (For..in / of statement)
     if (context & 262144 /* ForStatement */ &&
         this.token === 18 /* Comma */) {
@@ -4199,8 +4199,9 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
                 if (state & 51 /* Special */)
                     { this.error(0 /* Unexpected */); }
                 if (!(state & 4 /* Computed */) && this.tokenValue === '__proto__') {
-                    if (this.flags & 262144 /* HasProtoField */)
-                        { this.error(53 /* DuplicateProtoProperty */); }
+                    if (this.flags & 262144 /* HasProtoField */) {
+                        this.error(53 /* DuplicateProtoProperty */);
+                    }
                     this.flags |= 262144 /* HasProtoField */;
                 }
                 this.expect(context, 21 /* Colon */);
@@ -4212,26 +4213,28 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
                 break;
             }
         default:
-            if (state & 51 /* Special */ || !this.isIdentifier(context, t)) {
-                this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
+            if (state & 2 /* Async */ || !this.isIdentifier(context, t)) {
+                this.error(1 /* UnexpectedToken */, tokenDesc(t));
             }
-            if (context & 16 /* Yield */ && t & 536870912 /* IsYield */) {
-                this.error(75 /* DisallowedInContext */, tokenDesc(this.token));
-            }
-            if (t & 1073741824 /* IsAwait */) {
-                if (context & 32 /* Await */)
-                    { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
-                this.errorLocation = this.getLocations();
-                this.flags |= 512 /* Await */;
+            else if (t & (1073741824 /* IsAwait */ | 536870912 /* IsYield */)) {
+                if (context & (32 /* Await */ | 16 /* Yield */)) {
+                    this.error(75 /* DisallowedInContext */, tokenDesc(t));
+                }
+                else if (t & (1073741824 /* IsAwait */)) {
+                    this.errorLocation = this.getLocations();
+                    this.flags |= 512 /* Await */;
+                }
             }
             state |= 8 /* Shorthand */;
             if (this.parseOptional(context, 1310749 /* Assign */)) {
                 if (this.token & (536870912 /* IsYield */ | 1073741824 /* IsAwait */)) {
                     this.errorLocation = this.getLocations();
-                    if (this.token & 536870912 /* IsYield */ && context & 16 /* Yield */)
-                        { this.flags |= 256 /* Yield */; }
-                    if (this.token & 1073741824 /* IsAwait */)
-                        { this.flags |= 512 /* Await */; }
+                    if (this.token & 536870912 /* IsYield */ && context & 16 /* Yield */) {
+                        this.flags |= 256 /* Yield */;
+                    }
+                    if (this.token & 1073741824 /* IsAwait */) {
+                        this.flags |= 512 /* Await */;
+                    }
                 }
                 value = this.finishNode(context, pos, {
                     type: 'AssignmentPattern',

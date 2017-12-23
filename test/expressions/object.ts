@@ -16248,4 +16248,24 @@ describe('Expressions - Object', () => {
             source: 'var x = { [bar] };',
         });
 
+    fail(`({function} = 0)`, {
+       source: '({function} = 0)',
+    });
+
+    fail(`({null});`, {
+        source: '({null});',
+     });
+
+    fail(`({true});`, {
+        source: '({true});',
+     });
+
+    fail(`({var} = 0)`, {
+        source: '({var} = 0)',
+     });
+
+    fail(`(function*() { 0, { yield } = {}; });`, {
+        source: '(function*() { 0, { yield } = {}; });',
+     });
+
 });

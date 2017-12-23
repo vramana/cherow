@@ -1768,7 +1768,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: any,
         node: any,
@@ -3874,7 +3874,7 @@ export class Parser {
 
         const arg = this.parseAssignmentExpression(context);
 
-        // Object rest element needs to be the last AssignmenProperty in 
+        // Object rest element needs to be the last AssignmenProperty in
         // ObjectAssignmentPattern. (For..in / of statement)
         if (context & Context.ForStatement &&
             this.token === Token.Comma) {
@@ -4515,7 +4515,9 @@ export class Parser {
                 {
                     if (state & ObjectState.Special) this.error(Errors.Unexpected);
                     if (!(state & ObjectState.Computed) && this.tokenValue === '__proto__') {
-                        if (this.flags & Flags.HasProtoField) this.error(Errors.DuplicateProtoProperty);
+                        if (this.flags & Flags.HasProtoField) {
+                            this.error(Errors.DuplicateProtoProperty);
+                        }
                         this.flags |= Flags.HasProtoField;
                     }
                     this.expect(context, Token.Colon);
@@ -4529,20 +4531,18 @@ export class Parser {
 
                     break;
                 }
+
             default:
 
-                if (state & ObjectState.Special || !this.isIdentifier(context, t)) {
-                    this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-                }
-
-                if (context & Context.Yield && t & Token.IsYield) {
-                    this.error(Errors.DisallowedInContext, tokenDesc(this.token));
-                }
-
-                if (t & Token.IsAwait) {
-                    if (context & Context.Await) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-                    this.errorLocation = this.getLocations();
-                    this.flags |= Flags.Await;
+                if (state & ObjectState.Async || !this.isIdentifier(context, t)) {
+                    this.error(Errors.UnexpectedToken, tokenDesc(t));
+                } else if (t & (Token.IsAwait | Token.IsYield)) {
+                    if (context & (Context.Await | Context.Yield)) {
+                        this.error(Errors.DisallowedInContext, tokenDesc(t));
+                    } else if (t & (Token.IsAwait)) {
+                        this.errorLocation = this.getLocations();
+                        this.flags |= Flags.Await;
+                    }
                 }
 
                 state |= ObjectState.Shorthand;
@@ -4550,8 +4550,12 @@ export class Parser {
                 if (this.parseOptional(context, Token.Assign)) {
                     if (this.token & (Token.IsYield | Token.IsAwait)) {
                         this.errorLocation = this.getLocations();
-                        if (this.token & Token.IsYield && context & Context.Yield) this.flags |= Flags.Yield;
-                        if (this.token & Token.IsAwait) this.flags |= Flags.Await;
+                        if (this.token & Token.IsYield && context & Context.Yield) {
+                            this.flags |= Flags.Yield;
+                        }
+                        if (this.token & Token.IsAwait) {
+                            this.flags |= Flags.Await;
+                        }
                     }
 
                     value = this.finishNode(context, pos, {
