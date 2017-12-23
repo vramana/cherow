@@ -49,7 +49,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/class/accessor-name-inst-literal-string-line-continuation.js',
         'test/language/expressions/object/accessor-name-literal-string-line-continuation.js',
         'test/language/expressions/object/cover-initialized-name.js',
-        'test/language/expressions/object/cover-initialized-name.js',
         'test/language/expressions/object/11.1.5_7-2-2-s.js',
         'test/language/expressions/object/11.1.5-3-s.js',
         'test/language/expressions/object/11.1.5_7-2-1-s.js',

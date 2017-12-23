@@ -4189,15 +4189,17 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
     switch (this.token) {
         case 262155 /* LeftParen */:
             {
-                if (!(state & 48 /* Accessors */))
-                    { state |= 64 /* Method */; }
+                if (!(state & 48 /* Accessors */)) {
+                    state |= 64 /* Method */;
+                }
                 value = this.parseMethodDefinition(context & ~(16 /* Yield */ | 32 /* Await */) | 32768 /* Method */, state);
                 break;
             }
         case 21 /* Colon */:
             {
-                if (state & 51 /* Special */)
-                    { this.error(0 /* Unexpected */); }
+                if (state & 1 /* Yield */) {
+                    this.error(75 /* DisallowedInContext */, tokenDesc(t));
+                }
                 if (!(state & 4 /* Computed */) && this.tokenValue === '__proto__') {
                     if (this.flags & 262144 /* HasProtoField */) {
                         this.error(53 /* DuplicateProtoProperty */);
@@ -4205,10 +4207,6 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
                     this.flags |= 262144 /* HasProtoField */;
                 }
                 this.expect(context, 21 /* Colon */);
-                if (context & 256 /* InAsyncArgs */ && this.token & 1073741824 /* IsAwait */) {
-                    this.errorLocation = this.getLocations();
-                    this.flags |= 512 /* Await */;
-                }
                 value = this.parseAssignmentExpression(context);
                 break;
             }
@@ -4241,6 +4239,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
                     left: key,
                     right: this.parseAssignmentExpression(context)
                 });
+                //if (this.token === Token.RightBrace) this.error(Errors.Unexpected);
             }
             else {
                 value = key;

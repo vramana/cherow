@@ -2,7 +2,7 @@ import { pass, fail } from '../utils';
 
 describe('Next - Class fields', () => {
 
-    fail('class C { #x = typeof arguments; }', {
+    fail('class C { static #field; }', {
         source: 'class C { static #field; }',
         next: true
     });

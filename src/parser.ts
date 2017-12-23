@@ -4506,26 +4506,27 @@ export class Parser {
 
             case Token.LeftParen:
                 {
-                    if (!(state & ObjectState.Accessors)) state |= ObjectState.Method;
+                    if (!(state & ObjectState.Accessors)) {
+                        state |= ObjectState.Method;
+                    }
                     value = this.parseMethodDefinition(context & ~(Context.Yield | Context.Await) | Context.Method, state);
                     break;
                 }
 
             case Token.Colon:
                 {
-                    if (state & ObjectState.Special) this.error(Errors.Unexpected);
+                    if (state & ObjectState.Yield) {
+                        this.error(Errors.DisallowedInContext, tokenDesc(t));
+                    }
+
                     if (!(state & ObjectState.Computed) && this.tokenValue === '__proto__') {
                         if (this.flags & Flags.HasProtoField) {
                             this.error(Errors.DuplicateProtoProperty);
                         }
                         this.flags |= Flags.HasProtoField;
                     }
-                    this.expect(context, Token.Colon);
 
-                    if (context & Context.InAsyncArgs && this.token & Token.IsAwait) {
-                        this.errorLocation = this.getLocations();
-                        this.flags |= Flags.Await;
-                    }
+                    this.expect(context, Token.Colon);
 
                     value = this.parseAssignmentExpression(context);
 
@@ -4563,6 +4564,8 @@ export class Parser {
                         left: key,
                         right: this.parseAssignmentExpression(context)
                     });
+
+                    //if (this.token === Token.RightBrace) this.error(Errors.Unexpected);
                 } else {
                     value = key;
                 }
