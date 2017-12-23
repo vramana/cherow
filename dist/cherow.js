@@ -3959,25 +3959,33 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     var pos = this.getLocations();
     if (!(context & 1 /* Module */) &&
         this.flags & 33554432 /* OptionsNext */ && this.token === 117 /* Hash */) {
-        return this.parseClassPrivateProperty(context, 0 /* None */, pos);
+        return this.parseClassPrivateProperty(context | 4 /* AllowIn */, state, pos);
     }
-    var currentState = 0;
     var t = this.token;
+    var currentState = 0;
     var count = 0;
     var key;
     var value;
     loop: while (t & (67108864 /* IsIdentifier */ | 4096 /* Keyword */)) {
-        switch (t) {
+        switch (this$1.token) {
             case 16797801 /* StaticKeyword */:
                 state |= currentState = 512 /* Static */;
                 key = this$1.parseIdentifier(context);
                 count++;
                 break;
-            case 16846960 /* SetKeyword */:
             case 16846959 /* GetKeyword */:
-                if (state & (48 /* Accessors */ | 2 /* Async */))
+                if (state & 48 /* Accessors */)
                     { break loop; }
-                state |= currentState = t === 16846960 /* SetKeyword */ ? 32 /* Set */ : 16 /* Get */;
+                if (state & 2 /* Async */)
+                    { break loop; }
+                state |= currentState = 16 /* Get */;
+                key = this$1.parseIdentifier(context);
+                count++;
+                break;
+            case 16846960 /* SetKeyword */:
+                if (state & 2 /* Async */)
+                    { break loop; }
+                state |= currentState = 32 /* Set */;
                 key = this$1.parseIdentifier(context);
                 count++;
                 break;
@@ -3992,14 +4000,14 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                 break loop;
         }
     }
-    t = this.token;
     if (t & 16777216 /* Modifiers */ && this.flags & 2 /* ExtendedUnicodeEscape */) {
         this.error(63 /* UnexpectedEscapedKeyword */);
     }
+    t = this.token;
     // Generator / Async Iterations ( Stage 3 proposal)
     if (t & 268435456 /* IsGenerator */) {
-        if (state & 2 /* Async */
-            && !(this.flags & 33554432 /* OptionsNext */)) {
+        if (state & 2 /* Async */ &&
+            !(this.flags & 33554432 /* OptionsNext */)) {
             this.error(88 /* InvalidAsyncGenerator */);
         }
         state |= currentState = 1 /* Yield */;
@@ -4032,11 +4040,11 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                     }
                 }
             default:
-                if (tokenValue === 'constructor') {
-                    state |= 1024 /* Constructor */;
-                }
-                else if (t === 393235 /* LeftBracket */) {
+                if (t === 393235 /* LeftBracket */) {
                     state |= 4 /* Computed */;
+                }
+                else if (tokenValue === 'constructor') {
+                    state |= 1024 /* Constructor */;
                 }
                 var res = this.parsePropertyName(context, pos);
                 if (res < 0) {

@@ -1768,7 +1768,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: any,
         node: any,
@@ -4220,26 +4220,24 @@ export class Parser {
         });
     }
 
-    private parseClassElement(
-        context: Context,
-        state: ObjectState): ESTree.MethodDefinition | ESTree.Identifier {
+    private parseClassElement(context: Context, state: ObjectState): ESTree.MethodDefinition | ESTree.Identifier {
 
         const pos = this.getLocations();
 
         if (!(context & Context.Module) &&
             this.flags & Flags.OptionsNext && this.token === Token.Hash) {
-            return this.parseClassPrivateProperty(context, ObjectState.None, pos);
+            return this.parseClassPrivateProperty(context | Context.AllowIn, state, pos);
         }
 
-        let currentState = ObjectState.None;
         let t = this.token;
+        let currentState = ObjectState.None;
         let count = 0;
         let key;
         let value;
 
         loop: while (t & (Token.IsIdentifier | Token.Keyword)) {
 
-            switch (t) {
+            switch (this.token) {
 
                 case Token.StaticKeyword:
                     state |= currentState = ObjectState.Static;
@@ -4247,10 +4245,17 @@ export class Parser {
                     count++;
                     break;
 
-                case Token.SetKeyword:
                 case Token.GetKeyword:
-                    if (state & (ObjectState.Accessors | ObjectState.Async)) break loop;
-                    state |= currentState = t === Token.SetKeyword ? ObjectState.Set : ObjectState.Get;
+                    if (state & ObjectState.Accessors) break loop;
+                    if (state & ObjectState.Async) break loop;
+                    state |= currentState = ObjectState.Get;
+                    key = this.parseIdentifier(context);
+                    count++;
+                    break;
+
+                case Token.SetKeyword:
+                    if (state & ObjectState.Async) break loop;
+                    state |= currentState = ObjectState.Set;
                     key = this.parseIdentifier(context);
                     count++;
                     break;
@@ -4266,11 +4271,11 @@ export class Parser {
             }
         }
 
-        t = this.token;
-
         if (t & Token.Modifiers && this.flags & Flags.ExtendedUnicodeEscape) {
             this.error(Errors.UnexpectedEscapedKeyword);
         }
+
+        t = this.token;
 
         // Generator / Async Iterations ( Stage 3 proposal)
         if (t & Token.IsGenerator) {
@@ -4311,10 +4316,10 @@ export class Parser {
                     }
                 default:
 
-                    if (tokenValue === 'constructor') {
-                        state |= ObjectState.Constructor;
-                    } else if (t === Token.LeftBracket) {
+                    if (t === Token.LeftBracket) {
                         state |= ObjectState.Computed;
+                    } else if (tokenValue === 'constructor') {
+                        state |= ObjectState.Constructor;
                     }
 
                     const res = this.parsePropertyName(context, pos);
