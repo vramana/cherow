@@ -3,6 +3,11 @@ import { pass, fail } from '../utils';
 describe('Next - Class fields', () => {
 
     fail('class C { #x = typeof arguments; }', {
+        source: 'class C { static #field; }',
+        next: true
+    });
+
+    fail('class C { #x = typeof arguments; }', {
         source: 'class C { #x = typeof arguments; }',
         next: true
     });

@@ -3889,10 +3889,13 @@ Parser.prototype.parseClassBody = function parseClassBody (context, flags) {
 Parser.prototype.parsePrivateProperty = function parsePrivateProperty (context, key) {
     var pos = this.getLocations();
     var value = null;
-    if (this.parseOptional(context, 1310749 /* Assign */))
-        { value = this.parseAssignmentExpression(context); }
-    if (this.isEvalOrArguments(this.tokenValue))
-        { this.error(70 /* UnexpectedReservedWord */); }
+    if (this.parseOptional(context, 1310749 /* Assign */)) {
+        value = this.parseAssignmentExpression(context);
+    }
+    // Syntax error if `arguments` or `eval` used in class field
+    if (this.isEvalOrArguments(this.tokenValue)) {
+        this.error(70 /* UnexpectedReservedWord */);
+    }
     this.parseOptional(context, 18 /* Comma */);
     return this.finishNode(context, pos, {
         type: 'ClassProperty',
@@ -3900,30 +3903,30 @@ Parser.prototype.parsePrivateProperty = function parsePrivateProperty (context, 
         value: value,
     });
 };
-Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty (context, state) {
-    var pos = this.getLocations();
+Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty (context, state, pos) {
+        if ( pos === void 0 ) pos = this.getLocations();
+
     this.expect(context, 117 /* Hash */);
-    if (this.token === 393235 /* LeftBracket */)
-        { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
     var tokenValue = this.tokenValue;
-    if (this.token === 69742 /* ConstructorKeyword */)
-        { this.error(103 /* InvalidFieldConstructor */); }
-    // Note: The grammar only supports `#` IdentifierName
+    // It is a Syntax Error if StringValue of PrivateName is "#constructor"
+    if (this.token === 69742 /* ConstructorKeyword */) {
+        this.error(103 /* InvalidFieldConstructor */);
+    }
+    // Note: The grammar only supports `#` + IdentifierName
     var key = this.parseIdentifierName(context, this.token);
-    if (this.token === 393235 /* LeftBracket */)
-        { this.error(102 /* InvalidComputedClassProperty */); }
     var value = null;
-    var fieldValue = tokenValue;
-    if (this.fieldSet === undefined)
-        { this.fieldSet = []; }
-    this.errorLocation = pos;
+    if (this.fieldSet === undefined) {
+        this.errorLocation = pos;
+        this.fieldSet = [];
+    }
     this.fieldSet.push({
-        key: fieldValue,
+        key: tokenValue,
         mask: 2 /* Scope */
     });
     if (this.parseOptional(context, 1310749 /* Assign */)) {
-        if (this.isEvalOrArguments(this.tokenValue))
-            { this.error(70 /* UnexpectedReservedWord */); }
+        if (this.isEvalOrArguments(this.tokenValue)) {
+            this.error(70 /* UnexpectedReservedWord */);
+        }
         value = this.parseAssignmentExpression(context | 4194304 /* ClassFields */);
     }
     this.parseOptional(context, 18 /* Comma */);
@@ -3937,9 +3940,10 @@ Parser.prototype.parseClassPrivateProperty = function parseClassPrivateProperty 
 Parser.prototype.parsePrivateName = function parsePrivateName (context) {
     var pos = this.getLocations();
     this.expect(context, 117 /* Hash */);
-    this.errorLocation = pos;
-    if (this.fieldSet === undefined)
-        { this.fieldSet = []; }
+    if (this.fieldSet === undefined) {
+        this.errorLocation = pos;
+        this.fieldSet = [];
+    }
     this.fieldSet.push({
         key: this.tokenValue,
         mask: 1 /* Method */
@@ -3952,18 +3956,17 @@ Parser.prototype.parsePrivateName = function parsePrivateName (context) {
 Parser.prototype.parseClassElement = function parseClassElement (context, state) {
         var this$1 = this;
 
-    // Stage 3 Proposal - Class-fields
-    if (this.flags & 33554432 /* OptionsNext */ && this.token === 117 /* Hash */) {
-        if (!(context & 1 /* Module */))
-            { return this.parseClassPrivateProperty(context | 4 /* AllowIn */, state); }
-    }
     var pos = this.getLocations();
-    var token = this.token;
+    if (!(context & 1 /* Module */) &&
+        this.flags & 33554432 /* OptionsNext */ && this.token === 117 /* Hash */) {
+        return this.parseClassPrivateProperty(context | 4 /* AllowIn */, state, pos);
+    }
+    var t = this.token;
     var currentState = 0;
     var count = 0;
     var key;
     var value;
-    loop: while (token & (67108864 /* IsIdentifier */ | 4096 /* Keyword */)) {
+    loop: while (t & (67108864 /* IsIdentifier */ | 4096 /* Keyword */)) {
         switch (this$1.token) {
             case 16797801 /* StaticKeyword */:
                 state |= currentState = 512 /* Static */;
@@ -3971,14 +3974,20 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                 count++;
                 break;
             case 16846959 /* GetKeyword */:
+                if (state & 48 /* Accessors */)
+                    { break loop; }
+                if (state & 2 /* Async */)
+                    { break loop; }
+                state |= currentState = 16 /* Get */;
+                key = this$1.parseIdentifier(context);
+                count++;
+                break;
             case 16846960 /* SetKeyword */:
                 if (state & 48 /* Accessors */)
                     { break loop; }
                 if (state & 2 /* Async */)
                     { break loop; }
-                state |= currentState = this$1.token === 16846959 /* GetKeyword */ ?
-                    16 /* Get */ :
-                    32 /* Set */;
+                state |= currentState = 32 /* Set */;
                 key = this$1.parseIdentifier(context);
                 count++;
                 break;
@@ -3995,48 +4004,62 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                 break loop;
         }
     }
+    t = this.token;
     // Generator / Async Iterations ( Stage 3 proposal)
-    if (this.token & 268435456 /* IsGenerator */) {
+    if (t & 268435456 /* IsGenerator */) {
         if (state & 2 /* Async */ && !(this.flags & 33554432 /* OptionsNext */)) {
             this.error(88 /* InvalidAsyncGenerator */);
         }
         state |= currentState = 1 /* Yield */;
         this.expect(context, 270535219 /* Multiply */);
+        t = this.token;
         count++;
     }
-    if (this.tokenValue === 'prototype')
-        { state |= 4096 /* Prototype */; }
-    if (this.token & (67108864 /* IsIdentifier */ | 4096 /* Keyword */)) {
-        if (this.tokenValue === 'constructor')
-            { state |= 1024 /* Constructor */; }
+    var tokenValue = this.tokenValue;
+    if (tokenValue === 'prototype') {
+        state |= 4096 /* Prototype */;
+    }
+    if (t & (67108864 /* IsIdentifier */ | 4096 /* Keyword */)) {
+        if (tokenValue === 'constructor') {
+            state |= 1024 /* Constructor */;
+        }
         key = this.parseIdentifier(context);
     }
-    else if (this.token === 117 /* Hash */ && this.flags & 33554432 /* OptionsNext */) {
-        if (state & 512 /* Static */) {
-            this.error(0 /* Unexpected */);
-        }
-        key = this.parseClassPrivateProperty(context, state);
-        if (this.token !== 262155 /* LeftParen */)
-            { return key; }
-    }
     else {
-        if (this.token === 393235 /* LeftBracket */)
-            { state |= 4 /* Computed */; }
-        else if (this.tokenValue === 'constructor')
-            { state |= 1024 /* Constructor */; }
-        var res = this.parsePropertyName(context, pos);
-        if (res < 0) {
-            if (count && currentState !== 1 /* Yield */) {
-                state &= ~currentState;
-                count--;
-            }
+        switch (t) {
+            case 117 /* Hash */:
+                {
+                    if (this.flags & 33554432 /* OptionsNext */) {
+                        // static private class fields forbidden
+                        if (state & 512 /* Static */)
+                            { this.error(0 /* Unexpected */); }
+                        key = this.parseClassPrivateProperty(context, state);
+                        if (this.token !== 262155 /* LeftParen */)
+                            { return key; }
+                        break;
+                    }
+                }
+            default:
+                if (t === 393235 /* LeftBracket */) {
+                    state |= 4 /* Computed */;
+                }
+                else if (tokenValue === 'constructor') {
+                    state |= 1024 /* Constructor */;
+                }
+                var res = this.parsePropertyName(context, pos);
+                if (res < 0) {
+                    if (count && currentState !== 1 /* Yield */) {
+                        state &= ~currentState;
+                        count--;
+                    }
+                }
+                else
+                    { key = res; }
         }
-        else
-            { key = res; }
     }
     if (this.token === 262155 /* LeftParen */) {
         if (!key && state & 1 /* Yield */)
-            { this.error(1 /* UnexpectedToken */, tokenDesc(token)); }
+            { this.error(1 /* UnexpectedToken */, tokenDesc(t)); }
         if (state & 256 /* Heritage */ && state & 1024 /* Constructor */)
             { context |= 131072 /* Constructor */; }
         if (state & 512 /* Static */) {

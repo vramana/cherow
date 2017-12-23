@@ -146,6 +146,154 @@ describe('Declarations - Class', () => {
         source: `(class {*foo(a = yield b) {}})`
     });
 
+    fail(`class a {static "prototype"(){}}`, {
+        source: `class a {static "prototype"(){}}`
+    });
+
+    pass(`(class {prototype() {}})`, {
+        source: `(class {prototype() {}})`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ClassExpression',
+                        id: null,
+                        superClass: null,
+                        body: {
+                            type: 'ClassBody',
+                            body: [
+                                {
+                                    type: 'MethodDefinition',
+                                    key: {
+                                        type: 'Identifier',
+                                        name: 'prototype',
+                                        start: 8,
+                                        end: 17,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 8
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 17
+                                            }
+                                        }
+                                    },
+                                    kind: 'method',
+                                    computed: false,
+                                    value: {
+                                        type: 'FunctionExpression',
+                                        params: [],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 20,
+                                            end: 22,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 20
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 22
+                                                }
+                                            }
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: null,
+                                        start: 17,
+                                        end: 22,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 17
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 22
+                                            }
+                                        }
+                                    },
+                                    static: false,
+                                    start: 8,
+                                    end: 22,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 8
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 22
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 7,
+                            end: 23,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 7
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 23
+                                }
+                            }
+                        },
+                        start: 1,
+                        end: 23,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 1
+                            },
+                            end: {
+                                line: 1,
+                                column: 23
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 24,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 24
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 24,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 24
+                }
+            }
+        }
+    });
+
     pass(`class a{ get get() {} }`, {
         source: `class a{ get get() {} }`,
         loc: true,
@@ -749,137 +897,141 @@ describe('Declarations - Class', () => {
         raw: true,
         expected: {
             type: 'Program',
-            body: [{
-                type: 'ClassDeclaration',
-                id: {
-                    type: 'Identifier',
-                    name: 'A',
-                    start: 6,
-                    end: 7,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 6
-                        },
-                        end: {
-                            line: 1,
-                            column: 7
-                        }
-                    }
-                },
-                superClass: null,
-                body: {
-                    type: 'ClassBody',
-                    body: [{
-                        type: 'MethodDefinition',
-                        key: {
-                            type: 'Identifier',
-                            name: 'get',
-                            start: 9,
-                            end: 12,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 9
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 12
-                                }
-                            }
-                        },
-                        kind: 'method',
-                        computed: false,
-                        value: {
-                            type: 'FunctionExpression',
-                            params: [],
-                            body: {
-                                type: 'BlockStatement',
-                                body: [],
-                                start: 15,
-                                end: 17,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 15
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 17
-                                    }
-                                }
-                            },
-                            async: false,
-                            generator: false,
-                            expression: false,
-                            id: null,
-                            start: 12,
-                            end: 17,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 12
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 17
-                                }
-                            }
-                        },
-                        static: false,
-                        start: 9,
-                        end: 17,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 9
-                            },
-                            end: {
-                                line: 1,
-                                column: 17
-                            }
-                        }
-                    }],
-                    start: 8,
-                    end: 18,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 8
-                        },
-                        end: {
-                            line: 1,
-                            column: 18
-                        }
-                    }
-                },
-                start: 0,
-                end: 18,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 1,
-                        column: 18
-                    }
-                }
-            }],
-            sourceType: 'script',
             start: 0,
             end: 18,
             loc: {
-                start: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 18
+              }
+            },
+            body: [
+              {
+                type: 'ClassDeclaration',
+                start: 0,
+                end: 18,
+                loc: {
+                  start: {
                     line: 1,
                     column: 0
-                },
-                end: {
+                  },
+                  end: {
                     line: 1,
                     column: 18
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  start: 6,
+                  end: 7,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 6
+                    },
+                    end: {
+                      line: 1,
+                      column: 7
+                    }
+                  },
+                  name: 'A'
+                },
+                superClass: null,
+                body: {
+                  type: 'ClassBody',
+                  start: 8,
+                  end: 18,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 8
+                    },
+                    end: {
+                      line: 1,
+                      column: 18
+                    }
+                  },
+                  body: [
+                    {
+                      type: 'MethodDefinition',
+                      start: 9,
+                      end: 17,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 9
+                        },
+                        end: {
+                          line: 1,
+                          column: 17
+                        }
+                      },
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 9,
+                        end: 12,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 9
+                          },
+                          end: {
+                            line: 1,
+                            column: 12
+                          }
+                        },
+                        name: 'get'
+                      },
+                      static: false,
+                      kind: 'method',
+                      value: {
+                        type: 'FunctionExpression',
+                        start: 12,
+                        end: 17,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 12
+                          },
+                          end: {
+                            line: 1,
+                            column: 17
+                          }
+                        },
+                        id: null,
+                        generator: false,
+                        expression: false,
+                        async: false,
+                        params: [],
+                        body: {
+                          type: 'BlockStatement',
+                          start: 15,
+                          end: 17,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 15
+                            },
+                            end: {
+                              line: 1,
+                              column: 17
+                            }
+                          },
+                          body: []
+                        }
+                      }
+                    }
+                  ]
                 }
-            }
-        }
+              }
+            ],
+            sourceType: 'script'
+          }
     });
 
     pass(`class A { static get() {}}`, {
