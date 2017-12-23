@@ -343,9 +343,7 @@ export class Parser {
                     {
                         this.advance();
 
-                        const next = this.nextChar();
-
-                        switch (next) {
+                        switch (this.nextChar()) {
 
                             case Chars.LessThan:
                                 {
@@ -389,9 +387,7 @@ export class Parser {
                     {
                         this.advance(); // skip '-'
 
-                        const next = this.nextChar();
-
-                        switch (next) {
+                        switch (this.nextChar()) {
 
                             case Chars.Hyphen:
                                 {
@@ -3312,6 +3308,11 @@ export class Parser {
             this.nextToken(context);
             const argument = this.parseUnaryExpression(context);
             if (this.token === Token.Exponentiate) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+            if (context & Context.ClassFields &&
+                t === Token.TypeofKeyword &&
+                this.isEvalOrArguments(this.tokenValue)) {
+                this.error(Errors.Unexpected);
+            }
             if (context & Context.Strict && t === Token.DeleteKeyword) {
                 if (argument.type === 'Identifier' || (this.flags & Flags.OptionsNext &&
                         !(context & Context.Module) && this.isPrivateName(argument))) {

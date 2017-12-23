@@ -100,7 +100,7 @@ var KeywordDescTable = [
     'as', 'async', 'await', 'constructor', 'get', 'set', 'from', 'of',
     'enum',
     /* JSX */
-    'JSXText', '#', 'BigInt' ];
+    'JSXText', '#', '@', 'BigInt' ];
 /**
  * The conversion function between token and its string description/representation.
  */
@@ -609,8 +609,7 @@ Parser.prototype.scan = function scan (context) {
             case 60 /* LessThan */:
                 {
                     this$1.advance();
-                    var next$1 = this$1.nextChar();
-                    switch (next$1) {
+                    switch (this$1.nextChar()) {
                         case 60 /* LessThan */:
                             {
                                 this$1.advance();
@@ -649,8 +648,7 @@ Parser.prototype.scan = function scan (context) {
             case 45 /* Hyphen */:
                 {
                     this$1.advance(); // skip '-'
-                    var next$2 = this$1.nextChar();
-                    switch (next$2) {
+                    switch (this$1.nextChar()) {
                         case 45 /* Hyphen */:
                             {
                                 this$1.advance();
@@ -733,12 +731,12 @@ Parser.prototype.scan = function scan (context) {
             case 38 /* Ampersand */:
                 {
                     this$1.advance();
-                    var next$3 = this$1.nextChar();
-                    if (next$3 === 38 /* Ampersand */) {
+                    var next$1 = this$1.nextChar();
+                    if (next$1 === 38 /* Ampersand */) {
                         this$1.advance();
                         return 35652151 /* LogicalAnd */;
                     }
-                    if (next$3 === 61 /* EqualSign */) {
+                    if (next$1 === 61 /* EqualSign */) {
                         this$1.advance();
                         return 1310761 /* BitwiseAndAssign */;
                     }
@@ -770,12 +768,12 @@ Parser.prototype.scan = function scan (context) {
                     this$1.advance();
                     if (!this$1.hasNext())
                         { return 270535219 /* Multiply */; }
-                    var next$4 = this$1.nextChar();
-                    if (next$4 === 61 /* EqualSign */) {
+                    var next$2 = this$1.nextChar();
+                    if (next$2 === 61 /* EqualSign */) {
                         this$1.advance();
                         return 1310756 /* MultiplyAssign */;
                     }
-                    if (next$4 !== 42 /* Asterisk */)
+                    if (next$2 !== 42 /* Asterisk */)
                         { return 270535219 /* Multiply */; }
                     this$1.advance();
                     if (!this$1.consume(61 /* EqualSign */))
@@ -788,12 +786,12 @@ Parser.prototype.scan = function scan (context) {
                     this$1.advance();
                     if (!this$1.hasNext())
                         { return 6555951 /* Add */; }
-                    var next$5 = this$1.nextChar();
-                    if (next$5 === 43 /* Plus */) {
+                    var next$3 = this$1.nextChar();
+                    if (next$3 === 43 /* Plus */) {
                         this$1.advance();
                         return 786459 /* Increment */;
                     }
-                    if (next$5 === 61 /* EqualSign */) {
+                    if (next$3 === 61 /* EqualSign */) {
                         this$1.advance();
                         return 1310754 /* AddAssign */;
                     }
@@ -803,8 +801,8 @@ Parser.prototype.scan = function scan (context) {
             case 61 /* EqualSign */:
                 {
                     this$1.advance();
-                    var next$6 = this$1.nextChar();
-                    if (next$6 === 61 /* EqualSign */) {
+                    var next$4 = this$1.nextChar();
+                    if (next$4 === 61 /* EqualSign */) {
                         this$1.advance();
                         if (this$1.consume(61 /* EqualSign */)) {
                             return 2098745 /* StrictEqual */;
@@ -813,7 +811,7 @@ Parser.prototype.scan = function scan (context) {
                             return 2098747 /* LooseEqual */;
                         }
                     }
-                    else if (next$6 === 62 /* GreaterThan */) {
+                    else if (next$4 === 62 /* GreaterThan */) {
                         this$1.advance();
                         return 10 /* Arrow */;
                     }
@@ -826,16 +824,16 @@ Parser.prototype.scan = function scan (context) {
                     // Fixes '<a>= == =</a>'
                     if (context & 8388608 /* Expression */)
                         { return 2099008 /* GreaterThan */; }
-                    var next$7 = this$1.nextChar();
-                    if (next$7 === 61 /* EqualSign */) {
+                    var next$5 = this$1.nextChar();
+                    if (next$5 === 61 /* EqualSign */) {
                         this$1.advance();
                         return 2099006 /* GreaterThanOrEqual */;
                     }
-                    if (next$7 !== 62 /* GreaterThan */)
+                    if (next$5 !== 62 /* GreaterThan */)
                         { return 2099008 /* GreaterThan */; }
                     this$1.advance();
-                    next$7 = this$1.nextChar();
-                    if (next$7 === 62 /* GreaterThan */) {
+                    next$5 = this$1.nextChar();
+                    if (next$5 === 62 /* GreaterThan */) {
                         this$1.advance();
                         if (this$1.consume(61 /* EqualSign */)) {
                             return 1310752 /* LogicalShiftRightAssign */;
@@ -844,7 +842,7 @@ Parser.prototype.scan = function scan (context) {
                             return 2099267 /* LogicalShiftRight */;
                         }
                     }
-                    else if (next$7 === 61 /* EqualSign */) {
+                    else if (next$5 === 61 /* EqualSign */) {
                         this$1.advance();
                         return 1310751 /* ShiftRightAssign */;
                     }
@@ -854,12 +852,12 @@ Parser.prototype.scan = function scan (context) {
             case 124 /* VerticalBar */:
                 {
                     this$1.advance();
-                    var next$8 = this$1.nextChar();
-                    if (next$8 === 124 /* VerticalBar */) {
+                    var next$6 = this$1.nextChar();
+                    if (next$6 === 124 /* VerticalBar */) {
                         this$1.advance();
                         return 35651896 /* LogicalOr */;
                     }
-                    else if (next$8 === 61 /* EqualSign */) {
+                    else if (next$6 === 61 /* EqualSign */) {
                         this$1.advance();
                         return 1310760 /* BitwiseOrAssign */;
                     }
@@ -869,12 +867,12 @@ Parser.prototype.scan = function scan (context) {
             case 46 /* Period */:
                 {
                     var index = this$1.index + 1;
-                    var next$9 = this$1.source.charCodeAt(index);
-                    if (next$9 >= 48 /* Zero */ && next$9 <= 57 /* Nine */) {
+                    var next$7 = this$1.source.charCodeAt(index);
+                    if (next$7 >= 48 /* Zero */ && next$7 <= 57 /* Nine */) {
                         this$1.scanNumber(context, first);
                         return 262146 /* NumericLiteral */;
                     }
-                    if (next$9 === 46 /* Period */) {
+                    if (next$7 === 46 /* Period */) {
                         index++;
                         if (index < this$1.source.length &&
                             this$1.source.charCodeAt(index) === 46 /* Period */) {
@@ -1400,7 +1398,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
             { this.tokenRaw = this.source.slice(start, this.index); }
         this.tokenValue = parseFloat(result);
         if (state & 64 /* BigInt */)
-            { return 118 /* BigInt */; }
+            { return 119 /* BigInt */; }
         return 262146 /* NumericLiteral */;
     }
     // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
@@ -1414,7 +1412,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
     }
     if (this.flags & 16777216 /* OptionsRaw */)
         { this.tokenRaw = rawValue; }
-    return state & 64 /* BigInt */ ? 118 /* BigInt */ : 262146 /* NumericLiteral */;
+    return state & 64 /* BigInt */ ? 119 /* BigInt */ : 262146 /* NumericLiteral */;
 };
 Parser.prototype.scanRegularExpression = function scanRegularExpression () {
         var this$1 = this;
@@ -3168,6 +3166,11 @@ Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) 
         var argument = this.parseUnaryExpression(context);
         if (this.token === 2100022 /* Exponentiate */)
             { this.error(1 /* UnexpectedToken */, tokenDesc(this.token)); }
+        if (context & 4194304 /* ClassFields */ &&
+            t === 4468778 /* TypeofKeyword */ &&
+            this.isEvalOrArguments(this.tokenValue)) {
+            this.error(0 /* Unexpected */);
+        }
         if (context & 2 /* Strict */ && t === 4468779 /* DeleteKeyword */) {
             if (argument.type === 'Identifier' || (this.flags & 33554432 /* OptionsNext */ &&
                 !(context & 1 /* Module */) && this.isPrivateName(argument))) {
@@ -3694,7 +3697,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 262146 /* NumericLiteral */:
         case 262147 /* StringLiteral */:
             return this.parseLiteral(context);
-        case 118 /* BigInt */:
+        case 119 /* BigInt */:
             return this.parseBigIntLiteral(context, pos);
         case 67371009 /* Identifier */:
             return this.parseIdentifier(context);

@@ -72,6 +72,7 @@ export const enum Flags {
     OptionsSourceType            = 1 << 27, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
     OptionsTolerant              = 1 << 28,
     OptionsPlugins               = 1 << 29,
+    Tiss               = 1 << 30,
 
 }
 

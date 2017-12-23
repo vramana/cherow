@@ -153,7 +153,7 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/with/12.10.1-12-s.js',
         'test/language/statements/with/12.10.1-4-s.js',
         'test/language/statements/with/12.10.1-8-s.js',
-        'test/language/statements/class/fields-private-typeof-init-err-contains-arguments.js',
+        // 'test/language/statements/class/fields-private-typeof-init-err-contains-arguments.js',
         'test/language/statements/class/privatefieldget-typeerror*.js',
         'test/language/statements/class/privatefieldset-typeerror-1.js',
         'test/language/statements/class/privatefieldset-typeerror-3.js',

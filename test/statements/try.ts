@@ -2,46 +2,8 @@ import { pass, fail } from '../utils';
 
 describe('Statements - Try', () => {
 
-    fail(`try`, {
-        source: 'try',
-    });
-
-    fail(`try{} catch(){} finally{}`, {
-        source: 'try{} catch(){} finally{}',
-    });
-
-    fail(`try{
-        {
-        }
-        catch(e){}
-        finally{}
-      }`, {
-        source: `try{
-            {
-            }
-            catch(e){}
-            finally{}
-          }`,
-    });
-
-    fail(`try {
-        throw
-        1;
-      } catch(e) {
-      }`, {
-        source: `try {
-            throw
-            1;
-          } catch(e) {
-          }`,
-    });
-
-    fail(`catch(){} finally{}`, {
-        source: 'catch(){} finally{}',
-    });
-
-    fail(`try{ catch(){}`, {
-        source: `try{ catch(){}`,
+    fail(`try { } catch (x) { let x; }`, {
+        source: `try { } catch (x) { let x; }`,
     });
 
     pass(`try { } catch (eval) { }`, {

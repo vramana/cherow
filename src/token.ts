@@ -169,7 +169,8 @@ export const enum Token {
 
     /** State 3 proposals */
     Hash               = 117,
-    BigInt             = 118
+    At                 = 118,
+    BigInt             = 119
 }
 
 const KeywordDescTable = [
@@ -214,7 +215,7 @@ const KeywordDescTable = [
 
     /* JSX */
 
-    'JSXText', '#', 'BigInt',
+    'JSXText', '#', '@', 'BigInt',
 ];
 
 /**
