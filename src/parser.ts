@@ -3385,7 +3385,7 @@ export class Parser {
             // '('
             case Token.LeftParen:
                 // The super property has to be within a class constructor
-                if (!(context & Context.Constructor)) this.error(Errors.BadSuperCall);
+                if (!(context & Context.AllowConstructor)) this.error(Errors.BadSuperCall);
                 break;
 
                 // '.'
@@ -3553,11 +3553,11 @@ export class Parser {
 
     private parseFunctionDeclaration(context: Context): ESTree.FunctionDeclaration {
         const parentContext = context;
-        return this.parseFunction(context &= ~(Context.Method | Context.Constructor | Context.Yield | Context.Await), parentContext) as ESTree.FunctionDeclaration;
+        return this.parseFunction(context &= ~(Context.Method | Context.AllowConstructor | Context.Yield | Context.Await), parentContext) as ESTree.FunctionDeclaration;
     }
 
     private parseFunctionExpression(context: Context): ESTree.FunctionExpression {
-        return this.parseFunction(context &= ~(Context.Constructor | Context.Yield | Context.Method)) as ESTree.FunctionExpression;
+        return this.parseFunction(context &= ~(Context.AllowConstructor | Context.Yield | Context.Method)) as ESTree.FunctionExpression;
     }
 
     private parseFunction(context: Context, parentContext: Context = Context.None): ESTree.FunctionDeclaration | ESTree.FunctionExpression {
@@ -3970,7 +3970,7 @@ export class Parser {
             case Token.ClassKeyword:
                 return this.parseClassExpression(context | Context.Expression);
             case Token.LeftBrace:
-                return this.parseObjectExpression(context &= ~Context.Constructor);
+                return this.parseObjectExpression(context &= ~Context.AllowConstructor);
             case Token.TemplateTail:
                 return this.parseTemplateLiteral(context, pos);
             case Token.TemplateCont:
@@ -4220,24 +4220,26 @@ export class Parser {
         });
     }
 
-    private parseClassElement(context: Context, state: ObjectState): ESTree.MethodDefinition | ESTree.Identifier {
+    private parseClassElement(
+        context: Context,
+        state: ObjectState): ESTree.MethodDefinition | ESTree.Identifier {
 
         const pos = this.getLocations();
 
         if (!(context & Context.Module) &&
             this.flags & Flags.OptionsNext && this.token === Token.Hash) {
-            return this.parseClassPrivateProperty(context | Context.AllowIn, state, pos);
+            return this.parseClassPrivateProperty(context, ObjectState.None, pos);
         }
 
-        let t = this.token;
         let currentState = ObjectState.None;
+        let t = this.token;
         let count = 0;
         let key;
         let value;
 
         loop: while (t & (Token.IsIdentifier | Token.Keyword)) {
 
-            switch (this.token) {
+            switch (t) {
 
                 case Token.StaticKeyword:
                     state |= currentState = ObjectState.Static;
@@ -4245,23 +4247,15 @@ export class Parser {
                     count++;
                     break;
 
-                case Token.GetKeyword:
-                    if (state & ObjectState.Accessors) break loop;
-                    if (state & ObjectState.Async) break loop;
-                    state |= currentState = ObjectState.Get;
-                    key = this.parseIdentifier(context);
-                    count++;
-                    break;
-
                 case Token.SetKeyword:
-                    if (state & ObjectState.Async) break loop;
-                    state |= currentState = ObjectState.Set;
+                case Token.GetKeyword:
+                    if (state & (ObjectState.Accessors | ObjectState.Async)) break loop;
+                    state |= currentState = t === Token.SetKeyword ? ObjectState.Set : ObjectState.Get;
                     key = this.parseIdentifier(context);
                     count++;
                     break;
 
                 case Token.AsyncKeyword:
-                    if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.Unexpected);
                     if (state & ObjectState.Accessors) break loop;
                     state |= currentState = ObjectState.Async;
                     key = this.parseIdentifier(context);
@@ -4274,16 +4268,22 @@ export class Parser {
 
         t = this.token;
 
+        if (t & Token.Modifiers && this.flags & Flags.ExtendedUnicodeEscape) {
+            this.error(Errors.UnexpectedEscapedKeyword);
+        }
+
         // Generator / Async Iterations ( Stage 3 proposal)
         if (t & Token.IsGenerator) {
-            if (state & ObjectState.Async && !(this.flags & Flags.OptionsNext)) {
+            if (state & ObjectState.Async &&
+                !(this.flags & Flags.OptionsNext)) {
                 this.error(Errors.InvalidAsyncGenerator);
             }
             state |= currentState = ObjectState.Yield;
             this.expect(context, Token.Multiply);
-            t = this.token;
             count++;
         }
+
+        t = this.token;
 
         const tokenValue = this.tokenValue;
 
@@ -4311,10 +4311,10 @@ export class Parser {
                     }
                 default:
 
-                    if (t === Token.LeftBracket) {
-                        state |= ObjectState.Computed;
-                    } else if (tokenValue === 'constructor') {
+                    if (tokenValue === 'constructor') {
                         state |= ObjectState.Constructor;
+                    } else if (t === Token.LeftBracket) {
+                        state |= ObjectState.Computed;
                     }
 
                     const res = this.parsePropertyName(context, pos);
@@ -4330,12 +4330,18 @@ export class Parser {
 
         if (this.token === Token.LeftParen) {
 
-            if (!key && state & ObjectState.Yield) this.error(Errors.UnexpectedToken, tokenDesc(t));
+            if (!key && state & ObjectState.Yield) {
+                this.error(Errors.UnexpectedToken, tokenDesc(t));
+            }
 
-            if (state & ObjectState.Heritage && state & ObjectState.Constructor) context |= Context.Constructor;
+            if (state & ObjectState.Heritage && state & ObjectState.Constructor) {
+                context |= Context.AllowConstructor;
+            }
 
             if (state & ObjectState.Static) {
-                if (state & ObjectState.Prototype) this.error(Errors.StaticPrototype);
+                if (state & ObjectState.Prototype) {
+                    this.error(Errors.StaticPrototype);
+                }
                 state &= ~ObjectState.Constructor;
             }
 
@@ -4363,7 +4369,7 @@ export class Parser {
             return key;
 
         } else {
-            this.error(Errors.Unexpected);
+            this.error(Errors.UnexpectedToken, tokenDesc(this.token));
         }
 
         return this.finishNode(context, pos, {

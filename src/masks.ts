@@ -18,7 +18,7 @@ export const enum Context {
     Optional               = 1 << 14,  // Optional identifier for export of either anonymous class or function declaration
     Method                 = 1 << 15,  // If node was parsed in a object / class method definition context
     HasConstructor         = 1 << 16,  // If node was parsed inside Class and allow super
-    Constructor            = 1 << 17,  // Class declaration / expression
+    AllowConstructor       = 1 << 17,  // Class declaration / expression
     ForStatement           = 1 << 18,  // If node was parsed in a for / for - in / for -of context
     Template               = 1 << 19,  //
     TaggedTemplate         = 1 << 20,  //
