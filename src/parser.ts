@@ -7,7 +7,6 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location, EmitComments } from './interface';
-
 export class Parser {
 
     // The program to be parsed
@@ -362,12 +361,12 @@ export class Parser {
                                 {
                                     if (context & Context.Module) continue;
                                     this.advance(); // skip `<`
-                                        // Double 'hyphen' because of the "look and feel" of
-                                        // the HTML single line comment (<!--)
+                                    // Double 'hyphen' because of the "look and feel" of
+                                    // the HTML single line comment (<!--)
                                     if (this.consume(Chars.Hyphen) && this.consume(Chars.Hyphen)) {
-                                                this.skipComments(state | ScanState.SingleLine);
-                                                continue;
-                                        }
+                                        this.skipComments(state | ScanState.SingleLine);
+                                        continue;
+                                    }
 
                                 }
                             case Chars.Slash:
@@ -392,8 +391,8 @@ export class Parser {
                             case Chars.Hyphen:
                                 {
                                     this.advance();
-                                    if (this.nextChar() === Chars.GreaterThan
-                                        && !(context & Context.Module || !(state & ScanState.LineStart))) {
+                                    if (this.nextChar() === Chars.GreaterThan &&
+                                        !(context & Context.Module || !(state & ScanState.LineStart))) {
                                         this.advance();
                                         this.skipComments(state | ScanState.SingleLine);
                                         continue;
@@ -4139,7 +4138,8 @@ export class Parser {
         });
     }
 
-    private parsePrivateProperty(context: Context, pos: Location | undefined, key: ESTree.Expression) {
+    private parsePrivateProperty(context: Context, key: ESTree.Expression) {
+        const pos = this.getLocations();
         let value: ESTree.Expression | null = null;
         if (this.parseOptional(context, Token.Assign)) value = this.parseAssignmentExpression(context);
         if (this.isEvalOrArguments(this.tokenValue)) this.error(Errors.UnexpectedReservedWord);
@@ -4212,14 +4212,6 @@ export class Parser {
         });
     }
 
-    private parseClassFields(context: Context, key: any, pos: Location): any {
-        if (this.token === Token.Assign) {
-            key = this.parsePrivateProperty(context | Context.ClassFields, pos, key);
-        }
-        this.parseOptional(context, Token.Comma);
-        return key;
-    }
-
     private parseClassElement(context: Context, state: ObjectState): ESTree.MethodDefinition | ESTree.Identifier {
 
         // Stage 3 Proposal - Class-fields
@@ -4233,7 +4225,6 @@ export class Parser {
         let count = 0;
         let key;
         let value;
-        let fieldpos;
 
         loop: while (token & (Token.IsIdentifier | Token.Keyword)) {
 
@@ -4278,85 +4269,65 @@ export class Parser {
             count++;
         }
 
-        if (this.tokenValue === 'prototype') {
-            state |= ObjectState.Prototype;
-        }
+        if (this.tokenValue === 'prototype') state |= ObjectState.Prototype;
 
-        switch (this.token) {
+        if (this.token & (Token.IsIdentifier | Token.Keyword)) {
+            if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
+            key = this.parseIdentifier(context);
+        } else if (this.token === Token.Hash && this.flags & Flags.OptionsNext) {
+            if (state & ObjectState.Static) {
+                this.error(Errors.Unexpected);
+            }
+            key = this.parseClassPrivateProperty(context, state);
+            if (this.token !== Token.LeftParen) return key;
+        } else {
 
-            case Token.NumericLiteral:
-                key = this.parseLiteral(context);
-                break;
-            case Token.StringLiteral:
+            if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
+            else if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
 
-                if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
-
-                fieldpos = this.getLocations();
-                key = this.parseLiteral(context);
-
-                // Stage 3 Proposal - Class-fields
-                if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
-                    if (state & (ObjectState.Prototype | ObjectState.Constructor)) this.error(Errors.Unexpected);
-                    return this.parseClassFields(context | Context.AllowIn | Context.ClassFields, key, fieldpos);
-                }
-                break;
-
-            case Token.Hash:
-                if (this.flags & Flags.OptionsNext) {
-                    if (state & ObjectState.Static) this.error(Errors.Unexpected);
-                    key = this.parseClassPrivateProperty(context, state);
-
-                    if (this.token !== Token.LeftParen) return key;
-                    break;
-                }
-            case Token.LeftBracket:
-                state |= ObjectState.Computed;
-                fieldpos = this.getLocations();
-                key = this.parseComputedPropertyName(context | Context.AllowIn, pos);
-                if (this.flags & Flags.OptionsNext && this.token !== Token.LeftParen) {
-                    return this.parseClassFields(context | Context.AllowIn | Context.ClassFields, key, fieldpos);
-                }
-                break;
-
-            default:
-
-                if (this.isIdentifier(context & ~Context.Strict, this.token)) {
-                    if (this.tokenValue === 'constructor') state |= ObjectState.Constructor;
-                    fieldpos = this.getLocations();
-                    key = this.parseIdentifier(context);
-                    if (this.token === Token.LeftBracket) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-                    // Stage 3 Proposal - Class-fields
-                    if (this.token !== Token.LeftParen) {
-                        if (this.flags & Flags.OptionsNext) {
-                            if (state & (ObjectState.Prototype | ObjectState.Constructor | ObjectState.Static)) this.error(Errors.Unexpected);
-                            return this.parseClassFields(context | Context.AllowIn | Context.ClassFields, key, fieldpos);
-                        }
-                        this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-                    }
-                } else if (count && currentState !== ObjectState.Yield) {
+            const res = this.parsePropertyName(context, pos);
+            if (res < 0) {
+                if (count && currentState !== ObjectState.Yield) {
                     state &= ~currentState;
                     count--;
                 }
-        }
-
-        if (!key && state & ObjectState.Yield) {
-            this.error(Errors.UnexpectedToken, tokenDesc(token));
-        }
-
-        if (state & ObjectState.Heritage && state & ObjectState.Constructor) context |= Context.Constructor;
-
-        if (state & ObjectState.Static) {
-            if (state & ObjectState.Prototype) this.error(Errors.StaticPrototype);
-            state &= ~ObjectState.Constructor;
-        }
-
-        if (state & ObjectState.Constructor) {
-            if (state & ObjectState.Special) this.error(Errors.ConstructorSpecialMethod);
-            if (context & Context.HasConstructor) this.error(Errors.DuplicateConstructor);
+            } else key = res;
         }
 
         if (this.token === Token.LeftParen) {
+
+            if (!key && state & ObjectState.Yield) this.error(Errors.UnexpectedToken, tokenDesc(token));
+
+            if (state & ObjectState.Heritage && state & ObjectState.Constructor) context |= Context.Constructor;
+
+            if (state & ObjectState.Static) {
+                if (state & ObjectState.Prototype) this.error(Errors.StaticPrototype);
+                state &= ~ObjectState.Constructor;
+            }
+
+            if (state & ObjectState.Constructor) {
+
+                if (state & ObjectState.Special) {
+                    this.error(Errors.ConstructorSpecialMethod);
+                }
+
+                if (context & Context.HasConstructor) {
+                    this.error(Errors.DuplicateConstructor);
+                }
+            }
+
             value = this.parseMethodDefinition(context & ~(Context.Yield | Context.Await) | Context.Method, state);
+
+        } else if (!(state & ObjectState.Invalid) && this.flags & Flags.OptionsNext) {
+
+            if (this.token === Token.Assign) {
+                key = this.parsePrivateProperty(context | Context.ClassFields, key);
+            }
+
+            this.parseOptional(context, Token.Comma);
+
+            return key;
+
         } else {
             this.error(Errors.Unexpected);
         }
@@ -4408,13 +4379,24 @@ export class Parser {
         });
     }
 
+    private parsePropertyName(context: Context, pos: Location) {
+        switch (this.token) {
+            case Token.NumericLiteral:
+            case Token.StringLiteral:
+                return this.parseLiteral(context);
+            case Token.LeftBracket:
+                return this.parseComputedPropertyName(context, pos);
+            default:
+                return -1;
+        }
+    }
+
     private parseObjectElement(context: Context): ESTree.Property {
 
         const pos = this.getLocations();
         const t = this.token;
         let state = ObjectState.None;
         let currentState = ObjectState.None;
-        let count = 0;
         let key;
         let value;
         const isEscaped = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
@@ -4431,18 +4413,17 @@ export class Parser {
             if (t & Token.IsAsync) {
                 state |= currentState = ObjectState.Async;
             }
-            count++;
+
             key = this.parseIdentifier(context);
         }
 
         // Generator / Async Iterations ( Stage 3 proposal)
         if (this.token & Token.IsGenerator) {
-            if (state & ObjectState.Async) {
-                if (!(this.flags & Flags.OptionsNext)) this.error(Errors.InvalidAsyncGenerator);
+            if (state & ObjectState.Async && !(this.flags & Flags.OptionsNext)) {
+                this.error(Errors.InvalidAsyncGenerator);
             }
             state |= currentState = ObjectState.Yield;
             this.expect(context, Token.Multiply);
-            count++;
         }
 
         if (state & ObjectState.Async && this.flags & Flags.LineTerminator) {
@@ -4451,48 +4432,42 @@ export class Parser {
 
         if (this.token === Token.ConstructorKeyword) state |= ObjectState.Constructor;
 
-        switch (this.token) {
-            case Token.NumericLiteral:
-            case Token.StringLiteral:
-                key = this.parseLiteral(context);
-                break;
-            case Token.LeftBracket:
-                state |= ObjectState.Computed;
-                key = this.parseComputedPropertyName(context, pos);
-                break;
-            default:
-                if (this.token & (Token.IsIdentifier | Token.Keyword)) {
-                    key = this.parseIdentifier(context);
-                } else if (count && currentState !== ObjectState.Yield) {
-                    state &= ~currentState;
-                    count--;
-                }
+        if (this.token & (Token.IsIdentifier | Token.Keyword)) {
+            key = this.parseIdentifier(context);
+        } else {
+            if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
+            const res = this.parsePropertyName(context, pos);
+            if (res < 0) state &= ~currentState;
+            else key = res;
         }
 
-        if (!key && state & ObjectState.Yield) this.error(Errors.UnexpectedToken, tokenDesc(t));
-
         switch (this.token) {
+
             case Token.LeftParen:
-                if (!(state & ObjectState.Accessors)) state |= ObjectState.Method;
-                value = this.parseMethodDefinition(context & ~(Context.Yield | Context.Await) | Context.Method, state);
-                break;
+                {
+                    if (!(state & ObjectState.Accessors)) state |= ObjectState.Method;
+                    value = this.parseMethodDefinition(context & ~(Context.Yield | Context.Await) | Context.Method, state);
+                    break;
+                }
 
             case Token.Colon:
-                if (state & ObjectState.Special) this.error(Errors.Unexpected);
-                if (!(state & ObjectState.Computed) && this.tokenValue === '__proto__') {
-                    if (this.flags & Flags.HasProtoField) this.error(Errors.DuplicateProtoProperty);
-                    this.flags |= Flags.HasProtoField;
+                {
+                    if (state & ObjectState.Special) this.error(Errors.Unexpected);
+                    if (!(state & ObjectState.Computed) && this.tokenValue === '__proto__') {
+                        if (this.flags & Flags.HasProtoField) this.error(Errors.DuplicateProtoProperty);
+                        this.flags |= Flags.HasProtoField;
+                    }
+                    this.expect(context, Token.Colon);
+
+                    if (context & Context.InAsyncArgs && this.token & Token.IsAwait) {
+                        this.errorLocation = this.getLocations();
+                        this.flags |= Flags.Await;
+                    }
+
+                    value = this.parseAssignmentExpression(context);
+
+                    break;
                 }
-                this.expect(context, Token.Colon);
-
-                if (context & Context.InAsyncArgs && this.token & Token.IsAwait) {
-                    this.errorLocation = this.getLocations();
-                    this.flags |= Flags.Await;
-                }
-
-                value = this.parseAssignmentExpression(context);
-
-                break;
             default:
 
                 if (state & ObjectState.Special || !this.isIdentifier(context, t)) {

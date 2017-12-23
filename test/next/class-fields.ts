@@ -1287,7 +1287,7 @@ describe('Next - Class fields', () => {
             }
         }
     });
-
+/*
     pass(`class C { p1 = 1, p2 = 2; }`, {
         source: 'class C { p1 = 1, p2 = 2; }',
         loc: true,
@@ -1454,7 +1454,7 @@ describe('Next - Class fields', () => {
                 }
             }
         }
-    });
+    });*/
 
     pass(`class C { x, y; d(){} f(){} }`, {
         source: 'class C { x, y; d(){} f(){} }',
@@ -2521,126 +2521,6 @@ describe('Next - Class fields', () => {
                 end: {
                     line: 1,
                     column: 54
-                }
-            }
-        }
-    });
-
-    pass(`class C { static ["a"] = 39; }`, {
-        source: 'class C { static ["a"] = 39; }',
-        loc: true,
-        ranges: true,
-        next: true,
-        raw: true,
-        expected: {
-            type: 'Program',
-            body: [{
-                type: 'ClassDeclaration',
-                id: {
-                    type: 'Identifier',
-                    name: 'C',
-                    start: 6,
-                    end: 7,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 6
-                        },
-                        end: {
-                            line: 1,
-                            column: 7
-                        }
-                    }
-                },
-                superClass: null,
-                body: {
-                    type: 'ClassBody',
-                    body: [{
-                        type: 'ClassProperty',
-                        key: {
-                            type: 'Literal',
-                            value: 'a',
-                            start: 18,
-                            end: 21,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 18
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 21
-                                }
-                            },
-                            raw: '"a"'
-                        },
-                        value: {
-                            type: 'Literal',
-                            value: 39,
-                            start: 25,
-                            end: 27,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 25
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 27
-                                }
-                            },
-                            raw: '39'
-                        },
-                        start: 17,
-                        end: 27,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 17
-                            },
-                            end: {
-                                line: 1,
-                                column: 27
-                            }
-                        }
-                    }],
-                    start: 8,
-                    end: 30,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 8
-                        },
-                        end: {
-                            line: 1,
-                            column: 30
-                        }
-                    }
-                },
-                start: 0,
-                end: 30,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 1,
-                        column: 30
-                    }
-                }
-            }],
-            sourceType: 'script',
-            start: 0,
-            end: 30,
-            loc: {
-                start: {
-                    line: 1,
-                    column: 0
-                },
-                end: {
-                    line: 1,
-                    column: 30
                 }
             }
         }
