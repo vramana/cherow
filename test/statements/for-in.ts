@@ -2394,4 +2394,8 @@ describe('Statements - For In', () => {
     fail(`for (let x = 2, y = 3 in {}; ; ) break;`, {
         source: 'for (let x = 2, y = 3 in {}; ; ) break;',
     });
+
+    fail(`for ({...rest, b} in [{} ]) ;`, {
+        source: 'for ({...rest, b} in [{} ]) ;',
+    });
 });

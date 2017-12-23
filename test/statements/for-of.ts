@@ -1185,6 +1185,9 @@ describe('Statements - For of', () => {
     fail(`for (const a of b, c);`, {
             source: 'for (const a of b, c);',
             next: true
-        });
+     });
 
+    fail(`for ({...rest, b} of [{} ]) ;`, {
+            source: 'for ({...rest, b} of [{} ]) ;',
+    });
 });

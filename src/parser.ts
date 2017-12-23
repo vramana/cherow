@@ -3858,13 +3858,29 @@ export class Parser {
         });
     }
 
-    private parseSpreadExpression(context: Context): ESTree.SpreadElement {
-        const pos = this.getLocations();
+    private parseSpreadExpression(
+        context: Context,
+        pos = this.getLocations()
+    ): ESTree.SpreadElement {
+
+        const t = this.token;
+
         // Disallow SpreadElement inside dynamic import
-        if (context & Context.Import) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        if (context & Context.Import) {
+            this.error(Errors.UnexpectedToken, tokenDesc(t));
+        }
+
         this.expect(context, Token.Ellipsis);
 
         const arg = this.parseAssignmentExpression(context);
+
+        // Object rest element needs to be the last AssignmenProperty in 
+        // ObjectAssignmentPattern. (For..in / of statement)
+        if (context & Context.ForStatement &&
+            this.token === Token.Comma) {
+            this.error(Errors.UnexpectedToken, tokenDesc(t));
+        }
+
         return this.finishNode(context, pos, {
             type: 'SpreadElement',
             argument: arg
@@ -4230,7 +4246,7 @@ export class Parser {
         }
 
         let t = this.token;
-        let currentState = ObjectState.None;
+        let modifierState = ObjectState.None;
         let count = 0;
         let key;
         let value;
@@ -4240,7 +4256,7 @@ export class Parser {
             switch (this.token) {
 
                 case Token.StaticKeyword:
-                    state |= currentState = ObjectState.Static;
+                    state |= modifierState = ObjectState.Static;
                     key = this.parseIdentifier(context);
                     count++;
                     break;
@@ -4248,14 +4264,14 @@ export class Parser {
                 case Token.GetKeyword:
                     if (state & ObjectState.Accessors) break loop;
                     if (state & ObjectState.Async) break loop;
-                    state |= currentState = ObjectState.Get;
+                    state |= modifierState = ObjectState.Get;
                     key = this.parseIdentifier(context);
                     count++;
                     break;
 
                 case Token.SetKeyword:
                     if (state & ObjectState.Async) break loop;
-                    state |= currentState = ObjectState.Set;
+                    state |= modifierState = ObjectState.Set;
                     key = this.parseIdentifier(context);
                     count++;
                     break;
@@ -4265,7 +4281,7 @@ export class Parser {
                         this.error(Errors.InvalidUnicodeEscapeSequence);
                     }
                     if (state & ObjectState.Accessors) break loop;
-                    state |= currentState = ObjectState.Async;
+                    state |= modifierState = ObjectState.Async;
                     key = this.parseIdentifier(context);
                     count++;
                     break;
@@ -4282,7 +4298,7 @@ export class Parser {
                 !(this.flags & Flags.OptionsNext)) {
                 this.error(Errors.InvalidAsyncGenerator);
             }
-            state |= currentState = ObjectState.Yield;
+            state |= modifierState = ObjectState.Yield;
             this.expect(context, Token.Multiply);
             count++;
         }
@@ -4324,8 +4340,8 @@ export class Parser {
                     const res = this.parsePropertyName(context, pos);
 
                     if (res < 0) {
-                        if (count && currentState !== ObjectState.Yield) {
-                            state &= ~currentState;
+                        if (count && modifierState !== ObjectState.Yield) {
+                            state &= ~modifierState;
                             count--;
                         }
                     } else key = res;
@@ -4387,42 +4403,6 @@ export class Parser {
         });
     }
 
-    // TODO! Remove this when Object Rest / Spread reach Stage 4
-    private parseObjectSpreadExpression(context: Context): ESTree.SpreadElement {
-        if (!(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-        const pos = this.getLocations();
-        this.expect(context, Token.Ellipsis);
-        const arg = this.parseAssignmentExpression(context);
-        if (context & Context.ForStatement && this.token === Token.Comma) {
-            this.error(Errors.Unexpected);
-        }
-        return this.finishNode(context, pos, {
-            type: 'SpreadElement',
-            argument: arg
-        });
-    }
-
-    private parseObjectExpression(context: Context): ESTree.ObjectExpression {
-        const pos = this.getLocations();
-
-        this.expect(context, Token.LeftBrace);
-        const properties: (ESTree.Property | ESTree.SpreadElement)[] = [];
-
-        while (this.token !== Token.RightBrace) {
-            properties.push(this.token === Token.Ellipsis ?
-                this.parseObjectSpreadExpression(context) :
-                this.parseObjectElement(context));
-            if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
-        }
-        this.expect(context, Token.RightBrace);
-        // Unset the 'HasProtoField' flag now, we are done!
-        this.flags &= ~Flags.HasProtoField;
-        return this.finishNode(context, pos, {
-            type: 'ObjectExpression',
-            properties
-        });
-    }
-
     private parsePropertyName(context: Context, pos: Location) {
         switch (this.token) {
             case Token.NumericLiteral:
@@ -4435,27 +4415,57 @@ export class Parser {
         }
     }
 
-    private parseObjectElement(context: Context): ESTree.Property {
+    private parseObjectExpression(context: Context): ESTree.ObjectExpression {
+        const pos = this.getLocations();
+
+        this.expect(context, Token.LeftBrace);
+        const properties: (ESTree.Property | ESTree.SpreadElement)[] = [];
+
+        while (this.token !== Token.RightBrace) {
+            properties.push(this.parseObjectElement(context));
+            if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
+        }
+        this.expect(context, Token.RightBrace);
+        // Unset the 'HasProtoField' flag now, we are done!
+        this.flags &= ~Flags.HasProtoField;
+        return this.finishNode(context, pos, {
+            type: 'ObjectExpression',
+            properties
+        });
+    }
+
+    private parseObjectElement(context: Context): any {
 
         const pos = this.getLocations();
         const t = this.token;
+
+        if (t === Token.Ellipsis && this.flags & Flags.OptionsNext) {
+            return this.parseSpreadExpression(context, pos);
+        }
+
         let state = ObjectState.None;
-        let currentState = ObjectState.None;
+        let modifierState = ObjectState.None;
         let key;
         let value;
-        const isEscaped = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
+
         const tokenValue = this.tokenValue;
 
         if (t & Token.Modifiers) {
-            if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
+
+            if (this.flags & Flags.ExtendedUnicodeEscape) {
+                this.error(Errors.UnexpectedEscapedKeyword);
+            }
+
             if (t === Token.GetKeyword) {
-                state |= currentState = ObjectState.Get;
+                state |= modifierState = ObjectState.Get;
             }
+
             if (t === Token.SetKeyword) {
-                state |= currentState = ObjectState.Set;
+                state |= modifierState = ObjectState.Set;
             }
+
             if (t & Token.IsAsync) {
-                state |= currentState = ObjectState.Async;
+                state |= modifierState = ObjectState.Async;
             }
 
             key = this.parseIdentifier(context);
@@ -4466,7 +4476,7 @@ export class Parser {
             if (state & ObjectState.Async && !(this.flags & Flags.OptionsNext)) {
                 this.error(Errors.InvalidAsyncGenerator);
             }
-            state |= currentState = ObjectState.Yield;
+            state |= modifierState = ObjectState.Yield;
             this.expect(context, Token.Multiply);
         }
 
@@ -4474,14 +4484,21 @@ export class Parser {
             this.error(Errors.LineBreakAfterAsync);
         }
 
-        if (this.token === Token.ConstructorKeyword) state |= ObjectState.Constructor;
+        if (this.token === Token.ConstructorKeyword) {
+            state |= ObjectState.Constructor;
+        }
 
         if (this.token & (Token.IsIdentifier | Token.Keyword)) {
             key = this.parseIdentifier(context);
         } else {
-            if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
+
+            if (this.token === Token.LeftBracket) {
+                state |= ObjectState.Computed;
+            }
+
             const res = this.parsePropertyName(context, pos);
-            if (res < 0) state &= ~currentState;
+
+            if (res < 0) state &= ~modifierState;
             else key = res;
         }
 
