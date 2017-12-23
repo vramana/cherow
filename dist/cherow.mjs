@@ -3984,6 +3984,9 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
                 count++;
                 break;
             case 151064684 /* AsyncKeyword */:
+                if (this$1.flags & 2 /* ExtendedUnicodeEscape */) {
+                    this$1.error(6 /* InvalidUnicodeEscapeSequence */);
+                }
                 if (state & 48 /* Accessors */)
                     { break loop; }
                 state |= currentState = 2 /* Async */;
@@ -3993,9 +3996,6 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
             default:
                 break loop;
         }
-    }
-    if (t & 16777216 /* Modifiers */ && this.flags & 2 /* ExtendedUnicodeEscape */) {
-        this.error(63 /* UnexpectedEscapedKeyword */);
     }
     t = this.token;
     // Generator / Async Iterations ( Stage 3 proposal)

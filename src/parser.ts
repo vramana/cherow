@@ -4261,6 +4261,9 @@ export class Parser {
                     break;
 
                 case Token.AsyncKeyword:
+                    if (this.flags & Flags.ExtendedUnicodeEscape) {
+                        this.error(Errors.InvalidUnicodeEscapeSequence);
+                    }
                     if (state & ObjectState.Accessors) break loop;
                     state |= currentState = ObjectState.Async;
                     key = this.parseIdentifier(context);
@@ -4269,10 +4272,6 @@ export class Parser {
                 default:
                     break loop;
             }
-        }
-
-        if (t & Token.Modifiers && this.flags & Flags.ExtendedUnicodeEscape) {
-            this.error(Errors.UnexpectedEscapedKeyword);
         }
 
         t = this.token;
