@@ -3552,29 +3552,41 @@ export class Parser {
     }
 
     private parseFunctionDeclaration(context: Context): ESTree.FunctionDeclaration {
-        const parentContext = context;
-        return this.parseFunction(context &= ~(Context.Method | Context.AllowConstructor | Context.Yield | Context.Await), parentContext) as ESTree.FunctionDeclaration;
+        const prevContext = context;
+        return this.parseFunction(context & ~(Context.Yield | Context.Await), prevContext) as ESTree.FunctionDeclaration;
     }
 
     private parseFunctionExpression(context: Context): ESTree.FunctionExpression {
-        return this.parseFunction(context &= ~(Context.AllowConstructor | Context.Yield | Context.Method)) as ESTree.FunctionExpression;
+        return this.parseFunction(context  & ~Context.Yield) as ESTree.FunctionExpression;
     }
 
-    private parseFunction(context: Context, parentContext: Context = Context.None): ESTree.FunctionDeclaration | ESTree.FunctionExpression {
+    private parseFunction(
+        context: Context,
+        prevContext: Context = Context.None
+    ): ESTree.FunctionDeclaration | ESTree.FunctionExpression {
 
         const pos = this.getLocations();
 
-        if (this.token & Token.IsAsync) {
-            if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.Unexpected);
+        let t = this.token;
+
+        // Unset masks Object / Class Method, and disallow class constructors in this context
+        context &= ~(Context.Method | Context.AllowConstructor);
+
+        if (t & Token.IsAsync) {
+            if (this.flags & Flags.ExtendedUnicodeEscape) {
+                this.error(Errors.UnexpectedEscapedKeyword);
+            }
             this.expect(context, Token.AsyncKeyword);
             context |= Context.Await;
         }
 
         this.expect(context, Token.FunctionKeyword);
 
-        if (this.token & Token.IsGenerator) {
+        t = this.token;
+
+        if (t & Token.IsGenerator) {
             if (context & Context.AnnexB) {
-                this.error(Errors.ForbiddenAsStatement, tokenDesc(this.token));
+                this.error(Errors.ForbiddenAsStatement, tokenDesc(t));
             }
             if (context & Context.Await && !(this.flags & Flags.OptionsNext)) {
                 this.error(Errors.InvalidAsyncGenerator);
@@ -3585,9 +3597,9 @@ export class Parser {
 
         let id: ESTree.Identifier | null = null;
 
-        if (this.token !== Token.LeftParen) {
+        t = this.token;
 
-            const t = this.token;
+        if (t !== Token.LeftParen) {
 
             if (!this.isIdentifier(context, t)) this.error(Errors.UnexpectedToken, tokenDesc(t));
 
@@ -3607,7 +3619,7 @@ export class Parser {
 
             } else {
 
-                if (parentContext & (Context.Await | Context.Yield) &&
+                if (prevContext & (Context.Await | Context.Yield) &&
                     (t & (Token.IsAwait | Token.IsYield))) {
                     this.error(Errors.DisallowedInContext, tokenDesc(t));
                 }
@@ -3619,13 +3631,15 @@ export class Parser {
                             this.error(Errors.DuplicateBinding, name);
                         }
                     }
-                    this.blockScope[this.tokenValue] = ScopeMasks.Shadowable;
+                    this.blockScope[name] = ScopeMasks.Shadowable;
                 }
 
                 id = this.parseBindingIdentifier(context);
             }
 
-        } else if (!(context & (Context.Expression | Context.Optional))) this.error(Errors.UnNamedFunctionStmt);
+        } else if (!(context & (Context.Expression | Context.Optional))) {
+            this.error(Errors.UnNamedFunctionStmt);
+        }
 
         const functionScope = this.functionScope;
         const blockScope = this.blockScope;
@@ -3968,7 +3982,7 @@ export class Parser {
             case Token.Identifier:
                 return this.parseIdentifier(context);
             case Token.FunctionKeyword:
-                return this.parseFunctionExpression(context | Context.Expression | Context.InParenthesis);
+                return this.parseFunctionExpression(context | Context.Expression);
             case Token.ThisKeyword:
                 return this.parseThisExpression(context);
             case Token.NullKeyword:
@@ -3986,7 +4000,7 @@ export class Parser {
             case Token.ClassKeyword:
                 return this.parseClassExpression(context | Context.Expression);
             case Token.LeftBrace:
-                return this.parseObjectExpression(context &= ~Context.AllowConstructor);
+                return this.parseObjectExpression(context);
             case Token.TemplateTail:
                 return this.parseTemplateLiteral(context, pos);
             case Token.TemplateCont:
@@ -4417,6 +4431,9 @@ export class Parser {
 
     private parseObjectExpression(context: Context): ESTree.ObjectExpression {
         const pos = this.getLocations();
+
+        // Disallow class constructors within object expressions
+        context &= ~Context.AllowConstructor;
 
         this.expect(context, Token.LeftBrace);
         const properties: (ESTree.Property | ESTree.SpreadElement)[] = [];

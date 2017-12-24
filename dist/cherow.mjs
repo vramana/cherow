@@ -3368,26 +3368,31 @@ Parser.prototype.parseCallExpression = function parseCallExpression (context, po
     }
 };
 Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (context) {
-    var parentContext = context;
-    return this.parseFunction(context &= ~(32768 /* Method */ | 131072 /* AllowConstructor */ | 16 /* Yield */ | 32 /* Await */), parentContext);
+    var prevContext = context;
+    return this.parseFunction(context & ~(16 /* Yield */ | 32 /* Await */), prevContext);
 };
 Parser.prototype.parseFunctionExpression = function parseFunctionExpression (context) {
-    return this.parseFunction(context &= ~(131072 /* AllowConstructor */ | 16 /* Yield */ | 32768 /* Method */));
+    return this.parseFunction(context & ~16 /* Yield */);
 };
-Parser.prototype.parseFunction = function parseFunction (context, parentContext /* None */) {
-        if ( parentContext === void 0 ) parentContext = 0;
+Parser.prototype.parseFunction = function parseFunction (context, prevContext /* None */) {
+        if ( prevContext === void 0 ) prevContext = 0;
 
     var pos = this.getLocations();
-    if (this.token & 134217728 /* IsAsync */) {
-        if (this.flags & 2 /* ExtendedUnicodeEscape */)
-            { this.error(0 /* Unexpected */); }
+    var t = this.token;
+    // Unset masks Object / Class Method, and disallow class constructors in this context
+    context &= ~(32768 /* Method */ | 131072 /* AllowConstructor */);
+    if (t & 134217728 /* IsAsync */) {
+        if (this.flags & 2 /* ExtendedUnicodeEscape */) {
+            this.error(63 /* UnexpectedEscapedKeyword */);
+        }
         this.expect(context, 151064684 /* AsyncKeyword */);
         context |= 32 /* Await */;
     }
     this.expect(context, 274519 /* FunctionKeyword */);
-    if (this.token & 268435456 /* IsGenerator */) {
+    t = this.token;
+    if (t & 268435456 /* IsGenerator */) {
         if (context & 4096 /* AnnexB */) {
-            this.error(87 /* ForbiddenAsStatement */, tokenDesc(this.token));
+            this.error(87 /* ForbiddenAsStatement */, tokenDesc(t));
         }
         if (context & 32 /* Await */ && !(this.flags & 67108864 /* OptionsNext */)) {
             this.error(88 /* InvalidAsyncGenerator */);
@@ -3396,8 +3401,8 @@ Parser.prototype.parseFunction = function parseFunction (context, parentContext 
         context |= 16 /* Yield */;
     }
     var id = null;
-    if (this.token !== 262155 /* LeftParen */) {
-        var t = this.token;
+    t = this.token;
+    if (t !== 262155 /* LeftParen */) {
         if (!this.isIdentifier(context, t))
             { this.error(1 /* UnexpectedToken */, tokenDesc(t)); }
         if (this.isEvalOrArguments(this.tokenValue)) {
@@ -3413,7 +3418,7 @@ Parser.prototype.parseFunction = function parseFunction (context, parentContext 
             id = this.parseIdentifier(context);
         }
         else {
-            if (parentContext & (32 /* Await */ | 16 /* Yield */) &&
+            if (prevContext & (32 /* Await */ | 16 /* Yield */) &&
                 (t & (1073741824 /* IsAwait */ | 536870912 /* IsYield */))) {
                 this.error(75 /* DisallowedInContext */, tokenDesc(t));
             }
@@ -3424,13 +3429,14 @@ Parser.prototype.parseFunction = function parseFunction (context, parentContext 
                         this.error(67 /* DuplicateBinding */, name);
                     }
                 }
-                this.blockScope[this.tokenValue] = 1 /* Shadowable */;
+                this.blockScope[name] = 1 /* Shadowable */;
             }
             id = this.parseBindingIdentifier(context);
         }
     }
-    else if (!(context & (8388608 /* Expression */ | 16384 /* Optional */)))
-        { this.error(79 /* UnNamedFunctionStmt */); }
+    else if (!(context & (8388608 /* Expression */ | 16384 /* Optional */))) {
+        this.error(79 /* UnNamedFunctionStmt */);
+    }
     var functionScope = this.functionScope;
     var blockScope = this.blockScope;
     var parentScope = this.parentScope;
@@ -3711,7 +3717,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 67371009 /* Identifier */:
             return this.parseIdentifier(context);
         case 274519 /* FunctionKeyword */:
-            return this.parseFunctionExpression(context | 8388608 /* Expression */ | 64 /* InParenthesis */);
+            return this.parseFunctionExpression(context | 8388608 /* Expression */);
         case 274526 /* ThisKeyword */:
             return this.parseThisExpression(context);
         case 274439 /* NullKeyword */:
@@ -3729,7 +3735,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 274509 /* ClassKeyword */:
             return this.parseClassExpression(context | 8388608 /* Expression */);
         case 393228 /* LeftBrace */:
-            return this.parseObjectExpression(context &= ~131072 /* AllowConstructor */);
+            return this.parseObjectExpression(context);
         case 262153 /* TemplateTail */:
             return this.parseTemplateLiteral(context, pos);
         case 262152 /* TemplateCont */:
@@ -4118,6 +4124,8 @@ Parser.prototype.parseObjectExpression = function parseObjectExpression (context
         var this$1 = this;
 
     var pos = this.getLocations();
+    // Disallow class constructors within object expressions
+    context &= ~131072 /* AllowConstructor */;
     this.expect(context, 393228 /* LeftBrace */);
     var properties = [];
     while (this.token !== 15 /* RightBrace */) {
