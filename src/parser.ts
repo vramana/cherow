@@ -4426,8 +4426,13 @@ export class Parser {
             if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
         }
         this.expect(context, Token.RightBrace);
+
+        if (this.flags & Flags.HasDuplicateProtoField && this.token !== Token.Assign) {
+             this.error(Errors.DuplicateProtoProperty);
+        }
+
         // Unset the 'HasProtoField' flag now, we are done!
-        this.flags &= ~Flags.HasProtoField;
+        this.flags &= ~(Flags.HasProtoField | Flags.HasDuplicateProtoField);
         return this.finishNode(context, pos, {
             type: 'ObjectExpression',
             properties
@@ -4521,10 +4526,15 @@ export class Parser {
 
                     if (!(state & ObjectState.Computed) &&
                         this.tokenValue === '__proto__') {
+                        // Annex B defines an early error for duplicate PropertyName of `__proto__`,
+                        // in object initializers, but this does not apply to Object Assignment
+                        // patterns, so we need to validate this *after* parsing out the object expr
                         if (this.flags & Flags.HasProtoField) {
-                            this.error(Errors.DuplicateProtoProperty);
+                            this.flags |= Flags.HasDuplicateProtoField;
+                        } else {
+                            this.flags |= Flags.HasProtoField;
                         }
-                        this.flags |= Flags.HasProtoField;
+
                     }
 
                     this.expect(context, Token.Colon);

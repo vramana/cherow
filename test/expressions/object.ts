@@ -16188,6 +16188,128 @@ describe('Expressions - Object', () => {
             }
         });
 
+    pass(`result = { __proto__: x, __proto__: y } = value;`, {
+            source: 'result = { __proto__: x, __proto__: y } = value;',
+            raw: true,
+            expected: {
+                  body: [
+                    {
+                      expression: {
+                       left: {
+                          name: 'result',
+                          type: 'Identifier',
+                        },
+                        operator: '=',
+                        right: {
+                          left: {
+                            properties: [
+                              {
+                                computed: false,
+                                key: {
+                                  name: '__proto__',
+                                  type: 'Identifier',
+                                },
+                                kind: 'init',
+                                method: false,
+                                shorthand: false,
+                                type: 'Property',
+                               value: {
+                                  name: 'x',
+                                  type: 'Identifier'
+                                }
+                              },
+                              {
+                                computed: false,
+                                key: {
+                                  name: '__proto__',
+                                  type: 'Identifier',
+                                },
+                                kind: 'init',
+                                method: false,
+                                shorthand: false,
+                                type: 'Property',
+                                value: {
+                                  name: 'y',
+                                  type: 'Identifier'
+                                }
+                              }
+                            ],
+                            type: 'ObjectPattern',
+                          },
+                          operator: '=',
+                          right: {
+                            name: 'value',
+                            type: 'Identifier',
+                          },
+                          type: 'AssignmentExpression'
+                        },
+                        type: 'AssignmentExpression'
+                      },
+                      type: 'ExpressionStatement'
+                    }
+                  ],
+                  sourceType: 'script',
+                  type: 'Program'
+                }
+        });
+
+    pass(`({__proto__: a, __proto__: b} = {});`, {
+            source: '({__proto__: a, __proto__: b} = {});',
+            raw: true,
+            expected: {
+                  body: [
+                    {
+                      expression: {
+                        left: {
+                          properties: [
+                           {
+                              computed: false,
+                              key: {
+                                name: '__proto__',
+                                type: 'Identifier',
+                              },
+                              kind: 'init',
+                              method: false,
+                              shorthand: false,
+                              type: 'Property',
+                              value: {
+                                name: 'a',
+                                type: 'Identifier'
+                              },
+                            },
+                            {
+                              computed: false,
+                              key: {
+                                name: '__proto__',
+                                type: 'Identifier',
+                             },
+                              kind: 'init',
+                              method: false,
+                              shorthand: false,
+                              type: 'Property',
+                              value: {
+                                name: 'b',
+                                type: 'Identifier',
+                              }
+                            }
+                          ],
+                          type: 'ObjectPattern'
+                        },
+                       operator: '=',
+                        right: {
+                          properties: [],
+                          type: 'ObjectExpression'
+                        },
+                        type: 'AssignmentExpression'
+                      },
+                      type: 'ExpressionStatement'
+                    }
+                  ],
+                  sourceType: 'script',
+                  type: 'Program'
+                }
+        });
+
     fail(`({[1,2]:3})`, {
             source: '({[1,2]:3})',
         });

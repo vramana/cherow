@@ -79,7 +79,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/assignment/non-simple-target.js',
         'test/language/expressions/assignment/dstr-obj-rest-not-last-element-invalid.js',
         'test/language/expressions/assignment/dstr-array-rest-init.js',
-        'test/language/expressions/assignment/destructuring/obj-prop-__proto__dup.js',
         'test/language/expressions/assignment/11.13.1-4-31-s.js',
         'test/language/expressions/assignment/11.13.1-4-29-s.js',
         'test/language/module-code/namespace/**/*.js',

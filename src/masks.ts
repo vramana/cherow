@@ -41,7 +41,7 @@ export const enum Context {
 // Mutable parser flags
 export const enum Flags {
     None                         = 0,
-    LineTerminator           = 1 << 0,
+    LineTerminator               = 1 << 0,
     ExtendedUnicodeEscape        = 1 << 1, // If node has any escaped unicode sequences (escaped characters in keywords).
     InFunctionBody               = 1 << 2, // If node was parsed in a function body
     AllowCall                    = 1 << 3, // If node was parsed in a context where call should be allowed
@@ -60,18 +60,20 @@ export const enum Flags {
     Octal                        = 1 << 16, // e.g. `0777`
     ContainsSeparator            = 1 << 17,
     HasProtoField                = 1 << 18,
-    StrictDirective              = 1 << 19,
+    HasDuplicateProtoField       = 1 << 19,
+    StrictDirective              = 1 << 20,
+
     /* Options */
-    OptionsRanges                = 1 << 20, // Enable / disable "ranges"
-    OptionsLoc                   = 1 << 21, // Enable / disable location tracking on the node
-    OptionsSource                = 1 << 22,
-    OptionsJSX                   = 1 << 23, // Enable / disable JSX extension
-    OptionsRaw                   = 1 << 24, // Enable / disable "raw" property on the node
-    OptionsNext                  = 1 << 25, // Enable / disable Stage 3 proposals
-    OptionsGlobalReturn          = 1 << 26, // Allow return statement in global scope,
-    OptionsSourceType            = 1 << 27, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
-    OptionsTolerant              = 1 << 28,
-    OptionsPlugins               = 1 << 29
+    OptionsRanges                = 1 << 21, // Enable / disable "ranges"
+    OptionsLoc                   = 1 << 22, // Enable / disable location tracking on the node
+    OptionsSource                = 1 << 23,
+    OptionsJSX                   = 1 << 24, // Enable / disable JSX extension
+    OptionsRaw                   = 1 << 25, // Enable / disable "raw" property on the node
+    OptionsNext                  = 1 << 26, // Enable / disable Stage 3 proposals
+    OptionsGlobalReturn          = 1 << 27, // Allow return statement in global scope,
+    OptionsSourceType            = 1 << 28, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
+    OptionsTolerant              = 1 << 29,
+    OptionsPlugins               = 1 << 30,
 }
 
 // Flags used in parenthesized to validate arrow formal list
