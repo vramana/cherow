@@ -3619,8 +3619,8 @@ export class Parser {
 
             } else {
 
-                if (prevContext & (Context.Await | Context.Yield) &&
-                    (t & (Token.IsAwait | Token.IsYield))) {
+                if ((prevContext & Context.Await && t & Token.IsAwait) ||
+                    (prevContext & Context.Yield && t & Token.IsYield)) {
                     this.error(Errors.DisallowedInContext, tokenDesc(t));
                 }
 
