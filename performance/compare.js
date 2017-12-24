@@ -38,6 +38,9 @@ parsers = [
 {
     name: 'Cherow',
     src: 'https://unpkg.com/cherow',
+    version: function () {
+        return window.cherow.version;
+    },
     parse: function (code) {
         var syntax = window.cherow.parseScript(code, { ranges: true, locations: true });
         return syntax.body.length;
