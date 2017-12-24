@@ -421,6 +421,19 @@ describe('Miscellaneous - Failure', () => {
         fail('async ({a: await}) => 1', {
             source: `async ({a: await}) => 1`
         });
+
+        fail('[a += b] = []', {
+            source: `[a += b] = []`
+        });
+
+        fail('for(([a]) of 0);', {
+            source: `for(([a]) of 0);`
+        });
+
+        fail('({a: b += 0} = {})', {
+            source: `({a: b += 0} = {})`
+        });
+
         fail('({async\nfoo() { }})', {
             source: `({async\nfoo() { }})`
         });

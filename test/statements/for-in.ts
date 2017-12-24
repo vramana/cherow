@@ -2398,4 +2398,12 @@ describe('Statements - For In', () => {
     fail(`for ({...rest, b} in [{} ]) ;`, {
         source: 'for ({...rest, b} in [{} ]) ;',
     });
+
+    fail(`for(([a]) in 0);`, {
+        source: 'for(([a]) in 0);',
+    });
+
+    fail(`(({a})=0);`, {
+        source: '(({a})=0);',
+    });
 });

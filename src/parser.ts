@@ -1429,8 +1429,6 @@ export class Parser {
 
     private handleStringError(context: Context, code: Escape) {
         switch (code) {
-            case Escape.Empty:
-                return;
             case Escape.StrictOctal:
                 this.error(context & Context.Template ? Errors.StrictOctalEscape : Errors.TemplateOctalLiteral);
             case Escape.EightOrNine:
@@ -1684,23 +1682,14 @@ export class Parser {
     private scanLooserTemplateSegment(ch: number): Chars {
 
         while (ch !== Chars.Backtick) {
-
-            switch (ch) {
-
-                // '$'
-                case Chars.Dollar:
-                    {
-                        const index = this.index + 1;
-                        if (index < this.source.length &&
-                            this.source.charCodeAt(index) === Chars.LeftBrace) {
-                            this.index = index;
-                            this.column++;
-                            return -ch;
-                        }
-                    }
-
-                default:
-                    // ignore
+            if (ch === Chars.Dollar) {
+                const index = this.index + 1;
+                if (index < this.source.length &&
+                    this.source.charCodeAt(index) === Chars.LeftBrace) {
+                    this.index = index;
+                    this.column++;
+                    return -ch;
+                }
             }
 
             ch = this.scanNext();
@@ -2634,7 +2623,9 @@ export class Parser {
                 isForOfStatement = true;
                 if (awaitToken && !(this.flags & Flags.OptionsNext)) this.error(Errors.UnexpectedToken, tokenDesc(token));
                 right = this.parseAssignmentExpression(context);
-            } else if (this.parseOptional(context, Token.InKeyword)) {
+            }
+            // else-path will not be taken if we use if / else
+            if (this.parseOptional(context, Token.InKeyword)) {
                 if (awaitToken) this.error(Errors.UnexpectedToken, tokenDesc(token));
                 if (declarations && declarations.length !== 1) this.error(Errors.Unexpected);
                 right = this.parseExpression(context, pos);
@@ -2774,7 +2765,7 @@ export class Parser {
 
         while (this.token !== Token.RightBrace) {
 
-            const clause = this.parseSwitchCase(context);
+            const clause = this.parseSwitchCases(context);
 
             if (clause.test === null) {
                 // Error on duplicate 'default' clauses
@@ -2800,26 +2791,17 @@ export class Parser {
         });
     }
 
-    private parseSwitchCase(context: Context): ESTree.SwitchCase {
+    private parseSwitchCases(context: Context): ESTree.SwitchCase {
 
         const pos = this.getLocations();
 
         let test: ESTree.Expression | null = null;
 
-        switch (this.token) {
-
-            // 'case'
-            case Token.CaseKeyword:
-                this.nextToken(context);
-                test = this.parseExpression(context, pos);
-                break;
-
-                // 'default'
-            case Token.DefaultKeyword:
-                this.nextToken(context);
-                break;
-
-            default: // ignore
+        if (this.parseOptional(context, Token.DefaultKeyword)) {
+            test = null;
+        } else {
+            this.expect(context, Token.CaseKeyword);
+            test = this.parseExpression(context, pos);
         }
 
         this.expect(context, Token.Colon);
@@ -2829,14 +2811,8 @@ export class Parser {
         loop:
             while (true) {
                 switch (this.token) {
-
-                    // '}'
                     case Token.RightBrace:
-
-                        // 'default'
                     case Token.DefaultKeyword:
-
-                        // 'case'
                     case Token.CaseKeyword:
                         break loop;
                     default:
@@ -3088,8 +3064,8 @@ export class Parser {
                 if (context & Context.InParenthesis) {
                     this.flags |= Flags.SimpleParameterList;
                 } else if (this.flags & Flags.Rest) this.error(Errors.InvalidLHSInAssignment);
-                // Note: A functions arameter list is already parsed as pattern, so no need to reinterpret
-                if (!(context & Context.InParameter)) this.reinterpretAsPattern(context, expr);
+                // Note: A functions parameter list is already parsed as pattern, so no need to reinterpret
+                this.reinterpretAsPattern(context, expr);
             } else if (!isValidSimpleAssignmentTarget(expr)) {
                 this.error(Errors.InvalidLHSInAssignment);
             }
@@ -3125,7 +3101,9 @@ export class Parser {
                 return;
 
             case 'ObjectExpression':
-                if (this.flags & Flags.ParenthesizedPattern) this.error(Errors.InvalidParenthesizedPattern);
+                if (this.flags & Flags.ParenthesizedPattern) {
+                    this.error(Errors.InvalidParenthesizedPattern);
+                }
                 node.type = 'ObjectPattern';
 
                 // falls through
@@ -3138,7 +3116,9 @@ export class Parser {
                 return;
 
             case 'ArrayExpression':
-                if (this.flags & Flags.ParenthesizedPattern) this.error(Errors.InvalidParenthesizedPattern);
+                if (this.flags & Flags.ParenthesizedPattern) {
+                    this.error(Errors.InvalidParenthesizedPattern);
+                }
                 node.type = 'ArrayPattern';
                 // falls through
 
@@ -3149,17 +3129,6 @@ export class Parser {
                 }
                 return;
 
-            case 'AssignmentExpression':
-                if (node.operator !== '=') this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-                node.type = 'AssignmentPattern';
-                delete node.operator; // operator is not relevant for assignment pattern
-                // Fall through
-
-            case 'AssignmentPattern':
-
-                this.reinterpretAsPattern(context, node.left);
-                return;
-
             case 'SpreadElement':
                 node.type = 'RestElement';
 
@@ -3168,6 +3137,19 @@ export class Parser {
             case 'RestElement':
                 this.reinterpretAsPattern(context, node.argument);
                 if (node.argument.type === 'AssignmentPattern') this.error(Errors.InvalidRestDefaultValue);
+                return;
+
+            case 'AssignmentExpression':
+
+                if (node.operator !== '=') this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+
+                node.type = 'AssignmentPattern';
+                delete node.operator; // operator is not relevant for assignment pattern
+                // Fall through
+
+            case 'AssignmentPattern':
+
+                this.reinterpretAsPattern(context, node.left);
                 return;
 
             case 'MemberExpression':
@@ -3557,7 +3539,7 @@ export class Parser {
     }
 
     private parseFunctionExpression(context: Context): ESTree.FunctionExpression {
-        return this.parseFunction(context  & ~Context.Yield) as ESTree.FunctionExpression;
+        return this.parseFunction(context & ~Context.Yield) as ESTree.FunctionExpression;
     }
 
     private parseFunction(
@@ -3626,10 +3608,10 @@ export class Parser {
 
                 if (context & Context.Declaration) {
                     const name = this.tokenValue;
-                    if (!this.initBlockScope() && name in this.blockScope) {
-                        if (this.blockScope[name] & ScopeMasks.Shadowable || this.blockScope !== this.functionScope) {
-                            this.error(Errors.DuplicateBinding, name);
-                        }
+                    if (!this.initBlockScope() && name in this.blockScope &&
+                        (this.blockScope[name] & ScopeMasks.Shadowable ||
+                            this.blockScope !== this.functionScope)) {
+                        this.error(Errors.DuplicateBinding, name);
                     }
                     this.blockScope[name] = ScopeMasks.Shadowable;
                 }
@@ -4170,10 +4152,7 @@ export class Parser {
 
     private parsePrivateProperty(context: Context, key: ESTree.Expression) {
         const pos = this.getLocations();
-        let value: ESTree.Expression | null = null;
-        if (this.parseOptional(context, Token.Assign)) {
-            value = this.parseAssignmentExpression(context);
-        }
+        const value = this.parseOptional(context, Token.Assign) ? this.parseAssignmentExpression(context) : null;
         // Syntax error if `arguments` or `eval` used in class field
         if (this.isEvalOrArguments(this.tokenValue)) {
             this.error(Errors.UnexpectedReservedWord);
@@ -4445,7 +4424,7 @@ export class Parser {
         this.expect(context, Token.RightBrace);
 
         if (this.flags & Flags.HasDuplicateProtoField && this.token !== Token.Assign) {
-             this.error(Errors.DuplicateProtoProperty);
+            this.error(Errors.DuplicateProtoProperty);
         }
 
         // Unset the 'HasProtoField' flag now, we are done!

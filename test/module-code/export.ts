@@ -139,6 +139,22 @@ with (house) {
             source: `export default async func`,
         });
 
+        fail(`export default async\nfunction() {}`, {
+            source: `export default async\nfunction() {}`,
+        });
+
+        fail(`export default\nasync function() {}`, {
+            source: `export default\nasync function() {}`,
+        });
+
+        fail(`export async\nfunction() {}`, {
+            source: `export async\nfunction() {}`,
+        });
+
+        fail(`export \nasync function() {}`, {
+            source: `export \nasync function() {}`,
+        });
+
         fail(`export typeof foo;`, {
             source: `export typeof foo;`,
         });
