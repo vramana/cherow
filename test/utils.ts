@@ -55,17 +55,19 @@ export const fail = (name: string, opts: Opts) => {
         jsx: opts.jsx
     };
 
-t.throws(() => {
-    opts.module
-    ? t.deepEqual(parseModule(opts.source, CherowOpts) as Program, opts.expected)
-    : t.deepEqual(parseScript(opts.source, CherowOpts) as Program, opts.expected);
-});
-}
+    it('Should fail on ' + name, () => {
+        t.throws(() => {
+            opts.module
+            ? t.deepEqual(parseModule(opts.source, CherowOpts) as Program, opts.expected)
+            : t.deepEqual(parseScript(opts.source, CherowOpts) as Program, opts.expected);
+        });
+    });
+};
 
 it('version should be a string value' , () => {
-// Version hasn't been replaced by Rollup at this stage
-    t.equal(version, 'VERSION');
-});
+    // Version hasn't been replaced by Rollup at this stage
+        t.equal(version, 'VERSION');
+    });
 
 export function n(type: string, opts?: any): any {
     if (opts == null) return {type};
