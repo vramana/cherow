@@ -8,6 +8,7 @@ describe('Miscellaneous - API', () => {
             source: `<head/>`,
         });
 
+
         fail(`JSX syntax by default (module)`, {
             source: `<head/>`,
             module: true

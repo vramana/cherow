@@ -1,6 +1,6 @@
 import { writeFileSync, readdir, readFileSync, statSync } from 'fs';
 import { join, resolve, extname, basename } from 'path';
-import { parseScript, parseModule } from '../src/cherow';
+import { parseScript, parseModule, version } from '../src/cherow';
 import { Program } from '../src/estree';
 import * as t from 'assert';
 
@@ -55,14 +55,17 @@ export const fail = (name: string, opts: Opts) => {
         jsx: opts.jsx
     };
 
-    it('Should fail on ' + name, () => {
-        t.throws(() => {
-            opts.module
-            ? t.deepEqual(parseModule(opts.source, CherowOpts) as Program, opts.expected)
-            : t.deepEqual(parseScript(opts.source, CherowOpts) as Program, opts.expected);
-        });
-    });
-};
+t.throws(() => {
+    opts.module
+    ? t.deepEqual(parseModule(opts.source, CherowOpts) as Program, opts.expected)
+    : t.deepEqual(parseScript(opts.source, CherowOpts) as Program, opts.expected);
+});
+}
+
+it('version should be a string value' , () => {
+// Version hasn't been replaced by Rollup at this stage
+    t.equal(version, 'VERSION');
+});
 
 export function n(type: string, opts?: any): any {
     if (opts == null) return {type};

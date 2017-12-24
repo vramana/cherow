@@ -1,27 +1,29 @@
 import { readFileSync } from 'fs';
 import buble from 'rollup-plugin-buble';
 import uglify from 'rollup-plugin-uglify';
-
+import replace from 'rollup-plugin-replace';
 const format = process.env.NODE_ENV;
 const isMinify = format === 'minify';
 
 const pkg = JSON.parse( readFileSync( 'package.json', 'utf-8' ) );
 
 const output = isMinify
-    ? [ { file: `./dist/${pkg.name}.min.js`, format: 'umd', } ]
+    ? [ { file: `./dist/${pkg.name}.min.js`, format: 'umd', name: pkg.name } ]
     : [
-        { file: `./dist/${pkg.name}.js`, format: 'umd', },
-        { file: `./dist/${pkg.name}.mjs`, format: 'es', },
+        { file: `./dist/${pkg.name}.js`, format: 'umd', name: pkg.name },
+        { file: `./dist/${pkg.name}.mjs`, format: 'es', name: pkg.name },
     ];
 
 
 const config = {
   input: `./build/src/${pkg.name}.js`,
   plugins: [
+    replace({
+      VERSION: pkg.version
+    }),
     buble({exclude: './node_modules/**'}),
   ],
-  sourceMap: false,
-  name: pkg.name,
+  sourcemap: false,
   output
 };
 

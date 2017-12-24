@@ -1338,8 +1338,8 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
             state |= 128 /* Float */;
             // Invalid: '06.7'
             if (state & 4 /* ImplicitOctal */) {
-                var next$1 = this.source.charCodeAt(this.index + 1);
-                if (next$1 >= 48 /* Zero */ && next$1 <= 57 /* Nine */)
+                var possibleOctal = this.source.charCodeAt(this.index + 1);
+                if (possibleOctal >= 48 /* Zero */ && possibleOctal <= 57 /* Nine */)
                     { this.error(85 /* UnexpectedNumber */); }
             }
             else {
@@ -5125,5 +5125,6 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return new Parser(source, options).parseProgram(2 /* Strict */ | 1 /* Module */);
 }
+var version = '0.18.11';
 
-export { parseScript, parseModule };
+export { parseScript, parseModule, version };

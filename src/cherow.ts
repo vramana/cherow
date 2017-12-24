@@ -12,3 +12,5 @@ export function parseScript(source: string, options?: Options): Program {
 export function parseModule(source: string, options?: Options): Program {
     return new Parser(source, options).parseProgram(Context.Strict | Context.Module);
 }
+
+export const version = 'VERSION';

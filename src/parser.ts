@@ -1167,8 +1167,8 @@ export class Parser {
                 state |= NumericState.Float;
                 // Invalid: '06.7'
                 if (state & NumericState.ImplicitOctal) {
-                    const next = this.source.charCodeAt(this.index + 1);
-                    if (next >= Chars.Zero && next <= Chars.Nine) this.error(Errors.UnexpectedNumber);
+                    const possibleOctal = this.source.charCodeAt(this.index + 1);
+                    if (possibleOctal >= Chars.Zero && possibleOctal <= Chars.Nine) this.error(Errors.UnexpectedNumber);
                 } else {
                     this.advance();
                     this.scanDecimalDigitsOrFragment();

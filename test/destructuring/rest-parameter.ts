@@ -38,7 +38,7 @@ describe('Destructuring - Rest parameter', () => {
     for (const pattern of programs) {
         for (const fn of functions) {
 
-            // Trailing parameters after rest parameter.
+            // No leading parameters.
             fail(fn(`...${pattern},`), {
                 source: fn(`...${pattern},`),
                 next: true
