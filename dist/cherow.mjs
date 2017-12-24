@@ -4200,7 +4200,8 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
                 if (state & 1 /* Yield */) {
                     this.error(75 /* DisallowedInContext */, tokenDesc(t));
                 }
-                if (!(state & 4 /* Computed */) && this.tokenValue === '__proto__') {
+                if (!(state & 4 /* Computed */) &&
+                    this.tokenValue === '__proto__') {
                     if (this.flags & 262144 /* HasProtoField */) {
                         this.error(53 /* DuplicateProtoProperty */);
                     }
@@ -4239,7 +4240,6 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
                     left: key,
                     right: this.parseAssignmentExpression(context)
                 });
-                //if (this.token === Token.RightBrace) this.error(Errors.Unexpected);
             }
             else {
                 value = key;
@@ -4772,36 +4772,32 @@ Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (con
     var state = 0;
     var key;
     var value;
-    if (this.isIdentifier(context, this.token)) {
-        var token = this.token;
+    var t = this.token;
+    if (t & (67108864 /* IsIdentifier */ | 4096 /* Keyword */)) {
+        t = this.token;
         key = this.parseIdentifier(context);
         if (this.parseOptional(context, 21 /* Colon */)) {
             value = this.parseAssignmentPattern(context);
         }
         else {
             state |= 8 /* Shorthand */;
-            if (context & 16 /* Yield */ && token & 536870912 /* IsYield */) {
-                this.error(75 /* DisallowedInContext */, tokenDesc(token));
+            if (context & 16 /* Yield */ && t & 536870912 /* IsYield */) {
+                this.error(75 /* DisallowedInContext */, tokenDesc(t));
             }
-            if (this.token === 1310749 /* Assign */) {
-                value = this.parseAssignmentPattern(context, pos, key);
-            }
-            else {
-                value = key;
-            }
+            value = this.token === 1310749 /* Assign */ ?
+                this.parseAssignmentPattern(context, pos, key) :
+                key;
         }
     }
     else {
-        switch (this.token) {
-            case 393235 /* LeftBracket */:
-                state |= 4 /* Computed */;
-                this.expect(context, 393235 /* LeftBracket */);
-                key = this.parseAssignmentExpression(context | 4 /* AllowIn */);
-                this.expect(context, 20 /* RightBracket */);
-                break;
-            default:
-                key = this.parseIdentifier(context);
+        if (t === 393235 /* LeftBracket */) {
+            state |= 4 /* Computed */;
         }
+        var res = this.parsePropertyName(context, pos);
+        if (res < 0)
+            { key = this.parseIdentifier(context); }
+        else
+            { key = res; }
         this.expect(context, 21 /* Colon */);
         value = this.parseAssignmentPattern(context);
     }
@@ -4809,10 +4805,10 @@ Parser.prototype.parseAssignmentProperty = function parseAssignmentProperty (con
         type: 'Property',
         kind: 'init',
         key: key,
-        computed: (state & 4 /* Computed */) !== 0,
+        computed: !!(state & 4 /* Computed */),
         value: value,
         method: false,
-        shorthand: (state & 8 /* Shorthand */) !== 0
+        shorthand: !!(state & 8 /* Shorthand */)
     });
 };
 /** JSX */

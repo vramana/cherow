@@ -2,6 +2,10 @@ import { pass, fail } from '../utils';
 
 describe('Declarations - Let', () => {
 
+    fail('let {a: o.a} = obj;', {
+        source: 'let {a: o.a} = obj;'
+    });
+
     fail('let Infinity', {
         source: 'let Infinity'
     });

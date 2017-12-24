@@ -16264,15 +16264,15 @@ describe('Expressions - Object', () => {
         source: '({var} = 0)',
      });
 
-     fail(`({ *a: 0 })`, {
+    fail(`({ *a: 0 })`, {
         source: '({ *a: 0 })',
      });
 
-     fail(`({ *[0]: 0 })`, {
+    fail(`({ *[0]: 0 })`, {
         source: '({ *[0]: 0 })',
      });
 
-     fail(`({ a = 1 });`, {
+    fail(`({ a = 1 });`, {
         source: '({ a = 1 });',
      });
 

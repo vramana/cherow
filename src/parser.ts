@@ -4519,7 +4519,8 @@ export class Parser {
                         this.error(Errors.DisallowedInContext, tokenDesc(t));
                     }
 
-                    if (!(state & ObjectState.Computed) && this.tokenValue === '__proto__') {
+                    if (!(state & ObjectState.Computed) &&
+                        this.tokenValue === '__proto__') {
                         if (this.flags & Flags.HasProtoField) {
                             this.error(Errors.DuplicateProtoProperty);
                         }
@@ -4565,7 +4566,6 @@ export class Parser {
                         right: this.parseAssignmentExpression(context)
                     });
 
-                    //if (this.token === Token.RightBrace) this.error(Errors.Unexpected);
                 } else {
                     value = key;
                 }
@@ -5180,10 +5180,11 @@ export class Parser {
         let state = ObjectState.None;
         let key;
         let value;
+        let t = this.token;
 
-        if (this.isIdentifier(context, this.token)) {
+        if (t & (Token.IsIdentifier | Token.Keyword)) {
 
-            const token = this.token;
+            t = this.token;
 
             key = this.parseIdentifier(context);
 
@@ -5193,30 +5194,25 @@ export class Parser {
 
                 state |= ObjectState.Shorthand;
 
-                if (context & Context.Yield && token & Token.IsYield) {
-                    this.error(Errors.DisallowedInContext, tokenDesc(token));
+                if (context & Context.Yield && t & Token.IsYield) {
+                    this.error(Errors.DisallowedInContext, tokenDesc(t));
                 }
 
-                if (this.token === Token.Assign) {
-                    value = this.parseAssignmentPattern(context, pos, key);
-                } else {
-                    value = key;
-                }
+                value = this.token === Token.Assign ?
+                    this.parseAssignmentPattern(context, pos, key) :
+                    key;
             }
 
         } else {
 
-            switch (this.token) {
-                case Token.LeftBracket:
-                    state |= ObjectState.Computed;
-                    this.expect(context, Token.LeftBracket);
-                    key = this.parseAssignmentExpression(context | Context.AllowIn);
-                    this.expect(context, Token.RightBracket);
-                    break;
-
-                default:
-                    key = this.parseIdentifier(context);
+            if (t === Token.LeftBracket) {
+                state |= ObjectState.Computed;
             }
+
+            const res = this.parsePropertyName(context, pos);
+
+            if (res < 0) key = this.parseIdentifier(context);
+            else key = res;
 
             this.expect(context, Token.Colon);
 
@@ -5227,10 +5223,10 @@ export class Parser {
             type: 'Property',
             kind: 'init',
             key,
-            computed: (state & ObjectState.Computed) !== 0,
+            computed: !!(state & ObjectState.Computed),
             value,
             method: false,
-            shorthand: (state & ObjectState.Shorthand) !== 0
+            shorthand: !!(state & ObjectState.Shorthand)
         });
     }
 

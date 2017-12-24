@@ -1240,4 +1240,8 @@ describe('Declarations - Generator', () => {
           source: 'function*g() { for ({yield = 0} in 0); }',
       });
 
+    fail(`function* a({e: a.b}) {}`, {
+        source: 'function* a({e: a.b}) {}',
+    });
+
   });

@@ -4283,58 +4283,34 @@ describe('Destructuring - Binding pattern', () => {
 
             fail(`function* a({e: a.b}) {}`, {
                 source: 'function* a({e: a.b}) {}',
-                loc: true,
-                ranges: true,
-                raw: true
             });
 
             fail(`({set a({e: a.b}){}})`, {
                 source: '({set a({e: a.b}){}})',
-                loc: true,
-                ranges: true,
-                raw: true
             });
 
             fail(`({*a({e: a.b}){}})`, {
                 source: '({*a({e: a.b}){}})',
-                loc: true,
-                ranges: true,
-                raw: true
             });
 
             fail(`({e: a.b}) => 0`, {
                 source: '({e: a.b}) => 0',
-                loc: true,
-                ranges: true,
-                raw: true
             });
 
             fail(`function a({e: a.b}) {}`, {
                 source: 'function a({e: a.b}) {}',
-                loc: true,
-                ranges: true,
-                raw: true
             });
 
             fail(`({set a({e: a.b}){}})`, {
                 source: '({set a({e: a.b}){}})',
-                loc: true,
-                ranges: true,
-                raw: true
             });
 
             fail(`"use strict"; for (let {x: y = let};;) {}`, {
                 source: '"use strict"; for (let {x: y = let};;) {}',
-                loc: true,
-                ranges: true,
-                raw: true
             });
 
             fail(`"use strict"; for (let [x = let];;) {}`, {
                 source: '"use strict"; for (let [x = let];;) {}',
-                loc: true,
-                ranges: true,
-                raw: true
             });
     });
 });
