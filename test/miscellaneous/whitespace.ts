@@ -1,8 +1,45 @@
 import { pass, fail } from '../utils';
+import { parseScript } from '../../src/cherow';
 
 describe('Miscellaneous - Whitespace', () => {
 
-    pass(`spaces`, {
+  const whitespaceCharacters = [
+    '\u0009',
+    '\u000a',
+    '\u000b',
+    '\u000c',
+    '\u000d',
+    '\u0020',
+    '\u00a0',
+    '\u1680',
+    '\u2000',
+    '\u2001',
+    '\u2002',
+    '\u2003',
+    '\u2004',
+    '\u2005',
+    '\u2006',
+    '\u2007',
+    '\u2008',
+    '\u2009',
+    '\u200a',
+    '\u2028',
+    '\u2029',
+    '\u202f',
+    '\u205f',
+    '\u3000',
+    '\ufeff',
+];
+
+  for (const i in whitespaceCharacters) {
+  const ch = whitespaceCharacters[i];
+  pass (ch, {
+    source: ch,
+    expected: parseScript(ch)
+  });
+}
+
+  pass(`spaces`, {
         source: '        ',
         loc: true,
         ranges: true,
@@ -26,7 +63,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`tabs`, {
+  pass(`tabs`, {
         source: '\t\t\t\t\t\t\t\t',
         loc: true,
         ranges: true,
@@ -50,7 +87,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`vertical tabs`, {
+  pass(`vertical tabs`, {
         source: '\v\v\v\v\v\v\v\v',
         loc: true,
         ranges: true,
@@ -74,7 +111,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`line feed`, {
+  pass(`line feed`, {
         source: '\n\n\n\n\n\n\n\n',
         loc: true,
         ranges: true,
@@ -98,7 +135,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`keep locations correct after CRLF`, {
+  pass(`keep locations correct after CRLF`, {
       source: 'a\r\nb',
       loc: true,
       ranges: true,
@@ -184,7 +221,7 @@ describe('Miscellaneous - Whitespace', () => {
     }
   });
 
-    pass(`line feed`, {
+  pass(`line feed`, {
         source: '\n\n\n\n\n\n\n\n',
         loc: true,
         ranges: true,
@@ -208,7 +245,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`line feed`, {
+  pass(`line feed`, {
         source: '\r\r\r\r\r\r\r\r',
         loc: true,
         ranges: true,
@@ -232,7 +269,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`line separators`, {
+  pass(`line separators`, {
         source: '\u2028\u2028\u2028\u2028\u2028\u2028\u2028\u2028',
         loc: true,
         ranges: true,
@@ -256,7 +293,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`paragraph separators`, {
+  pass(`paragraph separators`, {
         source: '\u2029\u2029\u2029\u2029\u2029\u2029\u2029\u2029',
         loc: true,
         ranges: true,
@@ -280,7 +317,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`multiline comments with carriage return`, {
+  pass(`multiline comments with carriage return`, {
         source: '  \t /* foo * /* bar \r */  ',
         loc: true,
         ranges: true,
@@ -304,7 +341,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`multiline comments with line feed`, {
+  pass(`multiline comments with line feed`, {
         source: '  \t /* foo * /* bar \n */  ',
         loc: true,
         ranges: true,
@@ -328,7 +365,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`multiple single line comments with line feed`, {
+  pass(`multiple single line comments with line feed`, {
         source: '  \t // foo bar${lt} // baz \n // ',
         loc: true,
         ranges: true,
@@ -352,7 +389,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`multiple multiline comments with line feed`, {
+  pass(`multiple multiline comments with line feed`, {
         source: '  \t /* foo bar${lt} *//* baz*/ \n /**/',
         loc: true,
         ranges: true,
@@ -376,7 +413,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`multiple HTML single line comments with \n`, {
+  pass(`multiple HTML single line comments with \n`, {
         source: '  \t <!-- foo bar\n <!-- baz \n <!--',
         loc: true,
         ranges: true,
@@ -400,7 +437,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`single HTML close comment after line feed`, {
+  pass(`single HTML close comment after line feed`, {
         source: '  \t \n--> ',
         loc: true,
         ranges: true,
@@ -424,7 +461,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`line of single HTML close comment after line feed`, {
+  pass(`line of single HTML close comment after line feed`, {
         source: '   \t \r--> the comment extends to these characters\r  ',
         loc: true,
         ranges: true,
@@ -448,7 +485,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`single-line block on line of HTML close after line feed`, {
+  pass(`single-line block on line of HTML close after line feed`, {
         source: `  \t /*\n*/ /* optional SingleLineDelimitedCommentSequence */  \n
         --> the comment extends to these characters\n `,
         loc: true,
@@ -473,7 +510,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`block HTML close with line feed`, {
+  pass(`block HTML close with line feed`, {
         source: ' \t /*\t*/  --> the comment extends to these characters ',
         loc: true,
         ranges: true,
@@ -497,7 +534,7 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-    pass(`single HTML close comment w/o line terminator`, {
+  pass(`single HTML close comment w/o line terminator`, {
         source: '  \t -->  ',
         loc: true,
         ranges: true,

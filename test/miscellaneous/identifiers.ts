@@ -3,102 +3,636 @@ import { parseScript } from '../../src/cherow';
 
 describe('Miscellaneous - Identifiers', () => {
 
-        for (let code = 0x10f000; code <= 0x10ffff; code++) {
-
-            const arg = `\\u${code}`;
-
-            pass(`var ${arg} = [];`, {
-                source: `var ${arg} = [];`,
-                expected: parseScript(`var ${arg} = [];`)
-            });
-            pass(`var foo${arg} = [${arg}]`, {
-                source: `var foo${arg} = [${arg}]`,
-                expected: parseScript(`var foo${arg} = [${arg}]`)
-            });
-
-            pass(`let foo${arg} = [${arg}]`, {
-                source: `let foo${arg} = [${arg}]`,
-                expected: parseScript(`let foo${arg} = [${arg}]`)
-            });
-
-            pass(`let foo${arg}bar${arg}baz${arg} = {a: 1}`, {
-                source: `let foo${arg}bar${arg}baz${arg} = {a: 1}`,
-                expected: parseScript(`let foo${arg}bar${arg}baz${arg} = {a: 1}`)
-            });
-
-            pass(`const foo${arg} = [${arg}]`, {
-                source: `const foo${arg} = [${arg}]`,
-                expected: parseScript(`const foo${arg} = [${arg}]`)
-            });
-        }
-
-        // Russians
-        for (let code = 0x430; code <= 0x451; code++) {
-            const letter = String.fromCharCode(code);
-            pass(`var ${letter} = [];`, {
-                source: `var ${letter} = [];`,
-                expected: parseScript(`var ${letter} = [];`)
-            });
-
-            pass(`let ${letter} = [];`, {
-                source: `let ${letter} = [];`,
-                expected: parseScript(`let ${letter} = [];`)
-            });
-
-            pass(`const ${letter} = [];`, {
-                source: `const ${letter} = [];`,
-                expected: parseScript(`const ${letter} = [];`)
-            });
-        }
-
-        fail(`var a\\u2E2F;`, {
-        source: `var a\\u2E2F;`,
+    fail('var a\ = 5;', {
+        source: 'var a\ = 5;'
     });
 
-        fail(`var aⸯ;`, {
-        source: `var aⸯ;`,
-    });
-
-        fail(`var ⸯ; // U+2E2F`, {
-        source: `var ⸯ; // U+2E2F`,
+    pass(`\\u{0069}`, {
+        source: '\\u{0069}',
         loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 8,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 8
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 8,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 8
+                  }
+                },
+                expression: {
+                  type: 'Identifier',
+                  start: 0,
+                  end: 8,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 8
+                    }
+                  },
+                  name: 'i'
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
     });
 
-        fail(`var ⸯ; // U+2E2F`, {
-        source: `var ⸯ; // U+2E2F`,
+    pass(`\\u{00069} = i + \\u{00069};`, {
+        source: '\\u{00069} = i + \\u{00069};',
         loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 26,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 26
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 26,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 26
+                  }
+                },
+                expression: {
+                  type: 'AssignmentExpression',
+                  start: 0,
+                  end: 25,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 25
+                    }
+                  },
+                  operator: '=',
+                  left: {
+                    type: 'Identifier',
+                    start: 0,
+                    end: 9,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 9
+                      }
+                    },
+                    name: 'i'
+                  },
+                  right: {
+                    type: 'BinaryExpression',
+                    start: 12,
+                    end: 25,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 12
+                      },
+                      end: {
+                        line: 1,
+                        column: 25
+                      }
+                    },
+                    left: {
+                      type: 'Identifier',
+                      start: 12,
+                      end: 13,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 12
+                        },
+                        end: {
+                          line: 1,
+                          column: 13
+                        }
+                      },
+                      name: 'i'
+                    },
+                    operator: '+',
+                    right: {
+                      type: 'Identifier',
+                      start: 16,
+                      end: 25,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 16
+                        },
+                        end: {
+                          line: 1,
+                          column: 25
+                        }
+                      },
+                      name: 'i'
+                    }
+                  }
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
     });
 
-        fail(`var cla\\u0073s = 123;`, {
-          source: `var cla\\u0073s = 123;`,
-      });
+    pass(`this.\\u0069`, {
+        source: 'this.\\u0069',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 11,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 11
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 11,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 11
+                  }
+                },
+                expression: {
+                  type: 'MemberExpression',
+                  start: 0,
+                  end: 11,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 11
+                    }
+                  },
+                  object: {
+                    type: 'ThisExpression',
+                    start: 0,
+                    end: 4,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 4
+                      }
+                    }
+                  },
+                  property: {
+                    type: 'Identifier',
+                    start: 5,
+                    end: 11,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 5
+                      },
+                      end: {
+                        line: 1,
+                        column: 11
+                      }
+                    },
+                    name: 'i'
+                  },
+                  computed: false
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
 
-        fail(`var \\uD83B\\uDE00`, {
-          source: `var \\uD83B\\uDE00`,
-          loc: true,
-      });
+    pass(`foo["\\u{20BB7}"]`, {
+        source: 'foo["\\u{20BB7}"]',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 16,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 16
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 16,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 16
+                  }
+                },
+                expression: {
+                  type: 'MemberExpression',
+                  start: 0,
+                  end: 16,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 16
+                    }
+                  },
+                  object: {
+                    type: 'Identifier',
+                    start: 0,
+                    end: 3,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 3
+                      }
+                    },
+                    name: 'foo'
+                  },
+                  property: {
+                    type: 'Literal',
+                    start: 4,
+                    end: 15,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 4
+                      },
+                      end: {
+                        line: 1,
+                        column: 15
+                      }
+                    },
+                    value: '𠮷',
+                    raw: '"\\u{20BB7}"'
+                  },
+                  computed: true
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
 
-        fail(`var 🀒`, {
-          source: `var 🀒`,
-      });
+    pass(`var $\\u{20BB7} = 'b';`, {
+        source: 'var $\\u{20BB7} = "b";',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 21,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 21
+              }
+            },
+            body: [
+              {
+                type: 'VariableDeclaration',
+                start: 0,
+                end: 21,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 21
+                  }
+                },
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    start: 4,
+                    end: 20,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 4
+                      },
+                      end: {
+                        line: 1,
+                        column: 20
+                      }
+                    },
+                    id: {
+                      type: 'Identifier',
+                      start: 4,
+                      end: 14,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 4
+                        },
+                        end: {
+                          line: 1,
+                          column: 14
+                        }
+                      },
+                      name: '$𠮷'
+                    },
+                    init: {
+                      type: 'Literal',
+                      start: 17,
+                      end: 20,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 17
+                        },
+                        end: {
+                          line: 1,
+                          column: 20
+                        }
+                      },
+                      value: 'b',
+                      raw: '"b"'
+                    }
+                  }
+                ],
+                kind: 'var'
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
 
-        fail(`var \\u{63}ontinue = 123;`, {
-          source: `var \\u{63}ontinue = 123;`,
-      });
+    pass(`var _\\u0524 = 'a';`, {
+        source: 'var _\\u0524 = "a";',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 18,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 18
+              }
+            },
+            body: [
+              {
+                type: 'VariableDeclaration',
+                start: 0,
+                end: 18,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 18
+                  }
+                },
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    start: 4,
+                    end: 17,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 4
+                      },
+                      end: {
+                        line: 1,
+                        column: 17
+                      }
+                    },
+                    id: {
+                      type: 'Identifier',
+                      start: 4,
+                      end: 11,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 4
+                        },
+                        end: {
+                          line: 1,
+                          column: 11
+                        }
+                      },
+                      name: '_Ԥ'
+                    },
+                    init: {
+                      type: 'Literal',
+                      start: 14,
+                      end: 17,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 14
+                        },
+                        end: {
+                          line: 1,
+                          column: 17
+                        }
+                      },
+                      value: 'a',
+                      raw: '"a"'
+                    }
+                  }
+                ],
+                kind: 'var'
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
 
-        fail(`var default = 123;`, {
-          source: `var default = 123;`,
-      });
+    pass(`var $00xxx\\u0069\\u0524\\u{20BB7} = 'c';`, {
+        source: 'var $00xxx\\u0069\\u0524\\u{20BB7} = "c";',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 38,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 38
+              }
+            },
+            body: [
+              {
+                type: 'VariableDeclaration',
+                start: 0,
+                end: 38,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 38
+                  }
+                },
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    start: 4,
+                    end: 37,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 4
+                      },
+                      end: {
+                        line: 1,
+                        column: 37
+                      }
+                    },
+                    id: {
+                      type: 'Identifier',
+                      start: 4,
+                      end: 31,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 4
+                        },
+                        end: {
+                          line: 1,
+                          column: 31
+                        }
+                      },
+                      name: '$00xxxiԤ𠮷'
+                    },
+                    init: {
+                      type: 'Literal',
+                      start: 34,
+                      end: 37,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 34
+                        },
+                        end: {
+                          line: 1,
+                          column: 37
+                        }
+                      },
+                      value: 'c',
+                      raw: '"c"'
+                    }
+                  }
+                ],
+                kind: 'var'
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
 
-        fail(`var true = 123;`, {
-          source: `var true = 123;`,
-      });
-
-        fail(`var \\u{74 = 123;`, {
-          source: `var \\u{74 = 123;`,
-      });
-
-        pass(`var a\\u2118;`, {
+    pass(`var a\\u2118;`, {
         source: 'var a\\u2118;',
         loc: true,
         ranges: true,
@@ -173,7 +707,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var a\\u309C;`, {
+    pass(`var a\\u309C;`, {
         source: 'var a\\u309C;',
         loc: true,
         ranges: true,
@@ -248,7 +782,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var a\\u1886;`, {
+    pass(`var a\\u1886;`, {
         source: 'var a\\u1886;',
         loc: true,
         ranges: true,
@@ -323,7 +857,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var a\\u1369;`, {
+    pass(`var a\\u1369;`, {
         source: 'var a\\u1369;',
         loc: true,
         ranges: true,
@@ -398,7 +932,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var a\\u136D;`, {
+    pass(`var a\\u136D;`, {
         source: 'var a\\u136D;',
         loc: true,
         ranges: true,
@@ -473,7 +1007,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var a\\u00B7;`, {
+    pass(`var a\\u00B7;`, {
         source: 'var a\\u00B7;',
         loc: true,
         ranges: true,
@@ -548,7 +1082,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var a\\u19DA;`, {
+    pass(`var a\\u19DA;`, {
         source: 'var a\\u19DA;',
         loc: true,
         ranges: true,
@@ -623,7 +1157,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var a℮;`, {
+    pass(`var a℮;`, {
         source: 'var a℮;',
         loc: true,
         ranges: true,
@@ -698,7 +1232,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var aᢆ;`, {
+    pass(`var aᢆ;`, {
         source: 'var aᢆ;',
         loc: true,
         ranges: true,
@@ -773,7 +1307,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var a፰;`, {
+    pass(`var a፰;`, {
         source: 'var a፰;',
         loc: true,
         ranges: true,
@@ -848,7 +1382,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var a᧚;`, {
+    pass(`var a᧚;`, {
         source: 'var a᧚;',
         loc: true,
         ranges: true,
@@ -923,7 +1457,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var \\u1886;`, {
+    pass(`var \\u1886;`, {
         source: 'var \\u1886;',
         loc: true,
         ranges: true,
@@ -998,7 +1532,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var ゛;`, {
+    pass(`var ゛;`, {
         source: 'var ゛;',
         loc: true,
         ranges: true,
@@ -1073,7 +1607,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var ᢅ;`, {
+    pass(`var ᢅ;`, {
         source: 'var ᢅ;',
         loc: true,
         ranges: true,
@@ -1148,7 +1682,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var \\u0024 = 1;`, {
+    pass(`var \\u0024 = 1;`, {
           source: 'var \\u0024 = 1;',
           loc: true,
           ranges: true,
@@ -1235,7 +1769,7 @@ describe('Miscellaneous - Identifiers', () => {
           }
       });
 
-        pass(`var \\u{41}\\u{42}\\u{43};`, {
+    pass(`var \\u{41}\\u{42}\\u{43};`, {
           source: 'var \\u{41}\\u{42}\\u{43};',
           loc: true,
           ranges: true,
@@ -1306,7 +1840,7 @@ describe('Miscellaneous - Identifiers', () => {
           }
       });
 
-        pass(`var _\\u{1EE03}`, {
+    pass(`var _\\u{1EE03}`, {
           source: 'var _\\u{1EE03}',
           loc: true,
           ranges: true,
@@ -1377,7 +1911,7 @@ describe('Miscellaneous - Identifiers', () => {
           }
       });
 
-        pass(`var \\u{1EE0A}\\u{1EE0B}`, {
+    pass(`var \\u{1EE0A}\\u{1EE0B}`, {
           source: 'var \\u{1EE0A}\\u{1EE0B}',
           loc: true,
           ranges: true,
@@ -1448,7 +1982,7 @@ describe('Miscellaneous - Identifiers', () => {
           }
       });
 
-        pass(`var A\\u{42}C;`, {
+    pass(`var A\\u{42}C;`, {
           source: 'var A\\u{42}C;',
           loc: true,
           ranges: true,
@@ -1519,7 +2053,7 @@ describe('Miscellaneous - Identifiers', () => {
           }
       });
 
-        pass(`let ℮`, {
+    pass(`let ℮`, {
           source: 'let ℮',
           loc: true,
           ranges: true,
@@ -1594,7 +2128,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-        pass(`var ℘;`, {
+    pass(`var ℘;`, {
           source: 'var ℘;',
           loc: true,
           ranges: true,

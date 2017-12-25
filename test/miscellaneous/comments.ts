@@ -75,6 +75,66 @@ describe('Miscellaneous - Comments', () => {
         */ the comment should not include these characters, regardless of AnnexB extensions -->`,
     });
 
+    pass(`//"𠮷"
+    /*"𠮷"*/a;
+`, {
+        source: `//"𠮷"
+        /*"𠮷"*/a;
+    `,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+              body: [
+                {
+                 end: 25,
+                  expression: {
+                    end: 24,
+                    loc: {
+                      end: {
+                        column: 17,
+                        line: 2,
+                      },
+                      start: {
+                        column: 16,
+                        line: 2,
+                      }
+                    },
+                    name: 'a',
+                    start: 23,
+                    type: 'Identifier'
+                  },
+                  loc: {
+                   end: {
+                      column: 18,
+                      line: 2,
+                    },
+                    start: {
+                      column: 16,
+                      line: 2,
+                    }
+                  },
+                  start: 23,
+                  type: 'ExpressionStatement'
+                }
+              ],
+              end: 30,
+              loc: {
+               end: {
+                  column: 4,
+                  line: 3,
+                },
+                start: {
+                  column: 0,
+                  line: 1,
+                }
+              },
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
+            }
+    });
+
     pass(`<!-- HTML comment`, {
         source: '<!-- HTML comment',
         loc: true,
