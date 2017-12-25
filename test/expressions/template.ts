@@ -109,7 +109,6 @@ describe('Expressions - Template', () => {
             expected: parseScript(`'${arg1}'`)
         });
 
-
         fail(`"use strict"; '${arg1}'`, {
             source: `'${arg1}'`
         });
@@ -153,20 +152,20 @@ describe('Expressions - Template', () => {
         pass(`\`${letter}\``, {
             source: `\`${letter}\``,
             expected: parseScript(`\`${letter}\``)
-        })
+        });
 
         //  redundantly escaped
         pass(`\`\\${letter}\``, {
             source: `\`\\${letter}\``,
             expected: parseScript(`\`\\${letter}\``)
-        })
+        });
 
         // Module code
         pass(`\`\\${letter}\``, {
             source: `\`\\${letter}\``,
             module: true,
             expected: parseModule(`\`\\${letter}\``)
-        })
+        });
 
     }
     for (let code = Chars.RussianUpperА; code <= Chars.RussianUpperЯ; code++) {
@@ -174,13 +173,13 @@ describe('Expressions - Template', () => {
         pass(`\`${letter}\``, {
             source: `\`${letter}\``,
             expected: parseScript(`\`${letter}\``)
-        })
+        });
 
         //  redundantly escaped
         pass(`\`\\${letter}\``, {
             source: `\`\\${letter}\``,
             expected: parseScript(`\`\\${letter}\``)
-        })
+        });
 
     }
 
@@ -189,19 +188,19 @@ describe('Expressions - Template', () => {
         pass(`\`${letter}\``, {
             source: `\`${letter}\``,
             expected: parseScript(`\`${letter}\``)
-        })
+        });
 
         //  redundantly escaped
         pass(`\`\\${letter}\``, {
             source: `\`\\${letter}\``,
             expected: parseScript(`\`\\${letter}\``)
-        })
+        });
 
         pass(`\`\\${letter}\``, {
             source: `\`\\${letter}\``,
             module: true,
             expected: parseModule(`\`\\${letter}\``)
-        })
+        });
 
     }
 
@@ -210,7 +209,7 @@ describe('Expressions - Template', () => {
         pass(`\`${letter}\``, {
             source: `\`${letter}\``,
             expected: parseScript(`\`${letter}\``)
-        })
+        });
     }
 
     // Digits
@@ -220,7 +219,7 @@ describe('Expressions - Template', () => {
         pass(`\`${letter}\``, {
             source: `\`${letter}\``,
             expected: parseScript(`\`${letter}\``)
-        })
+        });
     }
 
     // The rest of the tests are "normal" template and tagged template tests
@@ -7240,6 +7239,132 @@ describe('Expressions - Template', () => {
             }],
             sourceType: 'script',
             type: 'Program'
+        }
+    });
+
+    pass('`\\n${0}`', {
+        source: '`\\n${0}`',
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'TemplateLiteral',
+                        expressions: [
+                            {
+                                type: 'Literal',
+                                value: 0,
+                                raw: '0'
+                            }
+                        ],
+                        quasis: [
+                            {
+                                type: 'TemplateElement',
+                                value: {
+                                    cooked: '\n',
+                                    raw: '\\n'
+                                },
+                                tail: false
+                            },
+                            {
+                                type: 'TemplateElement',
+                                value: {
+                                    cooked: '',
+                                    raw: ''
+                                },
+                                tail: true
+                            }
+                        ]
+                    }
+                }
+            ],
+            sourceType: 'script'
+        }
+    });
+
+    pass('`\\0abc`', {
+        source: '`\\0abc`',
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'TemplateLiteral',
+                        expressions: [],
+                        quasis: [
+                            {
+                                type: 'TemplateElement',
+                                value: {
+                                    cooked: '\u0000abc',
+                                    raw: '\\0abc'
+                                },
+                                tail: true
+                            }
+                        ]
+                    }
+                }
+            ],
+            sourceType: 'script'
+        }
+    });
+
+    pass('`a\\u{00000062}c`', {
+        source: '`a\\u{00000062}c`',
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'TemplateLiteral',
+                        expressions: [],
+                        quasis: [
+                            {
+                                type: 'TemplateElement',
+                                value: {
+                                    cooked: 'abc',
+                                    raw: 'a\\u{00000062}c'
+                                },
+                                tail: true
+                            }
+                        ]
+                    }
+                }
+            ],
+            sourceType: 'script'
+        }
+    });
+
+    pass('`a\\u{d}c`', {
+        source: '`a\\u{d}c`',
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'TemplateLiteral',
+                        expressions: [],
+                        quasis: [
+                            {
+                                type: 'TemplateElement',
+                                value: {
+                                    cooked: 'a\rc',
+                                    raw: 'a\\u{d}c'
+                                },
+                                tail: true
+                            }
+                        ]
+                    }
+                }
+            ],
+            sourceType: 'script'
         }
     });
 });

@@ -1629,22 +1629,13 @@ describe('Expressions - New', () => {
 
         fail(`function f() { new.anythingElse; }`, {
             source: 'function f() { new.anythingElse; }',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`function f() { new..target; }`, {
             source: 'function f() { new..target; }',
-            loc: true,
-            ranges: true,
-            raw: true
         });
 
         fail(`new Type[]`, {
             source: 'new Type[]',
-            loc: true,
-            ranges: true,
-            raw: true
         });
     });

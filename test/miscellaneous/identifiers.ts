@@ -4,32 +4,32 @@ import { parseScript } from '../../src/cherow';
 describe('Miscellaneous - Identifiers', () => {
 
         for (let code = 0x10f000; code <= 0x10ffff; code++) {
-    
+
             const arg = `\\u${code}`;
-            
+
             pass(`var ${arg} = [];`, {
                 source: `var ${arg} = [];`,
                 expected: parseScript(`var ${arg} = [];`)
-            })
+            });
             pass(`var foo${arg} = [${arg}]`, {
                 source: `var foo${arg} = [${arg}]`,
                 expected: parseScript(`var foo${arg} = [${arg}]`)
-            })
-    
+            });
+
             pass(`let foo${arg} = [${arg}]`, {
                 source: `let foo${arg} = [${arg}]`,
                 expected: parseScript(`let foo${arg} = [${arg}]`)
-            })
-    
+            });
+
             pass(`let foo${arg}bar${arg}baz${arg} = {a: 1}`, {
                 source: `let foo${arg}bar${arg}baz${arg} = {a: 1}`,
                 expected: parseScript(`let foo${arg}bar${arg}baz${arg} = {a: 1}`)
-            })
-    
+            });
+
             pass(`const foo${arg} = [${arg}]`, {
                 source: `const foo${arg} = [${arg}]`,
                 expected: parseScript(`const foo${arg} = [${arg}]`)
-            })
+            });
         }
 
         // Russians
@@ -38,67 +38,67 @@ describe('Miscellaneous - Identifiers', () => {
             pass(`var ${letter} = [];`, {
                 source: `var ${letter} = [];`,
                 expected: parseScript(`var ${letter} = [];`)
-            })
-    
+            });
+
             pass(`let ${letter} = [];`, {
                 source: `let ${letter} = [];`,
                 expected: parseScript(`let ${letter} = [];`)
-            })
-    
+            });
+
             pass(`const ${letter} = [];`, {
                 source: `const ${letter} = [];`,
                 expected: parseScript(`const ${letter} = [];`)
-            })
+            });
         }
 
-    fail(`var a\\u2E2F;`, {
+        fail(`var a\\u2E2F;`, {
         source: `var a\\u2E2F;`,
     });
 
-    fail(`var aⸯ;`, {
+        fail(`var aⸯ;`, {
         source: `var aⸯ;`,
     });
 
-    fail(`var ⸯ; // U+2E2F`, {
+        fail(`var ⸯ; // U+2E2F`, {
         source: `var ⸯ; // U+2E2F`,
         loc: true,
     });
 
-    fail(`var ⸯ; // U+2E2F`, {
+        fail(`var ⸯ; // U+2E2F`, {
         source: `var ⸯ; // U+2E2F`,
         loc: true,
     });
 
-    fail(`var cla\\u0073s = 123;`, {
+        fail(`var cla\\u0073s = 123;`, {
           source: `var cla\\u0073s = 123;`,
       });
 
-    fail(`var \\uD83B\\uDE00`, {
+        fail(`var \\uD83B\\uDE00`, {
           source: `var \\uD83B\\uDE00`,
           loc: true,
       });
 
-    fail(`var 🀒`, {
+        fail(`var 🀒`, {
           source: `var 🀒`,
       });
 
-    fail(`var \\u{63}ontinue = 123;`, {
+        fail(`var \\u{63}ontinue = 123;`, {
           source: `var \\u{63}ontinue = 123;`,
       });
 
-    fail(`var default = 123;`, {
+        fail(`var default = 123;`, {
           source: `var default = 123;`,
       });
 
-    fail(`var true = 123;`, {
+        fail(`var true = 123;`, {
           source: `var true = 123;`,
       });
 
-    fail(`var \\u{74 = 123;`, {
+        fail(`var \\u{74 = 123;`, {
           source: `var \\u{74 = 123;`,
       });
 
-    pass(`var a\\u2118;`, {
+        pass(`var a\\u2118;`, {
         source: 'var a\\u2118;',
         loc: true,
         ranges: true,
@@ -173,7 +173,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var a\\u309C;`, {
+        pass(`var a\\u309C;`, {
         source: 'var a\\u309C;',
         loc: true,
         ranges: true,
@@ -248,7 +248,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var a\\u1886;`, {
+        pass(`var a\\u1886;`, {
         source: 'var a\\u1886;',
         loc: true,
         ranges: true,
@@ -323,7 +323,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var a\\u1369;`, {
+        pass(`var a\\u1369;`, {
         source: 'var a\\u1369;',
         loc: true,
         ranges: true,
@@ -398,7 +398,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var a\\u136D;`, {
+        pass(`var a\\u136D;`, {
         source: 'var a\\u136D;',
         loc: true,
         ranges: true,
@@ -473,7 +473,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var a\\u00B7;`, {
+        pass(`var a\\u00B7;`, {
         source: 'var a\\u00B7;',
         loc: true,
         ranges: true,
@@ -548,7 +548,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var a\\u19DA;`, {
+        pass(`var a\\u19DA;`, {
         source: 'var a\\u19DA;',
         loc: true,
         ranges: true,
@@ -623,7 +623,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var a℮;`, {
+        pass(`var a℮;`, {
         source: 'var a℮;',
         loc: true,
         ranges: true,
@@ -698,7 +698,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var aᢆ;`, {
+        pass(`var aᢆ;`, {
         source: 'var aᢆ;',
         loc: true,
         ranges: true,
@@ -773,7 +773,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var a፰;`, {
+        pass(`var a፰;`, {
         source: 'var a፰;',
         loc: true,
         ranges: true,
@@ -848,7 +848,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var a᧚;`, {
+        pass(`var a᧚;`, {
         source: 'var a᧚;',
         loc: true,
         ranges: true,
@@ -923,7 +923,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var \\u1886;`, {
+        pass(`var \\u1886;`, {
         source: 'var \\u1886;',
         loc: true,
         ranges: true,
@@ -998,7 +998,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var ゛;`, {
+        pass(`var ゛;`, {
         source: 'var ゛;',
         loc: true,
         ranges: true,
@@ -1073,7 +1073,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var ᢅ;`, {
+        pass(`var ᢅ;`, {
         source: 'var ᢅ;',
         loc: true,
         ranges: true,
@@ -1148,7 +1148,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var \\u0024 = 1;`, {
+        pass(`var \\u0024 = 1;`, {
           source: 'var \\u0024 = 1;',
           loc: true,
           ranges: true,
@@ -1235,7 +1235,7 @@ describe('Miscellaneous - Identifiers', () => {
           }
       });
 
-    pass(`var \\u{41}\\u{42}\\u{43};`, {
+        pass(`var \\u{41}\\u{42}\\u{43};`, {
           source: 'var \\u{41}\\u{42}\\u{43};',
           loc: true,
           ranges: true,
@@ -1306,7 +1306,7 @@ describe('Miscellaneous - Identifiers', () => {
           }
       });
 
-    pass(`var _\\u{1EE03}`, {
+        pass(`var _\\u{1EE03}`, {
           source: 'var _\\u{1EE03}',
           loc: true,
           ranges: true,
@@ -1377,7 +1377,7 @@ describe('Miscellaneous - Identifiers', () => {
           }
       });
 
-    pass(`var \\u{1EE0A}\\u{1EE0B}`, {
+        pass(`var \\u{1EE0A}\\u{1EE0B}`, {
           source: 'var \\u{1EE0A}\\u{1EE0B}',
           loc: true,
           ranges: true,
@@ -1448,7 +1448,7 @@ describe('Miscellaneous - Identifiers', () => {
           }
       });
 
-    pass(`var A\\u{42}C;`, {
+        pass(`var A\\u{42}C;`, {
           source: 'var A\\u{42}C;',
           loc: true,
           ranges: true,
@@ -1519,7 +1519,7 @@ describe('Miscellaneous - Identifiers', () => {
           }
       });
 
-    pass(`let ℮`, {
+        pass(`let ℮`, {
           source: 'let ℮',
           loc: true,
           ranges: true,
@@ -1594,7 +1594,7 @@ describe('Miscellaneous - Identifiers', () => {
         }
       });
 
-    pass(`var ℘;`, {
+        pass(`var ℘;`, {
           source: 'var ℘;',
           loc: true,
           ranges: true,

@@ -2,14 +2,35 @@ import { pass, fail } from '../utils';
 
 describe('Module code - Export', () => {
 
-        fail(`import x from "x";
+    fail(`export "string_constant";`, {
+        source: `export "string_constant";`,
+        module: true
+    });
+    fail(`export const const1;`, {
+        source: `export const const1;`,
+        module: true
+    });
+    fail(`export function () { }`, {
+        source: `export function () { }`,
+        module: true
+    });
+    fail(`export class { }`, {
+        source: `export class { }`,
+        module: true
+    });
+
+    fail(`export {default} +`, {
+        source: `export {default} +`,
+        module: true
+    });
+    fail(`import x from "x";
 delete x;`, {
             source: `import x from "x";
 delete x;`,
             module: true
         });
 
-        fail(`import house from "house";
+    fail(`import house from "house";
 
 with (house) {
 	console.log(roof);
@@ -22,156 +43,156 @@ with (house) {
             module: true
         });
 
-        fail(`export {default} +`, {
+    fail(`export {default} +`, {
             source: `export {default} +`,
             module: true
         });
 
-        fail(`export default from "foo"`, {
+    fail(`export default from "foo"`, {
             source: `export default from "foo"`,
             module: true
         });
 
-        fail(`export {default}`, {
+    fail(`export {default}`, {
             source: `export {default}`,
             module: true
         });
 
-        fail(`export *`, {
+    fail(`export *`, {
             source: `export *`,
             module: true
         });
 
-        fail(`export {} \\u0066rom "./escaped-from.js";`, {
+    fail(`export {} \\u0066rom "./escaped-from.js";`, {
             source: `export {} \\u0066rom "./escaped-from.js";`,
             module: true
         });
 
-        fail(`export {a, b as a};`, {
+    fail(`export {a, b as a};`, {
             source: `export {a, b as a};`,
             module: true
         });
 
-        fail(`let a, b; export {a, b as a};`, {
+    fail(`let a, b; export {a, b as a};`, {
             source: `let a, b; export {a, b as a};`,
             module: true
         });
 
-        fail(`import a, * as a from "foo";`, {
+    fail(`import a, * as a from "foo";`, {
             source: `import a, * as a from "foo";`,
             module: true
         });
 
-        fail(`export {a}; export class a(){};`, {
+    fail(`export {a}; export class a(){};`, {
             source: `export {a}; export class a(){};`,
             module: true
         });
 
-        fail(`export d\\u0065fault 0;`, {
+    fail(`export d\\u0065fault 0;`, {
             source: `export d\\u0065fault 0;`,
             module: true
         });
 
-        fail(`with ({}) async function f() {}`, {
+    fail(`with ({}) async function f() {}`, {
             source: `with ({}) async function f() {}`,
             module: true
         });
 
-        fail(`export { Number };`, {
+    fail(`export { Number };`, {
             source: `export { Number };`,
             module: true
         });
 
-        fail(`class C { static method() { export default null; } }`, {
+    fail(`class C { static method() { export default null; } }`, {
             source: `class C { static method() { export default null; } }`,
             module: true
         });
 
-        fail(`export {} null;`, {
+    fail(`export {} null;`, {
             source: `export {} null;`,
             module: true
         });
 
-        fail(`label: { label: 0; }`, {
+    fail(`label: { label: 0; }`, {
             source: `label: {
       label: 0;
     }`,
             module: true
         });
 
-        fail(`let a; export function a(){};`, {
+    fail(`let a; export function a(){};`, {
             source: `let a; export function a(){};`,
             module: true
         });
 
-        fail(`import a, {b as a} from "module";`, {
+    fail(`import a, {b as a} from "module";`, {
             source: `import a, {b as a} from "module";`,
             module: true
         });
 
-        fail(`export * from 123;`, {
+    fail(`export * from 123;`, {
             source: `export * from 123;`,
             module: true
         });
 
-        fail(`export { if as foo }`, {
+    fail(`export { if as foo }`, {
             source: `export { if as foo }`,
             module: true
         });
 
-        fail(`export class {}`, {
+    fail(`export class {}`, {
             source: `export class {}`,
             module: true
         });
 
-        fail(`export function a() {} export function a() {}`, {
+    fail(`export function a() {} export function a() {}`, {
             source: `export function a() {}
       export function a() {}`,
             module: true
         });
 
-        fail(`import * as enum from "bar"`, {
+    fail(`import * as enum from "bar"`, {
             source: `import * as enum from "bar"`,
             module: true
         });
 
-        fail(`export default async func`, {
+    fail(`export default async func`, {
             source: `export default async func`,
         });
 
-        fail(`export default async\nfunction() {}`, {
+    fail(`export default async\nfunction() {}`, {
             source: `export default async\nfunction() {}`,
         });
 
-        fail(`export default\nasync function() {}`, {
+    fail(`export default\nasync function() {}`, {
             source: `export default\nasync function() {}`,
         });
 
-        fail(`export async\nfunction() {}`, {
+    fail(`export async\nfunction() {}`, {
             source: `export async\nfunction() {}`,
         });
 
-        fail(`export \nasync function() {}`, {
+    fail(`export \nasync function() {}`, {
             source: `export \nasync function() {}`,
         });
 
-        fail(`export typeof foo;`, {
+    fail(`export typeof foo;`, {
             source: `export typeof foo;`,
         });
 
-        fail(`export {a,b} from a`, {
+    fail(`export {a,b} from a`, {
             source: `export {a,b} from a`,
         });
 
-        fail(`export 3`, {
+    fail(`export 3`, {
             source: `export 3`,
         });
 
-        fail(`export default default`, {
+    fail(`export default default`, {
             source: `export default default`,
         });
 
-        pass(`export default class {}`, {
+    pass(`export default class {}`, {
             source: `export default class {}`,
             loc: true,
             ranges: true,
@@ -243,7 +264,7 @@ with (house) {
             }
         });
 
-        pass(`export let foo = 1;`, {
+    pass(`export let foo = 1;`, {
             source: `export let foo = 1;`,
             loc: true,
             ranges: true,
@@ -348,7 +369,7 @@ with (house) {
             }
         });
 
-        pass(`export * from "foo";`, {
+    pass(`export * from "foo";`, {
             source: `export * from "foo";`,
             loc: true,
             ranges: true,
@@ -404,7 +425,7 @@ with (house) {
             }
         });
 
-        pass(`export {foo as default, bar};`, {
+    pass(`export {foo as default, bar};`, {
             source: `export {foo as default, bar};`,
             loc: true,
             ranges: true,
@@ -540,7 +561,7 @@ with (house) {
             }
         });
 
-        pass(`export var bar;`, {
+    pass(`export var bar;`, {
             source: `export var bar;`,
             loc: true,
             ranges: true,
@@ -629,7 +650,7 @@ with (house) {
             }
         });
 
-        pass(`export {};`, {
+    pass(`export {};`, {
             source: `export {};`,
             loc: true,
             ranges: true,
@@ -671,7 +692,7 @@ with (house) {
             }
         });
 
-        pass(`export const document = { }`, {
+    pass(`export const document = { }`, {
             source: `export const document = { }`,
             loc: true,
             ranges: true,
@@ -779,7 +800,7 @@ with (house) {
             }
         });
 
-        pass(`export {foo as default, bar} from "foo";`, {
+    pass(`export {foo as default, bar} from "foo";`, {
             source: `export {foo as default, bar} from "foo";`,
             loc: true,
             ranges: true,
@@ -931,7 +952,7 @@ with (house) {
             }
         });
 
-        pass(`export function foo () {}`, {
+    pass(`export function foo () {}`, {
             source: `export function foo () {}`,
             loc: true,
             ranges: true,
@@ -1023,7 +1044,7 @@ with (house) {
             }
         });
 
-        pass(`export {foo, bar};`, {
+    pass(`export {foo, bar};`, {
             source: `export {foo, bar};`,
             loc: true,
             ranges: true,
@@ -1159,7 +1180,7 @@ with (house) {
             }
         });
 
-        pass(`export async function a() {}`, {
+    pass(`export async function a() {}`, {
             source: `export async function a() {}`,
             loc: true,
             ranges: true,
@@ -1251,7 +1272,7 @@ with (house) {
             }
         });
 
-        pass(`import * as o from './resources/o.js';`, {
+    pass(`import * as o from './resources/o.js';`, {
             source: `import * as o from './resources/o.js';`,
             loc: true,
             ranges: true,
@@ -1338,7 +1359,7 @@ with (house) {
             }
         });
 
-        pass(`complex`, {
+    pass(`complex`, {
             source: `var _if = 1;
             var _import = 2;
             var _export = 3;
@@ -1716,7 +1737,7 @@ with (house) {
             }
         });
 
-        pass(`export let document = { }`, {
+    pass(`export let document = { }`, {
             source: `export let document = { }`,
             loc: true,
             ranges: true,
@@ -1820,7 +1841,7 @@ with (house) {
             }
         });
 
-        pass(`export default (async function() { })`, {
+    pass(`export default (async function() { })`, {
             source: `export default (async function() { })`,
             loc: true,
             ranges: true,
@@ -1895,7 +1916,7 @@ with (house) {
             }
         });
 
-        pass(`export default 'x' in { x: true }`, {
+    pass(`export default 'x' in { x: true }`, {
             source: `export default 'x' in { x: true }`,
             loc: true,
             ranges: true,
@@ -2034,7 +2055,7 @@ with (house) {
             }
         });
 
-        pass(`export default function* a(){}`, {
+    pass(`export default function* a(){}`, {
             source: `export default function* a(){}`,
             ranges: true,
             module: true,
@@ -2073,7 +2094,7 @@ with (house) {
             }
         });
 
-        pass(`export const foo = 3;`, {
+    pass(`export const foo = 3;`, {
             source: `export const foo = 3;`,
             ranges: true,
             loc: true,
@@ -2182,7 +2203,7 @@ with (house) {
 }
         });
 
-        pass(`export let bar;`, {
+    pass(`export let bar;`, {
             source: `export let bar;`,
             ranges: true,
             loc: true,
@@ -2275,7 +2296,7 @@ with (house) {
 }
         });
 
-        pass(`export default class foo {};`, {
+    pass(`export default class foo {};`, {
             source: `export default class foo {};`,
             ranges: true,
             loc: true,
@@ -2379,7 +2400,7 @@ with (house) {
 }
         });
 
-        pass(`export default class {};`, {
+    pass(`export default class {};`, {
             source: `export default class {};`,
             ranges: true,
             loc: true,
@@ -2468,7 +2489,7 @@ with (house) {
 }
         });
 
-        pass(`export class foo extends bar {};`, {
+    pass(`export class foo extends bar {};`, {
             source: `export class foo extends bar {};`,
             ranges: true,
             loc: true,
@@ -2589,7 +2610,7 @@ with (house) {
 }
         });
 
-        pass(`export class foo {};`, {
+    pass(`export class foo {};`, {
             source: `export class foo {};`,
             ranges: true,
             loc: true,
@@ -2695,7 +2716,7 @@ with (house) {
 }
         });
 
-        pass(`export default (1 + 2);`, {
+    pass(`export default (1 + 2);`, {
             source: `export default (1 + 2);`,
             ranges: true,
             module: true,
@@ -2786,7 +2807,7 @@ with (house) {
 }
         });
 
-        pass(`export default { foo: 1 };`, {
+    pass(`export default { foo: 1 };`, {
             source: `export default { foo: 1 };`,
             ranges: true,
             module: true,
@@ -2896,7 +2917,7 @@ with (house) {
 }
         });
 
-        pass(`export default (class {});`, {
+    pass(`export default (class {});`, {
             source: `export default (class {});`,
             ranges: true,
             module: true,
@@ -2970,7 +2991,7 @@ with (house) {
 }
         });
 
-        pass(`export var foo = function () {};`, {
+    pass(`export var foo = function () {};`, {
             source: `export var foo = function () {};`,
             ranges: true,
             module: true,
@@ -3098,7 +3119,7 @@ with (house) {
 }
         });
 
-        pass(`export var bar;`, {
+    pass(`export var bar;`, {
             source: `export var bar;`,
             ranges: true,
             module: true,
@@ -3191,7 +3212,7 @@ with (house) {
 }
         });
 
-        pass(`export {foo} from "foo";`, {
+    pass(`export {foo} from "foo";`, {
             source: `export {foo} from "foo";`,
             ranges: true,
             module: true,
@@ -3299,7 +3320,7 @@ with (house) {
 }
         });
 
-        pass(`export default [];`, {
+    pass(`export default [];`, {
             source: `export default [];`,
             ranges: true,
             module: true,

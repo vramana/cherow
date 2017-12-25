@@ -2,224 +2,241 @@ import { pass, fail } from '../utils';
 
 describe('Module code - Import', () => {
 
-      fail(`import {a \\u0061s b} from "./escaped-as-import-specifier.js`, {
+  fail(`import {`, {
+    source: `import {`,
+    module: true
+});
+  fail(`import { foo as bar `, {
+    source: `import { foo as bar `,
+    module: true
+});
+  fail(`import { foo bar } from "module"`, {
+    source: `import { foo bar } from "module"`,
+    module: true
+});
+  fail(`import { foo, , } from "module";`, {
+    source: `import { foo, , } from "module";`,
+    module: true
+});
+
+  fail(`import {a \\u0061s b} from "./escaped-as-import-specifier.js`, {
           source: `import {a \\u0061s b} from "./escaped-as-import-specifier.js`,
           module: true
       });
 
-      fail(`import a, {b as a} from "module";`, {
+  fail(`import a, {b as a} from "module";`, {
           source: `import a, {b as a} from "module";`,
           module: true
       });
 
-      fail(`import { arguments } from './foo';`, {
+  fail(`import { arguments } from './foo';`, {
         source: `import { arguments } from './foo';`,
         module: true
      });
 
-      fail(`import a, {b as a} from "module";`, {
+  fail(`import a, {b as a} from "module";`, {
         source: `import a, {b as a} from "module";`,
         module: true
     });
 
-      fail(`import {} \\u0066rom "./escaped-from.js";`, {
+  fail(`import {} \\u0066rom "./escaped-from.js";`, {
         source: `import {} \\u0066rom "./escaped-from.js";`,
         module: true
     });
 
-      fail(`export {a \\u0061s b} from "./escaped-as-export-specifier.js";`, {
+  fail(`export {a \\u0061s b} from "./escaped-as-export-specifier.js";`, {
         source: `export {a \\u0061s b} from "./escaped-as-export-specifier.js";`,
         module: true
     });
 
-      fail(`import {a \\u0061s b} from "./escaped-as-import-specifier.js";`, {
+  fail(`import {a \\u0061s b} from "./escaped-as-import-specifier.js";`, {
         source: `import {a \\u0061s b} from "./escaped-as-import-specifier.js";`,
         module: true
     });
 
-      fail(`import* \\u0061s self from "./escaped-as-namespace-import.js";`, {
+  fail(`import* \\u0061s self from "./escaped-as-namespace-import.js";`, {
         source: `import* \\u0061s self from "./escaped-as-namespace-import.js";`,
         module: true
     });
 
-      fail(`import {a, a} from "module";`, {
+  fail(`import {a, a} from "module";`, {
           source: `import {a, a} from "module";`,
           module: true
       });
 
-      fail(`import {b as a, c as a} from "module";`, {
+  fail(`import {b as a, c as a} from "module";`, {
           source: `import {b as a, c as a} from "module";`,
           module: true
       });
 
-      fail(`import a, * as a from "module";`, {
+  fail(`import a, * as a from "module";`, {
           source: `import a, * as a from "module";`,
           module: true
       });
 
-      fail(`import {bar, bar} from "foo";`, {
+  fail(`import {bar, bar} from "foo";`, {
           source: `import {bar, bar} from "foo";`,
           module: true
       });
 
-      fail(`import * from "foo"`, {
+  fail(`import * from "foo"`, {
           source: `import * from "foo"`,
           module: true
       });
 
-      fail(`import {}`, {
+  fail(`import {}`, {
           source: `import {}`,
           module: true
       });
 
-      fail(`import default from "foo"`, {
+  fail(`import default from "foo"`, {
           source: `import default from "foo"`,
           module: true
       });
 
-      fail(`import foo, from "bar";`, {
+  fail(`import foo, from "bar";`, {
         source: `import foo, from "bar";`,
         module: true
       });
 
-      fail(`import { null } from "null"`, {
+  fail(`import { null } from "null"`, {
         source: `import { null } from "null"`,
         module: true
     });
 
-      fail(`import * as foo, {bar} from "foo";`, {
+  fail(`import * as foo, {bar} from "foo";`, {
       source: `import * as foo, {bar} from "foo";`,
       module: true
   });
 
-      fail(`import {bar}, {foo} from "foo";`, {
+  fail(`import {bar}, {foo} from "foo";`, {
     source: `import {bar}, {foo} from "foo";`,
     module: true
 });
 
-      fail(`import { for } from "iteration"`, {
+  fail(`import { for } from "iteration"`, {
   source: `import { for } from "iteration"`,
   module: true
 });
 
-      fail(`import {b,,} from "a"`, {
+  fail(`import {b,,} from "a"`, {
           source: `import {b,,} from "a"`,
           module: true
       });
 
-      fail(`import { class } from "foo"`, {
+  fail(`import { class } from "foo"`, {
           source: `import { class } from "foo"`,
           module: true
       });
 
-      fail(`import * as class from "foo"`, {
+  fail(`import * as class from "foo"`, {
           source: `import * as class from "foo"`,
           module: true
       });
 
-      fail(`if (1) import "foo";`, {
+  fail(`if (1) import "foo";`, {
           source: `if (1) import "foo";`,
           module: true
       });
 
-      fail(`import {b as,} from "a"`, {
+  fail(`import {b as,} from "a"`, {
           source: `import {b as,} from "a"`,
           module: true
       });
 
-      fail(`import / as a from  "a"`, {
+  fail(`import / as a from  "a"`, {
           source: `import / as a from  "a"`,
           module: true
       });
 
-      fail(`import a, b from "a"`, {
+  fail(`import a, b from "a"`, {
           source: `import a, b from "a"`,
           module: true
       });
 
-      fail(`import * as foo, {bar} from "foo";`, {
+  fail(`import * as foo, {bar} from "foo";`, {
           source: `import * as foo, {bar} from "foo";`,
           module: true
       });
 
-      fail(`import * from "foo"`, {
+  fail(`import * from "foo"`, {
           source: `import * from "foo"`,
           module: true
       });
 
-      fail(`import {a \\u0061s b} from "./foo.js";`, {
+  fail(`import {a \\u0061s b} from "./foo.js";`, {
           source: `import {a \\u0061s b} from "./foo.js";`,
       });
 
-      fail(`import foo`, {
+  fail(`import foo`, {
           source: `import foo`,
       });
 
-      fail(`import { x as eval } from "./foo.js";`, {
+  fail(`import { x as eval } from "./foo.js";`, {
           source: `import { x as eval } from "./foo.js";`,
       });
 
-      fail(`import {bar}, {foo} from "foo";`, {
+  fail(`import {bar}, {foo} from "foo";`, {
           source: `import {bar}, {foo} from "foo";`,
       });
 
-      fail(`import {foo,baz,,} from 'toast';`, {
+  fail(`import {foo,baz,,} from 'toast';`, {
           source: `import {foo,baz,,} from 'toast';`,
       });
 
-      fail(`import {var} from "foo"`, {
+  fail(`import {var} from "foo"`, {
           source: `import {var} from "foo"`,
       });
 
-      fail(`import {default as foo}`, {
+  fail(`import {default as foo}`, {
           source: `import {default as foo}`,
       });
 
-      fail(`import {foo,baz,,} from 'toast';`, {
+  fail(`import {foo,baz,,} from 'toast';`, {
           source: `import {foo,baz,,} from 'toast';`,
       });
 
-      fail(`import {foo,,baz} from 'toast';`, {
+  fail(`import {foo,,baz} from 'toast';`, {
           source: `import {foo,,baz} from 'toast';`,
       });
 
-      fail(`import * from "foo"`, {
+  fail(`import * from "foo"`, {
           source: `import * from "foo"`,
       });
 
-      fail(`import {bar}, foo from "foo"`, {
+  fail(`import {bar}, foo from "foo"`, {
           source: `import {bar}, foo from "foo"`,
       });
 
-      fail(`import foo`, {
+  fail(`import foo`, {
           source: `import foo`,
       });
 
-      fail(`import default from "foo"`, {
+  fail(`import default from "foo"`, {
           source: `import default from "foo"`,
       });
 
-      fail(`import { foo, bar }`, {
+  fail(`import { foo, bar }`, {
           source: `import { foo, bar }`,
       });
 
-      fail(`export default = 42`, {
+  fail(`export default = 42`, {
           source: `export default = 42`,
       });
 
-      fail(`export * +`, {
+  fail(`export * +`, {
           source: `export * +`,
       });
 
-      fail(`export *`, {
+  fail(`export *`, {
           source: `export *`,
       });
 
-      fail(`export var await;`, {
+  fail(`export var await;`, {
           source: `export var await;`,
       });
 
-      pass(`import * as m from './resources/m3.js';`, {
+  pass(`import * as m from './resources/m3.js';`, {
           source: `import * as m from './resources/m3.js';`,
           loc: true,
           ranges: true,
@@ -310,7 +327,7 @@ describe('Module code - Import', () => {
           }
       });
 
-      pass(`import $ from "jquery"`, {
+  pass(`import $ from "jquery"`, {
           source: `import $ from "jquery"`,
           loc: true,
           ranges: true,
@@ -401,7 +418,7 @@ describe('Module code - Import', () => {
           }
       });
 
-      pass(`import "jquery"`, {
+  pass(`import "jquery"`, {
           source: `import "jquery"`,
           loc: true,
           ranges: true,
@@ -460,7 +477,7 @@ describe('Module code - Import', () => {
           }
       });
 
-      pass(`import {foo,} from "bar"`, {
+  pass(`import {foo,} from "bar"`, {
           source: `import {foo,} from "bar"`,
           loc: true,
           ranges: true,
@@ -567,7 +584,7 @@ describe('Module code - Import', () => {
         }
       });
 
-      pass(`import foo, {bar} from "foo";`, {
+  pass(`import foo, {bar} from "foo";`, {
           source: `import foo, {bar} from "foo";`,
           loc: true,
           ranges: true,
@@ -705,7 +722,7 @@ describe('Module code - Import', () => {
           }
       });
 
-      pass(`import {} from "foo";`, {
+  pass(`import {} from "foo";`, {
         source: `import {} from "foo";`,
         ranges: true,
         module: true,
@@ -764,7 +781,7 @@ describe('Module code - Import', () => {
       }
       });
 
-      pass(`import { null as nil } from "bar"`, {
+  pass(`import { null as nil } from "bar"`, {
         source: `import { null as nil } from "bar"`,
         ranges: true,
         loc: true,
@@ -871,7 +888,7 @@ describe('Module code - Import', () => {
       }
       });
 
-      pass(`import a, * as b from "a"`, {
+  pass(`import a, * as b from "a"`, {
           source: `import a, * as b from "a"`,
           ranges: true,
           module: true,
@@ -919,7 +936,7 @@ describe('Module code - Import', () => {
         }
       });
 
-      pass(`import a, {function as c} from "c"`, {
+  pass(`import a, {function as c} from "c"`, {
           source: `import a, {function as c} from "c"`,
           ranges: true,
           module: true,
@@ -973,7 +990,7 @@ describe('Module code - Import', () => {
         }
       });
 
-      pass(`import {bar, baz,} from "foo";`, {
+  pass(`import {bar, baz,} from "foo";`, {
           source: `import {bar, baz,} from "foo";`,
           ranges: true,
           module: true,
@@ -1127,7 +1144,7 @@ describe('Module code - Import', () => {
 }
     });
 
-      pass(`import * as foo from "foo";`, {
+  pass(`import * as foo from "foo";`, {
           source: `import * as foo from "foo";`,
           ranges: true,
           loc: true,

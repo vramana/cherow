@@ -897,7 +897,6 @@ export class Parser {
         return code;
     }
 
-
     private peekExtendedUnicodeEscape(): Chars {
 
         let ch = this.scanNext();
@@ -978,9 +977,6 @@ export class Parser {
 
         return ret + this.source.substring(start, this.index);
     }
-
-
-
 
     private scanNumericFragment(state: NumericState): NumericState {
         this.flags |= Flags.ContainsSeparator;
@@ -1630,7 +1626,7 @@ export class Parser {
 
                     ch = this.scanNext(Errors.UnterminatedTemplate);
 
-                        if (ch >= 128) {
+                    if (ch >= 128) {
                             ret += fromCodePoint(ch);
                         } else {
                             this.lastChar = ch;
@@ -1650,7 +1646,7 @@ export class Parser {
                             }
                         }
 
-                        break;
+                    break;
 
                         // Line terminators
                     case Chars.CarriageReturn:
@@ -1757,7 +1753,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: any,
         node: any,
