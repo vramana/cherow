@@ -1,6 +1,74 @@
 import { pass, fail } from '../utils';
+import { parseScript } from '../../src/cherow';
 
-describe('Miscellaneous - Keywords', () => {
+describe('Miscellaneous - Identifiers', () => {
+
+    describe('Miscellaneous - Identifiers', () => {
+
+        for (let code = 0x10f000; code <= 0x10ffff; code++) {
+    
+            const arg = `\\u${code}`;
+            
+            pass(`var ${arg} = [];`, {
+                source: `var ${arg} = [];`,
+                expected: parseScript(`var ${arg} = [];`)
+            })
+            pass(`var foo${arg} = [${arg}]`, {
+                source: `var foo${arg} = [${arg}]`,
+                expected: parseScript(`var foo${arg} = [${arg}]`)
+            })
+    
+            pass(`let foo${arg} = [${arg}]`, {
+                source: `let foo${arg} = [${arg}]`,
+                expected: parseScript(`let foo${arg} = [${arg}]`)
+            })
+    
+            pass(`let foo${arg}bar${arg}baz${arg} = {a: 1}`, {
+                source: `let foo${arg}bar${arg}baz${arg} = {a: 1}`,
+                expected: parseScript(`let foo${arg}bar${arg}baz${arg} = {a: 1}`)
+            })
+    
+            pass(`const foo${arg} = [${arg}]`, {
+                source: `const foo${arg} = [${arg}]`,
+                expected: parseScript(`const foo${arg} = [${arg}]`)
+            })
+        }
+        
+        const enum Chars {
+            EnglishUpperA = 0x41,
+                EnglishUpperZ = 0x5A,
+                EnglishLowerA = 0x61,
+                EnglishLowerZ = 0x7A,
+                RussianUpperА = 0x410,
+                RussianUpperЯ = 0x42F,
+                RussianUpperЁ = 0x401,
+                RussianLowerА = 0x430,
+                RussianLowerЯ = 0x44F,
+                RussianLowerЁ = 0x451,
+                Zero = 0x30,
+                Nine = 0x39,
+    
+                Backtick = 0x60,
+        }
+    
+        for (let code = Chars.RussianLowerА; code <= Chars.RussianLowerЯ; code++) {
+            const letter = String.fromCharCode(code);
+            pass(`var ${letter} = [];`, {
+                source: `var ${letter} = [];`,
+                expected: parseScript(`var ${letter} = [];`)
+            })
+    
+            pass(`let ${letter} = [];`, {
+                source: `let ${letter} = [];`,
+                expected: parseScript(`let ${letter} = [];`)
+            })
+    
+            pass(`const ${letter} = [];`, {
+                source: `const ${letter} = [];`,
+                expected: parseScript(`const ${letter} = [];`)
+            })
+        }
+      });
 
     fail(`var a\\u2E2F;`, {
         source: `var a\\u2E2F;`,
