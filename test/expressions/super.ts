@@ -58,6 +58,50 @@ describe('Statements - Super', () => {
         source: 'class C { m() { new super(); }  }',
     });
 
+    fail(`class X { x(){super();} }`, {
+        source: 'class X { x(){super();} }',
+    });
+
+    fail(`() => {super();}`, {
+        source: '() => {super();}',
+    });
+
+    fail(`class X { x(){class X { constructor(){super();} }} }`, {
+        source: 'class X { x(){class X { constructor(){super();} }} }',
+    });
+
+    fail(`class X { x(){class X { x(){super();} }} }`, {
+        source: 'class X { x(){class X { x(){super();} }} }',
+    });
+
+    fail(`class X { x(){function x(){super();}} }`, {
+        source: 'class X { x(){function x(){super();}} }',
+    });
+
+    fail(`class X { x(){function x(){super.x;}} }`, {
+        source: 'class X { x(){function x(){super.x;}} }',
+    });
+
+    fail(`function x(){class X { constructor(){super.x;} }}`, {
+        source: 'function x(){class X { constructor(){super.x;} }}',
+    });
+
+    fail(`function x(){function x(){super();}}`, {
+        source: 'function x(){function x(){super();}}',
+    });
+
+    fail(`function x(){() => {super();}}`, {
+        source: 'function x(){() => {super();}}',
+    });
+
+    fail(`() => {class X { x(){super();} }}`, {
+        source: '() => {class X { x(){super();} }}',
+    });
+
+    fail(`() => {() => {super();}}`, {
+        source: '() => {() => {super();}}',
+    });
+
     pass(`value of reference returned by SuperProperty`, {
         source: `class A {
             constructor() {

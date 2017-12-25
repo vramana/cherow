@@ -116,11 +116,281 @@ describe('Literals - Numbers', () => {
       source: '0b1a',
   });
 
+  pass(`0o1 & 0o10;`, {
+    source: '0o1 & 0o10;',
+    raw: true,
+    ranges: true,
+    loc: true,
+    expected: {
+        type: 'Program',
+        body: [
+            {
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'BinaryExpression',
+                    left: {
+                        type: 'Literal',
+                        value: 1,
+                        start: 0,
+                        end: 3,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 3
+                            }
+                        },
+                        raw: '0o1'
+                    },
+                    right: {
+                        type: 'Literal',
+                        value: 8,
+                        start: 6,
+                        end: 10,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 10
+                            }
+                        },
+                        raw: '0o10'
+                    },
+                    operator: '&',
+                    start: 0,
+                    end: 10,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 10
+                        }
+                    }
+                },
+                start: 0,
+                end: 11,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 11
+                    }
+                }
+            }
+        ],
+        sourceType: 'script',
+        start: 0,
+        end: 11,
+        loc: {
+            start: {
+                line: 1,
+                column: 0
+            },
+            end: {
+                line: 1,
+                column: 11
+            }
+        }
+    }
+  });
+
+  pass(`0o2 ^ 0o3;`, {
+    source: '0o2 ^ 0o3;',
+    raw: true,
+    ranges: true,
+    loc: true,
+    expected: {
+        type: 'Program',
+        body: [
+            {
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'BinaryExpression',
+                    left: {
+                        type: 'Literal',
+                        value: 2,
+                        start: 0,
+                        end: 3,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 3
+                            }
+                        },
+                        raw: '0o2'
+                    },
+                    right: {
+                        type: 'Literal',
+                        value: 3,
+                        start: 6,
+                        end: 9,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 9
+                            }
+                        },
+                        raw: '0o3'
+                    },
+                    operator: '^',
+                    start: 0,
+                    end: 9,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 9
+                        }
+                    }
+                },
+                start: 0,
+                end: 10,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 10
+                    }
+                }
+            }
+        ],
+        sourceType: 'script',
+        start: 0,
+        end: 10,
+        loc: {
+            start: {
+                line: 1,
+                column: 0
+            },
+            end: {
+                line: 1,
+                column: 10
+            }
+        }
+    }
+  });
+
+  pass(`var b1 = 0b01111111111111111111111111111111;`, {
+    source: 'var b1 = 0b01111111111111111111111111111111;',
+    raw: true,
+    ranges: true,
+    loc: true,
+    expected: {
+        type: 'Program',
+        body: [
+            {
+                type: 'VariableDeclaration',
+                declarations: [
+                    {
+                        type: 'VariableDeclarator',
+                        init: {
+                            type: 'Literal',
+                            value: 2147483647,
+                            start: 9,
+                            end: 43,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 9
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 43
+                                }
+                            },
+                            raw: '0b01111111111111111111111111111111'
+                        },
+                        id: {
+                            type: 'Identifier',
+                            name: 'b1',
+                            start: 4,
+                            end: 6,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 6
+                                }
+                            }
+                        },
+                        start: 4,
+                        end: 43,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 4
+                            },
+                            end: {
+                                line: 1,
+                                column: 43
+                            }
+                        }
+                    }
+                ],
+                kind: 'var',
+                start: 0,
+                end: 44,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 44
+                    }
+                }
+            }
+        ],
+        sourceType: 'script',
+        start: 0,
+        end: 44,
+        loc: {
+            start: {
+                line: 1,
+                column: 0
+            },
+            end: {
+                line: 1,
+                column: 44
+            }
+        }
+    }
+  });
+
   pass(`44`, {
       source: '44',
       raw: true,
       ranges: true,
-      // next: true,
       expected: {
           type: 'Program',
           start: 0,

@@ -14,6 +14,8 @@ describe('Declarations - Lexical', () => {
         '[...a, ...b] = [];',
         '[...a, b] = [];',
         '[...a = 1] = [];',
+        '[a + 1] = [];',
+        '[++a] = [];',
         ' [((a)] = [];',
         '[a)] = [];',
         '{a: ...[]}',
@@ -68,6 +70,7 @@ describe('Declarations - Lexical', () => {
             expected: parseScript(`var ${arg}`)
         });
     }
+
     pass(`let a`, {
         source: 'let a',
         loc: true,
@@ -581,6 +584,562 @@ describe('Declarations - Lexical', () => {
         }
     });
 
+    pass(`const [a] = [1, 2];`, {
+        source: 'const [a] = [1, 2];',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 19,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 19
+              }
+            },
+            body: [
+              {
+                type: 'VariableDeclaration',
+                start: 0,
+                end: 19,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 19
+                  }
+                },
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    start: 6,
+                    end: 18,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 6
+                      },
+                      end: {
+                        line: 1,
+                        column: 18
+                      }
+                    },
+                    id: {
+                      type: 'ArrayPattern',
+                      start: 6,
+                      end: 9,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 6
+                        },
+                        end: {
+                          line: 1,
+                          column: 9
+                        }
+                      },
+                      elements: [
+                        {
+                          type: 'Identifier',
+                          start: 7,
+                          end: 8,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 7
+                            },
+                            end: {
+                              line: 1,
+                              column: 8
+                            }
+                          },
+                          name: 'a'
+                        }
+                      ]
+                    },
+                    init: {
+                      type: 'ArrayExpression',
+                      start: 12,
+                      end: 18,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 12
+                        },
+                        end: {
+                          line: 1,
+                          column: 18
+                        }
+                      },
+                      elements: [
+                        {
+                          type: 'Literal',
+                          start: 13,
+                          end: 14,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 13
+                            },
+                            end: {
+                              line: 1,
+                              column: 14
+                            }
+                          },
+                          value: 1,
+                          raw: '1'
+                        },
+                        {
+                          type: 'Literal',
+                          start: 16,
+                          end: 17,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 16
+                            },
+                            end: {
+                              line: 1,
+                              column: 17
+                            }
+                          },
+                          value: 2,
+                          raw: '2'
+                        }
+                      ]
+                    }
+                  }
+                ],
+                kind: 'const'
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`let a; [a,] = [];`, {
+        source: 'let a; [a,] = [];',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 17,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 17
+              }
+            },
+            body: [
+              {
+                type: 'VariableDeclaration',
+                start: 0,
+                end: 6,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 6
+                  }
+                },
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    start: 4,
+                    end: 5,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 4
+                      },
+                      end: {
+                        line: 1,
+                        column: 5
+                      }
+                    },
+                    id: {
+                      type: 'Identifier',
+                      start: 4,
+                      end: 5,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 4
+                        },
+                        end: {
+                          line: 1,
+                          column: 5
+                        }
+                      },
+                      name: 'a'
+                    },
+                    init: null
+                  }
+                ],
+                kind: 'let'
+              },
+              {
+                type: 'ExpressionStatement',
+                start: 7,
+                end: 17,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 7
+                  },
+                  end: {
+                    line: 1,
+                    column: 17
+                  }
+                },
+                expression: {
+                  type: 'AssignmentExpression',
+                  start: 7,
+                  end: 16,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 7
+                    },
+                    end: {
+                      line: 1,
+                      column: 16
+                    }
+                  },
+                  operator: '=',
+                  left: {
+                    type: 'ArrayPattern',
+                    start: 7,
+                    end: 11,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 7
+                      },
+                      end: {
+                        line: 1,
+                        column: 11
+                      }
+                    },
+                    elements: [
+                      {
+                        type: 'Identifier',
+                        start: 8,
+                        end: 9,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 8
+                          },
+                          end: {
+                            line: 1,
+                            column: 9
+                          }
+                        },
+                        name: 'a'
+                      }
+                    ]
+                  },
+                  right: {
+                    type: 'ArrayExpression',
+                    start: 14,
+                    end: 16,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 14
+                      },
+                      end: {
+                        line: 1,
+                        column: 16
+                      }
+                    },
+                    elements: []
+                  }
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`const [a] = [,,];`, {
+        source: 'const [a] = [,,];',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 17,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 17
+              }
+            },
+            body: [
+              {
+                type: 'VariableDeclaration',
+                start: 0,
+                end: 17,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 17
+                  }
+                },
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    start: 6,
+                    end: 16,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 6
+                      },
+                      end: {
+                        line: 1,
+                        column: 16
+                      }
+                    },
+                    id: {
+                      type: 'ArrayPattern',
+                      start: 6,
+                      end: 9,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 6
+                        },
+                        end: {
+                          line: 1,
+                          column: 9
+                        }
+                      },
+                      elements: [
+                        {
+                          type: 'Identifier',
+                          start: 7,
+                          end: 8,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 7
+                            },
+                            end: {
+                              line: 1,
+                              column: 8
+                            }
+                          },
+                          name: 'a'
+                        }
+                      ]
+                    },
+                    init: {
+                      type: 'ArrayExpression',
+                      start: 12,
+                      end: 16,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 12
+                        },
+                        end: {
+                          line: 1,
+                          column: 16
+                        }
+                      },
+                      elements: [
+                        null,
+                        null
+                      ]
+                    }
+                  }
+                ],
+                kind: 'const'
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`const [...a] = [];`, {
+        source: 'const [...a] = [];',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 18,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 18
+              }
+            },
+            body: [
+              {
+                type: 'VariableDeclaration',
+                start: 0,
+                end: 18,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 18
+                  }
+                },
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    start: 6,
+                    end: 17,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 6
+                      },
+                      end: {
+                        line: 1,
+                        column: 17
+                      }
+                    },
+                    id: {
+                      type: 'ArrayPattern',
+                      start: 6,
+                      end: 12,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 6
+                        },
+                        end: {
+                          line: 1,
+                          column: 12
+                        }
+                      },
+                      elements: [
+                        {
+                          type: 'RestElement',
+                          start: 7,
+                          end: 11,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 7
+                            },
+                            end: {
+                              line: 1,
+                              column: 11
+                            }
+                          },
+                          argument: {
+                            type: 'Identifier',
+                            start: 10,
+                            end: 11,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 10
+                              },
+                              end: {
+                                line: 1,
+                                column: 11
+                              }
+                            },
+                            name: 'a'
+                          }
+                        }
+                      ]
+                    },
+                    init: {
+                      type: 'ArrayExpression',
+                      start: 15,
+                      end: 17,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 15
+                        },
+                        end: {
+                          line: 1,
+                          column: 17
+                        }
+                      },
+                      elements: []
+                    }
+                  }
+                ],
+                kind: 'const'
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    fail(`let [a, a] = [];`, {
+        source: 'let [a, a] = [];',
+    });
+
+    fail(`let [[(a)], ((((((([b])))))))] = [[],[]];`, {
+        source: 'let [[(a)], ((((((([b])))))))] = [[],[]];',
+    });
+
+    fail(`const [((((a)))), b] = [];`, {
+        source: 'const [((((a)))), b] = [];',
+    });
+
+    fail(`let a, b; [...a, ...b] = [];`, {
+        source: 'let a, b; [...a, ...b] = [];',
+    });
+
+    fail(`let [1] = [];`, {
+        source: 'let [1] = [];',
+    });
+
+    fail(`const [1, a] = [];`, {
+        source: 'const [1, a] = [];',
+    });
+
+    fail(`let [a];`, {
+        source: 'let [a];',
+    });
     fail(`while(true) let a`, {
         source: 'while(true) let a',
     });

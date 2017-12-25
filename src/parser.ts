@@ -231,6 +231,11 @@ export class Parser {
         this.column++;
     }
 
+    private rewind() {
+        this.index--;
+        this.column--;
+    }
+
     private advanceNewline(skipLF = true) {
         this.flags |= Flags.LineTerminator;
         this.index++;
@@ -476,7 +481,7 @@ export class Parser {
 
                     // Template
                 case Chars.Backtick:
-                    return this.scanTemplate(context, first);
+                    return this.scanTemplate(context);
 
                     // `'string'`, `"string"`
                 case Chars.DoubleQuote:
@@ -838,14 +843,14 @@ export class Parser {
 
         let start = this.index;
         let ret = '';
-        let isEscaped = false;
+        let hasEscape = false;
 
         loop:
             while (this.hasNext()) {
                 const code = this.nextChar();
                 switch (code) {
                     case Chars.Backslash:
-                        isEscaped = true;
+                        hasEscape = true;
                         ret += this.source.slice(start, this.index);
                         ret += fromCodePoint(this.peekUnicodeEscape());
                         start = this.index;
@@ -863,7 +868,7 @@ export class Parser {
         const len = ret.length;
         this.tokenValue = ret;
 
-        if (isEscaped) this.flags |= Flags.ExtendedUnicodeEscape;
+        if (hasEscape) this.flags |= Flags.ExtendedUnicodeEscape;
 
         if (hasUnicode) return Token.Identifier;
 
@@ -911,6 +916,7 @@ export class Parser {
                 const digit = toHex(ch);
                 if (digit < 0) this.error(Errors.InvalidHexEscapeSequence);
                 code = (code << 4) | digit;
+                // Code point out of bounds
                 if (code > Chars.LastUnicodeChar) break;
                 ch = this.scanNext(Errors.InvalidHexEscapeSequence);
             }
@@ -1375,7 +1381,7 @@ export class Parser {
     private scanString(context: Context, quote: number): Token {
 
         let ret = '';
-        let isEscaped = false;
+        let hasEscape = false;
         this.advance(); // Consume the quote
         let ch = this.nextChar();
 
@@ -1398,10 +1404,10 @@ export class Parser {
                         if (code >= 0) {
                             ret += fromCodePoint(code as Chars);
                         } else {
-                            this.handleStringError(context, code as Escape);
+                            this.throwStringError(context, code as Escape);
                         }
                         this.flags |= Flags.ExtendedUnicodeEscape;
-                        isEscaped = true;
+                        hasEscape = true;
                     }
                     break;
 
@@ -1416,7 +1422,7 @@ export class Parser {
 
         this.storeRaw(this.startIndex);
 
-        if (isEscaped) {
+        if (hasEscape) {
             this.flags |= Flags.ExtendedUnicodeEscape;
         } else if (ret === 'use strict') this.flags |= Flags.StrictDirective;
 
@@ -1425,7 +1431,7 @@ export class Parser {
         return Token.StringLiteral;
     }
 
-    private handleStringError(context: Context, code: Escape) {
+    private throwStringError(context: Context, code: Escape) {
         switch (code) {
             case Escape.StrictOctal:
                 this.error(context & Context.Template ? Errors.StrictOctalEscape : Errors.TemplateOctalLiteral);
@@ -1562,6 +1568,7 @@ export class Parser {
                             const digit = toHex(ch);
                             if (digit < 0) return Escape.InvalidHex;
                             code = code << 4 | digit;
+                            // Code point out of bounds
                             if (code > Chars.LastUnicodeChar) return Escape.OutOfRange;
                             ch = this.lastChar = this.scanNext();
                         }
@@ -1588,14 +1595,14 @@ export class Parser {
         }
     }
 
-    private scanTemplateNext(context: Context): Token {
-        if (!this.hasNext()) this.error(Errors.Unexpected);
-        this.index--;
-        this.column--;
-        return this.scanTemplate(context, Chars.RightBrace);
+    private consumeTemplateBrace(context: Context): Token {
+        if (!this.hasNext()) this.error(Errors.UnterminatedTemplate);
+        // Upon reaching a '}', consume it and rewind the scanner state
+        this.rewind();
+        return this.scanTemplate(context);
     }
 
-    private scanTemplate(context: Context, first: number): Token {
+    private scanTemplate(context: Context): Token {
         const start = this.index;
         const lastChar = this.lastChar;
         let tail = true;
@@ -1642,7 +1649,7 @@ export class Parser {
                                 }
                                 break loop;
                             } else {
-                                this.handleStringError(context | Context.Template, code as Escape);
+                                this.throwStringError(context | Context.Template, code as Escape);
                             }
                         }
 
@@ -1675,6 +1682,7 @@ export class Parser {
         }
     }
 
+    // The loose parser accepts invalid unicode escapes
     private scanLooserTemplateSegment(ch: number): Chars {
 
         while (ch !== Chars.Backtick) {
@@ -3714,9 +3722,9 @@ export class Parser {
         context: Context,
         pos: Location
     ): ESTree.CallExpression | ESTree.ArrowFunctionExpression | ESTree.Identifier | void {
-        const isEscaped = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
+        const hasEscape = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
         // Valid: `(\u0061sync ())`
-        if (isEscaped && !(context & Context.InParenthesis)) {
+        if (hasEscape && !(context & Context.InParenthesis)) {
             this.error(Errors.Unexpected);
         }
 
@@ -3738,7 +3746,7 @@ export class Parser {
                 // CoverCallExpressionAndAsyncArrowHead[Yield, Await]:
             case Token.LeftParen:
                 // This could be either a CallExpression or the head of an async arrow function
-                return this.parseAsyncArguments(context & ~Context.Yield | Context.AllowIn, pos, id, flags, isEscaped);
+                return this.parseAsyncArguments(context & ~Context.Yield | Context.AllowIn, pos, id, flags, hasEscape);
             default:
                 // Async as Identifier
                 return id;
@@ -3750,7 +3758,7 @@ export class Parser {
         pos: Location,
         id: ESTree.Identifier,
         flags: Flags,
-        isEscaped: boolean
+        hasEscape: boolean
     ): ESTree.ArrowFunctionExpression {
         // Modified ArgumentList production to deal with async stuff. This so we can
         // speed up the "normal" CallExpression production. This also deal with the
@@ -3801,7 +3809,7 @@ export class Parser {
 
         if (this.token === Token.Arrow) {
 
-            if (isEscaped) this.error(Errors.UnexpectedEscapedKeyword);
+            if (hasEscape) this.error(Errors.UnexpectedEscapedKeyword);
             // async arrows cannot have a line terminator between "async" and the formals
             if (flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
             if (this.flags & Flags.Await) this.error(Errors.InvalidAwaitInArrowParam);
@@ -4794,7 +4802,7 @@ export class Parser {
 
     private parseTemplateHead(context: Context, cooked: string, raw: string): ESTree.TemplateElement {
         const pos = this.getLocations();
-        this.token = this.scanTemplateNext(context);
+        this.token = this.consumeTemplateBrace(context);
         return this.finishNode(context, pos, {
             type: 'TemplateElement',
             value: {

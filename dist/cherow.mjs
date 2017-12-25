@@ -507,6 +507,10 @@ Parser.prototype.advance = function advance () {
     this.index++;
     this.column++;
 };
+Parser.prototype.rewind = function rewind () {
+    this.index--;
+    this.column--;
+};
 Parser.prototype.advanceNewline = function advanceNewline (skipLF) {
         if ( skipLF === void 0 ) skipLF = true;
 
@@ -719,7 +723,7 @@ Parser.prototype.scan = function scan (context) {
                 return 16 /* RightParen */;
             // Template
             case 96 /* Backtick */:
-                return this$1.scanTemplate(context, first);
+                return this$1.scanTemplate(context);
             // `'string'`, `"string"`
             case 34 /* DoubleQuote */:
             case 39 /* SingleQuote */:
@@ -1048,12 +1052,12 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context, hasUnicode) 
 
     var start = this.index;
     var ret = '';
-    var isEscaped = false;
+    var hasEscape = false;
     loop: while (this.hasNext()) {
         var code = this$1.nextChar();
         switch (code) {
             case 92 /* Backslash */:
-                isEscaped = true;
+                hasEscape = true;
                 ret += this$1.source.slice(start, this$1.index);
                 ret += fromCodePoint(this$1.peekUnicodeEscape());
                 start = this$1.index;
@@ -1071,7 +1075,7 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context, hasUnicode) 
         { ret += this.source.slice(start, this.index); }
     var len = ret.length;
     this.tokenValue = ret;
-    if (isEscaped)
+    if (hasEscape)
         { this.flags |= 2 /* ExtendedUnicodeEscape */; }
     if (hasUnicode)
         { return 67371009 /* Identifier */; }
@@ -1114,6 +1118,7 @@ Parser.prototype.peekExtendedUnicodeEscape = function peekExtendedUnicodeEscape 
             if (digit < 0)
                 { this$1.error(55 /* InvalidHexEscapeSequence */); }
             code = (code << 4) | digit;
+            // Code point out of bounds
             if (code > 1114111 /* LastUnicodeChar */)
                 { break; }
             ch = this$1.scanNext(55 /* InvalidHexEscapeSequence */);
@@ -1525,7 +1530,7 @@ Parser.prototype.scanString = function scanString (context, quote) {
         var this$1 = this;
 
     var ret = '';
-    var isEscaped = false;
+    var hasEscape = false;
     this.advance(); // Consume the quote
     var ch = this.nextChar();
     while (ch !== quote) {
@@ -1546,10 +1551,10 @@ Parser.prototype.scanString = function scanString (context, quote) {
                         ret += fromCodePoint(code);
                     }
                     else {
-                        this$1.handleStringError(context, code);
+                        this$1.throwStringError(context, code);
                     }
                     this$1.flags |= 2 /* ExtendedUnicodeEscape */;
-                    isEscaped = true;
+                    hasEscape = true;
                 }
                 break;
             default:
@@ -1559,7 +1564,7 @@ Parser.prototype.scanString = function scanString (context, quote) {
     }
     this.advance(); // Consume the quote
     this.storeRaw(this.startIndex);
-    if (isEscaped) {
+    if (hasEscape) {
         this.flags |= 2 /* ExtendedUnicodeEscape */;
     }
     else if (ret === 'use strict')
@@ -1567,7 +1572,7 @@ Parser.prototype.scanString = function scanString (context, quote) {
     this.tokenValue = ret;
     return 262147 /* StringLiteral */;
 };
-Parser.prototype.handleStringError = function handleStringError (context, code) {
+Parser.prototype.throwStringError = function throwStringError (context, code) {
     switch (code) {
         case -2 /* StrictOctal */:
             this.error(context & 524288 /* Template */ ? 7 /* StrictOctalEscape */ : 92 /* TemplateOctalLiteral */);
@@ -1693,6 +1698,7 @@ Parser.prototype.scanEscape = function scanEscape (context, cp) {
                         if (digit < 0)
                             { return -4 /* InvalidHex */; }
                         code$2 = code$2 << 4 | digit;
+                        // Code point out of bounds
                         if (code$2 > 1114111 /* LastUnicodeChar */)
                             { return -5 /* OutOfRange */; }
                         ch = this$1.lastChar = this$1.scanNext();
@@ -1718,14 +1724,14 @@ Parser.prototype.scanEscape = function scanEscape (context, cp) {
             return this.peekUnicodeChar();
     }
 };
-Parser.prototype.scanTemplateNext = function scanTemplateNext (context) {
+Parser.prototype.consumeTemplateBrace = function consumeTemplateBrace (context) {
     if (!this.hasNext())
-        { this.error(0 /* Unexpected */); }
-    this.index--;
-    this.column--;
-    return this.scanTemplate(context, 125 /* RightBrace */);
+        { this.error(72 /* UnterminatedTemplate */); }
+    // Upon reaching a '}', consume it and rewind the scanner state
+    this.rewind();
+    return this.scanTemplate(context);
 };
-Parser.prototype.scanTemplate = function scanTemplate (context, first) {
+Parser.prototype.scanTemplate = function scanTemplate (context) {
         var this$1 = this;
 
     var start = this.index;
@@ -1768,7 +1774,7 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
                         break loop;
                     }
                     else {
-                        this$1.handleStringError(context | 524288 /* Template */, code);
+                        this$1.throwStringError(context | 524288 /* Template */, code);
                     }
                 }
                 break;
@@ -1797,6 +1803,7 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
         return 262152 /* TemplateCont */;
     }
 };
+// The loose parser accepts invalid unicode escapes
 Parser.prototype.scanLooserTemplateSegment = function scanLooserTemplateSegment (ch) {
         var this$1 = this;
 
@@ -3501,9 +3508,9 @@ Parser.prototype.parseFormalParameters = function parseFormalParameters (context
     });
 };
 Parser.prototype.parseAsyncFunctionExpression = function parseAsyncFunctionExpression (context, pos) {
-    var isEscaped = (this.flags & 2 /* ExtendedUnicodeEscape */) !== 0;
+    var hasEscape = (this.flags & 2 /* ExtendedUnicodeEscape */) !== 0;
     // Valid: `(\u0061sync ())`
-    if (isEscaped && !(context & 64 /* InParenthesis */)) {
+    if (hasEscape && !(context & 64 /* InParenthesis */)) {
         this.error(0 /* Unexpected */);
     }
     var id = this.parseIdentifier(context);
@@ -3523,13 +3530,13 @@ Parser.prototype.parseAsyncFunctionExpression = function parseAsyncFunctionExpre
         // CoverCallExpressionAndAsyncArrowHead[Yield, Await]:
         case 262155 /* LeftParen */:
             // This could be either a CallExpression or the head of an async arrow function
-            return this.parseAsyncArguments(context & ~16 /* Yield */ | 4 /* AllowIn */, pos, id, flags, isEscaped);
+            return this.parseAsyncArguments(context & ~16 /* Yield */ | 4 /* AllowIn */, pos, id, flags, hasEscape);
         default:
             // Async as Identifier
             return id;
     }
 };
-Parser.prototype.parseAsyncArguments = function parseAsyncArguments (context, pos, id, flags, isEscaped) {
+Parser.prototype.parseAsyncArguments = function parseAsyncArguments (context, pos, id, flags, hasEscape) {
         var this$1 = this;
 
     // Modified ArgumentList production to deal with async stuff. This so we can
@@ -3574,7 +3581,7 @@ Parser.prototype.parseAsyncArguments = function parseAsyncArguments (context, po
     }
     this.expect(context, 16 /* RightParen */);
     if (this.token === 10 /* Arrow */) {
-        if (isEscaped)
+        if (hasEscape)
             { this.error(63 /* UnexpectedEscapedKeyword */); }
         // async arrows cannot have a line terminator between "async" and the formals
         if (flags & 1 /* LineTerminator */)
@@ -4445,7 +4452,7 @@ Parser.prototype.parseTemplateLiteral = function parseTemplateLiteral (context, 
 };
 Parser.prototype.parseTemplateHead = function parseTemplateHead (context, cooked, raw) {
     var pos = this.getLocations();
-    this.token = this.scanTemplateNext(context);
+    this.token = this.consumeTemplateBrace(context);
     return this.finishNode(context, pos, {
         type: 'TemplateElement',
         value: {
