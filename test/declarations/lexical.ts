@@ -52,7 +52,6 @@ describe('Declarations - Lexical', () => {
     ];
 
     for (const arg of vaidSyntax) {
-        console.log(arg);
 
         pass(`let ${arg}`, {
             source: `let ${arg}`,

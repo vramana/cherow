@@ -675,7 +675,6 @@ export class Parser {
 
                     // '\uVar', `\u{N}var`
                 case Chars.Backslash:
-
                     // `A`...`Z`
                 case Chars.UpperA:
                 case Chars.UpperB:
@@ -731,10 +730,10 @@ export class Parser {
                 case Chars.LowerX:
                 case Chars.LowerY:
                 case Chars.LowerZ:
-                    return this.scanIdentifier(context, state);
+                    return this.scanIdentifier(context);
                 default:
                     if (isValidIdentifierStart(first)) {
-                        return this.scanIdentifier(context, state | ScanState.Unicode);
+                        return this.scanIdentifier(context, true);
                     }
                     this.error(Errors.UnexpectedToken, fromCodePoint(first));
             }
@@ -835,7 +834,7 @@ export class Parser {
         }
     }
 
-    private scanIdentifier(context: Context, state: ScanState): Token {
+    private scanIdentifier(context: Context, hasUnicode: boolean = false): Token {
 
         let start = this.index;
         let ret = '';
@@ -866,7 +865,7 @@ export class Parser {
 
         if (isEscaped) this.flags |= Flags.ExtendedUnicodeEscape;
 
-        if (state & ScanState.Unicode) return Token.Identifier;
+        if (hasUnicode) return Token.Identifier;
 
         // Keywords are between 2 and 11 characters long and start with a lowercase letter
         if (len >= 2 && len <= 11) {
@@ -883,7 +882,7 @@ export class Parser {
     /**
      * Peek unicode escape
      */
-    private peekUnicodeEscape(): Chars {
+    private peekUnicodeEscape(): number {
         this.advance();
         const code = this.peekExtendedUnicodeEscape();
         if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMin) {
@@ -898,6 +897,7 @@ export class Parser {
         return code;
     }
 
+
     private peekExtendedUnicodeEscape(): Chars {
 
         let ch = this.scanNext();
@@ -906,7 +906,6 @@ export class Parser {
 
         // '\u{DDDDDDDD}'
         if (ch === Chars.LeftBrace) { // {
-
             ch = this.scanNext(Errors.InvalidHexEscapeSequence);
 
             while (ch !== Chars.RightBrace) {
@@ -979,6 +978,9 @@ export class Parser {
 
         return ret + this.source.substring(start, this.index);
     }
+
+
+
 
     private scanNumericFragment(state: NumericState): NumericState {
         this.flags |= Flags.ContainsSeparator;
@@ -1457,7 +1459,6 @@ export class Parser {
                 return Chars.Tab;
             case Chars.LowerV:
                 return Chars.VerticalTab;
-
             case Chars.CarriageReturn:
             case Chars.LineFeed:
             case Chars.LineSeparator:
@@ -1472,6 +1473,8 @@ export class Parser {
             case Chars.Two:
             case Chars.Three:
                 {
+                    // 1 to 3 octal digits
+
                     let code = cp - Chars.Zero;
                     let index = this.index + 1;
                     let column = this.column + 1;
@@ -1511,10 +1514,8 @@ export class Parser {
             case Chars.Six:
             case Chars.Seven:
                 {
-
-                    if (context & Context.Strict) {
-                        return Escape.StrictOctal;
-                    }
+                    // 1 to 2 octal digits
+                    if (context & Context.Strict) return Escape.StrictOctal;
 
                     let code = cp - Chars.Zero;
                     const index = this.index + 1;
@@ -1627,7 +1628,7 @@ export class Parser {
 
                     case Chars.Backslash:
 
-                        ch = this.scanNext(Errors.UnterminatedTemplate);
+                    ch = this.scanNext(Errors.UnterminatedTemplate);
 
                         if (ch >= 128) {
                             ret += fromCodePoint(ch);
@@ -1661,7 +1662,6 @@ export class Parser {
                     default:
                         if (ret != null) ret += fromCodePoint(ch);
                 }
-
                 ch = this.scanNext(Errors.UnterminatedTemplate);
             }
 
@@ -1757,7 +1757,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: any,
         node: any,
