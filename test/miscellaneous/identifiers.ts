@@ -3,8 +3,6 @@ import { parseScript } from '../../src/cherow';
 
 describe('Miscellaneous - Identifiers', () => {
 
-    describe('Miscellaneous - Identifiers', () => {
-
         for (let code = 0x10f000; code <= 0x10ffff; code++) {
     
             const arg = `\\u${code}`;
@@ -33,25 +31,9 @@ describe('Miscellaneous - Identifiers', () => {
                 expected: parseScript(`const foo${arg} = [${arg}]`)
             })
         }
-        
-        const enum Chars {
-            EnglishUpperA = 0x41,
-                EnglishUpperZ = 0x5A,
-                EnglishLowerA = 0x61,
-                EnglishLowerZ = 0x7A,
-                RussianUpperА = 0x410,
-                RussianUpperЯ = 0x42F,
-                RussianUpperЁ = 0x401,
-                RussianLowerА = 0x430,
-                RussianLowerЯ = 0x44F,
-                RussianLowerЁ = 0x451,
-                Zero = 0x30,
-                Nine = 0x39,
-    
-                Backtick = 0x60,
-        }
-    
-        for (let code = Chars.RussianLowerА; code <= Chars.RussianLowerЯ; code++) {
+
+        // Russians
+        for (let code = 0x430; code <= 0x451; code++) {
             const letter = String.fromCharCode(code);
             pass(`var ${letter} = [];`, {
                 source: `var ${letter} = [];`,
@@ -68,7 +50,6 @@ describe('Miscellaneous - Identifiers', () => {
                 expected: parseScript(`const ${letter} = [];`)
             })
         }
-      });
 
     fail(`var a\\u2E2F;`, {
         source: `var a\\u2E2F;`,
