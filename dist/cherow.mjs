@@ -1732,7 +1732,7 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
     var lastChar = this.lastChar;
     var tail = true;
     var ret = '';
-    var ch = this.scanNext();
+    var ch = this.scanNext(72 /* UnterminatedTemplate */);
     loop: while (ch !== 96 /* Backtick */) {
         switch (ch) {
             case 36 /* Dollar */:
@@ -1749,7 +1749,7 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
                     break;
                 }
             case 92 /* Backslash */:
-                ch = this$1.scanNext();
+                ch = this$1.scanNext(72 /* UnterminatedTemplate */);
                 if (ch >= 128) {
                     ret += fromCodePoint(ch);
                 }
@@ -1783,7 +1783,7 @@ Parser.prototype.scanTemplate = function scanTemplate (context, first) {
                 if (ret != null)
                     { ret += fromCodePoint(ch); }
         }
-        ch = this$1.scanNext();
+        ch = this$1.scanNext(72 /* UnterminatedTemplate */);
     }
     this.advance();
     this.tokenValue = ret;
