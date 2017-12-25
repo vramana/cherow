@@ -46,6 +46,18 @@ describe('Expressions - Async', () => {
         source: 'x = { async f: function() {} }',
     });
 
+    fail(`var aaf = async\n(x, y) => { }`, {
+        source: 'var aaf = async\n(x, y) => { }',
+    });
+
+    fail(`class C { async\nam() { } };`, {
+        source: 'class C { async\nam() { } };',
+    });
+
+    fail(`var af = async\nfunction () { }`, {
+        source: 'var af = async\nfunction () { }',
+    });
+
     fail(`class X { async constructor(){} }`, {
         source: 'class X { async constructor(){} }',
     });

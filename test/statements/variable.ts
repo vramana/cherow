@@ -573,6 +573,149 @@ describe('Statements - Variable', () => {
             }
         });
 
+        pass(`var o = { await: 10 }`, {
+            source: 'var o = { await: 10 }',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                init: {
+                                    type: 'ObjectExpression',
+                                    properties: [
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'await',
+                                                start: 10,
+                                                end: 15,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 10
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 15
+                                                    }
+                                                }
+                                            },
+                                            value: {
+                                                type: 'Literal',
+                                                value: 10,
+                                                start: 17,
+                                                end: 19,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 17
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 19
+                                                    }
+                                                },
+                                                raw: '10'
+                                            },
+                                            kind: 'init',
+                                            computed: false,
+                                            method: false,
+                                            shorthand: false,
+                                            start: 10,
+                                            end: 19,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 10
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 19
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 8,
+                                    end: 21,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 8
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 21
+                                        }
+                                    }
+                                },
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'o',
+                                    start: 4,
+                                    end: 5,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 4
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 5
+                                        }
+                                    }
+                                },
+                                start: 4,
+                                end: 21,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 21
+                                    }
+                                }
+                            }
+                        ],
+                        kind: 'var',
+                        start: 0,
+                        end: 21,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 21
+                            }
+                        }
+                    }
+                ],
+                sourceType: 'script',
+                start: 0,
+                end: 21,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 21
+                    }
+                }
+            }
+        });
+
         pass(`var [a = 1, b = 2] = arr`, {
             source: 'var [a = 1, b = 2] = arr',
             loc: true,

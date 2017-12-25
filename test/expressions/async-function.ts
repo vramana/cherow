@@ -27,6 +27,41 @@ describe('Expressions - Async function', () => {
         next: true
     });
 
+     fail(`async function af(x, x) { }`, {
+        source: 'async function af(x, x) { }',
+        next: true
+    });
+
+     fail(`async function af(x) { const x = 1; }`, {
+        source: 'async function af(x) { const x = 1; }',
+        next: true
+    });
+
+     fail(`async function af(x) { class x { } }`, {
+        source: 'async function af(x) { class x { } }',
+        next: true
+    });
+
+     fail(`async function af() { var a = (x, await, y) => { }; }`, {
+        source: 'async function af() { var a = (x, await, y) => { }; }',
+        next: true
+    });
+
+     fail(`async function af() { var a = (x, y, z = await 0) => { }; }`, {
+        source: 'async function af() { var a = (x, y, z = await 0) => { }; }',
+        next: true
+    });
+
+     fail(`function () { a = async await => { } }`, {
+        source: 'function () { a = async await => { } }',
+        next: true
+    });
+
+     fail(`async () => { (x, y, z = await 0) => { }; }`, {
+        source: 'async () => { (x, y, z = await 0) => { }; }',
+        next: true
+    });
+
      fail(`(async function foo() { } = 1)`, {
         source: '(async function foo() { } = 1)',
     });

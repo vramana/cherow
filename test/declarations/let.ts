@@ -93,6 +93,39 @@ describe('Declarations - Let', () => {
         source: '{ let f; var f; }'
     });
 
+    fail('let test = 2, let = 1;', {
+        source: 'let test = 2, let = 1;'
+    });
+
+    fail('let [a, let, b] = [1, 2, 3];', {
+        source: 'let [a, let, b] = [1, 2, 3];'
+    });
+
+    // 'let' should not be an allowed name in destructuring let declarations
+    fail('let [a, let, b] = [1, 2, 3];', {
+        source: 'let [a, let, b] = [1, 2, 3];'
+    });
+
+    fail('for(let let in { }) { };', {
+        source: 'for(let let in { }) { };'
+    });
+
+    fail('let x = 1;const x = 1;', {
+        source: 'let x = 1;const x = 1;'
+    });
+
+    fail('var x = 1;let x = 1;', {
+        source: 'var x = 1;let x = 1;'
+    });
+
+    fail('function a() { function f(x) { let x; } } a();', {
+        source: 'function a() { function f(x) { let x; } } a();'
+    });
+
+    fail('var x; { function x() {}; } let x;', {
+        source: 'var x; { function x() {}; } let x;'
+    });
+
     pass(`let [a,,b] = c`, {
         source: `let [a,,b] = c`,
         loc: true,

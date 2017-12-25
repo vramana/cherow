@@ -46,6 +46,97 @@ describe('Declarations - Const', () => {
             source: 'const a;'
         });
 
+        pass(`const await = 10; `, {
+            source: `const await = 10;`,
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'VariableDeclaration',
+                        declarations: [
+                            {
+                                type: 'VariableDeclarator',
+                                init: {
+                                    type: 'Literal',
+                                    value: 10,
+                                    start: 14,
+                                    end: 16,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 14
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 16
+                                        }
+                                    },
+                                    raw: '10'
+                                },
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'await',
+                                    start: 6,
+                                    end: 11,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 6
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 11
+                                        }
+                                    }
+                                },
+                                start: 6,
+                                end: 16,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 6
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 16
+                                    }
+                                }
+                            }
+                        ],
+                        kind: 'const',
+                        start: 0,
+                        end: 17,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 17
+                            }
+                        }
+                    }
+                ],
+                sourceType: 'script',
+                start: 0,
+                end: 17,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 17
+                    }
+                }
+            }
+        });
+
         pass(`const x = 42`, {
             source: `const x = 42`,
             loc: true,

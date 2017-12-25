@@ -18,6 +18,10 @@ describe('Statements - Generator', () => {
         source: 'var gen = function *() { void yield; };',
     });
 
+    fail(`let gfe = function* yield() { }`, {
+        source: 'let gfe = function* yield() { }',
+    });
+
     pass(`yield spread multiple`, {
         source: `var gen = function *() {
             yield [...yield yield];
@@ -1701,6 +1705,766 @@ describe('Statements - Generator', () => {
                 end: {
                     line: 1,
                     column: 31
+                }
+            }
+        }
+    });
+
+    pass(`function* gf() { yield, 10; }`, {
+        source: `function* gf() { yield, 10; }`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                    type: 'SequenceExpression',
+                                    expressions: [
+                                        {
+                                            type: 'YieldExpression',
+                                            argument: null,
+                                            delegate: false,
+                                            start: 17,
+                                            end: 22,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 17
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 22
+                                                }
+                                            }
+                                        },
+                                        {
+                                            type: 'Literal',
+                                            value: 10,
+                                            start: 24,
+                                            end: 26,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 24
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 26
+                                                }
+                                            },
+                                            raw: '10'
+                                        }
+                                    ],
+                                    start: 17,
+                                    end: 26,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 17
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 26
+                                        }
+                                    }
+                                },
+                                start: 17,
+                                end: 27,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 17
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 27
+                                    }
+                                }
+                            }
+                        ],
+                        start: 15,
+                        end: 29,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 15
+                            },
+                            end: {
+                                line: 1,
+                                column: 29
+                            }
+                        }
+                    },
+                    async: false,
+                    generator: true,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'gf',
+                        start: 10,
+                        end: 12,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 10
+                            },
+                            end: {
+                                line: 1,
+                                column: 12
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 29,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 29
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 29,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 29
+                }
+            }
+        }
+    });
+
+    pass(`var gfe = function* () { switch (1) { case yield: break; } }`, {
+        source: `var gfe = function* () { switch (1) { case yield: break; } }`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'VariableDeclaration',
+                    declarations: [
+                        {
+                            type: 'VariableDeclarator',
+                            init: {
+                                type: 'FunctionExpression',
+                                params: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                        {
+                                            type: 'SwitchStatement',
+                                            discriminant: {
+                                                type: 'Literal',
+                                                value: 1,
+                                                start: 33,
+                                                end: 34,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 33
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 34
+                                                    }
+                                                },
+                                                raw: '1'
+                                            },
+                                            cases: [
+                                                {
+                                                    type: 'SwitchCase',
+                                                    test: {
+                                                        type: 'YieldExpression',
+                                                        argument: null,
+                                                        delegate: false,
+                                                        start: 43,
+                                                        end: 48,
+                                                        loc: {
+                                                            start: {
+                                                                line: 1,
+                                                                column: 43
+                                                            },
+                                                            end: {
+                                                                line: 1,
+                                                                column: 48
+                                                            }
+                                                        }
+                                                    },
+                                                    consequent: [
+                                                        {
+                                                            type: 'BreakStatement',
+                                                            label: null,
+                                                            start: 50,
+                                                            end: 56,
+                                                            loc: {
+                                                                start: {
+                                                                    line: 1,
+                                                                    column: 50
+                                                                },
+                                                                end: {
+                                                                    line: 1,
+                                                                    column: 56
+                                                                }
+                                                            }
+                                                        }
+                                                    ],
+                                                    start: 38,
+                                                    end: 56,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 38
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 56
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            start: 25,
+                                            end: 58,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 25
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 58
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 23,
+                                    end: 60,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 23
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 60
+                                        }
+                                    }
+                                },
+                                async: false,
+                                generator: true,
+                                expression: false,
+                                id: null,
+                                start: 10,
+                                end: 60,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 10
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 60
+                                    }
+                                }
+                            },
+                            id: {
+                                type: 'Identifier',
+                                name: 'gfe',
+                                start: 4,
+                                end: 7,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 7
+                                    }
+                                }
+                            },
+                            start: 4,
+                            end: 60,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 60
+                                }
+                            }
+                        }
+                    ],
+                    kind: 'var',
+                    start: 0,
+                    end: 60,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 60
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 60,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 60
+                }
+            }
+        }
+    });
+
+    pass(`var gfe = function* () { switch (1) { case yield* 'foo': break; } }`, {
+        source: `var gfe = function* () { switch (1) { case yield* 'foo': break; } }`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'VariableDeclaration',
+                    declarations: [
+                        {
+                            type: 'VariableDeclarator',
+                            init: {
+                                type: 'FunctionExpression',
+                                params: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                        {
+                                            type: 'SwitchStatement',
+                                            discriminant: {
+                                                type: 'Literal',
+                                                value: 1,
+                                                start: 33,
+                                                end: 34,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 33
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 34
+                                                    }
+                                                },
+                                                raw: '1'
+                                            },
+                                            cases: [
+                                                {
+                                                    type: 'SwitchCase',
+                                                    test: {
+                                                        type: 'YieldExpression',
+                                                        argument: {
+                                                            type: 'Literal',
+                                                            value: 'foo',
+                                                            start: 50,
+                                                            end: 55,
+                                                            loc: {
+                                                                start: {
+                                                                    line: 1,
+                                                                    column: 50
+                                                                },
+                                                                end: {
+                                                                    line: 1,
+                                                                    column: 55
+                                                                }
+                                                            },
+                                                            raw: '\'foo\''
+                                                        },
+                                                        delegate: true,
+                                                        start: 43,
+                                                        end: 55,
+                                                        loc: {
+                                                            start: {
+                                                                line: 1,
+                                                                column: 43
+                                                            },
+                                                            end: {
+                                                                line: 1,
+                                                                column: 55
+                                                            }
+                                                        }
+                                                    },
+                                                    consequent: [
+                                                        {
+                                                            type: 'BreakStatement',
+                                                            label: null,
+                                                            start: 57,
+                                                            end: 63,
+                                                            loc: {
+                                                                start: {
+                                                                    line: 1,
+                                                                    column: 57
+                                                                },
+                                                                end: {
+                                                                    line: 1,
+                                                                    column: 63
+                                                                }
+                                                            }
+                                                        }
+                                                    ],
+                                                    start: 38,
+                                                    end: 63,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 38
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 63
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            start: 25,
+                                            end: 65,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 25
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 65
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 23,
+                                    end: 67,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 23
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 67
+                                        }
+                                    }
+                                },
+                                async: false,
+                                generator: true,
+                                expression: false,
+                                id: null,
+                                start: 10,
+                                end: 67,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 10
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 67
+                                    }
+                                }
+                            },
+                            id: {
+                                type: 'Identifier',
+                                name: 'gfe',
+                                start: 4,
+                                end: 7,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 7
+                                    }
+                                }
+                            },
+                            start: 4,
+                            end: 67,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 67
+                                }
+                            }
+                        }
+                    ],
+                    kind: 'var',
+                    start: 0,
+                    end: 67,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 67
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 67,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 67
+                }
+            }
+        }
+    });
+
+    pass(`var o = { *gf() { yield* 'foo'; } }`, {
+        source: `var o = { *gf() { yield* 'foo'; } }`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'VariableDeclaration',
+                    declarations: [
+                        {
+                            type: 'VariableDeclarator',
+                            init: {
+                                type: 'ObjectExpression',
+                                properties: [
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'gf',
+                                            start: 11,
+                                            end: 13,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 11
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 13
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'FunctionExpression',
+                                            params: [],
+                                            body: {
+                                                type: 'BlockStatement',
+                                                body: [
+                                                    {
+                                                        type: 'ExpressionStatement',
+                                                        expression: {
+                                                            type: 'YieldExpression',
+                                                            argument: {
+                                                                type: 'Literal',
+                                                                value: 'foo',
+                                                                start: 25,
+                                                                end: 30,
+                                                                loc: {
+                                                                    start: {
+                                                                        line: 1,
+                                                                        column: 25
+                                                                    },
+                                                                    end: {
+                                                                        line: 1,
+                                                                        column: 30
+                                                                    }
+                                                                },
+                                                                raw: '\'foo\''
+                                                            },
+                                                            delegate: true,
+                                                            start: 18,
+                                                            end: 30,
+                                                            loc: {
+                                                                start: {
+                                                                    line: 1,
+                                                                    column: 18
+                                                                },
+                                                                end: {
+                                                                    line: 1,
+                                                                    column: 30
+                                                                }
+                                                            }
+                                                        },
+                                                        start: 18,
+                                                        end: 31,
+                                                        loc: {
+                                                            start: {
+                                                                line: 1,
+                                                                column: 18
+                                                            },
+                                                            end: {
+                                                                line: 1,
+                                                                column: 31
+                                                            }
+                                                        }
+                                                    }
+                                                ],
+                                                start: 16,
+                                                end: 33,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 16
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 33
+                                                    }
+                                                }
+                                            },
+                                            async: false,
+                                            generator: true,
+                                            expression: false,
+                                            id: null,
+                                            start: 13,
+                                            end: 33,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 13
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 33
+                                                }
+                                            }
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: true,
+                                        shorthand: false,
+                                        start: 10,
+                                        end: 33,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 10
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 33
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 8,
+                                end: 35,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 8
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 35
+                                    }
+                                }
+                            },
+                            id: {
+                                type: 'Identifier',
+                                name: 'o',
+                                start: 4,
+                                end: 5,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 5
+                                    }
+                                }
+                            },
+                            start: 4,
+                            end: 35,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 35
+                                }
+                            }
+                        }
+                    ],
+                    kind: 'var',
+                    start: 0,
+                    end: 35,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 35
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 35,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 35
                 }
             }
         }
