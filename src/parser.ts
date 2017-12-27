@@ -954,17 +954,6 @@ export class Parser {
             }
         } else if (this.leadingComments.length > 0) {
             if (this.leadingComments[this.leadingComments.length - 1].end <= node.start) {
-                if (this.previousNode) {
-                    for (j = 0; j < this.leadingComments.length; j++) {
-                        if (
-                            this.leadingComments[j].end <
-                            this.previousNode.end
-                        ) {
-                            this.leadingComments.splice(j, 1);
-                            j--;
-                        }
-                    }
-                }
                 if (this.leadingComments.length > 0) {
                     node.leadingComments = this.leadingComments;
                     this.leadingComments = [];
@@ -1008,35 +997,28 @@ export class Parser {
         loop:
             while (this.hasNext()) {
 
-                let ch = this.nextChar();
+                const ch = this.nextChar();
 
-                if (ch < 0xd800 || ch > 0xdbff) {
+                switch (ch) {
 
-                    switch (ch) {
+                    case Chars.Backslash:
 
-                        case Chars.Backslash:
+                        const index = this.index;
+                        const code = this.peekUnicodeEscape();
 
-                            const index = this.index;
-                            const code = this.peekUnicodeEscape();
+                        if (!(code >= 0)) this.error(Errors.Unexpected);
+                        ret += this.source.slice(start, index);
+                        ret += fromCodePoint(code);
+                        hasEscape = true;
+                        start = this.index;
 
-                            if (!(code >= 0)) this.error(Errors.Unexpected);
-                            ret += this.source.slice(start, index);
-                            ret += fromCodePoint(code);
-                            hasEscape = true;
-                            start = this.index;
+                        break;
 
-                            break;
-
-                        default:
-                            if (ch >= Chars.LeadSurrogateMin && ch <= Chars.TrailSurrogateMax) {
-                                this.nextCodePoint();
-                            } else if (!isIdentifierPart(ch)) break loop;
-                            this.advance();
-                    }
-                } else {
-                    ch = this.nextCodePoint();
-                    if (!isIdentifierPart(ch)) break;
-                    this.advance();
+                    default:
+                        if (ch >= Chars.LeadSurrogateMin && ch <= Chars.TrailSurrogateMax) {
+                            this.nextCodePoint();
+                        } else if (!isIdentifierPart(ch)) break loop;
+                        this.advance();
                 }
             }
 
@@ -1070,9 +1052,8 @@ export class Parser {
         const index = this.index;
         if (index + 5 < this.source.length) {
             if (this.source.charCodeAt(index + 1) !== Chars.LowerU) return -1;
-            this.advance();
-            if (!this.hasNext()) this.error(Errors.Unexpected);
-            this.advance();
+            this.index += 2;
+            this.column += 2;
             code = this.peekExtendedUnicodeEscape();
             if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMin) {
                 this.error(Errors.UnexpectedSurrogate);

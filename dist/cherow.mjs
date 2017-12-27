@@ -1078,7 +1078,6 @@ Parser.prototype.attachComment = function attachComment (context, node) {
     var lastChild;
     var trailingComments;
     var i;
-    var j;
     if (this.trailingComments.length > 0) {
         if (this.trailingComments[0].start >= node.end) {
             trailingComments = this.trailingComments;
@@ -1144,15 +1143,6 @@ Parser.prototype.attachComment = function attachComment (context, node) {
     }
     else if (this.leadingComments.length > 0) {
         if (this.leadingComments[this.leadingComments.length - 1].end <= node.start) {
-            if (this.previousNode) {
-                for (j = 0; j < this.leadingComments.length; j++) {
-                    if (this$1.leadingComments[j].end <
-                        this$1.previousNode.end) {
-                        this$1.leadingComments.splice(j, 1);
-                        j--;
-                    }
-                }
-            }
             if (this.leadingComments.length > 0) {
                 node.leadingComments = this.leadingComments;
                 this.leadingComments = [];
@@ -1191,32 +1181,24 @@ Parser.prototype.scanIdentifier = function scanIdentifier (context, hasUnicode) 
     var hasEscape = false;
     loop: while (this.hasNext()) {
         var ch = this$1.nextChar();
-        if (ch < 0xd800 || ch > 0xdbff) {
-            switch (ch) {
-                case 92 /* Backslash */:
-                    var index = this$1.index;
-                    var code = this$1.peekUnicodeEscape();
-                    if (!(code >= 0))
-                        { this$1.error(0 /* Unexpected */); }
-                    ret += this$1.source.slice(start, index);
-                    ret += fromCodePoint(code);
-                    hasEscape = true;
-                    start = this$1.index;
-                    break;
-                default:
-                    if (ch >= 55296 /* LeadSurrogateMin */ && ch <= 57343 /* TrailSurrogateMax */) {
-                        this$1.nextCodePoint();
-                    }
-                    else if (!isIdentifierPart(ch))
-                        { break loop; }
-                    this$1.advance();
-            }
-        }
-        else {
-            ch = this$1.nextCodePoint();
-            if (!isIdentifierPart(ch))
-                { break; }
-            this$1.advance();
+        switch (ch) {
+            case 92 /* Backslash */:
+                var index = this$1.index;
+                var code = this$1.peekUnicodeEscape();
+                if (!(code >= 0))
+                    { this$1.error(0 /* Unexpected */); }
+                ret += this$1.source.slice(start, index);
+                ret += fromCodePoint(code);
+                hasEscape = true;
+                start = this$1.index;
+                break;
+            default:
+                if (ch >= 55296 /* LeadSurrogateMin */ && ch <= 57343 /* TrailSurrogateMax */) {
+                    this$1.nextCodePoint();
+                }
+                else if (!isIdentifierPart(ch))
+                    { break loop; }
+                this$1.advance();
         }
     }
     if (start < this.index)
@@ -1247,10 +1229,8 @@ Parser.prototype.peekUnicodeEscape = function peekUnicodeEscape () {
     if (index + 5 < this.source.length) {
         if (this.source.charCodeAt(index + 1) !== 117 /* LowerU */)
             { return -1; }
-        this.advance();
-        if (!this.hasNext())
-            { this.error(0 /* Unexpected */); }
-        this.advance();
+        this.index += 2;
+        this.column += 2;
         code = this.peekExtendedUnicodeEscape();
         if (code >= 55296 /* LeadSurrogateMin */ && code <= 56320 /* TrailSurrogateMin */) {
             this.error(86 /* UnexpectedSurrogate */);
@@ -5284,6 +5264,6 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return new Parser(source, options).parseProgram(2 /* Strict */ | 1 /* Module */ | 134217728 /* TopLevel */);
 }
-var version = '0.18.12';
+var version = '0.19.0';
 
 export { parseScript, parseModule, version };

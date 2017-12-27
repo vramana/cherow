@@ -4,6 +4,42 @@ import { parseScript, parseModule } from '../../src/cherow';
 
 describe('Miscellaneous - Comment attachment', () => {
 
+    pass(`empty source`, {
+        source: ``,
+        raw: true,
+        comments: [],
+        attachComment: true,
+        expected: {
+              body: [],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
+    pass(`empty source with line comment`, {
+        source: `// foo`,
+        raw: true,
+        comments: [],
+        attachComment: true,
+        expected: {
+              body: [],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
+    pass(`empty source with block comment`, {
+        source: `/* foo */`,
+        raw: true,
+        comments: [],
+        attachComment: true,
+        expected: {
+              body: [],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
     pass(`object comments`, {
         source: `var test = {
             /**
