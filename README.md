@@ -118,9 +118,9 @@ A function will be called with the following parameters:
 - end - Character offset of the end of the comment.
 - loc   - Column and line offset of the comment
 
-##### Comment attachment
+#### Comment attachment
 
- The comment attachment algorithm used by `Cherow` works the same way as for `Babylon` and `Espree`, but deviates slightly from Esprima - resulting in some comments being added in different places than Cherow.
+ The comment attachment algorithm used by `Cherow` works the same way as for `Babylon` and `Espree`, but deviates slightly from Esprima - resulting in some comments being added in different places.
 
  ```js
     
