@@ -27,6 +27,7 @@
       'change #loc': 'onLocChange',
       'change #jsx': 'onJsxChange',
       'change #directives': 'onDirectivesChange',
+      'change #attachComment': 'onAttachComment',
       'change #module': 'onModuleChange',
     },
 
@@ -47,7 +48,8 @@
       this.$url = this.$el.find('#url');
       this.$jsx = this.$el.find('#jsx');
       this.$directives = this.$el.find('#directives');
-
+      this.$attachComment = this.$el.find('#attachComment');
+      
       EventBus.on('resize:window', this.onWindowResize);
       this.onWindowResize();
       this.onRangeChange();
@@ -56,6 +58,7 @@
       this.onRawChange();
       this.onModuleChange();
       this.onDirectivesChange();
+      this.onAttachComment();
       this.onJsxChange();
       this.parseURL();
       this.parse();
@@ -87,6 +90,10 @@
     },
     onDirectivesChange: function(event) {
       this._options.directives = this.$directives.prop('checked');
+      this.parse();
+    },
+    AttachComment: function(event) {
+      this._options.attachComment = this.$attachComment.prop('checked');
       this.parse();
     },
     onModuleChange: function(event) {
@@ -131,7 +138,8 @@
         module: this._options.module,
         raw: this._options.raw,
         jsx: this._options.jsx,
-        directives: this._options.directives
+        directives: this._options.directives,
+        attachComment: this._options.attachComment
       };
       var href = location.href.replace(/[?#].*$/, '');
       var url = href + '?' + Util.buildParams(params);
@@ -158,7 +166,10 @@
       if (params.directives === 'true') {
         this.$directives.prop('checked', true).change();
       }
-
+      if (params.attachComment === 'true') {
+        this.$attachComment.prop('checked', true).change();
+      }
+      
       if (params.jsx === 'true') {
         this.$jsx.prop('checked', true).change();
       }
