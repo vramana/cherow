@@ -1079,12 +1079,12 @@ Parser.prototype.attachComment = function attachComment (context, node) {
 
     if (context & 134217728 /* TopLevel */ && node.body.length > 0)
         { return; }
-    var stack = this.commentStack;
+    var firstIndex;
+    var lastIndex;
     var firstChild;
     var lastChild;
     var trailingComments;
-    var i;
-    var j;
+    var commentStack = this.commentStack[this.commentStack.length - 1];
     if (this.trailingComments.length > 0) {
         if (this.trailingComments[0].start >= node.end) {
             trailingComments = this.trailingComments;
@@ -1096,16 +1096,15 @@ Parser.prototype.attachComment = function attachComment (context, node) {
     }
     else {
         if (this.commentStack.length > 0) {
-            var lastInStack = this.commentStack[this.commentStack.length - 1];
-            if (lastInStack.trailingComments &&
-                lastInStack.trailingComments[0].start >= node.end) {
-                trailingComments = lastInStack.trailingComments;
-                delete lastInStack.trailingComments;
+            if (commentStack.trailingComments &&
+                commentStack.trailingComments[0].start >= node.end) {
+                trailingComments = commentStack.trailingComments;
+                delete commentStack.trailingComments;
             }
         }
     }
-    if (stack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
-        firstChild = stack.pop();
+    if (this.commentStack.length > 0 && commentStack.start >= node.start) {
+        firstChild = this.commentStack.pop();
     }
     while (this.commentStack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
         lastChild = this$1.commentStack.pop();
@@ -1114,16 +1113,23 @@ Parser.prototype.attachComment = function attachComment (context, node) {
         { lastChild = firstChild; }
     if (firstChild && this.leadingComments.length > 0) {
         var lastComment = this.leadingComments[this.leadingComments.length - 1];
-        if (node.type === 'CallExpression' && node.arguments && node.arguments.length) {
-            var lastArg = node.arguments[node.arguments.length - 1];
-            if (lastArg && lastComment.start >= lastArg.start && lastComment.end <= node.end) {
-                if (this.previousNode) {
-                    if (this.leadingComments.length > 0) {
-                        lastArg.trailingComments = this.leadingComments;
-                        this.leadingComments = [];
+        switch (node.type) {
+            case 'CallExpression':
+                {
+                    if (node.arguments && node.arguments.length) {
+                        var lastArg = node.arguments[node.arguments.length - 1];
+                        if (lastArg && lastComment.start >= lastArg.start && lastComment.end <= node.end) {
+                            if (this.previousNode) {
+                                if (this.leadingComments.length > 0) {
+                                    lastArg.trailingComments = this.leadingComments;
+                                    this.leadingComments = [];
+                                }
+                            }
+                        }
                     }
+                    break;
                 }
-            }
+            default: // ignore
         }
     }
     if (lastChild) {
@@ -1135,9 +1141,9 @@ Parser.prototype.attachComment = function attachComment (context, node) {
                 delete lastChild.leadingComments;
             }
             else {
-                for (i = lastChild.leadingComments.length - 2; i >= 0; --i) {
-                    if (lastChild.leadingComments[i].end <= node.start) {
-                        node.leadingComments = lastChild.leadingComments.splice(0, i + 1);
+                for (firstIndex = lastChild.leadingComments.length - 2; firstIndex >= 0; --firstIndex) {
+                    if (lastChild.leadingComments[firstIndex].end <= node.start) {
+                        node.leadingComments = lastChild.leadingComments.splice(0, firstIndex + 1);
                         break;
                     }
                 }
@@ -1147,10 +1153,10 @@ Parser.prototype.attachComment = function attachComment (context, node) {
     else if (this.leadingComments.length > 0) {
         if (this.leadingComments[this.leadingComments.length - 1].end <= node.start) {
             if (this.previousNode) {
-                for (j = 0; j < this.leadingComments.length; j++) {
-                    if (this$1.leadingComments[j].end < this$1.previousNode.end) {
-                        this$1.leadingComments.splice(j, 1);
-                        j--;
+                for (lastIndex = 0; lastIndex < this.leadingComments.length; lastIndex++) {
+                    if (this$1.leadingComments[lastIndex].end < this$1.previousNode.end) {
+                        this$1.leadingComments.splice(lastIndex, 1);
+                        lastIndex--;
                     }
                 }
             }
@@ -1160,22 +1166,19 @@ Parser.prototype.attachComment = function attachComment (context, node) {
             }
         }
         else {
-            for (i = 0; i < this.leadingComments.length; i++) {
-                if (this$1.leadingComments[i].end > node.start) {
-                    break;
-                }
+            for (firstIndex = 0; firstIndex !== this.leadingComments.length; firstIndex++) {
+                if (this$1.leadingComments[firstIndex].end > node.start)
+                    { break; }
             }
-            node.leadingComments = this.leadingComments.slice(0, i);
-            if (node.leadingComments.length === 0) {
-                delete node.leadingComments;
-            }
-            trailingComments = this.leadingComments.slice(i);
+            node.leadingComments = this.leadingComments.slice(0, firstIndex);
+            if (node.leadingComments.length === 0)
+                { delete node.leadingComments; }
+            trailingComments = this.leadingComments.slice(firstIndex);
         }
     }
     this.previousNode = node;
-    if (trailingComments) {
-        node.trailingComments = trailingComments;
-    }
+    if (trailingComments)
+        { node.trailingComments = trailingComments; }
     this.commentStack.push(node);
 };
 Parser.prototype.scanIdentifier = function scanIdentifier (context, hasUnicode) {

@@ -869,12 +869,13 @@ export class Parser {
 
         if (context & Context.TopLevel && node.body.length > 0) return;
 
-        const stack = this.commentStack;
+        let firstIndex;
+        let lastIndex;
         let firstChild;
         let lastChild;
         let trailingComments;
-        let i;
-        let j;
+
+        const commentStack = this.commentStack[this.commentStack.length - 1];
 
         if (this.trailingComments.length > 0) {
 
@@ -886,18 +887,17 @@ export class Parser {
             }
         } else {
             if (this.commentStack.length > 0) {
-                const lastInStack = this.commentStack[this.commentStack.length - 1];
-                if (lastInStack.trailingComments &&
-                    lastInStack.trailingComments[0].start >= node.end) {
-                    trailingComments = lastInStack.trailingComments;
+                if (commentStack.trailingComments &&
+                    commentStack.trailingComments[0].start >= node.end) {
+                    trailingComments = commentStack.trailingComments;
 
-                    delete lastInStack.trailingComments;
+                    delete commentStack.trailingComments;
                 }
             }
         }
 
-        if (stack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
-                  firstChild = stack.pop();
+        if (this.commentStack.length > 0 && commentStack.start >= node.start) {
+            firstChild = this.commentStack.pop();
         }
 
         while (this.commentStack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
@@ -907,21 +907,31 @@ export class Parser {
         if (!lastChild && firstChild) lastChild = firstChild;
 
         if (firstChild && this.leadingComments.length > 0) {
-        const lastComment = this.leadingComments[this.leadingComments.length - 1];
+            const lastComment = this.leadingComments[this.leadingComments.length - 1];
 
-        if (node.type === 'CallExpression' && node.arguments && node.arguments.length) {
-            const lastArg = node.arguments[node.arguments.length - 1];
+            switch (node.type) {
+                case 'CallExpression':
+                    {
+                        if (node.arguments && node.arguments.length) {
+                            const lastArg = node.arguments[node.arguments.length - 1];
 
-            if (lastArg && lastComment.start >= lastArg.start && lastComment.end <= node.end) {
-              if (this.previousNode) {
-                if (this.leadingComments.length > 0) {
-                  lastArg.trailingComments = this.leadingComments;
-                  this.leadingComments = [];
-                }
-              }
+                            if (lastArg && lastComment.start >= lastArg.start && lastComment.end <= node.end) {
+                                if (this.previousNode) {
+                                    if (this.leadingComments.length > 0) {
+                                        lastArg.trailingComments = this.leadingComments;
+                                        this.leadingComments = [];
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+                    }
+
+                    default: // ignore
             }
-          }
         }
+
         if (lastChild) {
             if (lastChild.leadingComments) {
                 if (lastChild !== node &&
@@ -931,9 +941,9 @@ export class Parser {
                     delete lastChild.leadingComments;
                 } else {
 
-                    for (i = lastChild.leadingComments.length - 2; i >= 0; --i) {
-                        if (lastChild.leadingComments[i].end <= node.start) {
-                            node.leadingComments = lastChild.leadingComments.splice(0, i + 1);
+                    for (firstIndex = lastChild.leadingComments.length - 2; firstIndex >= 0; --firstIndex) {
+                        if (lastChild.leadingComments[firstIndex].end <= node.start) {
+                            node.leadingComments = lastChild.leadingComments.splice(0, firstIndex + 1);
                             break;
                         }
                     }
@@ -942,10 +952,10 @@ export class Parser {
         } else if (this.leadingComments.length > 0) {
             if (this.leadingComments[this.leadingComments.length - 1].end <= node.start) {
                 if (this.previousNode) {
-                    for (j = 0; j < this.leadingComments.length; j++) {
-                        if (this.leadingComments[j].end < this.previousNode.end) {
-                            this.leadingComments.splice(j, 1);
-                            j--;
+                    for (lastIndex = 0; lastIndex < this.leadingComments.length; lastIndex++) {
+                        if (this.leadingComments[lastIndex].end < this.previousNode.end) {
+                            this.leadingComments.splice(lastIndex, 1);
+                            lastIndex--;
                         }
                     }
                 }
@@ -955,26 +965,21 @@ export class Parser {
                 }
             } else {
 
-                for (i = 0; i < this.leadingComments.length; i++) {
-                    if (this.leadingComments[i].end > node.start) {
-                        break;
-                    }
+                for (firstIndex = 0; firstIndex !== this.leadingComments.length; firstIndex++) {
+                    if (this.leadingComments[firstIndex].end > node.start) break;
                 }
 
-                node.leadingComments = this.leadingComments.slice(0, i);
-                if (node.leadingComments.length === 0) {
-                    delete node.leadingComments;
-                }
+                node.leadingComments = this.leadingComments.slice(0, firstIndex);
 
-                trailingComments = this.leadingComments.slice(i);
+                if (node.leadingComments.length === 0) delete node.leadingComments;
+
+                trailingComments = this.leadingComments.slice(firstIndex);
             }
         }
 
         this.previousNode = node;
 
-        if (trailingComments) {
-            node.trailingComments = trailingComments;
-        }
+        if (trailingComments) node.trailingComments = trailingComments;
 
         this.commentStack.push(node);
     }
@@ -1915,7 +1920,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: any,
         node: any,
