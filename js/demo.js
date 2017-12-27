@@ -92,7 +92,7 @@
       this._options.directives = this.$directives.prop('checked');
       this.parse();
     },
-    AttachComment: function(event) {
+    onAttachComment: function(event) {
       this._options.attachComment = this.$attachComment.prop('checked');
       this.parse();
     },
