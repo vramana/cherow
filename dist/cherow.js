@@ -1080,6 +1080,7 @@ Parser.prototype.attachComment = function attachComment (context, node) {
     if (context & 134217728 /* TopLevel */ && node.body.length > 0)
         { return; }
     var stack = this.commentStack;
+    var firstChild;
     var lastChild;
     var trailingComments;
     var i;
@@ -1103,12 +1104,33 @@ Parser.prototype.attachComment = function attachComment (context, node) {
             }
         }
     }
+    if (stack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
+        firstChild = stack.pop();
+    }
     while (this.commentStack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
         lastChild = this$1.commentStack.pop();
     }
+    if (!lastChild && firstChild)
+        { lastChild = firstChild; }
+    if (firstChild && this.leadingComments.length > 0) {
+        var lastComment = this.leadingComments[this.leadingComments.length - 1];
+        if (node.type === 'CallExpression' && node.arguments && node.arguments.length) {
+            var lastArg = node.arguments[node.arguments.length - 1];
+            if (lastArg && lastComment.start >= lastArg.start && lastComment.end <= node.end) {
+                if (this.previousNode) {
+                    if (this.leadingComments.length > 0) {
+                        lastArg.trailingComments = this.leadingComments;
+                        this.leadingComments = [];
+                    }
+                }
+            }
+        }
+    }
     if (lastChild) {
         if (lastChild.leadingComments) {
-            if (lastChild.leadingComments[lastChild.leadingComments.length - 1].end <= node.start) {
+            if (lastChild !== node &&
+                lastChild.leadingComments.length > 0 &&
+                lastChild.leadingComments[lastChild.leadingComments.length - 1].end <= node.start) {
                 node.leadingComments = lastChild.leadingComments;
                 delete lastChild.leadingComments;
             }
@@ -1148,9 +1170,6 @@ Parser.prototype.attachComment = function attachComment (context, node) {
                 delete node.leadingComments;
             }
             trailingComments = this.leadingComments.slice(i);
-            if (trailingComments.length === 0) {
-                trailingComments = null;
-            }
         }
     }
     this.previousNode = node;
@@ -5251,7 +5270,7 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return new Parser(source, options).parseProgram(2 /* Strict */ | 1 /* Module */ | 134217728 /* TopLevel */);
 }
-var version = '0.19.1';
+var version = '0.19.3';
 
 exports.parseScript = parseScript;
 exports.parseModule = parseModule;

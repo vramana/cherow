@@ -46,6 +46,252 @@ describe('Miscellaneous - Comment attachment', () => {
             }
     });
 
+    pass(`call expression with trailing comma;`, {
+      source: `fn(a, b, /* comment */);`,
+      attachComment: true,
+      expected: {
+          body: [
+            {
+              end: 24,
+              expression: {
+               arguments: [
+                  {
+                    end: 4,
+                    name: 'a',
+                    start: 3,
+                    type: 'Identifier'
+                 },
+                  {
+                    end: 7,
+                    name: 'b',
+                    start: 6,
+                    trailingComments: [
+                      {
+                        end: 22,
+                        start: 9,
+                        type: 'Block',
+                        value: ' comment ',
+                      },
+                    ],
+                    type: 'Identifier'
+                  }
+                ],
+                callee: {
+                  end: 2,
+                 name: 'fn',
+                  start: 0,
+                  type: 'Identifier',
+                },
+                end: 23,
+                start: 0,
+                type: 'CallExpression',
+              },
+              start: 0,
+              type: 'ExpressionStatement',
+            },
+          ],
+          end: 24,
+          sourceType: 'script',
+          start: 0,
+          type: 'Program',
+        }
+    });
+
+    pass(`object property trailing comma`, {
+      source: `var obj = {
+          a: '1', // comment 1
+          b: '2', // comment 2
+          c: '3', // comment 3
+        }`,
+      attachComment: true,
+      expected: {
+          body: [
+            {
+              declarations: [
+                {
+                  end: 114,
+                  id: {
+                    end: 7,
+                    name: 'obj',
+                    start: 4,
+                    type: 'Identifier'
+                  },
+                  init: {
+                    end: 114,
+                    properties: [
+                      {
+                        computed: false,
+                       end: 28,
+                        key: {
+                         end: 23,
+                          name: 'a',
+                          start: 22,
+                          type: 'Identifier',
+                        },
+                        kind: 'init',
+                        method: false,
+                        shorthand: false,
+                        start: 22,
+                        type: 'Property',
+                        value: {
+                          end: 28,
+                          start: 25,
+                          type: 'Literal',
+                          value: '1',
+                       },
+                      },
+                      {
+                        computed: false,
+                        end: 59,
+                        key: {
+                          end: 54,
+                          name: 'b',
+                          start: 53,
+                          type: 'Identifier'
+                        },
+                        kind: 'init',
+                        leadingComments: [
+                          {
+                            end: 42,
+                            start: 30,
+                            type: 'Line',
+                            value: ' comment 1',
+                          }
+                        ],
+                        method: false,
+                        shorthand: false,
+                        start: 53,
+                        type: 'Property',
+                        value: {
+                          end: 59,
+                          start: 56,
+                          type: 'Literal',
+                          value: '2',
+                        }
+                      },
+                      {
+                        computed: false,
+                        end: 90,
+                        key: {
+                          end: 85,
+                          name: 'c',
+                          start: 84,
+                          type: 'Identifier',
+                        },
+                        kind: 'init',
+                        leadingComments: [
+                          {
+                            end: 73,
+                            start: 61,
+                            type: 'Line',
+                            value: ' comment 2',
+                          },
+                        ],
+                        method: false,
+                        shorthand: false,
+                        start: 84,
+                        type: 'Property',
+                        value: {
+                          end: 90,
+                          start: 87,
+                         type: 'Literal',
+                          value: '3',
+                        },
+                     },
+                    ],
+                    start: 10,
+                    type: 'ObjectExpression',
+                  },
+                  start: 4,
+                  type: 'VariableDeclarator',
+                },
+              ],
+              end: 114,
+              kind: 'var',
+              start: 0,
+              type: 'VariableDeclaration',
+            },
+          ],
+          end: 114,
+          sourceType: 'script',
+          start: 0,
+          type: 'Program',
+        }
+    });
+
+    pass(`function trailing comma shorthand`, {
+    source: `fn(a, { b }, /* comment */);`,
+    attachComment: true,
+    expected: {
+      type: 'Program',
+      body: [
+          {
+              type: 'ExpressionStatement',
+              expression: {
+                  type: 'CallExpression',
+                  callee: {
+                      type: 'Identifier',
+                      name: 'fn',
+                      start: 0,
+                      end: 2
+                  },
+                  arguments: [
+                      {
+                          type: 'Identifier',
+                          name: 'a',
+                          start: 3,
+                          end: 4
+                      },
+                      {
+                          type: 'ObjectExpression',
+                          properties: [
+                              {
+                                  type: 'Property',
+                                  key: {
+                                      type: 'Identifier',
+                                      name: 'b',
+                                      start: 8,
+                                      end: 9
+                                  },
+                                  value: {
+                                      type: 'Identifier',
+                                      name: 'b',
+                                      start: 8,
+                                      end: 9
+                                  },
+                                  kind: 'init',
+                                  computed: false,
+                                  method: false,
+                                  shorthand: true,
+                                  start: 8,
+                                  end: 9
+                              }
+                          ],
+                          start: 6,
+                          end: 11,
+                          trailingComments: [
+                              {
+                                  type: 'Block',
+                                  value: ' comment ',
+                                  start: 13,
+                                  end: 26
+                              }
+                          ]
+                      }
+                  ],
+                  start: 0,
+                  end: 27
+              },
+              start: 0,
+              end: 28
+          }
+      ],
+      sourceType: 'script',
+      start: 0,
+      end: 28
+  }
+  });
+
     pass(`object comments`, {
         source: `var test = {
             /**
@@ -1957,7 +2203,7 @@ describe('Miscellaneous - Comment attachment', () => {
 }
 });
 
-    pass(`while statement inside function declaration`, {
+    pass(`while loop comments`, {
   source: `function f() { /* infinite */ while (true) { } /* bar */ var each; }`,
   raw: true,
   comments: [],
@@ -3089,6 +3335,14 @@ describe('Miscellaneous - Comment attachment', () => {
                                 end: 9
                             }
                         ],
+                        trailingComments: [
+                           {
+                          end: 26,
+                              start: 13,
+                                          type: 'Block',
+                                          value: ' comment ',
+                                        }
+                                      ],
                         start: 6,
                         end: 11
                     }
@@ -3151,4 +3405,1453 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 49
     }
   });
+
+    pass(`switch statement with call expression`, {
+    source: `switch (x) {
+        case 1:
+          console.log('1')
+          // comment
+      }`,
+    raw: true,
+    comments: [],
+    attachComment: true,
+    expected: {
+       body: [
+          {
+           cases: [
+              {
+                consequent: [
+                  {
+                    end: 55,
+                  expression: {
+                      arguments: [
+                       {
+                          end: 54,
+                          raw: '\'1\'',
+                          start: 51,
+                          type: 'Literal',
+                          value: '1',
+                        }
+                     ],
+                      callee: {
+                        computed: false,
+                        end: 50,
+                        object: {
+                         end: 46,
+                          name: 'console',
+                          start: 39,
+                          type: 'Identifier',
+                        },
+                        property: {
+                          end: 50,
+                          name: 'log',
+                          start: 47,
+                          type: 'Identifier'
+                        },
+                        start: 39,
+                       type: 'MemberExpression'
+                      },
+                     end: 55,
+                      start: 39,
+                      type: 'CallExpression',
+                    },
+                    start: 39,
+                    type: 'ExpressionStatement',
+                 },
+                ],
+                end: 55,
+                start: 21,
+                test: {
+                  end: 27,
+                 raw: '1',
+                 start: 26,
+                  type: 'Literal',
+                  value: 1,
+                },
+                trailingComments: [
+                  {
+                    end: 76,
+                    start: 66,
+                    type: 'Line',
+                    value: ' comment',
+                  },
+                ],
+                type: 'SwitchCase',
+             },
+            ],
+            discriminant: {
+              end: 9,
+              name: 'x',
+              start: 8,
+              type: 'Identifier',
+            },
+            end: 84,
+            start: 0,
+            type: 'SwitchStatement',
+          },
+        ],
+        end: 84,
+        sourceType: 'script',
+        start: 0,
+        type: 'Program',
+      }
+  });
+
+    pass(`function declaration with inner comment`, {
+    source: `switch(x) {
+        case 1:
+          console.log('1')
+          // comment
+        default:
+          break;
+      }`,
+    raw: true,
+    comments: [],
+    attachComment: true,
+    expected: {
+        body: [
+          {
+            cases: [
+              {
+               consequent: [
+                  {
+                    end: 54,
+                    expression: {
+                      arguments: [
+                        {
+                          end: 53,
+                          raw: '\'1\'',
+                          start: 50,
+                          type: 'Literal',
+                          value: '1',
+                        },
+                      ],
+                      callee: {
+                        computed: false,
+                        end: 49,
+                        object: {
+                         end: 45,
+                          name: 'console',
+                          start: 38,
+                        type: 'Identifier',
+                        },
+                        property: {
+                          end: 49,
+                          name: 'log',
+                          start: 46,
+                          type: 'Identifier',
+                        },
+                        start: 38,
+                       type: 'MemberExpression',
+                      },
+                      end: 54,
+                      start: 38,
+                     type: 'CallExpression',
+                    },
+                   start: 38,
+                    type: 'ExpressionStatement',
+                  },
+                ],
+                end: 54,
+              start: 20,
+                test: {
+                 end: 26,
+                 raw: '1',
+                  start: 25,
+                  type: 'Literal',
+                  value: 1,
+                },
+                trailingComments: [
+                 {
+                    end: 75,
+                    start: 65,
+                    type: 'Line',
+                    value: ' comment',
+                  },
+                ],
+                type: 'SwitchCase',
+              },
+              {
+                consequent: [
+                  {
+                    end: 109,
+                    label: null,
+                   start: 103,
+                    type: 'BreakStatement'
+                  }
+               ],
+                end: 109,
+                leadingComments: [
+                  {
+                    end: 75,
+                   start: 65,
+                    type: 'Line',
+                    value: ' comment',
+                  }
+                ],
+                start: 84,
+                test: null,
+                type: 'SwitchCase'
+              }
+            ],
+            discriminant: {
+              end: 8,
+              name: 'x',
+              start: 7,
+              type: 'Identifier',
+            },
+            end: 117,
+            start: 0,
+            type: 'SwitchStatement',
+          }
+        ],
+        end: 117,
+        sourceType: 'script',
+        start: 0,
+        type: 'Program',
+      }
+  });
+
+    pass(`comment with condition`, {
+    source: `/* foo */
+    if (/* bar */  a) {}`,
+    raw: true,
+    comments: [],
+    attachComment: true,
+    expected: {
+      type: 'Program',
+      body: [
+          {
+              type: 'IfStatement',
+              test: {
+                  type: 'Identifier',
+                  name: 'a',
+                  start: 29,
+                  end: 30,
+                  leadingComments: [
+                      {
+                          type: 'Block',
+                          value: ' bar ',
+                          start: 18,
+                          end: 27
+                      }
+                  ]
+              },
+              alternate: null,
+              consequent: {
+                  type: 'BlockStatement',
+                  body: [],
+                  start: 32,
+                  end: 34
+              },
+              start: 14,
+              end: 34,
+              leadingComments: [
+                  {
+                      type: 'Block',
+                      value: ' foo ',
+                      start: 0,
+                      end: 9
+                  }
+              ]
+          }
+      ],
+      sourceType: 'script',
+      start: 0,
+      end: 34
+  }
+  });
+
+    pass(`shebang object`, {
+    source: `#!/usr/bin/env babel-node
+
+    var { spawn } = x;`,
+    raw: true,
+    comments: [],
+    attachComment: true,
+    expected: {
+      type: 'Program',
+      body: [
+          {
+              type: 'VariableDeclaration',
+              declarations: [
+                  {
+                      type: 'VariableDeclarator',
+                      init: {
+                          type: 'Identifier',
+                          name: 'x',
+                          start: 47,
+                          end: 48
+                      },
+                      id: {
+                          type: 'ObjectPattern',
+                          properties: [
+                              {
+                                  type: 'Property',
+                                  kind: 'init',
+                                  key: {
+                                      type: 'Identifier',
+                                      name: 'spawn',
+                                      start: 37,
+                                      end: 42
+                                  },
+                                  computed: false,
+                                  value: {
+                                      type: 'Identifier',
+                                      name: 'spawn',
+                                      start: 37,
+                                      end: 42
+                                  },
+                                  method: false,
+                                  shorthand: true,
+                                  start: 37,
+                                  end: 42
+                              }
+                          ],
+                          start: 35,
+                          end: 44
+                      },
+                      start: 35,
+                      end: 48
+                  }
+              ],
+              kind: 'var',
+              start: 31,
+              end: 49,
+              leadingComments: [
+                  {
+                      type: 'Line',
+                      value: '/usr/bin/env babel-node',
+                      start: 0,
+                      end: 25
+                  }
+              ]
+          }
+      ],
+      sourceType: 'script',
+      start: 0,
+      end: 49
+  }
+  });
+
+    pass(`function trailing comma`, {
+    source: `fn(a, b, /* comment */);`,
+    raw: true,
+    comments: [],
+    attachComment: true,
+    expected: {
+      type: 'Program',
+      body: [
+          {
+              type: 'ExpressionStatement',
+              expression: {
+                  type: 'CallExpression',
+                  callee: {
+                      type: 'Identifier',
+                      name: 'fn',
+                      start: 0,
+                      end: 2
+                  },
+                  arguments: [
+                      {
+                          type: 'Identifier',
+                          name: 'a',
+                          start: 3,
+                          end: 4
+                      },
+                      {
+                          type: 'Identifier',
+                          name: 'b',
+                          start: 6,
+                          end: 7,
+                          trailingComments: [
+                              {
+                                  type: 'Block',
+                                  value: ' comment ',
+                                  start: 9,
+                                  end: 22
+                              }
+                          ]
+                      }
+                  ],
+                  start: 0,
+                  end: 23
+              },
+              start: 0,
+              end: 24
+          }
+      ],
+      sourceType: 'script',
+      start: 0,
+      end: 24
+  }
+  });
+
+    pass(`switch no default comment in nested functions`, {
+    source: `module.exports = function(context) {
+
+      function isConstant(node) {
+          switch (node.type) {
+              case "SequenceExpression":
+                  return isConstant(node.expressions[node.expressions.length - 1]);
+              // no default
+          }
+
+          return false;
+      }
+
+  };`,
+    raw: true,
+    comments: [],
+    attachComment: true,
+    expected: {
+      type: 'Program',
+      body: [
+          {
+              type: 'ExpressionStatement',
+              expression: {
+                  type: 'AssignmentExpression',
+                  left: {
+                      type: 'MemberExpression',
+                      object: {
+                          type: 'Identifier',
+                          name: 'module',
+                          start: 0,
+                          end: 6
+                      },
+                      computed: false,
+                      property: {
+                          type: 'Identifier',
+                          name: 'exports',
+                          start: 7,
+                          end: 14
+                      },
+                      start: 0,
+                      end: 14
+                  },
+                  operator: '=',
+                  right: {
+                      type: 'FunctionExpression',
+                      params: [
+                          {
+                              type: 'Identifier',
+                              name: 'context',
+                              start: 26,
+                              end: 33
+                          }
+                      ],
+                      body: {
+                          type: 'BlockStatement',
+                          body: [
+                              {
+                                  type: 'FunctionDeclaration',
+                                  params: [
+                                      {
+                                          type: 'Identifier',
+                                          name: 'node',
+                                          start: 64,
+                                          end: 68
+                                      }
+                                  ],
+                                  body: {
+                                      type: 'BlockStatement',
+                                      body: [
+                                          {
+                                              type: 'SwitchStatement',
+                                              discriminant: {
+                                                  type: 'MemberExpression',
+                                                  object: {
+                                                      type: 'Identifier',
+                                                      name: 'node',
+                                                      start: 90,
+                                                      end: 94
+                                                  },
+                                                  computed: false,
+                                                  property: {
+                                                      type: 'Identifier',
+                                                      name: 'type',
+                                                      start: 95,
+                                                      end: 99
+                                                  },
+                                                  start: 90,
+                                                  end: 99
+                                              },
+                                              cases: [
+                                                  {
+                                                      type: 'SwitchCase',
+                                                      test: {
+                                                          type: 'Literal',
+                                                          value: 'SequenceExpression',
+                                                          start: 122,
+                                                          end: 142,
+                                                          raw: '"SequenceExpression"'
+                                                      },
+                                                      consequent: [
+                                                          {
+                                                              type: 'ReturnStatement',
+                                                              argument: {
+                                                                  type: 'CallExpression',
+                                                                  callee: {
+                                                                      type: 'Identifier',
+                                                                      name: 'isConstant',
+                                                                      start: 169,
+                                                                      end: 179
+                                                                  },
+                                                                  arguments: [
+                                                                      {
+                                                                          type: 'MemberExpression',
+                                                                          object: {
+                                                                              type: 'MemberExpression',
+                                                                              object: {
+                                                                                  type: 'Identifier',
+                                                                                  name: 'node',
+                                                                                  start: 180,
+                                                                                  end: 184
+                                                                              },
+                                                                              computed: false,
+                                                                              property: {
+                                                                                  type: 'Identifier',
+                                                                                  name: 'expressions',
+                                                                                  start: 185,
+                                                                                  end: 196
+                                                                              },
+                                                                              start: 180,
+                                                                              end: 196
+                                                                          },
+                                                                          computed: true,
+                                                                          property: {
+                                                                              type: 'BinaryExpression',
+                                                                              left: {
+                                                                                  type: 'MemberExpression',
+                                                                                  object: {
+                                                                                      type: 'MemberExpression',
+                                                                                      object: {
+                                                                                          type: 'Identifier',
+                                                                                          name: 'node',
+                                                                                          start: 197,
+                                                                                          end: 201
+                                                                                      },
+                                                                                      computed: false,
+                                                                                      property: {
+                                                                                          type: 'Identifier',
+                                                                                          name: 'expressions',
+                                                                                          start: 202,
+                                                                                          end: 213
+                                                                                      },
+                                                                                      start: 197,
+                                                                                      end: 213
+                                                                                  },
+                                                                                  computed: false,
+                                                                                  property: {
+                                                                                      type: 'Identifier',
+                                                                                      name: 'length',
+                                                                                      start: 214,
+                                                                                      end: 220
+                                                                                  },
+                                                                                  start: 197,
+                                                                                  end: 220
+                                                                              },
+                                                                              right: {
+                                                                                  type: 'Literal',
+                                                                                  value: 1,
+                                                                                  start: 223,
+                                                                                  end: 224,
+                                                                                  raw: '1'
+                                                                              },
+                                                                              operator: '-',
+                                                                              start: 197,
+                                                                              end: 224
+                                                                          },
+                                                                          start: 180,
+                                                                          end: 225
+                                                                      }
+                                                                  ],
+                                                                  start: 169,
+                                                                  end: 226
+                                                              },
+                                                              start: 162,
+                                                              end: 227
+                                                          }
+                                                      ],
+                                                      start: 117,
+                                                      end: 227,
+                                                      trailingComments: [
+                                                          {
+                                                              type: 'Line',
+                                                              value: ' no default',
+                                                              start: 242,
+                                                              end: 255
+                                                          }
+                                                      ]
+                                                  }
+                                              ],
+                                              start: 82,
+                                              end: 267
+                                          },
+                                          {
+                                              type: 'ReturnStatement',
+                                              argument: {
+                                                  type: 'Literal',
+                                                  value: false,
+                                                  start: 286,
+                                                  end: 291,
+                                                  raw: 'false'
+                                              },
+                                              start: 279,
+                                              end: 292
+                                          }
+                                      ],
+                                      start: 70,
+                                      end: 300
+                                  },
+                                  async: false,
+                                  generator: false,
+                                  expression: false,
+                                  id: {
+                                      type: 'Identifier',
+                                      name: 'isConstant',
+                                      start: 53,
+                                      end: 63
+                                  },
+                                  start: 44,
+                                  end: 300
+                              }
+                          ],
+                          start: 35,
+                          end: 305
+                      },
+                      async: false,
+                      generator: false,
+                      expression: false,
+                      id: null,
+                      start: 17,
+                      end: 305
+                  },
+                  start: 0,
+                  end: 305
+              },
+              start: 0,
+              end: 306
+          }
+      ],
+      sourceType: 'script',
+      start: 0,
+      end: 306
+  }
+  });
+
+    pass(`switch no default comment in nested function`, {
+    source: `function bar(a) {
+      switch (a) {
+          case 2:
+              break;
+          case 1:
+              break;
+          //no default
+      }
+  }`,
+    raw: true,
+    comments: [],
+    attachComment: true,
+    expected: {
+      type: 'Program',
+      body: [
+          {
+              type: 'FunctionDeclaration',
+              params: [
+                  {
+                      type: 'Identifier',
+                      name: 'a',
+                      start: 13,
+                      end: 14
+                  }
+              ],
+              body: {
+                  type: 'BlockStatement',
+                  body: [
+                      {
+                          type: 'SwitchStatement',
+                          discriminant: {
+                              type: 'Identifier',
+                              name: 'a',
+                              start: 32,
+                              end: 33
+                          },
+                          cases: [
+                              {
+                                  type: 'SwitchCase',
+                                  test: {
+                                      type: 'Literal',
+                                      value: 2,
+                                      start: 52,
+                                      end: 53,
+                                      raw: '2'
+                                  },
+                                  consequent: [
+                                      {
+                                          type: 'BreakStatement',
+                                          label: null,
+                                          start: 69,
+                                          end: 75
+                                      }
+                                  ],
+                                  start: 47,
+                                  end: 75
+                              },
+                              {
+                                  type: 'SwitchCase',
+                                  test: {
+                                      type: 'Literal',
+                                      value: 1,
+                                      start: 91,
+                                      end: 92,
+                                      raw: '1'
+                                  },
+                                  consequent: [
+                                      {
+                                          type: 'BreakStatement',
+                                          label: null,
+                                          start: 108,
+                                          end: 114
+                                      }
+                                  ],
+                                  start: 86,
+                                  end: 114,
+                                  trailingComments: [
+                                      {
+                                          type: 'Line',
+                                          value: 'no default',
+                                          start: 125,
+                                          end: 137
+                                      }
+                                  ]
+                              }
+                          ],
+                          start: 24,
+                          end: 145
+                      }
+                  ],
+                  start: 16,
+                  end: 149
+              },
+              async: false,
+              generator: false,
+              expression: false,
+              id: {
+                  type: 'Identifier',
+                  name: 'bar',
+                  start: 9,
+                  end: 12
+              },
+              start: 0,
+              end: 149
+          }
+      ],
+      sourceType: 'script',
+      start: 0,
+      end: 149
+  }
+  });
+
+    pass(`parenthesized destructuring`, {
+    source: `(foo = /* this is an empty array ! */ [])[0] = 4;`,
+    raw: true,
+    comments: [],
+    attachComment: true,
+    expected: {
+      type: 'Program',
+      body: [
+          {
+              type: 'ExpressionStatement',
+              expression: {
+                  type: 'AssignmentExpression',
+                  left: {
+                      type: 'MemberExpression',
+                      object: {
+                          type: 'AssignmentExpression',
+                          left: {
+                              type: 'Identifier',
+                              name: 'foo',
+                              start: 1,
+                              end: 4
+                          },
+                          operator: '=',
+                          right: {
+                              type: 'ArrayExpression',
+                              elements: [],
+                              start: 38,
+                              end: 40,
+                              leadingComments: [
+                                  {
+                                      type: 'Block',
+                                      value: ' this is an empty array ! ',
+                                      start: 7,
+                                      end: 37
+                                  }
+                              ]
+                          },
+                          start: 1,
+                          end: 40
+                      },
+                      computed: true,
+                      property: {
+                          type: 'Literal',
+                          value: 0,
+                          start: 42,
+                          end: 43,
+                          raw: '0'
+                      },
+                      start: 0,
+                      end: 44
+                  },
+                  operator: '=',
+                  right: {
+                      type: 'Literal',
+                      value: 4,
+                      start: 47,
+                      end: 48,
+                      raw: '4'
+                  },
+                  start: 0,
+                  end: 48
+              },
+              start: 0,
+              end: 49
+          }
+      ],
+      sourceType: 'script',
+      start: 0,
+      end: 49
+  }
+  });
+
+    pass(`binding pattern`, {
+    source: `var {let, /* yield allowed here */ yield} /* assign */ = 0; // to zero`,
+    raw: true,
+    comments: [],
+    attachComment: true,
+    expected: {
+      type: 'Program',
+      body: [
+          {
+              type: 'VariableDeclaration',
+              declarations: [
+                  {
+                      type: 'VariableDeclarator',
+                      init: {
+                          type: 'Literal',
+                          value: 0,
+                          start: 57,
+                          end: 58,
+                          leadingComments: [
+                              {
+                                  type: 'Block',
+                                  value: ' assign ',
+                                  start: 42,
+                                  end: 54
+                              }
+                          ],
+                          raw: '0'
+                      },
+                      id: {
+                          type: 'ObjectPattern',
+                          properties: [
+                              {
+                                  type: 'Property',
+                                  kind: 'init',
+                                  key: {
+                                      type: 'Identifier',
+                                      name: 'let',
+                                      start: 5,
+                                      end: 8
+                                  },
+                                  computed: false,
+                                  value: {
+                                      type: 'Identifier',
+                                      name: 'let',
+                                      start: 5,
+                                      end: 8
+                                  },
+                                  method: false,
+                                  shorthand: true,
+                                  start: 5,
+                                  end: 8
+                              },
+                              {
+                                  type: 'Property',
+                                  kind: 'init',
+                                  key: {
+                                      type: 'Identifier',
+                                      name: 'yield',
+                                      start: 35,
+                                      end: 40
+                                  },
+                                  computed: false,
+                                  value: {
+                                      type: 'Identifier',
+                                      name: 'yield',
+                                      start: 35,
+                                      end: 40
+                                  },
+                                  method: false,
+                                  shorthand: true,
+                                  start: 35,
+                                  end: 40,
+                                  leadingComments: [
+                                      {
+                                          type: 'Block',
+                                          value: ' yield allowed here ',
+                                          start: 10,
+                                          end: 34
+                                      }
+                                  ]
+                              }
+                          ],
+                          start: 4,
+                          end: 41,
+                          trailingComments: [
+                              {
+                                  type: 'Block',
+                                  value: ' assign ',
+                                  start: 42,
+                                  end: 54
+                              }
+                          ]
+                      },
+                      start: 4,
+                      end: 58
+                  }
+              ],
+              kind: 'var',
+              start: 0,
+              end: 59,
+              trailingComments: [
+                  {
+                      type: 'Line',
+                      value: ' to zero',
+                      start: 60,
+                      end: 70
+                  }
+              ]
+          }
+      ],
+      sourceType: 'script',
+      start: 0,
+      end: 70
+  }
+  });
+
+    pass(`bigInt`, {
+    source: `0n /* BigInt */ <= 1`,
+    raw: true,
+    next: true,
+    attachComment: true,
+    expected: {
+      type: 'Program',
+      body: [
+          {
+              type: 'ExpressionStatement',
+              expression: {
+                  type: 'BinaryExpression',
+                  left: {
+                      type: 'Literal',
+                      value: 0,
+                      bigint: '0n',
+                      start: 0,
+                      end: 2,
+                      trailingComments: [
+                          {
+                              type: 'Block',
+                              value: ' BigInt ',
+                              start: 3,
+                              end: 15
+                          }
+                      ],
+                      raw: '0n'
+                  },
+                  right: {
+                      type: 'Literal',
+                      value: 1,
+                      start: 19,
+                      end: 20,
+                      leadingComments: [
+                          {
+                              type: 'Block',
+                              value: ' BigInt ',
+                              start: 3,
+                              end: 15
+                          }
+                      ],
+                      raw: '1'
+                  },
+                  operator: '<=',
+                  start: 0,
+                  end: 20
+              },
+              start: 0,
+              end: 20
+          }
+      ],
+      sourceType: 'script',
+      start: 0,
+      end: 20
+  }
+  });
+
+    pass(`leading comment in body`, {
+    source: `var o = {
+
+      test(arg//an arg
+      ,arg2//arg2
+      ,arg3//arg3
+        // arg33
+      )//comment
+    //comment2
+    {
+          console.log(arg)
+      }
+  } `,
+    raw: true,
+    next: true,
+    attachComment: true,
+    expected: {
+      type: 'Program',
+      body: [
+          {
+              type: 'VariableDeclaration',
+              declarations: [
+                  {
+                      type: 'VariableDeclarator',
+                      init: {
+                          type: 'ObjectExpression',
+                          properties: [
+                              {
+                                  type: 'Property',
+                                  key: {
+                                      type: 'Identifier',
+                                      name: 'test',
+                                      start: 17,
+                                      end: 21
+                                  },
+                                  value: {
+                                      type: 'FunctionExpression',
+                                      params: [
+                                          {
+                                              type: 'Identifier',
+                                              name: 'arg',
+                                              start: 22,
+                                              end: 25,
+                                              trailingComments: [
+                                                  {
+                                                      type: 'Line',
+                                                      value: 'an arg',
+                                                      start: 25,
+                                                      end: 33
+                                                  }
+                                              ]
+                                          },
+                                          {
+                                              type: 'Identifier',
+                                              name: 'arg2',
+                                              start: 41,
+                                              end: 45,
+                                              leadingComments: [
+                                                  {
+                                                      type: 'Line',
+                                                      value: 'an arg',
+                                                      start: 25,
+                                                      end: 33
+                                                  }
+                                              ],
+                                              trailingComments: [
+                                                  {
+                                                      type: 'Line',
+                                                      value: 'arg2',
+                                                      start: 45,
+                                                      end: 51
+                                                  }
+                                              ]
+                                          },
+                                          {
+                                              type: 'Identifier',
+                                              name: 'arg3',
+                                              start: 59,
+                                              end: 63,
+                                              leadingComments: [
+                                                  {
+                                                      type: 'Line',
+                                                      value: 'an arg',
+                                                      start: 25,
+                                                      end: 33
+                                                  },
+                                                  {
+                                                      type: 'Line',
+                                                      value: 'arg2',
+                                                      start: 45,
+                                                      end: 51
+                                                  }
+                                              ],
+                                              trailingComments: [
+                                                  {
+                                                      type: 'Line',
+                                                      value: 'arg3',
+                                                      start: 63,
+                                                      end: 69
+                                                  },
+                                                  {
+                                                      type: 'Line',
+                                                      value: ' arg33',
+                                                      start: 78,
+                                                      end: 86
+                                                  }
+                                              ]
+                                          }
+                                      ],
+                                      body: {
+                                          type: 'BlockStatement',
+                                          body: [
+                                              {
+                                                  type: 'ExpressionStatement',
+                                                  expression: {
+                                                      type: 'CallExpression',
+                                                      callee: {
+                                                          type: 'MemberExpression',
+                                                          object: {
+                                                              type: 'Identifier',
+                                                              name: 'console',
+                                                              start: 135,
+                                                              end: 142
+                                                          },
+                                                          computed: false,
+                                                          property: {
+                                                              type: 'Identifier',
+                                                              name: 'log',
+                                                              start: 143,
+                                                              end: 146
+                                                          },
+                                                          start: 135,
+                                                          end: 146
+                                                      },
+                                                      arguments: [
+                                                          {
+                                                              type: 'Identifier',
+                                                              name: 'arg',
+                                                              start: 147,
+                                                              end: 150
+                                                          }
+                                                      ],
+                                                      start: 135,
+                                                      end: 151
+                                                  },
+                                                  start: 135,
+                                                  end: 151
+                                              }
+                                          ],
+                                          start: 123,
+                                          end: 159,
+                                          leadingComments: [
+                                              {
+                                                  type: 'Line',
+                                                  value: 'arg3',
+                                                  start: 63,
+                                                  end: 69
+                                              },
+                                              {
+                                                  type: 'Line',
+                                                  value: ' arg33',
+                                                  start: 78,
+                                                  end: 86
+                                              },
+                                              {
+                                                  type: 'Line',
+                                                  value: 'comment',
+                                                  start: 94,
+                                                  end: 103
+                                              },
+                                              {
+                                                  type: 'Line',
+                                                  value: 'comment2',
+                                                  start: 108,
+                                                  end: 118
+                                              }
+                                          ]
+                                      },
+                                      async: false,
+                                      generator: false,
+                                      expression: false,
+                                      id: null,
+                                      start: 21,
+                                      end: 159
+                                  },
+                                  kind: 'init',
+                                  computed: false,
+                                  method: true,
+                                  shorthand: false,
+                                  start: 17,
+                                  end: 159
+                              }
+                          ],
+                          start: 8,
+                          end: 163
+                      },
+                      id: {
+                          type: 'Identifier',
+                          name: 'o',
+                          start: 4,
+                          end: 5
+                      },
+                      start: 4,
+                      end: 163
+                  }
+              ],
+              kind: 'var',
+              start: 0,
+              end: 163
+          }
+      ],
+      sourceType: 'script',
+      start: 0,
+      end: 164
+  }
+  });
+
+    pass(`inside JSX`, {
+    source: `<div>{/* foo */}</div>`,
+    raw: true,
+    next: true,
+    jsx: true,
+    attachComment: true,
+    expected: {
+        body: [
+          {
+            end: 22,
+            expression: {
+              children: [
+                {
+                  end: 16,
+                  expression: {
+                    end: 6,
+                    start: 5,
+                    trailingComments: [
+                      {
+                        end: 15,
+                        start: 6,
+                        type: 'Block',
+                        value: ' foo ',
+                      }
+                    ],
+                    type: 'JSXEmptyExpression',
+                  },
+                  start: 5,
+                  type: 'JSXExpressionContainer'
+                }
+              ],
+              closingElement: {
+                end: 22,
+                name: {
+                  end: 21,
+                  name: 'div',
+                  start: 18,
+                  type: 'JSXIdentifier',
+                },
+                start: 16,
+                type: 'JSXClosingElement',
+              },
+              end: 22,
+              openingElement: {
+                attributes: [],
+                end: 5,
+                name: {
+                  end: 4,
+                 name: 'div',
+                 start: 1,
+                  type: 'JSXIdentifier',
+                },
+                selfClosing: false,
+                start: 0,
+                type: 'JSXOpeningElement',
+              },
+              start: 0,
+              type: 'JSXElement',
+            },
+           start: 0,
+            type: 'ExpressionStatement',
+          },
+        ],
+        end: 22,
+        sourceType: 'script',
+        start: 0,
+        type: 'Program',
+      },
+  });
+
+    pass(`object spread`, {
+    source: `var o = /* assign */ { *method() { return {...yield /* multiple spread */, y: 1, ...yield}; } } /* the */ // end`,
+    raw: true,
+    next: true,
+    attachComment: true,
+    expected: {
+      type: 'Program',
+      body: [
+          {
+              type: 'VariableDeclaration',
+              declarations: [
+                  {
+                      type: 'VariableDeclarator',
+                      init: {
+                          type: 'ObjectExpression',
+                          properties: [
+                              {
+                                  type: 'Property',
+                                  key: {
+                                      type: 'Identifier',
+                                      name: 'method',
+                                      start: 24,
+                                      end: 30
+                                  },
+                                  value: {
+                                      type: 'FunctionExpression',
+                                      params: [],
+                                      body: {
+                                          type: 'BlockStatement',
+                                          body: [
+                                              {
+                                                  type: 'ReturnStatement',
+                                                  argument: {
+                                                      type: 'ObjectExpression',
+                                                      properties: [
+                                                          {
+                                                              type: 'SpreadElement',
+                                                              argument: {
+                                                                  type: 'YieldExpression',
+                                                                  argument: null,
+                                                                  delegate: false,
+                                                                  start: 46,
+                                                                  end: 51
+                                                              },
+                                                              start: 43,
+                                                              end: 51,
+                                                              trailingComments: [
+                                                                  {
+                                                                      type: 'Block',
+                                                                      value: ' multiple spread ',
+                                                                      start: 52,
+                                                                      end: 73
+                                                                  }
+                                                              ]
+                                                          },
+                                                          {
+                                                              type: 'Property',
+                                                              key: {
+                                                                  type: 'Identifier',
+                                                                  name: 'y',
+                                                                  start: 75,
+                                                                  end: 76
+                                                              },
+                                                              value: {
+                                                                  type: 'Literal',
+                                                                  value: 1,
+                                                                  start: 78,
+                                                                  end: 79,
+                                                                  raw: '1'
+                                                              },
+                                                              kind: 'init',
+                                                              computed: false,
+                                                              method: false,
+                                                              shorthand: false,
+                                                              start: 75,
+                                                              end: 79,
+                                                              leadingComments: [
+                                                                  {
+                                                                      type: 'Block',
+                                                                      value: ' multiple spread ',
+                                                                      start: 52,
+                                                                      end: 73
+                                                                  }
+                                                              ]
+                                                          },
+                                                          {
+                                                              type: 'SpreadElement',
+                                                              argument: {
+                                                                  type: 'YieldExpression',
+                                                                  argument: null,
+                                                                  delegate: false,
+                                                                  start: 84,
+                                                                  end: 89
+                                                              },
+                                                              start: 81,
+                                                              end: 89
+                                                          }
+                                                      ],
+                                                      start: 42,
+                                                      end: 90
+                                                  },
+                                                  start: 35,
+                                                  end: 91
+                                              }
+                                          ],
+                                          start: 33,
+                                          end: 93
+                                      },
+                                      async: false,
+                                      generator: true,
+                                      expression: false,
+                                      id: null,
+                                      start: 30,
+                                      end: 93
+                                  },
+                                  kind: 'init',
+                                  computed: false,
+                                  method: true,
+                                  shorthand: false,
+                                  start: 23,
+                                  end: 93
+                              }
+                          ],
+                          start: 21,
+                          end: 95,
+                          leadingComments: [
+                              {
+                                  type: 'Block',
+                                  value: ' assign ',
+                                  start: 8,
+                                  end: 20
+                              }
+                          ]
+                      },
+                      id: {
+                          type: 'Identifier',
+                          name: 'o',
+                          start: 4,
+                          end: 5
+                      },
+                      start: 4,
+                      end: 95
+                  }
+              ],
+              kind: 'var',
+              start: 0,
+              end: 95,
+              trailingComments: [
+                  {
+                      type: 'Block',
+                      value: ' the ',
+                      start: 96,
+                      end: 105
+                  },
+                  {
+                      type: 'Line',
+                      value: ' end',
+                      start: 106,
+                      end: 112
+                  }
+              ]
+          }
+      ],
+      sourceType: 'script',
+      start: 0,
+      end: 112
+  }
+  });
+
     });

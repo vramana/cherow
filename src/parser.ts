@@ -870,7 +870,7 @@ export class Parser {
         if (context & Context.TopLevel && node.body.length > 0) return;
 
         const stack = this.commentStack;
-
+        let firstChild;
         let lastChild;
         let trailingComments;
         let i;
@@ -890,18 +890,43 @@ export class Parser {
                 if (lastInStack.trailingComments &&
                     lastInStack.trailingComments[0].start >= node.end) {
                     trailingComments = lastInStack.trailingComments;
+
                     delete lastInStack.trailingComments;
                 }
             }
+        }
+
+        if (stack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
+                  firstChild = stack.pop();
         }
 
         while (this.commentStack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
             lastChild = this.commentStack.pop();
         }
 
+        if (!lastChild && firstChild) lastChild = firstChild;
+
+        if (firstChild && this.leadingComments.length > 0) {
+        const lastComment = this.leadingComments[this.leadingComments.length - 1];
+
+        if (node.type === 'CallExpression' && node.arguments && node.arguments.length) {
+            const lastArg = node.arguments[node.arguments.length - 1];
+
+            if (lastArg && lastComment.start >= lastArg.start && lastComment.end <= node.end) {
+              if (this.previousNode) {
+                if (this.leadingComments.length > 0) {
+                  lastArg.trailingComments = this.leadingComments;
+                  this.leadingComments = [];
+                }
+              }
+            }
+          }
+        }
         if (lastChild) {
             if (lastChild.leadingComments) {
-                if (lastChild.leadingComments[lastChild.leadingComments.length - 1].end <= node.start) {
+                if (lastChild !== node &&
+                    lastChild.leadingComments.length > 0 &&
+                    lastChild.leadingComments[lastChild.leadingComments.length - 1].end <= node.start) {
                     node.leadingComments = lastChild.leadingComments;
                     delete lastChild.leadingComments;
                 } else {
@@ -942,9 +967,6 @@ export class Parser {
                 }
 
                 trailingComments = this.leadingComments.slice(i);
-                if (trailingComments.length === 0) {
-                    trailingComments = null;
-                }
             }
         }
 
