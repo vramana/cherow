@@ -94,6 +94,7 @@ parseScript('1', { ranges: true, loc: true });`:
 | Option        | Description |
 | ----------- | ------------------------------------------------------------ |
 | `comments`        | Let you collect comments. Accepts either an array or function  |
+| `attachComment`   | Attach comments to the closest relevant AST nodes |
 | `globalReturn`    | Enable return in global scope     |
 | `impliedStrict`   | Enable global strict mode in sloppy mode |
 | `jsx`             | Enable JSX parsing   |
@@ -103,13 +104,13 @@ parseScript('1', { ranges: true, loc: true });`:
 | `plugins`         | Let you add an array of plugins    |
 | `raw`             | Attach raw property on literal nodes (*Esprima and Acorn feature*)     |
 
-### Comments and comment collection
+### Comments
 
-Single line, multiline and HTML comments are supported by Cherow, and the parser can be instructed to collect comments by setting the `comments option` to either an array or an function.
+Single line, multiline and HTML comments are supported by Cherow, and the parser can be instructed to collect comments by setting the `comments option` to either an array or an function, or attach the comments to the AST node by setting `attachComment` to *true*.
 
 The type of each comment can either be `Line` for a single-line comment (`//`) og Block for a MultiLineComment (`/* */`).
 
-A function will be called with the following parameters
+A function will be called with the following parameters:
 
 - name - Either `Line` or `Block`
 - comment - The content of the comment
@@ -117,27 +118,16 @@ A function will be called with the following parameters
 - end - Character offset of the end of the comment.
 - loc   - Column and line offset of the comment
 
-Study the following examples to better understand how to collect comments:
+##### Comment attachment
 
-```js
+ The comment attachment algorithm used by `Cherow` works the same way as for `Babylon` and `Espree`, but deviates slightly from Esprima - resulting in some comments being added in different places than Cherow.
 
-// Function
-cherow.parseScript('// foo',
-   {
-       comments: function(name, comment, start, end, loc) {}
-   }
-);
-
-// Array
-const commentArray = [];
-
-cherow.parseScript('// foo',
-    {
-        comments: commentArray
-    }
-);
+ ```js
+    
+ cherow.parseScript('function foo() { /* bar */ return /* baz */;}', { attachComment: true }));
 
 ```
+
 ### Plugins
 
 Cherow is designed to support parameterized plugins wich, within reasonable bounds, redefine the way the parser works. A  parameterized plugin gives 
