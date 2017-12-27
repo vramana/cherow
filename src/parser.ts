@@ -139,7 +139,7 @@ export class Parser {
             sourceType: isModule ? 'module' : 'script',
         };
 
-        if (this.flags & Flags.OptionsRanges) {
+        if (this.flags & (Flags.OptionsRanges | Flags.OptionsAttachComment)) {
             node.start = 0;
             node.end = this.source.length;
         }
@@ -871,7 +871,6 @@ export class Parser {
 
         const stack = this.commentStack;
 
-        let firstChild;
         let lastChild;
         let trailingComments;
         let i;
@@ -886,62 +885,25 @@ export class Parser {
                 this.trailingComments.length = 0;
             }
         } else {
-            if (stack.length > 0) {
-                const lastInStack = stack[stack.length - 1];
-                if (
-                    lastInStack.trailingComments &&
-                    lastInStack.trailingComments[0].start >= node.end
-                ) {
+            if (this.commentStack.length > 0) {
+                const lastInStack = this.commentStack[this.commentStack.length - 1];
+                if (lastInStack.trailingComments &&
+                    lastInStack.trailingComments[0].start >= node.end) {
                     trailingComments = lastInStack.trailingComments;
-                    lastInStack.trailingComments = null;
+                    delete lastInStack.trailingComments;
                 }
             }
-        }
-
-        if (this.commentStack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
-            firstChild = this.commentStack.pop();
         }
 
         while (this.commentStack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
             lastChild = this.commentStack.pop();
         }
 
-        if (!lastChild && firstChild) lastChild = firstChild;
-
-        if (firstChild && this.leadingComments.length > 0) {
-            const lastComment = this.leadingComments[this.leadingComments.length - 1];
-
-            if (
-                node.type === 'CallExpression' &&
-                node.arguments &&
-                node.arguments.length
-            ) {
-                const lastArg = node.arguments[node.arguments.length - 1];
-
-                if (
-                    lastArg &&
-                    lastComment.start >= lastArg.start &&
-                    lastComment.end <= node.end
-                ) {
-                    if (this.previousNode) {
-                        if (this.leadingComments.length > 0) {
-                            lastArg.trailingComments = this.leadingComments;
-                            this.leadingComments = [];
-                        }
-                    }
-                }
-            }
-        }
-
         if (lastChild) {
             if (lastChild.leadingComments) {
-                if (
-                    lastChild !== node &&
-                    lastChild.leadingComments.length > 0 &&
-                    lastChild.leadingComments[lastChild.leadingComments.length - 1].end <= node.start
-                ) {
+                if (lastChild.leadingComments[lastChild.leadingComments.length - 1].end <= node.start) {
                     node.leadingComments = lastChild.leadingComments;
-                    lastChild.leadingComments = null;
+                    delete lastChild.leadingComments;
                 } else {
 
                     for (i = lastChild.leadingComments.length - 2; i >= 0; --i) {
@@ -954,6 +916,14 @@ export class Parser {
             }
         } else if (this.leadingComments.length > 0) {
             if (this.leadingComments[this.leadingComments.length - 1].end <= node.start) {
+                if (this.previousNode) {
+                    for (j = 0; j < this.leadingComments.length; j++) {
+                        if (this.leadingComments[j].end < this.previousNode.end) {
+                            this.leadingComments.splice(j, 1);
+                            j--;
+                        }
+                    }
+                }
                 if (this.leadingComments.length > 0) {
                     node.leadingComments = this.leadingComments;
                     this.leadingComments = [];
@@ -961,31 +931,30 @@ export class Parser {
             } else {
 
                 for (i = 0; i < this.leadingComments.length; i++) {
-                    if (this.leadingComments[i].end > node.start) break;
+                    if (this.leadingComments[i].end > node.start) {
+                        break;
+                    }
                 }
 
-                const leadingComments = this.leadingComments.slice(0, i);
-                if (leadingComments.length > 0) node.leadingComments = leadingComments;
+                node.leadingComments = this.leadingComments.slice(0, i);
+                if (node.leadingComments.length === 0) {
+                    delete node.leadingComments;
+                }
 
                 trailingComments = this.leadingComments.slice(i);
+                if (trailingComments.length === 0) {
+                    trailingComments = null;
+                }
             }
         }
 
         this.previousNode = node;
 
         if (trailingComments) {
-            if (
-                trailingComments.length &&
-                trailingComments[0].start >= node.start &&
-                trailingComments[trailingComments.length - 1].end <= node.end
-            ) {
-                node.innerComments = trailingComments;
-            } else {
-                node.trailingComments = trailingComments;
-            }
+            node.trailingComments = trailingComments;
         }
 
-        stack.push(node);
+        this.commentStack.push(node);
     }
 
     private scanIdentifier(context: Context, hasUnicode: boolean = false): Token {
