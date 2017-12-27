@@ -232,29 +232,6 @@ describe('Miscellaneous - Meta', () => {
             }
     });
 
-    pass(`BOM+shebang+CR before a lone hash`, {
-        source: '\uFFEF#!/foo/bar/baz -abc\u2029! foo',
-        raw: true,
-        expected: {
-              body: [
-                {
-                  expression: {
-                    argument: {
-                      name: 'foo',
-                      type: 'Identifier'
-                    },
-                    operator: '!',
-                    prefix: true,
-                    type: 'UnaryExpression'
-                  },
-                  type: 'ExpressionStatement'
-                }
-              ],
-              sourceType: 'script',
-              type: 'Program'
-            }
-    });
-
     pass(`shebang+LF before a lone exclamation`, {
         source: '#!/foo/bar/baz -abc\n! foo',
         raw: true,

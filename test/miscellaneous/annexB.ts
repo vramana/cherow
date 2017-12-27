@@ -555,6 +555,9 @@ describe('Miscellaneous - AnnexB', () => {
 
     describe('Comments (B3.1)', () => {
 
+        fail (`var foo = [23] -->[0];`, {
+            source: `var foo = [23] -->[0];`
+        });
         pass(`multiline HTML close`, {
             source: `/*
             */--> foo`,

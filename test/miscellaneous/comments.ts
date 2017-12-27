@@ -2,6 +2,10 @@ import { pass, fail } from '../utils';
 
 describe('Miscellaneous - Comments', () => {
 
+    fail(`;-->`, {
+        source: `;-->`,
+    });
+
     fail(`single and multi line comments used together`, {
         source: `// var /*
         x*/`,

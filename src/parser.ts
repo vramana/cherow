@@ -63,6 +63,10 @@ export class Parser {
         pattern: string;
         flags: string;
     };
+    private previousNode: any;
+    private trailingComments: any;
+    private leadingComments: any[];
+    private commentStack: any[];
 
     constructor(source: string, options: Options | void) {
         this.flags = Flags.None;
@@ -70,14 +74,17 @@ export class Parser {
         this.index = 0;
         this.column = 0;
         this.line = 1;
+        this.startIndex = 0;
+        this.startColumn = 0;
+        this.startLine = 1;
         this.lastIndex = 0;
         this.lastColumn = 0;
         this.lastLine = 0;
-        this.startIndex = 0;
-        this.startColumn = 0;
-        this.startLine = 0;
         this.tokenRaw = '';
         this.token = 0;
+        this.trailingComments = [];
+        this.leadingComments = [];
+        this.commentStack = [];
         this.tokenValue = undefined;
         this.labelSet = undefined;
         this.fieldSet = undefined;
@@ -88,6 +95,7 @@ export class Parser {
         this.parentScope = undefined;
         this.comments = undefined;
         this.lastChar = undefined;
+        this.previousNode = undefined;
 
         if (options != null) {
             if (options.next) this.flags |= Flags.OptionsNext;
@@ -95,8 +103,13 @@ export class Parser {
             if (options.loc) this.flags |= Flags.OptionsLoc;
             if (options.ranges) this.flags |= Flags.OptionsRanges;
             if (options.raw) this.flags |= Flags.OptionsRaw;
+            if (options.attachComment) this.flags |= Flags.OptionsAttachComment;
             if (options.globalReturn) this.flags |= Flags.OptionsGlobalReturn;
-            if (options.comments) this.comments = options.comments;
+
+            if (options.comments) {
+                this.flags |= Flags.OptionsComment;
+                this.comments = options.comments;
+            }
 
             if (options.source) {
                 this.flags |= Flags.OptionsSource;
@@ -117,8 +130,8 @@ export class Parser {
         this.nextToken(context);
         const isModule = (context & Context.Module) !== 0;
         const body = isModule ?
-            this.parseModuleItemList(context) :
-            this.parseStatementList(context, Token.EndOfSource);
+            this.parseModuleItemList(context & ~Context.TopLevel) :
+            this.parseStatementList(context & ~Context.TopLevel, Token.EndOfSource);
 
         const node: ESTree.Program = {
             type: 'Program',
@@ -130,6 +143,7 @@ export class Parser {
             node.start = 0;
             node.end = this.source.length;
         }
+
         if (this.flags & Flags.OptionsLoc) {
             node.loc = {
                 start: {
@@ -214,10 +228,10 @@ export class Parser {
     private scanNext(err: Errors = Errors.UnterminatedString): Chars {
         this.advance();
         if (!this.hasNext()) this.error(err);
-        return this.peekUnicodeChar();
+        return this.nextCodePoint();
     }
 
-    private peekUnicodeChar(): Chars {
+    private nextCodePoint(): Chars {
         const hi = this.source.charCodeAt(this.index);
         if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
         const lo = this.source.charCodeAt(this.index + 1);
@@ -236,19 +250,19 @@ export class Parser {
         this.column--;
     }
 
-    private advanceNewline(skipLF = true) {
-        this.flags |= Flags.LineTerminator;
-        this.index++;
-        if (skipLF) {
-            this.column = 0;
-            this.line++;
-        }
-    }
-
     private consume(code: number): boolean {
         if (this.nextChar() !== code) return false;
         this.advance();
         return true;
+    }
+
+    private advanceNewline(state: ScanState = ScanState.None) {
+        this.flags |= Flags.LineTerminator;
+        this.index++;
+        if ((state & ScanState.LastIsCR) === 0) {
+            this.column = 0;
+            this.line++;
+        }
     }
 
     /**
@@ -265,35 +279,33 @@ export class Parser {
 
         while (this.hasNext()) {
 
-            let first = this.nextChar();
-
-            if (first >= 128) {
-                // Chars not in the range 0..127 are rare.  Getting them out of the way
-                // early allows subsequent checking to be faster.
-                first = this.peekUnicodeChar();
+            if (this.index > 0) {
+                this.startIndex = this.index;
+                this.startColumn = this.column;
+                this.startLine = this.line;
             }
 
-            this.startIndex = this.index;
-            this.startColumn = this.column;
-            this.startLine = this.line;
+            let first = this.nextChar();
+
+            if (first >= 128) first = this.nextCodePoint();
 
             switch (first) {
 
                 case Chars.CarriageReturn:
                     state |= ScanState.LastIsCR | ScanState.LineStart;
                     this.advanceNewline();
-                    continue;
+                    break;
 
                 case Chars.LineFeed:
-                    this.advanceNewline((state & ScanState.LastIsCR) === 0);
+                    this.advanceNewline(state);
                     state = state & ~ScanState.LastIsCR | ScanState.LineStart;
-                    continue;
+                    break;
 
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
                     state = state & ~ScanState.LastIsCR | ScanState.LineStart;
                     this.advanceNewline();
-                    continue;
+                    break;
 
                 case Chars.ByteOrderMark:
                 case Chars.Tab:
@@ -330,10 +342,10 @@ export class Parser {
                         const next = this.nextChar();
 
                         if (this.consume(Chars.Slash)) {
-                            this.skipComments(state | ScanState.SingleLine);
+                            this.skipSingleLineComment();
                             continue;
                         } else if (this.consume(Chars.Asterisk)) {
-                            this.skipComments(state | ScanState.MultiLine);
+                            this.skipBlockComment();
                             continue;
                         } else if (this.consume(Chars.EqualSign)) {
                             return Token.DivideAssign;
@@ -369,7 +381,7 @@ export class Parser {
                                     // Double 'hyphen' because of the "look and feel" of
                                     // the HTML single line comment (<!--)
                                     if (this.consume(Chars.Hyphen) && this.consume(Chars.Hyphen)) {
-                                        this.skipComments(state | ScanState.SingleLine);
+                                        this.skipSingleLineComment();
                                         continue;
                                     }
 
@@ -399,7 +411,7 @@ export class Parser {
                                     if (this.nextChar() === Chars.GreaterThan &&
                                         !(context & Context.Module || !(state & ScanState.LineStart))) {
                                         this.advance();
-                                        this.skipComments(state | ScanState.SingleLine);
+                                        this.skipSingleLineComment();
                                         continue;
                                     }
 
@@ -420,7 +432,7 @@ export class Parser {
                     this.advance();
                     if (state & ScanState.LineStart &&
                         this.consume(Chars.Exclamation)) {
-                        this.skipComments(state);
+                        this.skipSingleLineComment();
                         continue;
                     }
                     return Token.Hash;
@@ -747,96 +759,244 @@ export class Parser {
         return Token.EndOfSource;
     }
 
-    /**
-     * Skips single line, hashbang and multiline comments
-     *
-     * @param state Scanner
-     */
-    private skipComments(state: ScanState) {
+    private skipSingleLineComment() {
 
         const startPos = this.index;
 
-        loop:
+        scan: while (this.hasNext()) {
+            switch (this.nextChar()) {
+                case Chars.CarriageReturn:
+                case Chars.LineFeed:
+                case Chars.LineSeparator:
+                case Chars.ParagraphSeparator:
+                    break scan;
+                default:
+                    this.advance();
+            }
+        }
+
+        if (this.flags & (Flags.OptionsComment | Flags.OptionsAttachComment)) {
+            this.addComment(false, this.source.slice(startPos, this.index));
+        }
+    }
+
+    private skipBlockComment() {
+        const result = false;
+        const terminated = false;
+        const startPos = this.index;
+        let state = ScanState.None;
+        scan:
             while (this.hasNext()) {
+                const ch = this.nextChar();
+                switch (ch) {
 
-                switch (this.nextChar()) {
-
-                    // Line Terminators
                     case Chars.CarriageReturn:
-                        if (!(state & ScanState.MultiLine)) break loop;
-                        this.advanceNewline();
                         state |= ScanState.LastIsCR;
+                        this.advanceNewline();
                         break;
 
                     case Chars.LineFeed:
-                        if (!(state & ScanState.MultiLine)) break loop;
-                        this.advanceNewline((state & ScanState.LastIsCR) === 0);
+                        this.advanceNewline(state);
                         state = state & ~ScanState.LastIsCR;
                         break;
 
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
-                        // Single line comments can not contain LINE SEPARATOR (U+2028)
-                        if (!(state & ScanState.MultiLine)) break loop;
                         state = state & ~ScanState.LastIsCR;
                         this.advanceNewline();
                         break;
 
                     case Chars.Asterisk:
-                        if (state & ScanState.MultiLine) {
-                            this.advance();
-                            state &= ~ScanState.LastIsCR;
-                            if (this.consume(Chars.Slash)) {
-                                state |= ScanState.Terminated;
-                                break loop;
-                            }
-                            break;
+                        if (this.index + 1 < this.source.length &&
+                            this.source.charCodeAt(this.index + 1) === Chars.Slash) {
+                            this.index += 2;
+                            this.column += 2;
+                            state |= ScanState.Terminated;
+                            break scan;
                         }
 
+                        // falls through
                     default:
                         this.advance();
                 }
             }
 
-        if (state & ScanState.MultiLine && !(state & ScanState.Terminated)) {
-            this.error(Errors.UnterminatedComment);
+        if (!(state & ScanState.Terminated)) this.error(Errors.UnterminatedComment);
+
+        if (this.flags & (Flags.OptionsComment | Flags.OptionsAttachComment)) {
+            this.addComment(true, this.source.slice(startPos, this.index - 2));
+        }
+    }
+
+    private addComment(block: boolean, value: string) {
+
+        const type = block ? 'Block' : 'Line';
+        const start = this.startIndex;
+        const end = this.index;
+        const loc: ESTree.SourceLocation | null = this.flags & Flags.OptionsLoc ? {
+            start: {
+                line: this.startLine,
+                column: this.startColumn,
+            },
+            end: {
+                line: this.lastLine,
+                column: this.column
+            }
+        } : null;
+
+        if (this.flags & Flags.OptionsComment && typeof this.comments === 'function') {
+            this.comments(type, value, start, end, loc);
+        } else {
+            const comment: ESTree.Comment = {
+                type,
+                value,
+                start,
+                end
+            };
+            if (this.flags & Flags.OptionsLoc) comment.loc = loc;
+            if (this.flags & Flags.OptionsAttachComment) {
+                this.trailingComments.push(comment);
+                this.leadingComments.push(comment);
+            } else {
+                if (!this.comments) this.comments = [];
+                (this.comments as any).push(comment);
+            }
+        }
+    }
+
+    // TODO! Optimize
+    private attachComment(context: Context, node: any) {
+
+        if (context & Context.TopLevel && node.body.length > 0) return;
+
+        const stack = this.commentStack;
+
+        let firstChild;
+        let lastChild;
+        let trailingComments;
+        let i;
+        let j;
+
+        if (this.trailingComments.length > 0) {
+
+            if (this.trailingComments[0].start >= node.end) {
+                trailingComments = this.trailingComments;
+                this.trailingComments = [];
+            } else {
+                this.trailingComments.length = 0;
+            }
+        } else {
+            if (stack.length > 0) {
+                const lastInStack = stack[stack.length - 1];
+                if (
+                    lastInStack.trailingComments &&
+                    lastInStack.trailingComments[0].start >= node.end
+                ) {
+                    trailingComments = lastInStack.trailingComments;
+                    lastInStack.trailingComments = null;
+                }
+            }
         }
 
-        if (state & ScanState.Collectible && this.comments !== undefined) {
-            let loc;
-            const start = this.startIndex;
-            const end = this.index;
-            const type = state & ScanState.MultiLine ? 'Block' : 'Line';
-            const value = this.source.slice(startPos, state & ScanState.MultiLine ? this.index - 2 : this.index);
+        if (this.commentStack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
+            firstChild = this.commentStack.pop();
+        }
 
-            if (this.flags & Flags.OptionsLoc) {
-                loc = {
-                    start: {
-                        line: this.startLine,
-                        column: this.startColumn,
-                    },
-                    end: {
-                        line: this.lastLine,
-                        column: this.column
+        while (this.commentStack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
+            lastChild = this.commentStack.pop();
+        }
+
+        if (!lastChild && firstChild) lastChild = firstChild;
+
+        if (firstChild && this.leadingComments.length > 0) {
+            const lastComment = this.leadingComments[this.leadingComments.length - 1];
+
+            if (
+                node.type === 'CallExpression' &&
+                node.arguments &&
+                node.arguments.length
+            ) {
+                const lastArg = node.arguments[node.arguments.length - 1];
+
+                if (
+                    lastArg &&
+                    lastComment.start >= lastArg.start &&
+                    lastComment.end <= node.end
+                ) {
+                    if (this.previousNode) {
+                        if (this.leadingComments.length > 0) {
+                            lastArg.trailingComments = this.leadingComments;
+                            this.leadingComments = [];
+                        }
                     }
-                };
-            }
-
-            if (typeof this.comments === 'function') {
-                this.comments(type, value, start as number, end as number, loc);
-            } else if (Array.isArray(this.comments)) {
-
-                const node: any = {
-                    type,
-                    value,
-                    start,
-                    end,
-                    loc
-                };
-
-                this.comments.push(node);
+                }
             }
         }
+
+        if (lastChild) {
+            if (lastChild.leadingComments) {
+                if (
+                    lastChild !== node &&
+                    lastChild.leadingComments.length > 0 &&
+                    lastChild.leadingComments[lastChild.leadingComments.length - 1].end <= node.start
+                ) {
+                    node.leadingComments = lastChild.leadingComments;
+                    lastChild.leadingComments = null;
+                } else {
+
+                    for (i = lastChild.leadingComments.length - 2; i >= 0; --i) {
+                        if (lastChild.leadingComments[i].end <= node.start) {
+                            node.leadingComments = lastChild.leadingComments.splice(0, i + 1);
+                            break;
+                        }
+                    }
+                }
+            }
+        } else if (this.leadingComments.length > 0) {
+            if (this.leadingComments[this.leadingComments.length - 1].end <= node.start) {
+                if (this.previousNode) {
+                    for (j = 0; j < this.leadingComments.length; j++) {
+                        if (
+                            this.leadingComments[j].end <
+                            this.previousNode.end
+                        ) {
+                            this.leadingComments.splice(j, 1);
+                            j--;
+                        }
+                    }
+                }
+                if (this.leadingComments.length > 0) {
+                    node.leadingComments = this.leadingComments;
+                    this.leadingComments = [];
+                }
+            } else {
+
+                for (i = 0; i < this.leadingComments.length; i++) {
+                    if (this.leadingComments[i].end > node.start) break;
+                }
+
+                const leadingComments = this.leadingComments.slice(0, i);
+                if (leadingComments.length > 0) node.leadingComments = leadingComments;
+
+                trailingComments = this.leadingComments.slice(i);
+            }
+        }
+
+        this.previousNode = node;
+
+        if (trailingComments) {
+            if (
+                trailingComments.length &&
+                trailingComments[0].start >= node.start &&
+                trailingComments[trailingComments.length - 1].end <= node.end
+            ) {
+                node.innerComments = trailingComments;
+            } else {
+                node.trailingComments = trailingComments;
+            }
+        }
+
+        stack.push(node);
     }
 
     private scanIdentifier(context: Context, hasUnicode: boolean = false): Token {
@@ -847,19 +1007,36 @@ export class Parser {
 
         loop:
             while (this.hasNext()) {
-                const code = this.nextChar();
-                switch (code) {
-                    case Chars.Backslash:
-                        hasEscape = true;
-                        ret += this.source.slice(start, this.index);
-                        ret += fromCodePoint(this.peekUnicodeEscape());
-                        start = this.index;
-                        break;
-                    default:
-                        if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMax) {
-                            this.peekUnicodeChar();
-                        } else if (!isIdentifierPart(code)) break loop;
-                        this.advance();
+
+                let ch = this.nextChar();
+
+                if (ch < 0xd800 || ch > 0xdbff) {
+
+                    switch (ch) {
+
+                        case Chars.Backslash:
+
+                            const index = this.index;
+                            const code = this.peekUnicodeEscape();
+
+                            if (!(code >= 0)) this.error(Errors.Unexpected);
+                            ret += this.source.slice(start, index);
+                            ret += fromCodePoint(code);
+                            hasEscape = true;
+                            start = this.index;
+
+                            break;
+
+                        default:
+                            if (ch >= Chars.LeadSurrogateMin && ch <= Chars.TrailSurrogateMax) {
+                                this.nextCodePoint();
+                            } else if (!isIdentifierPart(ch)) break loop;
+                            this.advance();
+                    }
+                } else {
+                    ch = this.nextCodePoint();
+                    if (!isIdentifierPart(ch)) break;
+                    this.advance();
                 }
             }
 
@@ -888,30 +1065,36 @@ export class Parser {
      * Peek unicode escape
      */
     private peekUnicodeEscape(): number {
-        this.advance();
-        const code = this.peekExtendedUnicodeEscape();
-        if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMin) {
-            this.error(Errors.UnexpectedSurrogate);
-        }
 
-        if (!isIdentifierPart(code)) {
-            this.error(Errors.InvalidUnicodeEscapeSequence);
-        }
+        let code = -1;
+        const index = this.index;
+        if (index + 5 < this.source.length) {
+            if (this.source.charCodeAt(index + 1) !== Chars.LowerU) return -1;
+            this.advance();
+            if (!this.hasNext()) this.error(Errors.Unexpected);
+            this.advance();
+            code = this.peekExtendedUnicodeEscape();
+            if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMin) {
+                this.error(Errors.UnexpectedSurrogate);
+            }
 
-        this.advance();
+            if (!isIdentifierPart(code)) {
+                this.error(Errors.InvalidUnicodeEscapeSequence);
+            }
+
+            this.advance();
+        }
         return code;
     }
 
     private peekExtendedUnicodeEscape(): Chars {
 
-        let ch = this.scanNext();
-
+        let ch = this.nextChar();
         let code = 0;
 
         // '\u{DDDDDDDD}'
         if (ch === Chars.LeftBrace) { // {
             ch = this.scanNext(Errors.InvalidHexEscapeSequence);
-
             while (ch !== Chars.RightBrace) {
                 const digit = toHex(ch);
                 if (digit < 0) this.error(Errors.InvalidHexEscapeSequence);
@@ -921,21 +1104,32 @@ export class Parser {
                 ch = this.scanNext(Errors.InvalidHexEscapeSequence);
             }
 
-        } else {
-
-            // '\uDDDD'
-            code = toHex(ch);
-
-            if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
-
-            for (let i = 0; i < 3; i++) {
-                ch = this.scanNext(Errors.InvalidHexEscapeSequence);
-                const digit = toHex(ch);
-                if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
-                code = code << 4 | digit;
-            }
+            return code;
         }
+
+        // '\uDDDD'
+        code = toHex(ch);
+
+        if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
+
+        for (let i = 0; i < 3; i++) {
+            ch = this.scanNext(Errors.InvalidHexEscapeSequence);
+            const digit = toHex(ch);
+            if (code < 0) this.error(Errors.InvalidHexEscapeSequence);
+            code = code << 4 | digit;
+        }
+
         return code;
+    }
+
+    private scanNumericFragment(state: NumericState): NumericState {
+        this.flags |= Flags.ContainsSeparator;
+        if (!(state & NumericState.AllowSeparator)) {
+            this.error(Errors.InvalidNumericSeparators);
+        }
+        state &= ~NumericState.AllowSeparator;
+        this.advance();
+        return state;
     }
 
     private scanDecimalDigitsOrFragment(): any {
@@ -982,16 +1176,6 @@ export class Parser {
         }
 
         return ret + this.source.substring(start, this.index);
-    }
-
-    private scanNumericFragment(state: NumericState): NumericState {
-        this.flags |= Flags.ContainsSeparator;
-        if (!(state & NumericState.AllowSeparator)) {
-            this.error(Errors.InvalidNumericSeparators);
-        }
-        state &= ~NumericState.AllowSeparator;
-        this.advance();
-        return state;
     }
 
     private scanNumber(context: Context, ch: number): Token {
@@ -1468,8 +1652,6 @@ export class Parser {
                 this.column = -1;
                 this.line++;
                 return Escape.Empty;
-
-                // Null character, octals
             case Chars.Zero:
             case Chars.One:
             case Chars.Two:
@@ -1591,7 +1773,7 @@ export class Parser {
                 }
 
             default:
-                return this.peekUnicodeChar();
+                return this.nextCodePoint();
         }
     }
 
@@ -1631,9 +1813,9 @@ export class Parser {
 
                     case Chars.Backslash:
 
-                    ch = this.scanNext(Errors.UnterminatedTemplate);
+                        ch = this.scanNext(Errors.UnterminatedTemplate);
 
-                    if (ch >= 128) {
+                        if (ch >= 128) {
                             ret += fromCodePoint(ch);
                         } else {
                             this.lastChar = ch;
@@ -1653,7 +1835,7 @@ export class Parser {
                             }
                         }
 
-                    break;
+                        break;
 
                         // Line terminators
                     case Chars.CarriageReturn:
@@ -1771,7 +1953,7 @@ export class Parser {
 
         if (shouldAdvance) this.nextToken(context);
 
-        if (this.flags & Flags.OptionsRanges) {
+        if (this.flags & (Flags.OptionsRanges | Flags.OptionsAttachComment)) {
             node.start = pos.start;
             node.end = this.lastIndex;
         }
@@ -1788,6 +1970,10 @@ export class Parser {
                     column: this.lastColumn
                 }
             };
+        }
+
+        if (this.flags & Flags.OptionsAttachComment) {
+            this.attachComment(context, node);
         }
 
         return node;
@@ -3587,40 +3773,44 @@ export class Parser {
 
         if (t !== Token.LeftParen) {
 
-            if (!this.isIdentifier(context, t)) this.error(Errors.UnexpectedToken, tokenDesc(t));
+            if (this.isIdentifier(context, t)) {
 
-            if (this.isEvalOrArguments(this.tokenValue)) {
-                if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
-                context |= Context.StrictReserved;
-            }
-
-            if (context & (Context.Expression | Context.AnnexB)) {
-
-                if ((context & Context.Await && t & Token.IsAwait) ||
-                    (context & Context.Yield && t & Token.IsYield)) {
-                    this.error(Errors.DisallowedInContext, tokenDesc(t));
+                if (this.isEvalOrArguments(this.tokenValue)) {
+                    if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
+                    context |= Context.StrictReserved;
                 }
 
-                id = this.parseIdentifier(context);
+                if (context & (Context.Expression | Context.AnnexB)) {
+
+                    if ((context & Context.Await && t & Token.IsAwait) ||
+                        (context & Context.Yield && t & Token.IsYield)) {
+                        this.error(Errors.DisallowedInContext, tokenDesc(t));
+                    }
+
+                    id = this.parseIdentifier(context);
+
+                } else {
+
+                    if ((prevContext & Context.Await && t & Token.IsAwait) ||
+                        (prevContext & Context.Yield && t & Token.IsYield)) {
+                        this.error(Errors.DisallowedInContext, tokenDesc(t));
+                    }
+
+                    if (context & Context.Declaration) {
+                        const name = this.tokenValue;
+                        if (!this.initBlockScope() && name in this.blockScope &&
+                            (this.blockScope[name] & ScopeMasks.Shadowable ||
+                                this.blockScope !== this.functionScope)) {
+                            this.error(Errors.DuplicateBinding, name);
+                        }
+                        this.blockScope[name] = ScopeMasks.Shadowable;
+                    }
+
+                    id = this.parseBindingIdentifier(context);
+                }
 
             } else {
-
-                if ((prevContext & Context.Await && t & Token.IsAwait) ||
-                    (prevContext & Context.Yield && t & Token.IsYield)) {
-                    this.error(Errors.DisallowedInContext, tokenDesc(t));
-                }
-
-                if (context & Context.Declaration) {
-                    const name = this.tokenValue;
-                    if (!this.initBlockScope() && name in this.blockScope &&
-                        (this.blockScope[name] & ScopeMasks.Shadowable ||
-                            this.blockScope !== this.functionScope)) {
-                        this.error(Errors.DuplicateBinding, name);
-                    }
-                    this.blockScope[name] = ScopeMasks.Shadowable;
-                }
-
-                id = this.parseBindingIdentifier(context);
+                this.error(Errors.UnexpectedToken, tokenDesc(t));
             }
 
         } else if (!(context & (Context.Expression | Context.Optional))) {

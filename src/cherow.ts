@@ -5,12 +5,12 @@ import { Program } from './estree';
 
 // https://tc39.github.io/ecma262/#sec-scripts
 export function parseScript(source: string, options?: Options): Program {
-  return new Parser(source, options).parseProgram(options && options.impliedStrict ? Context.Strict : Context.None);
+  return new Parser(source, options).parseProgram(options && options.impliedStrict ? Context.Strict | Context.TopLevel : Context.TopLevel);
 }
 
 // https://tc39.github.io/ecma262/#sec-modules
 export function parseModule(source: string, options?: Options): Program {
-    return new Parser(source, options).parseProgram(Context.Strict | Context.Module);
+    return new Parser(source, options).parseProgram(Context.Strict | Context.Module | Context.TopLevel);
 }
 
 export const version = 'VERSION';

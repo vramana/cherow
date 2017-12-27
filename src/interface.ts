@@ -15,6 +15,7 @@ export interface Options {
     tolerant?: any;
     sourceType?: 'module' | 'script';
     plugins?: any;
+    attachComment?: boolean;
     impliedStrict?: boolean;
 }
 

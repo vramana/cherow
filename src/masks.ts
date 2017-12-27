@@ -28,8 +28,9 @@ export const enum Context {
     Pattern                = 1 << 24,
     ValidateEscape         = 1 << 25,  // If node was parsed in a context where escaped keywords are forbidden
     StrictReserved         = 1 << 26,  // Variable declaration
-    Let                    = 1 << 27,  // Variable declaration
-    Const                  = 1 << 28,  // Variable declaration
+    TopLevel               = 1 << 27,  // Variable declaration
+    Let                    = 1 << 28,  // Variable declaration
+    Const                  = 1 << 29,  // Variable declaration
 
     // An Lexical declaration can be either 'const¨' or 'let
     Lexical = Let | Const,
@@ -74,6 +75,8 @@ export const enum Flags {
     OptionsSourceType            = 1 << 28, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
     OptionsTolerant              = 1 << 29,
     OptionsPlugins               = 1 << 30,
+    OptionsAttachComment         = 1 << 31,
+    OptionsComment               = 1 << 32,
 }
 
 // Flags used in parenthesized to validate arrow formal list

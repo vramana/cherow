@@ -17,8 +17,10 @@ interface Opts {
     directives?: any;
     jsx?: boolean;
     comments?: any;
+    attach?: any;
     globalReturn?: boolean;
     impliedStrict?: boolean;
+    attachComment?: boolean;
 }
 
 export const pass = (name: string, opts: Opts) => {
@@ -35,7 +37,8 @@ export const pass = (name: string, opts: Opts) => {
         globalReturn: opts.globalReturn,
         jsx: opts.jsx,
         impliedStrict: opts.impliedStrict,
-        comments: opts.comments
+        comments: opts.comments,
+        attachComment: opts.attachComment
     };
 
     it('Should pass "' + name + '"', () => {
