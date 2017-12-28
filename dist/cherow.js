@@ -3146,8 +3146,7 @@ Parser.prototype.reinterpretAsPattern = function reinterpretAsPattern (context, 
         case 'ObjectPattern':
             // ObjectPattern and ObjectExpression are isomorphic
             for (var i = 0; i < node.properties.length; i++) {
-                var prop = node.properties[i];
-                this$1.reinterpretAsPattern(context, prop.value ? prop.value : prop);
+                this$1.reinterpretAsPattern(context, node.properties[i]);
             }
             return;
         case 'ArrayExpression':
@@ -3163,6 +3162,8 @@ Parser.prototype.reinterpretAsPattern = function reinterpretAsPattern (context, 
                     { this$1.reinterpretAsPattern(context, node.elements[i$1]); }
             }
             return;
+        case 'Property':
+            return this.reinterpretAsPattern(context, node.value);
         case 'SpreadElement':
             node.type = 'RestElement';
         // Fall through

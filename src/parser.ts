@@ -3256,7 +3256,7 @@ export class Parser {
         return expr;
     }
 
-    private reinterpretAsPattern(context: Context, node: any) {
+    private reinterpretAsPattern(context: Context, node: any): any {
 
         switch (node.type) {
             case 'Identifier':
@@ -3278,8 +3278,7 @@ export class Parser {
             case 'ObjectPattern':
                 // ObjectPattern and ObjectExpression are isomorphic
                 for (let i = 0; i < node.properties.length; i++) {
-                    const prop = node.properties[i];
-                    this.reinterpretAsPattern(context, prop.value ? prop.value : prop);
+                    this.reinterpretAsPattern(context, node.properties[i]);
                 }
                 return;
 
@@ -3296,6 +3295,9 @@ export class Parser {
                     if (node.elements[i] !== null) this.reinterpretAsPattern(context, node.elements[i]);
                 }
                 return;
+
+            case 'Property':
+                return this.reinterpretAsPattern(context, node.value);
 
             case 'SpreadElement':
                 node.type = 'RestElement';

@@ -40,8 +40,7 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 * [Throw expressions](https://github.com/tc39/proposal-throw-expressions)
 
 ## API
-
-Cherow can be used to perform [syntactic analysis](https://en.wikipedia.org/wiki/Parsing) (parsing) of a JavaScript program, and a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and
+Cherow generates AST according to [ESTree AST format](https://github.com/estree/estree), and can be used to perform [syntactic analysis](https://en.wikipedia.org/wiki/Parsing) (parsing) of a JavaScript program, and a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and
 both are accepted by Cherow to perform syntactic analysis of JavaScript programs.
 
 With ES2015 and later, a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/6.0/index.html#sec-ecmascript-language-scripts-and-modules) and this is achieved by choosing [`parseScript`](http://www.ecma-international.org/ecma-262/8.0/#sec-parse-script) function to parse a script and [`parseModule`](http://www.ecma-international.org/ecma-262/8.0/#sec-parsemodule) function to parse a module.
@@ -95,13 +94,14 @@ parseScript('1', { ranges: true, loc: true });`:
 | ----------- | ------------------------------------------------------------ |
 | `comments`        | Create a top-level comments array containing all comments |
 | `attachComment`   | Attach comments to the closest relevant AST nodes |
-| `globalReturn`    | Enable return in global scope     |
-| `impliedStrict`   | Enable global strict mode in sloppy mode |
-| `jsx`             | Enable JSX parsing   |
+| `globalReturn`    | Allow return statement in global scope     |
+| `impliedStrict`   | Allow implied strict mode in sloppy mode (*modules are strict by default*) |
+| `jsx`             | Enable React JSX parsing   |
 | `loc      `       | Attach line/column location information to each node |
 | `ranges`          | Attach range information to each node |
-| `next`            | Allow experimental ECMAScript features - stage 3 proposals |
-| `plugins`         | Let you add an array of plugins    |
+| `next`            | Allow experimental ECMAScript features (*Stage 3 proposals*) |
+| `plugins`         | Array containing the parameterized plugins that you want to enable   |
+| `source`          | Correlate output AST nodes with their source filename  |
 | `raw`             | Attach raw property on literal nodes (*Esprima and Acorn feature*)     |
 
 ### Comments

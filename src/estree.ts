@@ -4,6 +4,7 @@ interface _Node<T extends string> {
     start?: number;
     end?: number;
     comments?: Comment[];
+    tokens?: any;
     leadingComments?: Comment[];
     trailingComments?: Comment[];
     innerComments?: Comment[];
