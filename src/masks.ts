@@ -74,9 +74,8 @@ export const enum Flags {
     OptionsGlobalReturn          = 1 << 27, // Allow return statement in global scope,
     OptionsSourceType            = 1 << 28, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
     OptionsTolerant              = 1 << 29,
-    OptionsPlugins               = 1 << 30,
+    OptionsComment               = 1 << 30,
     OptionsAttachComment         = 1 << 31,
-    OptionsComment               = 1 << 32,
 }
 
 // Flags used in parenthesized to validate arrow formal list

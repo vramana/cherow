@@ -5,7 +5,7 @@ import { Comment } from './estree';
 export interface Options {
     next?: boolean;
     ranges?: boolean;
-    comments?: EmitComments;
+    comments?: boolean;
     loc?: boolean;
     raw?: boolean;
     jsx?: boolean;
@@ -42,7 +42,3 @@ export interface Location {
     line: number;
     column: number;
 }
-
-export type EmitComments = void | Comment[] | (
-    (type: string, value: string, start: number, end: number, loc: any) => void
-);

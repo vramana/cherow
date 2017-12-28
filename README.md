@@ -93,7 +93,7 @@ parseScript('1', { ranges: true, loc: true });`:
 
 | Option        | Description |
 | ----------- | ------------------------------------------------------------ |
-| `comments`        | Let you collect comments. Accepts either an array or function  |
+| `comments`        | Create a top-level comments array containing all comments |
 | `attachComment`   | Attach comments to the closest relevant AST nodes |
 | `globalReturn`    | Enable return in global scope     |
 | `impliedStrict`   | Enable global strict mode in sloppy mode |
@@ -106,17 +106,10 @@ parseScript('1', { ranges: true, loc: true });`:
 
 ### Comments
 
-Single line, multiline and HTML comments are supported by Cherow, and the parser can be instructed to collect comments by setting the `comments option` to either an array or an function, or attach the comments to the AST node by setting `attachComment` to *true*.
+Single line, multiline and HTML comments are supported by Cherow, and the parser can be instructed to collect comments by setting the `comments option` to *true*,  or attach the comments to the AST node by setting `attachComment` to *true*.
 
-The type of each comment can either be `Line` for a single-line comment (`//`) og Block for a MultiLineComment (`/* */`).
-
-A function will be called with the following parameters:
-
-- name - Either `Line` or `Block`
-- comment - The content of the comment
-- start - Character offset of the start of the comment.
-- end - Character offset of the end of the comment.
-- loc   - Column and line offset of the comment
+A top-level comments array containing all comments will be attached to the root node (*Program*), and the type of each comment can 
+either be `Line` for a single-line comment (`//`) og Block for a MultiLineComment (`/* */`).
 
 #### Comment attachment
 

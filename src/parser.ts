@@ -6,7 +6,9 @@ import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, ScanS
 import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
-import { Options, SavedState, Location, EmitComments } from './interface';
+import { Options, SavedState, Location } from './interface';
+import { Comment } from './estree';
+
 export class Parser {
 
     // The program to be parsed
@@ -56,7 +58,7 @@ export class Parser {
     private functionScope: any;
     private fieldSet: any;
     private errorLocation: void | Location;
-    private comments: EmitComments;
+    private comments: Comment[];
     private locSource: void | string;
     private lastChar: void | Chars;
     private tokenRegExp: void | {
@@ -85,6 +87,7 @@ export class Parser {
         this.trailingComments = [];
         this.leadingComments = [];
         this.commentStack = [];
+        this.comments = [];
         this.tokenValue = undefined;
         this.labelSet = undefined;
         this.fieldSet = undefined;
@@ -93,7 +96,6 @@ export class Parser {
         this.functionScope = undefined;
         this.blockScope = undefined;
         this.parentScope = undefined;
-        this.comments = undefined;
         this.lastChar = undefined;
         this.previousNode = undefined;
 
@@ -104,12 +106,8 @@ export class Parser {
             if (options.ranges) this.flags |= Flags.OptionsRanges;
             if (options.raw) this.flags |= Flags.OptionsRaw;
             if (options.attachComment) this.flags |= Flags.OptionsAttachComment;
+            if (options.comments) this.flags |= Flags.OptionsComment;
             if (options.globalReturn) this.flags |= Flags.OptionsGlobalReturn;
-
-            if (options.comments) {
-                this.flags |= Flags.OptionsComment;
-                this.comments = options.comments;
-            }
 
             if (options.source) {
                 this.flags |= Flags.OptionsSource;
@@ -156,6 +154,12 @@ export class Parser {
                 }
             };
         }
+
+        // Attach top level comments array
+        if (this.flags & (Flags.OptionsComment | Flags.OptionsAttachComment)) {
+            (node.comments as any) = this.comments;
+        }
+
         return node;
     }
 
@@ -844,23 +848,20 @@ export class Parser {
             }
         } : null;
 
-        if (this.flags & Flags.OptionsComment && typeof this.comments === 'function') {
-            this.comments(type, value, start, end, loc);
-        } else {
-            const comment: ESTree.Comment = {
-                type,
-                value,
-                start,
-                end
-            };
-            if (this.flags & Flags.OptionsLoc) comment.loc = loc;
-            if (this.flags & Flags.OptionsAttachComment) {
-                this.trailingComments.push(comment);
-                this.leadingComments.push(comment);
-            } else {
-                if (!this.comments) this.comments = [];
-                (this.comments as any).push(comment);
-            }
+        const comment: ESTree.Comment = {
+            type,
+            value,
+            start,
+            end
+        };
+
+        if (this.flags & Flags.OptionsLoc) comment.loc = loc;
+
+        this.comments.push(comment);
+
+        if (this.flags & Flags.OptionsAttachComment) {
+            this.trailingComments.push(comment);
+            this.leadingComments.push(comment);
         }
     }
 
@@ -928,7 +929,7 @@ export class Parser {
                         break;
                     }
 
-                    default: // ignore
+                default: // ignore
             }
         }
 

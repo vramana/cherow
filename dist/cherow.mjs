@@ -361,6 +361,7 @@ var Parser = function Parser(source, options) {
     this.trailingComments = [];
     this.leadingComments = [];
     this.commentStack = [];
+    this.comments = [];
     this.tokenValue = undefined;
     this.labelSet = undefined;
     this.fieldSet = undefined;
@@ -369,7 +370,6 @@ var Parser = function Parser(source, options) {
     this.functionScope = undefined;
     this.blockScope = undefined;
     this.parentScope = undefined;
-    this.comments = undefined;
     this.lastChar = undefined;
     this.previousNode = undefined;
     if (options != null) {
@@ -385,12 +385,10 @@ var Parser = function Parser(source, options) {
             { this.flags |= 33554432 /* OptionsRaw */; }
         if (options.attachComment)
             { this.flags |= -2147483648 /* OptionsAttachComment */; }
+        if (options.comments)
+            { this.flags |= 1073741824 /* OptionsComment */; }
         if (options.globalReturn)
             { this.flags |= 134217728 /* OptionsGlobalReturn */; }
-        if (options.comments) {
-            this.flags |= 1 /* OptionsComment */;
-            this.comments = options.comments;
-        }
         if (options.source) {
             this.flags |= 8388608 /* OptionsSource */;
             this.locSource = options.source;
@@ -430,6 +428,10 @@ Parser.prototype.parseProgram = function parseProgram (context) {
                 column: this.column
             }
         };
+    }
+    // Attach top level comments array
+    if (this.flags & (1073741824 /* OptionsComment */ | -2147483648 /* OptionsAttachComment */)) {
+        node.comments = this.comments;
     }
     return node;
 };
@@ -986,7 +988,7 @@ Parser.prototype.skipSingleLineComment = function skipSingleLineComment () {
                 this$1.advance();
         }
     }
-    if (this.flags & (1 /* OptionsComment */ | -2147483648 /* OptionsAttachComment */)) {
+    if (this.flags & (1073741824 /* OptionsComment */ | -2147483648 /* OptionsAttachComment */)) {
         this.addComment(false, this.source.slice(startPos, this.index));
     }
 };
@@ -1026,7 +1028,7 @@ Parser.prototype.skipBlockComment = function skipBlockComment () {
     }
     if (!(state & 32 /* Terminated */))
         { this.error(2 /* UnterminatedComment */); }
-    if (this.flags & (1 /* OptionsComment */ | -2147483648 /* OptionsAttachComment */)) {
+    if (this.flags & (1073741824 /* OptionsComment */ | -2147483648 /* OptionsAttachComment */)) {
         this.addComment(true, this.source.slice(startPos, this.index - 2));
     }
 };
@@ -1044,27 +1046,18 @@ Parser.prototype.addComment = function addComment (block, value) {
             column: this.column
         }
     } : null;
-    if (this.flags & 1 /* OptionsComment */ && typeof this.comments === 'function') {
-        this.comments(type, value, start, end, loc);
-    }
-    else {
-        var comment = {
-            type: type,
-            value: value,
-            start: start,
-            end: end
-        };
-        if (this.flags & 4194304 /* OptionsLoc */)
-            { comment.loc = loc; }
-        if (this.flags & -2147483648 /* OptionsAttachComment */) {
-            this.trailingComments.push(comment);
-            this.leadingComments.push(comment);
-        }
-        else {
-            if (!this.comments)
-                { this.comments = []; }
-            this.comments.push(comment);
-        }
+    var comment = {
+        type: type,
+        value: value,
+        start: start,
+        end: end
+    };
+    if (this.flags & 4194304 /* OptionsLoc */)
+        { comment.loc = loc; }
+    this.comments.push(comment);
+    if (this.flags & -2147483648 /* OptionsAttachComment */) {
+        this.trailingComments.push(comment);
+        this.leadingComments.push(comment);
     }
 };
 // TODO! Optimize
@@ -5267,6 +5260,6 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return new Parser(source, options).parseProgram(2 /* Strict */ | 1 /* Module */ | 134217728 /* TopLevel */);
 }
-var version = '0.19.3';
+var version = '0.19.4';
 
 export { parseScript, parseModule, version };
