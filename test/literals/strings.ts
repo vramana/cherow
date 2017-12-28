@@ -70,7 +70,7 @@ describe('Literals - Strings', () => {
     fail('"use strict";  "\\08"', {
         source: '"use strict"; \\08"'
     });
-    // fail(`"use strict";  "\\09"`, `"use strict";  "\\09"`);
+
     fail('"\\u{110000}"', {
         source: '"\\u{110000}"'
     });
@@ -161,8 +161,17 @@ describe('Literals - Strings', () => {
     fail('"\\9"', {
         source: '"\\9"'
     });
+
     fail('"use strict"; "\\u1"', {
         source: '"use strict"; "\\u1"'
+    });
+
+    fail('"use strict"; "\\08";', {
+        source: '"use strict"; "\\08";'
+    });
+
+    fail('"use strict"; "\\09";', {
+        source: '"use strict"; "\\09";'
     });
 
     pass(`"abc"`, {

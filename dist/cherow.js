@@ -1757,8 +1757,13 @@ Parser.prototype.scanEscape = function scanEscape (context, cp) {
                 var column = this.column + 1;
                 var next = this.source.charCodeAt(index);
                 if (next < 48 /* Zero */ || next > 55 /* Seven */) {
-                    if (code !== 0 && context & 2 /* Strict */)
-                        { return -2 /* StrictOctal */; }
+                    if (code !== 0 && context & 2 /* Strict */) {
+                        return -2 /* StrictOctal */;
+                    }
+                    else if (next === 56 /* Eight */ || next === 57 /* Nine */) {
+                        if (context & 2 /* Strict */)
+                            { return -3 /* EightOrNine */; }
+                    }
                 }
                 else if (context & 2 /* Strict */) {
                     return -2 /* StrictOctal */;
@@ -5267,7 +5272,7 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return new Parser(source, options).parseProgram(2 /* Strict */ | 1 /* Module */ | 134217728 /* TopLevel */);
 }
-var version = '0.20.1';
+var version = '0.20.2';
 
 exports.parseScript = parseScript;
 exports.parseModule = parseModule;

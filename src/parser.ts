@@ -8,7 +8,6 @@ import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location } from './interface';
 import { Comment } from './estree';
-
 export class Parser {
 
     // The program to be parsed
@@ -1644,7 +1643,12 @@ export class Parser {
                     let next = this.source.charCodeAt(index);
 
                     if (next < Chars.Zero || next > Chars.Seven) {
-                        if (code !== 0 && context & Context.Strict) return Escape.StrictOctal;
+
+                        if ((code !== 0 || next === Chars.Eight || next === Chars.Nine)
+                            && context & Context.Strict) {
+                            return Escape.StrictOctal;
+                        }
+
                     } else if (context & Context.Strict) {
                         return Escape.StrictOctal;
                     } else {

@@ -155,7 +155,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/literals/regexp/u-unicode*.js',
         'test/language/literals/regexp/**/*.js',
         'test/language/literals/string/7.8.4-1-s.js',
-        'test/language/literals/string/legacy-non-octal-escape-sequence-strict.js',
         'test/language/types/boolean/S8.3_A2.1.js',
         'test/language/types/boolean/S8.3_A2.2.js',
         'test/language/types/reference/S8.7.2_A1_T1.js',
