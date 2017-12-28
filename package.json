@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "0.20.0",
+  "version": "0.20.1",
   "description": "Fast, standard-compliant ECMAScript parser written in ECMAScript",
   "main": "dist/cherow.js",
   "author": "KFlash",
@@ -76,10 +76,5 @@
     "exclude": [
       "build/test/**/*.*"
     ]
-  },
-  "dependencies": {
-    "babylon": "^6.18.0",
-    "estraverse": "^4.2.0",
-    "jazzle": "^0.9.12"
   }
 }

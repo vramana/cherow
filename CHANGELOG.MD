@@ -96,6 +96,7 @@
 
 *2017-12-28: Version 0.20.0*
 - Refactor how comments are handled
+- Refactor part of whitespace skipping
 - Added option to attach comment to AST ndoe
 - Aded top-level comment array on *program* node
 - Comment API follows Babylon / ESpree

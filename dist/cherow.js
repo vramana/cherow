@@ -5266,7 +5266,7 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return new Parser(source, options).parseProgram(2 /* Strict */ | 1 /* Module */ | 134217728 /* TopLevel */);
 }
-var version = '0.20.0';
+var version = '0.20.1';
 
 exports.parseScript = parseScript;
 exports.parseModule = parseModule;
