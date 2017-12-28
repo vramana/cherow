@@ -1757,12 +1757,9 @@ Parser.prototype.scanEscape = function scanEscape (context, cp) {
                 var column = this.column + 1;
                 var next = this.source.charCodeAt(index);
                 if (next < 48 /* Zero */ || next > 55 /* Seven */) {
-                    if (code !== 0 && context & 2 /* Strict */) {
+                    if ((code !== 0 || next === 56 /* Eight */ || next === 57 /* Nine */) &&
+                        context & 2 /* Strict */) {
                         return -2 /* StrictOctal */;
-                    }
-                    else if (next === 56 /* Eight */ || next === 57 /* Nine */) {
-                        if (context & 2 /* Strict */)
-                            { return -3 /* EightOrNine */; }
                     }
                 }
                 else if (context & 2 /* Strict */) {
@@ -3819,35 +3816,30 @@ Parser.prototype.parseMetaProperty = function parseMetaProperty (context, meta, 
 };
 Parser.prototype.parseNewExpression = function parseNewExpression (context) {
     var pos = this.getLocations();
+    // The `new` keyword must not contain Unicode escape sequences.
     if (this.flags & 2 /* ExtendedUnicodeEscape */)
         { this.error(63 /* UnexpectedEscapedKeyword */); }
-    var id = this.parseIdentifier(context);
-    switch (this.token) {
-        // '.'
-        case 13 /* Period */:
-            this.expect(context, 13 /* Period */);
-            if (this.token & 67108864 /* IsIdentifier */) {
-                if (this.tokenValue !== 'target')
-                    { this.error(29 /* MetaNotInFunctionBody */); }
-                if (context & 128 /* InParameter */)
-                    { return this.parseMetaProperty(context, id, pos); }
-                if (context & 8 /* Arrow */ && context & 1024 /* Declaration */)
-                    { this.error(100 /* NewTargetArrow */); }
+    var id = this.parseIdentifierName(context, this.token);
+    if (this.parseOptional(context, 13 /* Period */)) {
+        if (this.token & 67108864 /* IsIdentifier */) {
+            if (this.tokenValue !== 'target')
+                { this.error(29 /* MetaNotInFunctionBody */); }
+            if (!(context & 128 /* InParameter */)) {
+                // An ArrowFunction in global code may not contain `new.target`
+                if (context & 8 /* Arrow */ && context & 1024 /* Declaration */) {
+                    this.error(100 /* NewTargetArrow */);
+                }
                 if (!(this.flags & 4 /* InFunctionBody */))
                     { this.error(29 /* MetaNotInFunctionBody */); }
             }
-            var meta = this.parseMetaProperty(context, id, pos);
-            if (this.token === 1310749 /* Assign */) {
-                this.error(36 /* InvalidLHSInAssignment */);
-            }
-            return meta;
-        default:
-            return this.finishNode(context, pos, {
-                type: 'NewExpression',
-                callee: this.parseMemberExpression(context, pos),
-                arguments: this.token === 262155 /* LeftParen */ ? this.parseArguments(context, pos) : []
-            });
+        }
+        return this.parseMetaProperty(context, id, pos);
     }
+    return this.finishNode(context, pos, {
+        type: 'NewExpression',
+        callee: this.parseMemberExpression(context, pos),
+        arguments: this.token === 262155 /* LeftParen */ ? this.parseArguments(context, pos) : []
+    });
 };
 Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (context, pos) {
     switch (this.token) {

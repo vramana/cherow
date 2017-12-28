@@ -1644,8 +1644,8 @@ export class Parser {
 
                     if (next < Chars.Zero || next > Chars.Seven) {
 
-                        if ((code !== 0 || next === Chars.Eight || next === Chars.Nine)
-                            && context & Context.Strict) {
+                        if ((code !== 0 || next === Chars.Eight || next === Chars.Nine) &&
+                            context & Context.Strict) {
                             return Escape.StrictOctal;
                         }
 
@@ -3634,7 +3634,8 @@ export class Parser {
                         this.expect(context, Token.Period);
 
                         const property = this.flags & Flags.OptionsNext && context & Context.Method && this.token === Token.Hash ?
-                            this.parsePrivateName(context) : this.parseIdentifierName(context, this.token);
+                            this.parsePrivateName(context) 
+                            : this.parseIdentifierName(context, this.token);
                         expr = this.finishNode(context, pos, {
                             type: 'MemberExpression',
                             object: expr,
@@ -3665,7 +3666,8 @@ export class Parser {
                     {
                         const quasiStart = this.getLocations();
                         const quasi = this.token === Token.TemplateCont ?
-                            this.parseTemplate(context | Context.TaggedTemplate, quasiStart) : this.parseTemplateLiteral(context | Context.TaggedTemplate, quasiStart);
+                            this.parseTemplate(context | Context.TaggedTemplate, quasiStart) 
+                            : this.parseTemplateLiteral(context | Context.TaggedTemplate, quasiStart);
                         expr = this.parseTaggedTemplateExpression(context, expr, quasi, pos);
                         break;
                     }
@@ -4095,40 +4097,32 @@ export class Parser {
 
         const pos = this.getLocations();
 
+        // The `new` keyword must not contain Unicode escape sequences.
         if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
 
-        const id = this.parseIdentifier(context);
+        const id = this.parseIdentifierName(context, this.token);
 
-        switch (this.token) {
+        if (this.parseOptional(context, Token.Period)) {
 
-            // '.'
-            case Token.Period:
-
-                this.expect(context, Token.Period);
-
-                if (this.token & Token.IsIdentifier) {
-                    if (this.tokenValue !== 'target') this.error(Errors.MetaNotInFunctionBody);
-                    if (context & Context.InParameter) return this.parseMetaProperty(context, id, pos);
-                    if (context & Context.Arrow && context & Context.Declaration) this.error(Errors.NewTargetArrow);
+            if (this.token & Token.IsIdentifier) {
+                if (this.tokenValue !== 'target') this.error(Errors.MetaNotInFunctionBody);
+                if (!(context & Context.InParameter)) {
+                    // An ArrowFunction in global code may not contain `new.target`
+                    if (context & Context.Arrow && context & Context.Declaration) {
+                        this.error(Errors.NewTargetArrow);
+                    }
                     if (!(this.flags & Flags.InFunctionBody)) this.error(Errors.MetaNotInFunctionBody);
                 }
+            }
 
-                const meta = this.parseMetaProperty(context, id, pos);
-
-                if (this.token === Token.Assign) {
-                    this.error(Errors.InvalidLHSInAssignment);
-                }
-
-                return meta;
-
-            default:
-
-                return this.finishNode(context, pos, {
-                    type: 'NewExpression',
-                    callee: this.parseMemberExpression(context, pos),
-                    arguments: this.token === Token.LeftParen ? this.parseArguments(context, pos) : []
-                });
+            return this.parseMetaProperty(context, (id as ESTree.Identifier), pos);
         }
+
+        return this.finishNode(context, pos, {
+            type: 'NewExpression',
+            callee: this.parseMemberExpression(context, pos),
+            arguments: this.token === Token.LeftParen ? this.parseArguments(context, pos) : []
+        });
     }
 
     private parsePrimaryExpression(context: Context, pos: Location) {
