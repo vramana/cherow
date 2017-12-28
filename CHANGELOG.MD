@@ -93,3 +93,11 @@
 - Improved performance
 - Reduced code size
 - Improved expression parsing
+
+*2017-12-28: Version 0.20.0*
+- Refactor how comments are handled
+- Added option to attach comment to AST ndoe
+- Aded top-level comment array on *program* node
+- Comment API follows Babylon / ESpree
+- Removed Acorn comment solution due to perf reasons
+- Performance fixes
