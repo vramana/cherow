@@ -3436,8 +3436,9 @@ Parser.prototype.parseMemberExpression = function parseMemberExpression (context
             case 13 /* Period */:
                 {
                     this$1.expect(context, 13 /* Period */);
-                    var property = this$1.flags & 67108864 /* OptionsNext */ && context & 32768 /* Method */ && this$1.token === 117 /* Hash */ ?
-                        this$1.parsePrivateName(context) : this$1.parseIdentifierName(context, this$1.token);
+                    var property = context & 32768 /* Method */ && this$1.flags & 67108864 /* OptionsNext */ && this$1.token === 117 /* Hash */ ?
+                        this$1.parsePrivateName(context) :
+                        this$1.parseIdentifierName(context, this$1.token);
                     expr = this$1.finishNode(context, pos, {
                         type: 'MemberExpression',
                         object: expr,
@@ -3466,7 +3467,8 @@ Parser.prototype.parseMemberExpression = function parseMemberExpression (context
                 {
                     var quasiStart = this$1.getLocations();
                     var quasi = this$1.token === 262152 /* TemplateCont */ ?
-                        this$1.parseTemplate(context | 1048576 /* TaggedTemplate */, quasiStart) : this$1.parseTemplateLiteral(context | 1048576 /* TaggedTemplate */, quasiStart);
+                        this$1.parseTemplate(context | 1048576 /* TaggedTemplate */, quasiStart) :
+                        this$1.parseTemplateLiteral(context | 1048576 /* TaggedTemplate */, quasiStart);
                     expr = this$1.parseTaggedTemplateExpression(context, expr, quasi, pos);
                     break;
                 }
@@ -3480,21 +3482,17 @@ Parser.prototype.parseCallExpression = function parseCallExpression (context, po
 
     while (true) {
         expr = this$1.parseMemberExpression(context, pos, expr);
-        switch (this$1.token) {
-            case 262155 /* LeftParen */:
-                var args = this$1.parseArguments(context, pos);
-                if (context & 8192 /* Import */ && args.length !== 1 &&
-                    expr.type === 'Import')
-                    { this$1.error(14 /* BadImportCallArity */); }
-                expr = this$1.finishNode(context, pos, {
-                    type: 'CallExpression',
-                    callee: expr,
-                    arguments: args
-                });
-                break;
-            default:
-                return expr;
-        }
+        if (this$1.token !== 262155 /* LeftParen */)
+            { return expr; }
+        var args = this$1.parseArguments(context, pos);
+        if (context & 8192 /* Import */ && args.length !== 1 &&
+            expr.type === 'Import')
+            { this$1.error(14 /* BadImportCallArity */); }
+        expr = this$1.finishNode(context, pos, {
+            type: 'CallExpression',
+            callee: expr,
+            arguments: args
+        });
     }
 };
 Parser.prototype.parseFunctionDeclaration = function parseFunctionDeclaration (context) {

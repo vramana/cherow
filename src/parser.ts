@@ -1925,7 +1925,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: any,
         node: any,
@@ -3633,9 +3633,9 @@ export class Parser {
 
                         this.expect(context, Token.Period);
 
-                        const property = this.flags & Flags.OptionsNext && context & Context.Method && this.token === Token.Hash ?
-                            this.parsePrivateName(context) 
-                            : this.parseIdentifierName(context, this.token);
+                        const property = context & Context.Method && this.flags & Flags.OptionsNext && this.token === Token.Hash ?
+                            this.parsePrivateName(context) :
+                            this.parseIdentifierName(context, this.token);
                         expr = this.finishNode(context, pos, {
                             type: 'MemberExpression',
                             object: expr,
@@ -3666,8 +3666,8 @@ export class Parser {
                     {
                         const quasiStart = this.getLocations();
                         const quasi = this.token === Token.TemplateCont ?
-                            this.parseTemplate(context | Context.TaggedTemplate, quasiStart) 
-                            : this.parseTemplateLiteral(context | Context.TaggedTemplate, quasiStart);
+                            this.parseTemplate(context | Context.TaggedTemplate, quasiStart) :
+                            this.parseTemplateLiteral(context | Context.TaggedTemplate, quasiStart);
                         expr = this.parseTaggedTemplateExpression(context, expr, quasi, pos);
                         break;
                     }
@@ -3681,31 +3681,24 @@ export class Parser {
         context: Context,
         pos: Location,
         expr: ESTree.Expression
-    ): ESTree.Expression {
+    ): ESTree.Expression | ESTree.CallExpression {
 
         while (true) {
 
             expr = this.parseMemberExpression(context, pos, expr);
 
-            switch (this.token) {
+            if (this.token !== Token.LeftParen) return expr;
 
-                case Token.LeftParen:
+            const args = this.parseArguments(context, pos);
 
-                    const args = this.parseArguments(context, pos);
+            if (context & Context.Import && args.length !== 1 &&
+                expr.type as string === 'Import') this.error(Errors.BadImportCallArity);
 
-                    if (context & Context.Import && args.length !== 1 &&
-                        expr.type as string === 'Import') this.error(Errors.BadImportCallArity);
-
-                    expr = this.finishNode(context, pos, {
-                        type: 'CallExpression',
-                        callee: expr,
-                        arguments: args
-                    });
-
-                    break;
-                default:
-                    return expr;
-            }
+            expr = this.finishNode(context, pos, {
+                type: 'CallExpression',
+                callee: expr,
+                arguments: args
+            });
         }
     }
 
