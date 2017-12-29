@@ -43,9 +43,7 @@
     "lint:src": "tslint src/**/*.ts src/**/*.tsx",
     "lint:tests": "tslint test/**/*.ts test/**/*.tsx",
     "watch:tests": "mocha test/**/*.ts --watch",
-    "watch:build": "tsc --skipLibCheck -t es2015 --m es2015 -w",
-    "circleci": "npm run coverage && npm run test",
-    "appveyor": "npm run build && npm run coverage && npm run test"
+    "watch:build": "tsc --skipLibCheck -t es2015 --m es2015 -w"
   },
   "devDependencies": {
     "@types/js-yaml": "^3.10.1",

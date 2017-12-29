@@ -17,4 +17,4 @@ jobs:
           key: v1-npm-dependencies-{{ .Branch }}-{{ checksum "package.json" }}
           paths:
             - ./node_modules
-      - run: npm run circleci
+      - run: npm run test
