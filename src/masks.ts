@@ -76,6 +76,8 @@ export const enum Flags {
     OptionsTolerant              = 1 << 29,
     OptionsComment               = 1 << 30,
     OptionsAttachComment         = 1 << 31,
+
+    Comments = OptionsAttachComment | OptionsComment
 }
 
 // Flags used in parenthesized to validate arrow formal list
