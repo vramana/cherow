@@ -989,7 +989,7 @@ Parser.prototype.skipSingleLineComment = function skipSingleLineComment () {
         }
     }
     if (this.flags & (1073741824 /* OptionsComment */ | -2147483648 /* OptionsAttachComment */)) {
-        this.addComment(false, this.source.slice(startPos, this.index));
+        this.addComment('Line', this.source.slice(startPos, this.index));
     }
 };
 Parser.prototype.skipBlockComment = function skipBlockComment () {
@@ -1029,31 +1029,28 @@ Parser.prototype.skipBlockComment = function skipBlockComment () {
     if (!(state & 32 /* Terminated */))
         { this.error(2 /* UnterminatedComment */); }
     if (this.flags & (1073741824 /* OptionsComment */ | -2147483648 /* OptionsAttachComment */)) {
-        this.addComment(true, this.source.slice(startPos, this.index - 2));
+        this.addComment('Block', this.source.slice(startPos, this.index - 2));
     }
 };
-Parser.prototype.addComment = function addComment (block, value) {
-    var type = block ? 'Block' : 'Line';
-    var start = this.startIndex;
-    var end = this.index;
-    var loc = this.flags & 4194304 /* OptionsLoc */ ? {
-        start: {
-            line: this.startLine,
-            column: this.startColumn,
-        },
-        end: {
-            line: this.lastLine,
-            column: this.column
-        }
-    } : null;
+Parser.prototype.addComment = function addComment (type, value) {
     var comment = {
         type: type,
         value: value,
-        start: start,
-        end: end
+        start: this.startIndex,
+        end: this.index,
     };
-    if (this.flags & 4194304 /* OptionsLoc */)
-        { comment.loc = loc; }
+    if (this.flags & 4194304 /* OptionsLoc */) {
+        comment.loc = {
+            start: {
+                line: this.startLine,
+                column: this.startColumn,
+            },
+            end: {
+                line: this.lastLine,
+                column: this.column
+            }
+        };
+    }
     this.comments.push(comment);
     if (this.flags & -2147483648 /* OptionsAttachComment */) {
         this.trailingComments.push(comment);
@@ -1093,7 +1090,8 @@ Parser.prototype.attachComment = function attachComment (context, node) {
     if (this.commentStack.length > 0 && commentStack.start >= node.start) {
         firstChild = this.commentStack.pop();
     }
-    while (this.commentStack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
+    while (this.commentStack.length > 0 &&
+        this.commentStack[this.commentStack.length - 1].start >= node.start) {
         lastChild = this$1.commentStack.pop();
     }
     if (!lastChild && firstChild)
@@ -3431,8 +3429,7 @@ Parser.prototype.parseMemberExpression = function parseMemberExpression (context
                 {
                     this$1.expect(context, 13 /* Period */);
                     var property = context & 32768 /* Method */ && this$1.flags & 67108864 /* OptionsNext */ && this$1.token === 117 /* Hash */ ?
-                        this$1.parsePrivateName(context) :
-                        this$1.parseIdentifierName(context, this$1.token);
+                        this$1.parsePrivateName(context) : this$1.parseIdentifierName(context, this$1.token);
                     expr = this$1.finishNode(context, pos, {
                         type: 'MemberExpression',
                         object: expr,
@@ -3461,8 +3458,7 @@ Parser.prototype.parseMemberExpression = function parseMemberExpression (context
                 {
                     var quasiStart = this$1.getLocations();
                     var quasi = this$1.token === 262152 /* TemplateCont */ ?
-                        this$1.parseTemplate(context | 1048576 /* TaggedTemplate */, quasiStart) :
-                        this$1.parseTemplateLiteral(context | 1048576 /* TaggedTemplate */, quasiStart);
+                        this$1.parseTemplate(context | 1048576 /* TaggedTemplate */, quasiStart) : this$1.parseTemplateLiteral(context | 1048576 /* TaggedTemplate */, quasiStart);
                     expr = this$1.parseTaggedTemplateExpression(context, expr, quasi, pos);
                     break;
                 }
@@ -3908,12 +3904,13 @@ Parser.prototype.parseLet = function parseLet (context) {
     switch (this.token) {
         case 8671304 /* LetKeyword */:
             this.error(80 /* InvalidStrictExpPostion */, tokenDesc(this.token));
-        case 393235 /* LeftBracket */: {
-            if (this.flags & 1 /* LineTerminator */) {
-                // Note: ExpressionStatement has a lookahead restriction for `let [`.
-                this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
+        case 393235 /* LeftBracket */:
+            {
+                if (this.flags & 1 /* LineTerminator */) {
+                    // Note: ExpressionStatement has a lookahead restriction for `let [`.
+                    this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
+                }
             }
-        }
     }
     return this.finishNode(context, pos, {
         type: 'Identifier',

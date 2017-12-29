@@ -263,8 +263,8 @@ export type CommentType = 'Line' | 'Block';
 export interface Comment {
     type: CommentType;
     value: string;
-    start?: number | undefined;
-    end?: number | undefined;
+    start?: any;
+    end?: any;
     loc?: any;
 }
 

@@ -7,11 +7,15 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location } from './interface';
-import { Comment } from './estree';
+interface Entry {
+    comment: ESTree.Comment;
+    start: number;
+}
+
 export class Parser {
 
     // The program to be parsed
-    private source: string;
+    private readonly source: string;
 
     // Current position (end position of text of current token)
     private index: number;
@@ -57,16 +61,16 @@ export class Parser {
     private functionScope: any;
     private fieldSet: any;
     private errorLocation: void | Location;
-    private comments: Comment[];
+    private comments: ESTree.Comment[];
     private locSource: void | string;
     private lastChar: void | Chars;
     private tokenRegExp: void | {
         pattern: string;
         flags: string;
     };
-    private previousNode: any;
-    private trailingComments: any;
-    private leadingComments: any[];
+    private previousNode: void | ESTree.Program;
+    private trailingComments: ESTree.Comment[];
+    private leadingComments: ESTree.Comment[];
     private commentStack: any[];
 
     constructor(source: string, options: Options | void) {
@@ -779,7 +783,7 @@ export class Parser {
         }
 
         if (this.flags & (Flags.OptionsComment | Flags.OptionsAttachComment)) {
-            this.addComment(false, this.source.slice(startPos, this.index));
+            this.addComment('Line', this.source.slice(startPos, this.index));
         }
     }
 
@@ -827,34 +831,31 @@ export class Parser {
         if (!(state & ScanState.Terminated)) this.error(Errors.UnterminatedComment);
 
         if (this.flags & (Flags.OptionsComment | Flags.OptionsAttachComment)) {
-            this.addComment(true, this.source.slice(startPos, this.index - 2));
+            this.addComment('Block', this.source.slice(startPos, this.index - 2));
         }
     }
 
-    private addComment(block: boolean, value: string) {
-
-        const type = block ? 'Block' : 'Line';
-        const start = this.startIndex;
-        const end = this.index;
-        const loc: ESTree.SourceLocation | null = this.flags & Flags.OptionsLoc ? {
-            start: {
-                line: this.startLine,
-                column: this.startColumn,
-            },
-            end: {
-                line: this.lastLine,
-                column: this.column
-            }
-        } : null;
+    private addComment(type: ESTree.CommentType, value: string) {
 
         const comment: ESTree.Comment = {
             type,
             value,
-            start,
-            end
+            start: this.startIndex,
+            end: this.index,
         };
 
-        if (this.flags & Flags.OptionsLoc) comment.loc = loc;
+        if (this.flags & Flags.OptionsLoc) {
+            comment.loc = {
+                start: {
+                    line: this.startLine,
+                    column: this.startColumn,
+                },
+                end: {
+                    line: this.lastLine,
+                    column: this.column
+                }
+            };
+        }
 
         this.comments.push(comment);
 
@@ -900,7 +901,8 @@ export class Parser {
             firstChild = this.commentStack.pop();
         }
 
-        while (this.commentStack.length > 0 && this.commentStack[this.commentStack.length - 1].start >= node.start) {
+        while (this.commentStack.length > 0 &&
+            this.commentStack[this.commentStack.length - 1].start >= node.start) {
             lastChild = this.commentStack.pop();
         }
 
@@ -953,7 +955,7 @@ export class Parser {
             if (this.leadingComments[this.leadingComments.length - 1].end <= node.start) {
                 if (this.previousNode) {
                     for (lastIndex = 0; lastIndex < this.leadingComments.length; lastIndex++) {
-                        if (this.leadingComments[lastIndex].end < this.previousNode.end) {
+                        if (this.leadingComments[lastIndex].end < (this.previousNode as any).end) {
                             this.leadingComments.splice(lastIndex, 1);
                             lastIndex--;
                         }
@@ -3627,8 +3629,7 @@ export class Parser {
                         this.expect(context, Token.Period);
 
                         const property = context & Context.Method && this.flags & Flags.OptionsNext && this.token === Token.Hash ?
-                            this.parsePrivateName(context) :
-                            this.parseIdentifierName(context, this.token);
+                            this.parsePrivateName(context) : this.parseIdentifierName(context, this.token);
                         expr = this.finishNode(context, pos, {
                             type: 'MemberExpression',
                             object: expr,
@@ -3659,8 +3660,7 @@ export class Parser {
                     {
                         const quasiStart = this.getLocations();
                         const quasi = this.token === Token.TemplateCont ?
-                            this.parseTemplate(context | Context.TaggedTemplate, quasiStart) :
-                            this.parseTemplateLiteral(context | Context.TaggedTemplate, quasiStart);
+                            this.parseTemplate(context | Context.TaggedTemplate, quasiStart) : this.parseTemplateLiteral(context | Context.TaggedTemplate, quasiStart);
                         expr = this.parseTaggedTemplateExpression(context, expr, quasi, pos);
                         break;
                     }
@@ -4189,12 +4189,13 @@ export class Parser {
         switch (this.token) {
             case Token.LetKeyword:
                 this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
-            case Token.LeftBracket: {
-                if (this.flags & Flags.LineTerminator) {
-                    // Note: ExpressionStatement has a lookahead restriction for `let [`.
-                    this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+            case Token.LeftBracket:
+                {
+                    if (this.flags & Flags.LineTerminator) {
+                        // Note: ExpressionStatement has a lookahead restriction for `let [`.
+                        this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                    }
                 }
-            }
         }
 
         return this.finishNode(context, pos, {
