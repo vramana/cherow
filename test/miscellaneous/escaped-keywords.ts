@@ -225,6 +225,10 @@ describe('Miscellaneous - Escaped keywords', () => {
             source: 'function *a(){var yi\\u0065ld}'
         });
 
+        fail('for (a o\\u0066 b)', {
+            source: 'for (a o\\u0066 b);'
+        });
+
         pass(`({i\\u0066: 0})`, {
             source: '({i\\u0066: 0})',
             loc: true,

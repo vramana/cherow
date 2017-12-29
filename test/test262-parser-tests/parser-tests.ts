@@ -21,7 +21,7 @@ const expectations = {
         '574ea84fc61bdc31.js',
         '6c4fe38464c16309.js',
         '8643da76fe7e95c7.js',
-
+        '3dbb6e166b14a6c0.js'
     ],
     explicit: [
         // Same tests as above

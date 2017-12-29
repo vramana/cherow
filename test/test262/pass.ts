@@ -52,7 +52,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/object/11.1.5_7-2-2-s.js',
         'test/language/expressions/object/11.1.5-3-s.js',
         'test/language/expressions/object/11.1.5_7-2-1-s.js',
-        'test/language/expressions/new.target/escaped-target.js',
         'test/language/expressions/compound-assignment/u-right-shift-non-simple.js',
         'test/language/expressions/function/dflt-params-duplicates.js',
         'test/language/expressions/compound-assignment/right-shift-non-simple.js',

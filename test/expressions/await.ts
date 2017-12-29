@@ -5,7 +5,11 @@ describe('Expressions - Await', () => {
     fail(`await a`, {
         source: 'await a',
     });
-
+    
+    fail(`async(x = await) => {  }`, {
+        source: 'async(x = await) => {  }',
+    });
+    
     fail(`async () => await`, {
         source: 'async () => await',
     });
@@ -579,7 +583,6 @@ describe('Expressions - Await', () => {
             source: 'await = 0;',
             loc: true,
             ranges: true,
-            module: true,
             raw: true,
             expected: {
                 type: 'Program',
@@ -649,7 +652,7 @@ describe('Expressions - Await', () => {
                         }
                     }
                 ],
-                sourceType: 'module',
+                sourceType: 'script',
                 start: 0,
                 end: 10,
                 loc: {

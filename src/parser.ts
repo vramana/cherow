@@ -1992,13 +1992,6 @@ export class Parser {
         }
     }
 
-    private nextTokenIsAssign(context: Context) {
-        const savedState = this.saveState();
-        const t = this.nextToken(context);
-        this.rewindState(savedState);
-        return t === Token.Assign;
-    }
-
     // 'import', 'import.meta'
     private nextTokenIsLeftParenOrPeriod(context: Context): boolean {
         const savedState = this.saveState();
@@ -3689,7 +3682,7 @@ export class Parser {
 
             if (this.token !== Token.LeftParen) return expr;
 
-            const args = this.parseArguments(context, pos);
+            const args = this.parseArguments(context);
 
             if (context & Context.Import && args.length !== 1 &&
                 expr.type as string === 'Import') this.error(Errors.BadImportCallArity);
@@ -4056,7 +4049,8 @@ export class Parser {
         });
     }
 
-    private parseArguments(context: Context, pos: Location): ESTree.Expression[] {
+    private parseArguments(context: Context): ESTree.Expression[] {
+        const pos = this.getLocations();
         this.expect(context, Token.LeftParen);
 
         const args: any[] = [];
@@ -4094,8 +4088,8 @@ export class Parser {
         if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
 
         const id = this.parseIdentifierName(context, this.token);
-
-        if (this.parseOptional(context, Token.Period)) {
+        // The `target` contextual keyword must not contain Unicode escape sequences.
+        if (this.parseOptional(context | Context.ValidateEscape, Token.Period)) {
 
             if (this.token & Token.IsIdentifier) {
                 if (this.tokenValue !== 'target') this.error(Errors.MetaNotInFunctionBody);
@@ -4114,7 +4108,7 @@ export class Parser {
         return this.finishNode(context, pos, {
             type: 'NewExpression',
             callee: this.parseMemberExpression(context, pos),
-            arguments: this.token === Token.LeftParen ? this.parseArguments(context, pos) : []
+            arguments: this.token === Token.LeftParen ? this.parseArguments(context) : []
         });
     }
 
@@ -4164,10 +4158,7 @@ export class Parser {
                 return this.parseThrowExpression(context, pos);
             case Token.AwaitKeyword:
                 if (context & Context.InAsyncArgs) this.flags |= Flags.Await;
-                if (context & Context.Module) {
-                    // Valid: 'await = 0;'
-                    if (!this.nextTokenIsAssign(context)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
-                }
+                if (context & Context.Module) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 return this.parseIdentifier(context);
             case Token.LetKeyword:
                 return this.parseLet(context);
@@ -4189,17 +4180,22 @@ export class Parser {
         const name = this.tokenValue;
         const pos = this.getLocations();
         const flag = this.flags;
+
+        // 'let' must not be in expression position in strict mode
         if (context & Context.Strict) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
 
-        this.nextToken(context);
+        this.expect(context, Token.LetKeyword);
 
-        if (this.token === Token.LeftBracket &&
-            this.flags & Flags.LineTerminator) {
-            // Note: ExpressionStatement has a lookahead restriction for `let [`.
-            this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        switch (this.token) {
+            case Token.LetKeyword:
+                this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
+            case Token.LeftBracket: {
+                if (this.flags & Flags.LineTerminator) {
+                    // Note: ExpressionStatement has a lookahead restriction for `let [`.
+                    this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                }
+            }
         }
-
-        if (this.token === Token.LetKeyword) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
 
         return this.finishNode(context, pos, {
             type: 'Identifier',

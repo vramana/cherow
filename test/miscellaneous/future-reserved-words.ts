@@ -6,6 +6,14 @@ describe('Miscellaneous - Future reserved words', () => {
             source: `var export = 1;`,
         });
 
+        fail(`var class = 1;`, {
+            source: `var class = 1;`,
+        });
+
+        fail(`"use strict"; var implements = 1;`, {
+            source: `"use strict"; var implements = 1;`,
+        });
+
         fail(`"use strict"; var inte\\u0072face = 123;`, {
             source: `"use strict"; var inte\\u0072face = 123;;`,
         });

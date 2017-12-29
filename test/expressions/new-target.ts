@@ -22,6 +22,10 @@ describe('Statements - New target', () => {
         source: 'function f() { n\\u0065w.target; }',
     });
 
+    fail(`function f() { new.t\\u0061rget; }`, {
+        source: 'function f() { new.t\\u0061rget; }',
+    });
+
     fail(`function f() { new.target = 1; }`, {
         source: 'function f() { new.target = 1; }',
     });
@@ -1001,145 +1005,6 @@ describe('Statements - New target', () => {
                 }
             }
         }
-    });
-
-    pass(`function a() { new.\\u0074arget; }`, {
-        source: `function a() { new.\\u0074arget; }`,
-        loc: true,
-        ranges: true,
-        raw: true,
-        expected: {
-            type: 'Program',
-            start: 0,
-            end: 33,
-            loc: {
-              start: {
-                line: 1,
-                column: 0
-              },
-              end: {
-                line: 1,
-                column: 33
-              }
-            },
-            body: [
-              {
-                type: 'FunctionDeclaration',
-                start: 0,
-                end: 33,
-                loc: {
-                  start: {
-                    line: 1,
-                    column: 0
-                  },
-                  end: {
-                    line: 1,
-                    column: 33
-                  }
-                },
-                id: {
-                  type: 'Identifier',
-                  start: 9,
-                  end: 10,
-                  loc: {
-                    start: {
-                      line: 1,
-                      column: 9
-                    },
-                    end: {
-                      line: 1,
-                      column: 10
-                    }
-                  },
-                  name: 'a'
-                },
-                generator: false,
-                expression: false,
-                async: false,
-                params: [],
-                body: {
-                  type: 'BlockStatement',
-                  start: 13,
-                  end: 33,
-                  loc: {
-                    start: {
-                      line: 1,
-                      column: 13
-                    },
-                    end: {
-                      line: 1,
-                      column: 33
-                    }
-                  },
-                  body: [
-                    {
-                      type: 'ExpressionStatement',
-                      start: 15,
-                      end: 31,
-                      loc: {
-                        start: {
-                          line: 1,
-                          column: 15
-                        },
-                        end: {
-                          line: 1,
-                          column: 31
-                        }
-                      },
-                      expression: {
-                        type: 'MetaProperty',
-                        start: 15,
-                        end: 30,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 15
-                          },
-                          end: {
-                            line: 1,
-                            column: 30
-                          }
-                        },
-                        meta: {
-                          type: 'Identifier',
-                          start: 15,
-                          end: 18,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 15
-                            },
-                            end: {
-                              line: 1,
-                              column: 18
-                            }
-                          },
-                          name: 'new'
-                        },
-                        property: {
-                          type: 'Identifier',
-                          start: 19,
-                          end: 30,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 19
-                            },
-                            end: {
-                              line: 1,
-                              column: 30
-                            }
-                          },
-                          name: 'target'
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            ],
-            sourceType: 'script'
-          }
     });
 
     pass(`(function a(b = new.target){})`, {
