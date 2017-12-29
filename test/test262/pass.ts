@@ -123,7 +123,7 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/for-await-of/async-gen-decl-dstr-obj-id-put-unresolvable-no-strict.js',
         'test/language/statements/for-await-of/async-gen-decl-dstr-obj-prop-put-unresolvable-no-strict.js',
         'test/language/statements/for/head-let-bound-names-in-stmt.js',
-        //'test/language/statements/function/13.1-24-s.js',
+        'test/language/statements/function/13.1-24-s.js',
         'test/language/statements/function/13.1-26-s.js',
         'test/language/statements/function/13.1-28-s.js',
         'test/language/statements/function/13.1-30-s.js',
