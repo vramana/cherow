@@ -613,7 +613,47 @@ describe('Statements - Continue', () => {
             }
       });
 
+      fail(`do { test262: { continue test262; } } while (false)`, {
+        source: 'do { test262: { continue test262; } } while (false)'
+      });
+
       fail(`a: while (0) { continue /*\\u2028*/ b; }`, {
         source: 'a: while (0) { continue /*\\u2028*/ b; }'
+      });
+
+      fail(`while ( false ) Label: continue Label;`, {
+        source: 'while ( false ) Label: continue Label;'
+      });
+
+      fail(`LABEL_OUT : var x=0, y=0;
+
+      LABEL_DO_LOOP : do {
+         LABEL_IN : x++;
+         if(x===10)break;
+         continue LABEL_IN;
+         LABEL_IN_2 : y++;
+         function IN_DO_FUNC(){}
+      } while(0);
+
+      LABEL_ANOTHER_LOOP : do {
+          ;
+      } while(0);
+
+      function OUT_FUNC(){}`, {
+        source: `LABEL_OUT : var x=0, y=0;
+
+        LABEL_DO_LOOP : do {
+           LABEL_IN : x++;
+           if(x===10)break;
+           continue LABEL_IN;
+           LABEL_IN_2 : y++;
+           function IN_DO_FUNC(){}
+        } while(0);
+
+        LABEL_ANOTHER_LOOP : do {
+            ;
+        } while(0);
+
+        function OUT_FUNC(){}`,
       });
   });

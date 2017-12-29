@@ -5,11 +5,11 @@ describe('Expressions - Await', () => {
     fail(`await a`, {
         source: 'await a',
     });
-    
+
     fail(`async(x = await) => {  }`, {
         source: 'async(x = await) => {  }',
     });
-    
+
     fail(`async () => await`, {
         source: 'async () => await',
     });

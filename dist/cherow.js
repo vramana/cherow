@@ -436,7 +436,7 @@ Parser.prototype.parseProgram = function parseProgram (context) {
         };
     }
     // Attach top level comments array
-    if (this.flags & (1073741824 /* OptionsComment */ | -2147483648 /* OptionsAttachComment */)) {
+    if (this.flags & -1073741824 /* Comments */) {
         node.comments = this.comments;
     }
     return node;
@@ -2222,7 +2222,7 @@ Parser.prototype.parseExportDeclaration = function parseExportDeclaration (conte
 Parser.prototype.parseNamedExportDeclaration = function parseNamedExportDeclaration (context) {
     var pos = this.getLocations();
     if (this.token & 67108864 /* IsIdentifier */)
-        { this.addBlockName(this.tokenValue); }
+        { this.addBlockName(context, this.tokenValue); }
     var local = this.parseIdentifierName(context | 33554432 /* ValidateEscape */, this.token);
     var exported = local;
     if (this.parseOptional(context, 69739 /* AsKeyword */)) {
@@ -2264,7 +2264,7 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
     }
     else {
         hasAs = this.parseOptional(context, 69739 /* AsKeyword */);
-        this.addBlockName(value);
+        this.addBlockName(context, value);
     }
     var local;
     if (!hasAs) {
@@ -2327,7 +2327,7 @@ Parser.prototype.parseImportDeclaration = function parseImportDeclaration (conte
     this.blockScope = undefined;
     // import 'foo';
     if (this.token === 262147 /* StringLiteral */) {
-        this.addBlockName(this.tokenValue);
+        this.addBlockName(context, this.tokenValue);
         source = this.parseLiteral(context);
         this.consumeSemicolon(context);
         return this.finishNode(context, pos, {
@@ -2354,7 +2354,7 @@ Parser.prototype.parseImportClause = function parseImportClause (context) {
     switch (this.token) {
         case 67371009 /* Identifier */:
             {
-                this.addBlockName(this.tokenValue);
+                this.addBlockName(context, this.tokenValue);
                 specifiers.push(this.parseImportDefaultSpecifier(context | 33554432 /* ValidateEscape */));
                 if (this.parseOptional(context, 18 /* Comma */)) {
                     var t = this.token;
@@ -2637,6 +2637,7 @@ Parser.prototype.parseDoWhileStatement = function parseDoWhileStatement (context
     });
 };
 Parser.prototype.parseContinueStatement = function parseContinueStatement (context) {
+    // Appearing of continue without an IterationStatement leads to syntax error
     if (!(this.flags & 32 /* IterationStatement */))
         { this.error(93 /* InvalidNestedContinue */); }
     var pos = this.getLocations();
@@ -2929,12 +2930,22 @@ Parser.prototype.parseExpressionOrLabeledStatement = function parseExpressionOrL
         else if (this.labelSet[key] === true)
             { this.error(68 /* Redeclaration */, expr.name); }
         this.labelSet[key] = true;
-        if (this.token === 274519 /* FunctionKeyword */) {
-            if (context & 2097152 /* Statement */ || this.flags & 32 /* IterationStatement */) {
+        // continue's label when present must refer to a loop construct;
+        if (this.flags & 32 /* IterationStatement */) {
+            if (this.token === 12366 /* ContinueKeyword */) {
+                this.error(93 /* InvalidNestedContinue */);
+            }
+            if (this.token === 274519 /* FunctionKeyword */) {
                 this.error(117 /* SloppyFunction */);
             }
-            else if (context & 2 /* Strict */)
-                { this.error(15 /* StrictFunction */); }
+        }
+        else if (this.token === 274519 /* FunctionKeyword */) {
+            if (context & 2097152 /* Statement */) {
+                this.error(117 /* SloppyFunction */);
+            }
+            if (context & 2 /* Strict */) {
+                this.error(15 /* StrictFunction */);
+            }
         }
         var body = this.parseStatement(context | 4096 /* AnnexB */ | 1024 /* Declaration */);
         this.labelSet[key] = false;
@@ -4728,7 +4739,7 @@ Parser.prototype.addFunctionArg = function addFunctionArg (name) {
 };
 Parser.prototype.addVarOrBlock = function addVarOrBlock (context, name) {
     if (context & 805306368 /* Lexical */) {
-        this.addBlockName(name);
+        this.addBlockName(context, name);
     }
     else {
         this.addVarName(name);
@@ -4753,17 +4764,12 @@ Parser.prototype.checkIfExistInBlockScope = function checkIfExistInBlockScope (n
         this.error(66 /* DuplicateIdentifier */, name);
     }
 };
-Parser.prototype.addBlockName = function addBlockName (name) {
-    switch (name) {
-        case 'Infinity':
-        case 'NaN':
-        case 'Number':
-        case 'String':
-        case 'undefined':
-            this.error(66 /* DuplicateIdentifier */, name);
-        default: // ignore
+Parser.prototype.addBlockName = function addBlockName (context, name) {
+    // Export of global bindings
+    if (context & 1 /* Module */ && name === 'Number') {
+        this.error(66 /* DuplicateIdentifier */, name);
     }
-    if (!this.initBlockScope() && (
+    else if (!this.initBlockScope() && (
     // Check variables in current block only
     Object.prototype.hasOwnProperty.call(this.blockScope, name) ||
         // Check `var` variables in the current or parent scopes
@@ -5256,7 +5262,7 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return new Parser(source, options).parseProgram(2 /* Strict */ | 1 /* Module */ | 134217728 /* TopLevel */);
 }
-var version = '0.20.2';
+var version = '0.20.3';
 
 exports.parseScript = parseScript;
 exports.parseModule = parseModule;

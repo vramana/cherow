@@ -2170,7 +2170,7 @@ export class Parser {
     private parseNamedExportDeclaration(context: Context): ESTree.ExportSpecifier {
         const pos = this.getLocations();
 
-        if (this.token & Token.IsIdentifier) this.addBlockName(this.tokenValue);
+        if (this.token & Token.IsIdentifier) this.addBlockName(context, this.tokenValue);
 
         const local = this.parseIdentifierName(context | Context.ValidateEscape, this.token);
 
@@ -2219,7 +2219,7 @@ export class Parser {
             hasAs = true;
         } else {
             hasAs = this.parseOptional(context, Token.AsKeyword);
-            this.addBlockName(value);
+            this.addBlockName(context, value);
         }
 
         let local;
@@ -2297,7 +2297,7 @@ export class Parser {
 
         // import 'foo';
         if (this.token === Token.StringLiteral) {
-            this.addBlockName(this.tokenValue);
+            this.addBlockName(context, this.tokenValue);
             source = this.parseLiteral(context);
             this.consumeSemicolon(context);
 
@@ -2333,7 +2333,7 @@ export class Parser {
 
             case Token.Identifier:
                 {
-                    this.addBlockName(this.tokenValue);
+                    this.addBlockName(context, this.tokenValue);
                     specifiers.push(this.parseImportDefaultSpecifier(context | Context.ValidateEscape));
                     if (this.parseOptional(context, Token.Comma)) {
                         const t = this.token;
@@ -2677,6 +2677,7 @@ export class Parser {
 
     private parseContinueStatement(context: Context): ESTree.ContinueStatement {
 
+        // Appearing of continue without an IterationStatement leads to syntax error
         if (!(this.flags & Flags.IterationStatement)) this.error(Errors.InvalidNestedContinue);
 
         const pos = this.getLocations();
@@ -3049,10 +3050,21 @@ export class Parser {
 
             this.labelSet[key] = true;
 
-            if (this.token === Token.FunctionKeyword) {
-                if (context & Context.Statement || this.flags & Flags.IterationStatement) {
+            // continue's label when present must refer to a loop construct;
+            if (this.flags & Flags.IterationStatement) {
+                if (this.token === Token.ContinueKeyword) {
+                    this.error(Errors.InvalidNestedContinue);
+                }
+                if (this.token === Token.FunctionKeyword) {
                     this.error(Errors.SloppyFunction);
-                } else if (context & Context.Strict) this.error(Errors.StrictFunction);
+                }
+            } else if (this.token === Token.FunctionKeyword) {
+                if (context & Context.Statement) {
+                    this.error(Errors.SloppyFunction);
+                }
+                if (context & Context.Strict) {
+                    this.error(Errors.StrictFunction);
+                }
             }
 
             const body = this.parseStatement(context | Context.AnnexB | Context.Declaration);
@@ -5124,7 +5136,7 @@ export class Parser {
 
     private addVarOrBlock(context: Context, name: string) {
         if (context & Context.Lexical) {
-            this.addBlockName(name);
+            this.addBlockName(context, name);
         } else {
             this.addVarName(name);
         }
@@ -5157,18 +5169,11 @@ export class Parser {
         }
     }
 
-    private addBlockName(name: string) {
-        switch (name) {
-            case 'Infinity':
-            case 'NaN':
-            case 'Number':
-            case 'String':
-            case 'undefined':
-                this.error(Errors.DuplicateIdentifier, name);
-            default: // ignore
-        }
-
-        if (!this.initBlockScope() && (
+    private addBlockName(context: Context, name: string) {
+        // Export of global bindings
+        if (context & Context.Module && name === 'Number') {
+            this.error(Errors.DuplicateIdentifier, name);
+        } else if (!this.initBlockScope() && (
                 // Check variables in current block only
                 Object.prototype.hasOwnProperty.call(this.blockScope, name) ||
                 // Check `var` variables in the current or parent scopes
