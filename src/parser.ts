@@ -3560,17 +3560,10 @@ export class Parser {
                 }
                 break;
 
-                // '.'
-            case Token.Period:
-                if (!(context & Context.Method)) {
-                    this.errorLocation = pos;
-                    this.error(Errors.BadSuperCall);
-                }
-                break;
-
-                // '['
+                // '.', '['
             case Token.LeftBracket:
-                if (!(context & Context.Method)) {
+            case Token.Period:
+                if (!(context & Context.Method )) {
                     this.errorLocation = pos;
                     this.error(Errors.BadSuperCall);
                 }
@@ -3760,6 +3753,7 @@ export class Parser {
                 this.error(Errors.ForbiddenAsStatement, tokenDesc(t));
             }
             if (context & Context.Await && !(this.flags & Flags.OptionsNext)) {
+                this.errorLocation = this.getLocations();
                 this.error(Errors.InvalidAsyncGenerator);
             }
             this.expect(context, Token.Multiply);
@@ -4487,6 +4481,7 @@ export class Parser {
         if (t & Token.IsGenerator) {
             if (state & ObjectState.Async &&
                 !(this.flags & Flags.OptionsNext)) {
+                this.errorLocation = this.getLocations();
                 this.error(Errors.InvalidAsyncGenerator);
             }
             state |= modifierState = ObjectState.Yield;
@@ -4673,6 +4668,7 @@ export class Parser {
         // Generator / Async Iterations ( Stage 3 proposal)
         if (this.token & Token.IsGenerator) {
             if (state & ObjectState.Async && !(this.flags & Flags.OptionsNext)) {
+                this.errorLocation = this.getLocations();
                 this.error(Errors.InvalidAsyncGenerator);
             }
             state |= modifierState = ObjectState.Yield;

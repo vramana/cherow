@@ -3378,15 +3378,9 @@ Parser.prototype.parseSuper = function parseSuper (context) {
                 this.error(57 /* BadSuperCall */);
             }
             break;
-        // '.'
-        case 13 /* Period */:
-            if (!(context & 32768 /* Method */)) {
-                this.errorLocation = pos;
-                this.error(57 /* BadSuperCall */);
-            }
-            break;
-        // '['
+        // '.', '['
         case 393235 /* LeftBracket */:
+        case 13 /* Period */:
             if (!(context & 32768 /* Method */)) {
                 this.errorLocation = pos;
                 this.error(57 /* BadSuperCall */);
@@ -3538,6 +3532,7 @@ Parser.prototype.parseFunction = function parseFunction (context, prevContext /*
             this.error(87 /* ForbiddenAsStatement */, tokenDesc(t));
         }
         if (context & 32 /* Await */ && !(this.flags & 33554432 /* OptionsNext */)) {
+            this.errorLocation = this.getLocations();
             this.error(88 /* InvalidAsyncGenerator */);
         }
         this.expect(context, 270535219 /* Multiply */);
@@ -4166,6 +4161,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
     if (t & 268435456 /* IsGenerator */) {
         if (state & 2 /* Async */ &&
             !(this.flags & 33554432 /* OptionsNext */)) {
+            this.errorLocation = this.getLocations();
             this.error(88 /* InvalidAsyncGenerator */);
         }
         state |= modifierState = 1 /* Yield */;
@@ -4322,6 +4318,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
     // Generator / Async Iterations ( Stage 3 proposal)
     if (this.token & 268435456 /* IsGenerator */) {
         if (state & 2 /* Async */ && !(this.flags & 33554432 /* OptionsNext */)) {
+            this.errorLocation = this.getLocations();
             this.error(88 /* InvalidAsyncGenerator */);
         }
         state |= modifierState = 1 /* Yield */;

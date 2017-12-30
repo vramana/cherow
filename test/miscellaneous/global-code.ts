@@ -1,9 +1,13 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation  } from '../utils';
 
 describe('Miscellaneous - Global code', () => {
 
-    fail(`() => { super(); };`, {
+    testErrorLocation(`() => { super(); };`, {
         source: `() => { super(); };`,
+        message: 'super() is only valid in derived class constructors',
+        line: 1,
+        column: 8,
+        index: 13
     });
 
     fail(`super();`, {

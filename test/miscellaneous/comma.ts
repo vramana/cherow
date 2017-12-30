@@ -1,4 +1,4 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 import { parseScript, parseModule } from '../../src/cherow';
 
 describe('Miscellaneous - Comma (ES2017)', () => {
@@ -296,16 +296,28 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         });
     }
 
-    fail(`{ foo(a, b,) {} };`, {
+    testErrorLocation(`{ foo(a, b,) {} };`, {
         source: `{ foo(a, b,) {} };`,
+        message:  'Unexpected token \'{\'',
+        line: 1,
+        column: 13,
+        index: 14
     });
 
-    fail(`() => (...a, )`, {
+    testErrorLocation(`() => (...a, )`, {
         source: `() => (...a, )`,
+        message: 'Rest parameter must be last formal parameter',
+        line: 1,
+        column: 11,
+        index: 12
     });
 
-    fail(`() => (a, , b)`, {
+    testErrorLocation(`() => (a, , b)`, {
         source: `() => (a, , b)`,
+        message:  'Unexpected token \',\'',
+        line: 1,
+        column: 10,
+        index: 11
     });
 
     fail(`() => (, a)`, {
@@ -320,8 +332,12 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         source: `() => (...a, , )`,
     });
 
-    fail(`() => (a, => null)`, {
+    testErrorLocation(`() => (a, => null)`, {
         source: `() => (a, => null)`,
+        message: 'Unexpected token \'=>\'',
+        line: 1,
+        column: 10,
+        index: 12
     });
 
     fail(`(,) => 0;`, {
@@ -332,8 +348,12 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         source: 'f(,);',
     });
 
-    fail(`class A { constructor(,) {} }`, {
+    testErrorLocation(`class A { constructor(,) {} }`, {
         source: 'class A { constructor(,) {} }',
+        message:  'Unexpected token \',\'',
+        line: 1,
+        column: 22,
+        index: 23
     });
 
     fail(`function f(,){}`, {
@@ -355,9 +375,13 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         module: true
     });
 
-    fail(`export default function foo(,) { }`, {
+    testErrorLocation(`export default function foo(,) { }`, {
         source: 'export default function foo(,) { }',
-        module: true
+        message:  'Unexpected token \',\'',
+        module: true,
+        line: 1,
+        column: 28,
+        index: 29
     });
 
     fail(`async (...a,) => a`, {

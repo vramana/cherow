@@ -1,26 +1,45 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Miscellaneous - Early errors', () => {
-    /**/
 
-        fail(`class a extends b { constructor() { function c(d = super()){} } }`, {
+        testErrorLocation(`class a extends b { constructor() { function c(d = super()){} } }`, {
             source: `class a extends b { constructor() { function c(d = super()){} } }`,
+            message: 'super() is only valid in derived class constructors',
+            line: 1,
+            column: 51,
+            index: 56
         });
 
-        fail(`({ a(){ super(); } });`, {
+        testErrorLocation(`({ a(){ super(); } });`, {
             source: `({ a(){ super(); } });`,
+            message: 'super() is only valid in derived class constructors',
+            line: 1,
+            column: 8,
+            index: 13
         });
 
-        fail(`({ a(){ {{ if(0) (( super() )); }} } });`, {
+        testErrorLocation(`({ a(){ {{ if(0) (( super() )); }} } });`, {
             source: `({ a(){ {{ if(0) (( super() )); }} } });`,
+            message: 'super() is only valid in derived class constructors',
+            line: 1,
+            column: 20,
+            index: 25
         });
 
-        fail(`class A extends B { constructor() { !{*constructor() { super(); }}; } }`, {
+        testErrorLocation(`class A extends B { constructor() { !{*constructor() { super(); }}; } }`, {
             source: `class A extends B { constructor() { !{*constructor() { super(); }}; } }`,
+            message: 'super() is only valid in derived class constructors',
+            line: 1,
+            column: 55,
+            index: 60
         });
 
-        fail(`class A extends B { constructor() { !{get constructor() { super(); }}; } }`, {
+        testErrorLocation(`class A extends B { constructor() { !{get constructor() { super(); }}; } }`, {
             source: `class A extends B { constructor() { !{get constructor() { super(); }}; } }`,
+            message: 'super() is only valid in derived class constructors',
+            line: 1,
+            column: 58,
+            index: 63
         });
 
         fail(`class A extends B { constructor() { !{set constructor(a) { super(); }}; } }`, {
@@ -171,8 +190,12 @@ describe('Miscellaneous - Early errors', () => {
             source: `!{ a() { function* f(){ super.b(); } } };`,
         });
 
-        fail(`!{ a() { !function* (){ super.b(); } } };`, {
+        testErrorLocation(`!{ a() { !function* (){ super.b(); } } };`, {
             source: `!{ a() { !function* (){ super.b(); } } };`,
+            message: 'super() is only valid in derived class constructors',
+            line: 1,
+            column: 24,
+            index: 29
         });
 
         fail(`class A extends B { a() { !function* (){ super.b(); } } }`, {
@@ -190,10 +213,14 @@ describe('Miscellaneous - Early errors', () => {
         fail(`class A { constructor() { (class {[super()](){}}); } }`, {
             source: `class A { constructor() { (class {[super()](){}}); } }`,
         });
-/*
-        fail(`class A extends B { f() { super(); } }`, {
+
+        testErrorLocation(`class A extends B { f() { super(); } }`, {
             source: `class A extends B { f() { super(); } }`,
-        });*/
+            message: 'super() is only valid in derived class constructors',
+            line: 1,
+            column: 26,
+            index: 31
+        });
 
         fail(`class A extends B { static f() { super(); } }`, {
             source: `class A extends B { static f() { super(); } }`,
@@ -231,8 +258,12 @@ describe('Miscellaneous - Early errors', () => {
             source: `(async function a(k = super()) {})`,
         });
 
-        fail(`(async function a() { super(); })`, {
+        testErrorLocation(`(async function a() { super(); })`, {
             source: `(async function a() { super(); })`,
+            message: 'super() is only valid in derived class constructors',
+            line: 1,
+            column: 22,
+            index: 27
         });
 
         fail(`(async function a(k = await 3) {})`, {
@@ -243,7 +274,11 @@ describe('Miscellaneous - Early errors', () => {
             source: `'use strict'; async function eval() {}`,
         });
 
-        fail(`async function a(x) { let x; }`, {
+        testErrorLocation(`async function a(x) { let x; }`, {
             source: `async function a(x) { let x; }`,
+            message: '\'x\' has already been declared ',
+            line: 1,
+            column: 26,
+            index: 27
         });
 });

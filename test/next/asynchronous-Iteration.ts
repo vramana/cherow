@@ -1,8 +1,8 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Next - Asynchronous Iteration', () => {
 
-        fail('assignment expression in a function body with yield as an identifier in strict mode', {
+       testErrorLocation('assignment expression in a function body with yield as an identifier in strict mode', {
             source: `"use strict"; async function *gen() {
             return {
                  ...(function() {
@@ -10,12 +10,20 @@ describe('Next - Asynchronous Iteration', () => {
                  }()),
               }
           }`,
-            next: true
+            next: true,
+            message: '\'yield\' may not be used as an identifier in this context',
+            line: 3,
+            column: 20,
+            index: 80
         });
 
-        fail(`(async function* yield() { });`, {
+        testErrorLocation(`(async function* yield() { });`, {
             source: `(async function* yield() { });`,
-            next: true
+            next: true,
+            message: '\'yield\' may not be used as an identifier in this context',
+            line: 1,
+            column: 0,
+            index: 1
         });
 
         fail(`var g = function* yield() {};`, {
