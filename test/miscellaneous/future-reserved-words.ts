@@ -1,4 +1,4 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Miscellaneous - Future reserved words', () => {
 
@@ -6,8 +6,12 @@ describe('Miscellaneous - Future reserved words', () => {
             source: `var export = 1;`,
         });
 
-        fail(`var class = 1;`, {
+        testErrorLocation(`var class = 1;`, {
             source: `var class = 1;`,
+            message: 'Unexpected token \'class\'',
+            line: 1,
+            column: 4,
+            index: 9
         });
 
         fail(`"use strict"; var implements = 1;`, {

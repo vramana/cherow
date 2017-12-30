@@ -72,7 +72,7 @@ export const fail = (name: string, opts: Opts) => {
     });
 };
 
-export const failWithMessage = (name: string, opts: Opts) => {
+export const testErrorLocation = (name: string, opts: Opts) => {
     const CherowOpts: any = {
         module: opts.module,
         next: opts.next,

@@ -1,8 +1,8 @@
-import { pass, fail, failWithMessage } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Miscellaneous - Failure', () => {
 
-    failWithMessage(`/*`, {
+    testErrorLocation(`/*`, {
         source: `/*`,
         message: 'Unterminated comment',
         line: 1,
@@ -10,7 +10,7 @@ describe('Miscellaneous - Failure', () => {
         index: 2
     });
 
-    failWithMessage(`/*\r\n`, {
+    testErrorLocation(`/*\r\n`, {
             source: `/*\r\n`,
             message: 'Unterminated comment',
             line: 1,
@@ -18,7 +18,7 @@ describe('Miscellaneous - Failure', () => {
             index: 4
         });
 
-    failWithMessage(`/*\r`, {
+    testErrorLocation(`/*\r`, {
             source: `/*\r`,
             message: 'Unterminated comment',
             line: 1,
@@ -26,7 +26,7 @@ describe('Miscellaneous - Failure', () => {
             index: 3
         });
 
-    failWithMessage(`/*\r\n`, {
+    testErrorLocation(`/*\r\n`, {
             source: `/*\r\n`,
             message: 'Unterminated comment',
             line: 1,
@@ -34,7 +34,7 @@ describe('Miscellaneous - Failure', () => {
             index: 4
         });
 
-    failWithMessage(`/*\u2028`, {
+    testErrorLocation(`/*\u2028`, {
             source: `/*\u2028`,
             message: 'Unterminated comment',
             line: 1,
@@ -42,7 +42,7 @@ describe('Miscellaneous - Failure', () => {
             index: 3
         });
 
-    failWithMessage(`/*\u2029`, {
+    testErrorLocation(`/*\u2029`, {
             source: `/*\u2029`,
             message: 'Unterminated comment',
             line: 1,
@@ -50,7 +50,7 @@ describe('Miscellaneous - Failure', () => {
             index: 3
         });
 
-    failWithMessage(`\\`, {
+    testErrorLocation(`\\`, {
             source: `\\`,
             message: 'Unexpected token',
             line: 1,
@@ -58,7 +58,7 @@ describe('Miscellaneous - Failure', () => {
             index: 0
         });
 
-    failWithMessage(`\\u`, {
+    testErrorLocation(`\\u`, {
             source: `\\u`,
             message: 'Unexpected token',
             line: 1,
@@ -66,7 +66,7 @@ describe('Miscellaneous - Failure', () => {
             index: 0
         });
 
-    failWithMessage(`\\x`, {
+    testErrorLocation(`\\x`, {
             source: `\\x`,
             message: 'Unexpected token',
             line: 1,
@@ -74,7 +74,7 @@ describe('Miscellaneous - Failure', () => {
             index: 0
         });
 
-    failWithMessage(`\\o`, {
+    testErrorLocation(`\\o`, {
             source: `\\o`,
             message: 'Unexpected token',
             line: 1,
@@ -82,7 +82,7 @@ describe('Miscellaneous - Failure', () => {
             index: 0
         });
 
-    failWithMessage(`\\u1`, {
+    testErrorLocation(`\\u1`, {
             source: `\\u1`,
             message: 'Unexpected token',
             line: 1,
@@ -90,21 +90,21 @@ describe('Miscellaneous - Failure', () => {
             index: 0
         });
 
-    failWithMessage(`\\u12`, {
+    testErrorLocation(`\\u12`, {
             source: `\\u12`,
             message: 'Unexpected token',
             line: 1,
             column: 0,
             index: 0
         });
-    failWithMessage(`a\\uz`, {
+    testErrorLocation(`a\\uz`, {
             source: `a\\uz`,
             message: 'Unexpected token',
             line: 1,
             column: 0,
             index: 1
         });
-    failWithMessage(`a\\x`, {
+    testErrorLocation(`a\\x`, {
             source: `a\\x`,
             message: 'Unexpected token',
             line: 1,
@@ -112,21 +112,21 @@ describe('Miscellaneous - Failure', () => {
             index: 1
         });
 
-    failWithMessage('a\\o', {
+    testErrorLocation('a\\o', {
             source: `a\\o`,
             message: 'Unexpected token',
             line: 1,
             column: 0,
             index: 1
         });
-    failWithMessage('a\\u12', {
+    testErrorLocation('a\\u12', {
             source: `a\\u12`,
             message: 'Unexpected token',
             line: 1,
             column: 0,
             index: 1
         });
-    failWithMessage('\\uD800x', {
+    testErrorLocation('\\uD800x', {
             source: `\\uD800x`,
             message: 'Unexpected surrogate pair',
             line: 1,
@@ -163,7 +163,7 @@ describe('Miscellaneous - Failure', () => {
     fail('\u0008', {
             source: `\u0008`
         });
-    failWithMessage('0a', {
+    testErrorLocation('0a', {
             source: `0a`,
             message: 'Unexpected token',
             line: 1,
@@ -174,7 +174,7 @@ describe('Miscellaneous - Failure', () => {
             source: `3ea`
         });
 
-    failWithMessage('3in []', {
+    testErrorLocation('3in []', {
             source: `3in []`,
             message: 'Unexpected token',
             line: 1,
@@ -182,7 +182,7 @@ describe('Miscellaneous - Failure', () => {
             index: 1
         });
 
-    failWithMessage('3e', {
+    testErrorLocation('3e', {
             source: `3e`,
             message: 'Invalid BigIntLiteral',
             line: 1,
@@ -193,7 +193,7 @@ describe('Miscellaneous - Failure', () => {
     fail('3x0', {
             source: `3x0`
         });
-    failWithMessage('3in[]', {
+    testErrorLocation('3in[]', {
             source: `3in[]`,
             message: 'Unexpected token',
             line: 1,
@@ -262,7 +262,7 @@ describe('Miscellaneous - Failure', () => {
     fail('[,', {
             source: `[,`
         });
-    failWithMessage('1 + { t:t ', {
+    testErrorLocation('1 + { t:t ', {
             source: `1 + { t:t `,
             message: 'Unexpected token',
             line: 1,
@@ -306,21 +306,21 @@ describe('Miscellaneous - Failure', () => {
             column: 9,
             index: 10
         });
-    failWithMessage('const', {
+    testErrorLocation('const', {
             source: `const`,
             message: 'Unexpected token \'end of source\'',
             line: 1,
             column: 0,
             index: 5
         });
-    failWithMessage('**', {
+    testErrorLocation('**', {
             source: `**`,
             message: 'Unexpected token \'**\'',
             line: 1,
             column: 0,
             index: 2
         });
-    failWithMessage('#=', {
+    testErrorLocation('#=', {
             source: `#=`,
             message: 'Unexpected token \'#\'',
             line: 1,
@@ -396,7 +396,7 @@ describe('Miscellaneous - Failure', () => {
     fail('a if', {
             source: `a if`
         });
-    failWithMessage('function true() { }', {
+    testErrorLocation('function true() { }', {
             source: `function true() { }`,
             message: 'Unexpected token \'true\'',
             line: 1,
@@ -463,7 +463,7 @@ describe('Miscellaneous - Failure', () => {
     fail('function hello() {"use strict"; eval = 10; }', {
             source: `function hello() {'use strict'; eval = 10; }`
         });
-    failWithMessage('function eval() {"use strict"; })()', {
+    testErrorLocation('function eval() {"use strict"; })()', {
             source: `function eval() {'use strict'; })()`,
             message: 'Unexpected eval or arguments in strict mode',
             line: 1,
@@ -485,7 +485,7 @@ describe('Miscellaneous - Failure', () => {
     fail('a => {}()', {
             source: `a => {}()`
         });
-    failWithMessage('async function* foo() { }', {
+    testErrorLocation('async function* foo() { }', {
             source: `async function* foo() { }`,
             message: 'Generator function or method can\'t be async',
             line: 1,
@@ -531,7 +531,7 @@ describe('Miscellaneous - Failure', () => {
     fail('async (await) => 1', {
             source: `async (await) => 1`
         });
-    failWithMessage('async ({await}) => 1  ', {
+    testErrorLocation('async ({await}) => 1  ', {
             source: `async ({await}) => 1`,
             message: '\'await\' is not allowed inside an async arrow\'s parameter list',
             line: 1,
@@ -542,7 +542,7 @@ describe('Miscellaneous - Failure', () => {
             source: `async ({a: await}) => 1`
         });
 
-    failWithMessage('[a += b] = []', {
+    testErrorLocation('[a += b] = []', {
             source: `[a += b] = []`,
             message: 'Unexpected token \'=\'',
             line: 1,
@@ -591,7 +591,7 @@ describe('Miscellaneous - Failure', () => {
     fail('class A {async foo() { return {await} }}', {
             source: `class A {async foo() { return {await} }}`
         });
-    failWithMessage('invalid', {
+    testErrorLocation('invalid', {
             source: `await a`,
             message: 'Unexpected token \'identifier\'',
             line: 1,
@@ -659,7 +659,7 @@ describe('Miscellaneous - Failure', () => {
     fail('([function] = [10])', {
             source: `([function] = [10])`
         });
-    failWithMessage('({this} = x)', {
+    testErrorLocation('({this} = x)', {
             source: `({this} = x)`,
             message: 'Unexpected token \'this\'',
             line: 1,
@@ -684,7 +684,7 @@ describe('Miscellaneous - Failure', () => {
     fail('({ 42 }) = obj', {
             source: `({ 42 }) = obj`
         });
-    failWithMessage('({ 5 }) => {}', {
+    testErrorLocation('({ 5 }) => {}', {
             source: `({ 5 }) => {}`,
             message: 'Unexpected token \'number\'',
             line: 1,
@@ -700,7 +700,7 @@ describe('Miscellaneous - Failure', () => {
     fail('"use strict"; let + 1', {
             source: `"use strict"; let + 1`
         });
-    failWithMessage('let [x]', {
+    testErrorLocation('let [x]', {
             source: `let [x]`,
             message: 'Missing initializer in destructuring declaration',
             line: 1,
@@ -899,7 +899,7 @@ describe('Miscellaneous - Failure', () => {
     fail('for(0 of 0);', {
             source: `for(0 of 0);`,
         });
-    failWithMessage('for((0) in 0);', {
+    testErrorLocation('for((0) in 0);', {
             source: `for((0) in 0);`,
             message: 'Invalid left-hand side in for-loop',
             line: 1,
@@ -932,7 +932,7 @@ describe('Miscellaneous - Failure', () => {
             source: `"use strict"; +static;`,
         });
 
-    failWithMessage('"use strict"; yield:0;', {
+    testErrorLocation('"use strict"; yield:0;', {
             source: `"use strict"; yield:0;`,
             message: 'Unexpected token \'yield\'',
             line: 1,
@@ -971,7 +971,7 @@ describe('Miscellaneous - Failure', () => {
     fail('{ function a(){} function a(){} }', {
             source: `{ function a(){} function a(){} }`,
         });
-    failWithMessage('/?/', {
+    testErrorLocation('/?/', {
             source: `/?/`,
             message: 'Unexpected regular expression',
             line: 1,
@@ -979,7 +979,7 @@ describe('Miscellaneous - Failure', () => {
             index: 3
         });
 
-    failWithMessage('let {a: b, c: b} = 0', {
+    testErrorLocation('let {a: b, c: b} = 0', {
             source: `let {a: b, c: b} = 0`,
             message: '\'b\' has already been declared ',
             line: 1,
@@ -1023,7 +1023,7 @@ describe('Miscellaneous - Failure', () => {
             source: `if(0) label: function f(){}`,
         });
 
-    failWithMessage('do label: function f(){} while (0)', {
+    testErrorLocation('do label: function f(){} while (0)', {
             source: `do label: function f(){} while (0)`,
             message: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
             line: 1,
@@ -1051,7 +1051,7 @@ describe('Miscellaneous - Failure', () => {
             source: `for(;;) labelA: labelB: labelC: function f(){}`,
         });
 
-    failWithMessage('continue;', {
+    testErrorLocation('continue;', {
             source: `continue;`,
             message: 'continue  statement must be nested within an iteration statement',
             line: 1,
@@ -1059,8 +1059,12 @@ describe('Miscellaneous - Failure', () => {
             index: 8
         });
 
-    fail('if(0) continue;', {
+    testErrorLocation('if(0) continue;', {
             source: `if(0) continue;`,
+            message: 'continue  statement must be nested within an iteration statement',
+            line: 1,
+            column: 6,
+            index: 14
         });
 
     fail('label: continue label;', {
@@ -1103,8 +1107,12 @@ describe('Miscellaneous - Failure', () => {
             source: `switch(0) { default: let a; case 0: let a; }`,
         });
 
-    fail('switch(0) { case 0: let a; case 1: var a; }', {
+    testErrorLocation('switch(0) { case 0: let a; case 1: var a; }', {
             source: `switch(0) { case 0: let a; case 1: var a; }`,
+            message: '\'a\' has already been declared ',
+            line: 1,
+            column: 39,
+            index: 40
         });
 
     fail('switch(0) { default: var a; case 0: let a; }', {
@@ -1115,8 +1123,12 @@ describe('Miscellaneous - Failure', () => {
             source: `switch(0) { default: var a; case 0: const a = 0; }`,
         });
 
-    fail('"use strict"; !function eval(){}', {
+    testErrorLocation('"use strict"; !function eval(){}', {
             source: `"use strict"; !function eval(){}`,
+            message: 'Eval or arguments can\'t be assigned to in strict mode code',
+            line: 1,
+            column: 24,
+            index: 28
         });
 
     fail('"use strict"; !function arguments(){}', {
@@ -1159,7 +1171,7 @@ describe('Miscellaneous - Failure', () => {
             source: `!{ get f(){ let a; let a; } };`,
         });
 
-    failWithMessage('([a, a]) => 0;', {
+    testErrorLocation('([a, a]) => 0;', {
             source: `([a, a]) => 0;`,
             message: '\'a\' has already been declared ',
             line: 1,
@@ -1167,16 +1179,28 @@ describe('Miscellaneous - Failure', () => {
             index: 1
         });
 
-    fail('function f(){ const a = 0; var a; }', {
+    testErrorLocation('function f(){ const a = 0; var a; }', {
             source: `function f(){ const a = 0; var a; }`,
+            message: '\'a\' has already been declared ',
+            line: 1,
+            column: 31,
+            index: 32
         });
 
-    fail('class A { static f(){ let a; var a; } }', {
+    testErrorLocation('class A { static f(){ let a; var a; } }', {
             source: `class A { static f(){ let a; var a; } }`,
+            message: '\'a\' has already been declared ',
+            line: 1,
+            column: 33,
+            index: 34
         });
 
     fail('function f(){ break label; }', {
             source: `function f(){ break label; }`,
+            message: '\'a\' has already been declared ',
+            line: 1,
+            column: 33,
+            index: 34
         });
 
     fail('function f(){ labelA: while(0) continue labelB; }', {
@@ -1211,20 +1235,36 @@ describe('Miscellaneous - Failure', () => {
             source: `!{ f(a) { let a; } };`,
         });
 
-    fail('!function* f(a = super()){}', {
+    testErrorLocation('!function* f(a = super()){}', {
             source: `!function* f(a = super()){}`,
+            message: 'super() is only valid in derived class constructors',
+            line: 1,
+            column: 17,
+            index: 22
         });
 
-    fail('function* g(){ ({ *m([a = yield]){} }); }', {
+    testErrorLocation('function* g(){ ({ *m([a = yield]){} }); }', {
             source: `function* g(){ ({ *m([a = yield]){} }); }`,
+            message: 'Yield expression not allowed in formal parameter',
+            line: 1,
+            column: 21,
+            index: 22
         });
 
-    fail('function* g(){ !function*([a = yield]){} }', {
+    testErrorLocation('function* g(){ !function*([a = yield]){} }', {
             source: `function* g(){ !function*([a = yield]){} }`,
+            message: 'Yield expression not allowed in formal parameter',
+            line: 1,
+            column: 26,
+            index: 27
         });
 
-    fail('function* f(a = super.b){}', {
+    testErrorLocation('function* f(a = super.b){}', {
             source: `function* f(a = super.b){}`,
+            message: 'super() is only valid in derived class constructors',
+            line: 1,
+            column: 16,
+            index: 21
         });
 
     fail('class A extends B { a() { !function* (){ super.b(); } } }', {
@@ -1235,48 +1275,80 @@ describe('Miscellaneous - Failure', () => {
             source: `class A { constructor() { (class {[super()](){}}); } }`,
         });
 
-    fail('class A extends B { static prototype(){} }', {
+    testErrorLocation('class A extends B { static prototype(){} }', {
             source: `class A extends B { static prototype(){} }`,
+            message: 'Classes may not have static property named prototype',
+            line: 1,
+            column: 36,
+            index: 37
         });
 
     fail('class A extends B { static set prototype(a) {} }', {
             source: `class A extends B { static set prototype(a) {} }`,
         });
 
-    fail('const a = 0; var a;', {
+    testErrorLocation('const a = 0; var a;', {
             source: `const a = 0; var a;`,
+            message: '\'a\' has already been declared ',
+            line: 1,
+            column: 17,
+            index: 18
         });
 
     fail('var a; const a = 0;', {
             source: `var a; const a = 0;`,
         });
 
-    fail('super()', {
+    testErrorLocation('super()', {
             source: `super()`,
+            message: 'super() is only valid in derived class constructors',
+            line: 1,
+            column: 0,
+            index: 5
         });
 
-    fail('unresolvableReference."";', {
+    testErrorLocation('unresolvableReference."";', {
             source: `unresolvableReference."";`,
+            message: 'Unexpected token \'string\'',
+            line: 1,
+            column: 22,
+            index: 24
         });
 
     fail('labelA: break labelB;', {
             source: `labelA: break labelB;`,
         });
 
-    fail('new.target', {
+    testErrorLocation('new.target', {
             source: `new.target`,
+            message: 'new.target only allowed within functions',
+            line: 1,
+            column: 0,
+            index: 3
         });
 
-    fail('var a; export class a {};', {
+    testErrorLocation('var a; export class a {};', {
             source: `var a; export class a {};`,
+            message: 'Unexpected token \'export\'',
+            line: 1,
+            column: 7,
+            index: 13
         });
 
-    fail('!{ __proto__: null, __proto__: null, };', {
-            source: `!{ __proto__: null, __proto__: null, };;`,
+    testErrorLocation('!{ __proto__: null, __proto__: null, };', {
+            source: `!{ __proto__: null, __proto__: null, };`,
+            message: 'Property name __proto__ appears more than once in object literal',
+            line: 1,
+            column: 20,
+            index: 29
         });
 
-    fail('super.a', {
+    testErrorLocation('super.a', {
             source: `super.a`,
+            message: 'super() is only valid in derived class constructors',
+            line: 1,
+            column: 0,
+            index: 5
         });
 
     });

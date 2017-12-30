@@ -3125,6 +3125,7 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
         }
         this.nextToken(context);
         if (context & 16 /* Yield */ && context & 64 /* InParenthesis */ && this.token & 536870912 /* IsYield */) {
+            this.errorLocation = pos;
             this.flags |= 128 /* Yield */;
         }
         var right = this.parseAssignmentExpression(context | 4 /* AllowIn */);
@@ -3378,18 +3379,24 @@ Parser.prototype.parseSuper = function parseSuper (context) {
         // '('
         case 262155 /* LeftParen */:
             // The super property has to be within a class constructor
-            if (!(context & 131072 /* AllowConstructor */))
-                { this.error(57 /* BadSuperCall */); }
+            if (!(context & 131072 /* AllowConstructor */)) {
+                this.errorLocation = pos;
+                this.error(57 /* BadSuperCall */);
+            }
             break;
         // '.'
         case 13 /* Period */:
-            if (!(context & 32768 /* Method */))
-                { this.error(57 /* BadSuperCall */); }
+            if (!(context & 32768 /* Method */)) {
+                this.errorLocation = pos;
+                this.error(57 /* BadSuperCall */);
+            }
             break;
         // '['
         case 393235 /* LeftBracket */:
-            if (!(context & 32768 /* Method */))
-                { this.error(57 /* BadSuperCall */); }
+            if (!(context & 32768 /* Method */)) {
+                this.errorLocation = pos;
+                this.error(57 /* BadSuperCall */);
+            }
             break;
         default:
             this.error(1 /* UnexpectedToken */, tokenDesc(this.token));
@@ -3831,15 +3838,19 @@ Parser.prototype.parseNewExpression = function parseNewExpression (context) {
     // The `target` contextual keyword must not contain Unicode escape sequences.
     if (this.parseOptional(context | 33554432 /* ValidateEscape */, 13 /* Period */)) {
         if (this.token & 67108864 /* IsIdentifier */) {
-            if (this.tokenValue !== 'target')
-                { this.error(29 /* MetaNotInFunctionBody */); }
+            if (this.tokenValue !== 'target') {
+                this.errorLocation = pos;
+                this.error(29 /* MetaNotInFunctionBody */);
+            }
             if (!(context & 128 /* InParameter */)) {
                 // An ArrowFunction in global code may not contain `new.target`
                 if (context & 8 /* Arrow */ && context & 1024 /* Declaration */) {
                     this.error(100 /* NewTargetArrow */);
                 }
-                if (!(this.flags & 4 /* InFunctionBody */))
-                    { this.error(29 /* MetaNotInFunctionBody */); }
+                if (!(this.flags & 4 /* InFunctionBody */)) {
+                    this.errorLocation = pos;
+                    this.error(29 /* MetaNotInFunctionBody */);
+                }
             }
         }
         return this.parseMetaProperty(context, id, pos);
@@ -4361,6 +4372,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
                     // in object initializers, but this does not apply to Object Assignment
                     // patterns, so we need to validate this *after* parsing out the object expr
                     if (this.flags & 131072 /* HasProtoField */) {
+                        this.errorLocation = pos;
                         this.flags |= 262144 /* HasDuplicateProtoField */;
                     }
                     else {
@@ -4389,6 +4401,7 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
                 if (this.token & (536870912 /* IsYield */ | 1073741824 /* IsAwait */)) {
                     this.errorLocation = pos;
                     if (this.token & 536870912 /* IsYield */ && context & 16 /* Yield */) {
+                        this.errorLocation = pos;
                         this.flags |= 128 /* Yield */;
                     }
                     if (this.token & 1073741824 /* IsAwait */) {
@@ -4521,8 +4534,10 @@ Parser.prototype.parseParenthesizedExpression = function parseParenthesizedExpre
     var sequencepos = this.getLocations();
     this.errorLocation = pos;
     var isSequence = false;
-    if (context & 16 /* Yield */ && this.token & 536870912 /* IsYield */)
-        { this.flags |= 128 /* Yield */; }
+    if (context & 16 /* Yield */ && this.token & 536870912 /* IsYield */) {
+        this.errorLocation = sequencepos;
+        this.flags |= 128 /* Yield */;
+    }
     if (this.token === 262155 /* LeftParen */)
         { state |= 4 /* Parenthesized */; }
     if (this.token & 131072 /* BindingPattern */)
@@ -5273,7 +5288,7 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return new Parser(source, options).parseProgram(2 /* Strict */ | 1 /* Module */ | 134217728 /* TopLevel */);
 }
-var version = '0.20.5';
+var version = '0.20.6';
 
 exports.parseScript = parseScript;
 exports.parseModule = parseModule;

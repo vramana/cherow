@@ -3257,6 +3257,7 @@ export class Parser {
             this.nextToken(context);
 
             if (context & Context.Yield && context & Context.InParenthesis && this.token & Token.IsYield) {
+                this.errorLocation = pos;
                 this.flags |= Flags.Yield;
             }
 
@@ -3553,17 +3554,26 @@ export class Parser {
             // '('
             case Token.LeftParen:
                 // The super property has to be within a class constructor
-                if (!(context & Context.AllowConstructor)) this.error(Errors.BadSuperCall);
+                if (!(context & Context.AllowConstructor)) {
+                    this.errorLocation = pos;
+                    this.error(Errors.BadSuperCall);
+                }
                 break;
 
                 // '.'
             case Token.Period:
-                if (!(context & Context.Method)) this.error(Errors.BadSuperCall);
+                if (!(context & Context.Method)) {
+                    this.errorLocation = pos;
+                    this.error(Errors.BadSuperCall);
+                }
                 break;
 
                 // '['
             case Token.LeftBracket:
-                if (!(context & Context.Method)) this.error(Errors.BadSuperCall);
+                if (!(context & Context.Method)) {
+                    this.errorLocation = pos;
+                    this.error(Errors.BadSuperCall);
+                }
                 break;
 
             default:
@@ -4109,13 +4119,19 @@ export class Parser {
         if (this.parseOptional(context | Context.ValidateEscape, Token.Period)) {
 
             if (this.token & Token.IsIdentifier) {
-                if (this.tokenValue !== 'target') this.error(Errors.MetaNotInFunctionBody);
+                if (this.tokenValue !== 'target') {
+                    this.errorLocation = pos;
+                    this.error(Errors.MetaNotInFunctionBody);
+                }
                 if (!(context & Context.InParameter)) {
                     // An ArrowFunction in global code may not contain `new.target`
                     if (context & Context.Arrow && context & Context.Declaration) {
                         this.error(Errors.NewTargetArrow);
                     }
-                    if (!(this.flags & Flags.InFunctionBody)) this.error(Errors.MetaNotInFunctionBody);
+                    if (!(this.flags & Flags.InFunctionBody)) {
+                        this.errorLocation = pos;
+                        this.error(Errors.MetaNotInFunctionBody);
+                    }
                 }
             }
 
@@ -4708,6 +4724,7 @@ export class Parser {
                         // in object initializers, but this does not apply to Object Assignment
                         // patterns, so we need to validate this *after* parsing out the object expr
                         if (this.flags & Flags.HasProtoField) {
+                            this.errorLocation = pos;
                             this.flags |= Flags.HasDuplicateProtoField;
                         } else {
                             this.flags |= Flags.HasProtoField;
@@ -4741,6 +4758,7 @@ export class Parser {
                     if (this.token & (Token.IsYield | Token.IsAwait)) {
                         this.errorLocation = pos;
                         if (this.token & Token.IsYield && context & Context.Yield) {
+                            this.errorLocation = pos;
                             this.flags |= Flags.Yield;
                         }
                         if (this.token & Token.IsAwait) {
@@ -4890,7 +4908,10 @@ export class Parser {
         this.errorLocation = pos;
         let isSequence = false;
 
-        if (context & Context.Yield && this.token & Token.IsYield) this.flags |= Flags.Yield;
+        if (context & Context.Yield && this.token & Token.IsYield) {
+            this.errorLocation = sequencepos;
+            this.flags |= Flags.Yield;
+        }
         if (this.token === Token.LeftParen) state |= ParenthesizedState.Parenthesized;
         if (this.token & Token.BindingPattern) state |= ParenthesizedState.Pattern;
         if (this.token & Token.FutureReserved) state |= ParenthesizedState.FutureReserved;
