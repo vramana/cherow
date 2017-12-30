@@ -1922,7 +1922,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: any,
         node: any,
@@ -2478,7 +2478,7 @@ export class Parser {
                 // Both 'class' and 'function' are forbidden by lookahead restriction.
             case Token.AsyncKeyword:
                 if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                    if (context & Context.Declaration || this.flags & Flags.IterationStatement) {
+                    if (context & Context.Declaration || this.flags & Flags.AllowContinue) {
                         this.error(Errors.AsyncFunctionInSingleStatementContext);
                     }
                     return this.parseFunctionDeclaration(context);
@@ -2616,6 +2616,7 @@ export class Parser {
         if (context & Context.Strict) this.error(Errors.StrictModeWith);
         this.expect(context, Token.WithKeyword);
         this.expect(context, Token.LeftParen);
+
         const object = this.parseExpression(context | Context.AllowIn, pos);
         this.expect(context, Token.RightParen);
         return this.finishNode(context, pos, {
@@ -2637,7 +2638,7 @@ export class Parser {
 
         const savedFlag = this.flags;
 
-        this.flags |= Flags.IterationStatement;
+        this.flags |= (Flags.AllowContinue | Flags.AllowBreak);
 
         const body = this.parseStatement(context & ~Context.Declaration);
         this.flags = savedFlag;
@@ -2656,7 +2657,7 @@ export class Parser {
         this.expect(context, Token.DoKeyword);
 
         const savedFlag = this.flags;
-        this.flags |= Flags.IterationStatement;
+        this.flags |= (Flags.AllowBreak | Flags.AllowContinue);
         const body = this.parseStatement(context & ~Context.Declaration);
         this.flags = savedFlag;
 
@@ -2678,20 +2679,21 @@ export class Parser {
     private parseContinueStatement(context: Context): ESTree.ContinueStatement {
 
         // Appearing of continue without an IterationStatement leads to syntax error
-        if (!(this.flags & Flags.IterationStatement)) this.error(Errors.InvalidNestedContinue);
-
+        if (!(this.flags & Flags.AllowContinue)) {
+            this.error(Errors.InvalidNestedStatement, tokenDesc(this.token))
+        }
         const pos = this.getLocations();
-
+        const t = this.token;
         this.expect(context, Token.ContinueKeyword);
 
         let label: any = null;
         if (!(this.flags & Flags.LineTerminator) && this.token & Token.IsIdentifier) {
             label = this.parseIdentifierName(context, this.token);
-
-            if (this.labelSet === undefined || !('$' + label.name in this.labelSet)) {
-                this.error(Errors.UnknownLabel, label.name);
+            let key = '$' + (label as ESTree.Identifier).name;
+            if (this.labelSet !== null && !this.labelSet[key]) {
+                this.error(Errors.UnknownLabel, (label as ESTree.Identifier).name);
             }
-        }
+        } 
 
         this.consumeSemicolon(context);
 
@@ -2707,17 +2709,17 @@ export class Parser {
 
         this.expect(context, Token.BreakKeyword);
 
+        const t = this.token;
+
         let label: ESTree.Identifier | undefined | null = null;
 
-        if (!(this.flags & Flags.LineTerminator) && this.token & Token.IsIdentifier) {
-            label = this.parseIdentifierName(context, this.token);
-            if (this.labelSet === undefined || !('$' + (label as ESTree.Identifier).name in this.labelSet)) {
+        if (!(this.flags & Flags.LineTerminator) && t & Token.IsIdentifier) {
+            label = this.parseIdentifierName(context, t);
+            if (this.labelSet !== null && !this.labelSet['$' + (label as ESTree.Identifier).name]) {
                 this.error(Errors.UnknownLabel, (label as ESTree.Identifier).name);
             }
-        }
-
-        if (label === null && !(this.flags & (Flags.IterationStatement | Flags.SwitchStatement))) {
-            this.error(Errors.IllegalBreak);
+        } else if (!(this.flags & Flags.AllowBreak)) {
+            this.error(Errors.InvalidNestedStatement, tokenDesc(t))
         }
 
         this.consumeSemicolon(context);
@@ -2775,7 +2777,7 @@ export class Parser {
             }
         }
 
-        this.flags |= Flags.IterationStatement;
+        this.flags |= (Flags.AllowContinue | Flags.AllowBreak);
 
         if (isInOrOfKeyword(this.token)) {
 
@@ -2874,7 +2876,6 @@ export class Parser {
 
         this.expect(context, Token.RightParen);
         const savedFlag = this.flags;
-
         const consequent: ESTree.Statement = this.parseIfStatementChild(context);
 
         let alternate: ESTree.Statement | null = null;
@@ -2924,7 +2925,7 @@ export class Parser {
 
         const SavedFlag = this.flags;
 
-        this.flags |= Flags.SwitchStatement;
+        this.flags |= Flags.AllowBreak;
 
         while (this.token !== Token.RightBrace) {
 
@@ -3036,35 +3037,43 @@ export class Parser {
 
     private parseExpressionOrLabeledStatement(context: Context): ESTree.ExpressionStatement | ESTree.LabeledStatement {
         const pos = this.getLocations();
-        const token = this.token;
 
         const expr = this.parseExpression(context | Context.ValidateEscape | Context.AllowIn, pos);
 
-        if (this.token === Token.Colon && expr.type === 'Identifier') {
+        let t = this.token;
+
+        if (t === Token.Colon && expr.type === 'Identifier') {
 
             this.expect(context, Token.Colon);
 
             const key = '$' + expr.name;
+
             if (this.labelSet === undefined) this.labelSet = {};
             else if (this.labelSet[key] === true) this.error(Errors.Redeclaration, expr.name);
 
             this.labelSet[key] = true;
 
-            // continue's label when present must refer to a loop construct;
-            if (this.flags & Flags.IterationStatement) {
-                if (this.token === Token.ContinueKeyword) {
-                    this.error(Errors.InvalidNestedContinue);
-                }
-                if (this.token === Token.FunctionKeyword) {
-                    this.error(Errors.SloppyFunction);
-                }
-            } else if (this.token === Token.FunctionKeyword) {
-                if (context & Context.Statement) {
-                    this.error(Errors.SloppyFunction);
-                }
-                if (context & Context.Strict) {
-                    this.error(Errors.StrictFunction);
-                }
+            t = this.token;
+
+            switch (t) {
+                
+                case Token.ContinueKeyword:
+                    // continue's label when present must refer to a loop construct;
+                    if (this.flags & Flags.AllowContinue) {
+                        this.error(Errors.InvalidNestedStatement, tokenDesc(t));
+                    }
+                    break;
+
+                case Token.FunctionKeyword:
+                    // A labelled function declaration is never permitted in the first of two
+                    // Statement positions
+                    if (context & Context.Statement || this.flags & Flags.AllowContinue) {
+                        this.error(Errors.SloppyFunction);
+                    }
+                    if (context & Context.Strict) {
+                        this.error(Errors.StrictFunction);
+                    }
+                default: // ignore    
             }
 
             const body = this.parseStatement(context | Context.AnnexB | Context.Declaration);
@@ -4012,8 +4021,7 @@ export class Parser {
             this.labelSet = undefined;
             const savedFlags = this.flags;
             this.flags |= Flags.InFunctionBody;
-
-            this.flags &= ~(Flags.SwitchStatement | Flags.BreakStatement | Flags.IterationStatement);
+            this.flags &= ~(Flags.AllowBreak | Flags.AllowContinue);
             body = this.parseStatementList(context & ~Context.Lexical, Token.RightBrace);
             this.labelSet = previousLabelSet;
             this.flags = savedFlags;

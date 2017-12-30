@@ -2,7 +2,7 @@ import { pass, fail } from '../utils';
 
 describe('Statements - Break', () => {
 
-      pass(`while (true) { break }`, {
+  pass(`while (true) { break }`, {
           source: 'while (true) { break }',
           loc: true,
           ranges: true,
@@ -92,7 +92,7 @@ describe('Statements - Break', () => {
           }
       });
 
-      pass(`done: while (true) { break done }`, {
+  pass(`done: while (true) { break done }`, {
           source: 'done: while (true) { break done }',
           loc: true,
           ranges: true,
@@ -228,7 +228,7 @@ describe('Statements - Break', () => {
           }
       });
 
-      pass(`done: while (true) { break done; }`, {
+  pass(`done: while (true) { break done; }`, {
           source: 'done: while (true) { break done; }',
           loc: true,
           ranges: true,
@@ -364,7 +364,7 @@ describe('Statements - Break', () => {
           }
       });
 
-      pass(`__proto__: while (true) { break __proto__; }`, {
+  pass(`__proto__: while (true) { break __proto__; }`, {
           source: '__proto__: while (true) { break __proto__; }',
           loc: true,
           ranges: true,
@@ -500,3 +500,15 @@ describe('Statements - Break', () => {
           }
       });
     });
+
+fail(`{ var x=1; break LABEL; var y=2; }`, {
+    source: '{ var x=1; break LABEL; var y=2; }'
+  });
+
+fail(`LABEL : x=3.14; var x=1; break LABEL; var y=2; `, {
+    source: 'LABEL : x=3.14; var x=1; break LABEL; var y=2; '
+  });
+
+fail(`{ var x=1; break LABEL; var y=2; }`, {
+    source: '{ var x=1; break LABEL; var y=2; }'
+  });

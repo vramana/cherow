@@ -6,6 +6,10 @@ describe('Statements - If', () => {
       source: 'if (true) async function f() {  }',
   });
 
+    fail(`if(1) break;`, {
+    source: 'if(1) break;',
+});
+
     pass(`label: function g() {}`, {
     source: 'label: function g() {}',
     loc: true,

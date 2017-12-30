@@ -42,7 +42,20 @@ describe('Expressions - Class', () => {
         source: '(class {[a,b](){}})',
     });
 
-    pass(`x = (0) ? 1 : 2`, {
+    pass(`(class Service extends Component.mixin(AsyncEmitter) {
+        *addEndpoint(name, handler) {
+            yield this.emit("beforeEndpointAdded", name, handler, this);
+            if (!this._endpoints[name]) {
+                this._endpoints[name] = {};
+                this._express.use("/" + name, (req, res, next) => {
+                    if (this._endpoints[name].handler)
+                        return this._endpoints[name].handler(req, res, next);
+                    else
+                        return next();
+                });
+            }
+        }
+    })`, {
         source: `(class Service extends Component.mixin(AsyncEmitter) {
             *addEndpoint(name, handler) {
                 yield this.emit("beforeEndpointAdded", name, handler, this);
