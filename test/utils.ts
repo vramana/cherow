@@ -21,6 +21,10 @@ interface Opts {
     globalReturn?: boolean;
     impliedStrict?: boolean;
     attachComment?: boolean;
+    message?: any;
+    line?: any;
+    column?: any;
+    index?: any;
 }
 
 export const pass = (name: string, opts: Opts) => {
@@ -59,13 +63,46 @@ export const fail = (name: string, opts: Opts) => {
     };
 
     it('Should fail on ' + name, () => {
+
         t.throws(() => {
             opts.module
-            ? t.deepEqual(parseModule(opts.source, CherowOpts) as Program, opts.expected)
-            : t.deepEqual(parseScript(opts.source, CherowOpts) as Program, opts.expected);
+            ? t.deepEqual(parseModule(opts.source, CherowOpts), opts.expected)
+            : t.deepEqual(parseScript(opts.source, CherowOpts), opts.expected);
         });
     });
 };
+
+export const failWithMessage = (name: string, opts: Opts) => {
+    const CherowOpts: any = {
+        module: opts.module,
+        next: opts.next,
+        raw: opts.raw,
+        loc: opts.loc,
+        plugins: opts.plugins,
+        toleran: opts.tolerant,
+        directives: opts.directives,
+        ranges: opts.ranges,
+        globalReturn: opts.globalReturn,
+        jsx: opts.jsx,
+        impliedStrict: opts.impliedStrict,
+        comments: opts.comments,
+        attachComment: opts.attachComment
+    };
+    it('Should fail on ' + name, () => {
+      try {
+        opts.module
+        ? t.deepEqual(parseModule(opts.source, CherowOpts), opts.expected)
+        : t.deepEqual(parseScript(opts.source, CherowOpts), opts.expected);
+      } catch (e) {
+          t.equal(e.description, opts.message);
+          t.equal(e.lineNumber, opts.line);
+          t.equal(e.column, opts.column);
+          t.equal(e.index, opts.index);
+          return;
+      }
+      throw new Error('Expecting error');
+    });
+  };
 
 it('version should be a string value' , () => {
     // Version hasn't been replaced by Rollup at this stage

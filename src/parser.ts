@@ -2798,6 +2798,7 @@ export class Parser {
 
             if (!declarations) {
                 if (!isValidDestructuringAssignmentTarget(init) || init.type === 'AssignmentExpression') {
+                    this.errorLocation = pos;
                     this.error(Errors.InvalidLHSInForLoop);
                 }
                 this.reinterpretAsPattern(context, init);
@@ -3765,6 +3766,7 @@ export class Parser {
 
                 if (this.isEvalOrArguments(this.tokenValue)) {
                     if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
+                    this.errorLocation = this.getLocations();
                     context |= Context.StrictReserved;
                 }
 
@@ -4172,7 +4174,10 @@ export class Parser {
             case Token.ThrowKeyword:
                 return this.parseThrowExpression(context, pos);
             case Token.AwaitKeyword:
-                if (context & Context.InAsyncArgs) this.flags |= Flags.Await;
+                if (context & Context.InAsyncArgs) {
+                    this.flags |= Flags.Await;
+                    this.errorLocation = this.getLocations();
+                }
                 if (context & Context.Module) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 return this.parseIdentifier(context);
             case Token.LetKeyword:
@@ -4725,7 +4730,7 @@ export class Parser {
                     if (context & (Context.Await | Context.Yield)) {
                         this.error(Errors.DisallowedInContext, tokenDesc(t));
                     } else if (t & (Token.IsAwait)) {
-                        this.errorLocation = this.getLocations();
+                        this.errorLocation = pos;
                         this.flags |= Flags.Await;
                     }
                 }
@@ -4734,12 +4739,13 @@ export class Parser {
 
                 if (this.parseOptional(context, Token.Assign)) {
                     if (this.token & (Token.IsYield | Token.IsAwait)) {
-                        this.errorLocation = this.getLocations();
+                        this.errorLocation = pos;
                         if (this.token & Token.IsYield && context & Context.Yield) {
                             this.flags |= Flags.Yield;
                         }
                         if (this.token & Token.IsAwait) {
                             this.flags |= Flags.Await;
+                            this.errorLocation = pos;
                         }
                     }
 
