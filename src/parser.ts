@@ -3746,6 +3746,7 @@ export class Parser {
 
         if (t & Token.IsAsync) {
             if (this.flags & Flags.ExtendedUnicodeEscape) {
+                // TODO! Adjust this error location
                 this.error(Errors.UnexpectedEscapedKeyword);
             }
             this.expect(context, Token.AsyncKeyword);
@@ -3788,6 +3789,7 @@ export class Parser {
 
                     if ((context & Context.Await && t & Token.IsAwait) ||
                         (context & Context.Yield && t & Token.IsYield)) {
+                            this.errorLocation = this.getLocations();
                         this.error(Errors.DisallowedInContext, tokenDesc(t));
                     }
 
@@ -4831,7 +4833,10 @@ export class Parser {
         const pos = this.getLocations();
         this.expect(context, Token.Ellipsis);
         const argument = this.parseBindingIdentifierOrPattern(context);
-        if (this.token === Token.Assign) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        if (this.token === Token.Assign) {
+            this.errorLocation = this.getLocations();
+            this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        }
         if (this.token !== Token.RightParen) {
             this.error(Errors.ParameterAfterRestParameter);
         }

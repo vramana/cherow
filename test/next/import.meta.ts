@@ -1,8 +1,16 @@
-import { pass, fail } from '../utils';
+import { pass, testErrorLocation } from '../utils';
 
 describe('Next - Import meta', () => {
 
-    fail('"ariya" as property name', { source: `import.ariya`, module: true, next: true });
+    testErrorLocation('"ariya" as property name', { 
+        source: `import.ariya`, 
+        module: true, 
+        next: true,
+        message: 'Unexpected token',
+        line: 1,
+        column: 7,
+        index: 12 
+    });
 
     pass(`one dot and no assignment`, {
         source: 'import.meta;',

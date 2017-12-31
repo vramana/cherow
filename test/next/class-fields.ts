@@ -1,30 +1,50 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Next - Class fields', () => {
 
-    fail('class C { static #field; }', {
+    testErrorLocation('class C { static #field; }', {
         source: 'class C { static #field; }',
-        next: true
+        next: true,
+        message: 'Unexpected token',
+        line: 1,
+        column: 17,
+        index: 18
     });
 
-    fail('class C { #x = typeof arguments; }', {
+    testErrorLocation('class C { #x = typeof arguments; }', {
         source: 'class C { #x = typeof arguments; }',
-        next: true
+        next: true,
+        message: 'Unexpected token',
+        line: 1,
+        column: 10,
+        index: 11
     });
 
-    fail('class C { x = typeof arguments; }', {
+    testErrorLocation('class C { x = typeof arguments; }', {
         source: 'class C { x = typeof arguments; }',
-        next: true
+        next: true,
+        message: 'Unexpected token',
+        line: 1,
+        column: 30,
+        index: 31
     });
 
-    fail('class C { #x = typeof arguments; }', {
+    testErrorLocation('class C { #x = typeof arguments; }', {
         source: 'class C { #x = typeof arguments; }',
-        next: true
+        next: true,
+        message: 'Unexpected token',
+        line: 1,
+        column: 10,
+        index: 11
     });
 
-    fail('class C { x = typeof arguments; }', {
+    testErrorLocation('class C { x = typeof arguments; }', {
         source: 'class C { x = typeof arguments; }',
-        next: true
+        next: true,
+        message: 'Unexpected token',
+        line: 1,
+        column: 30,
+        index: 31
     });
 
     fail('class C {  x = arguments; }', {
@@ -76,9 +96,13 @@ describe('Next - Class fields', () => {
         source: 'class a {  constructor () { #foo  }  }',
     });
 
-    fail('static class field with constructor', {
+    testErrorLocation('static class field with constructor', {
         source: 'class C { static "constructor"; }',
-        next: true
+        next: true,
+        message: 'Unexpected token \';\'',
+        line: 1,
+        column: 30,
+        index: 31
     });
     fail('static class field with constructor', {
         source: 'class C { static "constructor"; }',

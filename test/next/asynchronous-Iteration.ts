@@ -1,8 +1,8 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Next - Asynchronous Iteration', () => {
 
-       fail('assignment expression in a function body with yield as an identifier in strict mode', {
+        testErrorLocation('assignment expression in a function body with yield as an identifier in strict mode', {
             source: `"use strict"; async function *gen() {
             return {
                  ...(function() {
@@ -17,43 +17,71 @@ describe('Next - Asynchronous Iteration', () => {
             index: 80
         });
 
-       fail(`(async function* yield() { });`, {
+        testErrorLocation(`(async function* yield() { });`, {
             source: `(async function* yield() { });`,
             next: true,
             message: '\'yield\' may not be used as an identifier in this context',
             line: 1,
-            column: 0,
-            index: 1
+            column: 17,
+            index: 22
         });
 
-       fail(`var g = function* yield() {};`, {
+        testErrorLocation(`var g = function* yield() {};`, {
             source: `var g = function* yield() {};`,
-            next: true
+            next: true,
+            message: '\'yield\' may not be used as an identifier in this context',
+            line: 1,
+            column: 18,
+            index: 23
         });
 
-       fail(`var C = class { async *gen() {} }`, {
-            source: `var C = class { async *gen() {} }`
+        testErrorLocation(`var C = class { async *gen() {} }`, {
+            source: `var C = class { async *gen() {} }`,
+            message: 'Generator function or method can\'t be async',
+            line: 1,
+            column: 22,
+            index: 23
         });
 
-       fail('rest parameter has an initializer', {
+        testErrorLocation('rest parameter has an initializer', {
             source: `0, async function* g(...x = []) {};`,
-            next: true
+            next: true,
+            message: 'Unexpected token \'=\'',
+            line: 1,
+            column: 26,
+            index: 27
         });
-       fail('named await as identifier reference escaped', {
+        testErrorLocation('named await as identifier reference escaped', {
             source: `var gen = async function *g() { void \\u0061wait; };`,
-            next: true
+            next: true,
+            message: 'Unexpected escaped keyword',
+            line: 1,
+            column: 37,
+            index: 47
         });
-       fail('`await` is used as binding identifier', {
+        testErrorLocation('`await` is used as binding identifier', {
             source: `(async function* await() { });`,
-            next: true
+            next: true,
+            message: '\'await\' may not be used as an identifier in this context',
+            line: 1,
+            column: 17,
+            index: 22
         });
-       fail('\\u0061sync function* f(){}', {
+        testErrorLocation('\\u0061sync function* f(){}', {
             source: `\\u0061sync function* f(){}`,
-            next: true
+            next: true,
+            message: 'Unexpected escaped keyword',
+            line: 1,
+            column: 0,
+            index: 10
         });
-       fail('f = async function* h([...[ x ] = []] = []) { }', {
+        testErrorLocation('f = async function* h([...[ x ] = []] = []) { }', {
             source: `f = async function* h([...[ x ] = []] = []) { }`,
-            next: true
+            next: true,
+            message: 'Unexpected token \'=\'',
+            line: 1,
+            column: 22,
+            index: 23
         });
        fail('"use strict"; (async function* eval() { });', {
             source: `"use strict"; (async function* eval() { });`,
@@ -79,18 +107,26 @@ describe('Next - Asynchronous Iteration', () => {
             source: `async function *() { yield; }`,
             next: true
         });
-       fail('async function*() { yield 1; };', {
+       testErrorLocation('async function*() { yield 1; };', {
             source: `async function*() { yield 1; };`,
-            next: true
+            next: true,
+            message: 'Function statement requires a name',
+            line: 1,
+            column: 15,
+            index: 16
         });
 
-       fail('async generator await as binding identifier escaped', {
+        testErrorLocation('async generator await as binding identifier escaped', {
             source: `var obj = {
             async *method() {
               var \\u0061wait;
             }
           };`,
-            next: true
+            next: true,
+            message: 'Unexpected token \'await\'',
+            line: 3,
+            column: 18,
+            index: 70
         });
 
        pass(`async function *g() { yield; }`, {

@@ -1,26 +1,46 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Next - Dynamic Import', () => {
 
-        fail('direct calls', {
+    testErrorLocation('direct calls', {
             source: `function failsParse() { return import.then(); }`,
-            next: true
+            next: true,
+            message: 'Unexpected token',
+            line: 1,
+            column: 38,
+            index: 42 
         });
-        fail('import call many arguments', {
+        testErrorLocation('import call many arguments', {
             source: `import(x, y).then(z);`,
-            next: true
+            next: true,
+            message: 'Dynamic import must have one specifier as an argument',
+            line: 1,
+            column: 12,
+            index: 13 
         });
-        fail('non callee', {
+        testErrorLocation('non callee', {
             source: `import.then(doLoad);`,
-            next: true
+            next: true,
+            message: 'Unexpected token',
+            line: 1,
+            column: 7,
+            index: 11 
         });
-        fail('import call no arguments', {
+        testErrorLocation('import call no arguments', {
             source: `import().then(doThat);`,
-            next: true
+            next: true,
+            message: 'Dynamic import must have one specifier as an argument',
+            line: 1,
+            column: 8,
+            index: 9
         });
-        fail('invalid new import call', {
+        testErrorLocation('invalid new import call', {
             source: `import.ariya`,
-            next: true
+            next: true,
+            message: 'Unexpected token',
+            line: 1,
+            column: 7,
+            index: 12 
         });
         fail('no arguments', {
             source: `import.ariya`,
