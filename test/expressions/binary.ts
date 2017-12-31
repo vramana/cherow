@@ -2383,7 +2383,7 @@ describe('Expressions - Binary', () => {
             }
         });
 
-        testErrorLocation(`-x ** y`, {
+    testErrorLocation(`-x ** y`, {
             source: '-x ** y',
             message: 'Unexpected token \'**\'',
             line: 1,

@@ -9,46 +9,46 @@ describe('Expressions - Exponentiation', () => {
           column: 3,
           index: 5
       });
-      testErrorLocation(`delete o.p ** 2;`, {
+    testErrorLocation(`delete o.p ** 2;`, {
           source: 'delete o.p ** 2;',
           message: 'Unexpected token \'**\'',
           line: 1,
           column: 11,
           index: 13
       });
-      fail(`!1 ** 2;`, {
+    fail(`!1 ** 2;`, {
           source: '!1 ** 2;',
       });
-      fail(`-3 ** 2;`, {
+    fail(`-3 ** 2;`, {
           source: '-3 ** 2;',
       });
-      fail(`+1 ** 2;`, {
+    fail(`+1 ** 2;`, {
           source: '+1 ** 2;',
       });
-      fail(`typeof 1 ** 2;`, {
+    fail(`typeof 1 ** 2;`, {
           source: 'typeof 1 ** 2;',
       });
-      fail(`void 1 ** 2;`, {
+    fail(`void 1 ** 2;`, {
           source: 'void 1 ** 2;',
       });
 
-      fail(`~3 ** 2;`, {
+    fail(`~3 ** 2;`, {
           source: '~3 ** 2;',
       });
 
-      fail(`void x ** y`, {
+    fail(`void x ** y`, {
           source: 'void x ** y',
       });
 
-      fail(`delete x ** y`, {
+    fail(`delete x ** y`, {
           source: 'delete x ** y',
       });
 
-      fail(`-x ** y`, {
+    fail(`-x ** y`, {
           source: '-x ** y',
       });
 
-      pass(`-(3 ** 2)`, {
+    pass(`-(3 ** 2)`, {
           source: '-(3 ** 2)',
           loc: true,
           ranges: true,
@@ -153,7 +153,7 @@ describe('Expressions - Exponentiation', () => {
           }
       });
 
-      pass(`2 ** typeof 1`, {
+    pass(`2 ** typeof 1`, {
           source: '2 ** typeof 1',
           loc: true,
           ranges: true,
@@ -258,7 +258,7 @@ describe('Expressions - Exponentiation', () => {
           }
       });
 
-      pass(`2 ** +s`, {
+    pass(`2 ** +s`, {
           source: '2 ** +s',
           loc: true,
           ranges: true,
@@ -362,7 +362,7 @@ describe('Expressions - Exponentiation', () => {
           }
       });
 
-      pass(`2 ** -1 * 2`, {
+    pass(`2 ** -1 * 2`, {
           source: '2 ** -1 * 2',
           loc: true,
           ranges: true,
@@ -500,7 +500,7 @@ describe('Expressions - Exponentiation', () => {
           }
       });
 
-      pass(`16 / 2 ** 2`, {
+    pass(`16 / 2 ** 2`, {
           source: '16 / 2 ** 2',
           loc: true,
           ranges: true,
@@ -621,7 +621,7 @@ describe('Expressions - Exponentiation', () => {
           }
       });
 
-      pass(`2 ** ++exponent`, {
+    pass(`2 ** ++exponent`, {
           source: '2 ** ++exponent',
           loc: true,
           ranges: true,
@@ -725,7 +725,7 @@ describe('Expressions - Exponentiation', () => {
           }
       });
 
-      pass(`2 ** 2 * 4, 16`, {
+    pass(`2 ** 2 * 4, 16`, {
           source: '2 ** 2 * 4, 16',
           loc: true,
           ranges: true,
@@ -879,7 +879,7 @@ describe('Expressions - Exponentiation', () => {
           }
       });
 
-      pass(`3 * 2 ** 3, 24`, {
+    pass(`3 * 2 ** 3, 24`, {
           source: '3 * 2 ** 3, 24',
           loc: true,
           ranges: true,
@@ -1033,7 +1033,7 @@ describe('Expressions - Exponentiation', () => {
           }
       });
 
-      pass(`(2 ** 3) === 8`, {
+    pass(`(2 ** 3) === 8`, {
           source: '(2 ** 3) === 8',
           loc: true,
           ranges: true,
@@ -1154,7 +1154,7 @@ describe('Expressions - Exponentiation', () => {
           }
       });
 
-      pass(`x ** ~y`, {
+    pass(`x ** ~y`, {
           source: 'x ** ~y',
           loc: true,
           ranges: true,
@@ -1257,7 +1257,7 @@ describe('Expressions - Exponentiation', () => {
           }
       });
 
-      pass(`x ** !y`, {
+    pass(`x ** !y`, {
           source: 'x ** !y',
           loc: true,
           ranges: true,
@@ -1360,7 +1360,7 @@ describe('Expressions - Exponentiation', () => {
           }
       });
 
-      pass(`(++x ** y) - (--p ** q)`, {
+    pass(`(++x ** y) - (--p ** q)`, {
           source: '(++x ** y) - (--p ** q)',
           loc: true,
           ranges: true,
@@ -1544,7 +1544,7 @@ describe('Expressions - Exponentiation', () => {
           }
       });
 
-      pass(`x ** ++y`, {
+    pass(`x ** ++y`, {
           source: 'x ** ++y',
           loc: true,
           ranges: true,
