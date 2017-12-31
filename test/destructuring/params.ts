@@ -4,34 +4,66 @@ describe('Destructuring - Params', () => {
 
   fail(`function foo(({})) {}`, {
       source: 'function foo(({})) {}',
+      message:  'Unexpected token \'(\'',
+      line: 1,
+      column: 13,
+      index: 14
   });
 
   fail(`function foo([x}) {}`, {
       source: 'function foo([x}) {}',
+      message: 'Unexpected token',
+      line: 1,
+      column: 13,
+      index: 14
   });
 
   fail(`function foo([super()]) {}`, {
       source: 'function foo([super()]) {}',
+      message: 'Unexpected token \'super\'',
+      line: 1,
+      column: 13,
+      index: 14
   });
 
   fail(`function foo([x], {x:x}) {}`, {
       source: 'function foo([x], {x:x}) {}',
+      message: '\'x\' has already been declared ',
+      line: 1,
+      column: 18,
+      index: 19
   });
 
   fail(`function foo([x], x) {}`, {
       source: 'function foo([x], x) {}',
+      message: '\'x\' has already been declared ',
+      line: 1,
+      column: 13,
+      index: 14
   });
 
   fail(`function foo(x, [x]) {}`, {
       source: 'function foo(x, [x]) {}',
+      message: '\'x\' has already been declared ',
+      line: 1,
+      column: 16,
+      index: 17
   });
 
   fail(`function foo({x:{z:[z1]}}, z1) {}`, {
       source: 'function foo({x:{z:[z1]}}, z1) {}',
+      message: '\'z1\' has already been declared ',
+      line: 1,
+      column: 13,
+      index: 14
   });
 
   fail(`function foo([x]) { let x = 10;}`, {
       source: 'function foo([x]) { let x = 10;}',
+      message: '\'x\' has already been declared ',
+      line: 1,
+      column: 13,
+      index: 14
   });
 
   pass(`function foo({x1:x1 = 1, x2:x2 = 2, x3:x3 = 3}) {}`, {

@@ -4,6 +4,10 @@ describe('Expressions - Spread', () => {
 
     fail(`[...a, b] = c;`, {
         source: '[...a, b] = c;',
+        message: 'Invalid left-hand side in assignment',
+        line: 1,
+        column: 5,
+        index: 6
     });
 
     pass(`[{ a, b }, ...c] = d;`, {

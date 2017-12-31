@@ -1,10 +1,10 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 import * as t from 'assert';
 import { parseScript, parseModule } from '../../src/cherow';
 
 describe('Miscellaneous - API', () => {
 
-         testErrorLocation(`JSX syntax by default`, {
+         fail(`JSX syntax by default`, {
             source: `<head/>`,
             message: 'Unexpected token \'<\'',
             line: 1,
@@ -12,12 +12,12 @@ describe('Miscellaneous - API', () => {
             index: 1
         });
 
-        fail(`JSX syntax by default (module)`, {
+         fail(`JSX syntax by default (module)`, {
             source: `<head/>`,
             module: true
         });
 
-        it('Should handle source on node', () => {
+         it('Should handle source on node', () => {
 
             const parser = parseScript('1', {
                 source: 'foo'
@@ -34,8 +34,8 @@ describe('Miscellaneous - API', () => {
                 type: 'Program',
             });
         });
-        
-        pass(`source option on location node`, {
+
+         pass(`source option on location node`, {
             source: `function f(){}`,
             ranges: true,
             loc: true,

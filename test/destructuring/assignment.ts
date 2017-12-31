@@ -7229,6 +7229,10 @@ describe('Destructuring - Assignment', () => {
 
             fail(`({a} += 0);`, {
                 source: '({a} += 0);',
+                message: 'Invalid left-hand side in assignment',
+                line: 1,
+                column: 0,
+                index: 1
             });
 
             fail(`({a,,} = 0)`, {

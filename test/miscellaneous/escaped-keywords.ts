@@ -2,31 +2,59 @@ import { pass, fail } from '../utils';
 
 describe('Miscellaneous - Escaped keywords', () => {
 
+        // Only error location testing for the most complex programs are needed
+
         fail('var gen = async function *() { \\u0061wait: ;   };', {
             source: 'var gen = async function *() { \\u0061wait: ;   };',
-            next: true
+            next: true,
+            message: 'Unexpected escaped keyword',
+            line: 1,
+            column: 31,
+            index: 41
         });
 
         fail('var \\u{64}ebugger = 123;', {
-            source: 'var \\u{64}ebugger = 123;'
+            source: 'var \\u{64}ebugger = 123;',
+            next: true,
+            message: 'Unexpected token \'debugger\'',
+            line: 1,
+            column: 4,
+            index: 17
         });
 
         fail('var def\\u{61}ult = 123;', {
-            source: 'var def\\u{61}ult = 123;'
+            source: 'var def\\u{61}ult = 123;',
+            next: true,
+            message: 'Unexpected token \'default\'',
+            line: 1,
+            column: 4,
+            index: 16
         });
 
         fail('var expor\\u0074 = 123;', {
             source: 'var expor\\u0074 = 123;',
-            module: true
+            module: true,
+            message: 'Unexpected token \'export\'',
+            line: 1,
+            column: 4,
+            index: 15
         });
 
         fail('var \\u0069\\u0066 = 123;', {
             source: 'var \\u0069\\u0066 = 123;',
-            module: true
+            module: true,
+            message: 'Unexpected token \'if\'',
+            line: 1,
+            column: 4,
+            index: 16
         });
 
         fail('var n\\u0065w = 123;', {
             source: 'var n\\u0065w = 123;',
+            message: 'Unexpected token \'new\'',
+            line: 1,
+            column: 4,
+            index: 12
         });
 
         fail('var \\u006eull = 123;', {
@@ -59,6 +87,10 @@ describe('Miscellaneous - Escaped keywords', () => {
 
         fail('var fn = async function fn() { var \\u0061wait;  };', {
             source: 'var fn = async function fn() { var \\u0061wait;  };',
+            message: 'Unexpected token \'await\'',
+            line: 1,
+            column: 35,
+            index: 45
         });
 
         fail('"use strict"; var \\u0069mplements = 123;', {
@@ -74,7 +106,11 @@ describe('Miscellaneous - Escaped keywords', () => {
         });
 
         fail('"use strict"; var \\u0073\\u0074\\u0061\\u0074\\u0069\\u0063 = 123;', {
-            source: '"use strict"; var \\u0073\\u0074\\u0061\\u0074\\u0069\\u0063 = 123;'
+            source: '"use strict"; var \\u0073\\u0074\\u0061\\u0074\\u0069\\u0063 = 123;',
+            message: 'Unexpected token \'static\'',
+            line: 1,
+            column: 18,
+            index: 54
         });
 
         fail('"use strict"; var \\u0079ield = 123;', {
@@ -98,11 +134,19 @@ describe('Miscellaneous - Escaped keywords', () => {
         });
 
         fail('nul\\u006c = 0;', {
-            source: 'nul\\u006c = 0;'
+            source: 'nul\\u006c = 0;',
+            message: 'Unexpected escaped keyword',
+            line: 1,
+            column: 0,
+            index: 9
         });
 
         fail('tru\\u0065 = 0;', {
-            source: 'tru\\u0065 = 0;'
+            source: 'tru\\u0065 = 0;',
+            message: 'Unexpected escaped keyword',
+            line: 1,
+            column: 0,
+            index: 9
         });
 
         fail('f\\u0061lse: ;', {
@@ -172,7 +216,11 @@ describe('Miscellaneous - Escaped keywords', () => {
         });
 
         fail('class X { static \\u0061sync x() { await x } }', {
-            source: 'class X { static \\u0061sync x() { await x } }'
+            source: 'class X { static \\u0061sync x() { await x } }',
+            message: 'Invalid Unicode escape sequence',
+            line: 1,
+            column: 17,
+            index: 27
         });
 
         fail('({ ge\\u0074 x() {} })', {

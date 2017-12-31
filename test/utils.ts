@@ -3,28 +3,27 @@ import { join, resolve, extname, basename } from 'path';
 import { parseScript, parseModule, version } from '../src/cherow';
 import { Program } from '../src/estree';
 import * as t from 'assert';
-
 interface Opts {
     source: string;
-    expected?: any;
+    expected ?: any;
     module ?: boolean;
     next ?: boolean;
     raw ?: boolean;
     ranges ?: boolean;
     loc ?: boolean;
-    tolerant?: boolean;
-    plugins?: any;
-    directives?: any;
-    jsx?: boolean;
-    comments?: any;
-    attach?: any;
-    globalReturn?: boolean;
-    impliedStrict?: boolean;
-    attachComment?: boolean;
-    message?: any;
-    line?: any;
-    column?: any;
-    index?: any;
+    tolerant ?: boolean;
+    plugins ?: any;
+    directives ?: any;
+    jsx ?: boolean;
+    comments ?: any;
+    attach ?: any;
+    globalReturn ?: boolean;
+    impliedStrict ?: boolean;
+    attachComment ?: boolean;
+    message ?: any;
+    line ?: any;
+    column ?: any;
+    index ?: any;
 }
 
 export const pass = (name: string, opts: Opts) => {
@@ -46,9 +45,9 @@ export const pass = (name: string, opts: Opts) => {
     };
 
     it('Should pass "' + name + '"', () => {
-        opts.module
-        ? t.deepEqual(parseModule(opts.source, CherowOpts) as Program, opts.expected)
-        : t.deepEqual(parseScript(opts.source, CherowOpts) as Program, opts.expected);
+        opts.module ?
+            t.deepEqual(parseModule(opts.source, CherowOpts) as Program, opts.expected) :
+            t.deepEqual(parseScript(opts.source, CherowOpts) as Program, opts.expected);
     });
 };
 
@@ -64,11 +63,14 @@ export const fail = (name: string, opts: Opts) => {
 
     it('Should fail on ' + name, () => {
 
-        t.throws(() => {
-            opts.module
-            ? t.deepEqual(parseModule(opts.source, CherowOpts), opts.expected)
-            : t.deepEqual(parseScript(opts.source, CherowOpts), opts.expected);
-        });
+        try {
+            opts.module ?
+                t.deepEqual(parseModule(opts.source, CherowOpts), opts.expected) :
+                t.deepEqual(parseScript(opts.source, CherowOpts), opts.expected);
+        } catch (e) {
+            return;
+        }
+        throw new Error('Expecting error');
     });
 };
 
@@ -89,28 +91,30 @@ export const testErrorLocation = (name: string, opts: Opts) => {
         attachComment: opts.attachComment
     };
     it('Should fail on ' + name, () => {
-      try {
-        opts.module
-        ? t.deepEqual(parseModule(opts.source, CherowOpts), opts.expected)
-        : t.deepEqual(parseScript(opts.source, CherowOpts), opts.expected);
-      } catch (e) {
-          t.equal(e.description, opts.message);
-          t.equal(e.lineNumber, opts.line);
-          t.equal(e.column, opts.column);
-          t.equal(e.index, opts.index);
-          return;
-      }
-      throw new Error('Expecting error');
+        try {
+            opts.module ?
+                t.deepEqual(parseModule(opts.source, CherowOpts), opts.expected) :
+                t.deepEqual(parseScript(opts.source, CherowOpts), opts.expected);
+        } catch (e) {
+            t.equal(e.description, opts.message);
+            t.equal(e.lineNumber, opts.line);
+            t.equal(e.column, opts.column);
+            t.equal(e.index, opts.index);
+            return;
+        }
+        throw new Error('Expecting error');
     });
-  };
+};
 
-it('version should be a string value' , () => {
+it('version should be a string value', () => {
     // Version hasn't been replaced by Rollup at this stage
-        t.equal(version, 'VERSION');
-    });
+    t.equal(version, 'VERSION');
+});
 
-export function n(type: string, opts?: any): any {
-    if (opts == null) return {type};
+export function n(type: string, opts ?: any): any {
+    if (opts == null) return {
+        type
+    };
     opts.type = type;
     return opts;
 }

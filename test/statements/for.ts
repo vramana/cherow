@@ -3428,12 +3428,12 @@ describe('Statements - For', () => {
             }
         });
 
-        /*fail(`for (let x; false; ) { var x; }`, {
-            source: 'for (let x; false; ) { var x; }',
-        }); */
-
         fail(`for (const x; false; ) { var x; }`, {
             source: 'for (const x; false; ) { var x; }',
+            message: 'Missing initializer',
+            line: 1,
+            column: 12,
+            index: 13
         });
 
         fail(`for(let let;;);`, {

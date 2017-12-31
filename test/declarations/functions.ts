@@ -4,24 +4,34 @@ describe('Declarations - Functions', () => {
 
     fail(`function arguments() { 'use strict'; };`, {
         source: 'function arguments() { "use strict"; };',
+        message: 'Unexpected eval or arguments in strict mode',
+        line: 1,
+        column: 9,
+        index: 18
     });
 
     fail(`function arguments() { 'use strict'; };`, {
         source: 'function eval() { "use strict"; };',
+        message: 'Unexpected eval or arguments in strict mode',
+        line: 1,
+        column: 9,
+        index: 13
     });
 
     fail(`(function(...a, b){})`, {
         source: '(function(...a, b){})',
-        loc: true,
-        ranges: true,
-        raw: true
+        message: 'Rest parameter must be last formal parameter',
+        line: 1,
+        column: 10,
+        index: 13
     });
 
     fail(`(function((a)){})`, {
         source: '(function((a)){})',
-        loc: true,
-        ranges: true,
-        raw: true
+        message: 'Unexpected token \'(\'',
+        line: 1,
+        column: 10,
+        index: 11
     });
 
     pass(`function f() { [ a [ function () { }, b ] ] = [2] ; }`, {

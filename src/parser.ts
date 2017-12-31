@@ -1922,7 +1922,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: any,
         node: any,
@@ -2680,7 +2680,7 @@ export class Parser {
 
         // Appearing of continue without an IterationStatement leads to syntax error
         if (!(this.flags & Flags.AllowContinue)) {
-            this.error(Errors.InvalidNestedStatement, tokenDesc(this.token))
+            this.error(Errors.InvalidNestedStatement, tokenDesc(this.token));
         }
         const pos = this.getLocations();
         const t = this.token;
@@ -2689,11 +2689,11 @@ export class Parser {
         let label: any = null;
         if (!(this.flags & Flags.LineTerminator) && this.token & Token.IsIdentifier) {
             label = this.parseIdentifierName(context, this.token);
-            let key = '$' + (label as ESTree.Identifier).name;
+            const key = '$' + (label as ESTree.Identifier).name;
             if (this.labelSet !== null && !this.labelSet[key]) {
                 this.error(Errors.UnknownLabel, (label as ESTree.Identifier).name);
             }
-        } 
+        }
 
         this.consumeSemicolon(context);
 
@@ -2719,7 +2719,7 @@ export class Parser {
                 this.error(Errors.UnknownLabel, (label as ESTree.Identifier).name);
             }
         } else if (!(this.flags & Flags.AllowBreak)) {
-            this.error(Errors.InvalidNestedStatement, tokenDesc(t))
+            this.error(Errors.InvalidNestedStatement, tokenDesc(t));
         }
 
         this.consumeSemicolon(context);
@@ -3057,7 +3057,7 @@ export class Parser {
             t = this.token;
 
             switch (t) {
-                
+
                 case Token.ContinueKeyword:
                     // continue's label when present must refer to a loop construct;
                     if (this.flags & Flags.AllowContinue) {
@@ -3074,7 +3074,7 @@ export class Parser {
                     if (context & Context.Strict) {
                         this.error(Errors.StrictFunction);
                     }
-                default: // ignore    
+                default: // ignore
             }
 
             const body = this.parseStatement(context | Context.AnnexB | Context.Declaration);
@@ -3563,7 +3563,7 @@ export class Parser {
                 // '.', '['
             case Token.LeftBracket:
             case Token.Period:
-                if (!(context & Context.Method )) {
+                if (!(context & Context.Method)) {
                     this.errorLocation = pos;
                     this.error(Errors.BadSuperCall);
                 }
@@ -3581,20 +3581,16 @@ export class Parser {
     private parseImportCall(context: Context, pos: Location) {
         const id = this.parseIdentifier(context);
 
-        switch (this.token) {
-
-            // Import.meta - Stage 3 proposal
-            case Token.Period:
-                if (!(context & Context.Module)) this.error(Errors.Unexpected);
-                this.expect(context, Token.Period);
-                if (this.tokenValue !== 'meta') this.error(Errors.Unexpected);
-                return this.parseMetaProperty(context, id, pos);
-
-            default:
-                return this.finishNode(context, pos, {
-                    type: 'Import'
-                });
+        // Import.meta - Stage 3 proposal
+        if (this.parseOptional(context, Token.Period)) {
+            if (!(context & Context.Module)) this.error(Errors.Unexpected);
+            if (this.tokenValue !== 'meta') this.error(Errors.Unexpected);
+            return this.parseMetaProperty(context, id, pos);
         }
+
+        return this.finishNode(context, pos, {
+            type: 'Import'
+        });
     }
 
     // 12.3 Left-Hand-Side Expressions
@@ -3647,7 +3643,6 @@ export class Parser {
                     {
 
                         this.expect(context, Token.Period);
-
                         const property = context & Context.Method && this.flags & Flags.OptionsNext && this.token === Token.Hash ?
                             this.parsePrivateName(context) : this.parseIdentifierName(context, this.token);
                         expr = this.finishNode(context, pos, {
