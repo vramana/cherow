@@ -1,8 +1,8 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Expressions - Spread', () => {
 
-    fail(`[...a, b] = c;`, {
+    testErrorLocation(`[...a, b] = c;`, {
         source: '[...a, b] = c;',
         message: 'Invalid left-hand side in assignment',
         line: 1,

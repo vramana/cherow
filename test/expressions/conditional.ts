@@ -1,13 +1,21 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Expressions - Conditional', () => {
 
-    fail(`for (true ? 0 : 0 in {}; false; ) ;`, {
+    testErrorLocation(`for (true ? 0 : 0 in {}; false; ) ;`, {
         source: 'for (true ? 0 : 0 in {}; false; ) ;',
+        message: 'Invalid left-hand side in for-loop',
+        line: 1,
+        column: 0,
+        index: 3
     });
 
-    fail(`for ("" in {} ? 0 : 0; false; ) ;`, {
+    testErrorLocation(`for ("" in {} ? 0 : 0; false; ) ;`, {
         source: 'for ("" in {} ? 0 : 0; false; ) ;',
+        message: 'Invalid left-hand side in for-loop',
+        line: 1,
+        column: 0,
+        index: 3
     });
 
     pass(`x = (0) ? 1 : 2`, {

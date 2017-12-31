@@ -2952,7 +2952,7 @@ Parser.prototype.parseExpressionOrLabeledStatement = function parseExpressionOrL
                 if (context & 2 /* Strict */) {
                     this.error(15 /* StrictFunction */);
                 }
-            default: // ignore    
+            default: // ignore
         }
         var body = this.parseStatement(context | 4096 /* AnnexB */ | 1024 /* Declaration */);
         this.labelSet[key] = false;
@@ -3099,6 +3099,7 @@ Parser.prototype.parseAssignmentExpression = function parseAssignmentExpression 
     if (this.token === 10 /* Arrow */ && (this.isIdentifier(context | 8 /* Arrow */, token))) {
         if (!(this.flags & 1 /* LineTerminator */)) {
             if (this.isEvalOrArguments(expr.name)) {
+                this.errorLocation = pos;
                 if (context & 2 /* Strict */)
                     { this.error(73 /* UnexpectedStrictReserved */); }
                 this.flags |= 1024 /* Binding */;
@@ -3207,8 +3208,10 @@ Parser.prototype.parseArrowFunctionExpression = function parseArrowFunctionExpre
         var this$1 = this;
 
     // A line terminator between ArrowParameters and the => should trigger a SyntaxError.
-    if (this.flags & 1 /* LineTerminator */)
-        { this.error(62 /* LineBreakAfterAsync */); }
+    if (this.flags & 1 /* LineTerminator */) {
+        this.errorLocation = this.getLocations();
+        this.error(62 /* LineBreakAfterAsync */);
+    }
     this.expect(context, 10 /* Arrow */);
     // Unsetting the 'AllowCall' mask here, let the parser fail correctly
     // if a non-simple arrow are followed by a call expression.
@@ -3264,6 +3267,7 @@ Parser.prototype.parseConditionalExpression = function parseConditionalExpressio
     var consequent = this.parseAssignmentExpression(context | 4 /* AllowIn */);
     this.expect(context, 21 /* Colon */);
     if (context & 4194304 /* ClassFields */ && this.isEvalOrArguments(this.tokenValue)) {
+        this.errorLocation = pos;
         this.error(73 /* UnexpectedStrictReserved */);
     }
     var alternate = this.parseAssignmentExpression(context);
@@ -3321,6 +3325,7 @@ Parser.prototype.parseUnaryExpression = function parseUnaryExpression (context) 
         if (context & 2 /* Strict */ && t === 4468779 /* DeleteKeyword */) {
             if (argument.type === 'Identifier' || (this.flags & 33554432 /* OptionsNext */ &&
                 !(context & 1 /* Module */) && this.isPrivateName(argument))) {
+                this.errorLocation = pos;
                 this.error(44 /* StrictDelete */);
             }
         }
@@ -3360,9 +3365,12 @@ Parser.prototype.parseUpdateExpression = function parseUpdateExpression (context
             { return expr; }
     }
     if (context & 2 /* Strict */ && this.isEvalOrArguments(expr.name)) {
+        if (!hasPrefix)
+            { this.errorLocation = pos; }
         this.error(hasPrefix ? 45 /* StrictLHSPrefix */ : 46 /* StrictLHSPostfix */);
     }
     if (!isValidSimpleAssignmentTarget(expr)) {
+        this.errorLocation = pos;
         this.error(hasPrefix ? 108 /* InvalidLhsInPrefixOp */ : 107 /* InvalidLhsInPostfixOp */);
     }
     return this.finishNode(context, pos, {
@@ -3401,20 +3409,17 @@ Parser.prototype.parseSuper = function parseSuper (context) {
 };
 Parser.prototype.parseImportCall = function parseImportCall (context, pos) {
     var id = this.parseIdentifier(context);
-    switch (this.token) {
-        // Import.meta - Stage 3 proposal
-        case 13 /* Period */:
-            if (!(context & 1 /* Module */))
-                { this.error(0 /* Unexpected */); }
-            this.expect(context, 13 /* Period */);
-            if (this.tokenValue !== 'meta')
-                { this.error(0 /* Unexpected */); }
-            return this.parseMetaProperty(context, id, pos);
-        default:
-            return this.finishNode(context, pos, {
-                type: 'Import'
-            });
+    // Import.meta - Stage 3 proposal
+    if (this.parseOptional(context, 13 /* Period */)) {
+        if (!(context & 1 /* Module */))
+            { this.error(0 /* Unexpected */); }
+        if (this.tokenValue !== 'meta')
+            { this.error(0 /* Unexpected */); }
+        return this.parseMetaProperty(context, id, pos);
     }
+    return this.finishNode(context, pos, {
+        type: 'Import'
+    });
 };
 // 12.3 Left-Hand-Side Expressions
 Parser.prototype.parseLeftHandSideExpression = function parseLeftHandSideExpression (context, pos) {
@@ -3549,9 +3554,10 @@ Parser.prototype.parseFunction = function parseFunction (context, prevContext /*
     if (t !== 262155 /* LeftParen */) {
         if (this.isIdentifier(context, t)) {
             if (this.isEvalOrArguments(this.tokenValue)) {
-                if (context & 2 /* Strict */)
-                    { this.error(35 /* StrictLHSAssignment */); }
                 this.errorLocation = this.getLocations();
+                if (context & 2 /* Strict */) {
+                    this.error(35 /* StrictLHSAssignment */);
+                }
                 context |= 67108864 /* StrictReserved */;
             }
             if (context & (8388608 /* Expression */ | 4096 /* AnnexB */)) {
@@ -4330,7 +4336,9 @@ Parser.prototype.parseObjectElement = function parseObjectElement (context) {
         state |= modifierState = 1 /* Yield */;
         this.expect(context, 270535219 /* Multiply */);
     }
+    // TODO! Move this!
     if (state & 2 /* Async */ && this.flags & 1 /* LineTerminator */) {
+        this.errorLocation = this.getLocations();
         this.error(62 /* LineBreakAfterAsync */);
     }
     if (this.token === 69742 /* ConstructorKeyword */) {
@@ -4688,6 +4696,7 @@ Parser.prototype.parseLiteral = function parseLiteral (context) {
     var value = this.tokenValue;
     var raw = this.tokenRaw;
     if (context & 2 /* Strict */ && this.flags & 32768 /* Octal */) {
+        this.errorLocation = pos;
         this.error(9 /* StrictOctalLiteral */);
     }
     var node = this.finishNode(context, pos, {
@@ -5285,7 +5294,7 @@ function parseScript(source, options) {
 function parseModule(source, options) {
     return new Parser(source, options).parseProgram(2 /* Strict */ | 1 /* Module */ | 134217728 /* TopLevel */);
 }
-var version = '0.20.6';
+var version = '0.21.0';
 
 exports.parseScript = parseScript;
 exports.parseModule = parseModule;

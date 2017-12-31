@@ -1,13 +1,21 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Expressions - Async arrow', () => {
 
-    fail(`({async\nfoo() { }})`, {
+    testErrorLocation(`({async\nfoo() { }})`, {
         source: '({async\nfoo() { }})',
+        message: 'No line break is allowed after async',
+        line: 2,
+        column: 0,
+        index: 11
     });
 
-    fail(`(async)(a) => 12`, {
+    testErrorLocation(`(async)(a) => 12`, {
         source: '(async)(a) => 12',
+        message: 'Unexpected token \'=>\'',
+        line: 1,
+        column: 11,
+        index: 13
     });
 
     fail(`f = async ((x)) => x`, {
@@ -39,16 +47,24 @@ describe('Expressions - Async arrow', () => {
         source: `\\u0061sync () => {}`,
     });
 
-    fail(`async\n() => a`, {
+    testErrorLocation(`async\n() => a`, {
         source: 'async\n() => a',
+        message: 'No line break is allowed after async',
+        line: 2,
+        column: 3,
+        index: 11
     });
 
     fail(`"use strict"; async(arguments) => {  }`, {
         source: '"use strict"; async(arguments) => {  }',
     });
 
-    fail(`async(await) => {  }`, {
+    testErrorLocation(`async(await) => {  }`, {
         source: 'async(await) => {  }',
+        message: '\'await\' is not allowed inside an async arrow\'s parameter list',
+        line: 1,
+        column: 6,
+        index: 11
     });
 
     fail(`"use strict"; async(a, a) => { }`, {
@@ -103,8 +119,12 @@ describe('Expressions - Async arrow', () => {
         source: 'async [a] => 1',
     });
 
-    fail(`async {a: b} => 1`, {
+    testErrorLocation(`async {a: b} => 1`, {
         source: 'async {a: b} => 1',
+        message:  'Unexpected token \'{\'',
+        line: 1,
+        column: 6,
+        index: 7
     });
 
     fail(`async a => await async X => Y`, {
@@ -141,6 +161,10 @@ describe('Expressions - Async arrow', () => {
 
     fail(`async () => {1} ? a : b`, {
         source: 'async () => {1} ? a : b',
+        message:  'Unexpected token \'{\'',
+        line: 1,
+        column: 6,
+        index: 7
     });
 
     pass(`async X => {yield}`, {

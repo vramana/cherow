@@ -1,12 +1,20 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Expressions - Exponentiation', () => {
 
-      fail(`~3 ** 2;`, {
+    testErrorLocation(`~3 ** 2;`, {
           source: '~3 ** 2;',
+          message: 'Unexpected token \'**\'',
+          line: 1,
+          column: 3,
+          index: 5
       });
-      fail(`delete o.p ** 2;`, {
+      testErrorLocation(`delete o.p ** 2;`, {
           source: 'delete o.p ** 2;',
+          message: 'Unexpected token \'**\'',
+          line: 1,
+          column: 11,
+          index: 13
       });
       fail(`!1 ** 2;`, {
           source: '!1 ** 2;',

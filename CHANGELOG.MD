@@ -102,3 +102,6 @@
 - Comment API follows Babylon / ESpree
 - Removed Acorn comment solution due to perf reasons
 - Performance fixes
+
+*2017-12-31: Version 0.21.0*
+- Fixed wrong error locations

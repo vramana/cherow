@@ -1,8 +1,8 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Destructuring - Params', () => {
 
-  fail(`function foo(({})) {}`, {
+  testErrorLocation(`function foo(({})) {}`, {
       source: 'function foo(({})) {}',
       message:  'Unexpected token \'(\'',
       line: 1,
@@ -10,7 +10,7 @@ describe('Destructuring - Params', () => {
       index: 14
   });
 
-  fail(`function foo([x}) {}`, {
+  testErrorLocation(`function foo([x}) {}`, {
       source: 'function foo([x}) {}',
       message: 'Unexpected token',
       line: 1,
@@ -18,7 +18,7 @@ describe('Destructuring - Params', () => {
       index: 14
   });
 
-  fail(`function foo([super()]) {}`, {
+  testErrorLocation(`function foo([super()]) {}`, {
       source: 'function foo([super()]) {}',
       message: 'Unexpected token \'super\'',
       line: 1,
@@ -26,7 +26,7 @@ describe('Destructuring - Params', () => {
       index: 14
   });
 
-  fail(`function foo([x], {x:x}) {}`, {
+  testErrorLocation(`function foo([x], {x:x}) {}`, {
       source: 'function foo([x], {x:x}) {}',
       message: '\'x\' has already been declared ',
       line: 1,
@@ -34,7 +34,7 @@ describe('Destructuring - Params', () => {
       index: 19
   });
 
-  fail(`function foo([x], x) {}`, {
+  testErrorLocation(`function foo([x], x) {}`, {
       source: 'function foo([x], x) {}',
       message: '\'x\' has already been declared ',
       line: 1,
@@ -42,7 +42,7 @@ describe('Destructuring - Params', () => {
       index: 14
   });
 
-  fail(`function foo(x, [x]) {}`, {
+  testErrorLocation(`function foo(x, [x]) {}`, {
       source: 'function foo(x, [x]) {}',
       message: '\'x\' has already been declared ',
       line: 1,
@@ -50,7 +50,7 @@ describe('Destructuring - Params', () => {
       index: 17
   });
 
-  fail(`function foo({x:{z:[z1]}}, z1) {}`, {
+  testErrorLocation(`function foo({x:{z:[z1]}}, z1) {}`, {
       source: 'function foo({x:{z:[z1]}}, z1) {}',
       message: '\'z1\' has already been declared ',
       line: 1,
@@ -58,7 +58,7 @@ describe('Destructuring - Params', () => {
       index: 14
   });
 
-  fail(`function foo([x]) { let x = 10;}`, {
+  testErrorLocation(`function foo([x]) { let x = 10;}`, {
       source: 'function foo([x]) { let x = 10;}',
       message: '\'x\' has already been declared ',
       line: 1,

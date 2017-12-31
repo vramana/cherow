@@ -1,142 +1,162 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Expressions - Async function', () => {
 
-     fail(`"use strict"; (async function eval () { })`, {
+    testErrorLocation(`"use strict"; (async function eval () { })`, {
         source: '"use strict"; (async function eval () { })',
+        message: 'Eval or arguments can\'t be assigned to in strict mode code',
+        line: 1,
+        column: 30,
+        index: 34
     });
 
-     fail(`(async function foo (foo) { super() })`, {
+    testErrorLocation(`(async function foo (foo) { super() })`, {
         source: '(async function foo (foo) { super() })',
+        message: 'super() is only valid in derived class constructors',
+        line: 1,
+        column: 28,
+        index: 33
     });
 
-     fail(`(async function foo (bar) { let bar; });`, {
+    testErrorLocation(`(async function foo (bar) { let bar; });`, {
         source: '(async function foo (bar) { let bar; });',
+        message:  '\'bar\' has already been declared ',
+        line: 1,
+        column: 0,
+        index: 1
     });
 
-     fail(`(async function foo() { } = 1)`, {
+    fail(`(async function foo() { } = 1)`, {
         source: '(async function foo() { } = 1)',
     });
 
-     fail(`void \\u0061sync function f(){}`, {
+    fail(`void \\u0061sync function f(){}`, {
         source: 'void \\u0061sync function f(){}',
     });
 
-     fail(`async function foo() { (await 1) = 1; }`, {
+    fail(`async function foo() { (await 1) = 1; }`, {
         source: 'async function foo() { (await 1) = 1; }',
         next: true
     });
 
-     fail(`async function af(x, x) { }`, {
+    fail(`async function af(x, x) { }`, {
         source: 'async function af(x, x) { }',
         next: true
     });
 
-     fail(`async function af(x) { const x = 1; }`, {
+    fail(`async function af(x) { const x = 1; }`, {
         source: 'async function af(x) { const x = 1; }',
         next: true
     });
 
-     fail(`async function af(x) { class x { } }`, {
+    fail(`async function af(x) { class x { } }`, {
         source: 'async function af(x) { class x { } }',
         next: true
     });
 
-     fail(`async function af() { var a = (x, await, y) => { }; }`, {
+    fail(`async function af() { var a = (x, await, y) => { }; }`, {
         source: 'async function af() { var a = (x, await, y) => { }; }',
         next: true
     });
 
-     fail(`async function af() { var a = (x, y, z = await 0) => { }; }`, {
+    fail(`async function af() { var a = (x, y, z = await 0) => { }; }`, {
         source: 'async function af() { var a = (x, y, z = await 0) => { }; }',
         next: true
     });
 
-     fail(`function () { a = async await => { } }`, {
+    testErrorLocation(`function () { a = async await => { } }`, {
         source: 'function () { a = async await => { } }',
-        next: true
+        next: true,
+        message: 'Function statement requires a name',
+        line: 1,
+        column: 9,
+        index: 10
     });
 
-     fail(`async () => { (x, y, z = await 0) => { }; }`, {
+    fail(`async () => { (x, y, z = await 0) => { }; }`, {
         source: 'async () => { (x, y, z = await 0) => { }; }',
         next: true
     });
 
-     fail(`(async function foo() { } = 1)`, {
+    fail(`(async function foo() { } = 1)`, {
         source: '(async function foo() { } = 1)',
     });
 
-     fail(`async function foo() { (await 1) = 1; }`, {
+    fail(`async function foo() { (await 1) = 1; }`, {
         source: 'async function foo() { (await 1) = 1; }',
     });
 
-     fail(`async function wrap() { async function await() { } };`, {
+    fail(`async function wrap() { async function await() { } };`, {
         source: 'async function wrap() { async function await() { } };',
     });
 
-     fail(`async function wrap() { async function await() { } };`, {
+    fail(`async function wrap() { async function await() { } };`, {
         source: 'async function wrap() { async function await() { } };',
     });
 
-     fail(`async function wrap() { async function await() { } };`, {
+    fail(`async function wrap() { async function await() { } };`, {
         source: 'async function wrap() { async function await() { } };',
     });
 
-     fail(`async function wrap() { async function await() { } };`, {
+    fail(`async function wrap() { async function await() { } };`, {
         source: 'async function wrap() { async function await() { } };',
     });
 
-     fail(`async function foo(await) { };`, {
+    fail(`async function foo(await) { };`, {
         source: 'async function foo(await) { };',
     });
 
-     fail(`(async function foo(await) { });`, {
+    fail(`(async function foo(await) { });`, {
         source: '(async function foo(await) { });',
     });
 
-     fail(`async function* foo() { }`, {
+    testErrorLocation(`async function* foo() { }`, {
         source: `async function* foo() { }`, module: true,
+        message: 'Generator function or method can\'t be async',
+        line: 1,
+        column: 14,
+        index: 15
     });
 
-     fail(`async function foo(await) { }`, {
+    fail(`async function foo(await) { }`, {
         source: 'async function foo(await) { }',
     });
 
-     fail(`"(async\nfunction foo() { })`, {
+    fail(`"(async\nfunction foo() { })`, {
         source: '"(async\nfunction foo() { })',
     });
 
-     fail(`(async function foo(await) { })`, {
+    fail(`(async function foo(await) { })`, {
         source: '(async function foo(await) { })',
     });
 
-     fail(`(async function foo() { return {await} })`, {
+    fail(`(async function foo() { return {await} })`, {
         source: '(async function foo() { return {await} })',
     });
 
-     fail(`(async function foo(a = await b) {})`, {
+    fail(`(async function foo(a = await b) {})`, {
         source: '(async function foo(a = await b) {})',
     });
 
-     fail(`export async function() {}`, {
+    fail(`export async function() {}`, {
       source: 'export async function() {}',
       module: true
   });
 
-     fail(`async function *f() {}`, {
+    fail(`async function *f() {}`, {
     source: 'async function *f() {}',
 });
 
-     fail(`async while (1) {}`, {
+    fail(`async while (1) {}`, {
   source: 'async while (1) {}',
 });
 
-     fail(`async function *f() {}`, {
+    fail(`async function *f() {}`, {
   source: `(async
     function f() {})`,
 });
 
-     pass(`(async function ref(a, b = 39,) {});`, {
+    pass(`(async function ref(a, b = 39,) {});`, {
   source: '(async function ref(a, b = 39,) {});',
   ranges: true,
   raw: true,
@@ -292,7 +312,7 @@ describe('Expressions - Async function', () => {
 }
 });
 
-     pass(`export default async function() {}`, {
+    pass(`export default async function() {}`, {
   source: 'export default async function() {}',
   ranges: true,
   raw: true,
@@ -369,7 +389,7 @@ describe('Expressions - Async function', () => {
 }
 });
 
-     pass(`export async function f() {}`, {
+    pass(`export async function f() {}`, {
   source: 'export async function f() {}',
   ranges: true,
   raw: true,
@@ -463,7 +483,7 @@ describe('Expressions - Async function', () => {
 }
 });
 
-     pass(`export async function f(a) { await a }`, {
+    pass(`export async function f(a) { await a }`, {
   source: 'export async function f(a) { await a }',
   ranges: true,
   raw: true,
@@ -621,7 +641,7 @@ describe('Expressions - Async function', () => {
 }
 });
 
-     pass(`a = async function f() {}`, {
+    pass(`a = async function f() {}`, {
   source: 'a = async function f() {}',
   ranges: true,
   raw: true,
@@ -744,7 +764,7 @@ describe('Expressions - Async function', () => {
 }
 });
 
-     pass(`x = async function(a) { await a }`, {
+    pass(`x = async function(a) { await a }`, {
   source: 'x = async function(a) { await a }',
   ranges: true,
   raw: true,
@@ -916,7 +936,7 @@ describe('Expressions - Async function', () => {
 }
 });
 
-     pass(`f(async function(x) { await x })`, {
+    pass(`f(async function(x) { await x })`, {
   source: 'f(async function(x) { await x })',
   ranges: true,
   raw: true,
@@ -1089,7 +1109,7 @@ describe('Expressions - Async function', () => {
 }
 });
 
-     pass(`f(b, async function(b) { await b }, c)`, {
+    pass(`f(b, async function(b) { await b }, c)`, {
   source: 'f(b, async function(b) { await b }, c)',
   ranges: true,
   raw: true,
@@ -1294,7 +1314,7 @@ describe('Expressions - Async function', () => {
 }
 });
 
-     pass(`async function foo(a = async () => await b) {}`, {
+    pass(`async function foo(a = async () => await b) {}`, {
             source: 'async function foo(a = async () => await b) {}',
             ranges: true,
             raw: true,
@@ -1453,7 +1473,7 @@ describe('Expressions - Async function', () => {
             }
         });
 
-     pass(`async function foo(a = {async bar() { await b }}) {}`, {
+    pass(`async function foo(a = {async bar() { await b }}) {}`, {
             source: 'async function foo(a = {async bar() { await b }}) {}',
             ranges: true,
             loc: true,
@@ -1696,7 +1716,7 @@ describe('Expressions - Async function', () => {
             }
         });
 
-     pass(`async function foo(a = class {async bar() { await b }}) {}`, {
+    pass(`async function foo(a = class {async bar() { await b }}) {}`, {
             source: 'async function foo(a = class {async bar() { await b }}) {}',
             loc: true,
             ranges: true,
@@ -1955,7 +1975,7 @@ describe('Expressions - Async function', () => {
             }
         });
 
-     pass(`async function foo(a, b) { await a }`, {
+    pass(`async function foo(a, b) { await a }`, {
             source: 'async function foo(a, b) { await a }',
             loc: true,
             ranges: true,
@@ -2111,7 +2131,7 @@ describe('Expressions - Async function', () => {
             }
         });
 
-     pass(`async function await() { }`, {
+    pass(`async function await() { }`, {
             source: 'async function await() { }',
             loc: true,
             ranges: true,
@@ -2186,7 +2206,7 @@ describe('Expressions - Async function', () => {
             }
         });
 
-     pass(`a = async function f() {}`, {
+    pass(`a = async function f() {}`, {
             source: 'a = async function f() {}',
             loc: true,
             ranges: true,
@@ -2307,7 +2327,7 @@ describe('Expressions - Async function', () => {
           }
         });
 
-     pass(`a = async function() {}`, {
+    pass(`a = async function() {}`, {
             source: 'a = async function() {}',
             loc: true,
             ranges: true,
@@ -2413,7 +2433,7 @@ describe('Expressions - Async function', () => {
           }
         });
 
-     pass(`function f() { async function yield() {} }`, {
+    pass(`function f() { async function yield() {} }`, {
             source: 'function f() { async function yield() {} }',
             loc: true,
             ranges: true,
@@ -2541,7 +2561,7 @@ describe('Expressions - Async function', () => {
             }
         });
 
-     pass(`function* g() { (async function yield() {}); }`, {
+    pass(`function* g() { (async function yield() {}); }`, {
             source: 'function* g() { (async function yield() {}); }',
             raw: true,
             expected: {
@@ -2586,7 +2606,7 @@ describe('Expressions - Async function', () => {
                 }
         });
 
-     pass(`function f() { (async function yield() {}); }`, {
+    pass(`function f() { (async function yield() {}); }`, {
             source: 'function f() { (async function yield() {}); }',
             raw: true,
             loc: true,
@@ -2729,7 +2749,7 @@ describe('Expressions - Async function', () => {
               }
         });
 
-     pass(`function f() { ({ async yield() {} }); }`, {
+    pass(`function f() { ({ async yield() {} }); }`, {
             source: 'function f() { ({ async yield() {} }); }',
             loc: true,
             ranges: true,
@@ -2909,7 +2929,7 @@ describe('Expressions - Async function', () => {
             }
         });
 
-     pass(`'use strict'; ({ async yield() {} });`, {
+    pass(`'use strict'; ({ async yield() {} });`, {
             source: '"use strict"; ({ async yield() {} });',
             loc: true,
             ranges: true,
@@ -3070,7 +3090,7 @@ describe('Expressions - Async function', () => {
             }
         });
 
-     pass(`({ async [yield]() {} });`, {
+    pass(`({ async [yield]() {} });`, {
             source: '({ async [yield]() {} });',
             loc: true,
             ranges: true,
@@ -3198,7 +3218,7 @@ describe('Expressions - Async function', () => {
             }
         });
 
-     pass(`function f() { ({ async [yield]() {} }); }`, {
+    pass(`function f() { ({ async [yield]() {} }); }`, {
             source: 'function f() { ({ async [yield]() {} }); }',
             loc: true,
             ranges: true,

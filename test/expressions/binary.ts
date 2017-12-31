@@ -1,4 +1,4 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Expressions - Binary', () => {
 
@@ -2383,14 +2383,11 @@ describe('Expressions - Binary', () => {
             }
         });
 
-/*
-        fail(`-x ** y`, {
+        testErrorLocation(`-x ** y`, {
             source: '-x ** y',
-            loc: true,
-            ranges: true,
-            raw: true,
-            expected: {}
+            message: 'Unexpected token \'**\'',
+            line: 1,
+            column: 3,
+            index: 5
         });
-*/
-
 });

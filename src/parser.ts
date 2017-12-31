@@ -3233,6 +3233,7 @@ export class Parser {
 
             if (!(this.flags & Flags.LineTerminator)) {
                 if (this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
+                    this.errorLocation = pos;
                     if (context & Context.Strict) this.error(Errors.UnexpectedStrictReserved);
                     this.flags |= Flags.Binding;
                 }
@@ -3356,7 +3357,10 @@ export class Parser {
     ): ESTree.ArrowFunctionExpression {
 
         // A line terminator between ArrowParameters and the => should trigger a SyntaxError.
-        if (this.flags & Flags.LineTerminator) this.error(Errors.LineBreakAfterAsync);
+        if (this.flags & Flags.LineTerminator) {
+            this.errorLocation = this.getLocations();
+            this.error(Errors.LineBreakAfterAsync);
+        }
 
         this.expect(context, Token.Arrow);
 
@@ -3419,6 +3423,7 @@ export class Parser {
         const consequent = this.parseAssignmentExpression(context | Context.AllowIn);
         this.expect(context, Token.Colon);
         if (context & Context.ClassFields && this.isEvalOrArguments(this.tokenValue)) {
+            this.errorLocation = pos;
             this.error(Errors.UnexpectedStrictReserved);
         }
         const alternate = this.parseAssignmentExpression(context);
@@ -3484,6 +3489,7 @@ export class Parser {
             if (context & Context.Strict && t === Token.DeleteKeyword) {
                 if (argument.type === 'Identifier' || (this.flags & Flags.OptionsNext &&
                         !(context & Context.Module) && this.isPrivateName(argument))) {
+                    this.errorLocation = pos;
                     this.error(Errors.StrictDelete);
                 }
             }
@@ -3529,10 +3535,12 @@ export class Parser {
         }
 
         if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
+            if(!hasPrefix) this.errorLocation = pos;
             this.error(hasPrefix ? Errors.StrictLHSPrefix : Errors.StrictLHSPostfix);
         }
 
         if (!isValidSimpleAssignmentTarget(expr)) {
+            this.errorLocation = pos;
             this.error(hasPrefix ? Errors.InvalidLhsInPrefixOp : Errors.InvalidLhsInPostfixOp);
         }
 
@@ -3764,8 +3772,10 @@ export class Parser {
             if (this.isIdentifier(context, t)) {
 
                 if (this.isEvalOrArguments(this.tokenValue)) {
-                    if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
                     this.errorLocation = this.getLocations();
+                    if (context & Context.Strict) {
+                        this.error(Errors.StrictLHSAssignment);
+                    }
                     context |= Context.StrictReserved;
                 }
 
@@ -4670,7 +4680,9 @@ export class Parser {
             this.expect(context, Token.Multiply);
         }
 
+        // TODO! Move this!
         if (state & ObjectState.Async && this.flags & Flags.LineTerminator) {
+            this.errorLocation = this.getLocations();
             this.error(Errors.LineBreakAfterAsync);
         }
 
@@ -5083,6 +5095,7 @@ export class Parser {
         const raw = this.tokenRaw;
 
         if (context & Context.Strict && this.flags & Flags.Octal) {
+            this.errorLocation = pos;
             this.error(Errors.StrictOctalLiteral);
         }
 

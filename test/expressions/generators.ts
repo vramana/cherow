@@ -1,25 +1,45 @@
-import { fail, pass } from '../utils';
+import { fail, pass, testErrorLocation } from '../utils';
 
 describe('Statements - Generator', () => {
 
-    fail(`var g = function*(yield) {};`, {
+    testErrorLocation(`var g = function*(yield) {};`, {
         source: 'var g = function*(yield) {};',
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 1,
+        column: 18,
+        index: 23
     });
 
-    fail(`function* f(x = 0, x) {}`, {
+    testErrorLocation(`function* f(x = 0, x) {}`, {
         source: 'function* f(x = 0, x) {}',
+        message:  '\'x\' has already been declared ',
+        line: 1,
+        column: 19,
+        index: 20
     });
 
-    fail(`var g = function*(yield) {};`, {
+    testErrorLocation(`var g = function*(yield) {};`, {
         source: 'var g = function*(yield) {};',
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 1,
+        column: 18,
+        index: 23
     });
 
-    fail(`var gen = function *() { void yield; };`, {
+    testErrorLocation(`var gen = function *() { void yield; };`, {
         source: 'var gen = function *() { void yield; };',
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 1,
+        column: 30,
+        index: 35
     });
 
-    fail(`let gfe = function* yield() { }`, {
+    testErrorLocation(`let gfe = function* yield() { }`, {
         source: 'let gfe = function* yield() { }',
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 1,
+        column: 20,
+        index: 25
     });
 
     pass(`yield spread multiple`, {

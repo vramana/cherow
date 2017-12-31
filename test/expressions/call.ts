@@ -1,4 +1,4 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Expressions - Call', () => {
 
@@ -1209,24 +1209,27 @@ describe('Expressions - Call', () => {
             }
         });
 
-        fail(`f(..a)`, {
+        testErrorLocation(`f(..a)`, {
             source: 'f(..a)',
-            loc: true,
-            ranges: true,
-            raw: true
+            message: 'Unexpected token \'.\'',
+            line: 1,
+            column: 2,
+            index: 3
         });
 
-        fail(`f(....a)`, {
+        testErrorLocation(`f(....a)`, {
             source: 'f(....a)',
-            loc: true,
-            ranges: true,
-            raw: true
+            message: 'Unexpected token \'.\'',
+            line: 1,
+            column: 5,
+            index: 6
         });
 
-        fail(`f(... ... a)`, {
+        testErrorLocation(`f(... ... a)`, {
             source: 'f(... ... a)',
-            loc: true,
-            ranges: true,
-            raw: true
+            message:  'Unexpected token \'...\'',
+            line: 1,
+            column: 6,
+            index: 9
         });
 });
