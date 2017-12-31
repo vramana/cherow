@@ -1,4 +1,4 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Module code - Export', () => {
 
@@ -19,10 +19,15 @@ describe('Module code - Export', () => {
         module: true
     });
 
-    fail(`export {default} +`, {
+    testErrorLocation(`export {default} +`, {
         source: `export {default} +`,
-        module: true
+        module: true,
+        message: 'Unexpected token \'+\'',
+        line: 1,
+        column: 17,
+        index: 18
     });
+
     fail(`import x from "x";
 delete x;`, {
             source: `import x from "x";
@@ -48,9 +53,13 @@ with (house) {
             module: true
         });
 
-    fail(`export default from "foo"`, {
+    testErrorLocation(`export default from "foo"`, {
             source: `export default from "foo"`,
-            module: true
+            module: true,
+            message: 'Unexpected token \'string\'',
+            line: 1,
+            column: 20,
+            index: 25
         });
 
     fail(`export {default}`, {
@@ -83,9 +92,13 @@ with (house) {
             module: true
         });
 
-    fail(`export {a}; export class a(){};`, {
+    testErrorLocation(`export {a}; export class a(){};`, {
             source: `export {a}; export class a(){};`,
-            module: true
+            module: true,
+            message: 'Unexpected token',
+            line: 1,
+            column: 26,
+            index: 27
         });
 
     fail(`export d\\u0065fault 0;`, {
@@ -93,9 +106,13 @@ with (house) {
             module: true
         });
 
-    fail(`with ({}) async function f() {}`, {
+    testErrorLocation(`with ({}) async function f() {}`, {
             source: `with ({}) async function f() {}`,
-            module: true
+            module: true,
+            message: 'Strict mode code may not include a with statement',
+            line: 1,
+            column: 5,
+            index: 6
         });
 
     fail(`export { Number };`, {
@@ -103,31 +120,49 @@ with (house) {
             module: true
         });
 
-    fail(`class C { static method() { export default null; } }`, {
+    testErrorLocation(`class C { static method() { export default null; } }`, {
             source: `class C { static method() { export default null; } }`,
-            module: true
+            module: true,
+            message: 'Export declarations may only appear at top level of a module',
+            line: 1,
+            column: 28,
+            index: 34
         });
 
-    fail(`export {} null;`, {
+    testErrorLocation(`export {} null;`, {
             source: `export {} null;`,
-            module: true
+            module: true,
+            message: 'Unexpected token \'null\'',
+            line: 1,
+            column: 10,
+            index: 14
         });
 
-    fail(`label: { label: 0; }`, {
-            source: `label: {
-      label: 0;
-    }`,
-            module: true
+    testErrorLocation(`label: { label: 0; }`, {
+            source: `label: { label: 0; }`,
+            module: true,
+            message: 'Label \'label\' has already been declared',
+            line: 1,
+            column: 9,
+            index: 14
         });
 
-    fail(`let a; export function a(){};`, {
+    testErrorLocation(`let a; export function a(){};`, {
             source: `let a; export function a(){};`,
-            module: true
+            module: true,
+            message: 'Duplicate binding a',
+            line: 1,
+            column: 23,
+            index: 24
         });
 
-    fail(`import a, {b as a} from "module";`, {
+    testErrorLocation(`import a, {b as a} from "module";`, {
             source: `import a, {b as a} from "module";`,
-            module: true
+            module: true,
+            message: '\'a\' has already been declared ',
+            line: 1,
+            column: 16,
+            index: 17
         });
 
     fail(`export * from 123;`, {

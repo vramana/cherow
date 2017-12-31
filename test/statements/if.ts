@@ -1,15 +1,23 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 describe('Statements - If', () => {
 
-  fail(`if (true) async function f() {  }`, {
+    testErrorLocation(`if (true) async function f() {  }`, {
       source: 'if (true) async function f() {  }',
+      message: 'Async functions can only be declared at the top level or inside a block',
+      line: 1,
+      column: 10,
+      index: 15,
   });
 
-  fail(`if(1) break;`, {
+    testErrorLocation(`if(1) break;`, {
       source: 'if(1) break;',
+      message: 'break  statement must be nested within an iteration statement',
+      line: 1,
+      column: 6,
+      index: 11,
   });
 
-  pass(`label: function g() {}`, {
+    pass(`label: function g() {}`, {
       source: 'label: function g() {}',
       loc: true,
       ranges: true,
@@ -114,7 +122,7 @@ describe('Statements - If', () => {
       }
   });
 
-  pass(`label1: label2: function f() {}`, {
+    pass(`label1: label2: function f() {}`, {
       source: 'label1: label2: function f() {}',
       loc: true,
       ranges: true,
@@ -250,7 +258,7 @@ describe('Statements - If', () => {
       }
   });
 
-  pass(`if (morning) goodMorning()`, {
+    pass(`if (morning) goodMorning()`, {
       source: 'if (morning) goodMorning()',
       loc: true,
       ranges: true,
@@ -352,7 +360,7 @@ describe('Statements - If', () => {
       }
   });
 
-  pass(`if (morning) (function(){})`, {
+    pass(`if (morning) (function(){})`, {
       source: 'if (morning) (function(){})',
       loc: true,
       ranges: true,
@@ -458,7 +466,7 @@ describe('Statements - If', () => {
       }
   });
 
-  pass(`if (morning) var x = 0;`, {
+    pass(`if (morning) var x = 0;`, {
       source: 'if (morning) var x = 0;',
       loc: true,
       ranges: true,
@@ -577,7 +585,7 @@ describe('Statements - If', () => {
       }
   });
 
-  pass(`if (morning) goodMorning(); else goodDay()`, {
+    pass(`if (morning) goodMorning(); else goodDay()`, {
       source: 'if (morning) goodMorning(); else goodDay()',
       loc: true,
       ranges: true,
@@ -725,7 +733,7 @@ describe('Statements - If', () => {
       }
   });
 
-  pass(`if(a)b;`, {
+    pass(`if(a)b;`, {
       source: 'if(a)b;',
       loc: true,
       ranges: true,
@@ -811,7 +819,7 @@ describe('Statements - If', () => {
       }
   });
 
-  pass(`if(a)b;else c;`, {
+    pass(`if(a)b;else c;`, {
       source: 'if(a)b;else c;',
       loc: true,
       ranges: true,

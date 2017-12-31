@@ -1,4 +1,4 @@
-import { fail, pass } from '../utils';
+import { fail, pass, testErrorLocation } from '../utils';
 
 describe('Literals - Numbers', () => {
 
@@ -32,12 +32,20 @@ describe('Literals - Numbers', () => {
       }
   }
 
-  fail(`const t = 2.34e-;const b = 4.3e--3;`, {
+  testErrorLocation(`const t = 2.34e-;const b = 4.3e--3;`, {
       source: 'const t = 2.34e-;const b = 4.3e--3;',
+      message: 'Unexpected number',
+      line: 1,
+      column: 10,
+      index: 16
   });
 
-  fail(`"use strict"; var foo = 000;`, {
+  testErrorLocation(`"use strict"; var foo = 000;`, {
       source: '"use strict"; var foo = 000;',
+      message: 'Octal literals are not allowed in strict mode',
+      line: 1,
+      column: 24,
+      index: 27
   });
 
   fail(`"use strict"; var foo = 07;`, {
@@ -52,12 +60,20 @@ describe('Literals - Numbers', () => {
       source: '06.7',
   });
 
-  fail(`0b;`, {
+  testErrorLocation(`0b;`, {
       source: '0b;',
+      message: 'Unexpected number',
+      line: 1,
+      column: 0,
+      index: 2
   });
 
-  fail(`00b0;`, {
+  testErrorLocation(`00b0;`, {
       source: '00b0;',
+      message: 'Unexpected token',
+      line: 1,
+      column: 0,
+      index: 2
   });
 
   fail(`"use strict"; 01;`, {

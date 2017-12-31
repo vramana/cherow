@@ -184,7 +184,7 @@ describe('Miscellaneous - Failure', () => {
 
     testErrorLocation('3e', {
         source: `3e`,
-        message: 'Invalid BigIntLiteral',
+        message: 'Unexpected number',
         line: 1,
         column: 0,
         index: 2

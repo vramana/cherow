@@ -1,35 +1,47 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Statements - Labelled', () => {
 
-      fail(`label: async function f() {}`, {
+        testErrorLocation(`label: async function f() {}`, {
           source: 'label: async function f() {}',
+          message: 'Async functions can only be declared at the top level or inside a block',
+          line: 1,
+          column: 7,
+          index: 12,
       });
 
-      fail(`label: class C {}`, {
+        fail(`label: class C {}`, {
           source: 'label: class C {}',
       });
 
-      fail(`label: const x = null;`, {
+        testErrorLocation(`label: const x = null;`, {
           source: 'label: const x = null;',
+          message: 'Unexpected token \'const\'',
+          line: 1,
+          column: 7,
+          index: 12,
       });
 
-      fail(`label: function g() {}`, {
+        fail(`label: function g() {}`, {
           source: 'label: function g() {}',
           module: true
       });
 
-      fail(`aw\\u0061it: 1;`, {
+        fail(`aw\\u0061it: 1;`, {
           source: 'aw\\u0061it: 1;',
           module: true
       });
 
-      fail(`yield: 1;`, {
+        testErrorLocation(`yield: 1;`, {
           source: 'yield: 1;',
-          module: true
+          module: true,
+          message: 'Unexpected token \'yield\'',
+          line: 1,
+          column: 0,
+          index: 5,
       });
 
-      pass(`start: while (true) break start`, {
+        pass(`start: while (true) break start`, {
           source: 'start: while (true) break start',
           loc: true,
           ranges: true,
@@ -146,7 +158,7 @@ describe('Statements - Labelled', () => {
           }
       });
 
-      pass(`__proto__: test`, {
+        pass(`__proto__: test`, {
           source: '__proto__: test',
           loc: true,
           ranges: true,
@@ -231,7 +243,7 @@ describe('Statements - Labelled', () => {
           }
       });
 
-      pass(`async: await`, {
+        pass(`async: await`, {
           source: 'async: await',
           loc: true,
           ranges: true,
@@ -316,7 +328,7 @@ describe('Statements - Labelled', () => {
           }
       });
 
-      pass(`a:{break a;}`, {
+        pass(`a:{break a;}`, {
           source: 'a:{break a;}',
           loc: true,
           ranges: true,

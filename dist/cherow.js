@@ -1511,7 +1511,7 @@ Parser.prototype.scanNumber = function scanNumber (context, ch) {
                 }
                 ch = this.nextChar();
                 if (!(ch >= 48 /* Zero */ && ch <= 57 /* Nine */))
-                    { this.error(106 /* InvalidBigIntLiteral */); }
+                    { this.error(85 /* UnexpectedNumber */); }
                 if (this.flags & 33554432 /* OptionsNext */) {
                     var preNumericPart = this.index;
                     var finalFragment = this.scanDecimalDigitsOrFragment();
@@ -2590,9 +2590,9 @@ Parser.prototype.parseWithStatement = function parseWithStatement (context) {
     var pos = this.getLocations();
     // Strict mode code may not include a WithStatement. The occurrence of a WithStatement in such
     // a context is an grammar error
+    this.expect(context, 12386 /* WithKeyword */);
     if (context & 2 /* Strict */)
         { this.error(22 /* StrictModeWith */); }
-    this.expect(context, 12386 /* WithKeyword */);
     this.expect(context, 262155 /* LeftParen */);
     var object = this.parseExpression(context | 4 /* AllowIn */, pos);
     this.expect(context, 16 /* RightParen */);
@@ -2670,7 +2670,8 @@ Parser.prototype.parseBreakStatement = function parseBreakStatement (context) {
         }
     }
     else if (!(this.flags & 16 /* AllowBreak */)) {
-        this.error(93 /* InvalidNestedStatement */, tokenDesc(t));
+        this.errorLocation = pos;
+        this.error(93 /* InvalidNestedStatement */, 'break');
     }
     this.consumeSemicolon(context);
     return this.finishNode(context, pos, {
@@ -2932,14 +2933,17 @@ Parser.prototype.parseExpressionOrLabeledStatement = function parseExpressionOrL
         var key = '$' + expr.name;
         if (this.labelSet === undefined)
             { this.labelSet = {}; }
-        else if (this.labelSet[key] === true)
-            { this.error(68 /* Redeclaration */, expr.name); }
+        else if (this.labelSet[key] === true) {
+            this.errorLocation = pos;
+            this.error(68 /* Redeclaration */, expr.name);
+        }
         this.labelSet[key] = true;
         t = this.token;
         switch (t) {
             case 12366 /* ContinueKeyword */:
                 // continue's label when present must refer to a loop construct;
                 if (this.flags & 32 /* AllowContinue */) {
+                    this.errorLocation = pos;
                     this.error(93 /* InvalidNestedStatement */, tokenDesc(t));
                 }
                 break;

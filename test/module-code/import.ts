@@ -1,6 +1,128 @@
-import { pass, fail } from '../utils';
+import { pass, fail, testErrorLocation } from '../utils';
 
 describe('Module code - Import', () => {
+
+  fail(`import { for } from "iteration"`, {
+  source: `import { for } from "iteration"`,
+  module: true
+});
+
+  fail(`import {b,,} from "a"`, {
+          source: `import {b,,} from "a"`,
+          module: true
+      });
+
+  fail(`import { class } from "foo"`, {
+          source: `import { class } from "foo"`,
+          module: true
+      });
+
+  fail(`import * as class from "foo"`, {
+          source: `import * as class from "foo"`,
+          module: true
+      });
+
+  fail(`if (1) import "foo";`, {
+          source: `if (1) import "foo";`,
+          module: true
+      });
+
+  fail(`import {b as,} from "a"`, {
+          source: `import {b as,} from "a"`,
+          module: true
+      });
+
+  fail(`import / as a from  "a"`, {
+          source: `import / as a from  "a"`,
+          module: true
+      });
+
+  fail(`import a, b from "a"`, {
+          source: `import a, b from "a"`,
+          module: true
+      });
+
+  fail(`import * as foo, {bar} from "foo";`, {
+          source: `import * as foo, {bar} from "foo";`,
+          module: true
+      });
+
+  fail(`import * from "foo"`, {
+          source: `import * from "foo"`,
+          module: true
+      });
+
+  fail(`import {a \\u0061s b} from "./foo.js";`, {
+          source: `import {a \\u0061s b} from "./foo.js";`,
+      });
+
+  fail(`import foo`, {
+          source: `import foo`,
+      });
+
+  fail(`import { x as eval } from "./foo.js";`, {
+          source: `import { x as eval } from "./foo.js";`,
+      });
+
+  fail(`import {bar}, {foo} from "foo";`, {
+          source: `import {bar}, {foo} from "foo";`,
+      });
+
+  fail(`import {foo,baz,,} from 'toast';`, {
+          source: `import {foo,baz,,} from 'toast';`,
+      });
+
+  fail(`import {var} from "foo"`, {
+          source: `import {var} from "foo"`,
+      });
+
+  fail(`import {default as foo}`, {
+          source: `import {default as foo}`,
+      });
+
+  fail(`import {foo,baz,,} from 'toast';`, {
+          source: `import {foo,baz,,} from 'toast';`,
+      });
+
+  fail(`import {foo,,baz} from 'toast';`, {
+          source: `import {foo,,baz} from 'toast';`,
+      });
+
+  fail(`import * from "foo"`, {
+          source: `import * from "foo"`,
+      });
+
+  fail(`import {bar}, foo from "foo"`, {
+          source: `import {bar}, foo from "foo"`,
+      });
+
+  fail(`import foo`, {
+          source: `import foo`,
+      });
+
+  fail(`import default from "foo"`, {
+          source: `import default from "foo"`,
+      });
+
+  fail(`import { foo, bar }`, {
+          source: `import { foo, bar }`,
+      });
+
+  fail(`export default = 42`, {
+          source: `export default = 42`,
+      });
+
+  fail(`export * +`, {
+          source: `export * +`,
+      });
+
+  fail(`export *`, {
+          source: `export *`,
+      });
+
+  fail(`export var await;`, {
+          source: `export var await;`,
+      });
 
   fail(`import {`, {
     source: `import {`,

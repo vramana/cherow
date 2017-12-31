@@ -1365,7 +1365,7 @@ export class Parser {
 
                     ch = this.nextChar();
 
-                    if (!(ch >= Chars.Zero && ch <= Chars.Nine)) this.error(Errors.InvalidBigIntLiteral);
+                    if (!(ch >= Chars.Zero && ch <= Chars.Nine)) this.error(Errors.UnexpectedNumber);
 
                     if (this.flags & Flags.OptionsNext) {
                         const preNumericPart = this.index;
@@ -1590,6 +1590,7 @@ export class Parser {
     }
 
     private throwStringError(context: Context, code: Escape) {
+        
         switch (code) {
             case Escape.StrictOctal:
                 this.error(context & Context.Template ? Errors.StrictOctalEscape : Errors.TemplateOctalLiteral);
@@ -2613,8 +2614,8 @@ export class Parser {
 
         // Strict mode code may not include a WithStatement. The occurrence of a WithStatement in such
         // a context is an grammar error
-        if (context & Context.Strict) this.error(Errors.StrictModeWith);
         this.expect(context, Token.WithKeyword);
+        if (context & Context.Strict) this.error(Errors.StrictModeWith);
         this.expect(context, Token.LeftParen);
 
         const object = this.parseExpression(context | Context.AllowIn, pos);
@@ -2706,7 +2707,6 @@ export class Parser {
     private parseBreakStatement(context: Context): ESTree.BreakStatement {
 
         const pos = this.getLocations();
-
         this.expect(context, Token.BreakKeyword);
 
         const t = this.token;
@@ -2719,7 +2719,8 @@ export class Parser {
                 this.error(Errors.UnknownLabel, (label as ESTree.Identifier).name);
             }
         } else if (!(this.flags & Flags.AllowBreak)) {
-            this.error(Errors.InvalidNestedStatement, tokenDesc(t));
+            this.errorLocation = pos;
+            this.error(Errors.InvalidNestedStatement, 'break');
         }
 
         this.consumeSemicolon(context);
@@ -3050,7 +3051,10 @@ export class Parser {
             const key = '$' + expr.name;
 
             if (this.labelSet === undefined) this.labelSet = {};
-            else if (this.labelSet[key] === true) this.error(Errors.Redeclaration, expr.name);
+            else if (this.labelSet[key] === true) {
+                this.errorLocation = pos;
+                this.error(Errors.Redeclaration, expr.name);
+            }
 
             this.labelSet[key] = true;
 
@@ -3061,6 +3065,7 @@ export class Parser {
                 case Token.ContinueKeyword:
                     // continue's label when present must refer to a loop construct;
                     if (this.flags & Flags.AllowContinue) {
+                        this.errorLocation = pos;
                         this.error(Errors.InvalidNestedStatement, tokenDesc(t));
                     }
                     break;
