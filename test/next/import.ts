@@ -1,32 +1,32 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Next - Dynamic Import', () => {
 
-    testErrorLocation('direct calls', {
+    fail('direct calls', {
             source: `function failsParse() { return import.then(); }`,
             next: true,
             message: 'Unexpected token',
             line: 1,
             column: 38,
-            index: 42 
+            index: 42
         });
-        testErrorLocation('import call many arguments', {
+    fail('import call many arguments', {
             source: `import(x, y).then(z);`,
             next: true,
             message: 'Dynamic import must have one specifier as an argument',
             line: 1,
             column: 12,
-            index: 13 
+            index: 13
         });
-        testErrorLocation('non callee', {
+    fail('non callee', {
             source: `import.then(doLoad);`,
             next: true,
             message: 'Unexpected token',
             line: 1,
             column: 7,
-            index: 11 
+            index: 11
         });
-        testErrorLocation('import call no arguments', {
+    fail('import call no arguments', {
             source: `import().then(doThat);`,
             next: true,
             message: 'Dynamic import must have one specifier as an argument',
@@ -34,28 +34,28 @@ describe('Next - Dynamic Import', () => {
             column: 8,
             index: 9
         });
-        testErrorLocation('invalid new import call', {
+    fail('invalid new import call', {
             source: `import.ariya`,
             next: true,
             message: 'Unexpected token',
             line: 1,
             column: 7,
-            index: 12 
+            index: 12
         });
-        fail('no arguments', {
+    fail('no arguments', {
             source: `import.ariya`,
             next: true
         });
-        fail('"ariya" as property name', {
+    fail('"ariya" as property name', {
             source: `import.ariya`,
             next: true
         });
-        fail('"ariya" as property name', {
+    fail('"ariya" as property name', {
             source: `import.ariya`,
             next: true
         });
 
-        pass(`with strict directive`, {
+    pass(`with strict directive`, {
             source: '"use strict"; import("test.js");',
             loc: true,
             ranges: true,
@@ -175,7 +175,7 @@ describe('Next - Dynamic Import', () => {
             }
         });
 
-        pass(`return value`, {
+    pass(`return value`, {
             source: 'const importResult = import("test.js");',
             ranges: true,
             next: true,
@@ -223,7 +223,7 @@ describe('Next - Dynamic Import', () => {
             }
         });
 
-        pass(`import call string`, {
+    pass(`import call string`, {
             source: 'import("lib.js").then(doThis);',
             ranges: true,
             next: true,
@@ -281,7 +281,7 @@ describe('Next - Dynamic Import', () => {
             }
         });
 
-        pass(`generator`, {
+    pass(`generator`, {
             source: 'function* a() { yield import("http"); }',
             ranges: true,
             next: true,
@@ -342,7 +342,7 @@ describe('Next - Dynamic Import', () => {
             }
         });
 
-        pass(`inside functions`, {
+    pass(`inside functions`, {
             source: 'function loadImport(file) { return import(`test/${file}.js`); }',
             ranges: true,
             next: true,

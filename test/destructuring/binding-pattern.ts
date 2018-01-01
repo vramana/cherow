@@ -1,4 +1,4 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Destructuring - Binding pattern', () => {
 
@@ -4281,7 +4281,7 @@ describe('Destructuring - Binding pattern', () => {
                 }
             });
 
-            testErrorLocation(`function* a({e: a.b}) {}`, {
+            fail(`function* a({e: a.b}) {}`, {
                 source: 'function* a({e: a.b}) {}',
                 message: 'Unexpected token',
                 line: 1,
@@ -4289,7 +4289,7 @@ describe('Destructuring - Binding pattern', () => {
                 index: 13
             });
 
-            testErrorLocation(`({*a({e: a.b}){}})`, {
+            fail(`({*a({e: a.b}){}})`, {
                 source: '({*a({e: a.b}){}})',
                 message: 'Unexpected token',
                 line: 1,
@@ -4297,7 +4297,7 @@ describe('Destructuring - Binding pattern', () => {
                 index: 6
             });
 
-            testErrorLocation(`({e: a.b}) => 0`, {
+            fail(`({e: a.b}) => 0`, {
                 source: '({e: a.b}) => 0',
                 message: 'Invalid destructuring assignment target',
                 line: 1,
@@ -4305,7 +4305,7 @@ describe('Destructuring - Binding pattern', () => {
                 index: 1
             });
 
-            testErrorLocation(`function a({e: a.b}) {}`, {
+            fail(`function a({e: a.b}) {}`, {
                 source: 'function a({e: a.b}) {}',
                 message: 'Unexpected token',
                 line: 1,
@@ -4313,7 +4313,7 @@ describe('Destructuring - Binding pattern', () => {
                 index: 12
             });
 
-            testErrorLocation(`({set a({e: a.b}){}})`, {
+            fail(`({set a({e: a.b}){}})`, {
                 source: '({set a({e: a.b}){}})',
                 message: 'Unexpected token',
                 line: 1,
@@ -4321,7 +4321,7 @@ describe('Destructuring - Binding pattern', () => {
                 index: 9
             });
 
-            testErrorLocation(`"use strict"; for (let {x: y = let};;) {}`, {
+            fail(`"use strict"; for (let {x: y = let};;) {}`, {
                 source: '"use strict"; for (let {x: y = let};;) {}',
                 message: 'The identifier \'let\' must not be in expression position in strict mode',
                 line: 1,
@@ -4329,7 +4329,7 @@ describe('Destructuring - Binding pattern', () => {
                 index: 34
             });
 
-            testErrorLocation(`"use strict"; for (let [x = let];;) {}`, {
+            fail(`"use strict"; for (let [x = let];;) {}`, {
                 source: '"use strict"; for (let [x = let];;) {}',
                 message: 'The identifier \'let\' must not be in expression position in strict mode',
                 line: 1,

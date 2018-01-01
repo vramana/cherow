@@ -3,7 +3,11 @@ import { pass, fail } from '../utils';
 describe('Declarations - Let', () => {
 
     fail('let {a: o.a} = obj;', {
-        source: 'let {a: o.a} = obj;'
+        source: 'let {a: o.a} = obj;',
+        message:  'Unexpected token',
+        line: 1,
+        column: 10,
+        index: 11
     });
 
     fail('let Infinity', {
@@ -12,7 +16,11 @@ describe('Declarations - Let', () => {
 
     fail('let let| split across two lines', {
         source: `let
-    let = foo;`
+    let = foo;`,
+    message: 'let is disallowed as a lexically bound name',
+    line: 2,
+    column: 4,
+    index: 11
     });
 
     fail(`do let
@@ -20,110 +28,198 @@ describe('Declarations - Let', () => {
     while (false);`, {
         source: `do let
         [x] = 0
-        while (false);`
-    });
-
-    fail(`do let
-    [x] = 0
-    while (false);`, {
-        source: `do let
-        [x] = 0
-        while (false);`
+        while (false);`,
+        message: 'Unexpected token \'let\'',
+        line: 1,
+        column: 3,
+        index: 6
     });
 
     fail(`for (var x in null) let
     [a] = 0;`, {
         source: `for (var x in null) let
-        [a] = 0;`
+        [a] = 0;`,
+        message: 'Unexpected token \'let\'',
+        line: 1,
+        column: 20,
+        index: 23
     });
 
     fail(`if (false) let
     [a] = 0;`, {
         source: `if (false) let
-        [a] = 0;`
+        [a] = 0;`,
+        message: 'Unexpected token \'let\'',
+        line: 1,
+        column: 11,
+        index: 14
     });
 
     fail('"use strict"; for (let in o) { }', {
-        source: '"use strict"; for (let in o) { }'
+        source: '"use strict"; for (let in o) { }',
+        message: 'The identifier \'let\' must not be in expression position in strict mode',
+        line: 1,
+        column: 19,
+        index: 22
     });
+
     fail('let [x]', {
-        source: 'let [x]'
+        source: 'let [x]',
+        message: 'Missing initializer in destructuring declaration',
+        line: 1,
+        column: 4,
+        index: 5
     });
 
     fail('(function() { "use strict"; { let f; var f; } })', {
-        source: '(function() { "use strict"; { let f; var f; } })'
+        source: '(function() { "use strict"; { let f; var f; } })',
+        message:  '\'f\' has already been declared ',
+        line: 1,
+        column: 41,
+        index: 42
     });
 
     fail('le\\u0074 x = 5', {
-        source: 'le\\u0074 x = 5'
+        source: 'le\\u0074 x = 5',
+        message: 'Unexpected escaped keyword',
+        line: 1,
+        column: 0,
+        index: 8
     });
 
     fail('let {x}', {
-        source: 'let {x}'
+        source: 'let {x}',
+        message: 'Missing initializer in destructuring declaration',
+        line: 1,
+        column: 4,
+        index: 5
     });
 
     fail('for (;false;) let x;', {
-        source: 'for (;false;) let x;'
+        source: 'for (;false;) let x;',
+        message:  'Unexpected token \'identifier\'',
+        line: 1,
+        column: 18,
+        index: 19
     });
 
     fail('if (true) {} else let x;', {
-        source: 'if (true) {} else let x;'
+        source: 'if (true) {} else let x;',
+        message:  'Unexpected token \'identifier\'',
+        line: 1,
+        column: 22,
+        index: 23
     });
 
     fail('a: let a', {
-        source: 'a: let a'
+        source: 'a: let a',
+        message:  'Unexpected token \'identifier\'',
+        line: 1,
+        column: 7,
+        index: 8
     });
 
     fail('if (true) let x = 1;', {
-        source: 'if (true) let x = 1;'
+        source: 'if (true) let x = 1;',
+        message:  'Unexpected token \'identifier\'',
+        line: 1,
+        column: 14,
+        index: 15
     });
 
     fail('while (false) let x;', {
-        source: 'while (false) let x;'
+        source: 'while (false) let x;',
+        message:  'Unexpected token \'identifier\'',
+        line: 1,
+        column: 18,
+        index: 19
     });
 
-    fail('let Infinity', {
+    fail(`function f() {
+        let
+        await 0;
+    }`, {
         source: `function f() {
             let
             await 0;
-        }`
+        }`,
+        message: 'Unexpected token \'number\'',
+        line: 3,
+        column: 18,
+        index: 50
     });
 
     fail('{ let f; var f; }', {
-        source: '{ let f; var f; }'
+        source: '{ let f; var f; }',
+        message: '\'f\' has already been declared ',
+        line: 1,
+        column: 13,
+        index: 14
     });
 
     fail('let test = 2, let = 1;', {
-        source: 'let test = 2, let = 1;'
+        source: 'let test = 2, let = 1;',
+        message: 'let is disallowed as a lexically bound name',
+        line: 1,
+        column: 14,
+        index: 17
     });
 
     fail('let [a, let, b] = [1, 2, 3];', {
-        source: 'let [a, let, b] = [1, 2, 3];'
+        source: 'let [a, let, b] = [1, 2, 3];',
+        message: 'let is disallowed as a lexically bound name',
+        line: 1,
+        column: 8,
+        index: 11
     });
 
     // 'let' should not be an allowed name in destructuring let declarations
     fail('let [a, let, b] = [1, 2, 3];', {
-        source: 'let [a, let, b] = [1, 2, 3];'
+        source: 'let [a, let, b] = [1, 2, 3];',
+        message: 'let is disallowed as a lexically bound name',
+        line: 1,
+        column: 8,
+        index: 11
     });
 
     fail('for(let let in { }) { };', {
-        source: 'for(let let in { }) { };'
+        source: 'for(let let in { }) { };',
+        message: 'let is disallowed as a lexically bound name',
+        line: 1,
+        column: 8,
+        index: 11
     });
 
     fail('let x = 1;const x = 1;', {
-        source: 'let x = 1;const x = 1;'
+        source: 'let x = 1;const x = 1;',
+        message: '\'x\' has already been declared ',
+        line: 1,
+        column: 16,
+        index: 17
     });
 
     fail('var x = 1;let x = 1;', {
-        source: 'var x = 1;let x = 1;'
+        source: 'var x = 1;let x = 1;',
+        message: '\'x\' has already been declared ',
+        line: 1,
+        column: 14,
+        index: 15
     });
 
     fail('function a() { function f(x) { let x; } } a();', {
-        source: 'function a() { function f(x) { let x; } } a();'
+        source: 'function a() { function f(x) { let x; } } a();',
+        message: '\'x\' has already been declared ',
+        line: 1,
+        column: 35,
+        index: 36
     });
 
     fail('var x; { function x() {}; } let x;', {
-        source: 'var x; { function x() {}; } let x;'
+        source: 'var x; { function x() {}; } let x;',
+        message: '\'x\' has already been declared ',
+        line: 1,
+        column: 32,
+        index: 33
     });
 
     pass(`let [a,,b] = c`, {

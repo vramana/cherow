@@ -56,28 +56,6 @@ export const fail = (name: string, opts: Opts) => {
     const CherowOpts: any = {
         module: opts.module,
         next: opts.next,
-        loc: opts.loc,
-        ranges: opts.ranges,
-        jsx: opts.jsx
-    };
-
-    it('Should fail on ' + name, () => {
-
-        try {
-            opts.module ?
-                t.deepEqual(parseModule(opts.source, CherowOpts), opts.expected) :
-                t.deepEqual(parseScript(opts.source, CherowOpts), opts.expected);
-        } catch (e) {
-            return;
-        }
-        throw new Error('Expecting error');
-    });
-};
-
-export const testErrorLocation = (name: string, opts: Opts) => {
-    const CherowOpts: any = {
-        module: opts.module,
-        next: opts.next,
         raw: opts.raw,
         loc: opts.loc,
         plugins: opts.plugins,
@@ -96,11 +74,11 @@ export const testErrorLocation = (name: string, opts: Opts) => {
                 t.deepEqual(parseModule(opts.source, CherowOpts), opts.expected) :
                 t.deepEqual(parseScript(opts.source, CherowOpts), opts.expected);
         } catch (e) {
-            t.equal(e.description, opts.message);
-            t.equal(e.lineNumber, opts.line);
-            t.equal(e.column, opts.column);
-            t.equal(e.index, opts.index);
-            return;
+           if (opts.message) t.equal(e.description, opts.message);
+           if (opts.line) t.equal(e.lineNumber, opts.line);
+           if (opts.column)t.equal(e.column, opts.column);
+           if (opts.index)t.equal(e.index, opts.index);
+           return;
         }
         throw new Error('Expecting error');
     });

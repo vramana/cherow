@@ -1,8 +1,8 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Miscellaneous - Early errors', () => {
 
-        testErrorLocation(`class a extends b { constructor() { function c(d = super()){} } }`, {
+        fail(`class a extends b { constructor() { function c(d = super()){} } }`, {
             source: `class a extends b { constructor() { function c(d = super()){} } }`,
             message: 'super() is only valid in derived class constructors',
             line: 1,
@@ -10,7 +10,7 @@ describe('Miscellaneous - Early errors', () => {
             index: 56
         });
 
-        testErrorLocation(`({ a(){ super(); } });`, {
+        fail(`({ a(){ super(); } });`, {
             source: `({ a(){ super(); } });`,
             message: 'super() is only valid in derived class constructors',
             line: 1,
@@ -18,7 +18,7 @@ describe('Miscellaneous - Early errors', () => {
             index: 13
         });
 
-        testErrorLocation(`({ a(){ {{ if(0) (( super() )); }} } });`, {
+        fail(`({ a(){ {{ if(0) (( super() )); }} } });`, {
             source: `({ a(){ {{ if(0) (( super() )); }} } });`,
             message: 'super() is only valid in derived class constructors',
             line: 1,
@@ -26,7 +26,7 @@ describe('Miscellaneous - Early errors', () => {
             index: 25
         });
 
-        testErrorLocation(`class A extends B { constructor() { !{*constructor() { super(); }}; } }`, {
+        fail(`class A extends B { constructor() { !{*constructor() { super(); }}; } }`, {
             source: `class A extends B { constructor() { !{*constructor() { super(); }}; } }`,
             message: 'super() is only valid in derived class constructors',
             line: 1,
@@ -34,7 +34,7 @@ describe('Miscellaneous - Early errors', () => {
             index: 60
         });
 
-        testErrorLocation(`class A extends B { constructor() { !{get constructor() { super(); }}; } }`, {
+        fail(`class A extends B { constructor() { !{get constructor() { super(); }}; } }`, {
             source: `class A extends B { constructor() { !{get constructor() { super(); }}; } }`,
             message: 'super() is only valid in derived class constructors',
             line: 1,
@@ -190,9 +190,9 @@ describe('Miscellaneous - Early errors', () => {
             source: `!{ a() { function* f(){ super.b(); } } };`,
         });
 
-        testErrorLocation(`!{ a() { !function* (){ super.b(); } } };`, {
+        fail(`!{ a() { !function* (){ super.b(); } } };`, {
             source: `!{ a() { !function* (){ super.b(); } } };`,
-            message: 'super() is only valid in derived class constructors',
+            message:  '\'super\' keyword unexpected here',
             line: 1,
             column: 24,
             index: 29
@@ -214,7 +214,7 @@ describe('Miscellaneous - Early errors', () => {
             source: `class A { constructor() { (class {[super()](){}}); } }`,
         });
 
-        testErrorLocation(`class A extends B { f() { super(); } }`, {
+        fail(`class A extends B { f() { super(); } }`, {
             source: `class A extends B { f() { super(); } }`,
             message: 'super() is only valid in derived class constructors',
             line: 1,
@@ -258,7 +258,7 @@ describe('Miscellaneous - Early errors', () => {
             source: `(async function a(k = super()) {})`,
         });
 
-        testErrorLocation(`(async function a() { super(); })`, {
+        fail(`(async function a() { super(); })`, {
             source: `(async function a() { super(); })`,
             message: 'super() is only valid in derived class constructors',
             line: 1,
@@ -274,7 +274,7 @@ describe('Miscellaneous - Early errors', () => {
             source: `'use strict'; async function eval() {}`,
         });
 
-        testErrorLocation(`async function a(x) { let x; }`, {
+        fail(`async function a(x) { let x; }`, {
             source: `async function a(x) { let x; }`,
             message: '\'x\' has already been declared ',
             line: 1,

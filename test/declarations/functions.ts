@@ -2171,4 +2171,117 @@ describe('Declarations - Functions', () => {
                 }
             }
         });
+
+    pass(`function foo() {} /42/i`, {
+            source: `function foo() {} /42/i`,
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [],
+                            start: 15,
+                            end: 17,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 15
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 17
+                                }
+                            }
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'foo',
+                            start: 9,
+                            end: 12,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 9
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 12
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 17,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 17
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'Literal',
+                            value: {},
+                            regex: {
+                                pattern: '42',
+                                flags: 'i'
+                            },
+                            start: 18,
+                            end: 23,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 18
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 23
+                                }
+                            },
+                            raw: '/42/i'
+                        },
+                        start: 18,
+                        end: 23,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 18
+                            },
+                            end: {
+                                line: 1,
+                                column: 23
+                            }
+                        }
+                    }
+                ],
+                sourceType: 'script',
+                start: 0,
+                end: 23,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 23
+                    }
+                }
+            }
+        });
+
 });

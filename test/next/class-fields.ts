@@ -1,8 +1,8 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Next - Class fields', () => {
 
-    testErrorLocation('class C { static #field; }', {
+    fail('class C { static #field; }', {
         source: 'class C { static #field; }',
         next: true,
         message: 'Unexpected token',
@@ -11,7 +11,7 @@ describe('Next - Class fields', () => {
         index: 18
     });
 
-    testErrorLocation('class C { #x = typeof arguments; }', {
+    fail('class C { #x = typeof arguments; }', {
         source: 'class C { #x = typeof arguments; }',
         next: true,
         message: 'Unexpected token',
@@ -20,7 +20,7 @@ describe('Next - Class fields', () => {
         index: 11
     });
 
-    testErrorLocation('class C { x = typeof arguments; }', {
+    fail('class C { x = typeof arguments; }', {
         source: 'class C { x = typeof arguments; }',
         next: true,
         message: 'Unexpected token',
@@ -29,7 +29,7 @@ describe('Next - Class fields', () => {
         index: 31
     });
 
-    testErrorLocation('class C { #x = typeof arguments; }', {
+    fail('class C { #x = typeof arguments; }', {
         source: 'class C { #x = typeof arguments; }',
         next: true,
         message: 'Unexpected token',
@@ -38,7 +38,7 @@ describe('Next - Class fields', () => {
         index: 11
     });
 
-    testErrorLocation('class C { x = typeof arguments; }', {
+    fail('class C { x = typeof arguments; }', {
         source: 'class C { x = typeof arguments; }',
         next: true,
         message: 'Unexpected token',
@@ -96,7 +96,7 @@ describe('Next - Class fields', () => {
         source: 'class a {  constructor () { #foo  }  }',
     });
 
-    testErrorLocation('static class field with constructor', {
+    fail('static class field with constructor', {
         source: 'class C { static "constructor"; }',
         next: true,
         message: 'Unexpected token \';\'',

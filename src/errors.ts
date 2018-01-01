@@ -57,6 +57,7 @@ export const enum Errors {
     InvalidHexEscapeSequence,
     ConstructorSpecialMethod,
     BadSuperCall,
+    UnexpectedSuper,
     DuplicateConstructor,
     StaticPrototype,
     MissingClassName,
@@ -117,7 +118,8 @@ export const enum Errors {
     AsyncFunctionInSingleStatementContext,
     GeneratorInSingleStatementContext,
     SloppyFunction,
-    YieldInParameter
+    YieldInParameter,
+    InvalidRestBindingPattern
 }
 
 export const ErrorMessages: {
@@ -181,6 +183,7 @@ export const ErrorMessages: {
     [Errors.InvalidHexEscapeSequence]: 'Invalid hexadecimal escape sequence',
     [Errors.ConstructorSpecialMethod]: 'Class constructor may not be an accessor',
     [Errors.BadSuperCall]: 'super() is only valid in derived class constructors',
+    [Errors.UnexpectedSuper]: '\'super\' keyword unexpected here',
     [Errors.DuplicateConstructor]: 'A class may only have one constructor',
     [Errors.StaticPrototype]: 'Classes may not have static property named prototype',
     [Errors.LineBreakAfterAsync]: 'No line break is allowed after async',
@@ -232,8 +235,10 @@ export const ErrorMessages: {
     [Errors.UnterminatedEscape]: 'Unterminated escape in regular expression',
     [Errors.AsyncFunctionInSingleStatementContext]: 'Async functions can only be declared at the top level or inside a block',
     [Errors.InvalidRegExpGroup]: 'Generators can only be declared at the top level or inside a block',
+    [Errors.GeneratorInSingleStatementContext]: 'Generators can only be declared at the top level or inside a block.',
     [Errors.SloppyFunction]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
-    [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter'
+    [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter',
+    [Errors.InvalidRestBindingPattern]: '`...` must be followed by an identifier in declaration contexts',
 };
 
 function constructError(msg: string, column: number): Error {

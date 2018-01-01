@@ -1,7 +1,7 @@
-import { pass, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 describe('Next - For await of', () => {
 
-    testErrorLocation('async function fn() { for await ([[x[yield]]] of [[[]]]) }', {
+    fail('async function fn() { for await ([[x[yield]]] of [[[]]]) }', {
         source: `async function fn() { for await ([[x[yield]]] of [[[]]]) }`,
         next: true,
         message: 'Unexpected token \'}\'',
@@ -10,7 +10,7 @@ describe('Next - For await of', () => {
         index: 58
     });
 
-    testErrorLocation('async function fn() { for await ([[x[yield]]] in [[[]]]) }', {
+    fail('async function fn() { for await ([[x[yield]]] in [[[]]]) }', {
         source: `async function fn() { for await ([[x[yield]]] in [[[]]]) }`,
         next: true,
         message: 'Unexpected token \'[\'',
@@ -18,7 +18,7 @@ describe('Next - For await of', () => {
         column: 49,
         index: 50
     });
-    testErrorLocation('"use strict"; async function fn() { for await ([[x[yield]]] of [[[]]]) }', {
+    fail('"use strict"; async function fn() { for await ([[x[yield]]] of [[[]]]) }', {
         source: `"use strict"; async function fn() { for await ([[x[yield]]] of [[[]]]) }`,
         next: true,
         message: 'Unexpected token \'yield\'',
@@ -27,15 +27,15 @@ describe('Next - For await of', () => {
         index: 56
     });
 
-    testErrorLocation('async function fn() { for await ([{ x = yield }] of [[{}]]) }', {
+    fail('async function fn() { for await ([{ x = yield }] of [[{}]]) }', {
         source: `async function fn() { for await ([{ x = yield }] of [[{}]]) }`,
         next: true,
         message: 'Unexpected token \'}\'',
         line: 1,
-        column: 36,
-        index: 37
+        column: 60,
+        index: 61
     });
-    testErrorLocation('async function *fn() { for await (let [...{ x } = []] of foo) {} }', {
+    fail('async function *fn() { for await (let [...{ x } = []] of foo) {} }', {
         source: `async function *fn() { for await (let [...{ x } = []] of foo) {} }`,
         next: true,
         message: 'Unexpected token \'=\'',
@@ -43,7 +43,7 @@ describe('Next - For await of', () => {
         column: 48,
         index: 49
     });
-    testErrorLocation('async function *fn() { for await (let [...[ x ] = []] of foo) {} }', {
+    fail('async function *fn() { for await (let [...[ x ] = []] of foo) {} }', {
         source: `async function *fn() { for await (let [...[ x ] = []] of foo) {} }`,
         next: true,
         message: 'Unexpected token \'=\'',

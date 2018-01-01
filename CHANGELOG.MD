@@ -105,3 +105,6 @@
 
 *2017-12-31: Version 0.21.0*
 - Fixed wrong error locations
+
+*2018-1-1: Version 0.21.3*
+- Fixed wrong error locations

@@ -1115,10 +1115,18 @@ describe('Declarations - Lexical', () => {
 
     fail(`let [a, a] = [];`, {
         source: 'let [a, a] = [];',
+        message: '\'a\' has already been declared ',
+        line: 1,
+        column: 8,
+        index: 9
     });
 
     fail(`let [[(a)], ((((((([b])))))))] = [[],[]];`, {
         source: 'let [[(a)], ((((((([b])))))))] = [[],[]];',
+        message: 'Unexpected token \'(\'',
+        line: 1,
+        column: 6,
+        index: 7
     });
 
     fail(`const [((((a)))), b] = [];`, {
@@ -1127,6 +1135,10 @@ describe('Declarations - Lexical', () => {
 
     fail(`let a, b; [...a, ...b] = [];`, {
         source: 'let a, b; [...a, ...b] = [];',
+        message: 'Invalid left-hand side in assignment',
+        line: 1,
+        column: 10,
+        index: 11
     });
 
     fail(`let [1] = [];`, {
@@ -1170,14 +1182,26 @@ describe('Declarations - Lexical', () => {
 
     fail(`let x,`, {
         source: 'let x,',
+        message: 'Unexpected token \'end of source\'',
+        line: 1,
+        column: 5,
+        index: 6
     });
 
     fail(`let let;`, {
         source: 'let let;',
+        message: 'let is disallowed as a lexically bound name',
+        line: 1,
+        column: 4,
+        index: 7
     });
 
     fail(`for (const let = 1;;;) {}`, {
         source: 'for (const let = 1;;;) {}',
+        message: 'let is disallowed as a lexically bound name',
+        line: 1,
+        column: 11,
+        index: 14
     });
 
     fail(`const let`, {
@@ -1186,6 +1210,10 @@ describe('Declarations - Lexical', () => {
 
     fail(`let []`, {
         source: 'let []',
+        message: 'Missing initializer in destructuring declaration',
+        line: 1,
+        column: 4,
+        index: 5
     });
 
     fail(`const const;`, {

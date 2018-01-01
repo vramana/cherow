@@ -1,8 +1,8 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Expressions - Postfix decrement', () => {
 
-    testErrorLocation(`function f() { new.target--; }`, {
+    fail(`function f() { new.target--; }`, {
         source: 'function f() { new.target--; }',
         message: 'Invalid left-hand side expression in postfix operation',
         line: 1,
@@ -10,7 +10,7 @@ describe('Expressions - Postfix decrement', () => {
         index: 18
     });
 
-    testErrorLocation(`function* g() { (yield)--; }`, {
+    fail(`function* g() { (yield)--; }`, {
         source: 'function* g() { (yield)--; }',
         message: 'Invalid left-hand side expression in postfix operation',
         line: 1,
@@ -18,7 +18,7 @@ describe('Expressions - Postfix decrement', () => {
         index: 17
     });
 
-    testErrorLocation(`"use strict"; arguments--;`, {
+    fail(`"use strict"; arguments--;`, {
         source: '"use strict"; arguments--;',
         message: 'Postfix increment/decrement may not have eval or arguments operand in strict mode',
         line: 1,
@@ -26,7 +26,7 @@ describe('Expressions - Postfix decrement', () => {
         index: 23
     });
 
-    testErrorLocation(`1--;`, {
+    fail(`1--;`, {
         source: '1--;',
         message: 'Invalid left-hand side expression in postfix operation',
         line: 1,

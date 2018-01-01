@@ -1,16 +1,16 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Expressions - Arrow', () => {
 
-    testErrorLocation(`"use strict"; var af = (eval) => 1;`, {
+    fail(`"use strict"; var af = (eval) => 1;`, {
             source: '"use strict"; var af = (eval) => 1;',
             message: 'The identifier \'eval\' must not be in binding position in strict mode',
             line: 1,
-            column: 23,
-            index: 24
+            column: 33,
+            index: 34
         });
 
-    testErrorLocation(`"use strict"; var af = eval => 1;`, {
+    fail(`"use strict"; var af = eval => 1;`, {
             source: '"use strict"; var af = eval => 1;',
             message: 'Unexpected eval or arguments in strict mode',
             line: 1,
@@ -18,7 +18,7 @@ describe('Expressions - Arrow', () => {
             index: 27
         });
 
-    testErrorLocation(`"use strict"; var af = eval => 1;`, {
+    fail(`"use strict"; var af = eval => 1;`, {
             source: '"use strict"; var af = arguments => 1;',
             message: 'Unexpected eval or arguments in strict mode',
             line: 1,
@@ -26,7 +26,7 @@ describe('Expressions - Arrow', () => {
             index: 32
         });
 
-    testErrorLocation(`[]=>0`, {
+    fail(`[]=>0`, {
             source: '[]=>0',
             message: 'Unexpected token \'=>\'',
             line: 1,
@@ -34,7 +34,7 @@ describe('Expressions - Arrow', () => {
             index: 4
         });
 
-    testErrorLocation(`() ? 0`, {
+    fail(`() ? 0`, {
             source: '() ? 0',
             message: 'Missing => after parentheses',
             line: 1,
@@ -42,7 +42,7 @@ describe('Expressions - Arrow', () => {
             index: 4
         });
 
-    testErrorLocation(`(a)\n=> 0`, {
+    fail(`(a)\n=> 0`, {
             source: '(a)\n=> 0',
             message: 'No line break is allowed after async',
             line: 2,
@@ -50,7 +50,7 @@ describe('Expressions - Arrow', () => {
             index: 6
         });
 
-    testErrorLocation(`1 + ()`, {
+    fail(`1 + ()`, {
             source: '1 + ()',
             message: 'Missing => after parentheses',
             line: 1,
@@ -58,7 +58,7 @@ describe('Expressions - Arrow', () => {
             index: 6
         });
 
-    testErrorLocation(`a\n=> 0`, {
+    fail(`a\n=> 0`, {
             source: 'a\n=> 0',
             message: 'Unexpected token \'=>\'',
             line: 2,
@@ -94,7 +94,7 @@ describe('Expressions - Arrow', () => {
             source: '() <= 0',
         });
 
-    testErrorLocation(`() + 0`, {
+    fail(`() + 0`, {
             source: '() + 0',
             message:  'Missing => after parentheses',
             line: 1,
@@ -118,12 +118,12 @@ describe('Expressions - Arrow', () => {
             source: 'eval => {"use strict"};',
         });
 
-    testErrorLocation(`(a,...[a]) => 0;`, {
+    fail(`(a,...[a]) => 0;`, {
             source: '(a,...[a]) => 0;',
             message: '\'a\' has already been declared ',
             line: 1,
-            column: 0,
-            index: 1
+            column: 14,
+            index: 15
         });
 
     fail(`(x, x) => y;`, {
@@ -142,7 +142,7 @@ describe('Expressions - Arrow', () => {
             source: '(10) => 0;',
         });
 
-    testErrorLocation(`() <= 42;`, {
+    fail(`() <= 42;`, {
             source: '() <= 42;',
             message: 'Missing => after parentheses',
             line: 1,
@@ -150,7 +150,7 @@ describe('Expressions - Arrow', () => {
             index: 5
         });
 
-    testErrorLocation(`"use strict"; (a) => 00;`, {
+    fail(`"use strict"; (a) => 00;`, {
             source: '"use strict"; (a) => 00;',
             message: 'Octal literals are not allowed in strict mode',
             line: 1,
@@ -158,12 +158,12 @@ describe('Expressions - Arrow', () => {
             index: 23
         });
 
-    testErrorLocation(`"use strict"; (eval, a) => 42;`, {
+    fail(`"use strict"; (eval, a) => 42;`, {
             source: '"use strict"; (eval, a) => 42;',
             message: 'The identifier \'eval\' must not be in binding position in strict mode',
             line: 1,
-            column: 21,
-            index: 22
+            column: 27,
+            index: 29
         });
 
     pass(`(...[]) => 0`, {

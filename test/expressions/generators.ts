@@ -1,8 +1,8 @@
-import { fail, pass, testErrorLocation } from '../utils';
+import { fail, pass } from '../utils';
 
 describe('Statements - Generator', () => {
 
-    testErrorLocation(`var g = function*(yield) {};`, {
+    fail(`var g = function*(yield) {};`, {
         source: 'var g = function*(yield) {};',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
@@ -10,7 +10,7 @@ describe('Statements - Generator', () => {
         index: 23
     });
 
-    testErrorLocation(`function* f(x = 0, x) {}`, {
+    fail(`function* f(x = 0, x) {}`, {
         source: 'function* f(x = 0, x) {}',
         message:  '\'x\' has already been declared ',
         line: 1,
@@ -18,7 +18,7 @@ describe('Statements - Generator', () => {
         index: 20
     });
 
-    testErrorLocation(`var g = function*(yield) {};`, {
+    fail(`var g = function*(yield) {};`, {
         source: 'var g = function*(yield) {};',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
@@ -26,7 +26,7 @@ describe('Statements - Generator', () => {
         index: 23
     });
 
-    testErrorLocation(`var gen = function *() { void yield; };`, {
+    fail(`var gen = function *() { void yield; };`, {
         source: 'var gen = function *() { void yield; };',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
@@ -34,7 +34,7 @@ describe('Statements - Generator', () => {
         index: 35
     });
 
-    testErrorLocation(`let gfe = function* yield() { }`, {
+    fail(`let gfe = function* yield() { }`, {
         source: 'let gfe = function* yield() { }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,

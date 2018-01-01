@@ -3,11 +3,19 @@ import { pass, fail } from '../utils';
 describe('Next - Throw expression', () => {
 
         fail('function save(filename = throw new TypeError("Argument required")) {}', {
-            source: `function save(filename = throw new TypeError("Argument required")) {}`
+            source: `function save(filename = throw new TypeError("Argument required")) {}`,
+            message: 'throw isn\'t supported by default. Enable the \'next\' option to use them',
+            line: 1,
+            column: 25,
+            index: 30
         });
 
         fail('function test() { (throw 1, 2); }', {
-            source: `function test() { (throw 1, 2); }`
+            source: `function test() { (throw 1, 2); }`,
+            message: 'throw isn\'t supported by default. Enable the \'next\' option to use them',
+            line: 1,
+            column: 19,
+            index: 24
         });
 
         pass(`function save(filename = throw new TypeError("Argument required")) {}`, {

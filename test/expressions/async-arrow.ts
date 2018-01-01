@@ -1,8 +1,8 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Expressions - Async arrow', () => {
 
-    testErrorLocation(`({async\nfoo() { }})`, {
+    fail(`({async\nfoo() { }})`, {
         source: '({async\nfoo() { }})',
         message: 'No line break is allowed after async',
         line: 2,
@@ -10,7 +10,7 @@ describe('Expressions - Async arrow', () => {
         index: 11
     });
 
-    testErrorLocation(`(async)(a) => 12`, {
+    fail(`(async)(a) => 12`, {
         source: '(async)(a) => 12',
         message: 'Unexpected token \'=>\'',
         line: 1,
@@ -47,7 +47,7 @@ describe('Expressions - Async arrow', () => {
         source: `\\u0061sync () => {}`,
     });
 
-    testErrorLocation(`async\n() => a`, {
+    fail(`async\n() => a`, {
         source: 'async\n() => a',
         message: 'No line break is allowed after async',
         line: 2,
@@ -59,7 +59,7 @@ describe('Expressions - Async arrow', () => {
         source: '"use strict"; async(arguments) => {  }',
     });
 
-    testErrorLocation(`async(await) => {  }`, {
+    fail(`async(await) => {  }`, {
         source: 'async(await) => {  }',
         message: '\'await\' is not allowed inside an async arrow\'s parameter list',
         line: 1,
@@ -119,7 +119,7 @@ describe('Expressions - Async arrow', () => {
         source: 'async [a] => 1',
     });
 
-    testErrorLocation(`async {a: b} => 1`, {
+    fail(`async {a: b} => 1`, {
         source: 'async {a: b} => 1',
         message:  'Unexpected token \'{\'',
         line: 1,
@@ -160,11 +160,7 @@ describe('Expressions - Async arrow', () => {
     });
 
     fail(`async () => {1} ? a : b`, {
-        source: 'async () => {1} ? a : b',
-        message:  'Unexpected token \'{\'',
-        line: 1,
-        column: 6,
-        index: 7
+        source: 'async () => {1} ? a : b'
     });
 
     pass(`async X => {yield}`, {

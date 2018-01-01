@@ -1,22 +1,14 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Miscellaneous - Comments', () => {
 
-    testErrorLocation(`;-->`, {
+    fail(`;-->`, {
         source: `;-->`,
-        message: 'Unexpected token \'>\'',
-        line: 1,
-        column: 3,
-        index: 4
     });
 
-    testErrorLocation(`single and multi line comments used together`, {
+    fail(`single and multi line comments used together`, {
         source: `// var /*
         x*/`,
-        message: 'Unterminated regular expression literal',
-        line: 2,
-        column: 10,
-        index: 22
     });
 
     fail(`single and multi line comments used together`, {
@@ -29,24 +21,20 @@ describe('Miscellaneous - Comments', () => {
 
     fail(`single and multi line comments used together`, {
         source: `// var /*
-        x*/`,
-        message: 'Unexpected token \'>\'',
-        line: 1,
-        column: 3,
-        index: 4
+        x*/`
     });
 
     fail(`nested multi line comments`, {
         source: `/* x */
         = 1;
         */`,
-        message: 'Unexpected token \'>\'',
-        line: 1,
-        column: 3,
-        index: 4
+        message: 'Unexpected token \'=\'',
+        line: 2,
+        column: 8,
+        index: 17
     });
 
-    testErrorLocation(`arbitrary character sequence before HTMLCloseComment token`, {
+    fail(`arbitrary character sequence before HTMLCloseComment token`, {
         source: `/*
         */ the comment should not include these characters, regardless of AnnexB extensions -->`,
         message: 'Unexpected token \'identifier\'',
@@ -55,7 +43,7 @@ describe('Miscellaneous - Comments', () => {
         index: 25
     });
 
-    testErrorLocation(`/*FOO/`, {
+    fail(`/*FOO/`, {
         source: `/*FOO/`,
         message: 'Unterminated comment',
         line: 1,
@@ -63,7 +51,7 @@ describe('Miscellaneous - Comments', () => {
         index: 6
     });
 
-    testErrorLocation(`multiline comment at the end of single line comment`, {
+    fail(`multiline comment at the end of single line comment`, {
         source: `// var /*
         x*/`,
         message: 'Unterminated regular expression literal',
@@ -72,7 +60,7 @@ describe('Miscellaneous - Comments', () => {
         index: 22
     });
 
-    testErrorLocation(`<!-- HTML comment`, {
+    fail(`<!-- HTML comment`, {
         source: `<!-- HTML comment`,
         module: true,
         message: 'Unexpected token \'identifier\'',

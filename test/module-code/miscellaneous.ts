@@ -1,4 +1,4 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Module-code - Miscellaneous', () => {
 
@@ -19,7 +19,7 @@ describe('Module-code - Miscellaneous', () => {
             module: true
         });
 
-        testErrorLocation(`var await = 5;`, {
+        fail(`var await = 5;`, {
             source: `var await = 5;`,
             module: true,
             message: 'Unexpected token \'await\'',
@@ -33,7 +33,7 @@ describe('Module-code - Miscellaneous', () => {
             module: true
         });
 
-        testErrorLocation(`function f() { await 5; }`, {
+        fail(`function f() { await 5; }`, {
             source: `function f() { await 5; }`,
             module: true,
             message: 'Unexpected token \'await\'',
@@ -47,7 +47,7 @@ describe('Module-code - Miscellaneous', () => {
             module: true
         });
 
-        testErrorLocation(`await => 1;`, {
+        fail(`await => 1;`, {
             source: `await => 1;';`,
             module: true,
             message: 'Unexpected token \'await\'',

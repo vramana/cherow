@@ -1,8 +1,8 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Expressions - Prefix decrement', () => {
 
-    testErrorLocation(`"use strict"; --arguments`, {
+    fail(`"use strict"; --arguments`, {
         source: '"use strict"; --arguments',
         message: 'Prefix increment/decrement may not have eval or arguments operand in strict mode',
         line: 1,
@@ -10,7 +10,7 @@ describe('Expressions - Prefix decrement', () => {
         index: 25
     });
 
-    testErrorLocation(`"use strict"; --eval`, {
+    fail(`"use strict"; --eval`, {
         source: '"use strict"; --eval',
         message: 'Prefix increment/decrement may not have eval or arguments operand in strict mode',
         line: 1,
@@ -18,7 +18,7 @@ describe('Expressions - Prefix decrement', () => {
         index: 20
     });
 
-    testErrorLocation(`function f() { new.target--; }`, {
+    fail(`function f() { new.target--; }`, {
         source: 'function f() { --new.target; }',
         message: 'Invalid left-hand side expression in prefix operation',
         line: 1,
@@ -26,7 +26,7 @@ describe('Expressions - Prefix decrement', () => {
         index: 17
     });
 
-    testErrorLocation(`function f() { --(new.target);}`, {
+    fail(`function f() { --(new.target);}`, {
         source: 'function f() { --(new.target);}',
         message: 'Invalid left-hand side expression in prefix operation',
         line: 1,
@@ -34,7 +34,7 @@ describe('Expressions - Prefix decrement', () => {
         index: 17
     });
 
-    testErrorLocation(`function* g() { (yield)--; }`, {
+    fail(`function* g() { (yield)--; }`, {
         source: 'function* g() { --(yield); }',
         message: 'Invalid left-hand side expression in prefix operation',
         line: 1,

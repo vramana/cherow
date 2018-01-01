@@ -1,8 +1,8 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Next - Asynchronous Iteration', () => {
 
-        testErrorLocation('assignment expression in a function body with yield as an identifier in strict mode', {
+        fail('assignment expression in a function body with yield as an identifier in strict mode', {
             source: `"use strict"; async function *gen() {
             return {
                  ...(function() {
@@ -12,12 +12,12 @@ describe('Next - Asynchronous Iteration', () => {
           }`,
             next: true,
             message: '\'yield\' may not be used as an identifier in this context',
-            line: 3,
-            column: 20,
-            index: 80
+            line: 4,
+            column: 24,
+            index: 122
         });
 
-        testErrorLocation(`(async function* yield() { });`, {
+        fail(`(async function* yield() { });`, {
             source: `(async function* yield() { });`,
             next: true,
             message: '\'yield\' may not be used as an identifier in this context',
@@ -26,7 +26,7 @@ describe('Next - Asynchronous Iteration', () => {
             index: 22
         });
 
-        testErrorLocation(`var g = function* yield() {};`, {
+        fail(`var g = function* yield() {};`, {
             source: `var g = function* yield() {};`,
             next: true,
             message: '\'yield\' may not be used as an identifier in this context',
@@ -35,7 +35,7 @@ describe('Next - Asynchronous Iteration', () => {
             index: 23
         });
 
-        testErrorLocation(`var C = class { async *gen() {} }`, {
+        fail(`var C = class { async *gen() {} }`, {
             source: `var C = class { async *gen() {} }`,
             message: 'Generator function or method can\'t be async',
             line: 1,
@@ -43,7 +43,7 @@ describe('Next - Asynchronous Iteration', () => {
             index: 23
         });
 
-        testErrorLocation('rest parameter has an initializer', {
+        fail('rest parameter has an initializer', {
             source: `0, async function* g(...x = []) {};`,
             next: true,
             message: 'Unexpected token \'=\'',
@@ -51,7 +51,7 @@ describe('Next - Asynchronous Iteration', () => {
             column: 26,
             index: 27
         });
-        testErrorLocation('named await as identifier reference escaped', {
+        fail('named await as identifier reference escaped', {
             source: `var gen = async function *g() { void \\u0061wait; };`,
             next: true,
             message: 'Unexpected escaped keyword',
@@ -59,7 +59,7 @@ describe('Next - Asynchronous Iteration', () => {
             column: 37,
             index: 47
         });
-        testErrorLocation('`await` is used as binding identifier', {
+        fail('`await` is used as binding identifier', {
             source: `(async function* await() { });`,
             next: true,
             message: '\'await\' may not be used as an identifier in this context',
@@ -67,7 +67,7 @@ describe('Next - Asynchronous Iteration', () => {
             column: 17,
             index: 22
         });
-        testErrorLocation('\\u0061sync function* f(){}', {
+        fail('\\u0061sync function* f(){}', {
             source: `\\u0061sync function* f(){}`,
             next: true,
             message: 'Unexpected escaped keyword',
@@ -75,7 +75,7 @@ describe('Next - Asynchronous Iteration', () => {
             column: 0,
             index: 10
         });
-        testErrorLocation('f = async function* h([...[ x ] = []] = []) { }', {
+        fail('f = async function* h([...[ x ] = []] = []) { }', {
             source: `f = async function* h([...[ x ] = []] = []) { }`,
             next: true,
             message: 'Unexpected token \'=\'',
@@ -83,31 +83,31 @@ describe('Next - Asynchronous Iteration', () => {
             column: 22,
             index: 23
         });
-       fail('"use strict"; (async function* eval() { });', {
+        fail('"use strict"; (async function* eval() { });', {
             source: `"use strict"; (async function* eval() { });`,
             next: true
         });
-       fail('(async function*() { super(); });', {
+        fail('(async function*() { super(); });', {
             source: `(async function*() { super(); });`,
             next: true
         });
-       fail('"use strict"; (async function*(eval) { });', {
+        fail('"use strict"; (async function*(eval) { });', {
             source: `"use strict"; (async function*(eval) { });`,
             next: true
         });
-       fail('async function *gen() {  var yi\\u0065ld; }', {
+        fail('async function *gen() {  var yi\\u0065ld; }', {
             source: `async function *gen() {  var yi\\u0065ld; }`,
             next: true
         });
-       fail('(async function*(x = await 1) { });', {
+        fail('(async function*(x = await 1) { });', {
             source: `(async function*(x = await 1) { });`,
             next: true
         });
-       fail('async function *() { yield; }', {
+        fail('async function *() { yield; }', {
             source: `async function *() { yield; }`,
             next: true
         });
-       testErrorLocation('async function*() { yield 1; };', {
+        fail('async function*() { yield 1; };', {
             source: `async function*() { yield 1; };`,
             next: true,
             message: 'Function statement requires a name',
@@ -116,7 +116,7 @@ describe('Next - Asynchronous Iteration', () => {
             index: 16
         });
 
-        testErrorLocation('async generator await as binding identifier escaped', {
+        fail('async generator await as binding identifier escaped', {
             source: `var obj = {
             async *method() {
               var \\u0061wait;
@@ -129,7 +129,7 @@ describe('Next - Asynchronous Iteration', () => {
             index: 70
         });
 
-       pass(`async function *g() { yield; }`, {
+        pass(`async function *g() { yield; }`, {
             source: 'async function *g() { yield; }',
             ranges: true,
             next: true,
@@ -174,7 +174,7 @@ describe('Next - Asynchronous Iteration', () => {
             }
         });
 
-       pass(`Non object returned by [Symbol.asyncIterator]()`, {
+        pass(`Non object returned by [Symbol.asyncIterator]()`, {
             source: `async function *gen() {
                 yield* obj;
               }`,

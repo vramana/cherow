@@ -1,13 +1,13 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
-describe('Expressions - Spread', () => {
+describe('Destructuring - Spread', () => {
 
-    testErrorLocation(`[...a, b] = c;`, {
+    fail(`[...a, b] = c;`, {
         source: '[...a, b] = c;',
         message: 'Invalid left-hand side in assignment',
         line: 1,
-        column: 5,
-        index: 6
+        column: 0,
+        index: 1
     });
 
     pass(`[{ a, b }, ...c] = d;`, {

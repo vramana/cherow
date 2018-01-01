@@ -131,23 +131,43 @@ describe('Declarations - Class', () => {
     });
 
     fail(`(class { *static x() {} })`, {
-        source: `(class { *static x() {} })`
+        source: `(class { *static x() {} })`,
+        message: 'Unexpected token \'identifier\'',
+        line: 1,
+        column: 17,
+        index: 18
     });
 
     fail(`(class {*foo(a = yield b) {}})`, {
-        source: `(class {*foo(a = yield b) {}})`
+        source: `(class {*foo(a = yield b) {}})`,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 1,
+        column: 17,
+        index: 22
     });
 
     fail(`function* foo(a = class extends (yield b) {}) {}`, {
-        source: `function* foo(a = class extends (yield b) {}) {}`
+        source: `function* foo(a = class extends (yield b) {}) {}`,
+        message: 'Generator parameters must not contain yield expressions',
+        line: 1,
+        column: 33,
+        index: 38
     });
 
     fail(`(class {*foo(a = yield b) {}})`, {
-        source: `(class {*foo(a = yield b) {}})`
+        source: `(class {*foo(a = yield b) {}})`,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 1,
+        column: 17,
+        index: 22
     });
 
     fail(`class a {static "prototype"(){}}`, {
-        source: `class a {static "prototype"(){}}`
+        source: `class a {static "prototype"(){}}`,
+        message: 'Classes may not have static property named prototype',
+        line: 1,
+        column: 27,
+        index: 28
     });
 
     pass(`(class {prototype() {}})`, {

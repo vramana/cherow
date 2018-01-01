@@ -1,8 +1,8 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Expressions - Async function', () => {
 
-    testErrorLocation(`"use strict"; (async function eval () { })`, {
+    fail(`"use strict"; (async function eval () { })`, {
         source: '"use strict"; (async function eval () { })',
         message: 'Eval or arguments can\'t be assigned to in strict mode code',
         line: 1,
@@ -10,7 +10,7 @@ describe('Expressions - Async function', () => {
         index: 34
     });
 
-    testErrorLocation(`(async function foo (foo) { super() })`, {
+    fail(`(async function foo (foo) { super() })`, {
         source: '(async function foo (foo) { super() })',
         message: 'super() is only valid in derived class constructors',
         line: 1,
@@ -18,12 +18,12 @@ describe('Expressions - Async function', () => {
         index: 33
     });
 
-    testErrorLocation(`(async function foo (bar) { let bar; });`, {
+    fail(`(async function foo (bar) { let bar; });`, {
         source: '(async function foo (bar) { let bar; });',
         message:  '\'bar\' has already been declared ',
         line: 1,
-        column: 0,
-        index: 1
+        column: 32,
+        index: 35
     });
 
     fail(`(async function foo() { } = 1)`, {
@@ -64,7 +64,7 @@ describe('Expressions - Async function', () => {
         next: true
     });
 
-    testErrorLocation(`function () { a = async await => { } }`, {
+    fail(`function () { a = async await => { } }`, {
         source: 'function () { a = async await => { } }',
         next: true,
         message: 'Function statement requires a name',
@@ -110,7 +110,7 @@ describe('Expressions - Async function', () => {
         source: '(async function foo(await) { });',
     });
 
-    testErrorLocation(`async function* foo() { }`, {
+    fail(`async function* foo() { }`, {
         source: `async function* foo() { }`, module: true,
         message: 'Generator function or method can\'t be async',
         line: 1,

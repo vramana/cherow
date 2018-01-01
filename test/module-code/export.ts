@@ -1,4 +1,4 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Module code - Export', () => {
 
@@ -19,7 +19,7 @@ describe('Module code - Export', () => {
         module: true
     });
 
-    testErrorLocation(`export {default} +`, {
+    fail(`export {default} +`, {
         source: `export {default} +`,
         module: true,
         message: 'Unexpected token \'+\'',
@@ -53,7 +53,7 @@ with (house) {
             module: true
         });
 
-    testErrorLocation(`export default from "foo"`, {
+    fail(`export default from "foo"`, {
             source: `export default from "foo"`,
             module: true,
             message: 'Unexpected token \'string\'',
@@ -92,7 +92,7 @@ with (house) {
             module: true
         });
 
-    testErrorLocation(`export {a}; export class a(){};`, {
+    fail(`export {a}; export class a(){};`, {
             source: `export {a}; export class a(){};`,
             module: true,
             message: 'Unexpected token',
@@ -106,13 +106,13 @@ with (house) {
             module: true
         });
 
-    testErrorLocation(`with ({}) async function f() {}`, {
+    fail(`with ({}) async function f() {}`, {
             source: `with ({}) async function f() {}`,
             module: true,
             message: 'Strict mode code may not include a with statement',
             line: 1,
-            column: 5,
-            index: 6
+            column: 0,
+            index: 4
         });
 
     fail(`export { Number };`, {
@@ -120,7 +120,7 @@ with (house) {
             module: true
         });
 
-    testErrorLocation(`class C { static method() { export default null; } }`, {
+    fail(`class C { static method() { export default null; } }`, {
             source: `class C { static method() { export default null; } }`,
             module: true,
             message: 'Export declarations may only appear at top level of a module',
@@ -129,7 +129,7 @@ with (house) {
             index: 34
         });
 
-    testErrorLocation(`export {} null;`, {
+    fail(`export {} null;`, {
             source: `export {} null;`,
             module: true,
             message: 'Unexpected token \'null\'',
@@ -138,7 +138,7 @@ with (house) {
             index: 14
         });
 
-    testErrorLocation(`label: { label: 0; }`, {
+    fail(`label: { label: 0; }`, {
             source: `label: { label: 0; }`,
             module: true,
             message: 'Label \'label\' has already been declared',
@@ -147,7 +147,7 @@ with (house) {
             index: 14
         });
 
-    testErrorLocation(`let a; export function a(){};`, {
+    fail(`let a; export function a(){};`, {
             source: `let a; export function a(){};`,
             module: true,
             message: 'Duplicate binding a',
@@ -156,7 +156,7 @@ with (house) {
             index: 24
         });
 
-    testErrorLocation(`import a, {b as a} from "module";`, {
+    fail(`import a, {b as a} from "module";`, {
             source: `import a, {b as a} from "module";`,
             module: true,
             message: '\'a\' has already been declared ',

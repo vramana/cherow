@@ -1,4 +1,4 @@
-import { pass, fail, testErrorLocation  } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Destructuring - Assignment', () => {
 
@@ -7227,12 +7227,12 @@ describe('Destructuring - Assignment', () => {
                 source: '0, { eval } = {};',
             });
 
-            testErrorLocation(`({a} += 0);`, {
+            fail(`({a} += 0);`, {
                 source: '({a} += 0);',
                 message: 'Invalid left-hand side in assignment',
                 line: 1,
-                column: 0,
-                index: 1
+                column: 5,
+                index: 7
             });
 
             fail(`({a,,} = 0)`, {

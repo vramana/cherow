@@ -1,4 +1,4 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 import { parseScript, parseModule } from '../../src/cherow';
 
 describe('Miscellaneous - Comma (ES2017)', () => {
@@ -296,7 +296,7 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         });
     }
 
-    testErrorLocation(`{ foo(a, b,) {} };`, {
+    fail(`{ foo(a, b,) {} };`, {
         source: `{ foo(a, b,) {} };`,
         message:  'Unexpected token \'{\'',
         line: 1,
@@ -304,7 +304,7 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         index: 14
     });
 
-    testErrorLocation(`() => (...a, )`, {
+    fail(`() => (...a, )`, {
         source: `() => (...a, )`,
         message: 'Rest parameter must be last formal parameter',
         line: 1,
@@ -312,7 +312,7 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         index: 12
     });
 
-    testErrorLocation(`() => (a, , b)`, {
+    fail(`() => (a, , b)`, {
         source: `() => (a, , b)`,
         message:  'Unexpected token \',\'',
         line: 1,
@@ -332,7 +332,7 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         source: `() => (...a, , )`,
     });
 
-    testErrorLocation(`() => (a, => null)`, {
+    fail(`() => (a, => null)`, {
         source: `() => (a, => null)`,
         message: 'Unexpected token \'=>\'',
         line: 1,
@@ -348,7 +348,7 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         source: 'f(,);',
     });
 
-    testErrorLocation(`class A { constructor(,) {} }`, {
+    fail(`class A { constructor(,) {} }`, {
         source: 'class A { constructor(,) {} }',
         message:  'Unexpected token \',\'',
         line: 1,
@@ -375,7 +375,7 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         module: true
     });
 
-    testErrorLocation(`export default function foo(,) { }`, {
+    fail(`export default function foo(,) { }`, {
         source: 'export default function foo(,) { }',
         message:  'Unexpected token \',\'',
         module: true,

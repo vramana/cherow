@@ -4,31 +4,55 @@ describe('Statements - Numeric separators', () => {
 
     fail(`"\\u{12_34}"`, {
         source: '"\\u{12_34}"',
-        next: true
+        next: true,
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 6
     });
 
     fail(`"let a\\u{12_34} = 5"`, {
         source: '"let a\\u{12_34} = 5"',
-        next: true
+        next: true,
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 11
     });
 
     fail(`"\\u12_34"`, {
         source: '"\\u12_34"',
-        next: true
+        next: true,
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 5
     });
 
     fail(`5_______2;`, {
         source: '5_______2;',
-        next: true
+        next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 0,
+        index: 2
     });
 
     fail(`0x_52`, {
         source: '0x_52',
-        next: true
+        next: true,
+        message: 'Unexpected token',
+        line: 1,
+        column: 0,
+        index: 2
     });
 
     fail(`1_`, {
-        source: '1_'
+        source: '1_',
+        message: 'Unexpected token',
+        line: 1,
+        column: 0,
+        index: 1
     });
 
     fail(`3_.1415F;`, {

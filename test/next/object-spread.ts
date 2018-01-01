@@ -4,27 +4,51 @@ describe('Next - Spread', () => {
 
     fail('function test({...{a}}) {}', {
         source: `function test({...{a}}) {}`,
-        next: true
+        next: true,
+        message: '`...` must be followed by an identifier in declaration contexts',
+        line: 1,
+        column: 14,
+        index: 15
     });
     fail('function test({...{}}) {}', {
         source: `function test({...{}}) {}`,
-        next: true
+        next: true,
+        message: '`...` must be followed by an identifier in declaration contexts',
+        line: 1,
+        column: 14,
+        index: 15
     });
     fail('var {...x = 1} = {}', {
         source: `var {...x = 1} = {}`,
-        next: true
+        next: true,
+        message: '`...` must be followed by an identifier in declaration contexts',
+        line: 1,
+        column: 10,
+        index: 11
     });
     fail('var {...[]} = {}', {
         source: `var {...[]} = {}`,
-        next: true
+        next: true,
+        message: '`...` must be followed by an identifier in declaration contexts',
+        line: 1,
+        column: 8,
+        index: 9
     });
     fail('function test({...[]}) {}', {
         source: `function test({...[]}) {}`,
-        next: true
+        next: true,
+        message: '`...` must be followed by an identifier in declaration contexts',
+        line: 1,
+        column: 14,
+        index: 15
     });
     fail('import(...[1])', {
         source: `import(...[1])`,
-        next: true
+        next: true,
+        message: 'Unexpected token \'...\'',
+        line: 1,
+        column: 7,
+        index: 10
     });
 
     pass(`var o = { *method() { return {...yield, y: 1, ...yield}; } }`, {

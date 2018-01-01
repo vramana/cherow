@@ -7,7 +7,6 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location } from './interface';
-
 export class Parser {
 
     // The program to be parsed
@@ -1591,7 +1590,7 @@ export class Parser {
     }
 
     private throwStringError(context: Context, code: Escape) {
-        
+
         switch (code) {
             case Escape.StrictOctal:
                 this.error(context & Context.Template ? Errors.StrictOctalEscape : Errors.TemplateOctalLiteral);
@@ -2611,12 +2610,15 @@ export class Parser {
     }
 
     private parseWithStatement(context: Context): ESTree.WithStatement {
+
+        if (context & Context.Strict) this.error(Errors.StrictModeWith);
+
         const pos = this.getLocations();
 
         // Strict mode code may not include a WithStatement. The occurrence of a WithStatement in such
         // a context is an grammar error
         this.expect(context, Token.WithKeyword);
-        if (context & Context.Strict) this.error(Errors.StrictModeWith);
+
         this.expect(context, Token.LeftParen);
 
         const object = this.parseExpression(context | Context.AllowIn, pos);
@@ -2800,7 +2802,6 @@ export class Parser {
 
             if (!declarations) {
                 if (!isValidDestructuringAssignmentTarget(init) || init.type === 'AssignmentExpression') {
-                    this.errorLocation = pos;
                     this.error(Errors.InvalidLHSInForLoop);
                 }
                 this.reinterpretAsPattern(context, init);
@@ -3152,7 +3153,10 @@ export class Parser {
                         this.error(Errors.DeclarationMissingInitializer);
                     }
                 }
-            } else if (!isInOrOfKeyword(this.token)) this.error(Errors.DeclarationMissingInitializer);
+            } else if (!isInOrOfKeyword(this.token)) {
+                this.errorLocation = pos;
+                this.error(Errors.DeclarationMissingInitializer);
+            }
 
         } else {
 
@@ -3254,7 +3258,10 @@ export class Parser {
             } else if (this.token === Token.Assign) {
                 if (context & Context.InParenthesis) {
                     this.flags |= Flags.SimpleParameterList;
-                } else if (this.flags & Flags.Rest) this.error(Errors.InvalidLHSInAssignment);
+                } else if (this.flags & Flags.Rest) {
+                    this.errorLocation = pos;
+                    this.error(Errors.InvalidLHSInAssignment);
+                }
                 // Note: A functions parameter list is already parsed as pattern, so no need to reinterpret
                 this.reinterpretAsPattern(context, expr);
             } else if (!isValidSimpleAssignmentTarget(expr)) {
@@ -3264,7 +3271,7 @@ export class Parser {
             this.nextToken(context);
 
             if (context & Context.Yield && context & Context.InParenthesis && this.token & Token.IsYield) {
-                this.errorLocation = pos;
+                this.errorLocation = this.getLocations();
                 this.flags |= Flags.Yield;
             }
 
@@ -3364,7 +3371,6 @@ export class Parser {
 
         // A line terminator between ArrowParameters and the => should trigger a SyntaxError.
         if (this.flags & Flags.LineTerminator) {
-            this.errorLocation = this.getLocations();
             this.error(Errors.LineBreakAfterAsync);
         }
 
@@ -3541,7 +3547,7 @@ export class Parser {
         }
 
         if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
-            if(!hasPrefix) this.errorLocation = pos;
+            if (!hasPrefix) this.errorLocation = pos;
             this.error(hasPrefix ? Errors.StrictLHSPrefix : Errors.StrictLHSPostfix);
         }
 
@@ -3579,7 +3585,7 @@ export class Parser {
             case Token.Period:
                 if (!(context & Context.Method)) {
                     this.errorLocation = pos;
-                    this.error(Errors.BadSuperCall);
+                    this.error(Errors.UnexpectedSuper);
                 }
                 break;
 
@@ -3760,10 +3766,8 @@ export class Parser {
 
         if (t & Token.IsGenerator) {
             if (context & Context.AnnexB) {
-                this.error(Errors.ForbiddenAsStatement, tokenDesc(t));
-            }
-            if (context & Context.Await && !(this.flags & Flags.OptionsNext)) {
-                this.errorLocation = this.getLocations();
+                this.error(Errors.GeneratorInSingleStatementContext);
+            } else if (context & Context.Await && !(this.flags & Flags.OptionsNext)) {
                 this.error(Errors.InvalidAsyncGenerator);
             }
             this.expect(context, Token.Multiply);
@@ -3790,7 +3794,7 @@ export class Parser {
 
                     if ((context & Context.Await && t & Token.IsAwait) ||
                         (context & Context.Yield && t & Token.IsYield)) {
-                            this.errorLocation = this.getLocations();
+                        this.errorLocation = this.getLocations();
                         this.error(Errors.DisallowedInContext, tokenDesc(t));
                     }
 
@@ -3974,22 +3978,20 @@ export class Parser {
                 // Trailing comma in async arrow param list
                 if (this.token === Token.Comma) {
                     state |= ParenthesizedState.Trailing;
-                    this.errorLocation = this.errorLocation = this.getLocations();
+                    this.errorLocation = this.getLocations();
                 }
                 args.push(elem);
             } else {
+
                 if (context & Context.Strict) {
                     if (!(state & ParenthesizedState.EvalOrArg) && this.isEvalOrArguments(this.tokenValue)) {
-                        this.errorLocation = this.errorLocation = this.getLocations();
                         state |= ParenthesizedState.EvalOrArg;
                     }
                 }
                 if (this.token & Token.IsAwait && !(state & ParenthesizedState.Await)) {
-                    this.errorLocation = this.getLocations();
                     state |= ParenthesizedState.Await;
                 }
                 if (!(state & ParenthesizedState.Parenthesized) && this.token === Token.LeftParen) {
-                    this.errorLocation = this.getLocations();
                     state |= ParenthesizedState.Parenthesized;
                 }
                 args.push(this.parseAssignmentExpression(context | Context.InAsyncArgs));
@@ -4127,7 +4129,6 @@ export class Parser {
 
             if (this.token & Token.IsIdentifier) {
                 if (this.tokenValue !== 'target') {
-                    this.errorLocation = pos;
                     this.error(Errors.MetaNotInFunctionBody);
                 }
                 if (!(context & Context.InParameter)) {
@@ -4136,7 +4137,6 @@ export class Parser {
                         this.error(Errors.NewTargetArrow);
                     }
                     if (!(this.flags & Flags.InFunctionBody)) {
-                        this.errorLocation = pos;
                         this.error(Errors.MetaNotInFunctionBody);
                     }
                 }
@@ -4223,20 +4223,21 @@ export class Parser {
         const name = this.tokenValue;
         const pos = this.getLocations();
         const flag = this.flags;
-
+        const t = this.token;
         // 'let' must not be in expression position in strict mode
-        if (context & Context.Strict) this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
+        if (context & Context.Strict) this.error(Errors.InvalidStrictExpPostion, tokenDesc(t));
 
         this.expect(context, Token.LetKeyword);
 
         switch (this.token) {
             case Token.LetKeyword:
-                this.error(Errors.InvalidStrictExpPostion, tokenDesc(this.token));
+                this.error(Errors.LetInLexicalBinding);
             case Token.LeftBracket:
                 {
                     if (this.flags & Flags.LineTerminator) {
+                        this.errorLocation = pos;
                         // Note: ExpressionStatement has a lookahead restriction for `let [`.
-                        this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                        this.error(Errors.UnexpectedToken, tokenDesc(t));
                     }
                 }
         }
@@ -4494,7 +4495,6 @@ export class Parser {
         if (t & Token.IsGenerator) {
             if (state & ObjectState.Async &&
                 !(this.flags & Flags.OptionsNext)) {
-                this.errorLocation = this.getLocations();
                 this.error(Errors.InvalidAsyncGenerator);
             }
             state |= modifierState = ObjectState.Yield;
@@ -4550,6 +4550,7 @@ export class Parser {
         if (this.token === Token.LeftParen) {
 
             if (!key && state & ObjectState.Yield) {
+
                 this.error(Errors.UnexpectedToken, tokenDesc(t));
             }
 
@@ -4681,7 +4682,6 @@ export class Parser {
         // Generator / Async Iterations ( Stage 3 proposal)
         if (this.token & Token.IsGenerator) {
             if (state & ObjectState.Async && !(this.flags & Flags.OptionsNext)) {
-                this.errorLocation = this.getLocations();
                 this.error(Errors.InvalidAsyncGenerator);
             }
             state |= modifierState = ObjectState.Yield;
@@ -4690,7 +4690,6 @@ export class Parser {
 
         // TODO! Move this!
         if (state & ObjectState.Async && this.flags & Flags.LineTerminator) {
-            this.errorLocation = this.getLocations();
             this.error(Errors.LineBreakAfterAsync);
         }
 
@@ -4766,16 +4765,15 @@ export class Parser {
                 state |= ObjectState.Shorthand;
 
                 if (this.parseOptional(context, Token.Assign)) {
-                    if (this.token & (Token.IsYield | Token.IsAwait)) {
+
+                    if (this.token & Token.IsYield && context & Context.Yield) {
                         this.errorLocation = pos;
-                        if (this.token & Token.IsYield && context & Context.Yield) {
-                            this.errorLocation = pos;
-                            this.flags |= Flags.Yield;
-                        }
-                        if (this.token & Token.IsAwait) {
-                            this.flags |= Flags.Await;
-                            this.errorLocation = pos;
-                        }
+                        this.flags |= Flags.Yield;
+                    }
+                    if (this.token & Token.IsAwait) {
+                        this.errorLocation = pos;
+                        this.flags |= Flags.Await;
+
                     }
 
                     value = this.finishNode(context, pos, {
@@ -4919,11 +4917,10 @@ export class Parser {
         }
 
         const sequencepos = this.getLocations();
-        this.errorLocation = pos;
         let isSequence = false;
 
         if (context & Context.Yield && this.token & Token.IsYield) {
-            this.errorLocation = sequencepos;
+            this.errorLocation = this.getLocations();
             this.flags |= Flags.Yield;
         }
         if (this.token === Token.LeftParen) state |= ParenthesizedState.Parenthesized;
@@ -4948,8 +4945,10 @@ export class Parser {
                     if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
                     return this.parseArrowFunctionExpression(context & ~(Context.Await | Context.Yield), pos, expressions);
                 } else {
-                    this.errorLocation = this.getLocations();
-                    if (this.token === Token.LeftParen) state |= ParenthesizedState.Parenthesized;
+
+                    if (this.token === Token.LeftParen) {
+                        state |= ParenthesizedState.Parenthesized;
+                    }
                     expressions.push(this.parseAssignmentExpression(context));
                 }
             }
@@ -4968,16 +4967,17 @@ export class Parser {
 
         if (this.token === Token.Arrow) {
             if (state & ParenthesizedState.Pattern) {
+                this.errorLocation = pos;
                 this.flags |= Flags.SimpleParameterList;
             }
             if (this.flags & Flags.Await) this.error(Errors.InvalidAwaitInArrowParam);
             if (state & ParenthesizedState.FutureReserved) this.flags |= Flags.Binding;
-            if (this.flags & Flags.Yield) this.error(Errors.InvalidArrowYieldParam);
+            if (this.flags & Flags.Yield) {
+                this.error(Errors.InvalidArrowYieldParam);
+            }
             if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
             return this.parseArrowFunctionExpression(context, pos, isSequence ? (expr as any).expressions : [expr]);
         }
-
-        this.errorLocation = undefined;
 
         if (state & ParenthesizedState.Pattern) {
             this.flags |= Flags.ParenthesizedPattern;
@@ -5106,7 +5106,6 @@ export class Parser {
         const raw = this.tokenRaw;
 
         if (context & Context.Strict && this.flags & Flags.Octal) {
-            this.errorLocation = pos;
             this.error(Errors.StrictOctalLiteral);
         }
 
@@ -5381,10 +5380,10 @@ export class Parser {
     private parseRestProperty(context: Context): ESTree.RestElement {
         const pos = this.getLocations();
         this.expect(context, Token.Ellipsis);
-
-        if (!(this.token & Token.IsIdentifier)) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        // Object rest spread must be followed by an identifier in declaration contexts
+        if (!(this.token & Token.IsIdentifier)) this.error(Errors.InvalidRestBindingPattern);
         const arg = this.parseBindingIdentifierOrPattern(context);
-        if (this.token === Token.Assign) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+        if (this.token === Token.Assign) this.error(Errors.InvalidRestBindingPattern);
 
         return this.finishNode(context, pos, {
             type: 'RestElement',

@@ -4,7 +4,11 @@ describe('Next - Rest property', () => {
 
     fail('let { ...x = y } = z;', {
         source: `let { ...x = y } = z;`,
-        next: true
+        next: true,
+        message: '`...` must be followed by an identifier in declaration contexts',
+        line: 1,
+        column: 11,
+        index: 12
     });
 
     fail('let { a, ...b, c } = x;', {

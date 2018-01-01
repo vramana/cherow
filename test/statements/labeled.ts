@@ -1,8 +1,8 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Statements - Labelled', () => {
 
-        testErrorLocation(`label: async function f() {}`, {
+        fail(`label: async function f() {}`, {
           source: 'label: async function f() {}',
           message: 'Async functions can only be declared at the top level or inside a block',
           line: 1,
@@ -14,7 +14,7 @@ describe('Statements - Labelled', () => {
           source: 'label: class C {}',
       });
 
-        testErrorLocation(`label: const x = null;`, {
+        fail(`label: const x = null;`, {
           source: 'label: const x = null;',
           message: 'Unexpected token \'const\'',
           line: 1,
@@ -32,7 +32,7 @@ describe('Statements - Labelled', () => {
           module: true
       });
 
-        testErrorLocation(`yield: 1;`, {
+        fail(`yield: 1;`, {
           source: 'yield: 1;',
           module: true,
           message: 'Unexpected token \'yield\'',

@@ -1,15 +1,15 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 describe('Statements - If', () => {
 
-    testErrorLocation(`if (true) async function f() {  }`, {
+    fail(`if (true) async function f() {  }`, {
       source: 'if (true) async function f() {  }',
       message: 'Async functions can only be declared at the top level or inside a block',
       line: 1,
-      column: 10,
+      column: 0,
       index: 15,
   });
 
-    testErrorLocation(`if(1) break;`, {
+    fail(`if(1) break;`, {
       source: 'if(1) break;',
       message: 'break  statement must be nested within an iteration statement',
       line: 1,

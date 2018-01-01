@@ -1,4 +1,4 @@
-import { pass, fail, testErrorLocation } from '../utils';
+import { pass, fail } from '../utils';
 
 describe('Statements - Return', () => {
 
@@ -568,7 +568,7 @@ describe('Statements - Return', () => {
           source: '{ return; }',
       });
 
-      testErrorLocation(`if (false) { return; }`, {
+      fail(`if (false) { return; }`, {
           source: 'if (false) { return; }',
           message: 'Illegal return statement',
           line: 1,
