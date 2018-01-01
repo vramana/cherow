@@ -21,7 +21,6 @@ const config = {
     replace({
       VERSION: pkg.version
     }),
-    // Shave off 10KB extra with Buble vs TS
     buble({exclude: './node_modules/**'}),
   ],
   sourcemap: false,

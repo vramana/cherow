@@ -6,7 +6,7 @@
         "declaration": false,
         "experimentalDecorators": true,
         "moduleResolution": "node",
-        "target": "es5",
+        "target": "es2015",
         "noEmitHelpers": true,
         "newLine": "LF",
         "noImplicitAny": true,
