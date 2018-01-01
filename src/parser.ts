@@ -7,6 +7,7 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location } from './interface';
+
 export class Parser {
 
     // The program to be parsed

@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
-import buble from 'rollup-plugin-buble';
 import uglify from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
+import typescript from 'rollup-plugin-typescript2';
 const format = process.env.NODE_ENV;
 const isMinify = format === 'minify';
 
@@ -21,7 +21,11 @@ const config = {
     replace({
       VERSION: pkg.version
     }),
-    buble({exclude: './node_modules/**'}),
+    typescript({
+      include: 'src/**',
+      exclude: 'test/**',
+      typescript: require('typescript')
+    }),
   ],
   sourcemap: false,
   output
