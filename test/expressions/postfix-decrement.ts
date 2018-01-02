@@ -5,6 +5,7 @@ describe('Expressions - Postfix decrement', () => {
     fail(`function f() { new.target--; }`, {
         source: 'function f() { new.target--; }',
         message: 'Invalid left-hand side expression in postfix operation',
+        next: true, 
         line: 1,
         column: 15,
         index: 18
@@ -13,6 +14,7 @@ describe('Expressions - Postfix decrement', () => {
     fail(`function* g() { (yield)--; }`, {
         source: 'function* g() { (yield)--; }',
         message: 'Invalid left-hand side expression in postfix operation',
+        next: true,
         line: 1,
         column: 16,
         index: 17
@@ -33,5 +35,23 @@ describe('Expressions - Postfix decrement', () => {
         column: 0,
         index: 1
     });
+
+    fail(`1++;`, {
+        source: '1++;',
+        message: 'Invalid left-hand side expression in postfix operation',
+        line: 1,
+        column: 0,
+        index: 1
+    });
+
+    fail(`var blah = arguments; arguments--;`, {
+        source: '"use strict"; var blah = arguments--;',
+        message: 'Postfix increment/decrement may not have eval or arguments operand in strict mode',
+        line: 1,
+        column: 0,
+        index: 34
+    });
+    
+        
 
 });

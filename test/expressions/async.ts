@@ -2,100 +2,200 @@ import { pass, fail } from '../utils';
 
 describe('Expressions - Async', () => {
 
-    fail(`({async *a(eval){}})`, {
-        source: '({async *a(eval){}})',
+    fail(`"use strict"; ({async *a(eval){}})`, {
+        source: '"use strict"; ({async *a(eval){}})',
+        next: true,
+        message: 'Eval or arguments can\'t be assigned to in strict mode code',
+        line: 1,
+        column: 25,
+        index: 29
     });
 
     fail(`var obj = { async *method([...x = []]) {} };`, {
         source: 'var obj = { async *method([...x = []]) {} };',
+        next: true,
+        message: 'Unexpected token \'=\'',
+        line: 1,
+        column: 26,
+        index: 27
     });
 
     fail(`var obj = { async *method([...{ x } = []] = []) {} };`, {
         source: 'var obj = { async *method([...{ x } = []] = []) {} };',
+        next: true,
+        message: 'Unexpected token \'=\'',
+        line: 1,
+        column: 26,
+        index: 27
     });
 
     fail(`({ async foo (x = await) {  } })`, {
-        source: `({ async foo (x = await) {  } })`, module: true,
+        source: `({ async foo (x = await) {  } })`, 
+        module: true,
+        message: '\'await\' may not be used as an identifier in this context',
+        line: 1,
+        column: 18,
+        index: 23
     });
 
     fail(`({async async});`, {
         source: '({async async});',
+        message: 'Unexpected token \'async\'',
+        line: 1,
+        column: 13,
+        index: 14
     });
 
     fail(`async (await) => 1;`, {
         source: 'async (await) => 1;',
+        message: '\'await\' is not a valid identifier name in an async function',
+        line: 1,
+        column: 7,
+        index: 12
     });
 
     fail(`async function f() { await }`, {
         source: 'async function f() { await }',
+        message: 'Unexpected token \'}\'',
+        line: 1,
+        column: 21,
+        index: 26
     });
 
     fail(`async f() { x = { async await(){} } }`, {
         source: 'async f() { x = { async await(){} } }',
+        message: 'Unexpected identifier',
+        line: 1,
+        column: 7,
+        index: 8
     });
 
     fail(`async(e=await)=>l`, {
         source: 'async(e=await)=>l',
+        message: '\'await\' is not a valid identifier name in an async function',
+        line: 1,
+        column: 8,
+        index: 13
     });
 
     fail(`({async *a(eval){}})`, {
         source: '({async *a(eval){}})',
+        message: 'Generator function or method can\'t be async',
+        line: 1,
+        column: 8,
+        index: 9
     });
 
     fail(`x = { async f: function() {} }`, {
         source: 'x = { async f: function() {} }',
+        message: '\'async\' may not be used as an identifier in this context',
+        line: 1,
+        column: 13,
+        index: 14
     });
 
     fail(`var aaf = async\n(x, y) => { }`, {
         source: 'var aaf = async\n(x, y) => { }',
+        message: 'No line break is allowed after async',
+        line: 2,
+        column: 7,
+        index: 25
     });
 
     fail(`class C { async\nam() { } };`, {
         source: 'class C { async\nam() { } };',
+        message: 'No line break is allowed after async',
+        line: 2,
+        column: 0,
+        index: 18
     });
 
     fail(`var af = async\nfunction () { }`, {
         source: 'var af = async\nfunction () { }',
+        message: 'Function statement requires a name',
+        line: 2,
+        column: 0,
+        index: 25
     });
 
     fail(`class X { async constructor(){} }`, {
         source: 'class X { async constructor(){} }',
+        message: 'Class constructor may not be an accessor',
+        line: 1,
+        column: 0,
+        index: 28
     });
 
     fail(`x = {async set s(i) {} }`, {
         source: 'x = {async set s(i) {} }',
+        message: 'Unexpected token \'async\'',
+        line: 1,
+        column: 0,
+        index: 16
     });
 
     fail(`x = { async *g() {} }`, {
         source: 'x = { async *g() {} }',
+        message: 'Generator function or method can\'t be async',
+        line: 1,
+        column: 12,
+        index: 13
     });
 
     fail(`async function foo() { await };`, {
         source: 'async function foo() { await };',
+        message: 'Unexpected token \'}\'',
+        line: 1,
+        column: 0,
+        index: 28
     });
 
     fail(`({async foo: 1});`, {
         source: '({async foo: 1});',
+        message: '\'async\' may not be used as an identifier in this context',
+        line: 1,
+        column: 0,
+        index: 12
     });
 
     fail(`({async get foo() { }});`, {
         source: '({async get foo() { }});',
+        message: 'Unexpected token \'async\'',
+        line: 1,
+        column: 0,
+        index: 15
     });
 
     fail(`(class {async foo(a = await b) {}});`, {
         source: '(class {async foo(a = await b) {}});',
+        message: '\'await\' may not be used as an identifier in this context',
+        line: 1,
+        column: 0,
+        index: 27
     });
 
     fail(`class A {async constructor() { }};`, {
         source: 'class A {async constructor() { }};',
+        message: 'Class constructor may not be an accessor',
+        line: 1,
+        column: 0,
+        index: 27
     });
 
     fail(`(async function* foo() { });`, {
         source: '(async function* foo() { });',
+        message: 'Generator function or method can\'t be async',
+        line: 1,
+        column: 0,
+        index: 16
     });
 
     fail(`async function foo() { return {await} };`, {
         source: 'async function foo() { return {await} };',
+        message: '\'await\' may not be used as an identifier in this context',
+        line: 1,
+        column: 0,
+        index: 37
     });
 
     fail(`async function wrap() {
@@ -104,6 +204,10 @@ describe('Expressions - Async', () => {
         source: `async function wrap() {
             async function await() { }
           };`,
+          message: '\'await\' may not be used as an identifier in this context',
+          line: 2,
+          column: 0,
+          index: 56
     });
 
     fail(`function* wrap() {
@@ -112,14 +216,26 @@ describe('Expressions - Async', () => {
         source: `function* wrap() {
             async(a = yield b) => a
           };`,
+          message: 'Unexpected token',
+          line: 2,
+          column: 0,
+          index: 48
     });
 
     fail(`class A {static async* foo() { }};`, {
         source: 'class A {static async* foo() { }};',
+        message: 'Generator function or method can\'t be async',
+        line: 1,
+        column: 0,
+        index: 22
     });
 
     fail(`async () => await;`, {
         source: 'async () => await;',
+        message:  'Unexpected token \';\'',
+        line: 1,
+        column: 0,
+        index: 18
     });
 
     pass(`class UserRepo{ async get(id) { return id; } }`, {

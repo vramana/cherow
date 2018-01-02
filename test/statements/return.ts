@@ -558,14 +558,18 @@ describe('Statements - Return', () => {
 
       fail(`return;`, {
         source: 'return;',
+        message: 'Illegal return statement',
+        line: 1,
+        column: 0,
+        index: 6,
     });
-
-      fail(`return;`, {
-          source: 'return;',
-      });
 
       fail(`{ return; }`, {
           source: '{ return; }',
+          message: 'Illegal return statement',
+          line: 1,
+          column: 0,
+          index: 8,
       });
 
       fail(`if (false) { return; }`, {
@@ -578,5 +582,9 @@ describe('Statements - Return', () => {
 
       fail(`{ var x=1; return; var y=2; }`, {
         source: '{ var x=1; return; var y=2; }',
+        message: 'Illegal return statement',
+        line: 1,
+        column: 0,
+        index: 17,
     });
   });

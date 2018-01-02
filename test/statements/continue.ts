@@ -618,11 +618,19 @@ describe('Statements - Continue', () => {
       });
 
       fail(`a: while (0) { continue /*\\u2028*/ b; }`, {
-        source: 'a: while (0) { continue /*\\u2028*/ b; }'
+        source: 'a: while (0) { continue /*\\u2028*/ b; }',
+        message: 'Undefined label \'b\'',
+        line: 1,
+        column: 36,
+        index: 37
       });
 
       fail(`while ( false ) Label: continue Label;`, {
-        source: 'while ( false ) Label: continue Label;'
+        source: 'while ( false ) Label: continue Label;',
+        message: 'continue  statement must be nested within an iteration statement',
+        line: 1,
+        column: 16,
+        index: 21
       });
 
       fail(`LABEL_OUT : var x=0, y=0;
@@ -655,5 +663,9 @@ describe('Statements - Continue', () => {
         } while(0);
 
         function OUT_FUNC(){}`,
+        message: 'Undefined label \'LABEL_IN\'',
+        line: 6,
+        column: 28,
+        index: 140
       });
   });

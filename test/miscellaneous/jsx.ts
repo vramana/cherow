@@ -4,22 +4,38 @@ describe('Miscellaneous - JSX', () => {
 
   fail(`adjacent JSX elements not wrapped in an enclosing tag`, {
     source: `<div>one</div><div>two</div>`,
-    jsx: true
+    jsx: true,
+    message: 'Unexpected token \'</\'',
+    line: 1,
+    column: 22,
+    index: 24
 });
 
   fail(`</>`, {
   source: `</>`,
-  jsx: true
+  jsx: true,
+  message: 'Unexpected token \'</\'',
+  line: 1,
+  column: 0,
+  index: 2
 });
 
   fail(`<foo.bar></foo.baz>`, {
   source: `<foo.bar></foo.baz>`,
-  jsx: true
+  jsx: true,
+  message: 'Expected corresponding JSX closing tag for foo.baz',
+  line: 1,
+  column: 0,
+  index: 19
 });
 
   fail(`<a b=: />`, {
   source: `<a b=: />`,
-  jsx: true
+  jsx: true,
+  message: 'Unexpected token',
+  line: 1,
+  column: 0,
+  index: 6
 });
 
   fail(`node = <strong></em>`, {

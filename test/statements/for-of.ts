@@ -1123,75 +1123,135 @@ describe('Statements - For of', () => {
 
     fail(`for ([[(x, y)]] of [[[]]]) ;`, {
             source: 'for ([[(x, y)]] of [[[]]]) ;',
+            message: 'Invalid destructuring assignment target',
+            line: 1,
+            column: 25,
+            index: 26   
         });
 
     fail(`for(let of 0);`, {
             source: 'for(let of 0);',
+            message: 'Unexpected token',
+            line: 1,
+            column: 11,
+            index: 12   
         });
 
     fail(`for(this of 0);`, {
             source: 'for(this of 0);',
+            message: 'Invalid left-hand side in for-loop',
+            line: 1,
+            column: 13,
+            index: 14  
         });
 
     fail(`for (a=12 of e) break;`, {
             source: 'for (a=12 of e) break;',
+            message: 'Invalid left-hand side in for-loop',
+            line: 1,
+            column: 14,
+            index: 15 
         });
 
     fail(`for(let of 0);`, {
             source: 'for(let of 0);',
+            message: 'Unexpected token',
+            line: 1,
+            column: 11,
+            index: 12 
         });
 
     fail(`for(this of 0);`, {
             source: 'for(this of 0);',
+            message: 'Invalid left-hand side in for-loop',
+            line: 1,
+            column: 13,
+            index: 14
         });
 
     fail(`for(var a = 0 of b);`, {
             source: 'for(var a = 0 of b);',
+            message: 'for-of loop variable declaration may not have an initializer',
+            line: 1,
+            column: 14,
+            index: 16 
         });
 
     fail(`for(let a = 0 of b);`, {
             source: 'for(let a = 0 of b);',
+            message: 'for-of loop variable declaration may not have an initializer',
+            line: 1,
+            column: 14,
+            index: 16
         });
 
     fail(`for(const a = 0 of b);`, {
             source: 'for(const a = 0 of b);',
+            message: 'for-of loop variable declaration may not have an initializer',
+            line: 1,
+            column: 16,
+            index: 18
         });
 
     fail(`for(({a}) of 0);`, {
             source: 'for(({a}) of 0);',
+            message: 'Invalid parenthesized pattern',
+            line: 1,
+            column: 14,
+            index: 15
         });
 
     fail(`for(([a]) of 0);`, {
             source: 'for(([a]) of 0);',
+            message: 'Invalid parenthesized pattern',
+            line: 1,
+            column: 14,
+            index: 15
         });
 
     fail(`for(var a of b, c);`, {
             source: 'for(var a of b, c);',
+            message: 'Unexpected token',
+            line: 1,
+            column: 14,
+            index: 15
         });
 
     fail(`for(a of b, c);`, {
             source: 'for(a of b, c);',
-        });
-
-    fail(`for ({ yield } of [{}]) ;`, {
-            source: 'for ({ yield } of [{}]) ;',
+            message: 'Unexpected token',
+            line: 1,
+            column: 10,
+            index: 11
         });
 
     fail(`for (var x o\\u0066 []) ;`, {
             source: 'for (var x o\\u0066 []) ;',
+            line: 1,
+            column: 11,
+            index: 18
         });
 
     fail(`for ({...rest, b} of [{} ]) ;`, {
             source: 'for ({...rest, b} of [{} ]) ;',
-            next: true
+            next: true,
+            line: 1,
+            column: 13,
+            index: 14
         });
 
     fail(`for (const a of b, c);`, {
             source: 'for (const a of b, c);',
-            next: true
+            next: true,
+            line: 1,
+            column: 17,
+            index: 18
      });
 
     fail(`for ({...rest, b} of [{} ]) ;`, {
             source: 'for ({...rest, b} of [{} ]) ;',
+            line: 1,
+            column: 6,
+            index: 9
     });
 });

@@ -4,32 +4,58 @@ describe('Statements - While', () => {
 
       fail(`while({1}){ break ; };`, {
           source: 'while({1}){ break ; };',
+          message: 'Unexpected token \'number\'',
+          line: 1,
+          column: 8,
+          index: 9,
       });
 
       fail(`while 1 break;`, {
           source: 'while 1 break;',
+          message: 'Unexpected token',
+          line: 1,
+          column: 6,
+          index: 7,
       });
 
       fail(`while 0 break;`, {
           source: 'while 0 break;',
-          module: true
+          message: 'Unexpected token',
+          line: 1,
+          column: 6,
+          index: 7,
       });
 
       fail(`while '' break;`, {
           source: 'while "" break;',
-          module: true
+          message: 'Unexpected token',
+          line: 1,
+          column: 6,
+          index: 8,
       });
 
       fail(`while (false) async function* g() {}`, {
-          source: 'while (false) async function* g() {}'
+          source: 'while (false) async function* g() {}',
+          message: 'Async functions can only be declared at the top level or inside a block',
+          line: 1,
+          column: 14,
+          index: 19,
       });
 
       fail(`while (false) const x = null;`, {
-          source: 'while (false) const x = null;'
+          source: 'while (false) const x = null;',
+          message: 'Unexpected token \'const\'',
+          line: 1,
+          column: 14,
+          index: 19,
       });
 
       fail(`while (false) label1: label2: function f() {}`, {
-          source: 'while (false) label1: label2: function f() {}'
+          source: 'while (false) label1: label2: function f() {}',
+          message: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
+          line: 1,
+          column: 0,
+          index: 38,
       });
 
       pass(`while(1);`, {

@@ -3,10 +3,19 @@ import { pass, fail } from '../utils';
 describe('Miscellaneous - Unicode', () => {
 
       fail('no digits', {
-          source: '\\u{}'
+          source: '\\u{}',
+          message: 'Unexpected token',
+          line: 1,
+          column: 0,
+          index: 0
       });
+
       fail('out of range', {
-          source: '\\u{125400}'
+          source: '\\u{125400}',
+            message: 'Invalid Unicode escape sequence',
+            line: 1,
+            column: 0,
+            index: 0
       });
 
       pass(`"T\\u203F = []"`, {

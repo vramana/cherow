@@ -4,19 +4,35 @@ describe('Miscellaneous - Comments', () => {
 
     fail(`;-->`, {
         source: `;-->`,
+        message: 'Unexpected token \'>\'',
+        line: 1,
+        column: 3,
+        index: 4,
     });
 
     fail(`single and multi line comments used together`, {
         source: `// var /*
         x*/`,
+        message: 'Unterminated regular expression literal',
+        line: 2,
+        column: 10,
+        index: 22,
     });
 
     fail(`single and multi line comments used together`, {
-        source: `<!-`
+        source: `<!-`,
+        message:'Unexpected token \'end of source\'',
+        line: 1,
+        column: 2,
+        index: 3,
     });
 
     fail(`single and multi line comments used together`, {
-        source: `<!`
+        source: `<!`,
+        message: 'Unexpected token \'end of source\'',
+        line: 1,
+        column: 1,
+        index: 2,
     });
 
     fail(`single and multi line comments used together`, {

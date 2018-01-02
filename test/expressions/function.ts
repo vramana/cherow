@@ -1,57 +1,109 @@
 import { fail, pass } from '../utils';
 
-describe('Statements - Function', () => {
+describe('Expressions - Function', () => {
 
     fail(`var f = function(a = 0) { "use strict"; }`, {
         source: 'var f = function(a = 0) { "use strict"; }',
+        message: 'Illegal \'use strict\' directive in function with non-simple parameter list',
+        line: 1,
+        column: 40,
+        index: 41
     });
 
     fail(`"use strict"; function *g() { 0, function(x = yield) { paramValue = x; }; }`, {
         source: '"use strict"; function *g() { 0, function(x = yield) { paramValue = x; }; }',
+        message: 'Unexpected token \'yield\'',
+        line: 1,
+        column: 46,
+        index: 51
     });
 
     fail(`0, function() { super(); };`, {
         source: '0, function() { super(); };',
+        message: 'super() is only valid in derived class constructors',
+        line: 1,
+        column: 16,
+        index: 21
     });
 
     fail(`0, function(x = super()) {};`, {
         source: '0, function(x = super()) {};',
+        message: 'super() is only valid in derived class constructors',
+        line: 1,
+        column: 16,
+        index: 21
     });
 
     fail(`"use strict"; function foo() { eval = 42; };`, {
         source: '"use strict"; function foo() { eval = 42; };',
+        message: 'Eval or arguments can\'t be assigned to in strict mode code',
+        line: 1,
+        column: 36,
+        index: 37
     });
 
     fail(`(function((a)){})`, {
         source: '(function((a)){})',
+        message: 'Unexpected token \'(\'',
+        line: 1,
+        column: 10,
+        index: 11
     });
 
     fail(`(function(a){ let a; })`, {
         source: '(function(a){ let a; })',
+        message: '\'a\' has already been declared ',
+        line: 1,
+        column: 18,
+        index: 19
     });
 
     fail(`(function(a){ const a; })`, {
         source: '(function(a){ const a; })',
+        message: '\'a\' has already been declared ',
+        line: 1,
+        column: 20,
+        index: 21
     });
 
     fail(`(function ({ a(){} }) {})`, {
         source: '(function ({ a(){} }) {})',
+        message: 'Unexpected token',
+        line: 1,
+        column: 11,
+        index: 12
     });
 
     fail(`'use strict'; (function({a: x}, {b: x}){})`, {
         source: '"use strict"; (function({a: x}, {b: x}){})',
+        message: '\'x\' has already been declared ',
+        line: 1,
+        column: 32,
+        index: 33
     });
 
     fail(`(function((a)){})`, {
         source: '(function((a)){})',
+        message:'Unexpected token \'(\'',
+        line: 1,
+        column: 10,
+        index: 11
     });
 
     fail(`(function(...a, b){})`, {
         source: '(function(...a, b){})',
+        message: 'Rest parameter must be last formal parameter',
+        line: 1,
+        column: 10,
+        index: 13
     });
 
     fail(`var _13_1_18_fun = function (eval) { "use strict"; }`, {
         source: 'var _13_1_18_fun = function (eval) { "use strict"; }',
+        message: 'Unexpected eval or arguments in strict mode',
+        line: 1,
+        column: 29,
+        index: 33
     });
 
     pass(`(function foo() {} /42/i)`, {

@@ -4,6 +4,10 @@ describe('Statements - Try', () => {
 
     fail(`try { } catch (x) { let x; }`, {
         source: `try { } catch (x) { let x; }`,
+        message:  '\'x\' has already been declared ',
+        line: 1,
+        column: 24,
+        index: 25,
     });
 
     pass(`try { } catch (eval) { }`, {

@@ -9,10 +9,18 @@ describe('Miscellaneous - ASI', () => {
     ++
     ++
     y`,
+    message: 'Unexpected token \'++\'',
+    line: 5,
+    column: 4,
+    index: 44
 });
 
   fail(`invalid Do-While Statement ASI`, {
   source: `do {}; \n while(false)`,
+  message: 'Unexpected token',
+  line: 1,
+  column: 5,
+  index: 6
 });
 
   fail(`for header is (false \n false \n)`, {
@@ -21,6 +29,10 @@ describe('Miscellaneous - ASI', () => {
 ) {
   break;
 }`,
+message: 'Unexpected token',
+line: 2,
+column: 4,
+index: 19
 });
 
   fail(`for header is (\n false \n)`, {
@@ -29,6 +41,10 @@ describe('Miscellaneous - ASI', () => {
 ) {
   break;
 }`,
+message: 'Unexpected token',
+line: 3,
+column: 0,
+index: 16
 });
 
   fail(`for header is (\n semicolon false)`, {

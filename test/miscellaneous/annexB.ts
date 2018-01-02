@@ -556,8 +556,13 @@ describe('Miscellaneous - AnnexB', () => {
     describe('Comments (B3.1)', () => {
 
         fail (`var foo = [23] -->[0];`, {
-            source: `var foo = [23] -->[0];`
+            source: `var foo = [23] -->[0];`,
+            message: 'Invalid left-hand side expression in postfix operation',
+            line: 1,
+            column: 10,
+            index: 11
         });
+
         pass(`multiline HTML close`, {
             source: `/*
             */--> foo`,
@@ -5207,9 +5212,13 @@ describe('Miscellaneous - AnnexB', () => {
 
     describe('Expressions - Object', () => {
 
-            // fail(`({  __proto__: null,  other: null,  '__proto__': null });`, {
-            //  source: `({  __proto__: null,  other: null,  '__proto__': null });`,
-            //  });
+             fail(`({  __proto__: null,  other: null,  '__proto__': null });`, {
+              source: `({  __proto__: null,  other: null,  '__proto__': null });`,
+              message: 'Property name __proto__ appears more than once in object literal',
+              line: 1,
+              column: 36,
+              index: 47
+              });
 
             pass(`o = { __proto__: function() {} };`, {
                 source: 'o = { __proto__: function() {} };',
@@ -6159,6 +6168,10 @@ describe('Miscellaneous - AnnexB', () => {
 
             fail(`"use strict"; label: function f(){}`, {
                 source: `"use strict"; label: function f(){}`,
+                message: 'In strict mode code, functions can only be declared at top level or inside a block',
+                line: 1,
+                column: 21,
+                index: 29
             });
         });
 
@@ -6166,26 +6179,50 @@ describe('Miscellaneous - AnnexB', () => {
 
             fail(`"use strict"; if (0) function f(){}`, {
                 source: `"use strict"; if (0) function f(){}`,
+                message: 'function can\'t appear in single-statement context',
+                line: 1,
+                column: 21,
+                index: 29
             });
 
             fail(`"use strict";  if (0) function f(){} else;`, {
                 source: `"use strict";  if (0) function f(){} else;`,
+                message: 'function can\'t appear in single-statement context',
+                line: 1,
+                column: 22,
+                index: 30
             });
 
             fail(`"use strict"; if (0); else function f(){}`, {
                 source: `"use strict"; if (0); else function f(){}`,
+                message: 'function can\'t appear in single-statement context',
+                line: 1,
+                column: 27,
+                index: 35
             });
 
             fail(`"use strict"; if (0); else function f(){}`, {
                 source: `"use strict"; label foo: function f(){}`,
+                message: 'Unexpected token \'identifier\'',
+                line: 1,
+                column: 20,
+                index: 23
             });
 
             fail(`while(true) function a(){}`, {
                 source: `while(true) function a(){}`,
+                message: 'function can\'t appear in single-statement context',
+                line: 1,
+                column: 12,
+                index: 20
             });
 
             fail(`with(true) function a(){}`, {
                 source: `with(true) function a(){}`,
+                message: 'function can\'t appear in single-statement context',
+                line: 1,
+                column: 11,
+                index: 19
             });
 
             pass(`if (x) function f() { return 23; } else function f() { return 42; }`, {
@@ -6524,14 +6561,14 @@ describe('Miscellaneous - AnnexB', () => {
     describe('Statements - If', () => {
             fail(`try {} catch(e) { let e; }`, {
                 source: `try {} catch(e) { let e; }`,
+                message:  '\'e\' has already been declared ',
+                line: 1,
+                column: 22,
+                index: 23
             });
         });
 
     describe('B.3.5', () => {
-
-           // fail(`try {} catch(e) { for(var e of 0); }`, {
-             //   source: `try {} catch(e) { for(var e of 0); }`,
-           // });
 
             fail(`try {} catch(e) { let e; }`, {
                 source: `try {} catch(e) { let e; }`,

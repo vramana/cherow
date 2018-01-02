@@ -4,6 +4,10 @@ describe('Miscellaneous - Future reserved words', () => {
 
         fail(`var export = 1;`, {
             source: `var export = 1;`,
+            message: 'Unexpected token \'export\'',
+            line: 1,
+            column: 4,
+            index: 10
         });
 
         fail(`var class = 1;`, {
@@ -16,22 +20,42 @@ describe('Miscellaneous - Future reserved words', () => {
 
         fail(`"use strict"; var implements = 1;`, {
             source: `"use strict"; var implements = 1;`,
+            message: 'Unexpected token \'implements\'',
+            line: 1,
+            column: 18,
+            index: 28
         });
 
         fail(`"use strict"; var inte\\u0072face = 123;`, {
             source: `"use strict"; var inte\\u0072face = 123;;`,
+            message: 'Unexpected token \'interface\'',
+            line: 1,
+            column: 18,
+            index: 32
         });
 
         fail(`var enum = 1;`, {
             source: `var enum = 1;`,
+            message: 'Unexpected token \'enum\'',
+            line: 1,
+            column: 4,
+            index: 8
         });
 
         fail(`"use strict"; var \\u0079ield = 123;`, {
             source: `"use strict"; var \\u0079ield = 123;`,
+            message: '\'yield\' may not be used as an identifier in this context',
+            line: 1,
+            column: 18,
+            index: 28
         });
 
         fail(`"use strict"; var \\u0070\\u0075\\u0062\\u006c\\u0069\\u0063 = 123;`, {
             source: `"use strict"; var \\u0070\\u0075\\u0062\\u006c\\u0069\\u0063 = 123;`,
+            message: 'Unexpected token \'public\'',
+            line: 1,
+            column: 18,
+            index: 54
         });
 
         pass(`var Implements = 1;`, {

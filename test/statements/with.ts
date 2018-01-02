@@ -4,13 +4,18 @@ describe('Statements - With', () => {
 
 fail(`with ({}) class C {}`, {
     source: 'with ({}) class C {}',
+    message: 'class can\'t appear in single-statement context',
+    line: 1,
+    column: 10,
+    index: 15,
 });
 
 fail(`with in strict mode`, {
     source: '"use strict"; with (x) foo',
-    loc: true,
-    ranges: true,
-    raw: true,
+    message: 'Strict mode code may not include a with statement',
+    line: 1,
+    column: 14,
+    index: 18,
   });
 
 pass(`with (x) foo`, {

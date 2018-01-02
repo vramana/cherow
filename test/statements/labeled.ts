@@ -12,6 +12,10 @@ describe('Statements - Labelled', () => {
 
         fail(`label: class C {}`, {
           source: 'label: class C {}',
+          message: 'class can\'t appear in single-statement context',
+          line: 1,
+          column: 7,
+          index: 12
       });
 
         fail(`label: const x = null;`, {
@@ -24,12 +28,20 @@ describe('Statements - Labelled', () => {
 
         fail(`label: function g() {}`, {
           source: 'label: function g() {}',
-          module: true
+          module: true,
+          message: 'In strict mode code, functions can only be declared at top level or inside a block',
+          line: 1,
+          column: 7,
+          index: 15,
       });
 
         fail(`aw\\u0061it: 1;`, {
           source: 'aw\\u0061it: 1;',
-          module: true
+          module: true,
+          message: 'Unexpected token \'await\'',
+          line: 1,
+          column: 0,
+          index: 10,
       });
 
         fail(`yield: 1;`, {

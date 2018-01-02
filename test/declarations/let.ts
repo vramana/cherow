@@ -67,8 +67,8 @@ describe('Declarations - Let', () => {
         source: 'let [x]',
         message: 'Missing initializer in destructuring declaration',
         line: 1,
-        column: 4,
-        index: 5
+        column: 6,
+        index: 7
     });
 
     fail('(function() { "use strict"; { let f; var f; } })', {
@@ -91,8 +91,8 @@ describe('Declarations - Let', () => {
         source: 'let {x}',
         message: 'Missing initializer in destructuring declaration',
         line: 1,
-        column: 4,
-        index: 5
+        column: 6,
+        index: 7
     });
 
     fail('for (;false;) let x;', {

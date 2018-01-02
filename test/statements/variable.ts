@@ -2094,46 +2094,86 @@ describe('Statements - Variable', () => {
 
         fail(`var {a:a};`, {
             source: 'var {a:a};',
+            message: 'Missing initializer in destructuring declaration',
+            line: 1,
+            column: 9,
+            index: 10,
         });
 
         fail(`var {a};`, {
             source: 'var {a};',
+            message: 'Missing initializer in destructuring declaration',
+            line: 1,
+            column: 7,
+            index: 8,
         });
 
         fail(`var [a];`, {
             source: 'var [a];',
+            message: 'Missing initializer in destructuring declaration',
+            line: 1,
+            column: 7,
+            index: 8,
         });
 
         fail(`var this`, {
             source: 'var this',
+            message: 'Unexpected token \'this\'',
+            line: 1,
+            column: 4,
+            index: 8,
         });
 
         fail(`var new A = 0;`, {
             source: 'var new A = 0;',
+            message: 'Unexpected token \'new\'',
+            line: 1,
+            column: 4,
+            index: 7,
         });
 
         fail(`var (a)=0;`, {
             source: 'var (a)=0;',
+            line: 1,
+            column: 4,
+            index: 5,
         });
 
         fail(`var a[0]=0;`, {
             source: 'var a[0]=0;',
+            line: 1,
+            column: 5,
+            index: 6,
         });
 
         fail(`var const`, {
             source: 'var const',
+            message: 'Unexpected token \'const\'',
+            line: 1,
+            column: 4,
+            index: 9,
         });
 
         fail(`var a.b;`, {
             source: 'var a.b;',
+            message: 'Unexpected token \'.\'',
+            line: 1,
+            column: 5,
+            index: 6,
         });
 
         fail(`"use strict"; var eval;`, {
             source: '"use strict"; var eval;    ',
+            line: 1,
+            column: 18,
+            index: 22,
         });
 
         fail(`var a.b;`, {
             source: 'var a.b;',
+            line: 1,
+            column: 5,
+            index: 6,
         });
 
         fail(`var x=0, y=0;
@@ -2148,13 +2188,25 @@ describe('Statements - Variable', () => {
             ++
             ++
             y`,
+            message: 'Unexpected token \'++\'',
+            line: 5,
+            column: 12,
+            index: 76,
         });
 
         fail(`"use strict"; function foo() { var a, arguments, b;}`, {
             source: '"use strict"; function foo() { var a, arguments, b;}',
+            message: 'Eval or arguments can\'t be assigned to in strict mode code',
+            line: 1,
+            column: 38,
+            index: 47,
         });
 
         fail(`"use strict"; for (var eval in null) {};`, {
             source: '"use strict"; for (var eval in null) {};',
+            message: 'Eval or arguments can\'t be assigned to in strict mode code',
+            line: 1,
+            column: 23,
+            index: 27,
         });
     });

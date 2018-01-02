@@ -7,6 +7,10 @@ describe('Miscellaneous - Punctuators', () => {
         loc: true,
         ranges: true,
         raw: true,
+        message:  'Invalid Unicode escape sequence',
+        line: 1,
+        column: 0,
+        index: 6
     });
 
     fail(`this\\u002Ex;`, {
@@ -14,6 +18,10 @@ describe('Miscellaneous - Punctuators', () => {
         loc: true,
         ranges: true,
         raw: true,
+        message:  'Invalid Unicode escape sequence',
+        line: 1,
+        column: 0,
+        index: 9
     });
 
     fail(`1\\u003B;`, {
@@ -21,6 +29,10 @@ describe('Miscellaneous - Punctuators', () => {
         loc: true,
         ranges: true,
         raw: true,
+        message:  'Invalid Unicode escape sequence',
+        line: 1,
+        column: 1,
+        index: 6
     });
 
     pass(`interpretation of all punctuators`, {

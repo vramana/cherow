@@ -1212,8 +1212,8 @@ describe('Declarations - Lexical', () => {
         source: 'let []',
         message: 'Missing initializer in destructuring declaration',
         line: 1,
-        column: 4,
-        index: 5
+        column: 5,
+        index: 6
     });
 
     fail(`const const;`, {

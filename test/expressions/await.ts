@@ -4,127 +4,251 @@ describe('Expressions - Await', () => {
 
     fail(`await a`, {
         source: 'await a',
+        message: 'Unexpected token \'identifier\'',
+        line: 1,
+        column: 6,
+        index: 7
     });
 
     fail(`async(x = await) => {  }`, {
         source: 'async(x = await) => {  }',
+        message: '\'await\' is not a valid identifier name in an async function',
+        line: 1,
+        column: 10,
+        index: 15
     });
 
     fail(`async () => await`, {
         source: 'async () => await',
+        message:  'Unexpected token \'end of source\'',
+        line: 1,
+        column: 12,
+        index: 17
     });
 
     fail(`async function foo() { await }`, {
         source: 'async function foo() { await }',
+        message:  'Unexpected token \'}\'',
+        line: 1,
+        column: 23,
+        index: 28
     });
 
     fail(`async function foo() { (await 1) = 1; }`, {
         source: 'async function foo() { (await 1) = 1; }',
+        message:  'Invalid destructuring assignment target',
+        line: 1,
+        column: 24,
+        index: 29
     });
 
     fail(`async function foo() { await; }`, {
         source: 'async function foo() { await; }',
+        message:  'Unexpected token \';\'',
+        line: 1,
+        column: 23,
+        index: 28
     });
 
     fail(`({async foo() { await }})`, {
         source: `({async foo() { await }})`,
         module: true,
+        message: 'Unexpected token \'}\'',
+        line: 1,
+        column: 16,
+        index: 21
     });
 
     fail(`async await => 1;`, {
         source: 'async await => 1;',
+        message: 'Unexpected token \'await\'',
+        line: 1,
+        column: 6,
+        index: 11
     });
 
     fail(`async (await) => 1;`, {
         source: 'async (await) => 1;',
+        message: '\'await\' is not a valid identifier name in an async function',
+        line: 1,
+        column: 7,
+        index: 12
     });
 
     fail(`async function f() { await }`, {
         source: 'async function f() { await }',
+        message: 'Unexpected token \'}\'',
+        line: 1,
+        column: 21,
+        index: 26
     });
 
     fail(`async f() { x = { async await(){} } }`, {
         source: 'async f() { x = { async await(){} } }',
+        message: 'Unexpected identifier',
+        line: 1,
+        column: 7,
+        index: 8
     });
 
     fail(`async(e=await)=>l`, {
         source: 'async(e=await)=>l',
+        message: '\'await\' is not a valid identifier name in an async function',
+        line: 1,
+        column: 8,
+        index: 13
     });
 
     fail(`async function f() { let await; }`, {
         source: 'async function f() { let await; }',
+        message: 'Unexpected token \'await\'',
+        line: 1,
+        column: 25,
+        index: 30
     });
 
     fail(`class X { async function f() { let await } }`, {
         source: 'class X { async function f() { let await } }',
+        message: 'Unexpected token \'identifier\'',
+        line: 1,
+        column: 25,
+        index: 26
     });
 
     fail(`a = async function () { async function await() {} }`, {
         source: 'a = async function () { async function await() {} }',
+        message: '\'await\' may not be used as an identifier in this context',
+        line: 1,
+        column: 39,
+        index: 44
     });
 
     fail(`async function f() { g(await) }`, {
         source: 'async function f() { g(await) }',
+        message: 'Unexpected token \')\'',
+        line: 1,
+        column: 23,
+        index: 28
     });
 
     fail(`async function foo() { function await() { } }`, {
         source: 'async function foo() { function await() { } }',
+        message: '\'await\' may not be used as an identifier in this context',
+        line: 1,
+        column: 32,
+        index: 37
     });
 
     fail(`async f() { class X { async await(){} } }`, {
         source: 'async f() { class X { async await(){} } }',
+        message: 'Unexpected identifier',
+        line: 1,
+        column: 7,
+        index: 8
     });
 
     fail(`async function f() { return {g: await} }`, {
         source: 'async function f() { return {g: await} }',
+        message: 'Unexpected token \'await\'',
+        line: 1,
+        column: 32,
+        index: 37
     });
 
     fail(`async function f(await) {}`, {
         source: 'async function f(await) {}',
+        message: 'Unexpected token \'await\'',
+        line: 1,
+        column: 17,
+        index: 22
     });
 
     fail(`class X { async f(await) {} }`, {
         source: 'class X { async f(await) {} }',
+        message: 'Unexpected token \'await\'',
+        line: 1,
+        column: 18,
+        index: 23
     });
 
     fail(`x = { async f(await){} }`, {
         source: 'x = { async f(await){} }',
+        message: 'Unexpected token \'await\'',
+        line: 1,
+        column: 14,
+        index: 19
     });
 
     fail(`async (await) => 42`, {
         source: 'async (await) => 42',
+        message: '\'await\' is not a valid identifier name in an async function',
+        line: 1,
+        column: 7,
+        index: 12
     });
 
     fail(`async f() { x = { async await(){} } }`, {
         source: 'async f() { x = { async await(){} } }',
+        message: 'Unexpected identifier',
+        line: 1,
+        column: 7,
+        index: 8
     });
 
     fail(`async function wrap() { ({a = await b} = obj) => a };`, {
         source: 'async function wrap() { ({a = await b} = obj) => a };',
+        message: '\'await\' is not a valid identifier name in an async function',
+        line: 1,
+        column: 24,
+        index: 25
     });
 
     fail(`async ({await}) => 1;`, {
         source: 'async ({await}) => 1;',
+        message: '\'await\' is not a valid identifier name in an async function',
+        line: 1,
+        column: 8,
+        index: 13
     });
 
     fail(`async function foo() { return {await} };`, {
         source: 'async function foo() { return {await} };',
+        message: '\'await\' may not be used as an identifier in this context',
+        line: 1,
+        column: 36,
+        index: 37
     });
 
     fail(`async ([await]) => 1;`, {
         source: 'async ([await]) => 1;',
+        message: '\'await\' is not a valid identifier name in an async function',
+        line: 1,
+        column: 8,
+        index: 13
     });
 
     fail(`(async function foo(await) { });`, {
         source: '(async function foo(await) { });',
+        message: 'Unexpected token \'await\'',
+        line: 1,
+        column: 20,
+        index: 25
     });
 
     fail(`async function foo(await) { };`, {
         source: 'async function foo(await) { };',
+        message:  'Unexpected token \'await\'',
+        line: 1,
+        column: 19,
+        index: 24
     });
 
     fail(`await a;`, {
         source: 'await a;',
+        message: 'Unexpected token \'identifier\'',
+        line: 1,
+        column: 6,
+        index: 7
     });
 
     pass(`function* foo(await) { yield await; };`, {

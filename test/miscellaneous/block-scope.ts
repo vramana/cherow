@@ -328,34 +328,66 @@ describe('Miscellaneous - Block scope', () => {
 
             fail(`attempt to redeclare let binding with var`, {
                 source: `{ function f() {} function f() {} }`,
+                message: 'Duplicate binding f',
+                line: 1,
+                column: 27,
+                index: 28
             });
 
             fail(`attempt to redeclare let binding with var`, {
                 source: `{ let f; var f; }`,
+                message: '\'f\' has already been declared ',
+                line: 1,
+                column: 13,
+                index: 14
             });
 
             fail(`redeclaration with const-LexicalDeclaration`, {
                 source: `{ function f() {} const f = 0; }`,
+                message: '\'f\' has already been declared ',
+                line: 1,
+                column: 24,
+                index: 25
             });
 
             fail(`redeclaration with VariableDeclaration`, {
                 source: `{ let f; var f; }`,
+                message: '\'f\' has already been declared ',
+                line: 1,
+                column: 13,
+                index: 14
             });
 
             fail(`redeclaration with VariableDeclaration`, {
                 source: `{ var f; function f() {} } }`,
+                message: 'Duplicate binding f',
+                line: 1,
+                column: 18,
+                index: 19
             });
 
             fail(`redeclaration with LexicalDeclaration`, {
                 source: `{ var f; let f; }`,
+                message: '\'f\' has already been declared ',
+                line: 1,
+                column: 13,
+                index: 14
             });
 
             fail(`redeclaration with FunctionDeclaration (GeneratorDeclaration in BlockStatement)`, {
                 source: `{ function* f() {} function f() {} }`,
+                message: 'Duplicate binding f',
+                line: 1,
+                column: 28,
+                index: 29
             });
 
             fail(`redeclaration with LexicdddalDeclaration`, {
                  source: `{ var f; function f() {} }`,
+                 message: 'Duplicate binding f',
+                 line: 1,
+                 column: 18,
+                 index: 19
             });
 
             fail(`redeclaration with LexicdddalDeclaration`, {
@@ -382,10 +414,10 @@ describe('Miscellaneous - Block scope', () => {
                 source: `{ let f; function* f() {} }`,
             });
 
-//            fail(`redeclaration with VariableDeclaration (GeneratorDeclaration in BlockStatement)`, {
-  //              source: `{ function* f() {} var f; }`,
-      //      });
-    //
+            fail(`redeclaration with VariableDeclaration (GeneratorDeclaration in BlockStatement)`, {
+                source: `{ function* f() {} var f; }`
+            });
+    
             fail(`redeclaration with let-LexicalDeclaration (GeneratorDeclaration in BlockStatement)`, {
                 source: `{ function* f() {} let f; }`,
             });

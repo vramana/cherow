@@ -11,9 +11,22 @@ describe('Next - Rest property', () => {
         index: 12
     });
 
+    fail('let { ...x = y } = z;', {
+        source: `let { ...x = y } = z;`,
+        next: true,
+        message: '`...` must be followed by an identifier in declaration contexts',
+        line: 1,
+        column: 11,
+        index: 12
+    });
+
     fail('let { a, ...b, c } = x;', {
         source: `let { a, ...b, c } = x;`,
-        next: true
+        next: true,
+        message: 'Rest element must be last element',
+        line: 1,
+        column: 13,
+        index: 14
     });
 
     pass(`let { x, y, ...z } = { x: 1, y: 2, a: 3, b: 4 };`, {

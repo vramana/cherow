@@ -426,31 +426,27 @@ describe('Expressions - Grouped', () => {
             }
         });
 
-      /*  fail(`(0, {a = 0}) = 0`, {
+        fail(`(0, {a = 0}) = 0`, {
             source: '(0, {a = 0}) = 0',
-            loc: true,
-            ranges: true,
-            raw: true
-        });
-
-        fail(`({a = 0})`, {
-            source: '({a = 0})',
-            loc: true,
-            ranges: true,
-            raw: true
+            message: 'Invalid destructuring assignment target',
+            line: 1,
+            column: 13,
+            index: 14
         });
 
         fail(`({a = 0}, {a = 0}, 0) => 0`, {
             source: '({a = 0}, {a = 0}, 0) => 0',
-            loc: true,
-            ranges: true,
-            raw: true
+            message: '\'a\' has already been declared ',
+            line: 1,
+            column: 0,
+            index: 1
         });
 
         fail(`(0, {a = 0}) => 0`, {
             source: '(0, {a = 0}) => 0',
-            loc: true,
-            ranges: true,
-            raw: true
-        });*/
+            message: 'Invalid destructuring assignment target',
+            line: 1,
+            column: 16,
+            index: 17
+        });
 });

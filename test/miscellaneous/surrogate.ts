@@ -1,6 +1,22 @@
 import { pass, fail } from '../utils';
 
 describe('Miscellaneous - Surrogate pair', () => {
+  
+  fail(`var \\uD83B\\uDE00`, {
+    source: 'var \\uD83B\\uDE00',
+    message: 'Unexpected surrogate pair',
+    line: 1,
+    column: 0,
+    index: 9
+  });
+
+  fail(`var 🀒`, {
+    source: 'var 🀒',
+    message: 'Unexpected token \'🀒\'',
+    line: 1,
+    column: 0,
+    index: 4
+  });
 
   pass(`var _\\u{1EE03}`, {
     source: 'var _\\u{1EE03}',
@@ -300,18 +316,6 @@ describe('Miscellaneous - Surrogate pair', () => {
       start: 0,
       type: 'Program',
     }
-  });
-
-  fail(`var \\uD83B\\uDE00`, {
-    source: 'var \\uD83B\\uDE00',
-  });
-
-  fail(`var 🀒`, {
-    source: 'var 🀒',
-  });
-
-  fail(`var source = "\\uD800!`, {
-    source: 'var source = "\\uD800!',
   });
 
   pass(`var 𞸊𞸋`, {

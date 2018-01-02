@@ -55,28 +55,6 @@ describe('Miscellaneous - Directives', () => {
               type: 'Program'
             }
     });
-/*
-    pass(`single "use strict" wrapped inside parenthesis'`, {
-        source: '("use strict"); foo = 42;',
-        loc: true,
-        ranges: true,
-        expected: {}
-    });
-
-    pass(`single "use strict" wrapped inside parenthesis'`, {
-        source: '("use strict"); foo = 42;',
-        loc: true,
-        ranges: true,
-        expected: {}
-    });
-
-    pass(`single "use strict" wrapped inside parenthesis'`, {
-        source: '("use strict"); foo = 42;',
-        loc: true,
-        ranges: true,
-        expected: {}
-    });
-*/
 
     pass(`single "use strict" wrapped inside parenthesis'`, {
             source: '("use strict"); foo = 42;',
@@ -84,7 +62,7 @@ describe('Miscellaneous - Directives', () => {
             ranges: true,
             raw: true,
             module: true,
-            directives: true,
+            
             expected: {
                 type: 'Program',
                 body: [{
@@ -204,7 +182,7 @@ describe('Miscellaneous - Directives', () => {
             loc: true,
             ranges: true,
             raw: true,
-            directives: true,
+            
             expected: {
                 type: 'Program',
                 body: [{
@@ -324,7 +302,7 @@ describe('Miscellaneous - Directives', () => {
             source: '"cherow"; 1;',
             raw: true,
             module: true,
-            directives: true,
+            
             expected: {
                 body: [{
                         directive: 'cherow',
@@ -354,7 +332,7 @@ describe('Miscellaneous - Directives', () => {
             loc: true,
             ranges: true,
             raw: true,
-            directives: true,
+            
             expected: {
                 type: 'Program',
                 body: [{
@@ -476,7 +454,7 @@ describe('Miscellaneous - Directives', () => {
             loc: true,
             ranges: true,
             raw: true,
-            directives: true,
+            
             expected: {
                 type: 'Program',
                 body: [{
@@ -648,7 +626,7 @@ describe('Miscellaneous - Directives', () => {
             loc: true,
             ranges: true,
             raw: true,
-            directives: true,
+            
             expected: {
                 type: 'Program',
                 body: [{
@@ -717,7 +695,7 @@ describe('Miscellaneous - Directives', () => {
     pass(`innocuous string that evaluates to "use strict" is not promoted to Use Strict directive'`, {
             source: '"use\\x20strict"; with (x) foo = bar;',
             raw: true,
-            directives: true,
+            
             expected: {
                 body: [{
                         directive: 'use\\x20strict',
@@ -761,7 +739,7 @@ describe('Miscellaneous - Directives', () => {
             loc: true,
             ranges: true,
             raw: true,
-            directives: true,
+            
             expected: {
                 type: 'Program',
                 body: [{
@@ -932,7 +910,7 @@ describe('Miscellaneous - Directives', () => {
             loc: true,
             ranges: true,
             raw: true,
-            directives: true,
+            
             expected: {
                 body: [{
                     directive: 'use strict',
@@ -986,50 +964,93 @@ describe('Miscellaneous - Directives', () => {
 
     fail('strict directive after legacy octal ', {
             source: '"\\1;" "use strict";',
-            directives: true
+            message: 'Unexpected token \'string\'',
+            line: 1,
+            column: 0,
+            index: 18
         });
     fail('strict directive after legacy octal in function body', {
             source: '"use strict"; function f(){"\\1";}',
-            directives: true
+            
+            message: 'Octal escapes are not allowed in strict mode',
+            line: 1,
+            column: 27,
+            index:29
         });
     fail('strict directive after legacy octal followed by null', {
-            source: '"\\1;" "use strict"; null'
+            source: '"\\1;" "use strict"; null',
+            message: 'Unexpected token \'string\'',
+            line: 1,
+            column: 0,
+            index: 18
         });
     fail('strict directive before legacy octal', {
-            source: '"use strict"; "\\1;"'
+            source: '"use strict"; "\\1;"',
+            message: 'Octal escapes are not allowed in strict mode',
+            line: 1,
+            column: 14,
+            index:16
         });
     fail('strict directive before legacy octal', {
             source: '"\\1;"',
-            module: true
+            module: true,
+            message: 'Octal escapes are not allowed in strict mode',
+            line: 1,
+            column: 0,
+            index: 2
         });
     fail('strict directive before legacy octal followed by null', {
-            source: '"use strict"; "\\1;" null'
+            source: '"use strict"; "\\1;" null',
+            message: 'Octal escapes are not allowed in strict mode',
+            line: 1,
+            column: 0,
+            index: 16
         });
     fail('legacy octal inside function body', {
-            source: '"use strict"; function f(){"\\1";}'
+            source: '"use strict"; function f(){"\\1";}',
+            message: 'Octal escapes are not allowed in strict mode',
+            line: 1,
+            column: 0,
+            index: 29
         });
     fail('invalid newlines after null escapes', {
             source: '"random\\0\nnewline"',
-            directives: true
+            message: 'Unterminated string literal',
+            line: 1,
+            column: 0,
+            index: 9
         });
-    fail('invalid carriage returns', {
-            source: '"random\\0\rnewline"'
-        });
+
     fail('invalid newlines after ASCII \\x0', {
-            source: '"random\\x0\nnewline"'
+            source: '"random\\x0\nnewline"',
+            message: 'Invalid hexadecimal escape sequence',
+            line: 1,
+            column: 0,
+            index: 10
         });
     fail('invalid newlines after Unicode \\u', {
-            source: '"random\\u\nnewline"'
+            source: '"random\\u\nnewline"',
+            message: 'Invalid hexadecimal escape sequence',
+            line: 1,
+            column: 0,
+            index: 9
         });
     fail('invalid newlines after Unicode \\u0', {
-            source: '"random\\u0\nnewline"'
+            source: '"random\\u0\nnewline"',
+            message: 'Invalid hexadecimal escape sequence',
+            line: 1,
+            column: 0,
+            index: 10
         });
     fail('invalid newlines after Unicode \\ua', {
-            source: '"random\\ua\nnewline"'
+            source: '"random\\ua\nnewline"',
+            message: 'Invalid hexadecimal escape sequence',
+            line: 1,
+            column: 0,
+            index: 10
         });
     fail('invalid paragraph separators after Unicode \\ua', {
             source: '"random\\ua\u2029newline"',
-            directives: true,
             module: true
         });
     fail('invalid carriage returns after Unicode \\ua', {

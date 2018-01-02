@@ -12,19 +12,19 @@ describe('Miscellaneous - Global code', () => {
 
     fail(`super();`, {
         source: `super();`,
+        message: 'super() is only valid in derived class constructors',
+        line: 1,
+        column: 0,
+        index: 5
     });
 
     fail(`super.property;`, {
         source: `super.property;`,
-    });
-
-    fail(`export default null;`, {
-        source: `export default null;`,
-        module: true
-    });
-
-    fail(`super.property;`, {
-        source: `super.property;`,
+        module: true,
+        message: '\'super\' keyword unexpected here',
+        line: 1,
+        column: 0,
+        index: 5
     });
 
     fail(`() => {
@@ -33,10 +33,10 @@ describe('Miscellaneous - Global code', () => {
         source: `() => {
             super();
           };`,
-    });
-
-    fail(`super.property;`, {
-        source: `super.property;`,
+          message: 'super() is only valid in derived class constructors',
+          line: 2,
+          column: 0,
+          index: 25
     });
 
     pass(`var undefined = 1;`, {

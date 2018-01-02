@@ -533,7 +533,7 @@ describe('Miscellaneous - Failure', () => {
     });
     fail('async ({await}) => 1  ', {
         source: `async ({await}) => 1`,
-        message: '\'await\' is not allowed inside an async arrow\'s parameter list',
+        message: '\'await\' is not a valid identifier name in an async function',
         line: 1,
         column: 8,
         index: 13
@@ -1311,7 +1311,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('class A { constructor() { (class {[super()](){}}); } }', {
         source: `class A { constructor() { (class {[super()](){}}); } }`,
-        message: 'super() is only valid in derived class constructors',
+        message: '\'super\' keyword unexpected here',
         line: 1,
         column: 35,
         index: 40

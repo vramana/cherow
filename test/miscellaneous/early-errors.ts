@@ -12,7 +12,7 @@ describe('Miscellaneous - Early errors', () => {
 
         fail(`({ a(){ super(); } });`, {
             source: `({ a(){ super(); } });`,
-            message: 'super() is only valid in derived class constructors',
+            message:  '\'super\' keyword unexpected here',
             line: 1,
             column: 8,
             index: 13
@@ -20,7 +20,7 @@ describe('Miscellaneous - Early errors', () => {
 
         fail(`({ a(){ {{ if(0) (( super() )); }} } });`, {
             source: `({ a(){ {{ if(0) (( super() )); }} } });`,
-            message: 'super() is only valid in derived class constructors',
+            message:  '\'super\' keyword unexpected here',
             line: 1,
             column: 20,
             index: 25
@@ -28,7 +28,7 @@ describe('Miscellaneous - Early errors', () => {
 
         fail(`class A extends B { constructor() { !{*constructor() { super(); }}; } }`, {
             source: `class A extends B { constructor() { !{*constructor() { super(); }}; } }`,
-            message: 'super() is only valid in derived class constructors',
+            message: '\'super\' keyword unexpected here',
             line: 1,
             column: 55,
             index: 60
@@ -36,7 +36,7 @@ describe('Miscellaneous - Early errors', () => {
 
         fail(`class A extends B { constructor() { !{get constructor() { super(); }}; } }`, {
             source: `class A extends B { constructor() { !{get constructor() { super(); }}; } }`,
-            message: 'super() is only valid in derived class constructors',
+            message: '\'super\' keyword unexpected here',
             line: 1,
             column: 58,
             index: 63
@@ -216,7 +216,7 @@ describe('Miscellaneous - Early errors', () => {
 
         fail(`class A extends B { f() { super(); } }`, {
             source: `class A extends B { f() { super(); } }`,
-            message: 'super() is only valid in derived class constructors',
+            message: '\'super\' keyword unexpected here',
             line: 1,
             column: 26,
             index: 31

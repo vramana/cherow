@@ -3438,92 +3438,148 @@ describe('Statements - For', () => {
 
         fail(`for(let let;;);`, {
             source: 'for(let let;;);',
+            next: true,
+            message: 'let is disallowed as a lexically bound name',
+            line: 1,
+            column: 8,
+            index: 11
         });
 
         fail(`for(let a, let;;);`, {
             source: 'for(let a, let;;);',
+            message: 'let is disallowed as a lexically bound name',
+            line: 1,
+            column: 11,
+            index: 14
         });
 
         fail(`for(const let = 0;;);`, {
             source: 'for(const let = 0;;);',
+            message: 'let is disallowed as a lexically bound name',
+            line: 1,
+            column: 10,
+            index: 13
         });
 
         fail(`for(const a = 0, let = 1;;);`, {
             source: 'for(const a = 0, let = 1;;);',
+            message: 'let is disallowed as a lexically bound name',
+            line: 1,
+            column: 17,
+            index: 20
         });
 
         fail(`for(let [let] = 0;;);`, {
             source: 'for(let [let] = 0;;);',
+            message: 'let is disallowed as a lexically bound name',
+            line: 1,
+            column: 9,
+            index: 12
         });
 
         fail(`for(let a, a;;);`, {
             source: 'for(let a, a;;);',
+            message: '\'a\' has already been declared ',
+            line: 1,
+            column: 11,
+            index: 12
         });
 
         fail(`for(let [a, a] = 0;;);`, {
              source: 'for(let [a, a] = 0;;);',
+             message: '\'a\' has already been declared ',
+             line: 1,
+             column: 12,
+             index: 13
          });
 
         fail(`for(const a = 0, a = 1;;);`, {
             source: 'for(const a = 0, a = 1;;);',
+            message: '\'a\' has already been declared ',
+            line: 1,
+            column: 17,
+            index: 18
         });
 
         fail(`for(const [a, a] = 0;;);`, {
              source: 'for(const [a, a] = 0;;);',
+             message: '\'a\' has already been declared ',
+             line: 1,
+             column: 14,
+             index: 15
          });
 
         fail(`for(const a;;);`, {
             source: 'for(const a;;);',
+            message: 'Missing initializer',
+            line: 1,
+            column: 11,
+            index: 12
         });
 
         fail(`for(const a = 0, b;;);`, {
             source: 'for(const a = 0, b;;);',
+            message: 'Missing initializer',
+            line: 1,
+            column: 18,
+            index: 19
         });
 
         fail(`for (const x; false; ) { var x; }`, {
             source: 'for (const x; false; ) { var x; }',
+            message: 'Missing initializer',
+            line: 1,
+            column: 12,
+            index: 13
         });
 
         fail(`for (let {a: b = let};;) {}`, {
             source: 'for (let {a: b = let};;) {}',
+            message: 'Missing initializer in destructuring declaration',
+            line: 1,
+            column: 21,
+            index: 22
         });
 
         fail(`for (let [a = let];;) {}`, {
             source: 'for (let [a = let];;) {}',
+            message: 'Missing initializer in destructuring declaration',
+            line: 1,
+            column: 18,
+            index: 19
         });
 
         fail(`"use strict"; for (let [a = let];;) {}`, {
-            source: '"use strict"; for (let [a = let];;) {}',
+            source: '"use strict"; for (let [a = let];;) {}', // Unexpected strict mode reserved word
+            message: 'The identifier \'let\' must not be in expression position in strict mode',
+            line: 1,
+            column: 28,
+            index: 31
         });
 
         fail(`"use strict"; for (let {a: b = let};;) {}`, {
-            source: '"use strict"; for (let {a: b = let};;) {}',
+            source: '"use strict"; for (let {a: b = let};;) {}', // Unexpected strict mode reserved word
+            message: 'The identifier \'let\' must not be in expression position in strict mode',
+            line: 1,
+            column: 31,
+            index: 34
         });
 
         fail(`for(let [let];;);`, {
             source: 'for(let [let];;);',
+            message: 'let is disallowed as a lexically bound name',
+            line: 1,
+            column: 9,
+            index: 12
         });
 
         fail(`for(let [a, a];;)`, {
             source: 'for(let [a, a];;)',
+            message:  '\'a\' has already been declared ',
+            line: 1,
+            column: 12,
+            index: 13
         });
-
-/*
-        fail(`for(let {a, a} of 0);`, {
-            source: 'for(let {a, a} of 0);',
-        });
-
-        fail(`for(const {a, a} in 0);`, {
-            source: 'for(const {a, a} in 0);',
-        });
-
-        fail(`for(let {a, a} in 0);`, {
-            source: 'for(let {a, a} in 0);',
-        });
-*/
-        /*fail(`for({a=0};;);`, {
-            source: 'for({a=0};;);',
-        }); */
 
         pass(`for (x in null, { key: 0 }) { }`, {
             source: `for (x in null, { key: 0 }) { }`,

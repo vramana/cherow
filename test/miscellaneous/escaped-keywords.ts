@@ -217,7 +217,7 @@ describe('Miscellaneous - Escaped keywords', () => {
 
         fail('class X { static \\u0061sync x() { await x } }', {
             source: 'class X { static \\u0061sync x() { await x } }',
-            message: 'Invalid Unicode escape sequence',
+            message: 'Unexpected escaped keyword',
             line: 1,
             column: 17,
             index: 27

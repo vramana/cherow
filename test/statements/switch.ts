@@ -25,136 +25,202 @@ describe('Statements - Switch', () => {
 
           fail(`switch (0) { case 1: const f = 0; default: async function f() {} }`, {
               source: 'switch (0) { case 1: const f = 0; default: async function f() {} }',
+              message: 'Async functions can only be declared at the top level or inside a block',
+              line: 1,
+              column: 43,
+              index: 48,
           });
 
           fail(`switch (0) { case 1: const f = 0; default: async function* f() {} }`, {
               source: 'switch (0) { case 1: const f = 0; default: async function* f() {} }',
+              message: 'Async functions can only be declared at the top level or inside a block',
+              line: 1,
+              column: 43,
+              index: 48,
           });
 
           fail(`switch (0) { case 1: const f = 0; default: class f {}; }`, {
               source: 'switch (0) { case 1: const f = 0; default: class f {}; }',
+              message: '\'f\' has already been declared ',
+              line: 1,
+              column: 49,
+              index: 50,
           });
 
           fail(`switch (0) { case 1: const f = 0; default: const f = 0; }`, {
               source: 'switch (0) { case 1: const f = 0; default: const f = 0; }',
+              message: '\'f\' has already been declared ',
+              line: 1,
+              column: 49,
+              index: 50,
           });
 
           fail(`switch (0) { case 1: const f = 0; default: function f() {} }`, {
               source: 'switch (0) { case 1: const f = 0; default: function f() {} }',
+              message: 'Duplicate binding f',
+              line: 1,
+              column: 52,
+              index: 53,
           });
 
           fail(`switch (0) { case 1: const f = 0; default: function* f() {} }`, {
               source: 'switch (0) { case 1: const f = 0; default: function* f() {} }',
+              message: 'Duplicate binding f',
+              line: 1,
+              column: 53,
+              index: 54,
           });
 
           fail(`switch (0) { case 1: const f = 0; default: let f; }`, {
               source: 'switch (0) { case 1: const f = 0; default: let f; }',
+              message: '\'f\' has already been declared ',
+              line: 1,
+              column: 47,
+              index: 48,
           });
 
           fail(`switch (0) { case 1: const f = 0; default: var f; }`, {
               source: 'switch (0) { case 1: const f = 0; default: var f; }',
+              message: '\'f\' has already been declared ',
+              line: 1,
+              column: 47,
+              index: 48,
           });
 
           fail(`switch (0) { case 1: function f() {} default: async function f() {} }`, {
               source: 'switch (0) { case 1: function f() {} default: async function f() {} }',
+              message: 'Async functions can only be declared at the top level or inside a block',
+              line: 1,
+              column: 46,
+              index: 51,
           });
 
           fail(`switch (0) { case 1: function f() {} default: async function* f() {} }`, {
               source: 'switch (0) { case 1: function f() {} default: async function* f() {} }',
+              message: 'Async functions can only be declared at the top level or inside a block',
+              line: 1,
+              column: 46,
+              index: 51,
           });
 
           fail(`switch (0) { case 1: function f() {} default: const f = 0; }`, {
               source: 'switch (0) { case 1: function f() {} default: const f = 0; }',
+              message:  '\'f\' has already been declared ',
+              line: 1,
+              column: 52,
+              index: 53,
           });
 
           fail(`switch (0) { case 1: function f() {} default: function f() {} }`, {
               source: 'switch (0) { case 1: function f() {} default: function f() {} }',
+              message:  'Duplicate binding f',
+              line: 1,
+              column: 55,
+              index: 56
           });
 
           fail(`switch (0) { case 1: function f() {} default: function* f() {} }`, {
               source: 'switch (0) { case 1: function f() {} default: function* f() {} }',
+              message: 'Duplicate binding f',
+              line: 1,
+              column: 56,
+              index: 57
           });
 
           fail(`switch (0) { case 1: function f() {} default: let f; }`, {
               source: 'switch (0) { case 1: function f() {} default: let f; }',
+              message:  '\'f\' has already been declared ',
+              line: 1,
+              column: 50,
+              index: 51,
           });
-
-          // fail(`switch (0) { case 1: function f() {} default: var f; }`, {
-             //  source: 'switch (0) { case 1: function f() {} default: var f; }',
-              // loc: true,
-              // ranges: true,
-              // raw: true
-          // });
 
           fail(`switch (0) { case 1: function* f() {} default: async function f() {} }`, {
               source: 'switch (0) { case 1: function* f() {} default: async function f() {} }',
+              message:  'Async functions can only be declared at the top level or inside a block',
+              line: 1,
+              column: 47,
+              index: 52,
           });
 
           fail(`switch (0) { case 1: function* f() {} default: async function* f() {} }`, {
               source: 'switch (0) { case 1: function* f() {} default: async function* f() {} }',
+              message:  'Async functions can only be declared at the top level or inside a block',
+              line: 1,
+              column: 47,
+              index: 52,
           });
 
           fail(`switch (0) { case 1: function* f() {} default: class f {}; }`, {
               source: 'switch (0) { case 1: function* f() {} default: class f {}; }',
+              message:  '\'f\' has already been declared ',
+              line: 1,
+              column: 53,
+              index: 54,
           });
 
           fail(`switch (0) { case 1: function* f() {} default: const f = 0; }`, {
               source: 'switch (0) { case 1: function* f() {} default: const f = 0; }',
+              message:  '\'f\' has already been declared ',
+              line: 1,
+              column: 53,
+              index: 54,
           });
 
           fail(`switch (0) { case 1: function* f() {} default: function f() {} }`, {
               source: 'switch (0) { case 1: function* f() {} default: function f() {} }',
+              message:  'Duplicate binding f',
+              line: 1,
+              column: 56,
+              index: 57,
           });
 
           fail(`switch (0) { case 1: function* f() {} default: function* f() {} }`, {
               source: 'switch (0) { case 1: function* f() {} default: function* f() {} }',
+              message:  'Duplicate binding f',
+              line: 1,
+              column: 57,
+              index: 58,
           });
 
           fail(`switch (0) { case 1: function* f() {} default: let f; }`, {
               source: 'switch (0) { case 1: function* f() {} default: let f; }',
-          });
-
-          // fail(`switch (0) { case 1: function* f() {} default: var f; }`, {
-             //  source: 'switch (0) { case 1: function* f() {} default: var f; }',
-              // loc: true,
-              // ranges: true,
-              // raw: true
-          // });
-
-          fail(`switch (0) { case 1: async function f() {} default: async function f() {} }`, {
-              source: 'switch (0) { case 1: async function f() {} default: async function f() {} }',
-          });
-
-          fail(`switch (0) { case 1: async function f() {} default: async function* f() {} }`, {
-              source: 'switch (0) { case 1: async function f() {} default: async function* f() {} }',
-          });
-
-          fail(`switch (0) { case 1: async function f() {} default: const f = 0; }`, {
-              source: 'switch (0) { case 1: async function f() {} default: const f = 0; }',
-          });
-
-          fail(`switch (0) { case 1: async function f() {} default: function f() {} }`, {
-              source: 'switch (0) { case 1: async function f() {} default: function f() {} }',
-          });
-
-          fail(`switch (0) { case 1: async function f() {} default: function* f() {} }`, {
-              source: 'switch (0) { case 1: async function f() {} default: function* f() {} }',
+              message: '\'f\' has already been declared ',
+              line: 1,
+              column: 51,
+              index: 52,
           });
 
           fail(`switch (0) { case 1: async function f() {} default: let f; }`, {
               source: 'switch (0) { case 1: async function f() {} default: let f; }',
+              message: 'Async functions can only be declared at the top level or inside a block',
+              line: 1,
+              column: 21,
+              index: 26,
           });
 
           fail(`switch (0) { case 1: async function* f() {} default: async function f() {} }`, {
               source: 'switch (0) { case 1: async function* f() {} default: async function f() {} }',
+              message: 'Async functions can only be declared at the top level or inside a block',
+              line: 1,
+              column: 21,
+              index: 26,
           });
 
           fail(`switch (0) { case 1: async function* f() {} default: function f() {} }`, {
               source: 'switch (0) { case 1: async function* f() {} default: function f() {} }',
+              message: 'Async functions can only be declared at the top level or inside a block',
+              line: 1,
+              column: 21,
+              index: 26,
           });
 
           fail(`switch (0) { case 1: async function* f() {} default: let f; }`, {
               source: 'switch (0) { case 1: async function* f() {} default: let f; }',
+              message: 'Async functions can only be declared at the top level or inside a block',
+              line: 1,
+              column: 21,
+              index: 26,
           });
       });
 

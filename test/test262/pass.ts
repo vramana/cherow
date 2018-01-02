@@ -37,7 +37,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/postfix-decrement/target-cover-yieldexpr.js',
         'test/language/expressions/postfix-decrement/target-newtarget.js',
         'test/language/expressions/postfix-increment/non-simple.js',
-        'test/language/expressions/postfix-increment/non-simple.js',
         'test/language/expressions/postfix-increment/11.3.1-2-1-s.js',
         'test/language/expressions/postfix-increment/target-newtarget.js',
         'test/language/expressions/postfix-increment/target-newtarget.js',

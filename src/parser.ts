@@ -379,12 +379,14 @@ export class Parser {
                             case Chars.Exclamation:
                                 {
                                     if (context & Context.Module) continue;
-                                    this.advance(); // skip `<`
-                                    // Double 'hyphen' because of the "look and feel" of
-                                    // the HTML single line comment (<!--)
-                                    if (this.consume(Chars.Hyphen) && this.consume(Chars.Hyphen)) {
-                                        this.skipSingleLineComment();
-                                        continue;
+
+                                    if (this.source.codePointAt(this.index + 2) === Chars.Hyphen) {
+                                        this.index += 2;
+                                        this.column += 2;
+                                        if (this.consume(Chars.Hyphen)) {
+                                            this.skipSingleLineComment();
+                                            continue;
+                                        }
                                     }
 
                                 }
@@ -998,7 +1000,6 @@ export class Parser {
 
                         const index = this.index;
                         const code = this.peekUnicodeEscape();
-
                         if (!(code >= 0)) this.error(Errors.Unexpected);
                         ret += this.source.slice(start, index);
                         ret += fromCodePoint(code);
@@ -1047,6 +1048,8 @@ export class Parser {
             if (this.source.charCodeAt(index + 1) !== Chars.LowerU) return -1;
             this.index += 2;
             this.column += 2;
+
+
             code = this.peekExtendedUnicodeEscape();
             if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMin) {
                 this.error(Errors.UnexpectedSurrogate);
@@ -1593,7 +1596,7 @@ export class Parser {
 
         switch (code) {
             case Escape.StrictOctal:
-                this.error(context & Context.Template ? Errors.StrictOctalEscape : Errors.TemplateOctalLiteral);
+                this.error(context & Context.Template ? Errors.TemplateOctalLiteral : Errors.StrictOctalEscape);
             case Escape.EightOrNine:
                 this.error(Errors.InvalidEightAndNine);
             case Escape.InvalidHex:
@@ -1923,7 +1926,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: any,
         node: any,
@@ -3131,6 +3134,11 @@ export class Parser {
         const list: ESTree.VariableDeclarator[] = [this.parseVariableDeclaration(context)];
         if (this.token !== Token.Comma) return list;
         while (this.parseOptional(context, Token.Comma)) list.push(this.parseVariableDeclaration(context));
+        if (context & Context.ForStatement &&
+            !(context & Context.Lexical) &&
+            isInOrOfKeyword(this.token)) {
+            this.error(Errors.ForInOfLoopMultiBindings, 'for-' + tokenDesc(this.token));
+        }
         return list;
     }
 
@@ -3148,13 +3156,14 @@ export class Parser {
                 init = this.parseAssignmentExpression(context & ~(Context.Lexical | Context.ForStatement));
                 if (!(context & Context.Lexical) && context & Context.ForStatement) {
                     if (this.token === Token.InKeyword) {
-                        this.error(Errors.InvalidVarDeclInForIn);
+                        this.error(Errors.InvalidVarDeclInForLoop, tokenDesc(this.token));
                     } else if (this.token === Token.OfKeyword) {
                         this.error(Errors.DeclarationMissingInitializer);
                     }
+                } else if (context & Context.ForStatement && isInOrOfKeyword(this.token)) {
+                    this.error(Errors.InvalidVarDeclInForLoop, tokenDesc(this.token))
                 }
             } else if (!isInOrOfKeyword(this.token)) {
-                this.errorLocation = pos;
                 this.error(Errors.DeclarationMissingInitializer);
             }
 
@@ -3165,7 +3174,7 @@ export class Parser {
                 if (context & Context.ForStatement) {
                     if (this.token === Token.OfKeyword) this.error(Errors.InvalidVarInitForOf);
                     if (this.token === Token.InKeyword && (context & (Context.Strict | Context.Lexical))) {
-                        this.error(Errors.InvalidVarDeclInForIn);
+                        this.error(Errors.InvalidVarDeclInForLoop, tokenDesc(this.token));
                     }
                 }
             } else if (context & Context.Const && !isInOrOfKeyword(this.token)) {
@@ -3519,6 +3528,7 @@ export class Parser {
 
     private parseAwaitExpression(context: Context, pos: Location): ESTree.AwaitExpression {
         if (this.flags & Flags.ExtendedUnicodeEscape) this.error(Errors.UnexpectedEscapedKeyword);
+        if (this.flags & Flags.InFunctionBody) this.errorLocation = this.getLocations();
         this.expect(context, Token.AwaitKeyword);
         return this.finishNode(context, pos, {
             type: 'AwaitExpression',
@@ -3576,7 +3586,7 @@ export class Parser {
                 // The super property has to be within a class constructor
                 if (!(context & Context.AllowConstructor)) {
                     this.errorLocation = pos;
-                    this.error(Errors.BadSuperCall);
+                    this.error(context & Context.Method ? Errors.UnexpectedSuper : Errors.BadSuperCall);
                 }
                 break;
 
@@ -3942,7 +3952,7 @@ export class Parser {
                 const expr = this.parseIdentifier(context);
                 if (this.token === Token.Arrow) return this.parseArrowFunctionExpression(context & ~Context.Yield | Context.AllowIn | Context.Await, pos, [expr]);
                 // Invalid: 'async abc'
-                this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                this.error(Errors.UnexpectedTokenIdentifier);
 
                 // CoverCallExpressionAndAsyncArrowHead[Yield, Await]:
             case Token.LeftParen:
@@ -4201,7 +4211,10 @@ export class Parser {
                     this.flags |= Flags.Await;
                     this.errorLocation = this.getLocations();
                 }
-                if (context & Context.Module) this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                if (context & Context.Module) {
+                    this.errorLocation = pos;
+                    this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                }
                 return this.parseIdentifier(context);
             case Token.LetKeyword:
                 return this.parseLet(context);
@@ -4477,7 +4490,7 @@ export class Parser {
 
                 case Token.AsyncKeyword:
                     if (this.flags & Flags.ExtendedUnicodeEscape) {
-                        this.error(Errors.InvalidUnicodeEscapeSequence);
+                        this.error(Errors.UnexpectedEscapedKeyword);
                     }
                     if (state & ObjectState.Accessors) break loop;
                     state |= modifierState = ObjectState.Async;
@@ -4490,6 +4503,11 @@ export class Parser {
         }
 
         t = this.token;
+
+        // TODO! Move this!
+        if (state & ObjectState.Async && this.flags & Flags.LineTerminator) {
+            this.error(Errors.LineBreakAfterAsync);
+        }
 
         // Generator / Async Iterations ( Stage 3 proposal)
         if (t & Token.IsGenerator) {
@@ -4724,7 +4742,9 @@ export class Parser {
 
             case Token.Colon:
                 {
-                    if (state & ObjectState.Yield) {
+
+                    if (state & (ObjectState.Yield | ObjectState.Async)) {
+
                         this.error(Errors.DisallowedInContext, tokenDesc(t));
                     }
 
@@ -4744,6 +4764,9 @@ export class Parser {
 
                     this.expect(context, Token.Colon);
 
+                    if (context & Context.Await && this.token === Token.AwaitKeyword) {
+                        this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                    }
                     value = this.parseAssignmentExpression(context);
 
                     break;
@@ -4970,12 +4993,18 @@ export class Parser {
                 this.errorLocation = pos;
                 this.flags |= Flags.SimpleParameterList;
             }
-            if (this.flags & Flags.Await) this.error(Errors.InvalidAwaitInArrowParam);
-            if (state & ParenthesizedState.FutureReserved) this.flags |= Flags.Binding;
+            if (this.flags & Flags.Await) {
+                this.error(Errors.InvalidAwaitInArrowParam);
+            }
+            if (state & ParenthesizedState.FutureReserved) {
+                this.flags |= Flags.Binding;
+            }
             if (this.flags & Flags.Yield) {
                 this.error(Errors.InvalidArrowYieldParam);
             }
-            if (state & ParenthesizedState.Parenthesized) this.error(Errors.InvalidParenthesizedPattern);
+            if (state & ParenthesizedState.Parenthesized) {
+                this.error(Errors.InvalidParenthesizedPattern);
+            }
             return this.parseArrowFunctionExpression(context, pos, isSequence ? (expr as any).expressions : [expr]);
         }
 
@@ -5286,13 +5315,13 @@ export class Parser {
             this.error(Errors.LetInLexicalBinding);
         }
 
-        const pos = this.getLocations();
-
         const name = this.tokenValue;
 
         if (!(context & Context.ExistingScope) && this.isEvalOrArguments(name)) {
             if (context & Context.Strict) this.error(Errors.StrictLHSAssignment);
         }
+
+        const pos = this.getLocations();
 
         if (context & Context.InParameter && context & Context.MarkAsParamDuplicate) {
             this.addFunctionArg(name);
@@ -5384,6 +5413,8 @@ export class Parser {
         if (!(this.token & Token.IsIdentifier)) this.error(Errors.InvalidRestBindingPattern);
         const arg = this.parseBindingIdentifierOrPattern(context);
         if (this.token === Token.Assign) this.error(Errors.InvalidRestBindingPattern);
+        // Rest element must be last element
+        if (this.token !== Token.RightBrace) this.error(Errors.ElementAfterRest);
 
         return this.finishNode(context, pos, {
             type: 'RestElement',

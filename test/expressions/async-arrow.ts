@@ -61,7 +61,7 @@ describe('Expressions - Async arrow', () => {
 
     fail(`async(await) => {  }`, {
         source: 'async(await) => {  }',
-        message: '\'await\' is not allowed inside an async arrow\'s parameter list',
+        message: '\'await\' is not a valid identifier name in an async function',
         line: 1,
         column: 6,
         index: 11

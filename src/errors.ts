@@ -1,5 +1,6 @@
 export const enum Errors {
     Unexpected,
+    UnexpectedTokenIdentifier,
     UnexpectedToken,
     UnterminatedComment,
     UnterminatedString,
@@ -83,8 +84,7 @@ export const enum Errors {
     InvalidStrictExpPostion,
     InvalidBindingStrictMode,
     MissingInitializer,
-    InvalidVarDeclInForIn,
-    InvalidVarDeclInForOf,
+    InvalidVarDeclInForLoop,
     UnexpectedNumber,
     UnexpectedSurrogate,
     ForbiddenAsStatement,
@@ -119,13 +119,16 @@ export const enum Errors {
     GeneratorInSingleStatementContext,
     SloppyFunction,
     YieldInParameter,
-    InvalidRestBindingPattern
+    InvalidRestBindingPattern,
+    ElementAfterRest,
+    ForInOfLoopMultiBindings
 }
 
 export const ErrorMessages: {
     [key: string]: string
 } = {
     [Errors.Unexpected]: 'Unexpected token',
+    [Errors.UnexpectedTokenIdentifier]: 'Unexpected identifier',
     [Errors.UnexpectedToken]: 'Unexpected token \'%0\'',
     [Errors.UnterminatedComment]: 'Unterminated comment',
     [Errors.UnterminatedString]: 'Unterminated string literal',
@@ -206,14 +209,13 @@ export const ErrorMessages: {
     [Errors.InvalidStrictExpPostion]: 'The identifier \'%0\' must not be in expression position in strict mode',
     [Errors.InvalidBindingStrictMode]: 'The identifier \'%0\' must not be in binding position in strict mode',
     [Errors.MissingInitializer]: 'Missing initializer',
-    [Errors.InvalidVarDeclInForIn]: 'Invalid variable declaration in for-in statement',
-    [Errors.InvalidVarDeclInForOf]: 'Invalid variable declaration in for-of statement',
+    [Errors.InvalidVarDeclInForLoop]: 'Invalid variable declaration in for-%0 statement',
     [Errors.UnexpectedNumber]: 'Unexpected number',
     [Errors.UnexpectedSurrogate]: 'Unexpected surrogate pair',
     [Errors.ForbiddenAsStatement]: '%0 can\'t appear in single-statement context',
     [Errors.InvalidAsyncGenerator]: 'Generator function or method can\'t be async',
     [Errors.InvalidArrowYieldParam]: 'Arrow parameters must not contain yield expressions',
-    [Errors.InvalidAwaitInArrowParam]: '\'await\' is not allowed inside an async arrow\'s parameter list',
+    [Errors.InvalidAwaitInArrowParam]: '\'await\' is not a valid identifier name in an async function',
     [Errors.UnsupportedFeature]: '%0 isn\'t supported by default. Enable the \'%1\' option to use them',
     [Errors.TemplateOctalLiteral]: 'Template literals may not contain octal escape sequences',
     [Errors.InvalidNestedStatement]: '%0  statement must be nested within an iteration statement',
@@ -239,6 +241,10 @@ export const ErrorMessages: {
     [Errors.SloppyFunction]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
     [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter',
     [Errors.InvalidRestBindingPattern]: '`...` must be followed by an identifier in declaration contexts',
+    [Errors.ElementAfterRest]: 'Rest element must be last element',
+    [Errors.ForInOfLoopMultiBindings]: 'Invalid left-hand side in %0 loop: Must have a single binding.',
+    
+    
 };
 
 function constructError(msg: string, column: number): Error {

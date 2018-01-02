@@ -1,4 +1,4 @@
-import { pass, fail, n } from '../utils';
+import { pass } from '../utils';
 
 describe('Statements - Block', () => {
 

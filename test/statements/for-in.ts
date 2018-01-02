@@ -2219,139 +2219,259 @@ describe('Statements - For In', () => {
 
     fail(`for ({...rest, b} in [{} ]) ;`, {
         source: 'for ({...rest, b} in [{} ]) ;',
-        next: true
+        next: true,
+        message: 'Unexpected token \'...\'',
+        line: 1,
+        column: 13,
+        index: 14
     });
 
     fail(`for(let of 0);`, {
         source: 'for(let of 0);',
+        message: 'Unexpected token',
+        line: 1,
+        column: 11,
+        index: 12
     });
 
     fail(`for (a=12 in e) break;`, {
         source: 'for (a=12 in e) break;',
+        message: 'Unexpected token',
+        line: 1,
+        column: 14,
+        index: 15
     });
 
     fail(`for (var a, b in e) break;`, {
         source: 'for (var a, b in e) break;',
-    });
-
-    fail(`for (var a = 12 in e) break;`, {
-        source: 'for (var a = 12 in e) break;',
+        message: 'Invalid left-hand side in for-in loop: Must have a single binding.',
+        line: 1,
+        column: 14,
+        index: 16
     });
 
     fail(`for (a in b 5`, {
         source: 'for (a in b 5',
+        message: 'Unexpected token',
+        line: 1,
+        column: 12,
+        index: 13
     });
 
     fail(`for (a to e) break;`, {
         source: 'for (a to e) break;',
+        message: 'Unexpected token',
+        line: 1,
+        column: 7,
+        index: 9
     });
 
     fail(`for (a 12 b; 12) break;`, {
         source: 'for (a 12 b; 12) break;',
+        message: 'Unexpected token',
+        line: 1,
+        column: 7,
+        index: 9
     });
 
     fail(`for(let a = 0 in b);`, {
         source: 'for(let a = 0 in b);',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 14,
+        index: 16
     });
 
     fail(`for(const a = 0 in b);`, {
         source: 'for(const a = 0 in b);',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 16,
+        index: 18
     });
 
     fail(`for(let ? b : c in 0);`, {
         source: 'for(let ? b : c in 0);',
+        message: 'Invalid left-hand side in for-loop',
+        line: 1,
+        column: 20,
+        index: 21
     });
 
     fail(`for (var {x}=0 in y);`, {
         source: 'for (var {x}=0 in y);',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 15,
+        index: 17
     });
 
     fail(`for (var [p]=0 in q);`, {
         source: 'for (var [p]=0 in q);',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 15,
+        index: 17
     });
 
     fail(`"use strict"; for (var [p]=1 in q);`, {
         source: '"use strict"; for (var [p]=1 in q);',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 29,
+        index: 31
     });
 
     fail(`for(({a}) in 0);`, {
         source: 'for(({a}) in 0);',
+        message: 'Invalid parenthesized pattern',
+        line: 1,
+        column: 14,
+        index: 15
     });
 
     fail(`for(([a]) in 0);`, {
         source: 'for(([a]) in 0);',
+        message: 'Invalid parenthesized pattern',
+        line: 1,
+        column: 14,
+        index: 15
     });
 
     fail(`for(([a]) in 0);`, {
         source: 'for(([a]) in 0);',
+        message: 'Invalid parenthesized pattern',
+        line: 1,
+        column: 14,
+        index: 15
     });
 
     fail(`for(var [a = 0] = 0 in {});`, {
         source: 'for(var [a = 0] = 0 in {});',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 20,
+        index: 22
     });
 
     fail(`for(var {p: x} = 0 in {});`, {
         source: 'for(var {p: x} = 0 in {});',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 19,
+        index: 21
     });
 
     fail(`for(let {p: x} = 0 in {});`, {
         source: 'for(let {p: x} = 0 in {});',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 19,
+        index: 21
     });
 
     fail(`for(var [a] = 0 in {});`, {
         source: 'for(var [a] = 0 in {});',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 16,
+        index: 18
     });
 
     fail(`for(var [...[a]] = 0 in {});`, {
         source: 'for(var [...[a]] = 0 in {});',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 21,
+        index: 23
     });
 
     fail(`for(var [,] = 0 in {});`, {
         source: 'for(var [,] = 0 in {});',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 16,
+        index: 18
     });
 
     fail(`for(const [,] = 0 in {});`, {
         source: 'for(const [,] = 0 in {});',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 18,
+        index: 20
     });
 
     fail(`for(let [,] = 0 in {});`, {
         source: 'for(let [,] = 0 in {});',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 16,
+        index: 18
     });
 
     fail(`for(var [] = 0 in {});`, {
         source: 'for(var [] = 0 in {});',
-    });
-
-    fail(`for(const [] = 0 in {});`, {
-        source: 'for(const [] = 0 in {});',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 15,
+        index: 17
     });
 
     fail(`for (new F() = 0 in {});`, {
         source: 'for (new F() = 0 in {});',
+        message: 'Invalid destructuring assignment target',
+        line: 1,
+        column: 13,
+        index: 14
     });
 
     fail(`for (i++ = 0 in {});`, {
         source: 'for (i++ = 0 in {});',
+        message: 'Invalid destructuring assignment target',
+        line: 1,
+        column: 9,
+        index: 10
     });
 
     fail(`for (0 = 0 in {});`, {
         source: 'for (0 = 0 in {});',
+        message: 'Invalid destructuring assignment target',
+        line: 1,
+        column: 7,
+        index: 8
     });
 
     fail(`class C extends D { constructor() { for (super() = 0 in {}); } }`, {
         source: 'class C extends D { constructor() { for (super() = 0 in {}); } }',
+        message: 'Invalid destructuring assignment target',
+        line: 1,
+        column: 49,
+        index: 50
     });
 
     fail(`for (var [x] = [] in null);`, {
         source: 'for (var [x] = [] in null);',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 18,
+        index: 20
     });
 
     fail(`for (var [x] = x in y) var x;`, {
         source: 'for (var [x] = x in y) var x;',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 17,
+        index: 19
     });
 
     fail(`for (var [arguments] = ({ get y(){} }) in y ) (x);`, {
         source: 'for (var [arguments] = ({ get y(){} }) in y ) (x);',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 39,
+        index: 41
     });
 
     fail(`for (var [arguments] = ({ get y(){} }) in y ) (x);`, {
@@ -2369,41 +2489,81 @@ describe('Statements - For In', () => {
     // Declarations in for-in loop heads must not contain "in"-expression initializers
     fail(`for (var x = 3 in {}; ; ) break;`, {
         source: 'for (var x = 3 in {}; ; ) break;',
+        message: 'Unexpected token',
+        line: 1,
+        column: 20,
+        index: 21
     });
 
     fail(`for (var x, y = 3 in {}; ; ) break;`, {
         source: 'for (var x, y = 3 in {}; ; ) break;',
+        message: 'Invalid left-hand side in for-in loop: Must have a single binding.',
+        line: 1,
+        column: 18,
+        index: 20
     });
 
     fail(`for (var x = 5, y = 3 in {}; ; ) break;`, {
         source: 'for (var x = 5, y = 3 in {}; ; ) break;',
+        message: 'Invalid left-hand side in for-in loop: Must have a single binding.',
+        line: 1,
+        column: 22,
+        index: 24
     });
 
     fail(`for (const x = 3 in {}; ; ) break;`, {
         source: 'for (const x = 3 in {}; ; ) break;',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 17,
+        index: 19
     });
 
     fail(`for (const x = 5, y = 3 in {}; ; ) break;`, {
         source: 'for (const x = 5, y = 3 in {}; ; ) break;',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 24,
+        index: 26
     });
 
     fail(`for (let x, y = 3 in {}; ; ) break;`, {
         source: 'for (let x, y = 3 in {}; ; ) break;',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 18,
+        index: 20
     });
 
     fail(`for (let x = 2, y = 3 in {}; ; ) break;`, {
         source: 'for (let x = 2, y = 3 in {}; ; ) break;',
+        message: 'Invalid variable declaration in for-in statement',
+        line: 1,
+        column: 22,
+        index: 24
     });
 
     fail(`for ({...rest, b} in [{} ]) ;`, {
         source: 'for ({...rest, b} in [{} ]) ;',
+        message: 'Unexpected token \'...\'',
+        line: 1,
+        column: 6,
+        index: 9
     });
 
     fail(`for(([a]) in 0);`, {
         source: 'for(([a]) in 0);',
+        message: 'Invalid parenthesized pattern',
+        line: 1,
+        column: 14,
+        index: 15
     });
 
     fail(`(({a})=0);`, {
         source: '(({a})=0);',
+        message: 'Invalid parenthesized pattern',
+        line: 1,
+        column: 6,
+        index: 7
     });
 });
