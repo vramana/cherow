@@ -79,7 +79,7 @@ This will return when serialized in json:
 }
 ```
 
-### Options
+## Options
 
 Cherow supports several options as listed below, and they can be used as the second argument during parsing: 
 
@@ -91,6 +91,7 @@ parseScript('1', { ranges: true, loc: true });`:
 | Option        | Description |
 | ----------- | ------------------------------------------------------------ |
 | `comments`        | Create a top-level comments array containing all comments |
+| `tolerant`        | Create a top-level error array containing all "*skipped*" errors |
 | `attachComment`   | Attach comments to the closest relevant AST nodes |
 | `globalReturn`    | Allow return statement in global scope     |
 | `impliedStrict`   | Allow implied strict mode in sloppy mode (*modules are strict by default*) |
@@ -102,7 +103,7 @@ parseScript('1', { ranges: true, loc: true });`:
 | `source`          | Correlate output AST nodes with their source filename  |
 | `raw`             | Attach raw property on literal nodes (*Esprima and Acorn feature*)     |
 
-### Comments
+## Comments
 
 Single line, multiline and HTML comments are supported by Cherow, and the parser can be instructed to collect comments by setting the `comments option` to *true*,  or attach the comments to the AST node by setting `attachComment` to *true*.
 
@@ -118,8 +119,17 @@ either be `Line` for a single-line comment (`//`) og Block for a MultiLineCommen
  cherow.parseScript('function foo() { /* bar */ return /* baz */;}', { attachComment: true }));
 
 ```
+## Tolerant parsing
 
-### Plugins
+Tolerant parsing let you choose to continue parsing without raising an error.
+
+A top-level errors array containing all "*skipped*" errors will be attached to the root node (*Program*),
+ 
+ ```js
+cherow.parseScript('var foo = 1; /* ', { tolerant: true }));
+```
+
+## Plugins
 
 Cherow is designed to support parameterized plugins wich, within reasonable bounds, redefine the way the parser works. A  parameterized plugin gives 
 you far more benefits than a traditional one , and let you extend the parser with code from 3rd party libraries or 
@@ -136,7 +146,7 @@ function plugin() {
    }
 }
 ```
-####  Create a plugin
+###  Create a plugin
 
 Here is a simple example plugin wich creates a new literal node with a pre-defined value `123`.
 
