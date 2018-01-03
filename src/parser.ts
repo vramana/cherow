@@ -1982,13 +1982,13 @@ export class Parser {
         return true;
     }
 
-    private expect(context: Context, t: Token, msg: Errors = Errors.Unexpected) {
-        if (this.token !== t) this.error(msg);
-        this.nextToken(context);
-    }
-
-    private expectTolerant(context: Context, t: Token, msg: Errors = Errors.Unexpected) {
-        if (this.token !== t) this.tolerate(msg);
+    private expect(
+        context: Context, 
+        t: Token, 
+        msg: Errors = Errors.Unexpected, /* optional*/
+        tolerant: boolean = false /* false */
+    ) {
+        if (this.token !== t) tolerant ? this.tolerate(msg) : this.error(msg);
         this.nextToken(context);
     }
 
@@ -3915,7 +3915,7 @@ export class Parser {
     }
 
     private parseParameterList(context: Context, state: ObjectState): ESTree.AssignmentPattern[] {
-        this.expectTolerant(context, Token.LeftParen);
+        this.expect(context, Token.LeftParen, Errors.Unexpected, true);
         const result = [];
         this.flags &= ~Flags.SimpleParameterList;
 
@@ -4155,8 +4155,10 @@ export class Parser {
             const expr = this.token === Token.Ellipsis ? this.parseSpreadExpression(context) :
                 this.parseAssignmentExpression(context);
             args.push(expr);
-
-            if (this.token !== Token.RightParen) this.expectTolerant(context, Token.Comma);
+            
+            if (this.token !== Token.RightParen) {
+                this.expect(context, Token.Comma, Errors.Unexpected, true);
+            }
         }
 
         this.expect(context, Token.RightParen);
@@ -4698,7 +4700,9 @@ export class Parser {
 
         while (this.token !== Token.RightBrace) {
             properties.push(this.parseObjectElement(context));
-            if (this.token !== Token.RightBrace) this.expectTolerant(context, Token.Comma);
+            if (this.token !== Token.RightBrace) {
+                this.expect(context, Token.Comma, Errors.Unexpected, true);
+            }
         }
         this.expect(context, Token.RightBrace);
 
