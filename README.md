@@ -121,9 +121,8 @@ either be `Line` for a single-line comment (`//`) og Block for a MultiLineCommen
 ```
 ## Tolerant parsing
 
-The tolerant algorithm used by `Cherow` let you continue parsing without raising an error. 
-It deviates slightly from both `Esprima` and `Acorn` due to the parsers complexity, and it's
-primarily for early errors, and other errors that are basically valid syntax but just not allowed. 
+The tolerant algorithm used by `Cherow` deviates slightly from both `Esprima` and `Acorn` due to the 
+parsers complexity, and it's primarily for early errors, and other errors that are basically valid syntax but just not allowed. 
 E.g. Allow use of `return statement` in global scope, or use of `with statement` in strict mode code.
 
 A top-level errors array containing all "*skipped*" errors will be attached to the root node (*Program*),

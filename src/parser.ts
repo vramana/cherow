@@ -1064,6 +1064,7 @@ export class Parser {
             this.index += 2;
             this.column += 2;
 
+
             code = this.peekExtendedUnicodeEscape();
             if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMin) {
                 this.tolerate(Errors.UnexpectedSurrogate);
@@ -1940,7 +1941,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: any,
         node: any,
@@ -2927,6 +2928,8 @@ export class Parser {
 
         let alternate: ESTree.Statement | null = null;
 
+
+
         if (this.token !== Token.RightParen && this.flags & Flags.OptionsTolerant) {
             this.tolerate(Errors.ParenAfterIf);
             consequent = this.parseEmptyStatement(context);
@@ -3208,7 +3211,7 @@ export class Parser {
                         this.tolerate(Errors.DeclarationMissingInitializer);
                     }
                 } else if (context & Context.ForStatement && isInOrOfKeyword(this.token)) {
-                    this.tolerate(Errors.InvalidVarDeclInForLoop, tokenDesc(this.token));
+                    this.tolerate(Errors.InvalidVarDeclInForLoop, tokenDesc(this.token))
                 }
             } else if (!isInOrOfKeyword(this.token)) {
                 this.tolerate(Errors.DeclarationMissingInitializer);

@@ -2257,5 +2257,4 @@ describe('Miscellaneous - Tolerant mode', () => {
               type: 'Program'
             }
     });
-
 });
