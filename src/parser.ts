@@ -1064,7 +1064,6 @@ export class Parser {
             this.index += 2;
             this.column += 2;
 
-
             code = this.peekExtendedUnicodeEscape();
             if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMin) {
                 this.tolerate(Errors.UnexpectedSurrogate);
@@ -1941,7 +1940,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: any,
         node: any,
@@ -1983,13 +1982,23 @@ export class Parser {
     }
 
     private expect(
-        context: Context, 
-        t: Token, 
+        context: Context,
+        t: Token,
         msg: Errors = Errors.Unexpected, /* optional*/
         tolerant: boolean = false /* false */
     ) {
-        if (this.token !== t) tolerant ? this.tolerate(msg) : this.error(msg);
-        this.nextToken(context);
+        if (tolerant && this.flags & Flags.OptionsTolerant) {
+            switch (this.token) {
+                case Token.Semicolon:
+                case Token.Comma:
+                default:
+                    this.tolerate(Errors.UnexpectedToken, tokenDesc(this.token));
+                    this.nextToken(context);
+            }
+        } else {
+            if (this.token !== t) this.error(msg);
+            this.nextToken(context);
+        }
     }
 
     private isEvalOrArguments(value: string): boolean {
@@ -2928,8 +2937,6 @@ export class Parser {
 
         let alternate: ESTree.Statement | null = null;
 
-
-
         if (this.token !== Token.RightParen && this.flags & Flags.OptionsTolerant) {
             this.tolerate(Errors.ParenAfterIf);
             consequent = this.parseEmptyStatement(context);
@@ -3211,7 +3218,7 @@ export class Parser {
                         this.tolerate(Errors.DeclarationMissingInitializer);
                     }
                 } else if (context & Context.ForStatement && isInOrOfKeyword(this.token)) {
-                    this.tolerate(Errors.InvalidVarDeclInForLoop, tokenDesc(this.token))
+                    this.tolerate(Errors.InvalidVarDeclInForLoop, tokenDesc(this.token));
                 }
             } else if (!isInOrOfKeyword(this.token)) {
                 this.tolerate(Errors.DeclarationMissingInitializer);
@@ -3353,7 +3360,8 @@ export class Parser {
                 if (context & Context.InArrowParameterList) {
                     this.addFunctionArg(node.name);
                 }
-                if (context & Context.Strict && this.isEvalOrArguments(node.name)) {
+                if (context & Context.Strict &&
+                    this.isEvalOrArguments(node.name)) {
                     this.tolerate(Errors.InvalidBindingStrictMode, node.name);
                 }
                 return;
@@ -3555,7 +3563,7 @@ export class Parser {
             if (context & Context.ClassFields &&
                 t === Token.TypeofKeyword &&
                 this.isEvalOrArguments(this.tokenValue)) {
-                    this.tolerate(Errors.UnexpectedReservedWord);
+                this.tolerate(Errors.UnexpectedReservedWord);
             }
             if (context & Context.Strict && t === Token.DeleteKeyword) {
                 if (argument.type === 'Identifier' || (this.flags & Flags.OptionsNext &&
@@ -3779,8 +3787,11 @@ export class Parser {
 
             const args = this.parseArguments(context);
 
-            if (context & Context.Import && args.length !== 1 &&
-                expr.type as string === 'Import') this.tolerate(Errors.BadImportCallArity);
+            if (context & Context.Import &&
+                args.length !== 1 &&
+                expr.type as string === 'Import') {
+                this.tolerate(Errors.BadImportCallArity);
+            }
 
             expr = this.finishNode(context, pos, {
                 type: 'CallExpression',
@@ -3840,48 +3851,45 @@ export class Parser {
 
         if (t !== Token.LeftParen) {
 
-            if (this.isIdentifier(context, t)) {
+            if (!this.isIdentifier(context, t)) this.tolerate(Errors.UnexpectedToken, tokenDesc(t));
 
-                if (this.isEvalOrArguments(this.tokenValue)) {
+            if (this.isEvalOrArguments(this.tokenValue)) {
+                if (context & Context.Strict) {
+                    this.tolerate(Errors.StrictLHSAssignment);
+                } else {
                     this.errorLocation = this.getLocations();
-                    if (context & Context.Strict) {
-                        this.tolerate(Errors.StrictLHSAssignment);
-                    }
                     context |= Context.StrictReserved;
                 }
+            }
 
-                if (context & (Context.Expression | Context.AnnexB)) {
+            if (context & (Context.Expression | Context.AnnexB)) {
 
-                    if ((context & Context.Await && t & Token.IsAwait) ||
-                        (context & Context.Yield && t & Token.IsYield)) {
-                        this.errorLocation = this.getLocations();
-                        this.tolerate(Errors.DisallowedInContext, tokenDesc(t));
-                    }
-
-                    id = this.parseIdentifier(context);
-
-                } else {
-
-                    if ((prevContext & Context.Await && t & Token.IsAwait) ||
-                        (prevContext & Context.Yield && t & Token.IsYield)) {
-                        this.tolerate(Errors.DisallowedInContext, tokenDesc(t));
-                    }
-
-                    if (context & Context.Declaration) {
-                        const name = this.tokenValue;
-                        if (!this.initBlockScope() && name in this.blockScope &&
-                            (this.blockScope[name] & ScopeMasks.Shadowable ||
-                                this.blockScope !== this.functionScope)) {
-                            this.tolerate(Errors.DuplicateBinding, name);
-                        }
-                        this.blockScope[name] = ScopeMasks.Shadowable;
-                    }
-
-                    id = this.parseBindingIdentifier(context);
+                if ((context & Context.Await && t & Token.IsAwait) ||
+                    (context & Context.Yield && t & Token.IsYield)) {
+                    this.errorLocation = this.getLocations();
+                    this.tolerate(Errors.DisallowedInContext, tokenDesc(t));
                 }
 
+                id = this.parseIdentifier(context);
+
             } else {
-                this.tolerate(Errors.UnexpectedToken, tokenDesc(t));
+
+                if ((prevContext & Context.Await && t & Token.IsAwait) ||
+                    (prevContext & Context.Yield && t & Token.IsYield)) {
+                    this.tolerate(Errors.DisallowedInContext, tokenDesc(t));
+                }
+
+                if (context & Context.Declaration) {
+                    const name = this.tokenValue;
+                    if (!this.initBlockScope() && name in this.blockScope &&
+                        (this.blockScope[name] & ScopeMasks.Shadowable ||
+                            this.blockScope !== this.functionScope)) {
+                        this.tolerate(Errors.DuplicateBinding, name);
+                    }
+                    this.blockScope[name] = ScopeMasks.Shadowable;
+                }
+
+                id = this.parseBindingIdentifier(context);
             }
 
         } else if (!(context & (Context.Expression | Context.Optional))) {
@@ -3915,7 +3923,7 @@ export class Parser {
     }
 
     private parseParameterList(context: Context, state: ObjectState): ESTree.AssignmentPattern[] {
-        this.expect(context, Token.LeftParen, Errors.Unexpected, true);
+        this.expect(context, Token.LeftParen);
         const result = [];
         this.flags &= ~Flags.SimpleParameterList;
 
@@ -4155,7 +4163,7 @@ export class Parser {
             const expr = this.token === Token.Ellipsis ? this.parseSpreadExpression(context) :
                 this.parseAssignmentExpression(context);
             args.push(expr);
-            
+
             if (this.token !== Token.RightParen) {
                 this.expect(context, Token.Comma, Errors.Unexpected, true);
             }

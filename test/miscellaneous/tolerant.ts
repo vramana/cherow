@@ -23,6 +23,7 @@ describe('Miscellaneous - Tolerant mode', () => {
                     {
                       description: 'Unexpected number',
                       index: 2,
+                      column: 0,
                       lineNumber: 1,
                    }
                   ],
@@ -123,6 +124,7 @@ describe('Miscellaneous - Tolerant mode', () => {
                     {
                       description: 'Rest element must be last element',
                       index: 17,
+                      column: 16,
                       lineNumber: 1,
                    },
                   ],
@@ -166,6 +168,7 @@ describe('Miscellaneous - Tolerant mode', () => {
                     {
                       description: 'Unexpected token \'...\'',
                       index: 10,
+                      column: 7,
                       lineNumber: 1,
                     }
                   ],
@@ -240,7 +243,8 @@ describe('Miscellaneous - Tolerant mode', () => {
                     {
                       description: 'Rest element must be last element',
                       index: 14,
-                     lineNumber: 1,
+                      column: 13,
+                      lineNumber: 1,
                     },
                  ],
                   sourceType: 'script',
@@ -254,45 +258,45 @@ describe('Miscellaneous - Tolerant mode', () => {
             next: true,
             expected: {
                   body: [
-                   {
+                    {
                       async: false,
                       body: {
                         body: [
                           {
                             expression: {
-                              expressions: [
+                             expressions: [
                                 {
                                   expressions: {
                                     type: 'Literal',
-                                    value: 1,
+                                    value: 1
                                   },
                                   type: 'ThrowExpression'
                                 },
                                 {
                                   type: 'Literal',
-                                  value: 2
+                                 value: 2,
                                 },
                               ],
                               type: 'SequenceExpression'
-                            },
+                           },
                             type: 'ExpressionStatement'
-                          },
+                          }
                         ],
-                        type: 'BlockStatement',
+                        type: 'BlockStatement'
                       },
-                      expression: false,
+                     expression: false,
                       generator: false,
-                     id: {
+                      id: {
                         name: 'test',
-                        type: 'Identifier',
+                        type: 'Identifier'
                       },
                       params: [],
-                      type: 'FunctionDeclaration',
-                    }
+                      type: 'FunctionDeclaration'
+                   }
                   ],
                   errors: [],
                   sourceType: 'script',
-                  type: 'Program',
+                  type: 'Program'
                 }
         });
 
@@ -336,11 +340,13 @@ describe('Miscellaneous - Tolerant mode', () => {
                     {
                       description: 'Unexpected reserved word',
                       index: 31,
+                      column: 30,
                       lineNumber: 1,
                     },
                     {
                       description: 'Unexpected reserved word',
                       index: 31,
+                      column: 30,
                       lineNumber: 1,
                    },
                   ],
@@ -358,6 +364,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Unterminated comment',
                 index: 2,
+                column: 0,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -387,6 +394,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Unterminated comment',
                 index: 15,
+                column: 13,
                 lineNumber: 1,
             }, ],
             sourceType: 'script',
@@ -402,6 +410,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Unterminated comment',
                 index: 16,
+                column: 0,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -421,19 +430,19 @@ describe('Miscellaneous - Tolerant mode', () => {
                         computed: false,
                         key: {
                           name: 's',
-                          type: 'Identifier',
+                          type: 'Identifier'
                         },
                         kind: 'set',
                         method: false,
                         shorthand: false,
-                       type: 'Property',
+                        type: 'Property',
                         value: {
                           async: false,
                           body: {
                             body: [],
-                            type: 'BlockStatement',
+                            type: 'BlockStatement'
                           },
-                          expression: false,
+                         expression: false,
                           generator: false,
                           id: null,
                           params: [],
@@ -441,20 +450,21 @@ describe('Miscellaneous - Tolerant mode', () => {
                         }
                       }
                     ],
-                    type: 'ObjectExpression',
-                 },
-                  type: 'ExpressionStatement'
+                    type: 'ObjectExpression'
+                  },
+                 type: 'ExpressionStatement'
                 }
               ],
               errors: [
                 {
                   description: 'Setter must have exactly one formal parameter',
                   index: 10,
+                  column: 9,
                   lineNumber: 1,
-               },
+                },
               ],
               sourceType: 'script',
-              type: 'Program',
+              type: 'Program'
             }
     });
 
@@ -493,6 +503,7 @@ describe('Miscellaneous - Tolerant mode', () => {
                 {
                   description: 'break  statement must be nested within an iteration statement',
                   index: 38,
+                  column: 33,
                  lineNumber: 1,
                 }
               ],
@@ -553,8 +564,9 @@ describe('Miscellaneous - Tolerant mode', () => {
                 type: 'ExpressionStatement'
             }],
             errors: [{
-                description: 'Unexpected token',
+                description: 'Unexpected token \'identifier\'',
                 index: 6,
+                column: 5,
                 lineNumber: 1,
             }, ],
             sourceType: 'script',
@@ -586,8 +598,9 @@ describe('Miscellaneous - Tolerant mode', () => {
                 type: 'ExpressionStatement'
             }],
             errors: [{
-                description: 'Unexpected token',
+                description: 'Unexpected token \'identifier\'',
                 index: 5,
+                column: 4,
                 lineNumber: 1,
             }, ],
             sourceType: 'script',
@@ -619,8 +632,9 @@ describe('Miscellaneous - Tolerant mode', () => {
                 type: 'ExpressionStatement'
             }],
             errors: [{
-                description: 'Unexpected token',
+                description: 'Unexpected token \'identifier\'',
                 index: 6,
+                column: 5,
                 lineNumber: 1
             }],
             sourceType: 'script',
@@ -632,64 +646,72 @@ describe('Miscellaneous - Tolerant mode', () => {
         source: `var o = {one: function() {} two:2};`,
         tolerant: true,
         expected: {
-            body: [{
-                declarations: [{
-                    id: {
+              body: [
+                {
+                  declarations: [
+                   {
+                      id: {
                         name: 'o',
                         type: 'Identifier'
-                    },
-                    init: {
-                        properties: [{
-                                computed: false,
-                                key: {
-                                    name: 'one',
-                                    type: 'Identifier'
-                                },
-                                kind: 'init',
-                                method: false,
-                                shorthand: false,
-                                type: 'Property',
-                                value: {
-                                    async: false,
-                                    body: {
-                                        body: [],
-                                        type: 'BlockStatement'
-                                    },
-                                    expression: false,
-                                    generator: false,
-                                    id: null,
-                                    params: [],
-                                    type: 'FunctionExpression'
-                                }
+                      },
+                      init: {
+                        properties: [
+                          {
+                            computed: false,
+                            key: {
+                              name: 'one',
+                              type: 'Identifier'
                             },
-                            {
-                                computed: false,
-                                key: undefined,
-                                kind: 'init',
-                                method: false,
-                                shorthand: false,
-                                type: 'Property',
-                                value: {
-                                    type: 'Literal',
-                                    value: 2,
-                                }
+                            kind: 'init',
+                            method: false,
+                            shorthand: false,
+                            type: 'Property',
+                            value: {
+                              async: false,
+                              body: {
+                                body: [],
+                                type: 'BlockStatement'
+                              },
+                              expression: false,
+                              generator: false,
+                              id: null,
+                              params: [],
+                              type: 'FunctionExpression'
                             }
+                          },
+                          {
+                            computed: false,
+                            key: undefined,
+                            kind: 'init',
+                            method: false,
+                            shorthand: false,
+                            type: 'Property',
+                            value: {
+                              type: 'Literal',
+                              value: 2,
+                            }
+                          }
                         ],
                         type: 'ObjectExpression'
-                    },
-                    type: 'VariableDeclarator'
-                }],
-                kind: 'var',
-                type: 'VariableDeclaration'
-            }],
-            errors: [{
-                description: 'Unexpected token',
-                index: 31,
-                lineNumber: 1,
-            }, ],
-            sourceType: 'script',
-            type: 'Program'
-        }
+                      },
+                      type: 'VariableDeclarator'
+                    }
+                 ],
+                  kind: 'var',
+                  type: 'VariableDeclaration'
+                }
+              ],
+              errors: [
+                {
+                  description: 'Unexpected token \'identifier\'',
+                  index: 31,
+                  column: 28,
+                  lineNumber: 1,
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
     });
 
     pass(`var o = {one: function() {} two:2 three: 3};`, {
@@ -759,13 +781,15 @@ describe('Miscellaneous - Tolerant mode', () => {
                 type: 'VariableDeclaration'
             }],
             errors: [{
-                    description: 'Unexpected token',
+                    description: 'Unexpected token \'identifier\'',
                     index: 31,
+                    column: 28,
                     lineNumber: 1,
                 },
                 {
-                    description: 'Unexpected token',
+                    description: 'Unexpected token \'identifier\'',
                     index: 39,
+                    column: 34,
                     lineNumber: 1,
                 },
             ],
@@ -778,226 +802,256 @@ describe('Miscellaneous - Tolerant mode', () => {
         source: `var o = {one: function() {} two:2, three: 3 "four":4};`,
         tolerant: true,
         expected: {
-            body: [{
-                declarations: [{
-                    id: {
-                        name: 'o',
+             body: [
+                {
+                  declarations: [
+                    {
+                      id: {
+                       name: 'o',
                         type: 'Identifier'
-                    },
-                    init: {
-                        properties: [{
-                                computed: false,
-                                key: {
-                                    name: 'one',
-                                    type: 'Identifier'
-                                },
-                                kind: 'init',
-                                method: false,
-                                shorthand: false,
-                                type: 'Property',
-                                value: {
-                                    async: false,
-                                    body: {
-                                        body: [],
-                                        type: 'BlockStatement'
-                                    },
-                                    expression: false,
-                                    generator: false,
-                                    id: null,
-                                    params: [],
-                                    type: 'FunctionExpression'
-                                }
+                     },
+                      init: {
+                       properties: [
+                          {
+                            computed: false,
+                            key: {
+                              name: 'one',
+                              type: 'Identifier'
                             },
-                            {
-                                computed: false,
-                                key: undefined,
-                                kind: 'init',
-                                method: false,
-                                shorthand: false,
-                                type: 'Property',
-                                value: {
-                                    type: 'Literal',
-                                    value: 2,
-                                },
-                            },
-                            {
-                                computed: false,
-                                key: {
-                                    name: 'three',
-                                    type: 'Identifier'
-                                },
-                                kind: 'init',
-                                method: false,
-                                shorthand: false,
-                                type: 'Property',
-                                value: {
-                                    type: 'Literal',
-                                    value: 3,
-                                }
-                            },
-                            {
-                                computed: false,
-                                key: undefined,
-                                kind: 'init',
-                                method: false,
-                                shorthand: false,
-                                type: 'Property',
-                                value: {
-                                    type: 'Literal',
-                                    value: 4,
-                                }
+                            kind: 'init',
+                            method: false,
+                            shorthand: false,
+                            type: 'Property',
+                            value: {
+                              async: false,
+                              body: {
+                                body: [],
+                                type: 'BlockStatement'
+                              },
+                              expression: false,
+                              generator: false,
+                              id: null,
+                              params: [],
+                              type: 'FunctionExpression'
                             }
+                          },
+                          {
+                            computed: false,
+                            key: undefined,
+                            kind: 'init',
+                            method: false,
+                            shorthand: false,
+                            type: 'Property',
+                            value: {
+                              type: 'Literal',
+                              value: 2,
+                            }
+                          },
+                          {
+                            computed: false,
+                            key: {
+                              name: 'three',
+                              type: 'Identifier',
+                            },
+                           kind: 'init',
+                            method: false,
+                            shorthand: false,
+                            type: 'Property',
+                            value: {
+                             type: 'Literal',
+                              value: 3
+                            }
+                          },
+                          {
+                            computed: false,
+                            key: undefined,
+                            kind: 'init',
+                            method: false,
+                            shorthand: false,
+                           type: 'Property',
+                            value: {
+                              type: 'Literal',
+                              value: 4,
+                            }
+                          }
                         ],
                         type: 'ObjectExpression'
-                    },
-                    type: 'VariableDeclarator'
-                }],
-                kind: 'var',
-                type: 'VariableDeclaration'
-            }],
-            errors: [{
-                    description: 'Unexpected token',
-                    index: 31,
-                    lineNumber: 1,
+                      },
+                      type: 'VariableDeclarator'
+                    }
+                  ],
+                  kind: 'var',
+                  type: 'VariableDeclaration'
+                }
+              ],
+              errors: [
+                {
+                  description: 'Unexpected token \'identifier\'',
+                  index: 31,
+                  column: 28,
+                  lineNumber: 1,
                 },
                 {
-                    description: 'Unexpected token',
-                    index: 50,
-                    lineNumber: 1,
+                 description: 'Unexpected token \',\'',
+                  index: 34,
+                  column: 33,
+                  lineNumber: 1,
                 },
-            ],
-            sourceType: 'script',
-            type: 'Program',
-        }
+                {
+                  description: 'Unexpected token \'string\'',
+                  index: 50,
+                  column: 44,
+                  lineNumber: 1,
+                }
+              ],
+              sourceType: 'script',
+             type: 'Program'
+            }
     });
 
     pass(`var o = {one: function() {} two:2, three: {aa: "a" bb: "b"} four: 4};`, {
         source: `var o = {one: function() {} two:2, three: {aa: "a" bb: "b"} four: 4};`,
         tolerant: true,
         expected: {
-            body: [{
-                declarations: [{
-                    id: {
+              body: [
+                {
+                  declarations: [
+                   {
+                      id: {
                         name: 'o',
                         type: 'Identifier'
-                    },
-                    init: {
-                        properties: [{
-                                computed: false,
-                                key: {
-                                    name: 'one',
-                                    type: 'Identifier'
-                                },
-                                kind: 'init',
-                                method: false,
-                                shorthand: false,
-                                type: 'Property',
-                                value: {
-                                    async: false,
-                                    body: {
-                                        body: [],
-                                        type: 'BlockStatement'
-                                    },
-                                    expression: false,
-                                    generator: false,
-                                    id: null,
-                                    params: [],
-                                    type: 'FunctionExpression'
-                                }
+                      },
+                      init: {
+                        properties: [
+                          {
+                            computed: false,
+                            key: {
+                              name: 'one',
+                              type: 'Identifier'
                             },
-                            {
-                                computed: false,
-                                key: undefined,
-                                kind: 'init',
-                                method: false,
-                                shorthand: false,
-                                type: 'Property',
-                                value: {
-                                    type: 'Literal',
-                                    value: 2
-                                }
-                            },
-                            {
-                                computed: false,
-                                key: {
-                                    name: 'three',
-                                    type: 'Identifier',
-                                },
-                                kind: 'init',
-                                method: false,
-                                shorthand: false,
-                                type: 'Property',
-                                value: {
-                                    properties: [{
-                                            computed: false,
-                                            key: {
-                                                name: 'aa',
-                                                type: 'Identifier'
-                                            },
-                                            kind: 'init',
-                                            method: false,
-                                            shorthand: false,
-                                            type: 'Property',
-                                            value: {
-                                                type: 'Literal',
-                                                value: 'a'
-                                            }
-                                        },
-                                        {
-                                            computed: false,
-                                            key: undefined,
-                                            kind: 'init',
-                                            method: false,
-                                            shorthand: false,
-                                            type: 'Property',
-                                            value: {
-                                                type: 'Literal',
-                                                value: 'b'
-                                            }
-                                        }
-                                    ],
-                                    type: 'ObjectExpression'
-                                }
-                            },
-                            {
-                                computed: false,
-                                key: undefined,
-                                kind: 'init',
-                                method: false,
-                                shorthand: false,
-                                type: 'Property',
-                                value: {
-                                    type: 'Literal',
-                                    value: 4
-                                }
+                            kind: 'init',
+                            method: false,
+                            shorthand: false,
+                            type: 'Property',
+                            value: {
+                              async: false,
+                              body: {
+                                body: [],
+                                type: 'BlockStatement'
+                              },
+                              expression: false,
+                              generator: false,
+                              id: null,
+                              params: [],
+                              type: 'FunctionExpression'
                             }
+                          },
+                          {
+                            computed: false,
+                            key: undefined,
+                            kind: 'init',
+                            method: false,
+                            shorthand: false,
+                           type: 'Property',
+                            value: {
+                              type: 'Literal',
+                              value: 2
+                            }
+                          },
+                          {
+                            computed: false,
+                            key: {
+                              name: 'three',
+                              type: 'Identifier',
+                            },
+                            kind: 'init',
+                            method: false,
+                            shorthand: false,
+                            type: 'Property',
+                            value: {
+                              properties: [
+                                {
+                                  computed: false,
+                                  key: {
+                                    name: 'aa',
+                                    type: 'Identifier'
+                                  },
+                                  kind: 'init',
+                                  method: false,
+                                  shorthand: false,
+                                  type: 'Property',
+                                  value: {
+                                    type: 'Literal',
+                                    value: 'a',
+                                  }
+                                },
+                                {
+                                  computed: false,
+                                  key: undefined,
+                                  kind: 'init',
+                                  method: false,
+                                  shorthand: false,
+                                 type: 'Property',
+                                  value: {
+                                    type: 'Literal',
+                                    value: 'b'
+                                  }
+                                }
+                              ],
+                              type: 'ObjectExpression'
+                            }
+                          },
+                          {
+                            computed: false,
+                            key: undefined,
+                            kind: 'init',
+                            method: false,
+                            shorthand: false,
+                            type: 'Property',
+                            value: {
+                              type: 'Literal',
+                              value: 4,
+                            }
+                          }
                         ],
-                        type: 'ObjectExpression'
-                    },
-                    type: 'VariableDeclarator'
-                }],
-                kind: 'var',
-                type: 'VariableDeclaration'
-            }],
-            errors: [{
-                    description: 'Unexpected token',
-                    index: 31,
-                    lineNumber: 1,
-                },
-                {
-                    description: 'Unexpected token',
-                    index: 53,
-                    lineNumber: 1,
-                },
-                {
-                    description: 'Unexpected token',
-                    index: 64,
-                    lineNumber: 1,
+                        type: 'ObjectExpression',
+                      },
+                      type: 'VariableDeclarator'
+                    }
+                  ],
+                  kind: 'var',
+                  type: 'VariableDeclaration'
                 }
-            ],
-            sourceType: 'script',
-            type: 'Program'
-        }
+              ],
+              errors: [
+                {
+                  description: 'Unexpected token \'identifier\'',
+                  index: 31,
+                  column: 28,
+                  lineNumber: 1,
+                },
+                {
+                  description: 'Unexpected token \',\'',
+                  index: 34,
+                  column: 33,
+                  lineNumber: 1,
+                },
+                {
+                  description: 'Unexpected token \'identifier\'',
+                  index: 53,
+                  column: 51,
+                  lineNumber: 1,
+                },
+                {
+                  description: 'Unexpected token \'identifier\'',
+                  index: 64,
+                  column: 60,
+                  lineNumber: 1,
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program',
+            }
     });
 
     pass(`x = { y: z; }`, {
@@ -1034,8 +1088,9 @@ describe('Miscellaneous - Tolerant mode', () => {
                 type: 'ExpressionStatement'
             }],
             errors: [{
-                description: 'Unexpected token',
+                description: 'Unexpected token \';\'',
                 index: 11,
+                column: 10,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -1054,6 +1109,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Illegal return statement',
                 index: 6,
+                column: 0,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -1105,6 +1161,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Strict mode code may not include a with statement',
                 index: 33,
+                column: 29,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -1116,48 +1173,54 @@ describe('Miscellaneous - Tolerant mode', () => {
         source: `(function () { 'use strict'; 021 }())`,
         tolerant: true,
         expected: {
-            body: [{
-                expression: {
+              body: [
+                {
+                  expression: {
                     arguments: [],
                     callee: {
-                        async: false,
-                        body: {
-                            body: [{
-                                    directive: 'use strict',
-                                    expression: {
-                                        type: 'Literal',
-                                        value: 'use strict'
-                                    },
-                                    type: 'ExpressionStatement'
-                                },
-                                {
-                                    expression: {
-                                        type: 'Literal',
-                                        value: 17,
-                                    },
-                                    type: 'ExpressionStatement'
-                                }
-                            ],
-                            type: 'BlockStatement'
-                        },
-                        expression: false,
-                        generator: false,
-                        id: null,
-                        params: [],
-                        type: 'FunctionExpression'
+                      async: false,
+                      body: {
+                        body: [
+                          {
+                            directive: 'use strict',
+                            expression: {
+                              type: 'Literal',
+                              value: 'use strict',
+                            },
+                            type: 'ExpressionStatement'
+                          },
+                          {
+                            expression: {
+                              type: 'Literal',
+                              value: 17
+                            },
+                            type: 'ExpressionStatement'
+                          }
+                        ],
+                        type: 'BlockStatement'
+                     },
+                      expression: false,
+                      generator: false,
+                      id: null,
+                      params: [],
+                      type: 'FunctionExpression'
                     },
                     type: 'CallExpression'
-                },
-                type: 'ExpressionStatement'
-            }],
-            errors: [{
-                description: 'Octal literals are not allowed in strict mode',
-                index: 32,
-                lineNumber: 1,
-            }],
-            sourceType: 'script',
-            type: 'Program'
-        }
+                 },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              errors: [
+               {
+                  description: 'Octal literals are not allowed in strict mode',
+                  index: 32,
+                  column: 29,
+                  lineNumber: 1,
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
     });
 
     pass(`"use strict"; delete x`, {
@@ -1188,6 +1251,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Identifier expressions must not be deleted in strict mode',
                 index: 20,
+                column: 14,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -1230,6 +1294,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Eval or arguments can\'t be assigned to in strict mode code',
                 index: 32,
+                column: 28,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -1265,6 +1330,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Eval or arguments can\'t be assigned to in strict mode code',
                 index: 22,
+                column: 18,
                 lineNumber: 1,
             }, ],
             sourceType: 'script',
@@ -1303,6 +1369,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Eval or arguments can\'t be assigned to in strict mode code',
                 index: 20,
+                column: 19,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -1338,6 +1405,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Postfix increment/decrement may not have eval or arguments operand in strict mode',
                 index: 18,
+                column: 14,
                 lineNumber: 1
             }],
             sourceType: 'script',
@@ -1376,6 +1444,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Eval or arguments can\'t be assigned to in strict mode code',
                 index: 25,
+                column: 24,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -1417,11 +1486,13 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                     description: 'Eval or arguments can\'t be assigned to in strict mode code',
                     index: 32,
+                    column: 23,
                     lineNumber: 1,
                 },
                 {
                     description: 'Eval or arguments can\'t be assigned to in strict mode code',
                     index: 32,
+                    column: 23,
                     lineNumber: 1,
                 }
             ],
@@ -1434,93 +1505,90 @@ describe('Miscellaneous - Tolerant mode', () => {
         source: `"use strict"; (function eval() {});`,
         tolerant: true,
         expected: {
-            body: [{
-                    directive: 'use strict',
-                    expression: {
-                        type: 'Literal',
-                        value: 'use strict'
-                    },
-                    type: 'ExpressionStatement'
+              body: [
+                {
+                  directive: 'use strict',
+                  expression: {
+                    type: 'Literal',
+                    value: 'use strict',
+                  },
+                  type: 'ExpressionStatement'
                 },
                 {
-                    expression: {
-                        async: false,
-                        body: {
-                            body: [],
-                            type: 'BlockStatement'
-                        },
-                        expression: false,
-                        generator: false,
-                        id: {
-                            name: 'eval',
-                            type: 'Identifier'
-                        },
-                        params: [],
-                        type: 'FunctionExpression'
+                  expression: {
+                    async: false,
+                    body: {
+                      body: [],
+                      type: 'BlockStatement'
                     },
-                    type: 'ExpressionStatement'
+                    expression: false,
+                    generator: false,
+                   id: {
+                      name: 'eval',
+                      type: 'Identifier'
+                    },
+                    params: [],
+                    type: 'FunctionExpression'
+                  },
+                 type: 'ExpressionStatement'
                 }
-            ],
-            errors: [{
-                description: 'Eval or arguments can\'t be assigned to in strict mode code',
-                index: 28,
-                lineNumber: 1,
-            }],
-            sourceType: 'script',
-            type: 'Program'
-        }
+              ],
+              errors: [
+                {
+                  description: 'Eval or arguments can\'t be assigned to in strict mode code',
+                  index: 28,
+                  column: 24,
+                  lineNumber: 1,
+                }
+              ],
+             sourceType: 'script',
+              type: 'Program'
+            }
     });
 
     pass(`"use strict"; (function interface() {});`, {
         source: `"use strict"; (function interface() {});`,
         tolerant: true,
         expected: {
-            body: [{
-                    directive: 'use strict',
-                    expression: {
-                        type: 'Literal',
-                        value: 'use strict'
+              body: [
+                {
+                  directive: 'use strict',
+                  expression: {
+                    type: 'Literal',
+                    value: 'use strict',
+                  },
+                  type: 'ExpressionStatement'
+                },
+                {
+                  expression: {
+                    async: false,
+                    body: {
+                      body: [],
+                      type: 'BlockStatement'
                     },
-                    type: 'ExpressionStatement'
-                },
-                {
-                    expression: {
-                        async: false,
-                        body: {
-                            body: [],
-                            type: 'BlockStatement'
-                        },
-                        expression: false,
-                        generator: false,
-                        id: null,
-                        params: [{
-                            name: 'interface',
-                            type: 'Identifier'
-                        }],
-                        type: 'FunctionExpression'
+                    expression: false,
+                    generator: false,
+                   id: {
+                      name: 'interface',
+                      type: 'Identifier',
                     },
-                    type: 'ExpressionStatement'
+                    params: [],
+                    type: 'FunctionExpression'
+                  },
+                  type: 'ExpressionStatement'
                 }
-            ],
-            errors: [{
-                    description: 'Unexpected token \'interface\'',
-                    index: 33,
-                    lineNumber: 1,
-                },
+              ],
+              errors: [
                 {
-                    description: 'Unexpected token',
-                    index: 33,
-                    lineNumber: 1,
-                },
-                {
-                    description: 'Unexpected token \'(\'',
-                    index: 34,
-                    lineNumber: 1,
+                  description: 'Unexpected token \'interface\'',
+                  index: 33,
+                  column: 24,
+                  lineNumber: 1,
                 }
-            ],
-            sourceType: 'script',
-            type: 'Program'
-        }
+             ],
+              sourceType: 'script',
+              type: 'Program'
+            }
     });
 
     pass(`"use strict"; function f(eval) {};`, {
@@ -1557,14 +1625,17 @@ describe('Miscellaneous - Tolerant mode', () => {
                     type: 'EmptyStatement'
                 }
             ],
-            errors: [{
+            errors: [
+                {
                     description: 'Eval or arguments can\'t be assigned to in strict mode code',
                     index: 29,
+                    column: 25,
                     lineNumber: 1,
                 },
                 {
                     description: 'Eval or arguments can\'t be assigned to in strict mode code',
                     index: 29,
+                    column: 25,
                     lineNumber: 1,
                 }
             ],
@@ -1615,6 +1686,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: '\'foo\' has already been declared ',
                 index: 34,
+                column: 31,
                 lineNumber: 1
             }],
             sourceType: 'script',
@@ -1667,11 +1739,13 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                     description: 'Octal literals are not allowed in strict mode',
                     index: 27,
+                    column: 24,
                     lineNumber: 1
                 },
                 {
                     description: 'Octal literals are not allowed in strict mode',
                     index: 30,
+                    column: 29,
                     lineNumber: 1
                 }
             ],
@@ -1702,16 +1776,19 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                     description: 'Escapes \\8 or \\9 are not syntactically valid escapes',
                     index: 13,
+                    column: 8,
                     lineNumber: 1,
                 },
                 {
                     description: 'Invalid hexadecimal escape sequence',
                     index: 13,
+                    column: 8,
                     lineNumber: 1,
                 },
                 {
                     description: 'Unicode escape code point out of range',
                     index: 13,
+                    column: 8,
                     lineNumber: 1,
                 }
             ],
@@ -1724,53 +1801,64 @@ describe('Miscellaneous - Tolerant mode', () => {
         source: `({x(eval){"use strict"}})`,
         tolerant: true,
         expected: {
-            body: [{
-                expression: {
-                    properties: [{
+              body: [
+                {
+                  expression: {
+                    properties: [
+                      {
                         computed: false,
                         key: {
-                            name: 'x',
-                            type: 'Identifier'
+                          name: 'x',
+                          type: 'Identifier'
                         },
                         kind: 'init',
                         method: true,
                         shorthand: false,
                         type: 'Property',
                         value: {
-                            async: false,
-                            body: {
-                                body: [{
-                                    directive: 'use strict',
-                                    expression: {
-                                        type: 'Literal',
-                                        value: 'use strict'
-                                    },
-                                    type: 'ExpressionStatement'
-                                }],
-                                type: 'BlockStatement'
-                            },
-                            expression: false,
-                            generator: false,
-                            id: null,
-                            params: [{
-                                name: 'eval',
-                                type: 'Identifier'
-                            }, ],
-                            type: 'FunctionExpression'
+                          async: false,
+                          body: {
+                            body: [
+                              {
+                                directive: 'use strict',
+                                expression: {
+                                  type: 'Literal',
+                                  value: 'use strict',
+                                },
+                                type: 'ExpressionStatement'
+                              }
+                            ],
+                            type: 'BlockStatement'
+                          },
+                          expression: false,
+                          generator: false,
+                          id: null,
+                          params: [
+                            {
+                              name: 'eval',
+                              type: 'Identifier'
+                           }
+                          ],
+                          type: 'FunctionExpression'
                         }
-                    }],
+                      }
+                    ],
                     type: 'ObjectExpression'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+             errors: [
+                {
+                  description: 'Unexpected eval or arguments in strict mode',
+                  index: 8,
+                  column: 4,
+                  lineNumber: 1,
                 },
-                type: 'ExpressionStatement'
-            }],
-            errors: [{
-                description: 'Unexpected eval or arguments in strict mode',
-                index: 8,
-                lineNumber: 1,
-            }, ],
-            sourceType: 'script',
-            type: 'Program'
-        }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
     });
 
     pass(`for (5 in []) {}`, {
@@ -1795,11 +1883,13 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                     description: 'Invalid left-hand side in for-loop',
                     index: 13,
+                    column: 12,
                     lineNumber: 1,
                 },
                 {
                     description: 'Invalid destructuring assignment target',
                     index: 13,
+                    column: 12,
                     lineNumber: 1,
                 }
             ],
@@ -1827,6 +1917,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Invalid left-hand side expression in prefix operation',
                 index: 2,
+                column: 0,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -1853,6 +1944,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Invalid left-hand side expression in postfix operation',
                 index: 1,
+                column: 0,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -1882,6 +1974,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Invalid destructuring assignment target',
                 index: 3,
+                column: 2,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -1919,6 +2012,7 @@ describe('Miscellaneous - Tolerant mode', () => {
                 description: 'Invalid destructuring assignment target',
                 index: 12,
                 lineNumber: 1,
+                column: 11,
             }],
             sourceType: 'script',
             type: 'Program'
@@ -1953,6 +2047,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             errors: [{
                 description: 'Eval or arguments can\'t be assigned to in strict mode code',
                 index: 22,
+                column: 18,
                 lineNumber: 1
             }],
             sourceType: 'script',
@@ -1980,6 +2075,7 @@ describe('Miscellaneous - Tolerant mode', () => {
                 {
                   description: 'missing ) after with-statement',
                   index: 7,
+                  column: 6,
                   lineNumber: 1,
                },
               ],
@@ -2009,6 +2105,7 @@ describe('Miscellaneous - Tolerant mode', () => {
                 {
                     description: 'missing ) after do-while',
                   index: 17,
+                  column: 13,
                   lineNumber: 1,
                 },
               ],
@@ -2071,6 +2168,7 @@ describe('Miscellaneous - Tolerant mode', () => {
                 {
                     description: 'missing ) after for-loop head',
                   index: 26,
+                  column: 25,
                   lineNumber: 1,
                 },
               ],
@@ -2108,6 +2206,7 @@ describe('Miscellaneous - Tolerant mode', () => {
                 {
                     description: 'missing ) after if-statement',
                   index: 10,
+                  column: 8,
                   lineNumber: 1,
                 }
               ],
@@ -2141,6 +2240,7 @@ describe('Miscellaneous - Tolerant mode', () => {
                 {
                   description: 'missing ) after for-loop head',
                   index: 13,
+                  column: 12,
                   lineNumber: 1,
                 },
              ],
@@ -2173,6 +2273,7 @@ describe('Miscellaneous - Tolerant mode', () => {
                 {
                   description: 'missing ) after for-loop head',
                   index: 11,
+                  column: 10,
                  lineNumber: 1,
                 },
               ],
@@ -2205,8 +2306,9 @@ describe('Miscellaneous - Tolerant mode', () => {
               ],
               errors: [
                 {
-                  description: 'Unexpected token',
+                 description: 'Unexpected token \'identifier\'',
                   index: 7,
+                  column: 6,
                  lineNumber: 1,
                 }
               ],
@@ -2223,7 +2325,7 @@ describe('Miscellaneous - Tolerant mode', () => {
                 {
                   expression: {
                     arguments: [
-                      {
+                     {
                         name: 'a',
                         type: 'Identifier'
                       },
@@ -2234,26 +2336,34 @@ describe('Miscellaneous - Tolerant mode', () => {
                     ],
                     callee: {
                       name: 'foo',
-                     type: 'Identifier'
+                      type: 'Identifier'
                     },
-                   type: 'CallExpression'
+                    type: 'CallExpression'
                   },
                   type: 'ExpressionStatement'
                 }
               ],
               errors: [
                 {
-                  description: 'Unexpected token \']\'',
-                  index: 8,
-                  lineNumber: 1,
+                  description: 'Unexpected token \',\'',
+                  index: 6,
+                  column: 5,
+                  lineNumber: 1
                 },
                 {
-                  description: 'Unexpected token',
-                  index: 11,
+                  description: 'Unexpected token \']\'',
+                  index: 8,
+                  column: 7,
                   lineNumber: 1
+                },
+                {
+                  description: 'Unexpected token \'identifier\'',
+                  index: 11,
+                  column: 10,
+                  lineNumber: 1,
                 }
               ],
-             sourceType: 'script',
+              sourceType: 'script',
               type: 'Program'
             }
     });

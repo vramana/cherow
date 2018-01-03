@@ -262,6 +262,8 @@ function constructError(msg: string, column: number): Error {
         if (Object.create && Object.defineProperty) {
             error = Object.create(base);
             Object.defineProperty(error, 'column', {
+                enumerable: true,
+                writable: true,
                 value: column
             });
         }
@@ -272,8 +274,10 @@ function constructError(msg: string, column: number): Error {
 export function createError(type: Errors, loc: any, ...params: string[]): Error {
     const description = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     const error: any = constructError('Line ' + loc.line + ': ' + description, loc.column);
+
     error.index = loc.index;
     error.lineNumber = loc.line;
     error.description = description;
+    error.column = loc.column;
     return error;
 }
