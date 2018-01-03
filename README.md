@@ -123,13 +123,10 @@ either be `LineComment` for a single-line comment (`//`) or `BlockComment` for a
 
 The tolerant algorithm used by `Cherow` deviates slightly from both `Esprima` and `Acorn` due to the 
 parsers complexity, and it's primarily for early errors, and other errors that are basically valid syntax but just not allowed. 
-E.g. Allow use of `return statement` in global scope, or use of `with statement` in strict mode code.
 
 A top-level errors array containing all "*skipped*" errors will be attached to the root node (*Program*),
  
- ```js
-cherow.parseScript('var foo = 1; /* ', { tolerant: true }));
-```
+An example can be seen [here](https://cherow.github.io/cherow/?code=function%20()%20%7B%7D%0A%0A&method=parse&range=true&loc=undefined&next=false&module=false&raw=false&jsx=false&directives=false&attachComment=false&tolerant=true)
 
 ## Plugins
 
