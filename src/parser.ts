@@ -176,13 +176,9 @@ export class Parser {
     private tolerate(type: Errors, ...params: string[]) {
         let error: any;
         if (this.errorLocation) error = createError(type, this.errorLocation, ...params);
-        error = createError(type, this.getLocations(), ...params);
-        if (this.flags & Flags.OptionsTolerant) {
-            this.errors.push(error);
-        } else {
-           if (this.errorLocation) throw createError(type, this.errorLocation, ...params);
-            throw createError(type, this.getLocations(), ...params);
-        }
+        else error = createError(type, this.getLocations(), ...params);
+        if (!(this.flags & Flags.OptionsTolerant)) throw error;
+        this.errors.push(error);
     }
 
     private saveState(): SavedState {
@@ -2649,11 +2645,20 @@ export class Parser {
         this.expect(context, Token.LeftParen);
 
         const object = this.parseExpression(context | Context.AllowIn, pos);
-        this.expect(context, Token.RightParen);
+        let body: any;
+
+        if (this.token !== Token.RightParen && this.flags & Flags.OptionsTolerant) {
+            this.tolerate(Errors.ParenAfterWith);
+            body = this.parseEmptyStatement(context);
+        } else {
+            this.expect(context, Token.RightParen);
+            body = this.parseStatement(context | Context.Statement | Context.Declaration);
+        }
+
         return this.finishNode(context, pos, {
             type: 'WithStatement',
             object,
-            body: this.parseStatement(context | Context.Statement | Context.Declaration)
+            body
         });
     }
 
@@ -2697,8 +2702,12 @@ export class Parser {
 
         const test = this.parseExpression(context & ~Context.Declaration | Context.AllowIn, pos);
 
-        this.expect(context, Token.RightParen);
-        this.parseOptional(context, Token.Semicolon);
+        if (this.token !== Token.RightParen && this.flags & Flags.OptionsTolerant) {
+            this.tolerate(Errors.ParenAfterDoWhile);
+        } else {
+            this.expect(context, Token.RightParen);
+            this.parseOptional(context, Token.Semicolon);
+        }
 
         return this.finishNode(context, pos, {
             type: 'DoWhileStatement',
@@ -2834,8 +2843,13 @@ export class Parser {
                 this.reinterpretAsPattern(context, init);
             }
 
-            this.expect(context, Token.RightParen);
-            body = this.parseStatement(context & ~Context.Declaration | Context.ExistingScope);
+            if (this.token !== Token.RightParen && this.flags & Flags.OptionsTolerant) {
+                this.tolerate(Errors.ParenAfterFor);
+                body = this.parseEmptyStatement(context);
+            } else {
+                this.expect(context, Token.RightParen);
+                body = this.parseStatement(context & ~Context.Declaration | Context.ExistingScope);
+            }
 
             this.blockScope = blockScope;
             if (blockScope !== undefined) this.parentScope = parentScope;
@@ -2867,9 +2881,13 @@ export class Parser {
 
         if (this.token !== Token.RightParen) update = this.parseExpression(context, pos);
 
-        this.expect(context, Token.RightParen);
-
-        body = this.parseStatement(context & ~Context.Declaration);
+        if (this.token !== Token.RightParen && this.flags & Flags.OptionsTolerant) {
+            this.tolerate(Errors.ParenAfterFor);
+            body = this.parseEmptyStatement(context);
+        } else {
+            this.expect(context, Token.RightParen);
+            body = this.parseStatement(context & ~Context.Declaration);
+        }
 
         this.blockScope = blockScope;
 
@@ -2905,13 +2923,21 @@ export class Parser {
         // An IF node has three kids: test, alternate, and optional else
         const test = this.parseExpression(context | Context.AllowIn, pos);
 
-        this.expect(context, Token.RightParen);
         const savedFlag = this.flags;
-        const consequent: ESTree.Statement = this.parseIfStatementChild(context);
+        let consequent: ESTree.Statement;
 
         let alternate: ESTree.Statement | null = null;
 
-        if (this.parseOptional(context, Token.ElseKeyword)) alternate = this.parseIfStatementChild(context);
+
+
+        if (this.token !== Token.RightParen && this.flags & Flags.OptionsTolerant) {
+            this.tolerate(Errors.ParenAfterIf);
+            consequent = this.parseEmptyStatement(context);
+        } else {
+            this.expect(context, Token.RightParen);
+            consequent = this.parseIfStatementChild(context);
+            if (this.parseOptional(context, Token.ElseKeyword)) alternate = this.parseIfStatementChild(context);
+        }
 
         this.flags = savedFlag;
 

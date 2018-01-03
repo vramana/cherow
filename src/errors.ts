@@ -121,7 +121,11 @@ export const enum Errors {
     YieldInParameter,
     InvalidRestBindingPattern,
     ElementAfterRest,
-    ForInOfLoopMultiBindings
+    ForInOfLoopMultiBindings,
+    ParenAfterIf,
+    ParenAfterWith,
+    ParenAfterFor,
+    ParenAfterDoWhile,
 }
 
 export const ErrorMessages: {
@@ -243,8 +247,10 @@ export const ErrorMessages: {
     [Errors.InvalidRestBindingPattern]: '`...` must be followed by an identifier in declaration contexts',
     [Errors.ElementAfterRest]: 'Rest element must be last element',
     [Errors.ForInOfLoopMultiBindings]: 'Invalid left-hand side in %0 loop: Must have a single binding.',
-    
-    
+    [Errors.ParenAfterIf]: 'missing ) after if-statement',
+    [Errors.ParenAfterWith]: 'missing ) after with-statement',
+    [Errors.ParenAfterFor]: 'missing ) after for-loop head',
+    [Errors.ParenAfterDoWhile]: 'missing ) after do-while',
 };
 
 function constructError(msg: string, column: number): Error {

@@ -492,7 +492,7 @@ describe('Miscellaneous - Tolerant mode', () => {
               errors: [
                 {
                   description: 'break  statement must be nested within an iteration statement',
-                  index: 39,
+                  index: 38,
                  lineNumber: 1,
                 }
               ],
@@ -1187,7 +1187,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             ],
             errors: [{
                 description: 'Identifier expressions must not be deleted in strict mode',
-                index: 22,
+                index: 20,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -1337,7 +1337,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             ],
             errors: [{
                 description: 'Postfix increment/decrement may not have eval or arguments operand in strict mode',
-                index: 21,
+                index: 18,
                 lineNumber: 1
             }],
             sourceType: 'script',
@@ -1765,7 +1765,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             }],
             errors: [{
                 description: 'Unexpected eval or arguments in strict mode',
-                index: 23,
+                index: 8,
                 lineNumber: 1,
             }, ],
             sourceType: 'script',
@@ -1826,7 +1826,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             }],
             errors: [{
                 description: 'Invalid left-hand side expression in prefix operation',
-                index: 3,
+                index: 2,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -1852,7 +1852,7 @@ describe('Miscellaneous - Tolerant mode', () => {
             }],
             errors: [{
                 description: 'Invalid left-hand side expression in postfix operation',
-                index: 3,
+                index: 1,
                 lineNumber: 1,
             }],
             sourceType: 'script',
@@ -1959,4 +1959,226 @@ describe('Miscellaneous - Tolerant mode', () => {
             type: 'Program'
         }
     });
+
+    pass(`with (x`, {
+        source: `with (x`,
+        tolerant: true,
+        expected: {
+              body: [
+                {
+                  body: {
+                    type: 'EmptyStatement',
+                  },
+                  object: {
+                    name: 'x',
+                    type: 'Identifier'
+                  },
+                 type: 'WithStatement'
+                },
+              ],
+              errors: [
+                {
+                  description: 'missing ) after with-statement',
+                  index: 7,
+                  lineNumber: 1,
+               },
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
+    pass(`do {} while (true`, {
+        source: `do {} while (true`,
+        tolerant: true,
+        expected: {
+              body: [
+                {
+                  body: {
+                    body: [],
+                    type: 'BlockStatement',
+                  },
+                 test: {
+                    type: 'Literal',
+                    value: true,
+                  },
+                  type: 'DoWhileStatement'
+                }
+              ],
+              errors: [
+                {
+                    description: 'missing ) after do-while',
+                  index: 17,
+                  lineNumber: 1,
+                },
+              ],
+              sourceType: 'script',
+              type: 'Program',
+            }
+    });
+
+    pass(`for (var i = 0; i < j; ++i`, {
+        source: `for (var i = 0; i < j; ++i`,
+        tolerant: true,
+        expected: {
+              body: [
+                {
+                  body: {
+                    type: 'EmptyStatement'
+                  },
+                  init: {
+                    declarations: [
+                      {
+                        id: {
+                          name: 'i',
+                          type: 'Identifier'
+                        },
+                        init: {
+                          type: 'Literal',
+                          value: 0,
+                        },
+                        type: 'VariableDeclarator'
+                      }
+                    ],
+                    kind: 'var',
+                    type: 'VariableDeclaration'
+                  },
+                  test: {
+                    left: {
+                      name: 'i',
+                      type: 'Identifier',
+                    },
+                    operator: '<',
+                    right: {
+                      name: 'j',
+                      type: 'Identifier',
+                    },
+                    type: 'BinaryExpression',
+                  },
+                  type: 'ForStatement',
+                  update: {
+                    argument: {
+                      name: 'i',
+                      type: 'Identifier',
+                    },
+                    operator: '++',
+                    prefix: true,
+                    type: 'UpdateExpression'
+                  },
+               },
+              ],
+              errors: [
+                {
+                    description: 'missing ) after for-loop head',
+                  index: 26,
+                  lineNumber: 1,
+                },
+              ],
+              sourceType: 'script',
+              type: 'Program',
+            }
+    });
+
+    pass(`if (x < 42`, {
+        source: `if (x < 42`,
+        tolerant: true,
+        expected: {
+              body: [
+                {
+                  alternate: null,
+                  consequent: {
+                    type: 'EmptyStatement'
+                  },
+                  test: {
+                    left: {
+                      name: 'x',
+                      type: 'Identifier'
+                    },
+                    operator: '<',
+                    right: {
+                      type: 'Literal',
+                      value: 42,
+                    },
+                    type: 'BinaryExpression'
+                  },
+                  type: 'IfStatement'
+                }
+              ],
+             errors: [
+                {
+                    description: 'missing ) after if-statement',
+                  index: 10,
+                  lineNumber: 1,
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
+    pass(`for (x of y  `, {
+        source: `for (x of y  `,
+        tolerant: true,
+        expected: {
+              body: [
+                {
+                  await: false,
+                  body: {
+                    type: 'EmptyStatement'
+                  },
+                  left: {
+                    name: 'x',
+                    type: 'Identifier'
+                 },
+                  right: {
+                   name: 'y',
+                    type: 'Identifier'
+                  },
+                  type: 'ForOfStatement'
+                }
+              ],
+              errors: [
+                {
+                  description: 'missing ) after for-loop head',
+                  index: 13,
+                  lineNumber: 1,
+                },
+             ],
+              sourceType: 'script',
+              type: 'Program',
+            }
+    });
+
+    pass(`for (x in y  `, {
+        source: `for (x in y`,
+        tolerant: true,
+        expected: {
+              body: [
+                {
+                  body: {
+                   type: 'EmptyStatement'
+                  },
+                  left: {
+                    name: 'x',
+                    type: 'Identifier'
+                  },
+                  right: {
+                    name: 'y',
+                   type: 'Identifier'
+                  },
+                  type: 'ForInStatement'
+                }
+              ],
+              errors: [
+                {
+                  description: 'missing ) after for-loop head',
+                  index: 11,
+                 lineNumber: 1,
+                },
+              ],
+              sourceType: 'script',
+              type: 'Program',
+            }
+    });
+
 });
