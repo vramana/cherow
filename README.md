@@ -19,6 +19,7 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 * [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), a syntax extension for React
 * Skips hashbang comment nodes by default
 * Skips BOM (*U+FEFF*) by default
+* Tolerant parsing
 * Optional tracking of syntax node location (index-based and line-column)
 * Heavily tested (~56 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
 * Parameterized plugin system

@@ -1658,7 +1658,7 @@ export class Parser {
                     let next = this.source.charCodeAt(index);
 
                     if (next < Chars.Zero || next > Chars.Seven) {
-
+                        // \0 is not octal escape sequence
                         if ((code !== 0 || next === Chars.Eight || next === Chars.Nine) &&
                             context & Context.Strict) {
                             return Escape.StrictOctal;
@@ -4288,9 +4288,7 @@ export class Parser {
                 // falls through
             default:
                 if (!this.isIdentifier(context, this.token)) {
-                    this.tolerate(Errors.UnexpectedToken, tokenDesc(this.token));
-                    // Advance to next token while in tolerant mode to continue parsing
-                    if (this.flags & Flags.OptionsTolerant) this.nextToken(context);
+                    this.error(Errors.UnexpectedToken, tokenDesc(this.token));
                 }
                 return this.parseIdentifier(context);
         }
