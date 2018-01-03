@@ -62,7 +62,7 @@ describe('Miscellaneous - Directives', () => {
             ranges: true,
             raw: true,
             module: true,
-            
+
             expected: {
                 type: 'Program',
                 body: [{
@@ -182,7 +182,7 @@ describe('Miscellaneous - Directives', () => {
             loc: true,
             ranges: true,
             raw: true,
-            
+
             expected: {
                 type: 'Program',
                 body: [{
@@ -302,7 +302,7 @@ describe('Miscellaneous - Directives', () => {
             source: '"cherow"; 1;',
             raw: true,
             module: true,
-            
+
             expected: {
                 body: [{
                         directive: 'cherow',
@@ -332,7 +332,7 @@ describe('Miscellaneous - Directives', () => {
             loc: true,
             ranges: true,
             raw: true,
-            
+
             expected: {
                 type: 'Program',
                 body: [{
@@ -454,7 +454,7 @@ describe('Miscellaneous - Directives', () => {
             loc: true,
             ranges: true,
             raw: true,
-            
+
             expected: {
                 type: 'Program',
                 body: [{
@@ -626,7 +626,7 @@ describe('Miscellaneous - Directives', () => {
             loc: true,
             ranges: true,
             raw: true,
-            
+
             expected: {
                 type: 'Program',
                 body: [{
@@ -695,7 +695,7 @@ describe('Miscellaneous - Directives', () => {
     pass(`innocuous string that evaluates to "use strict" is not promoted to Use Strict directive'`, {
             source: '"use\\x20strict"; with (x) foo = bar;',
             raw: true,
-            
+
             expected: {
                 body: [{
                         directive: 'use\\x20strict',
@@ -739,7 +739,7 @@ describe('Miscellaneous - Directives', () => {
             loc: true,
             ranges: true,
             raw: true,
-            
+
             expected: {
                 type: 'Program',
                 body: [{
@@ -910,7 +910,7 @@ describe('Miscellaneous - Directives', () => {
             loc: true,
             ranges: true,
             raw: true,
-            
+
             expected: {
                 body: [{
                     directive: 'use strict',
@@ -971,11 +971,11 @@ describe('Miscellaneous - Directives', () => {
         });
     fail('strict directive after legacy octal in function body', {
             source: '"use strict"; function f(){"\\1";}',
-            
+
             message: 'Octal escapes are not allowed in strict mode',
             line: 1,
             column: 27,
-            index:29
+            index: 29
         });
     fail('strict directive after legacy octal followed by null', {
             source: '"\\1;" "use strict"; null',
@@ -989,7 +989,7 @@ describe('Miscellaneous - Directives', () => {
             message: 'Octal escapes are not allowed in strict mode',
             line: 1,
             column: 14,
-            index:16
+            index: 16
         });
     fail('strict directive before legacy octal', {
             source: '"\\1;"',

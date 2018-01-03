@@ -19,6 +19,8 @@
     "typescript",
     "parser",
     "performance",
+    "tolerant",
+    "parsing",
     "mobile",
     "estree",
     "ast"

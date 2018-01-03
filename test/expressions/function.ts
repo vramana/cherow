@@ -84,7 +84,7 @@ describe('Expressions - Function', () => {
 
     fail(`(function((a)){})`, {
         source: '(function((a)){})',
-        message:'Unexpected token \'(\'',
+        message: 'Unexpected token \'(\'',
         line: 1,
         column: 10,
         index: 11

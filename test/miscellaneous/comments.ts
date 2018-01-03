@@ -21,7 +21,7 @@ describe('Miscellaneous - Comments', () => {
 
     fail(`single and multi line comments used together`, {
         source: `<!-`,
-        message:'Unexpected token \'end of source\'',
+        message: 'Unexpected token \'end of source\'',
         line: 1,
         column: 2,
         index: 3,

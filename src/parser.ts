@@ -4251,7 +4251,9 @@ export class Parser {
                 if (context & Context.Yield) this.tolerate(Errors.DisallowedInContext, tokenDesc(this.token));
                 // falls through
             default:
-                if (!this.isIdentifier(context, this.token)) this.tolerate(Errors.UnexpectedToken, tokenDesc(this.token));
+                if (!this.isIdentifier(context, this.token)) {
+                    this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                }
                 return this.parseIdentifier(context);
         }
     }

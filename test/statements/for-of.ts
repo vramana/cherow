@@ -1126,7 +1126,7 @@ describe('Statements - For of', () => {
             message: 'Invalid destructuring assignment target',
             line: 1,
             column: 25,
-            index: 26   
+            index: 26
         });
 
     fail(`for(let of 0);`, {
@@ -1134,7 +1134,7 @@ describe('Statements - For of', () => {
             message: 'Unexpected token',
             line: 1,
             column: 11,
-            index: 12   
+            index: 12
         });
 
     fail(`for(this of 0);`, {
@@ -1142,7 +1142,7 @@ describe('Statements - For of', () => {
             message: 'Invalid left-hand side in for-loop',
             line: 1,
             column: 13,
-            index: 14  
+            index: 14
         });
 
     fail(`for (a=12 of e) break;`, {
@@ -1150,7 +1150,7 @@ describe('Statements - For of', () => {
             message: 'Invalid left-hand side in for-loop',
             line: 1,
             column: 14,
-            index: 15 
+            index: 15
         });
 
     fail(`for(let of 0);`, {
@@ -1158,7 +1158,7 @@ describe('Statements - For of', () => {
             message: 'Unexpected token',
             line: 1,
             column: 11,
-            index: 12 
+            index: 12
         });
 
     fail(`for(this of 0);`, {
@@ -1174,7 +1174,7 @@ describe('Statements - For of', () => {
             message: 'for-of loop variable declaration may not have an initializer',
             line: 1,
             column: 14,
-            index: 16 
+            index: 16
         });
 
     fail(`for(let a = 0 of b);`, {

@@ -5,7 +5,7 @@ describe('Expressions - Postfix decrement', () => {
     fail(`function f() { new.target--; }`, {
         source: 'function f() { new.target--; }',
         message: 'Invalid left-hand side expression in postfix operation',
-        next: true, 
+        next: true,
         line: 1,
         column: 15,
         index: 18
@@ -51,7 +51,5 @@ describe('Expressions - Postfix decrement', () => {
         column: 0,
         index: 34
     });
-    
-        
 
 });

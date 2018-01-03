@@ -417,7 +417,7 @@ describe('Miscellaneous - Block scope', () => {
             fail(`redeclaration with VariableDeclaration (GeneratorDeclaration in BlockStatement)`, {
                 source: `{ function* f() {} var f; }`
             });
-    
+
             fail(`redeclaration with let-LexicalDeclaration (GeneratorDeclaration in BlockStatement)`, {
                 source: `{ function* f() {} let f; }`,
             });

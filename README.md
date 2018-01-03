@@ -105,14 +105,14 @@ parseScript('1', { ranges: true, loc: true });`:
 
 ## Comments
 
-Single line, multiline and HTML comments are supported by Cherow, and the parser can be instructed to collect comments by setting the `comments option` to *true*,  or attach the comments to the AST node by setting `attachComment` to *true*.
+Single line, multiline and HTML comments are supported by `Cherow`, and the parser can be instructed to collect comments by setting the `comments option` to *true*,  or attach the comments to the AST node by setting `attachComment` to *true*.
 
 A top-level comments array containing all comments will be attached to the root node (*Program*), and the type of each comment can 
 either be `Line` for a single-line comment (`//`) og Block for a MultiLineComment (`/* */`).
 
 #### Comment attachment
 
- The comment attachment algorithm used by `Cherow` works the same way as for `Babylon` and `Espree`, but deviates slightly from Esprima - resulting in some comments being added in different places.
+ The comment attachment algorithm used by `Cherow` works the same way as for `Babylon` and `Espree`, but deviates slightly from `Esprima` - resulting in some comments being added in different places.
 
  ```js
     
@@ -121,7 +121,10 @@ either be `Line` for a single-line comment (`//`) og Block for a MultiLineCommen
 ```
 ## Tolerant parsing
 
-Tolerant parsing let you choose to continue parsing without raising an error.
+The tolerant algorithm used by `Cherow` let you continue parsing without raising an error. 
+It deviates slightly from both `Esprima` and `Acorn` due to the parsers complexity, and it's
+primarily for early errors, and other errors that are basically valid syntax but just not allowed. 
+E.g. Allow use of `return statement` in global scope, or use of `with statement` in strict mode code.
 
 A top-level errors array containing all "*skipped*" errors will be attached to the root node (*Program*),
  

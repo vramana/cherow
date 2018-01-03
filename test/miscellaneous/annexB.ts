@@ -5220,7 +5220,7 @@ describe('Miscellaneous - AnnexB', () => {
               index: 47
               });
 
-            pass(`o = { __proto__: function() {} };`, {
+             pass(`o = { __proto__: function() {} };`, {
                 source: 'o = { __proto__: function() {} };',
                 loc: true,
                 ranges: true,
@@ -5376,7 +5376,7 @@ describe('Miscellaneous - AnnexB', () => {
                 }
             });
 
-            pass(`obj = {  __proto__: proto,   ["__proto__"]: {},   ["__proto__"]: ownProp };`, {
+             pass(`obj = {  __proto__: proto,   ["__proto__"]: {},   ["__proto__"]: ownProp };`, {
                 source: 'obj = {  __proto__: proto,   ["__proto__"]: {},   ["__proto__"]: ownProp };',
                 loc: true,
                 ranges: true,
@@ -5617,7 +5617,7 @@ describe('Miscellaneous - AnnexB', () => {
                 }
             });
 
-            pass(`o = { __proto__: undefined };`, {
+             pass(`o = { __proto__: undefined };`, {
                 source: 'o = { __proto__: undefined };',
                 loc: true,
                 ranges: true,
@@ -5753,7 +5753,7 @@ describe('Miscellaneous - AnnexB', () => {
                 }
             });
 
-            pass(`o = { __proto__: 1 };`, {
+             pass(`o = { __proto__: 1 };`, {
                 source: 'o = { __proto__: 1 };',
                 loc: true,
                 ranges: true,
@@ -5890,7 +5890,7 @@ describe('Miscellaneous - AnnexB', () => {
                 }
             });
 
-            pass(`o = {  __proto__: proto };`, {
+             pass(`o = {  __proto__: proto };`, {
                 source: 'o = {  __proto__: proto };',
                 loc: true,
                 ranges: true,
@@ -6026,7 +6026,7 @@ describe('Miscellaneous - AnnexB', () => {
                 }
             });
 
-            pass(`o = { __proto__: null };`, {
+             pass(`o = { __proto__: null };`, {
                 source: 'o = { __proto__: null };',
                 loc: true,
                 ranges: true,

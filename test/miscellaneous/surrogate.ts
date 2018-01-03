@@ -1,7 +1,7 @@
 import { pass, fail } from '../utils';
 
 describe('Miscellaneous - Surrogate pair', () => {
-  
+
   fail(`var \\uD83B\\uDE00`, {
     source: 'var \\uD83B\\uDE00',
     message: 'Unexpected surrogate pair',

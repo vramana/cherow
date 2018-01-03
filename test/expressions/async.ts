@@ -30,7 +30,7 @@ describe('Expressions - Async', () => {
     });
 
     fail(`({ async foo (x = await) {  } })`, {
-        source: `({ async foo (x = await) {  } })`, 
+        source: `({ async foo (x = await) {  } })`,
         module: true,
         message: '\'await\' may not be used as an identifier in this context',
         line: 1,
