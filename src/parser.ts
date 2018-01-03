@@ -4278,7 +4278,9 @@ export class Parser {
                 // falls through
             default:
                 if (!this.isIdentifier(context, this.token)) {
-                    this.error(Errors.UnexpectedToken, tokenDesc(this.token));
+                    this.tolerate(Errors.UnexpectedToken, tokenDesc(this.token));
+                    // Advance to next token while in tolerant mode to continue parsing
+                    if (this.flags & Flags.OptionsTolerant) this.nextToken(context);
                 }
                 return this.parseIdentifier(context);
         }

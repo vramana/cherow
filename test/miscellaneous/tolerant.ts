@@ -2181,4 +2181,81 @@ describe('Miscellaneous - Tolerant mode', () => {
             }
     });
 
+    pass(`foo(a c)`, {
+        source: `foo(a c)`,
+        tolerant: true,
+        expected: {
+              "body": [
+               {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "name": "a",
+                        "type": "Identifier",
+                      },
+                    ],
+                    "callee": {
+                      "name": "foo",
+                      "type": "Identifier",
+                    },
+                    "type": "CallExpression",
+                  },
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "errors": [
+                {
+                  "description": "Unexpected token",
+                  "index": 7,
+                 "lineNumber": 1,
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program",
+            }
+    });
+
+    pass(`foo(a, ], c)`, {
+        source: `foo(a, ], c)`,
+        tolerant: true,
+        expected: {
+              "body": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "name": "a",
+                        "type": "Identifier"
+                      },
+                      {
+                        "name": "a",
+                        "type": "Identifier"
+                      }
+                    ],
+                    "callee": {
+                      "name": "foo",
+                     "type": "Identifier"
+                    },
+                   "type": "CallExpression"
+                  },
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "errors": [
+                {
+                  "description": "Unexpected token ']'",
+                  "index": 8,
+                  "lineNumber": 1,
+                },
+                {
+                  "description": "Unexpected token",
+                  "index": 11,
+                  "lineNumber": 1
+                }
+              ],
+             "sourceType": "script",
+              "type": "Program"
+            }
+    });
+
 });
