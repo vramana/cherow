@@ -64,15 +64,15 @@ export const enum Flags {
     StrictDirective              = 1 << 19,
 
     /* Options */
-    OptionsRanges                = 1 << 20, // Enable / disable "ranges"
-    OptionsLoc                   = 1 << 21, // Enable / disable location tracking on the node
-    OptionsSource                = 1 << 22,
-    OptionsJSX                   = 1 << 23, // Enable / disable JSX extension
-    OptionsRaw                   = 1 << 24, // Enable / disable "raw" property on the node
-    OptionsNext                  = 1 << 25, // Enable / disable Stage 3 proposals
-    OptionsGlobalReturn          = 1 << 26, // Allow return statement in global scope,
-    OptionsSourceType            = 1 << 27, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
-    OptionsTolerant              = 1 << 28,
+    OptionsTolerant              = 1 << 20,
+    OptionsRanges                = 1 << 21, // Enable / disable "ranges"
+    OptionsLoc                   = 1 << 22, // Enable / disable location tracking on the node
+    OptionsSource                = 1 << 23,
+    OptionsJSX                   = 1 << 24, // Enable / disable JSX extension
+    OptionsRaw                   = 1 << 25, // Enable / disable "raw" property on the node
+    OptionsNext                  = 1 << 26, // Enable / disable Stage 3 proposals
+    OptionsGlobalReturn          = 1 << 27, // Allow return statement in global scope,
+    OptionsSourceType            = 1 << 28, // Allow legacy method for settings sourceType - e.g. 'module' or 'script'
     OptionsComment               = 1 << 29,
     OptionsAttachComment         = 1 << 30,
 

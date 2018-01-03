@@ -41,7 +41,8 @@ export const pass = (name: string, opts: Opts) => {
         jsx: opts.jsx,
         impliedStrict: opts.impliedStrict,
         comments: opts.comments,
-        attachComment: opts.attachComment
+        attachComment: opts.attachComment,
+        tolerant: opts.tolerant
     };
 
     it('Should pass "' + name + '"', () => {
@@ -59,7 +60,6 @@ export const fail = (name: string, opts: Opts) => {
         raw: opts.raw,
         loc: opts.loc,
         plugins: opts.plugins,
-        toleran: opts.tolerant,
         directives: opts.directives,
         ranges: opts.ranges,
         globalReturn: opts.globalReturn,

@@ -108,3 +108,6 @@
 
 *2018-1-1: Version 0.21.3*
 - Fixed wrong error locations
+
+*2018-1-3: Version 0.22.0*
+- Implemented tolerant parsing

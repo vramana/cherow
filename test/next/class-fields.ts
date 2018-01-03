@@ -14,7 +14,7 @@ describe('Next - Class fields', () => {
     fail('class C { #x = typeof arguments; }', {
         source: 'class C { #x = typeof arguments; }',
         next: true,
-        message: 'Unexpected token',
+        message: 'Unexpected reserved word',
         line: 1,
         column: 10,
         index: 11
@@ -23,7 +23,7 @@ describe('Next - Class fields', () => {
     fail('class C { x = typeof arguments; }', {
         source: 'class C { x = typeof arguments; }',
         next: true,
-        message: 'Unexpected token',
+        message: 'Unexpected reserved word',
         line: 1,
         column: 30,
         index: 31
@@ -32,7 +32,7 @@ describe('Next - Class fields', () => {
     fail('class C { #x = typeof arguments; }', {
         source: 'class C { #x = typeof arguments; }',
         next: true,
-        message: 'Unexpected token',
+        message: 'Unexpected reserved word',
         line: 1,
         column: 10,
         index: 11
@@ -41,7 +41,7 @@ describe('Next - Class fields', () => {
     fail('class C { x = typeof arguments; }', {
         source: 'class C { x = typeof arguments; }',
         next: true,
-        message: 'Unexpected token',
+        message: 'Unexpected reserved word',
         line: 1,
         column: 30,
         index: 31
