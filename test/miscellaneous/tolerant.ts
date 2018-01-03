@@ -2185,33 +2185,33 @@ describe('Miscellaneous - Tolerant mode', () => {
         source: `foo(a c)`,
         tolerant: true,
         expected: {
-              "body": [
+              body: [
                {
-                  "expression": {
-                    "arguments": [
+                  expression: {
+                    arguments: [
                       {
-                        "name": "a",
-                        "type": "Identifier",
+                        name: 'a',
+                        type: 'Identifier',
                       },
                     ],
-                    "callee": {
-                      "name": "foo",
-                      "type": "Identifier",
+                    callee: {
+                      name: 'foo',
+                      type: 'Identifier',
                     },
-                    "type": "CallExpression",
+                    type: 'CallExpression',
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "errors": [
+              errors: [
                 {
-                  "description": "Unexpected token",
-                  "index": 7,
-                 "lineNumber": 1,
+                  description: 'Unexpected token',
+                  index: 7,
+                 lineNumber: 1,
                 }
               ],
-              "sourceType": "script",
-              "type": "Program",
+              sourceType: 'script',
+              type: 'Program',
             }
     });
 
@@ -2219,42 +2219,42 @@ describe('Miscellaneous - Tolerant mode', () => {
         source: `foo(a, ], c)`,
         tolerant: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "arguments": [
+                  expression: {
+                    arguments: [
                       {
-                        "name": "a",
-                        "type": "Identifier"
+                        name: 'a',
+                        type: 'Identifier'
                       },
                       {
-                        "name": "a",
-                        "type": "Identifier"
+                        name: 'a',
+                        type: 'Identifier'
                       }
                     ],
-                    "callee": {
-                      "name": "foo",
-                     "type": "Identifier"
+                    callee: {
+                      name: 'foo',
+                     type: 'Identifier'
                     },
-                   "type": "CallExpression"
+                   type: 'CallExpression'
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "errors": [
+              errors: [
                 {
-                  "description": "Unexpected token ']'",
-                  "index": 8,
-                  "lineNumber": 1,
+                  description: 'Unexpected token \']\'',
+                  index: 8,
+                  lineNumber: 1,
                 },
                 {
-                  "description": "Unexpected token",
-                  "index": 11,
-                  "lineNumber": 1
+                  description: 'Unexpected token',
+                  index: 11,
+                  lineNumber: 1
                 }
               ],
-             "sourceType": "script",
-              "type": "Program"
+             sourceType: 'script',
+              type: 'Program'
             }
     });
 
