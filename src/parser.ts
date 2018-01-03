@@ -795,7 +795,7 @@ export class Parser {
         }
 
         if (this.flags & (Flags.OptionsComment | Flags.OptionsAttachComment)) {
-            this.addComment('Line', this.source.slice(startPos, this.index));
+            this.addComment('LineComment', this.source.slice(startPos, this.index));
         }
     }
 
@@ -843,7 +843,7 @@ export class Parser {
         if (!(state & ScanState.Terminated)) this.tolerate(Errors.UnterminatedComment);
 
         if (this.flags & (Flags.OptionsComment | Flags.OptionsAttachComment)) {
-            this.addComment('Block', this.source.slice(startPos, this.index - 2));
+            this.addComment('BlockComment', this.source.slice(startPos, this.index - 2));
         }
     }
 

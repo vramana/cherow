@@ -108,7 +108,7 @@ parseScript('1', { ranges: true, loc: true });`:
 Single line, multiline and HTML comments are supported by `Cherow`, and the parser can be instructed to collect comments by setting the `comments option` to *true*,  or attach the comments to the AST node by setting `attachComment` to *true*.
 
 A top-level comments array containing all comments will be attached to the root node (*Program*), and the type of each comment can 
-either be `Line` for a single-line comment (`//`) og Block for a MultiLineComment (`/* */`).
+either be `LineComment` for a single-line comment (`//`) or `BlockComment` for a MultiLineComment (`/* */`).
 
 #### Comment attachment
 

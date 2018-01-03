@@ -256,7 +256,7 @@ export interface Position {
     column: number;
 }
 
-export type CommentType = 'Line' | 'Block';
+export type CommentType = 'LineComment' | 'BlockComment';
 
 export interface Comment {
     type: CommentType;

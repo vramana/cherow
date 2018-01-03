@@ -26,7 +26,7 @@ describe('Miscellaneous - Comment array on top-level', () => {
             },
             comments: [
                 {
-                    type: 'Line',
+                    type: 'LineComment',
                     value: ' HTML comment',
                     start: 0,
                     end: 17,
@@ -72,13 +72,13 @@ describe('Miscellaneous - Comment array on top-level', () => {
                {
                   end: 6,
                   start: 0,
-                  type: 'Line',
+                  type: 'LineComment',
                   value: '"𠮷"',
                 },
                 {
                   end: 23,
                   start: 15,
-                  type: 'Block',
+                  type: 'BlockComment',
                   value: '"𠮷"',
                 }
               ],
@@ -115,13 +115,13 @@ describe('Miscellaneous - Comment array on top-level', () => {
             sourceType: 'script',
             comments: [
               {
-                type: 'Block',
+                type: 'BlockComment',
                 value: 'The',
                 start: 3,
                 end: 10,
               },
               {
-                type: 'Block',
+                type: 'BlockComment',
                 value: 'Answer',
                 start: 11,
                 end: 21,
@@ -164,7 +164,7 @@ describe('Miscellaneous - Comment array on top-level', () => {
         sourceType: 'script',
         comments: [
           {
-            type: 'Line',
+            type: 'LineComment',
             value: ' a',
             start: 7,
             end: 11,

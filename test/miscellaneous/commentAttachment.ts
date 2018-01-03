@@ -32,7 +32,7 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 6,
             comments: [
                 {
-                    type: 'Line',
+                    type: 'LineComment',
                     value: ' foo',
                     start: 0,
                     end: 6
@@ -54,7 +54,7 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 9,
             comments: [
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: ' foo ',
                     start: 0,
                     end: 9
@@ -93,7 +93,7 @@ describe('Miscellaneous - Comment attachment', () => {
                             end: 7,
                             trailingComments: [
                                 {
-                                    type: 'Block',
+                                    type: 'BlockComment',
                                     value: ' comment ',
                                     start: 9,
                                     end: 22
@@ -113,7 +113,7 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 24,
         comments: [
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: ' comment ',
                 start: 9,
                 end: 22
@@ -186,7 +186,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                     end: 59,
                                     leadingComments: [
                                         {
-                                            type: 'Line',
+                                            type: 'LineComment',
                                             value: ' comment 1',
                                             start: 30,
                                             end: 42
@@ -216,7 +216,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                     end: 90,
                                     leadingComments: [
                                         {
-                                            type: 'Line',
+                                            type: 'LineComment',
                                             value: ' comment 2',
                                             start: 61,
                                             end: 73
@@ -247,19 +247,19 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 114,
         comments: [
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: ' comment 1',
                 start: 30,
                 end: 42
             },
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: ' comment 2',
                 start: 61,
                 end: 73
             },
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: ' comment 3',
                 start: 92,
                 end: 104
@@ -320,7 +320,7 @@ describe('Miscellaneous - Comment attachment', () => {
                             end: 11,
                             trailingComments: [
                                 {
-                                    type: 'Block',
+                                    type: 'BlockComment',
                                     value: ' comment ',
                                     start: 13,
                                     end: 26
@@ -340,7 +340,7 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 28,
         comments: [
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: ' comment ',
                 start: 13,
                 end: 26
@@ -400,7 +400,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                         end: 84,
                                         leadingComments: [
                                             {
-                                                type: 'Block',
+                                                type: 'BlockComment',
                                                 value: '*\n             * Test 2\n             ',
                                                 start: 25,
                                                 end: 66
@@ -430,7 +430,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                         end: 156,
                                         leadingComments: [
                                             {
-                                                type: 'Block',
+                                                type: 'BlockComment',
                                                 value: '\n             * Test 1\n             ',
                                                 start: 98,
                                                 end: 138
@@ -460,7 +460,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                         end: 197,
                                         leadingComments: [
                                             {
-                                                type: 'Line',
+                                                type: 'LineComment',
                                                 value: ' Test 3',
                                                 start: 170,
                                                 end: 179
@@ -491,19 +491,19 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 208,
             comments: [
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: '*\n             * Test 2\n             ',
                     start: 25,
                     end: 66
                 },
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: '\n             * Test 1\n             ',
                     start: 98,
                     end: 138
                 },
                 {
-                    type: 'Line',
+                    type: 'LineComment',
                     value: ' Test 3',
                     start: 170,
                     end: 179
@@ -566,7 +566,7 @@ describe('Miscellaneous - Comment attachment', () => {
                     end: 68,
                     leadingComments: [
                         {
-                            type: 'Line',
+                            type: 'LineComment',
                             value: ' Leading to if-block',
                             start: 16,
                             end: 38
@@ -577,7 +577,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 68,
                 trailingComments: [
                     {
-                        type: 'Line',
+                        type: 'LineComment',
                         value: ' Trailing to if-block',
                         start: 72,
                         end: 95
@@ -590,13 +590,13 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 95,
         comments: [
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: ' Leading to if-block',
                 start: 16,
                 end: 38
             },
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: ' Trailing to if-block',
                 start: 72,
                 end: 95
@@ -667,13 +667,13 @@ describe('Miscellaneous - Comment attachment', () => {
                             end: 163,
                             leadingComments: [
                                 {
-                                    type: 'Block',
+                                    type: 'BlockComment',
                                     value: '\n         * Leading comment\n         ',
                                     start: 26,
                                     end: 67
                                 },
                                 {
-                                    type: 'Block',
+                                    type: 'BlockComment',
                                     value: '\n         *\n         * Leading comment 2\n         *\n         ',
                                     start: 77,
                                     end: 142
@@ -681,13 +681,13 @@ describe('Miscellaneous - Comment attachment', () => {
                             ],
                             trailingComments: [
                                 {
-                                    type: 'Block',
+                                    type: 'BlockComment',
                                     value: '\n         * Trailing comment\n         ',
                                     start: 172,
                                     end: 214
                                 },
                                 {
-                                    type: 'Block',
+                                    type: 'BlockComment',
                                     value: '\n         *\n         * Trailing comment 2\n         *\n         ',
                                     start: 224,
                                     end: 290
@@ -716,25 +716,25 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 296,
         comments: [
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: '\n         * Leading comment\n         ',
                 start: 26,
                 end: 67
             },
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: '\n         *\n         * Leading comment 2\n         *\n         ',
                 start: 77,
                 end: 142
             },
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: '\n         * Trailing comment\n         ',
                 start: 172,
                 end: 214
             },
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: '\n         *\n         * Trailing comment 2\n         *\n         ',
                 start: 224,
                 end: 290
@@ -757,7 +757,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 1,
                 trailingComments: [
                     {
-                        type: 'Line',
+                        type: 'LineComment',
                         value: ' Trailing',
                         start: 5,
                         end: 16
@@ -770,7 +770,7 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 16,
         comments: [
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: ' Trailing',
                 start: 5,
                 end: 16
@@ -806,7 +806,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 5,
                 trailingComments: [
                     {
-                        type: 'Line',
+                        type: 'LineComment',
                         value: '',
                         start: 5,
                         end: 7
@@ -821,7 +821,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 19,
                 leadingComments: [
                     {
-                        type: 'Line',
+                        type: 'LineComment',
                         value: '',
                         start: 5,
                         end: 7
@@ -857,7 +857,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 41,
                 trailingComments: [
                     {
-                        type: 'Line',
+                        type: 'LineComment',
                         value: '',
                         start: 41,
                         end: 43
@@ -871,7 +871,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 55,
                 leadingComments: [
                     {
-                        type: 'Line',
+                        type: 'LineComment',
                         value: '',
                         start: 41,
                         end: 43
@@ -910,7 +910,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 81,
                         trailingComments: [
                             {
-                                type: 'Line',
+                                type: 'LineComment',
                                 value: '',
                                 start: 81,
                                 end: 83
@@ -924,7 +924,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 95,
                         leadingComments: [
                             {
-                                type: 'Line',
+                                type: 'LineComment',
                                 value: '',
                                 start: 81,
                                 end: 83
@@ -944,19 +944,19 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 99,
     comments: [
         {
-            type: 'Line',
+            type: 'LineComment',
             value: '',
             start: 5,
             end: 7
         },
         {
-            type: 'Line',
+            type: 'LineComment',
             value: '',
             start: 41,
             end: 43
         },
         {
-            type: 'Line',
+            type: 'LineComment',
             value: '',
             start: 81,
             end: 83
@@ -995,7 +995,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 9,
                 trailingComments: [
                     {
-                        type: 'Line',
+                        type: 'LineComment',
                         value: '',
                         start: 13,
                         end: 15
@@ -1010,7 +1010,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 31,
                 leadingComments: [
                     {
-                        type: 'Line',
+                        type: 'LineComment',
                         value: '',
                         start: 13,
                         end: 15
@@ -1101,7 +1101,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 139,
     comments: [
         {
-            type: 'Line',
+            type: 'LineComment',
             value: '',
             start: 13,
             end: 15
@@ -1177,7 +1177,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                 end: 77,
                                 leadingComments: [
                                     {
-                                        type: 'Block',
+                                        type: 'BlockComment',
                                         value: '*\n       * Before bracket init\n       ',
                                         start: 19,
                                         end: 61
@@ -1193,7 +1193,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                     end: 138,
                                     leadingComments: [
                                         {
-                                            type: 'Block',
+                                            type: 'BlockComment',
                                             value: '\n       * Inside bracket init\n       ',
                                             start: 87,
                                             end: 128
@@ -1224,7 +1224,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                     end: 156,
                                     trailingComments: [
                                         {
-                                            type: 'Block',
+                                            type: 'BlockComment',
                                             value: '\n        * After bracket key\n        ',
                                             start: 164,
                                             end: 205
@@ -1239,7 +1239,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                     end: 210,
                                     leadingComments: [
                                         {
-                                            type: 'Block',
+                                            type: 'BlockComment',
                                             value: '\n        * After bracket key\n        ',
                                             start: 164,
                                             end: 205
@@ -1278,7 +1278,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                 end: 277,
                                 leadingComments: [
                                     {
-                                        type: 'Line',
+                                        type: 'LineComment',
                                         value: ' Before bracket, line comment',
                                         start: 219,
                                         end: 250
@@ -1294,7 +1294,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                     end: 343,
                                     leadingComments: [
                                         {
-                                            type: 'Line',
+                                            type: 'LineComment',
                                             value: ' Inside bracket, line comment',
                                             start: 298,
                                             end: 329
@@ -1325,7 +1325,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                     end: 361,
                                     trailingComments: [
                                         {
-                                            type: 'Line',
+                                            type: 'LineComment',
                                             value: ' After bracket, line comment',
                                             start: 370,
                                             end: 400
@@ -1340,7 +1340,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                     end: 416,
                                     leadingComments: [
                                         {
-                                            type: 'Line',
+                                            type: 'LineComment',
                                             value: ' After bracket, line comment',
                                             start: 370,
                                             end: 400
@@ -1379,37 +1379,37 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 421,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '*\n       * Before bracket init\n       ',
             start: 19,
             end: 61
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '\n       * Inside bracket init\n       ',
             start: 87,
             end: 128
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '\n        * After bracket key\n        ',
             start: 164,
             end: 205
         },
         {
-            type: 'Line',
+            type: 'LineComment',
             value: ' Before bracket, line comment',
             start: 219,
             end: 250
         },
         {
-            type: 'Line',
+            type: 'LineComment',
             value: ' Inside bracket, line comment',
             start: 298,
             end: 329
         },
         {
-            type: 'Line',
+            type: 'LineComment',
             value: ' After bracket, line comment',
             start: 370,
             end: 400
@@ -1434,19 +1434,19 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 28,
     comments: [
         {
-            type: 'Line',
+            type: 'LineComment',
             value: ' from #23',
             start: 0,
             end: 11
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '',
             start: 14,
             end: 18
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '\n  ',
             start: 21,
             end: 28
@@ -1499,7 +1499,7 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 47,
             leadingComments: [
                 {
-                    type: 'Line',
+                    type: 'LineComment',
                     value: ' Leading to block',
                     start: 0,
                     end: 19
@@ -1512,7 +1512,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 47,
     comments: [
         {
-            type: 'Line',
+            type: 'LineComment',
             value: ' Leading to block',
             start: 0,
             end: 19
@@ -1567,7 +1567,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 79,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: '\n       * this is comment\n       ',
                                 start: 24,
                                 end: 61
@@ -1596,7 +1596,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 85,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '\n       * this is comment\n       ',
             start: 24,
             end: 61
@@ -1637,7 +1637,7 @@ describe('Miscellaneous - Comment attachment', () => {
                     end: 12,
                     trailingComments: [
                         {
-                            type: 'Line',
+                            type: 'LineComment',
                             value: 'comment',
                             start: 19,
                             end: 28
@@ -1654,7 +1654,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 32,
     comments: [
         {
-            type: 'Line',
+            type: 'LineComment',
             value: 'comment',
             start: 19,
             end: 28
@@ -1700,7 +1700,7 @@ describe('Miscellaneous - Comment attachment', () => {
                     end: 40,
                     leadingComments: [
                         {
-                            type: 'Line',
+                            type: 'LineComment',
                             value: ' foo',
                             start: 20,
                             end: 26
@@ -1708,7 +1708,7 @@ describe('Miscellaneous - Comment attachment', () => {
                     ],
                     trailingComments: [
                         {
-                            type: 'Line',
+                            type: 'LineComment',
                             value: ' falls through',
                             start: 51,
                             end: 67
@@ -1747,7 +1747,7 @@ describe('Miscellaneous - Comment attachment', () => {
                     end: 99,
                     leadingComments: [
                         {
-                            type: 'Line',
+                            type: 'LineComment',
                             value: ' falls through',
                             start: 51,
                             end: 67
@@ -1764,13 +1764,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 103,
     comments: [
         {
-            type: 'Line',
+            type: 'LineComment',
             value: ' foo',
             start: 20,
             end: 26
         },
         {
-            type: 'Line',
+            type: 'LineComment',
             value: ' falls through',
             start: 51,
             end: 67
@@ -1821,7 +1821,7 @@ describe('Miscellaneous - Comment attachment', () => {
                     end: 43,
                     trailingComments: [
                         {
-                            type: 'Line',
+                            type: 'LineComment',
                             value: 'no default',
                             start: 50,
                             end: 62
@@ -1838,7 +1838,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 66,
     comments: [
         {
-            type: 'Line',
+            type: 'LineComment',
             value: 'no default',
             start: 50,
             end: 62
@@ -1878,7 +1878,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 49,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' before ',
                                 start: 21,
                                 end: 33
@@ -1886,7 +1886,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         ],
                         trailingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' after ',
                                 start: 56,
                                 end: 67
@@ -1915,13 +1915,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 71,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' before ',
             start: 21,
             end: 33
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' after ',
             start: 56,
             end: 67
@@ -2009,7 +2009,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                 end: 114,
                                 trailingComments: [
                                     {
-                                        type: 'Line',
+                                        type: 'LineComment',
                                         value: 'no default',
                                         start: 125,
                                         end: 137
@@ -2042,7 +2042,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 149,
     comments: [
         {
-            type: 'Line',
+            type: 'LineComment',
             value: 'no default',
             start: 125,
             end: 137
@@ -2087,7 +2087,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 38,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: '',
                                 start: 19,
                                 end: 23
@@ -2111,7 +2111,7 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 39,
             leadingComments: [
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: '',
                     start: 0,
                     end: 4
@@ -2124,13 +2124,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 39,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '',
             start: 0,
             end: 4
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '',
             start: 19,
             end: 23
@@ -2213,7 +2213,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 57,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: '*@lends o#',
                                 start: 7,
                                 end: 21
@@ -2233,7 +2233,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 59,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '*@lends o#',
             start: 7,
             end: 21
@@ -2297,7 +2297,7 @@ describe('Miscellaneous - Comment attachment', () => {
                     end: 91,
                     leadingComments: [
                         {
-                            type: 'Block',
+                            type: 'BlockComment',
                             value: '*\n      * @type {number}\n      ',
                             start: 45,
                             end: 80
@@ -2310,7 +2310,7 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 92,
             leadingComments: [
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: '*\n  * @type {number}\n  ',
                     start: 0,
                     end: 27
@@ -2323,13 +2323,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 92,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '*\n  * @type {number}\n  ',
             start: 0,
             end: 27
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '*\n      * @type {number}\n      ',
             start: 45,
             end: 80
@@ -2352,7 +2352,7 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 17,
             leadingComments: [
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: ' not comment',
                     start: 0,
                     end: 16
@@ -2396,7 +2396,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 23,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' not comment',
             start: 0,
             end: 16
@@ -2438,7 +2438,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 46,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' infinite ',
                                 start: 15,
                                 end: 29
@@ -2446,7 +2446,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         ],
                         trailingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' bar ',
                                 start: 47,
                                 end: 56
@@ -2474,7 +2474,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 66,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' bar ',
                                 start: 47,
                                 end: 56
@@ -2503,13 +2503,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 68,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' infinite ',
             start: 15,
             end: 29
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' bar ',
             start: 47,
             end: 56
@@ -2540,7 +2540,7 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 7,
             leadingComments: [
                 {
-                    type: 'Line',
+                    type: 'LineComment',
                     value: '',
                     start: 0,
                     end: 2
@@ -2553,7 +2553,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 7,
     comments: [
         {
-            type: 'Line',
+            type: 'LineComment',
             value: '',
             start: 0,
             end: 2
@@ -2583,7 +2583,7 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 2,
             trailingComments: [
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: ' The * answer ',
                     start: 3,
                     end: 21
@@ -2596,7 +2596,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 21,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' The * answer ',
             start: 3,
             end: 21
@@ -2632,7 +2632,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 22,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' assignmenr ',
                                 start: 5,
                                 end: 21
@@ -2662,7 +2662,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 28,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' assignmenr ',
             start: 5,
             end: 21
@@ -2692,13 +2692,13 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 2,
             trailingComments: [
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: ' block comment 1 ',
                     start: 3,
                     end: 24
                 },
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: ' block comment 2 ',
                     start: 25,
                     end: 46
@@ -2711,13 +2711,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 46,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' block comment 1 ',
             start: 3,
             end: 24
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' block comment 2 ',
             start: 25,
             end: 46
@@ -2748,7 +2748,7 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 12,
             leadingComments: [
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: 'a\n  c',
                     start: 0,
                     end: 9
@@ -2761,7 +2761,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 12,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: 'a\n  c',
             start: 0,
             end: 9
@@ -2809,7 +2809,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 60,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' comment 2 ',
                                 start: 26,
                                 end: 41
@@ -2821,7 +2821,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 68,
                 leadingComments: [
                     {
-                        type: 'Block',
+                        type: 'BlockComment',
                         value: ' comment ',
                         start: 1,
                         end: 14
@@ -2837,13 +2837,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 69,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' comment ',
             start: 1,
             end: 14
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' comment 2 ',
             start: 26,
             end: 41
@@ -2888,7 +2888,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 46,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' before ',
                                 start: 21,
                                 end: 33
@@ -2896,7 +2896,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         ],
                         trailingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' after ',
                                 start: 53,
                                 end: 64
@@ -2925,13 +2925,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 68,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' before ',
             start: 21,
             end: 33
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' after ',
             start: 53,
             end: 64
@@ -2970,7 +2970,7 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 20,
             leadingComments: [
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: '',
                     start: 0,
                     end: 4
@@ -2983,7 +2983,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 20,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '',
             start: 0,
             end: 4
@@ -3028,7 +3028,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 39,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: '*',
                                 start: 19,
                                 end: 24
@@ -3057,7 +3057,7 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 41,
             leadingComments: [
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: '*',
                     start: 0,
                     end: 5
@@ -3075,13 +3075,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 42,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '*',
             start: 0,
             end: 5
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '*',
             start: 19,
             end: 24
@@ -3111,7 +3111,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 55,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: 'good comment',
                                 start: 16,
                                 end: 32
@@ -3119,7 +3119,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         ],
                         trailingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: 'bad comment',
                                 start: 39,
                                 end: 54
@@ -3148,13 +3148,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 56,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: 'good comment',
             start: 16,
             end: 32
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: 'bad comment',
             start: 39,
             end: 54
@@ -3184,7 +3184,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 35,
                         trailingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: 'comment',
                                 start: 23,
                                 end: 34
@@ -3213,7 +3213,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 36,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: 'comment',
             start: 23,
             end: 34
@@ -3242,7 +3242,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 8,
                 trailingComments: [
                     {
-                        type: 'Line',
+                        type: 'LineComment',
                         value: ' LINE',
                         start: 10,
                         end: 17
@@ -3256,7 +3256,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 31,
                 leadingComments: [
                     {
-                        type: 'Line',
+                        type: 'LineComment',
                         value: ' LINE',
                         start: 10,
                         end: 17
@@ -3273,7 +3273,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 33,
     comments: [
         {
-            type: 'Line',
+            type: 'LineComment',
             value: ' LINE',
             start: 10,
             end: 17
@@ -3337,7 +3337,7 @@ describe('Miscellaneous - Comment attachment', () => {
                             end: 113,
                             leadingComments: [
                                 {
-                                    type: 'Block',
+                                    type: 'BlockComment',
                                     value: '*\n           * this is method1.\n           ',
                                     start: 33,
                                     end: 80
@@ -3360,7 +3360,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 121,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '*\n           * this is method1.\n           ',
             start: 33,
             end: 80
@@ -3388,7 +3388,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 28,
                 leadingComments: [
                     {
-                        type: 'Block',
+                        type: 'BlockComment',
                         value: ' bar ',
                         start: 16,
                         end: 25
@@ -3406,7 +3406,7 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 32,
             leadingComments: [
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: ' foo ',
                     start: 0,
                     end: 9
@@ -3419,13 +3419,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 32,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' foo ',
             start: 0,
             end: 9
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' bar ',
             start: 16,
             end: 25
@@ -3492,7 +3492,7 @@ describe('Miscellaneous - Comment attachment', () => {
                             end: 117,
                             leadingComments: [
                                 {
-                                    type: 'Block',
+                                    type: 'BlockComment',
                                     value: '*\n    * this is method1.\n    ',
                                     start: 65,
                                     end: 98
@@ -3510,7 +3510,7 @@ describe('Miscellaneous - Comment attachment', () => {
             end: 120,
             leadingComments: [
                 {
-                    type: 'Block',
+                    type: 'BlockComment',
                     value: '*\n  * this is anonymous class.\n  ',
                     start: 0,
                     end: 37
@@ -3523,13 +3523,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 120,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '*\n  * this is anonymous class.\n  ',
             start: 0,
             end: 37
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: '*\n    * this is method1.\n    ',
             start: 65,
             end: 98
@@ -3562,7 +3562,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 49,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' before ',
                                 start: 21,
                                 end: 33
@@ -3570,7 +3570,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         ],
                         trailingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' after ',
                                 start: 56,
                                 end: 67
@@ -3599,13 +3599,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 71,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' before ',
             start: 21,
             end: 33
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' after ',
             start: 56,
             end: 67
@@ -3639,7 +3639,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 47,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' before ',
                                 start: 21,
                                 end: 33
@@ -3647,7 +3647,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         ],
                         trailingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' after ',
                                 start: 54,
                                 end: 65
@@ -3676,13 +3676,13 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 69,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' before ',
             start: 21,
             end: 33
         },
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' after ',
             start: 54,
             end: 65
@@ -3745,7 +3745,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 11,
                         trailingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' comment ',
                                 start: 13,
                                 end: 26
@@ -3765,7 +3765,7 @@ describe('Miscellaneous - Comment attachment', () => {
     end: 28,
     comments: [
         {
-            type: 'Block',
+            type: 'BlockComment',
             value: ' comment ',
             start: 13,
             end: 26
@@ -3794,7 +3794,7 @@ describe('Miscellaneous - Comment attachment', () => {
                     end: 49,
                     trailingComments: [
                         {
-                            type: 'Line',
+                            type: 'LineComment',
                             value: ' Inner comment',
                             start: 25,
                             end: 41
@@ -3819,7 +3819,7 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 49,
         comments: [
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: ' Inner comment',
                 start: 25,
                 end: 41
@@ -3901,7 +3901,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 55,
                         trailingComments: [
                             {
-                                type: 'Line',
+                                type: 'LineComment',
                                 value: ' comment',
                                 start: 66,
                                 end: 76
@@ -3918,7 +3918,7 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 84,
         comments: [
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: ' comment',
                 start: 66,
                 end: 76
@@ -4002,7 +4002,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 54,
                         trailingComments: [
                             {
-                                type: 'Line',
+                                type: 'LineComment',
                                 value: ' comment',
                                 start: 65,
                                 end: 75
@@ -4024,7 +4024,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 109,
                         leadingComments: [
                             {
-                                type: 'Line',
+                                type: 'LineComment',
                                 value: ' comment',
                                 start: 65,
                                 end: 75
@@ -4041,7 +4041,7 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 117,
         comments: [
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: ' comment',
                 start: 65,
                 end: 75
@@ -4068,7 +4068,7 @@ describe('Miscellaneous - Comment attachment', () => {
                     end: 30,
                     leadingComments: [
                         {
-                            type: 'Block',
+                            type: 'BlockComment',
                             value: ' bar ',
                             start: 18,
                             end: 27
@@ -4086,7 +4086,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 34,
                 leadingComments: [
                     {
-                        type: 'Block',
+                        type: 'BlockComment',
                         value: ' foo ',
                         start: 0,
                         end: 9
@@ -4099,13 +4099,13 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 34,
         comments: [
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: ' foo ',
                 start: 0,
                 end: 9
             },
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: ' bar ',
                 start: 18,
                 end: 27
@@ -4172,7 +4172,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 49,
                 leadingComments: [
                     {
-                        type: 'Line',
+                        type: 'LineComment',
                         value: '/usr/bin/env babel-node',
                         start: 0,
                         end: 25
@@ -4185,7 +4185,7 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 49,
         comments: [
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: '/usr/bin/env babel-node',
                 start: 0,
                 end: 25
@@ -4226,7 +4226,7 @@ describe('Miscellaneous - Comment attachment', () => {
                             end: 7,
                             trailingComments: [
                                 {
-                                    type: 'Block',
+                                    type: 'BlockComment',
                                     value: ' comment ',
                                     start: 9,
                                     end: 22
@@ -4246,7 +4246,7 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 24,
         comments: [
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: ' comment ',
                 start: 9,
                 end: 22
@@ -4445,7 +4445,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                                         end: 227,
                                                         trailingComments: [
                                                             {
-                                                                type: 'Line',
+                                                                type: 'LineComment',
                                                                 value: ' no default',
                                                                 start: 242,
                                                                 end: 255
@@ -4507,7 +4507,7 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 306,
         comments: [
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: ' no default',
                 start: 242,
                 end: 255
@@ -4595,7 +4595,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                     end: 114,
                                     trailingComments: [
                                         {
-                                            type: 'Line',
+                                            type: 'LineComment',
                                             value: 'no default',
                                             start: 125,
                                             end: 137
@@ -4628,7 +4628,7 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 149,
         comments: [
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: 'no default',
                 start: 125,
                 end: 137
@@ -4667,7 +4667,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                 end: 40,
                                 leadingComments: [
                                     {
-                                        type: 'Block',
+                                        type: 'BlockComment',
                                         value: ' this is an empty array ! ',
                                         start: 7,
                                         end: 37
@@ -4708,7 +4708,7 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 49,
         comments: [
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: ' this is an empty array ! ',
                 start: 7,
                 end: 37
@@ -4737,7 +4737,7 @@ describe('Miscellaneous - Comment attachment', () => {
                             end: 58,
                             leadingComments: [
                                 {
-                                    type: 'Block',
+                                    type: 'BlockComment',
                                     value: ' assign ',
                                     start: 42,
                                     end: 54
@@ -4791,7 +4791,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                     end: 40,
                                     leadingComments: [
                                         {
-                                            type: 'Block',
+                                            type: 'BlockComment',
                                             value: ' yield allowed here ',
                                             start: 10,
                                             end: 34
@@ -4803,7 +4803,7 @@ describe('Miscellaneous - Comment attachment', () => {
                             end: 41,
                             trailingComments: [
                                 {
-                                    type: 'Block',
+                                    type: 'BlockComment',
                                     value: ' assign ',
                                     start: 42,
                                     end: 54
@@ -4819,7 +4819,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 59,
                 trailingComments: [
                     {
-                        type: 'Line',
+                        type: 'LineComment',
                         value: ' to zero',
                         start: 60,
                         end: 70
@@ -4832,19 +4832,19 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 70,
         comments: [
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: ' yield allowed here ',
                 start: 10,
                 end: 34
             },
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: ' assign ',
                 start: 42,
                 end: 54
             },
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: ' to zero',
                 start: 60,
                 end: 70
@@ -4873,7 +4873,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 2,
                         trailingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' BigInt ',
                                 start: 3,
                                 end: 15
@@ -4888,7 +4888,7 @@ describe('Miscellaneous - Comment attachment', () => {
                         end: 20,
                         leadingComments: [
                             {
-                                type: 'Block',
+                                type: 'BlockComment',
                                 value: ' BigInt ',
                                 start: 3,
                                 end: 15
@@ -4909,7 +4909,7 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 20,
         comments: [
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: ' BigInt ',
                 start: 3,
                 end: 15
@@ -4963,7 +4963,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                                 end: 25,
                                                 trailingComments: [
                                                     {
-                                                        type: 'Line',
+                                                        type: 'LineComment',
                                                         value: 'an arg',
                                                         start: 25,
                                                         end: 33
@@ -4977,7 +4977,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                                 end: 45,
                                                 leadingComments: [
                                                     {
-                                                        type: 'Line',
+                                                        type: 'LineComment',
                                                         value: 'an arg',
                                                         start: 25,
                                                         end: 33
@@ -4985,7 +4985,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                                 ],
                                                 trailingComments: [
                                                     {
-                                                        type: 'Line',
+                                                        type: 'LineComment',
                                                         value: 'arg2',
                                                         start: 45,
                                                         end: 51
@@ -4999,13 +4999,13 @@ describe('Miscellaneous - Comment attachment', () => {
                                                 end: 63,
                                                 leadingComments: [
                                                     {
-                                                        type: 'Line',
+                                                        type: 'LineComment',
                                                         value: 'an arg',
                                                         start: 25,
                                                         end: 33
                                                     },
                                                     {
-                                                        type: 'Line',
+                                                        type: 'LineComment',
                                                         value: 'arg2',
                                                         start: 45,
                                                         end: 51
@@ -5013,13 +5013,13 @@ describe('Miscellaneous - Comment attachment', () => {
                                                 ],
                                                 trailingComments: [
                                                     {
-                                                        type: 'Line',
+                                                        type: 'LineComment',
                                                         value: 'arg3',
                                                         start: 63,
                                                         end: 69
                                                     },
                                                     {
-                                                        type: 'Line',
+                                                        type: 'LineComment',
                                                         value: ' arg33',
                                                         start: 78,
                                                         end: 86
@@ -5071,25 +5071,25 @@ describe('Miscellaneous - Comment attachment', () => {
                                             end: 159,
                                             leadingComments: [
                                                 {
-                                                    type: 'Line',
+                                                    type: 'LineComment',
                                                     value: 'arg3',
                                                     start: 63,
                                                     end: 69
                                                 },
                                                 {
-                                                    type: 'Line',
+                                                    type: 'LineComment',
                                                     value: ' arg33',
                                                     start: 78,
                                                     end: 86
                                                 },
                                                 {
-                                                    type: 'Line',
+                                                    type: 'LineComment',
                                                     value: 'comment',
                                                     start: 94,
                                                     end: 103
                                                 },
                                                 {
-                                                    type: 'Line',
+                                                    type: 'LineComment',
                                                     value: 'comment2',
                                                     start: 108,
                                                     end: 118
@@ -5134,37 +5134,37 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 164,
         comments: [
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: 'an arg',
                 start: 25,
                 end: 33
             },
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: 'arg2',
                 start: 45,
                 end: 51
             },
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: 'arg3',
                 start: 63,
                 end: 69
             },
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: ' arg33',
                 start: 78,
                 end: 86
             },
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: 'comment',
                 start: 94,
                 end: 103
             },
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: 'comment2',
                 start: 108,
                 end: 118
@@ -5194,7 +5194,7 @@ describe('Miscellaneous - Comment attachment', () => {
                       {
                         end: 15,
                         start: 6,
-                        type: 'Block',
+                        type: 'BlockComment',
                         value: ' foo ',
                       }
                     ],
@@ -5240,7 +5240,7 @@ describe('Miscellaneous - Comment attachment', () => {
                 {
                   end: 15,
                   start: 6,
-                  type: 'Block',
+                  type: 'BlockComment',
                   value: ' foo ',
                 },
               ],
@@ -5299,7 +5299,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                                                 end: 51,
                                                                 trailingComments: [
                                                                     {
-                                                                        type: 'Block',
+                                                                        type: 'BlockComment',
                                                                         value: ' multiple spread ',
                                                                         start: 52,
                                                                         end: 73
@@ -5329,7 +5329,7 @@ describe('Miscellaneous - Comment attachment', () => {
                                                                 end: 79,
                                                                 leadingComments: [
                                                                     {
-                                                                        type: 'Block',
+                                                                        type: 'BlockComment',
                                                                         value: ' multiple spread ',
                                                                         start: 52,
                                                                         end: 73
@@ -5378,7 +5378,7 @@ describe('Miscellaneous - Comment attachment', () => {
                             end: 95,
                             leadingComments: [
                                 {
-                                    type: 'Block',
+                                    type: 'BlockComment',
                                     value: ' assign ',
                                     start: 8,
                                     end: 20
@@ -5400,13 +5400,13 @@ describe('Miscellaneous - Comment attachment', () => {
                 end: 95,
                 trailingComments: [
                     {
-                        type: 'Block',
+                        type: 'BlockComment',
                         value: ' the ',
                         start: 96,
                         end: 105
                     },
                     {
-                        type: 'Line',
+                        type: 'LineComment',
                         value: ' end',
                         start: 106,
                         end: 112
@@ -5419,25 +5419,25 @@ describe('Miscellaneous - Comment attachment', () => {
         end: 112,
         comments: [
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: ' assign ',
                 start: 8,
                 end: 20
             },
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: ' multiple spread ',
                 start: 52,
                 end: 73
             },
             {
-                type: 'Block',
+                type: 'BlockComment',
                 value: ' the ',
                 start: 96,
                 end: 105
             },
             {
-                type: 'Line',
+                type: 'LineComment',
                 value: ' end',
                 start: 106,
                 end: 112
