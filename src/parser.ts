@@ -692,7 +692,7 @@ export class Parser {
 
                         const next = this.source.charCodeAt(index);
                         if (next >= Chars.Zero && next <= Chars.Nine) {
-                            this.scanNumber(context, first, true);
+                            this.scanNumber(context, NumericState.Decimal | NumericState.Float);
                             return Token.NumericLiteral;
                         }
                         if (next === Chars.Period) {
@@ -721,7 +721,7 @@ export class Parser {
                 case Chars.Eight:
                 case Chars.Nine:
 
-                    return this.scanNumber(context, first);
+                    return this.scanNumber(context, NumericState.Decimal);
 
                     // '\uVar', `\u{N}var`
                 case Chars.Backslash:
@@ -1183,20 +1183,19 @@ export class Parser {
         return ret + this.source.substring(start, this.index);
     }
 
-    private scanNumber(context: Context, ch: number, seenFloat: boolean = false): Token {
+    private scanNumber(context: Context, state: NumericState): Token {
 
-        const start = this.index; // For reporting octal positions.
+        const start = this.index;
 
-        let state: NumericState = NumericState.Decimal;
         let value = 0;
-        let isStart  = !seenFloat;
+        let isStart = (state & NumericState.Float) === 0;
         let mainFragment: string = '';
         let decimalFragment: string = '';
         let scientificFragment: string = '';
-        let result: any;
+        let ch: any;
 
-        if (this.consume(Chars.Period)) {
-            state |= NumericState.Float;
+        if (state & NumericState.Float) {
+            this.advance();
             decimalFragment = this.scanDecimalDigitsOrFragment();
         } else {
 
@@ -1342,9 +1341,9 @@ export class Parser {
                         this.report(Errors.InvalidNumericSeparators);
                     }
                 }
-
-                ch = this.nextChar();
             }
+
+            ch = this.nextChar();
 
             // Parse decimal digits and allow trailing fractional part.
             if (state & (NumericState.Decimal | NumericState.DecimalWithLeadingZero)) {
@@ -1356,15 +1355,16 @@ export class Parser {
                         this.advance();
                         ch = this.nextChar();
                     }
+
                     ch = this.nextChar();
+
                     if (ch !== Chars.Period && !isIdentifierStart(ch)) {
                         if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
                         this.tokenValue = value;
                         return Token.NumericLiteral;
                     }
 
-                    if (ch === Chars.Underscore) {
-                        this.advance();
+                    if (this.consume(Chars.Underscore)) {
                         if (!this.hasNext()) this.error(Errors.InvalidNumericSeparators);
                         this.flags |= Flags.ContainsSeparator;
                         mainFragment = value as any;
@@ -1430,14 +1430,12 @@ export class Parser {
 
         if (!(state & NumericState.Hibo)) {
             if (state & NumericState.ContainsSeparator || this.flags & Flags.ContainsSeparator) {
-                result = mainFragment;
-                if (decimalFragment) result += '.' + decimalFragment;
-                if (scientificFragment) result += scientificFragment;
+                if (decimalFragment) mainFragment += '.' + decimalFragment;
+                if (scientificFragment) mainFragment += scientificFragment;
+                value = (state & NumericState.Float ? parseFloat : parseInt)(mainFragment);
             } else {
-                result = this.source.slice(start, this.index);
+                value = (state & NumericState.Float ? parseFloat : parseInt)(this.source.slice(start, this.index));
             }
-
-            value = (state & NumericState.Float ? parseFloat : parseInt)(result);
         }
 
         this.tokenValue = value;
