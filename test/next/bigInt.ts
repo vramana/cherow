@@ -3,45 +3,91 @@ import { pass, fail } from '../utils';
 describe('Next - BigInt', () => {
 
     fail('invalid float', {
+        source: `112313n`,
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 0,
+        index: 0
+    });
+
+    fail('invalid float', {
         source: `1.0n`,
-        next: true
+        next: true,
+        message: 'Invalid BigIntLiteral',
+        line: 1,
+        column: 0,
+        index: 3
     });
 
     fail('invalid exponent', {
         source: `2e9n`,
-        next: true
+        next: true,
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 3,
+        index: 0
     });
+
     fail('invalid noctal', {
         source: `016432n`,
-        next: true
+        next: true,
+        message: 'Invalid BigIntLiteral',
+        line: 1,
+        column: 0,
+        index: 6
     });
+
     fail('invalid MV', {
         source: `2017.8n;`,
-        next: true
+        next: true,
+        message: 'Invalid BigIntLiteral',
+        line: 1,
+        column: 6,
+        index: 6
     });
     fail('invalid noctal', {
         source: `.0000000001n;`,
-        next: true
+        next: true,
+        message: 'Invalid BigIntLiteral',
+        line: 1,
+        column: 11,
+        index: 11
     });
 
     fail('invalid binary', {
         source: `0b2n`,
-        next: true
+        next: true,
+        message: 'Missing binary digits after \'0b\'',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     fail('exponent part', {
         source: `0e0n`,
-        next: true
+        next: true,
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     fail('invalid hex', {
         source: `0xgn;`,
-        next: true
+        next: true,
+        message: 'Missing hexadecimal digits after \'0x\'',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     fail('invalid octal', {
         source: `0o9n;`,
-        next: true
+        next: true,
+        message: 'Missing octal digits after \'0o\'',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     pass(`0n <= 1`, {

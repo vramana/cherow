@@ -1288,7 +1288,9 @@ export class Parser {
                                     state = this.scanNumericFragment(state);
                                     continue;
                                 }
+
                                 state |= NumericState.AllowSeparator;
+
                                 if (ch < Chars.Zero || Chars.Nine < ch) break;
                                 if (!(ch === Chars.Zero || ch === Chars.One)) {
                                     this.report(Errors.UnexpectedNumber);
@@ -1388,12 +1390,14 @@ export class Parser {
                     if (this.consume(Chars.Underscore)) {
                         if (!this.hasNext()) this.error(Errors.InvalidNumericSeparators);
                         this.flags |= Flags.ContainsSeparator;
-                        mainFragment = value as any;
-                        mainFragment += this.scanDecimalDigitsOrFragment();
+                        mainFragment = value += this.scanDecimalDigitsOrFragment();
                     }
 
                     if (this.consume(Chars.Period)) {
-                        if (!mainFragment) mainFragment = value as any;
+                        // There is no 'mainFragment' in cases like '1.2_3'
+                        if (!(this.flags & Flags.ContainsSeparator)) {
+                            mainFragment = value as any;
+                        }
                         state |= NumericState.Float;
                         decimalFragment = this.scanDecimalDigitsOrFragment();
                     }
@@ -1407,20 +1411,23 @@ export class Parser {
         switch (this.nextChar()) {
 
             // BigInt
-            case Chars.LowerN:
+            case Chars.LowerN: {
+
+                if (!(this.flags & Flags.OptionsNext)) break;
 
                 // It is a Syntax Error if the MV is not an integer.
                 if (state & (NumericState.ImplicitOctal | NumericState.Float)) {
-                    this.tolerate(Errors.InvalidBigIntLiteral);
+                    this.report(Errors.InvalidBigIntLiteral);
                 }
+
                 state |= NumericState.BigInt;
 
                 this.advance();
                 break;
-
+            }
                 // Exponent
             case Chars.LowerE:
-            case Chars.UpperE:
+            case Chars.UpperE: {
 
                 const startOfPossibleFragment = this.index;
 
@@ -1445,6 +1452,8 @@ export class Parser {
                 const finalFragment = this.scanDecimalDigitsOrFragment();
 
                 scientificFragment = this.source.substring(startOfPossibleFragment, preNumericPart) + finalFragment;
+            }
+            default: // ignore
         }
 
         // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
