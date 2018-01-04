@@ -2,7 +2,7 @@ import { Chars } from './chars';
 import * as ESTree from './estree';
 import { toHex, fromCodePoint, hasMask, isPrologueDirective } from './common';
 import { isValidDestructuringAssignmentTarget, isQualifiedJSXName, isValidSimpleAssignmentTarget, isInOrOfKeyword } from './validate';
-import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, ScanState, ParenthesizedState, NumericState, Escape, FieldState } from './masks';
+import { Flags, Context, RegExpState, RegexFlags, ScopeMasks, ObjectState, ScanState, ParenthesizedState, Escape, FieldState, NumericState } from './masks';
 import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
@@ -171,6 +171,20 @@ export class Parser {
     private error(type: Errors, ...params: string[]): void {
         if (this.errorLocation) throw createError(type, this.errorLocation, ...params);
         throw createError(type, this.getLocations(), ...params);
+    }
+
+    // TODO! Refactor and move it
+    private report(type: Errors, ...params: string[]): void {
+        let error: any;
+        if (this.errorLocation) error = createError(type, this.errorLocation, ...params);
+        else error = createError(type, {
+            index: this.index,
+            start: this.index,
+            line: this.line,
+            column: this.column
+        }, ...params);
+        if (!(this.flags & Flags.OptionsTolerant)) throw error;
+        this.errors.push(error);
     }
 
     private tolerate(type: Errors, ...params: string[]) {
@@ -678,7 +692,7 @@ export class Parser {
 
                         const next = this.source.charCodeAt(index);
                         if (next >= Chars.Zero && next <= Chars.Nine) {
-                            this.scanNumber(context, first);
+                            this.scanNumber(context, first, true);
                             return Token.NumericLiteral;
                         }
                         if (next === Chars.Period) {
@@ -1127,7 +1141,7 @@ export class Parser {
 
         let start = this.index;
         let state = NumericState.None;
-        let ret: string | null = '';
+        let ret = '';
 
         const next = this.flags & Flags.OptionsNext;
 
@@ -1137,7 +1151,7 @@ export class Parser {
                 switch (this.nextChar()) {
                     case Chars.Underscore:
                         if (!next) break loop;
-                        if (!(state & NumericState.AllowSeparator)) this.tolerate(Errors.InvalidNumericSeparators);
+                        if (!(state & NumericState.AllowSeparator)) this.report(Errors.InvalidNumericSeparators);
                         this.flags |= Flags.ContainsSeparator;
                         state &= ~NumericState.AllowSeparator;
                         ret += this.source.substring(start, this.index);
@@ -1163,272 +1177,270 @@ export class Parser {
             }
 
         if (next && this.source.charCodeAt(this.index - 1) === Chars.Underscore) {
-            this.tolerate(Errors.InvalidNumericSeparators);
+            this.report(Errors.InvalidNumericSeparators);
         }
 
         return ret + this.source.substring(start, this.index);
     }
 
-    private scanNumber(context: Context, ch: number): Token {
-        const start = this.index;
-        let state = NumericState.None;
-        let value: any;
+    private scanNumber(context: Context, ch: number, seenFloat: boolean = false): Token {
 
-        const next = this.flags & Flags.OptionsNext;
+        const start = this.index; // For reporting octal positions.
 
-        if (ch === Chars.Zero) {
-
-            this.advance();
-
-            ch = this.nextChar();
-
-            switch (ch) {
-
-                case Chars.LowerX:
-                case Chars.UpperX:
-                    {
-                        state = NumericState.Hex | NumericState.AllowSeparator;
-
-                        value = toHex(this.scanNext(Errors.Unexpected));
-
-                        if (value < 0) this.tolerate(Errors.Unexpected);
-
-                        this.advance();
-
-                        while (this.hasNext()) {
-                            ch = this.nextChar();
-
-                            if (next && ch === Chars.Underscore) {
-                                state = this.scanNumericFragment(state);
-                                continue;
-                            }
-                            state |= NumericState.AllowSeparator;
-                            const digit = toHex(ch);
-                            if (digit < 0) break;
-                            value = value << 4 | digit;
-                            this.advance();
-                        }
-
-                        break;
-                    }
-                case Chars.LowerO:
-                case Chars.UpperO:
-                    {
-                        state = NumericState.Octal | NumericState.AllowSeparator;
-
-                        ch = this.scanNext(Errors.Unexpected);
-
-                        value = ch - Chars.Zero;
-
-                        // we must have at least one octal digit after 'o'/'O'
-                        if (ch < Chars.Zero || ch >= Chars.Eight) this.tolerate(Errors.UnexpectedNumber);
-
-                        this.advance();
-
-                        while (this.hasNext()) {
-
-                            ch = this.nextChar();
-
-                            if (next && ch === Chars.Underscore) {
-                                state = this.scanNumericFragment(state);
-                                continue;
-                            }
-                            state |= NumericState.AllowSeparator;
-                            if (ch < Chars.Zero || Chars.Nine < ch) break;
-                            if (ch < Chars.Zero || ch >= Chars.Eight) {
-                                this.tolerate(Errors.Unexpected);
-                            }
-                            value = (value << 3) | (ch - Chars.Zero);
-                            this.advance();
-                        }
-
-                        break;
-                    }
-
-                case Chars.LowerB:
-                case Chars.UpperB:
-                    {
-                        state = NumericState.Binary | NumericState.AllowSeparator;
-
-                        ch = this.scanNext(Errors.Unexpected);
-
-                        // Invalid:  '0b'
-                        if (ch !== Chars.Zero && ch !== Chars.One) this.tolerate(Errors.UnexpectedNumber);
-
-                        value = ch - Chars.Zero;
-
-                        this.advance();
-
-                        while (this.hasNext()) {
-                            ch = this.nextChar();
-                            if (next && ch === Chars.Underscore) {
-                                state = this.scanNumericFragment(state);
-                                continue;
-                            }
-                            state |= NumericState.AllowSeparator;
-                            if (ch < Chars.Zero || Chars.Nine < ch) break;
-                            if (!(ch === Chars.Zero || ch === Chars.One)) {
-                                this.tolerate(Errors.Unexpected);
-                            }
-                            value = (value << 1) | (ch - Chars.Zero);
-                            this.advance();
-                        }
-
-                        break;
-                    }
-
-                case Chars.Underscore:
-                    this.flags |= Flags.ContainsSeparator;
-                    this.advance();
-                    // falls through
-                case Chars.Zero:
-                case Chars.One:
-                case Chars.Two:
-                case Chars.Three:
-                case Chars.Four:
-                case Chars.Five:
-                case Chars.Six:
-                case Chars.Seven:
-                    {
-                        state |= NumericState.ImplicitOctal | NumericState.AllowSeparator;
-
-                        while (this.hasNext()) {
-                            ch = this.nextChar();
-                            if (ch === Chars.Underscore) {
-                                state = this.scanNumericFragment(state);
-                                continue;
-                            }
-                            state |= NumericState.AllowSeparator;
-                            if (ch === Chars.Eight || ch === Chars.Nine) {
-                                state = NumericState.DecimalWithLeadingZero;
-                                break;
-                            }
-                            if (!(Chars.Zero <= ch && ch <= Chars.Seven)) break;
-                            value = (value << 3) | (ch - Chars.Zero);
-                            this.advance();
-                        }
-                    }
-                    break;
-
-                case Chars.Eight:
-                case Chars.Nine:
-                    state = NumericState.DecimalWithLeadingZero;
-                default: // ignore
-            }
-
-            if (this.flags & Flags.ContainsSeparator) {
-                if (this.source.charCodeAt(this.index - 1) === Chars.Underscore) {
-                    this.tolerate(Errors.InvalidNumericSeparators);
-                }
-            }
-
-            this.tokenValue = value;
-        }
-
+        let state: NumericState = NumericState.Decimal;
+        let value = 0;
+        let isStart  = !seenFloat;
         let mainFragment: string = '';
         let decimalFragment: string = '';
         let scientificFragment: string = '';
+        let result: any;
 
-        if (this.flags & Flags.OptionsNext) {
+        if (this.consume(Chars.Period)) {
+            state |= NumericState.Float;
+            decimalFragment = this.scanDecimalDigitsOrFragment();
+        } else {
 
-            mainFragment = this.scanDecimalDigitsOrFragment();
+            if (this.consume(Chars.Zero)) {
 
-            if (this.nextChar() === Chars.Period) {
-                state |= NumericState.Float;
-                if (state & NumericState.ImplicitOctal) this.tolerate(Errors.UnexpectedNumber);
-                this.advance();
-                decimalFragment = this.scanDecimalDigitsOrFragment();
+                switch (this.nextChar()) {
+
+                    case Chars.LowerX:
+                    case Chars.UpperX:
+                        {
+
+                            state = NumericState.Hexadecimal | NumericState.AllowSeparator;
+
+                            ch = this.scanNext(Errors.Unexpected);
+
+                            value = toHex(ch);
+
+                            if (value < 0) this.report(Errors.Unexpected);
+
+                            this.advance();
+
+                            while (this.hasNext()) {
+                                ch = this.nextChar();
+                                if (ch === Chars.Underscore) {
+                                    state = this.scanNumericFragment(state);
+                                    continue;
+                                }
+                                state |= NumericState.AllowSeparator;
+                                const digit = toHex(ch);
+                                if (digit < 0) break;
+                                value = value << 4 | digit;
+                                this.advance();
+                            }
+                            break;
+                        }
+
+                    case Chars.LowerO:
+                    case Chars.UpperO:
+                        {
+                            state = NumericState.Octal | NumericState.AllowSeparator;
+                            ch = this.scanNext(Errors.Unexpected);
+
+                            value = ch - Chars.Zero;
+
+                            // we must have at least one octal digit after 'o'/'O'
+                            if (ch < Chars.Zero || ch >= Chars.Eight) {
+                                this.report(Errors.Unexpected);
+                            }
+
+                            this.advance();
+
+                            while (this.hasNext()) {
+                                ch = this.nextChar();
+                                if (ch === Chars.Underscore) {
+                                    state = this.scanNumericFragment(state);
+                                    continue;
+                                }
+                                state |= NumericState.AllowSeparator;
+                                if (ch < Chars.Zero || Chars.Nine < ch) break;
+                                if (ch < Chars.Zero || ch >= Chars.Eight) {
+                                    this.report(Errors.Unexpected);
+                                }
+                                value = (value << 3) | (ch - Chars.Zero);
+                                this.advance();
+                            }
+
+                            break;
+                        }
+
+                    case Chars.LowerB:
+                    case Chars.UpperB:
+                        {
+                            state = NumericState.Binary | NumericState.AllowSeparator;
+                            ch = this.scanNext(Errors.InvalidOrUnexpectedToken);
+
+                            // Invalid:  '0b'
+                            if (ch !== Chars.Zero && ch !== Chars.One) {
+                                this.report(Errors.InvalidOrUnexpectedToken);
+                            }
+
+                            value = ch - Chars.Zero;
+
+                            this.advance();
+
+                            while (this.hasNext()) {
+                                ch = this.nextChar();
+                                if (ch === Chars.Underscore) {
+                                    state = this.scanNumericFragment(state);
+                                    continue;
+                                }
+                                state |= NumericState.AllowSeparator;
+                                if (ch < Chars.Zero || Chars.Nine < ch) break;
+                                if (!(ch === Chars.Zero || ch === Chars.One)) {
+                                    this.report(Errors.InvalidOrUnexpectedToken);
+                                }
+                                value = (value << 1) | (ch - Chars.Zero);
+                                this.advance();
+                            }
+
+                            break;
+                        }
+
+                    case Chars.Zero:
+                    case Chars.One:
+                    case Chars.Two:
+                    case Chars.Three:
+                    case Chars.Four:
+                    case Chars.Five:
+                    case Chars.Six:
+                    case Chars.Seven:
+                        {
+                            // (possible) octal number
+                            state = NumericState.ImplicitOctal | NumericState.AllowSeparator;
+                            this.flags |= Flags.Octal;
+                            while (this.hasNext()) {
+                                ch = this.nextChar();
+                                if (ch === Chars.Underscore) {
+                                    state = this.scanNumericFragment(state);
+                                    continue;
+                                }
+                                state |= NumericState.AllowSeparator;
+                                if (ch === Chars.Eight || ch === Chars.Nine) {
+                                    isStart  = false;
+                                    state = NumericState.DecimalWithLeadingZero;
+                                    break;
+                                }
+                                if (!(Chars.Zero <= ch && ch <= Chars.Seven)) break;
+                                value = (value << 3) | (ch - Chars.Zero);
+                                this.advance();
+                            }
+                            break;
+                        }
+                    case Chars.Eight:
+                    case Chars.Nine:
+                        {
+                            this.flags |= Flags.Octal;
+                            state = NumericState.DecimalWithLeadingZero;
+                        }
+                }
+
+                if (this.flags & Flags.ContainsSeparator) {
+                    if (this.source.charCodeAt(this.index - 1) === Chars.Underscore) {
+                        this.report(Errors.InvalidNumericSeparators);
+                    }
+                }
+
+                ch = this.nextChar();
             }
 
-        } else {
-            this.scanDecimalDigitsOrFragment();
-            if (this.nextChar() === Chars.Period) {
-                state |= NumericState.Float;
-                // Invalid: '06.7'
-                if (state & NumericState.ImplicitOctal) {
-                    const possibleOctal = this.source.charCodeAt(this.index + 1);
-                    if (possibleOctal >= Chars.Zero && possibleOctal <= Chars.Nine) this.tolerate(Errors.UnexpectedNumber);
+            // Parse decimal digits and allow trailing fractional part.
+            if (state & (NumericState.Decimal | NumericState.DecimalWithLeadingZero)) {
+
+                if (isStart) {
+
+                    while (ch >= Chars.Zero && ch <= Chars.Nine) {
+                        value = 10 * value + (ch - Chars.Zero);
+                        this.advance();
+                        ch = this.nextChar();
+                    }
+                    ch = this.nextChar();
+                    if (ch !== Chars.Period && !isIdentifierStart(ch)) {
+                        if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
+                        this.tokenValue = value;
+                        return Token.NumericLiteral;
+                    }
+
+                    if (ch === Chars.Underscore) {
+                        this.advance();
+                        if (!this.hasNext()) this.error(Errors.InvalidNumericSeparators);
+                        this.flags |= Flags.ContainsSeparator;
+                        mainFragment = value as any;
+                        mainFragment += this.scanDecimalDigitsOrFragment();
+                    }
+
+                    if (this.consume(Chars.Period)) {
+                        if (!mainFragment) mainFragment = value as any;
+                        state |= NumericState.Float;
+                        decimalFragment = this.scanDecimalDigitsOrFragment();
+                    }
+
                 } else {
-                    this.advance();
-                    this.scanDecimalDigitsOrFragment();
+                    mainFragment = this.scanDecimalDigitsOrFragment();
                 }
             }
+
+            ch = this.nextChar();
         }
 
         const end = this.index;
 
-        // BigInt - Stage 3 proposal
-        if (next && this.nextChar() === Chars.LowerN) {
-            if (state & (NumericState.ImplicitOctal | NumericState.Float)) this.tolerate(Errors.InvalidBigIntLiteral);
+        // BigInt
+        if (this.consume(Chars.LowerN)) {
+            // It is a Syntax Error if the MV is not an integer.
+            if (state & (NumericState.ImplicitOctal | NumericState.Float)) {
+                this.tolerate(Errors.InvalidBigIntLiteral);
+            }
             state |= NumericState.BigInt;
-            this.advance();
-        }
-
-        if (!(state & NumericState.Boh)) {
+        } else if (this.consume(Chars.LowerE) || this.consume(Chars.UpperE)) {
 
             state |= NumericState.Float;
 
-            switch (this.nextChar()) {
-                case Chars.UpperE:
-                case Chars.LowerE:
-                    this.advance();
-                    switch (this.nextChar()) {
-                        case Chars.Hyphen:
-                        case Chars.Plus:
-                            this.advance();
-                            if (!this.hasNext()) this.tolerate(Errors.Unexpected);
-                        default: // ignore
-                    }
-
-                    ch = this.nextChar();
-
-                    if (!(ch >= Chars.Zero && ch <= Chars.Nine)) this.tolerate(Errors.UnexpectedNumber);
-
-                    if (this.flags & Flags.OptionsNext) {
-                        const preNumericPart = this.index;
-                        const finalFragment = this.scanDecimalDigitsOrFragment();
-                        scientificFragment = this.source.substring(end, preNumericPart) + finalFragment;
-                    } else {
-                        this.scanDecimalDigitsOrFragment();
-                    }
-
-                default: // ignore
+            if (!(state & (NumericState.Decimal | NumericState.DecimalWithLeadingZero))) {
+                this.report(Errors.InvalidOrUnexpectedToken);
             }
-        }
 
-        if (state & NumericState.Noctal) this.flags |= Flags.Octal;
+            this.consume(Chars.Plus);
+            this.consume(Chars.Hyphen);
 
-        if (this.flags & Flags.OptionsNext &&
-            !(state & (NumericState.ImplicitOctal | NumericState.Boh)) &&
-            this.flags & Flags.ContainsSeparator) {
+            ch = this.nextChar();
 
-            let result = mainFragment;
+            if (!(ch >= Chars.Zero && ch <= Chars.Nine)) {
+                this.report(Errors.InvalidOrUnexpectedToken);
+            }
 
-            if (decimalFragment) result += '.' + decimalFragment;
-            if (scientificFragment) result += scientificFragment;
+            const preNumericPart = this.index;
 
-            if (this.flags & Flags.OptionsRaw) this.tokenRaw = this.source.slice(start, this.index);
+            const finalFragment = this.scanDecimalDigitsOrFragment();
+            if (!finalFragment) this.error(Errors.UnexpectedNumber);
 
-            this.tokenValue = parseFloat(result);
-
-            if (state & NumericState.BigInt) return Token.BigInt;
-            return Token.NumericLiteral;
+            scientificFragment = this.source.substring(end, preNumericPart) + finalFragment;
         }
 
         // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
         // The SourceCharacter immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
         // For example : 3in is an error and not the two input elements 3 and in
-        if (isIdentifierStart(this.nextChar())) this.tolerate(Errors.Unexpected);
-
-        const rawValue = this.source.slice(start, this.index);
-
-        if (!value || !(state & (NumericState.ImplicitOctal | NumericState.Boh))) {
-            this.tokenValue = NumericState.Float ?
-                parseFloat(rawValue) :
-                parseInt(rawValue, 10);
+        if (isIdentifierStart(this.nextChar())) {
+            this.report(Errors.InvalidOrUnexpectedToken);
         }
 
-        if (this.flags & Flags.OptionsRaw) this.tokenRaw = rawValue;
+        if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
+
+        if (!(state & NumericState.Hibo)) {
+            if (state & NumericState.ContainsSeparator || this.flags & Flags.ContainsSeparator) {
+                result = mainFragment;
+                if (decimalFragment) result += '.' + decimalFragment;
+                if (scientificFragment) result += scientificFragment;
+            } else {
+                result = this.source.slice(start, this.index);
+            }
+
+            value = (state & NumericState.Float ? parseFloat : parseInt)(result);
+        }
+
+        this.tokenValue = value;
 
         return state & NumericState.BigInt ? Token.BigInt : Token.NumericLiteral;
     }

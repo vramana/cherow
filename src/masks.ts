@@ -118,33 +118,25 @@ export const enum ObjectState {
 // A set of flags for  maintaining the internal state machine.
 export const enum ScanState {
     None            = 0,
-    LastIsCR        = 1 << 1, // Tracks if previous scanned character was CR
-    LineStart       = 1 << 2, // Tracks if this is start of line
-    MultiLine       = 1 << 3, // MultiLine comment
-    SingleLine      = 1 << 4, // SingleLine comment (HTML, Shebang or plain)
-    Terminated      = 1 << 5, // If the node was closed or not
-    Unicode         = 1 << 6, // If the node was closed or not
-    SameLine        = 1 << 7, // If the node was closed or not
-
-    // Collectable comments - single and multiline (shebang excluded)
-    Collectible = SingleLine | MultiLine
+    LastIsCR        = 1 << 0,
+    LineStart       = 1 << 1,
+    Terminated      = 1 << 2,
 }
 
 export const enum NumericState {
-   None = 0,
-   Decimal                  = 1 << 0,
-   DecimalWithLeadingZero   = 1 << 1,
-   ImplicitOctal            = 1 << 2,
-   Hex                      = 1 << 3,
-   Octal                    = 1 << 4,
-   Binary                   = 1 << 5,
-   BigInt                   = 1 << 6,
-   Float                    = 1 << 7,
-   AllowSeparator           = 1 << 8, // Numeric Separator specific
+    None                    = 0,
+    Decimal                 = 1 << 0,
+    DecimalWithLeadingZero  = 1 << 1,
+    Hexadecimal             = 1 << 2,
+    Octal                   = 1 << 3,
+    ImplicitOctal           = 1 << 4,
+    Binary                  = 1 << 5,
+    Float                   = 1 << 6,
+    AllowSeparator          = 1 << 7,
+    ContainsSeparator       = 1 << 8,
+    BigInt                  = 1 << 9,
 
-   Noctal = ImplicitOctal | DecimalWithLeadingZero,
-
-   Boh = Binary | Octal | Hex
+    Hibo = Hexadecimal | ImplicitOctal | Binary | Octal
 }
 
 // Regular expression scanning

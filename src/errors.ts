@@ -1,5 +1,6 @@
 export const enum Errors {
     Unexpected,
+    InvalidOrUnexpectedToken,
     UnexpectedTokenIdentifier,
     UnexpectedToken,
     UnterminatedComment,
@@ -132,6 +133,7 @@ export const ErrorMessages: {
     [key: string]: string
 } = {
     [Errors.Unexpected]: 'Unexpected token',
+    [Errors.InvalidOrUnexpectedToken]: 'Invalid or unexpected token',
     [Errors.UnexpectedTokenIdentifier]: 'Unexpected identifier',
     [Errors.UnexpectedToken]: 'Unexpected token \'%0\'',
     [Errors.UnterminatedComment]: 'Unterminated comment',

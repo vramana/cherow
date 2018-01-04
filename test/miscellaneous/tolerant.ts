@@ -21,9 +21,9 @@ describe('Miscellaneous - Tolerant mode', () => {
                   ],
                   errors: [
                     {
-                      description: 'Unexpected number',
+                     description: 'Unexpected token',
                       index: 2,
-                      column: 0,
+                      column: 2,
                       lineNumber: 1,
                    }
                   ],

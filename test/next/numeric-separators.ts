@@ -49,10 +49,10 @@ describe('Statements - Numeric separators', () => {
 
     fail(`1_`, {
         source: '1_',
-        message: 'Unexpected token',
+        message: 'Numeric separators are not allowed here',
         line: 1,
         column: 0,
-        index: 1
+        index: 2
     });
 
     fail(`3_.1415F;`, {

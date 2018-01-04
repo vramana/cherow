@@ -2,227 +2,303 @@ import { fail, pass } from '../utils';
 
 describe('Literals - Numbers', () => {
 
-  const literalClasses = {
-      'Binary Integer Literal': [
-          '0b0', '0b1', '0b010101',
-          '0B0', '0B1', '0B010101',
-          '0B12',
-      ],
-      'Octal Integer Literal': [
-          '0o0', '0o1', '0o123',
-          '0O0', '0O1', '0O123'
-      ]
-  };
+    const literalClasses = {
+        'Binary Integer Literal': [
+            '0b0', '0b1', '0b010101',
+            '0B0', '0B1', '0B010101',
+            '0B12',
+        ],
+        'Octal Integer Literal': [
+            '0o0', '0o1', '0o123',
+            '0O0', '0O1', '0O123'
+        ]
+    };
 
-  // Numeric literal followed by invalid digit
-  for (const literal of literalClasses['Octal Integer Literal']) {
-      for (const nonOctalDigit of ['8', '9']) {
-          fail(`${literal}${nonOctalDigit}`, {
-              source: `${literal}${nonOctalDigit}`
-          });
-      }
-  }
+    // Numeric literal followed by invalid digit
+    for (const literal of literalClasses['Octal Integer Literal']) {
+        for (const nonOctalDigit of ['8', '9']) {
+            fail(`${literal}${nonOctalDigit}`, {
+                source: `${literal}${nonOctalDigit}`
+            });
+        }
+    }
 
-  const nonBinaryDigits = ['2', '3', '4', '5', '6', '7', '8', '9'];
-  for (const literal of literalClasses['Binary Integer Literal']) {
-      for (const nonBinaryDigit of nonBinaryDigits) {
-          fail(`${literal}${nonBinaryDigit}`, {
-              source: `${literal}${nonBinaryDigit}`
-          });
-      }
-  }
+    const nonBinaryDigits = ['2', '3', '4', '5', '6', '7', '8', '9'];
+    for (const literal of literalClasses['Binary Integer Literal']) {
+        for (const nonBinaryDigit of nonBinaryDigits) {
+            fail(`${literal}${nonBinaryDigit}`, {
+                source: `${literal}${nonBinaryDigit}`
+            });
+        }
+    }
 
-  fail(`const t = 2.34e-;const b = 4.3e--3;`, {
-      source: 'const t = 2.34e-;const b = 4.3e--3;',
-      message: 'Unexpected number',
-      line: 1,
-      column: 10,
-      index: 16
-  });
+    fail(`const t = 2.34e-;const b = 4.3e--3;`, {
+        source: 'const t = 2.34e-;const b = 4.3e--3;',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 16,
+        index: 16
+    });
 
-  fail(`"use strict"; var foo = 000;`, {
-      source: '"use strict"; var foo = 000;',
-      message: 'Octal literals are not allowed in strict mode',
-      line: 1,
-      column: 24,
-      index: 27
-  });
+    fail(`"use strict"; var foo = 000;`, {
+        source: '"use strict"; var foo = 000;',
+        message: 'Octal literals are not allowed in strict mode',
+        line: 1,
+        column: 24,
+        index: 27
+    });
 
-  fail(`"use strict"; var foo = 07;`, {
-      source: '"use strict"; var foo = 07;',
-  });
+    fail(`"use strict"; var foo = 07;`, {
+        source: '"use strict"; var foo = 07;',
+        message: 'Octal literals are not allowed in strict mode',
+        line: 1,
+        column: 24,
+        index: 26
+    });
 
-  fail(`"use strict"; var foo = 05;`, {
-      source: '"use strict"; var foo = 05;',
-  });
+    fail(`"use strict"; var foo = 05;`, {
+        source: '"use strict"; var foo = 05;',
+        message: 'Octal literals are not allowed in strict mode',
+        line: 1,
+        column: 24,
+        index: 26
+    });
 
-  fail(`06.7`, {
-      source: '06.7',
-  });
+    fail(`06.7`, {
+        source: '06.7',
+        message: 'Unexpected token \'number\'',
+        line: 1,
+        column: 2,
+        index: 4
+    });
 
-  fail(`0b;`, {
-      source: '0b;',
-      message: 'Unexpected number',
-      line: 1,
-      column: 0,
-      index: 2
-  });
+    fail(`0b;`, {
+        source: '0b;',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 0,
+        index: 2
+    });
 
-  fail(`00b0;`, {
-      source: '00b0;',
-      message: 'Unexpected token',
-      line: 1,
-      column: 0,
-      index: 2
-  });
+    fail(`00b0;`, {
+        source: '00b0;',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 2,
+        index: 2
+    });
 
-  fail(`"use strict"; 01;`, {
-      source: '"use strict"; 01;',
-  });
+    fail(`"use strict"; 01;`, {
+        source: '"use strict"; 01;',
+        message: 'Octal literals are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
+    });
 
-  fail(`0\\u00620;`, {
-      source: '0\\u00620;',
-  });
+    fail(`0\\u00620;`, {
+        source: '0\\u00620;',
+        message: 'Unexpected token \'identifier\'',
+        line: 1,
+        column: 1,
+        index: 8
+    });
 
-  fail(`0o8;`, {
-      source: '0o8;',
-  });
+    fail(`0o8;`, {
+        source: '0o8;',
+        message: 'Unexpected token',
+        line: 1,
+        column: 2,
+        index: 2
+    });
 
-  fail(`0o;`, {
-      source: '0o;',
-  });
+    fail(`0o;`, {
+        source: '0o;',
+        message: 'Unexpected token',
+        line: 1,
+        column: 2,
+        index: 2
+    });
 
-  fail(`"use strict"; 08;`, {
-      source: '"use strict"; 08;',
-  });
+    fail(`"use strict"; 08;`, {
+        source: '"use strict"; 08;',
+        message: 'Octal literals are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
+    });
 
-  fail(`0x¤%&/()`, {
-      source: '0x¤%&/()',
-  });
+    fail(`0x¤%&/()`, {
+        source: '0x¤%&/()',
+        message: 'Unexpected token',
+        line: 1,
+        column: 2,
+        index: 2
+    });
 
-  fail(`"use strict"; 018`, {
-      source: '"use strict"; 018',
-  });
+    fail(`"use strict"; 018`, {
+        source: '"use strict"; 018',
+        message: 'Octal literals are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 17
+    });
 
-  fail(`0\\u00620`, {
-      source: '0\\u00620',
-  });
+    fail(`0\\u00620`, {
+        source: '0\\u00620',
+        message:  'Unexpected token \'identifier\'',
+        line: 1,
+        column: 1,
+        index: 8
+    });
 
-  fail(`0b2`, {
-      source: '0b2',
-  });
+    fail(`1.e`, {
+        source: '1.e',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 3,
+        index: 3
+    });
 
-  fail(`0b1a;`, {
-      source: '0b1a',
-  });
+    fail(`0b2`, {
+        source: '0b2',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 2,
+        index: 2
+    });
 
-  fail(`0B18`, {
-      source: '0B18',
-  });
+    fail(`0b1a;`, {
+        source: '0b1a',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 3,
+        index: 3
+    });
 
-  fail(`0o1a;`, {
-      source: '0o1a',
-  });
+    fail(`0B18`, {
+        source: '0B18',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 3,
+        index: 3
+    });
 
-  fail(`09.x`, {
-      source: '09.x',
-  });
+    fail(`0o1a;`, {
+        source: '0o1a',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 3,
+        index: 3
+    });
 
-  fail(`0b1a;`, {
-      source: '0b1a',
-  });
+    fail(`09.x`, {
+        source: '09.x',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 3,
+        index: 3
+    });
 
-  pass(`0o1 & 0o10;`, {
+    fail(`0b1a;`, {
+        source: '0b1a',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 3,
+        index: 3
+    });
+
+    pass(`0o1 & 0o10;`, {
     source: '0o1 & 0o10;',
     raw: true,
     ranges: true,
     loc: true,
     expected: {
         type: 'Program',
-        body: [
-            {
-                type: 'ExpressionStatement',
-                expression: {
-                    type: 'BinaryExpression',
-                    left: {
-                        type: 'Literal',
-                        value: 1,
-                        start: 0,
-                        end: 3,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 3
-                            }
-                        },
-                        raw: '0o1'
-                    },
-                    right: {
-                        type: 'Literal',
-                        value: 8,
-                        start: 6,
-                        end: 10,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 6
-                            },
-                            end: {
-                                line: 1,
-                                column: 10
-                            }
-                        },
-                        raw: '0o10'
-                    },
-                    operator: '&',
-                    start: 0,
-                    end: 10,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 1,
-                            column: 10
-                        }
-                    }
-                },
-                start: 0,
-                end: 11,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 1,
-                        column: 11
-                    }
-                }
-            }
-        ],
-        sourceType: 'script',
         start: 0,
         end: 11,
         loc: {
-            start: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 11
+          }
+        },
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 11,
+            loc: {
+              start: {
                 line: 1,
                 column: 0
-            },
-            end: {
+              },
+              end: {
                 line: 1,
                 column: 11
+              }
+            },
+            expression: {
+              type: 'BinaryExpression',
+              start: 0,
+              end: 10,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 10
+                }
+              },
+              left: {
+                type: 'Literal',
+                start: 0,
+                end: 3,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 3
+                  }
+                },
+                value: 1,
+                raw: '0o1'
+              },
+              operator: '&',
+              right: {
+                type: 'Literal',
+                start: 6,
+                end: 10,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 6
+                  },
+                  end: {
+                    line: 1,
+                    column: 10
+                  }
+                },
+                value: 8,
+                raw: '0o10'
+              }
             }
-        }
-    }
+          }
+        ],
+        sourceType: 'script'
+      }
   });
 
-  pass(`0o2 ^ 0o3;`, {
+    pass(`0o2 ^ 0o3;`, {
     source: '0o2 ^ 0o3;',
     raw: true,
     ranges: true,
@@ -312,342 +388,383 @@ describe('Literals - Numbers', () => {
     }
   });
 
-  pass(`var b1 = 0b01111111111111111111111111111111;`, {
+    pass(`var b1 = 0b01111111111111111111111111111111;`, {
     source: 'var b1 = 0b01111111111111111111111111111111;',
     raw: true,
     ranges: true,
     loc: true,
     expected: {
         type: 'Program',
-        body: [
-            {
-                type: 'VariableDeclaration',
-                declarations: [
-                    {
-                        type: 'VariableDeclarator',
-                        init: {
-                            type: 'Literal',
-                            value: 2147483647,
-                            start: 9,
-                            end: 43,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 9
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 43
-                                }
-                            },
-                            raw: '0b01111111111111111111111111111111'
-                        },
-                        id: {
-                            type: 'Identifier',
-                            name: 'b1',
-                            start: 4,
-                            end: 6,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 4
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 6
-                                }
-                            }
-                        },
-                        start: 4,
-                        end: 43,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 4
-                            },
-                            end: {
-                                line: 1,
-                                column: 43
-                            }
-                        }
-                    }
-                ],
-                kind: 'var',
-                start: 0,
-                end: 44,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 1,
-                        column: 44
-                    }
-                }
-            }
-        ],
-        sourceType: 'script',
         start: 0,
         end: 44,
         loc: {
-            start: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 44
+          }
+        },
+        body: [
+          {
+            type: 'VariableDeclaration',
+            start: 0,
+            end: 44,
+            loc: {
+              start: {
                 line: 1,
                 column: 0
-            },
-            end: {
+              },
+              end: {
                 line: 1,
                 column: 44
-            }
-        }
-    }
-  });
-
-  pass(`44`, {
-      source: '44',
-      raw: true,
-      ranges: true,
-      expected: {
-          type: 'Program',
-          start: 0,
-          end: 2,
-          body: [{
-              type: 'ExpressionStatement',
-              start: 0,
-              end: 2,
-              expression: {
-                  type: 'Literal',
-                  start: 0,
-                  end: 2,
-                  value: 44,
-                  raw: '44'
               }
-          }],
-          sourceType: 'script'
+            },
+            declarations: [
+              {
+                type: 'VariableDeclarator',
+                start: 4,
+                end: 43,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 4
+                  },
+                  end: {
+                    line: 1,
+                    column: 43
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  start: 4,
+                  end: 6,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 4
+                    },
+                    end: {
+                      line: 1,
+                      column: 6
+                    }
+                  },
+                  name: 'b1'
+                },
+                init: {
+                  type: 'Literal',
+                  start: 9,
+                  end: 43,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 9
+                    },
+                    end: {
+                      line: 1,
+                      column: 43
+                    }
+                  },
+                  value: 2147483647,
+                  raw: '0b01111111111111111111111111111111'
+                }
+              }
+            ],
+            kind: 'var'
+          }
+        ],
+        sourceType: 'script'
       }
   });
 
-  pass(`8E+01`, {
+    pass(`44`, {
+      source: '44',
+      raw: true,
+      loc: true,
+      ranges: true,
+      expected: {
+        type: 'Program',
+        start: 0,
+        end: 2,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 2
+          }
+        },
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 2,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 2
+              }
+            },
+            expression: {
+              type: 'Literal',
+              start: 0,
+              end: 2,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 2
+                }
+              },
+              value: 44,
+              raw: '44'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+  });
+
+    pass(`8E+01`, {
       source: '8E+01',
       loc: true,
       ranges: true,
       raw: true,
       expected: {
-          type: 'Program',
-          start: 0,
-          end: 5,
-          loc: {
+        type: 'Program',
+        start: 0,
+        end: 5,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 5
+          }
+        },
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 5,
+            loc: {
               start: {
-                  line: 1,
-                  column: 0
+                line: 1,
+                column: 0
               },
               end: {
-                  line: 1,
-                  column: 5
+                line: 1,
+                column: 5
               }
-          },
-          body: [{
-              type: 'ExpressionStatement',
+            },
+            expression: {
+              type: 'Literal',
               start: 0,
               end: 5,
               loc: {
-                  start: {
-                      line: 1,
-                      column: 0
-                  },
-                  end: {
-                      line: 1,
-                      column: 5
-                  }
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 5
+                }
               },
-              expression: {
-                  type: 'Literal',
-                  start: 0,
-                  end: 5,
-                  loc: {
-                      start: {
-                          line: 1,
-                          column: 0
-                      },
-                      end: {
-                          line: 1,
-                          column: 5
-                      }
-                  },
-                  value: 80,
-                  raw: '8E+01'
-              }
-          }],
-          sourceType: 'script'
+              value: 80,
+              raw: '8E+01'
+            }
+          }
+        ],
+        sourceType: 'script'
       }
   });
 
-  pass(`3e00`, {
+    pass(`3e00`, {
       source: '3e00',
       loc: true,
       ranges: true,
       raw: true,
       expected: {
-          type: 'Program',
-          start: 0,
-          end: 4,
-          loc: {
+        type: 'Program',
+        start: 0,
+        end: 4,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 4
+          }
+        },
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 4,
+            loc: {
               start: {
-                  line: 1,
-                  column: 0
+                line: 1,
+                column: 0
               },
               end: {
-                  line: 1,
-                  column: 4
+                line: 1,
+                column: 4
               }
-          },
-          body: [{
-              type: 'ExpressionStatement',
+            },
+            expression: {
+              type: 'Literal',
               start: 0,
               end: 4,
               loc: {
-                  start: {
-                      line: 1,
-                      column: 0
-                  },
-                  end: {
-                      line: 1,
-                      column: 4
-                  }
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 4
+                }
               },
-              expression: {
-                  type: 'Literal',
-                  start: 0,
-                  end: 4,
-                  loc: {
-                      start: {
-                          line: 1,
-                          column: 0
-                      },
-                      end: {
-                          line: 1,
-                          column: 4
-                      }
-                  },
-                  value: 3,
-                  raw: '3e00'
-              }
-          }],
-          sourceType: 'script'
+              value: 3,
+              raw: '3e00'
+            }
+          }
+        ],
+        sourceType: 'script'
       }
   });
 
-  pass(`0e+01`, {
+    pass(`0e+01`, {
       source: '0e+01',
       loc: true,
       ranges: true,
       raw: true,
       expected: {
-          type: 'Program',
-          start: 0,
-          end: 5,
-          loc: {
+        type: 'Program',
+        start: 0,
+        end: 5,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 5
+          }
+        },
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 5,
+            loc: {
               start: {
-                  line: 1,
-                  column: 0
+                line: 1,
+                column: 0
               },
               end: {
-                  line: 1,
-                  column: 5
+                line: 1,
+                column: 5
               }
-          },
-          body: [{
-              type: 'ExpressionStatement',
+            },
+            expression: {
+              type: 'Literal',
               start: 0,
               end: 5,
               loc: {
-                  start: {
-                      line: 1,
-                      column: 0
-                  },
-                  end: {
-                      line: 1,
-                      column: 5
-                  }
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 5
+                }
               },
-              expression: {
-                  type: 'Literal',
-                  start: 0,
-                  end: 5,
-                  loc: {
-                      start: {
-                          line: 1,
-                          column: 0
-                      },
-                      end: {
-                          line: 1,
-                          column: 5
-                      }
-                  },
-                  value: 0,
-                  raw: '0e+01'
-              }
-          }],
-          sourceType: 'script'
+              value: 0,
+              raw: '0e+01'
+            }
+          }
+        ],
+        sourceType: 'script'
       }
   });
 
-  pass(`3e-01`, {
+    pass(`3e-01`, {
       source: '3e-01',
       loc: true,
       ranges: true,
       raw: true,
       expected: {
-          type: 'Program',
-          start: 0,
-          end: 5,
-          loc: {
+        type: 'Program',
+        start: 0,
+        end: 5,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 5
+          }
+        },
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 5,
+            loc: {
               start: {
-                  line: 1,
-                  column: 0
+                line: 1,
+                column: 0
               },
               end: {
-                  line: 1,
-                  column: 5
+                line: 1,
+                column: 5
               }
-          },
-          body: [{
-              type: 'ExpressionStatement',
+            },
+            expression: {
+              type: 'Literal',
               start: 0,
               end: 5,
               loc: {
-                  start: {
-                      line: 1,
-                      column: 0
-                  },
-                  end: {
-                      line: 1,
-                      column: 5
-                  }
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 5
+                }
               },
-              expression: {
-                  type: 'Literal',
-                  start: 0,
-                  end: 5,
-                  loc: {
-                      start: {
-                          line: 1,
-                          column: 0
-                      },
-                      end: {
-                          line: 1,
-                          column: 5
-                      }
-                  },
-                  value: 0.3,
-                  raw: '3e-01'
-              }
-          }],
-          sourceType: 'script'
+              value: 0.3,
+              raw: '3e-01'
+            }
+          }
+        ],
+        sourceType: 'script'
       }
   });
 
-  pass(`8e01`, {
+    pass(`8e01`, {
       source: '8e01',
       loc: true,
       ranges: true,
@@ -702,7 +819,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`0.E0`, {
+    pass(`0.E0`, {
       source: '0.E0',
       loc: true,
       ranges: true,
@@ -757,7 +874,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`6.6e+1`, {
+    pass(`6.6e+1`, {
       source: '6.6e+1',
       loc: true,
       ranges: true,
@@ -812,7 +929,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`7`, {
+    pass(`7`, {
       source: '7',
       loc: true,
       ranges: true,
@@ -867,7 +984,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`0.`, {
+    pass(`0.`, {
       source: '0.',
       loc: true,
       ranges: true,
@@ -922,7 +1039,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`80X010000000`, {
+    pass(`80X010000000`, {
       source: '0X010000000',
       loc: true,
       ranges: true,
@@ -977,7 +1094,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`0x10`, {
+    pass(`0x10`, {
       source: '0x10',
       loc: true,
       ranges: true,
@@ -1032,7 +1149,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`0X010`, {
+    pass(`0X010`, {
       source: '0X010',
       loc: true,
       ranges: true,
@@ -1087,117 +1204,121 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`0012`, {
+    pass(`0012`, {
       source: '0012',
       loc: true,
       ranges: true,
       raw: true,
       expected: {
-          type: 'Program',
-          start: 0,
-          end: 4,
-          loc: {
+        type: 'Program',
+        start: 0,
+        end: 4,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 4
+          }
+        },
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 4,
+            loc: {
               start: {
-                  line: 1,
-                  column: 0
+                line: 1,
+                column: 0
               },
               end: {
-                  line: 1,
-                  column: 4
+                line: 1,
+                column: 4
               }
-          },
-          body: [{
-              type: 'ExpressionStatement',
+            },
+            expression: {
+              type: 'Literal',
               start: 0,
               end: 4,
               loc: {
-                  start: {
-                      line: 1,
-                      column: 0
-                  },
-                  end: {
-                      line: 1,
-                      column: 4
-                  }
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 4
+                }
               },
-              expression: {
-                  type: 'Literal',
-                  start: 0,
-                  end: 4,
-                  loc: {
-                      start: {
-                          line: 1,
-                          column: 0
-                      },
-                      end: {
-                          line: 1,
-                          column: 4
-                      }
-                  },
-                  value: 10,
-                  raw: '0012'
-              }
-          }],
-          sourceType: 'script'
+              value: 10,
+              raw: '0012'
+            }
+          }
+        ],
+        sourceType: 'script'
       }
   });
 
-  pass(`6.02214179e+23`, {
+    pass(`6.02214179e+23`, {
       source: '6.02214179e+23',
       loc: true,
       ranges: true,
       raw: true,
       expected: {
-          type: 'Program',
-          start: 0,
-          end: 14,
-          loc: {
+        type: 'Program',
+        start: 0,
+        end: 14,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 14
+          }
+        },
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 14,
+            loc: {
               start: {
-                  line: 1,
-                  column: 0
+                line: 1,
+                column: 0
               },
               end: {
-                  line: 1,
-                  column: 14
+                line: 1,
+                column: 14
               }
-          },
-          body: [{
-              type: 'ExpressionStatement',
+            },
+            expression: {
+              type: 'Literal',
               start: 0,
               end: 14,
               loc: {
-                  start: {
-                      line: 1,
-                      column: 0
-                  },
-                  end: {
-                      line: 1,
-                      column: 14
-                  }
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 14
+                }
               },
-              expression: {
-                  type: 'Literal',
-                  start: 0,
-                  end: 14,
-                  loc: {
-                      start: {
-                          line: 1,
-                          column: 0
-                      },
-                      end: {
-                          line: 1,
-                          column: 14
-                      }
-                  },
-                  value: 6.02214179e+23,
-                  raw: '6.02214179e+23'
-              }
-          }],
-          sourceType: 'script'
+              value: 6.02214179e+23,
+              raw: '6.02214179e+23'
+            }
+          }
+        ],
+        sourceType: 'script'
       }
   });
 
-  pass(`0xf`, {
+    pass(`0xf`, {
       source: '0xf',
       loc: true,
       ranges: true,
@@ -1252,7 +1373,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`0b00`, {
+    pass(`0b00`, {
       source: '0b00',
       loc: true,
       ranges: true,
@@ -1307,7 +1428,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`0b11`, {
+    pass(`0b11`, {
       source: '0b11',
       loc: true,
       ranges: true,
@@ -1362,7 +1483,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`0128`, {
+    pass(`0128`, {
       source: '0128',
       loc: true,
       ranges: true,
@@ -1417,7 +1538,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`09.5`, {
+    pass(`09.5`, {
       source: '09.5',
       expected: {
           body: [{
@@ -1432,7 +1553,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`08`, {
+    pass(`08`, {
       source: '08',
       loc: true,
       ranges: true,
@@ -1487,7 +1608,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`0008`, {
+    pass(`0008`, {
       source: '0008',
       loc: true,
       ranges: true,
@@ -1542,7 +1663,7 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`0o07`, {
+    pass(`0o07`, {
       source: '0o07',
       loc: true,
       ranges: true,
@@ -1597,145 +1718,150 @@ describe('Literals - Numbers', () => {
       }
   });
 
-  pass(`0O0`, {
+    pass(`0O0`, {
       source: '0O0',
       loc: true,
       ranges: true,
       raw: true,
       expected: {
-          type: 'Program',
-          start: 0,
-          end: 3,
-          loc: {
+        type: 'Program',
+        start: 0,
+        end: 3,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 3
+          }
+        },
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 3,
+            loc: {
               start: {
-                  line: 1,
-                  column: 0
+                line: 1,
+                column: 0
               },
               end: {
-                  line: 1,
-                  column: 3
+                line: 1,
+                column: 3
               }
-          },
-          body: [{
-              type: 'ExpressionStatement',
+            },
+            expression: {
+              type: 'Literal',
               start: 0,
               end: 3,
               loc: {
-                  start: {
-                      line: 1,
-                      column: 0
-                  },
-                  end: {
-                      line: 1,
-                      column: 3
-                  }
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 3
+                }
               },
-              expression: {
-                  type: 'Literal',
-                  start: 0,
-                  end: 3,
-                  loc: {
-                      start: {
-                          line: 1,
-                          column: 0
-                      },
-                      end: {
-                          line: 1,
-                          column: 3
-                      }
-                  },
-                  value: 0,
-                  raw: '0O0'
-              }
-          }],
-          sourceType: 'script'
+              value: 0,
+              raw: '0O0'
+            }
+          }
+        ],
+        sourceType: 'script'
       }
   });
 
-  pass(`01.a`, {
+    pass(`01.a`, {
       source: '01.a',
       raw: true,
       ranges: true,
       loc: true,
       expected: {
-          type: 'Program',
-          start: 0,
-          end: 4,
-          loc: {
+        type: 'Program',
+        start: 0,
+        end: 4,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 4
+          }
+        },
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 4,
+            loc: {
               start: {
-                  line: 1,
-                  column: 0
+                line: 1,
+                column: 0
               },
               end: {
-                  line: 1,
-                  column: 4
+                line: 1,
+                column: 4
               }
-          },
-          body: [{
-              type: 'ExpressionStatement',
+            },
+            expression: {
+              type: 'MemberExpression',
               start: 0,
               end: 4,
               loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 4
+                }
+              },
+              object: {
+                type: 'Literal',
+                start: 0,
+                end: 2,
+                loc: {
                   start: {
-                      line: 1,
-                      column: 0
+                    line: 1,
+                    column: 0
                   },
                   end: {
-                      line: 1,
-                      column: 4
+                    line: 1,
+                    column: 2
                   }
+                },
+                value: 1,
+                raw: '01'
               },
-              expression: {
-                  type: 'MemberExpression',
-                  start: 0,
-                  end: 4,
-                  loc: {
-                      start: {
-                          line: 1,
-                          column: 0
-                      },
-                      end: {
-                          line: 1,
-                          column: 4
-                      }
+              property: {
+                type: 'Identifier',
+                start: 3,
+                end: 4,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 3
                   },
-                  object: {
-                      type: 'Literal',
-                      start: 0,
-                      end: 2,
-                      loc: {
-                          start: {
-                              line: 1,
-                              column: 0
-                          },
-                          end: {
-                              line: 1,
-                              column: 2
-                          }
-                      },
-                      value: 1,
-                      raw: '01'
-                  },
-                  property: {
-                      type: 'Identifier',
-                      start: 3,
-                      end: 4,
-                      loc: {
-                          start: {
-                              line: 1,
-                              column: 3
-                          },
-                          end: {
-                              line: 1,
-                              column: 4
-                          }
-                      },
-                      name: 'a'
-                  },
-                  computed: false
-              }
-          }],
-          sourceType: 'script'
+                  end: {
+                    line: 1,
+                    column: 4
+                  }
+                },
+                name: 'a'
+              },
+              computed: false
+            }
+          }
+        ],
+        sourceType: 'script'
       }
   });
+
 });
