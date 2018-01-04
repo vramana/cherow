@@ -63,6 +63,14 @@ describe('Literals - Numbers', () => {
         column: 24,
         index: 26
     });
+    
+    fail(`0o`, {
+        source: '0o',
+        message: 'Missing octal digits after \'0o\'',
+        line: 1,
+        column: 0,
+        index: 2
+    });
 
     fail(`06.7`, {
         source: '06.7',
@@ -74,7 +82,7 @@ describe('Literals - Numbers', () => {
 
     fail(`0b;`, {
         source: '0b;',
-        message: 'Invalid or unexpected token',
+        message: 'Missing binary digits after \'0b\'',
         line: 1,
         column: 0,
         index: 2
@@ -104,9 +112,17 @@ describe('Literals - Numbers', () => {
         index: 8
     });
 
+    fail(`0b8;`, {
+        source: '0b8;',
+        message: 'Missing binary digits after \'0b\'',
+        line: 1,
+        column: 2,
+        index: 2
+    });
+
     fail(`0o8;`, {
         source: '0o8;',
-        message: 'Unexpected token',
+        message: 'Missing octal digits after \'0o\'',
         line: 1,
         column: 2,
         index: 2
@@ -114,7 +130,7 @@ describe('Literals - Numbers', () => {
 
     fail(`0o;`, {
         source: '0o;',
-        message: 'Unexpected token',
+        message: 'Missing octal digits after \'0o\'',
         line: 1,
         column: 2,
         index: 2
@@ -130,7 +146,7 @@ describe('Literals - Numbers', () => {
 
     fail(`0x¤%&/()`, {
         source: '0x¤%&/()',
-        message: 'Unexpected token',
+        message: 'Missing hexadecimal digits after \'0x\'',
         line: 1,
         column: 2,
         index: 2
@@ -162,7 +178,7 @@ describe('Literals - Numbers', () => {
 
     fail(`0b2`, {
         source: '0b2',
-        message: 'Invalid or unexpected token',
+        message: 'Missing binary digits after \'0b\'',
         line: 1,
         column: 2,
         index: 2
@@ -178,7 +194,7 @@ describe('Literals - Numbers', () => {
 
     fail(`0B18`, {
         source: '0B18',
-        message: 'Invalid or unexpected token',
+        message: 'Unexpected number',
         line: 1,
         column: 3,
         index: 3

@@ -41,7 +41,7 @@ describe('Statements - Numeric separators', () => {
     fail(`0x_52`, {
         source: '0x_52',
         next: true,
-        message: 'Unexpected token',
+        message: 'Missing hexadecimal digits after \'0x\'',
         line: 1,
         column: 0,
         index: 2
@@ -58,6 +58,10 @@ describe('Statements - Numeric separators', () => {
     fail(`3_.1415F;`, {
         source: '3_.1415F;',
         next: true
+    });
+
+    fail(`.4_3_1`, {
+        source: '.4_3_1',
     });
 
     fail(`3._1415F;`, {

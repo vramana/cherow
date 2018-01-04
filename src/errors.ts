@@ -127,6 +127,9 @@ export const enum Errors {
     ParenAfterWith,
     ParenAfterFor,
     ParenAfterDoWhile,
+    MissingBinaryDigits,
+    MissingOctalDigits,
+    MissingHexDigits
 }
 
 export const ErrorMessages: {
@@ -253,6 +256,11 @@ export const ErrorMessages: {
     [Errors.ParenAfterWith]: 'missing ) after with-statement',
     [Errors.ParenAfterFor]: 'missing ) after for-loop head',
     [Errors.ParenAfterDoWhile]: 'missing ) after do-while',
+    [Errors.MissingBinaryDigits]: 'Missing binary digits after \'0b\'',
+    [Errors.MissingOctalDigits]: 'Missing octal digits after \'0o\'',
+    [Errors.MissingHexDigits]: 'Missing hexadecimal digits after \'0x\'',
+
+    
 };
 
 function constructError(msg: string, column: number): Error {

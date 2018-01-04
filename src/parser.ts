@@ -7,6 +7,7 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location } from './interface';
+
 export class Parser {
 
     // The program to be parsed
@@ -1206,14 +1207,15 @@ export class Parser {
                     case Chars.LowerX:
                     case Chars.UpperX:
                         {
+                            this.advance(); // skip'x'
 
-                            state = NumericState.Hexadecimal | NumericState.AllowSeparator;
-
-                            ch = this.scanNext(Errors.Unexpected);
+                            ch = this.nextChar();
 
                             value = toHex(ch);
 
-                            if (value < 0) this.report(Errors.Unexpected);
+                            if (value < 0) this.report(Errors.MissingHexDigits);
+
+                            state = NumericState.Hexadecimal | NumericState.AllowSeparator;
 
                             this.advance();
 
@@ -1235,15 +1237,14 @@ export class Parser {
                     case Chars.LowerO:
                     case Chars.UpperO:
                         {
-                            state = NumericState.Octal | NumericState.AllowSeparator;
-                            ch = this.scanNext(Errors.Unexpected);
+                            ch = this.scanNext(Errors.MissingOctalDigits); // skip'o'
 
-                            value = ch - Chars.Zero;
-
-                            // we must have at least one octal digit after 'o'/'O'
                             if (ch < Chars.Zero || ch >= Chars.Eight) {
-                                this.report(Errors.Unexpected);
+                                this.report(Errors.MissingOctalDigits);
                             }
+
+                            state = NumericState.Octal | NumericState.AllowSeparator;
+                            value = ch - Chars.Zero;
 
                             this.advance();
 
@@ -1256,7 +1257,7 @@ export class Parser {
                                 state |= NumericState.AllowSeparator;
                                 if (ch < Chars.Zero || Chars.Nine < ch) break;
                                 if (ch < Chars.Zero || ch >= Chars.Eight) {
-                                    this.report(Errors.Unexpected);
+                                    this.report(Errors.UnexpectedNumber);
                                 }
                                 value = (value << 3) | (ch - Chars.Zero);
                                 this.advance();
@@ -1268,14 +1269,16 @@ export class Parser {
                     case Chars.LowerB:
                     case Chars.UpperB:
                         {
-                            state = NumericState.Binary | NumericState.AllowSeparator;
-                            ch = this.scanNext(Errors.InvalidOrUnexpectedToken);
+                            this.advance(); // skip'b'
+
+                            ch = this.nextChar();
 
                             // Invalid:  '0b'
                             if (ch !== Chars.Zero && ch !== Chars.One) {
-                                this.report(Errors.InvalidOrUnexpectedToken);
+                                this.report(Errors.MissingBinaryDigits);
                             }
 
+                            state = NumericState.Binary | NumericState.AllowSeparator;
                             value = ch - Chars.Zero;
 
                             this.advance();
@@ -1289,7 +1292,7 @@ export class Parser {
                                 state |= NumericState.AllowSeparator;
                                 if (ch < Chars.Zero || Chars.Nine < ch) break;
                                 if (!(ch === Chars.Zero || ch === Chars.One)) {
-                                    this.report(Errors.InvalidOrUnexpectedToken);
+                                    this.report(Errors.UnexpectedNumber);
                                 }
                                 value = (value << 1) | (ch - Chars.Zero);
                                 this.advance();
@@ -1309,7 +1312,11 @@ export class Parser {
                         {
                             // (possible) octal number
                             state = NumericState.ImplicitOctal | NumericState.AllowSeparator;
+                            // Octal integer literals are not permitted in strict mode code, so we
+                            // set the mask here and throw when parsing out the literal node if in
+                            // strict mode code
                             this.flags |= Flags.Octal;
+
                             while (this.hasNext()) {
                                 ch = this.nextChar();
                                 if (ch === Chars.Underscore) {
@@ -1318,7 +1325,7 @@ export class Parser {
                                 }
                                 state |= NumericState.AllowSeparator;
                                 if (ch === Chars.Eight || ch === Chars.Nine) {
-                                    isStart  = false;
+                                    isStart = false;
                                     state = NumericState.DecimalWithLeadingZero;
                                     break;
                                 }
@@ -1334,6 +1341,7 @@ export class Parser {
                             this.flags |= Flags.Octal;
                             state = NumericState.DecimalWithLeadingZero;
                         }
+                    default: // Ignore
                 }
 
                 if (this.flags & Flags.ContainsSeparator) {
@@ -1387,36 +1395,47 @@ export class Parser {
 
         const end = this.index;
 
-        // BigInt
-        if (this.consume(Chars.LowerN)) {
-            // It is a Syntax Error if the MV is not an integer.
-            if (state & (NumericState.ImplicitOctal | NumericState.Float)) {
-                this.tolerate(Errors.InvalidBigIntLiteral);
-            }
-            state |= NumericState.BigInt;
-        } else if (this.consume(Chars.LowerE) || this.consume(Chars.UpperE)) {
+        switch (this.nextChar()) {
 
-            state |= NumericState.Float;
+            // BigInt
+            case Chars.LowerN:
 
-            if (!(state & (NumericState.Decimal | NumericState.DecimalWithLeadingZero))) {
-                this.report(Errors.InvalidOrUnexpectedToken);
-            }
+                // It is a Syntax Error if the MV is not an integer.
+                if (state & (NumericState.ImplicitOctal | NumericState.Float)) {
+                    this.tolerate(Errors.InvalidBigIntLiteral);
+                }
+                state |= NumericState.BigInt;
 
-            this.consume(Chars.Plus);
-            this.consume(Chars.Hyphen);
+                this.advance();
+                break;
 
-            ch = this.nextChar();
+            // Exponent
+            case Chars.LowerE:
+            case Chars.UpperE:
 
-            if (!(ch >= Chars.Zero && ch <= Chars.Nine)) {
-                this.report(Errors.InvalidOrUnexpectedToken);
-            }
+                this.advance();
 
-            const preNumericPart = this.index;
+                state |= NumericState.Float;
 
-            const finalFragment = this.scanDecimalDigitsOrFragment();
-            if (!finalFragment) this.error(Errors.UnexpectedNumber);
+                switch (this.nextChar()) {
+                    case Chars.Plus:
+                    case Chars.Hyphen:
+                        this.advance();
+                    default: // ignore;
+                }
 
-            scientificFragment = this.source.substring(end, preNumericPart) + finalFragment;
+                ch = this.nextChar();
+
+                // Invalid: 'const t = 2.34e-;const b = 4.3e--3;'
+                if (!(ch >= Chars.Zero && ch <= Chars.Nine)) {
+                    this.report(Errors.InvalidOrUnexpectedToken);
+                }
+
+                const preNumericPart = this.index;
+
+                const finalFragment = this.scanDecimalDigitsOrFragment();
+
+                scientificFragment = this.source.substring(end, preNumericPart) + finalFragment;
         }
 
         // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
@@ -1950,7 +1969,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: any,
         node: any,
