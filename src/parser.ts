@@ -7,7 +7,6 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options, SavedState, Location } from './interface';
-
 export class Parser {
 
     // The program to be parsed
@@ -1325,6 +1324,8 @@ export class Parser {
                                 }
                                 state |= NumericState.AllowSeparator;
                                 if (ch === Chars.Eight || ch === Chars.Nine) {
+                                    // In cases like '008', either '8' or '9'
+                                    // are at the beginning of a number sequence
                                     isStart = false;
                                     state = NumericState.DecimalWithLeadingZero;
                                     break;
@@ -1335,6 +1336,7 @@ export class Parser {
                             }
                             break;
                         }
+
                     case Chars.Eight:
                     case Chars.Nine:
                         {
@@ -1351,20 +1353,31 @@ export class Parser {
                 }
             }
 
-            ch = this.nextChar();
-
             // Parse decimal digits and allow trailing fractional part.
             if (state & (NumericState.Decimal | NumericState.DecimalWithLeadingZero)) {
 
                 if (isStart) {
 
-                    while (ch >= Chars.Zero && ch <= Chars.Nine) {
-                        value = 10 * value + (ch - Chars.Zero);
-                        this.advance();
+                    loop: while (this.hasNext()) {
                         ch = this.nextChar();
+                        switch (ch) {
+                            case Chars.Zero:
+                            case Chars.One:
+                            case Chars.Two:
+                            case Chars.Three:
+                            case Chars.Four:
+                            case Chars.Five:
+                            case Chars.Six:
+                            case Chars.Seven:
+                            case Chars.Eight:
+                            case Chars.Nine:
+                                value = 10 * value + (ch - Chars.Zero);
+                                this.advance();
+                                continue;
+                            default:
+                                break loop;
+                        }
                     }
-
-                    ch = this.nextChar();
 
                     if (ch !== Chars.Period && !isIdentifierStart(ch)) {
                         if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
@@ -1389,11 +1402,7 @@ export class Parser {
                     mainFragment = this.scanDecimalDigitsOrFragment();
                 }
             }
-
-            ch = this.nextChar();
         }
-
-        const end = this.index;
 
         switch (this.nextChar()) {
 
@@ -1409,9 +1418,11 @@ export class Parser {
                 this.advance();
                 break;
 
-            // Exponent
+                // Exponent
             case Chars.LowerE:
             case Chars.UpperE:
+
+                const startOfPossibleFragment = this.index;
 
                 this.advance();
 
@@ -1427,15 +1438,13 @@ export class Parser {
                 ch = this.nextChar();
 
                 // Invalid: 'const t = 2.34e-;const b = 4.3e--3;'
-                if (!(ch >= Chars.Zero && ch <= Chars.Nine)) {
-                    this.report(Errors.InvalidOrUnexpectedToken);
-                }
+                if (!(ch >= Chars.Zero && ch <= Chars.Nine)) this.report(Errors.InvalidOrUnexpectedToken);
 
                 const preNumericPart = this.index;
 
                 const finalFragment = this.scanDecimalDigitsOrFragment();
 
-                scientificFragment = this.source.substring(end, preNumericPart) + finalFragment;
+                scientificFragment = this.source.substring(startOfPossibleFragment, preNumericPart) + finalFragment;
         }
 
         // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
@@ -1443,11 +1452,7 @@ export class Parser {
         // For example : 3in is an error and not the two input elements 3 and in
         if (isIdentifierStart(this.nextChar())) {
             this.report(Errors.InvalidOrUnexpectedToken);
-        }
-
-        if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
-
-        if (!(state & NumericState.Hibo)) {
+        } else if (!(state & NumericState.Hibo)) {
             if (state & NumericState.ContainsSeparator || this.flags & Flags.ContainsSeparator) {
                 if (decimalFragment) mainFragment += '.' + decimalFragment;
                 if (scientificFragment) mainFragment += scientificFragment;
@@ -1456,6 +1461,8 @@ export class Parser {
                 value = (state & NumericState.Float ? parseFloat : parseInt)(this.source.slice(start, this.index));
             }
         }
+
+        if (this.flags & Flags.OptionsRaw) this.storeRaw(start);
 
         this.tokenValue = value;
 
