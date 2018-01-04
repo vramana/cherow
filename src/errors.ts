@@ -260,7 +260,6 @@ export const ErrorMessages: {
     [Errors.MissingOctalDigits]: 'Missing octal digits after \'0o\'',
     [Errors.MissingHexDigits]: 'Missing hexadecimal digits after \'0x\'',
 
-    
 };
 
 function constructError(msg: string, column: number): Error {

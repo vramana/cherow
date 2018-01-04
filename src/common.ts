@@ -15,13 +15,13 @@ export function hasMask(mask: number, flags: number) {
     return (mask & flags) === flags;
 }
 
-export function fromCodePoint(code: Chars): string {
+export const fromCodePoint = (code: Chars) => {
     if (code <= 0xFFFF) return String.fromCharCode(code);
     return String.fromCharCode(((code - Chars.NonBMPMin) >> 10) +
         Chars.LeadSurrogateMin, ((code - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
-}
+};
 
-export function toHex(code: Chars): number {
+export const toHex = (code: Chars) => {
     if (code < Chars.Zero) return -1;
     if (code <= Chars.Nine) return code - Chars.Zero;
     if (code < Chars.UpperA) return -1;
@@ -29,4 +29,4 @@ export function toHex(code: Chars): number {
     if (code < Chars.LowerA) return -1;
     if (code <= Chars.LowerF) return code - Chars.LowerA + 10;
     return -1;
-}
+};

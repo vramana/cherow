@@ -63,7 +63,7 @@ describe('Literals - Numbers', () => {
         column: 24,
         index: 26
     });
-    
+
     fail(`0o`, {
         source: '0o',
         message: 'Missing octal digits after \'0o\'',
@@ -194,7 +194,7 @@ describe('Literals - Numbers', () => {
 
     fail(`0B18`, {
         source: '0B18',
-        message: 'Unexpected number',
+        message: 'Invalid binary digit',
         line: 1,
         column: 3,
         index: 3

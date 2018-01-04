@@ -21,7 +21,7 @@ describe('Miscellaneous - Tolerant mode', () => {
                   ],
                   errors: [
                     {
-                      "description": "Missing octal digits after '0o'",
+                      description: 'Missing octal digits after \'0o\'',
                       index: 2,
                       column: 2,
                       lineNumber: 1,
