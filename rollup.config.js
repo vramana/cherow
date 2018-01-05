@@ -19,7 +19,7 @@ const config = {
   input: `./build/src/${pkg.name}.js`,
   plugins: [
     replace({
-      VERSION: pkg.version
+      __VERSION__: pkg.version
     }),
     buble({exclude: './node_modules/**'}),
   ],

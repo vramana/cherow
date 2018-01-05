@@ -85,7 +85,7 @@ describe('Expressions - Await', () => {
 
     fail(`async f() { x = { async await(){} } }`, {
         source: 'async f() { x = { async await(){} } }',
-        message: 'Unexpected identifier',
+        message: 'Unexpected token',
         line: 1,
         column: 7,
         index: 8
@@ -141,7 +141,7 @@ describe('Expressions - Await', () => {
 
     fail(`async f() { class X { async await(){} } }`, {
         source: 'async f() { class X { async await(){} } }',
-        message: 'Unexpected identifier',
+        message:  'Unexpected token',
         line: 1,
         column: 7,
         index: 8
@@ -189,7 +189,7 @@ describe('Expressions - Await', () => {
 
     fail(`async f() { x = { async await(){} } }`, {
         source: 'async f() { x = { async await(){} } }',
-        message: 'Unexpected identifier',
+        message: 'Unexpected token',
         line: 1,
         column: 7,
         index: 8

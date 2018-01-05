@@ -86,7 +86,7 @@ export const fail = (name: string, opts: Opts) => {
 
 it('version should be a string value', () => {
     // Version hasn't been replaced by Rollup at this stage
-    t.equal(version, 'VERSION');
+    t.equal(version, '__VERSION__');
 });
 
 export function n(type: string, opts ?: any): any {

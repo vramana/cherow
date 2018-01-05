@@ -7,6 +7,9 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options } from './cherow';
+
+export interface ClassFieldState { key: any; mask: FieldState; }
+
 export interface SavedState {
     index: number;
     column: number;
@@ -23,7 +26,6 @@ export interface SavedState {
     tokenRegExp: any;
     tokenRaw: any;
 }
-
 export interface Location {
     index: number;
     start: number;
@@ -33,64 +35,65 @@ export interface Location {
 export class Parser {
 
     // The program to be parsed
-    private readonly source: string;
+    public readonly source: string;
 
     // Current position (end position of text of current token)
-    private index: number;
+    public index: number;
 
     // Current position (end position of column of current token)
-    private column: number;
+    public column: number;
 
     // Current position (end position of line of current token)
-    private line: number;
+    public line: number;
 
     // Start position of whitespace before current token
-    private startIndex: number;
+    public startIndex: number;
 
     // Start position of whitespace before current column
-    private startColumn: number;
+    public startColumn: number;
 
     // Start position of whitespace before current line
-    private startLine: number;
+    public startLine: number;
 
     // End position of source of current index
-    private lastIndex: number;
+    public lastIndex: number;
 
     // End position of column of current column
-    private lastColumn: number;
+    public lastColumn: number;
 
     // End position of line of current line
-    private lastLine: number;
+    public lastLine: number;
 
     // Contains the current value of parsed source
-    private tokenValue: any;
+    public tokenValue: any;
 
     // Hold current token
-    private token: Token;
+    public token: Token;
 
     // Raw value of current token
-    private tokenRaw: string;
+    public tokenRaw: string;
 
     // Mutable parser flags
-    private flags: Flags;
-    private labelSet: any;
-    private blockScope: any;
-    private parentScope: any;
-    private functionScope: any;
-    private fieldSet: any;
-    private errorLocation: void | Location;
-    private comments: ESTree.Comment[];
-    private errors: any[];
-    private locSource: void | string;
-    private lastChar: void | Chars;
-    private tokenRegExp: void | {
+    public flags: Flags;
+
+    public labelSet: any;
+    public blockScope: any;
+    public parentScope: any;
+    public functionScope: any;
+    public fieldSet: void | ClassFieldState[];
+    public errorLocation: void | Location;
+    public errors: ESTree.Errors[];
+    public comments: ESTree.Comment[];
+    public previousNode: void | ESTree.Program;
+    public trailingComments: ESTree.Comment[];
+    public leadingComments: ESTree.Comment[];
+    public commentStack: any[];
+    public locSource: void | string;
+    public lastChar: void | Chars;
+    public tokenRegExp: void | {
         pattern: string;
         flags: string;
     };
-    private previousNode: void | ESTree.Program;
-    private trailingComments: ESTree.Comment[];
-    private leadingComments: ESTree.Comment[];
-    private commentStack: any[];
 
     constructor(source: string, options: Options | void) {
         this.flags = Flags.None;
@@ -2008,7 +2011,7 @@ export class Parser {
 
     private finishNode < T extends ESTree.Node >(
         context: Context,
-        pos: any,
+        pos: Location,
         node: any,
         shouldAdvance = false,
         root = false
@@ -2341,7 +2344,7 @@ export class Parser {
     // {foo, bar as bas}
     private parseNamedImport(
         context: Context,
-        specifiers: (ESTree.ImportSpecifier | ESTree.ImportDefaultSpecifier | ESTree.ImportNamespaceSpecifier)[]
+        specifiers: ESTree.Specifiers[]
     ) {
 
         this.expect(context, Token.LeftBrace);
@@ -2360,7 +2363,7 @@ export class Parser {
     // import <* as foo> ...;
     private parseImportNamespaceSpecifier(
         context: Context,
-        specifiers: (ESTree.ImportSpecifier | ESTree.ImportDefaultSpecifier | ESTree.ImportNamespaceSpecifier)[]
+        specifiers: ESTree.Specifiers[]
     ) {
         const pos = this.getLocations();
         this.expect(context | Context.ValidateEscape, Token.Multiply);
@@ -2423,10 +2426,8 @@ export class Parser {
         });
     }
 
-    private parseImportClause(context: Context): any {
-        const specifiers: (ESTree.ImportSpecifier |
-            ESTree.ImportDefaultSpecifier |
-            ESTree.ImportNamespaceSpecifier)[] = [] = [];
+    private parseImportClause(context: Context): ESTree.Specifiers[] {
+        const specifiers: ESTree.Specifiers[] = [];
 
         switch (this.token) {
 
@@ -4076,7 +4077,7 @@ export class Parser {
                 const expr = this.parseIdentifier(context);
                 if (this.token === Token.Arrow) return this.parseArrowFunctionExpression(context & ~Context.Yield | Context.AllowIn | Context.Await, pos, [expr]);
                 // Invalid: 'async abc'
-                this.tolerate(Errors.UnexpectedTokenIdentifier);
+                this.tolerate(Errors.Unexpected);
 
                 // CoverCallExpressionAndAsyncArrowHead[Yield, Await]:
             case Token.LeftParen:
@@ -4146,7 +4147,7 @@ export class Parser {
             // async arrows cannot have a line terminator between "async" and the formals
             if (flags & Flags.LineTerminator) this.tolerate(Errors.LineBreakAfterAsync);
             if (this.flags & Flags.Await) this.tolerate(Errors.InvalidAwaitInArrowParam);
-            if (state & ParenthesizedState.EvalOrArg) this.tolerate(Errors.StrictParamName);
+            if (state & ParenthesizedState.EvalOrArg) this.tolerate(Errors.UnexpectedStrictReserved);
             if (state & ParenthesizedState.Parenthesized) this.tolerate(Errors.InvalidParenthesizedPattern);
             if (state & ParenthesizedState.Trailing) this.tolerate(Errors.UnexpectedToken, tokenDesc(this.token));
             return this.parseArrowFunctionExpression(context | Context.Await, pos, args);

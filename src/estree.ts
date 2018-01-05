@@ -4,9 +4,12 @@ interface _Node<T extends string> {
     start?: number;
     end?: number;
     comments?: Comment[];
-    errors?: any[];
-    tokens?: any;
+    errors?: Errors[];
 }
+
+export type Specifiers = (ImportSpecifier |
+    ImportDefaultSpecifier |
+    ImportNamespaceSpecifier);
 
 export interface T_Node extends T_Statement, T_Expression, T_Pattern,
                                 T_ModuleDeclaration, T_ModuleSpecifier {
@@ -265,7 +268,7 @@ export interface Comment {
     end?: any;
     loc?: any;
 }
-
+export type Errors = { description: string; index: number; lineNumber: number; column: number; }[];
 /**
  * Core types
  */
