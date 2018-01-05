@@ -1211,12 +1211,16 @@ export class Parser {
         return ret + this.source.substring(start, this.index);
     }
 
-    private scanBinaryOrOctalDigits(state: NumericState, radix: number, msg: Errors) {
+    private scanBinaryOrOctalDigits(
+        state: NumericState,
+        radix: number,
+        secondRadix: number,
+        msg: Errors) {
 
         this.advance(); // skip 'b' or 'o'
 
         let value = 0;
-        let digits = -1;
+        let digits = 0;
 
         while (true) {
 
@@ -1229,15 +1233,17 @@ export class Parser {
 
             const converted = ch - Chars.Zero;
 
-            if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= radix) {
-                break;
-            }
-            value = value * radix + converted;
+            if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= radix) break;
+            // Fall back to a slower soliton for long octal / binary number, 
+            value = digits < 35 ?
+                (value << secondRadix) | converted :
+                value * radix + converted;
+
             this.advance();
             digits++;
         }
 
-        if (digits < 0) this.report(msg);
+        if (digits === 0) this.report(msg);
 
         return value;
     }
@@ -1289,7 +1295,9 @@ export class Parser {
                                 state |= NumericState.AllowSeparator;
                                 const digit = toHex(ch);
                                 if (digit < 0) break;
+
                                 value = value * 16 + digit;
+
                                 this.advance();
                             }
                             break;
@@ -1299,7 +1307,7 @@ export class Parser {
                     case Chars.UpperO:
                         {
                             state = NumericState.Octal | NumericState.AllowSeparator;
-                            value = this.scanBinaryOrOctalDigits(state, 8, Errors.MissingOctalDigits);
+                            value = this.scanBinaryOrOctalDigits(state, 8, 3, Errors.MissingOctalDigits);
                             break;
                         }
 
@@ -1307,7 +1315,7 @@ export class Parser {
                     case Chars.UpperB:
                         {
                             state = NumericState.Binary | NumericState.AllowSeparator;
-                            value = this.scanBinaryOrOctalDigits(state, 2, Errors.MissingBinaryDigits);
+                            value = this.scanBinaryOrOctalDigits(state, 2, 1, Errors.MissingBinaryDigits);
                             break;
                         }
 
@@ -1325,7 +1333,7 @@ export class Parser {
                             // Octal integer literals are not permitted in strict mode code, so we
                             // set the mask here and throw when parsing out the literal node
                             this.flags |= Flags.Octal;
-
+                            let digits = 0;
                             while (this.hasNext()) {
                                 ch = this.nextChar();
                                 if (ch === Chars.Underscore) {
@@ -1338,9 +1346,15 @@ export class Parser {
                                     state = NumericState.DecimalWithLeadingZero;
                                     break;
                                 }
+
                                 if (ch < Chars.Zero || ch > Chars.Seven) break;
-                                value = value * 8 + (ch - Chars.Zero);
+
+                                value = digits < 35 ?
+                                    (value << 3) | (ch - Chars.Zero) :
+                                    value * 8 + (ch - Chars.Zero);
+
                                 this.advance();
+                                digits++;
                             }
                             break;
                         }
@@ -1993,7 +2007,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: Location,
         node: any,
