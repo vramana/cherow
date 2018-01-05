@@ -9,26 +9,39 @@ describe('Miscellaneous - Tolerant mode', () => {
             tolerant: true,
             next: true,
             expected: {
-                  body: [
+                  "body": [
                     {
-                      expression: {
-                        bigint: '',
-                        type: 'Literal',
-                        value: 9,
+                      "expression": {
+                       "type": "Literal",
+                        "value": 0
                       },
-                      type: 'ExpressionStatement'
+                     "type": "ExpressionStatement"
+                    },
+                    {
+                      "expression": {
+                        "bigint": "",
+                        "type": "Literal",
+                        "value": 9,
+                      },
+                      "type": "ExpressionStatement"
                     }
                   ],
-                  errors: [
+                  "errors": [
                     {
-                      description: 'Missing octal digits after \'0o\'',
-                      index: 2,
-                      column: 2,
-                      lineNumber: 1,
-                   }
+                      "column": 2,
+                      "description": "Missing octal digits after '0o'",
+                      "index": 2,
+                      "lineNumber": 1,
+                    },
+                    {
+                      "column": 2,
+                      "description": "Unexpected token 'BigInt'",
+                      "index": 4,
+                      "lineNumber": 1,
+                    },
                   ],
-                  sourceType: 'script',
-                  type: 'Program',
+                  "sourceType": "script",
+                  "type": "Program"
                 }
         });
 

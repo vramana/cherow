@@ -7,8 +7,10 @@ import { Token, tokenDesc, descKeyword } from './token';
 import { ErrorMessages, createError, Errors } from './errors';
 import { isValidIdentifierStart, isIdentifierStart, isIdentifierPart } from './unicode';
 import { Options } from './cherow';
-
-export interface ClassFieldState { key: any; mask: FieldState; }
+export interface ClassFieldState {
+    key: any;
+    mask: FieldState;
+}
 
 export interface SavedState {
     index: number;
@@ -1129,7 +1131,7 @@ export class Parser {
             while (ch !== Chars.RightBrace) {
                 const digit = toHex(ch);
                 if (digit < 0) this.tolerate(Errors.InvalidHexEscapeSequence);
-                code = (code << 4) | digit;
+                code = code * 16 + digit;
                 // Code point out of bounds
                 if (code > Chars.LastUnicodeChar) break;
                 ch = this.scanNext(Errors.InvalidHexEscapeSequence);
@@ -1209,6 +1211,37 @@ export class Parser {
         return ret + this.source.substring(start, this.index);
     }
 
+    private scanBinaryOrOctalDigits(state: NumericState, radix: number) {
+
+        this.advance(); // skip 'b' or 'o'
+
+        let value = 0;
+        let digits = -1;
+
+        while (true) {
+
+            const ch = this.nextChar();
+
+            if (ch === Chars.Underscore) {
+                state = this.scanNumericFragment(state);
+                continue;
+            }
+
+            const converted = ch - Chars.Zero;
+
+            if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= radix) {
+                break;
+            }
+            value = value * radix + converted;
+            this.advance();
+            digits++;
+        }
+
+        if (digits < 0) return digits;
+
+        return value;
+    }
+
     private scanNumber(context: Context, state: NumericState): Token {
 
         const start = this.index;
@@ -1256,7 +1289,7 @@ export class Parser {
                                 state |= NumericState.AllowSeparator;
                                 const digit = toHex(ch);
                                 if (digit < 0) break;
-                                value = value << 4 | digit;
+                                value = value * 16 + digit;
                                 this.advance();
                             }
                             break;
@@ -1265,68 +1298,24 @@ export class Parser {
                     case Chars.LowerO:
                     case Chars.UpperO:
                         {
-                            ch = this.scanNext(Errors.MissingOctalDigits); // skip'o'
-
-                            if (ch < Chars.Zero || ch >= Chars.Eight) {
-                                this.report(Errors.MissingOctalDigits);
-                            }
-
                             state = NumericState.Octal | NumericState.AllowSeparator;
-                            value = ch - Chars.Zero;
-
-                            this.advance();
-
-                            while (this.hasNext()) {
-                                ch = this.nextChar();
-                                if (ch === Chars.Underscore) {
-                                    state = this.scanNumericFragment(state);
-                                    continue;
-                                } else if (ch < Chars.Zero || Chars.Nine < ch) break;
-
-                                if (ch < Chars.Zero || ch > Chars.Seven) {
-                                    this.report(Errors.InvalidOctalDigit);
-                                }
-                                value = (value << 3) | (ch - Chars.Zero);
-                                this.advance();
+                            value = this.scanBinaryOrOctalDigits(state, 8);
+                            if (value < 0) {
+                                this.report(Errors.MissingOctalDigits);
+                                value = 0;
                             }
-
                             break;
                         }
 
                     case Chars.LowerB:
                     case Chars.UpperB:
                         {
-                            this.advance(); // skip'b'
-
-                            ch = this.nextChar();
-
-                             // Invalid:  '0b'
-                            if (ch !== Chars.Zero && ch !== Chars.One) {
-                                this.report(Errors.MissingBinaryDigits);
-                            }
-
                             state = NumericState.Binary | NumericState.AllowSeparator;
-                            value = ch - Chars.Zero;
-
-                            this.advance();
-
-                            while (this.hasNext()) {
-                                ch = this.nextChar();
-
-                                if (ch === Chars.Underscore) {
-                                    state = this.scanNumericFragment(state);
-                                    continue;
-                                }
-
-                                if (ch < Chars.Zero || Chars.Nine < ch) break;
-
-                                if (ch < Chars.Zero || ch > Chars.One) {
-                                    this.report(Errors.InvalidBinaryDigit);
-                                }
-                                value = (value << 1) | (ch - Chars.Zero);
-                                this.advance();
+                            value = this.scanBinaryOrOctalDigits(state, 2);
+                            if (value < 0) {
+                                this.report(Errors.MissingBinaryDigits);
+                                value = 0;
                             }
-
                             break;
                         }
 
@@ -1358,7 +1347,7 @@ export class Parser {
                                     break;
                                 }
                                 if (ch < Chars.Zero || ch > Chars.Seven) break;
-                                value = (value << 3) | (ch - Chars.Zero);
+                                value = value * 8 + (ch - Chars.Zero);
                                 this.advance();
                             }
                             break;
@@ -1398,7 +1387,7 @@ export class Parser {
                             case Chars.Seven:
                             case Chars.Eight:
                             case Chars.Nine:
-                                value = 10 * value + (ch - Chars.Zero);
+                                value = value * 10 + (ch - Chars.Zero);
                                 this.advance();
                                 continue;
                             default:
@@ -1426,7 +1415,8 @@ export class Parser {
                         decimalFragment = this.scanDecimalDigitsOrFragment();
                     }
 
-                } else {
+                }
+                else {
                     mainFragment = this.scanDecimalDigitsOrFragment();
                 }
             }
@@ -1435,48 +1425,50 @@ export class Parser {
         switch (this.nextChar()) {
 
             // BigInt
-            case Chars.LowerN: {
+            case Chars.LowerN:
+                {
 
-                if (!(this.flags & Flags.OptionsNext)) break;
+                    if (!(this.flags & Flags.OptionsNext)) break;
 
-                // It is a Syntax Error if the MV is not an integer.
-                if (state & (NumericState.ImplicitOctal | NumericState.Float)) {
-                    this.report(Errors.InvalidBigIntLiteral);
+                    // It is a Syntax Error if the MV is not an integer.
+                    if (state & (NumericState.ImplicitOctal | NumericState.Float)) {
+                        this.report(Errors.InvalidBigIntLiteral);
+                    }
+
+                    state |= NumericState.BigInt;
+
+                    this.advance();
+                    break;
                 }
-
-                state |= NumericState.BigInt;
-
-                this.advance();
-                break;
-            }
                 // Exponent
             case Chars.LowerE:
-            case Chars.UpperE: {
+            case Chars.UpperE:
+                {
 
-                const startOfPossibleFragment = this.index;
+                    const startOfPossibleFragment = this.index;
 
-                this.advance();
+                    this.advance();
 
-                state |= NumericState.Float;
+                    state |= NumericState.Float;
 
-                switch (this.nextChar()) {
-                    case Chars.Plus:
-                    case Chars.Hyphen:
-                        this.advance();
-                    default: // ignore;
+                    switch (this.nextChar()) {
+                        case Chars.Plus:
+                        case Chars.Hyphen:
+                            this.advance();
+                        default: // ignore;
+                    }
+
+                    ch = this.nextChar();
+
+                    // Invalid: 'const t = 2.34e-;const b = 4.3e--3;'
+                    if (!(ch >= Chars.Zero && ch <= Chars.Nine)) this.report(Errors.InvalidOrUnexpectedToken);
+
+                    const preNumericPart = this.index;
+
+                    const finalFragment = this.scanDecimalDigitsOrFragment();
+
+                    scientificFragment = this.source.substring(startOfPossibleFragment, preNumericPart) + finalFragment;
                 }
-
-                ch = this.nextChar();
-
-                // Invalid: 'const t = 2.34e-;const b = 4.3e--3;'
-                if (!(ch >= Chars.Zero && ch <= Chars.Nine)) this.report(Errors.InvalidOrUnexpectedToken);
-
-                const preNumericPart = this.index;
-
-                const finalFragment = this.scanDecimalDigitsOrFragment();
-
-                scientificFragment = this.source.substring(startOfPossibleFragment, preNumericPart) + finalFragment;
-            }
             default: // ignore
         }
 
@@ -1815,7 +1807,7 @@ export class Parser {
                         while (ch !== Chars.RightBrace) {
                             const digit = toHex(ch);
                             if (digit < 0) return Escape.InvalidHex;
-                            code = code << 4 | digit;
+                            code = code * 16 + digit;
                             // Code point out of bounds
                             if (code > Chars.LastUnicodeChar) return Escape.OutOfRange;
                             ch = this.lastChar = this.scanNext();
@@ -1831,7 +1823,7 @@ export class Parser {
                             ch = this.lastChar = this.scanNext();
                             const digit = toHex(ch);
                             if (digit < 0) return Escape.InvalidHex;
-                            code = code << 4 | digit;
+                            code = code * 16 + digit;
                         }
 
                         return code;
@@ -2009,7 +2001,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: Location,
         node: any,

@@ -84,7 +84,7 @@ describe('Literals - Numbers', () => {
         source: '0b;',
         message: 'Missing binary digits after \'0b\'',
         line: 1,
-        column: 0,
+        column: 2,
         index: 2
     });
 
@@ -194,10 +194,10 @@ describe('Literals - Numbers', () => {
 
     fail(`0B18`, {
         source: '0B18',
-        message: 'Invalid binary digit',
+        message: 'Unexpected token \'number\'',
         line: 1,
         column: 3,
-        index: 3
+        index: 4
     });
 
     fail(`0o1a;`, {

@@ -171,10 +171,10 @@ describe('Statements - Numeric separators', () => {
     fail(`(0o_1_1)`, {
         source: '(0o_1_1)',
         next: true,
-        message: 'Missing octal digits after \'0o\'',
+        message: 'Numeric separators are not allowed here',
         line: 1,
-        column: 3,
-        index: 3
+        column: 5,
+        index: 5
     });
 
     fail(`0x_a_1`, {
