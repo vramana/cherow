@@ -37,62 +37,62 @@ export interface Location {
 export class Parser {
 
     // The program to be parsed
-    readonly source: string;
+    public readonly source: string;
 
     // Current position (end position of text of current token)
-    index: number;
+    public index: number;
 
     // Current position (end position of column of current token)
-    column: number;
+    public column: number;
 
     // Current position (end position of line of current token)
-    line: number;
+    public line: number;
 
     // Start position of whitespace before current token
-    startIndex: number;
+    public startIndex: number;
 
     // Start position of whitespace before current column
-    startColumn: number;
+    public startColumn: number;
 
     // Start position of whitespace before current line
-    startLine: number;
+    public startLine: number;
 
     // End position of source of current index
-    lastIndex: number;
+    public lastIndex: number;
 
     // End position of column of current column
-    lastColumn: number;
+    public lastColumn: number;
 
     // End position of line of current line
-    lastLine: number;
+    public lastLine: number;
 
     // Contains the current value of parsed source
-    tokenValue: any;
+    public tokenValue: any;
 
     // Hold current token
-    token: Token;
+    public token: Token;
 
     // Raw value of current token
-    tokenRaw: string;
+    public tokenRaw: string;
 
     // Mutable parser flags
-    flags: Flags;
+    public flags: Flags;
 
-    labelSet: any;
-    blockScope: any;
-    parentScope: any;
-    functionScope: any;
-    fieldSet: void | ClassFieldState[];
-    errorLocation: void | Location;
-    errors: ESTree.Errors[];
-    comments: ESTree.Comment[];
-    previousNode: void | ESTree.Program;
-    trailingComments: ESTree.Comment[];
-    leadingComments: ESTree.Comment[];
-    commentStack: any[];
-    locSource: void | string;
-    lastChar: void | Chars;
-    tokenRegExp: void | {
+    public labelSet: any;
+    public blockScope: any;
+    public parentScope: any;
+    public functionScope: any;
+    public fieldSet: void | ClassFieldState[];
+    public errorLocation: void | Location;
+    public errors: ESTree.Errors[];
+    public comments: ESTree.Comment[];
+    public previousNode: void | ESTree.Program;
+    public trailingComments: ESTree.Comment[];
+    public leadingComments: ESTree.Comment[];
+    public commentStack: any[];
+    public locSource: void | string;
+    public lastChar: void | Chars;
+    public tokenRegExp: void | {
         pattern: string;
         flags: string;
     };
@@ -1234,11 +1234,8 @@ export class Parser {
             const converted = ch - Chars.Zero;
 
             if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= radix) break;
-            // Fall back to a slower soliton for long octal / binary number, 
-            value = digits < 35 ?
-                (value << secondRadix) | converted :
-                value * radix + converted;
-
+            // Fall back to a slower solution for long octal / binary number,
+            value = digits < 10 ? (value << secondRadix) | converted : value * radix + converted;
             this.advance();
             digits++;
         }
@@ -1333,7 +1330,7 @@ export class Parser {
                             // Octal integer literals are not permitted in strict mode code, so we
                             // set the mask here and throw when parsing out the literal node
                             this.flags |= Flags.Octal;
-                            let digits = 0;
+
                             while (this.hasNext()) {
                                 ch = this.nextChar();
                                 if (ch === Chars.Underscore) {
@@ -1349,13 +1346,11 @@ export class Parser {
 
                                 if (ch < Chars.Zero || ch > Chars.Seven) break;
 
-                                value = digits < 35 ?
-                                    (value << 3) | (ch - Chars.Zero) :
-                                    value * 8 + (ch - Chars.Zero);
+                                value = value * 8 + (ch - Chars.Zero);
 
                                 this.advance();
-                                digits++;
                             }
+
                             break;
                         }
 
@@ -1420,9 +1415,7 @@ export class Parser {
                         state |= NumericState.Float;
                         decimalFragment = this.scanDecimalDigitsOrFragment();
                     }
-
-                }
-                else {
+                } else {
                     mainFragment = this.scanDecimalDigitsOrFragment();
                 }
             }
@@ -2007,7 +2000,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: Location,
         node: any,
