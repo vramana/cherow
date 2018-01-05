@@ -404,7 +404,7 @@ export class Parser {
                             this.skipSingleLineComment();
                             continue;
                         } else if (this.consume(Chars.Asterisk)) {
-                            this.skipBlockComment();
+                            state = this.skipBlockComment(state);
                             continue;
                         } else if (this.consume(Chars.EqualSign)) {
                             return Token.DivideAssign;
@@ -454,7 +454,6 @@ export class Parser {
                                     return Token.JSXClose;
                                 }
                             default:
-
                                 return Token.LessThan;
                         }
                     }
@@ -836,57 +835,63 @@ export class Parser {
             }
         }
 
-        if (this.flags & (Flags.OptionsComment | Flags.OptionsAttachComment)) {
+        if (this.flags & Flags.Comments) {
             this.addComment('LineComment', this.source.slice(startPos, this.index));
         }
     }
 
-    private skipBlockComment() {
+    private skipBlockComment(state: ScanState): ScanState {
+
         const result = false;
         const terminated = false;
         const startPos = this.index;
-        let state = ScanState.None;
+        const attachable = (this.flags & Flags.Comments) !== 0;
+
         scan:
             while (this.hasNext()) {
                 const ch = this.nextChar();
                 switch (ch) {
 
                     case Chars.CarriageReturn:
-                        state |= ScanState.LastIsCR;
+                        state |= ScanState.LastIsCR | ScanState.LineStart;
                         this.advanceNewline();
                         break;
 
                     case Chars.LineFeed:
                         this.advanceNewline(state);
-                        state = state & ~ScanState.LastIsCR;
+                        state = state & ~ScanState.LastIsCR | ScanState.LineStart;
                         break;
 
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
-                        state = state & ~ScanState.LastIsCR;
+                        state = state & ~ScanState.LastIsCR | ScanState.LineStart;
                         this.advanceNewline();
                         break;
 
                     case Chars.Asterisk:
+
                         if (this.index + 1 < this.source.length &&
                             this.source.charCodeAt(this.index + 1) === Chars.Slash) {
                             this.index += 2;
                             this.column += 2;
+
                             state |= ScanState.Terminated;
+
                             break scan;
                         }
-
                         // falls through
                     default:
                         this.advance();
                 }
             }
 
-        if (!(state & ScanState.Terminated)) this.tolerate(Errors.UnterminatedComment);
-
-        if (this.flags & (Flags.OptionsComment | Flags.OptionsAttachComment)) {
+        if (!(state & ScanState.Terminated)) {
+            this.tolerate(Errors.UnterminatedComment);
+        } else if (this.flags & Flags.Comments) {
             this.addComment('BlockComment', this.source.slice(startPos, this.index - 2));
         }
+
+        return state;
     }
 
     private addComment(type: ESTree.CommentType, value: string) {
@@ -1416,7 +1421,8 @@ export class Parser {
                         state |= NumericState.Float;
                         decimalFragment = this.scanDecimalDigitsOrFragment();
                     }
-                } else {
+                }
+                else {
                     mainFragment = this.scanDecimalDigitsOrFragment();
                 }
             }

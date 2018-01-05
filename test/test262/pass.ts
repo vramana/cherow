@@ -13,7 +13,6 @@ describe('test262 tests', () => parserTest262({
         // "Local" tests have been added for this.
 
         'test/annexB/language/global-code/block-decl-global-no-skip-try.js',
-        'test/annexB/language/comments/multi-line-html-close.js',
         'test/annexB/language/statements/for-in/nonstrict-initializer.js',
         'test/language/block-scope/syntax/redeclaration/class-declaration-attempt-to-redeclare-with-var-declaration.js',
         'test/language/block-scope/syntax/redeclaration/var-declaration-attempt-to-redeclare-with-class-declaration.js',

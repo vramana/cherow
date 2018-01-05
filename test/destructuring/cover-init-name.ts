@@ -1,23 +1,6 @@
-import { pass, fail } from '../utils';
+import { pass } from '../utils';
 
 describe('Destructuring - Cover init names', () => {
-
-({a = 1}, {b = 2}, {c = 3}) => {};
-({a = 1} = {}, {b = 2}, {c = 3}) => {};
-({a = 1} = {}, {b = 2} = {}, {c = 3}) => {};
-({a = 1} = {}, {b = 2} = {}, {c = 3} = {}) => {};
-
-fail(`({a = 1}, {b = 2}, {c = 3});`, {
-    source: '({a = 1}, {b = 2}, {c = 3});',
-});
-
-fail(`({a = 1}, {b = 2}, {c = 3} = {});`, {
-    source: '({a = 1}, {b = 2}, {c = 3} = {});',
-});
-
-fail(`({a = 1}, {b = 2} = {}, {c = 3} = {});`, {
-    source: '({a = 1}, {b = 2} = {}, {c = 3} = {});',
-});
 
 // CoverInitName nested in array destructuring.
 

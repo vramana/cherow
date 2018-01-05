@@ -3,6 +3,14 @@ import { parseScript } from '../../src/cherow';
 
 describe('Miscellaneous - Whitespace', () => {
 
+  fail ('\\u180E', {
+    source: '\\u180E',
+    message: 'Invalid Unicode escape sequence',
+    line: 1,
+    column: 0,
+    index: 5
+  });
+
   const whitespaceCharacters = [
     '\u0009',
     '\u000a',

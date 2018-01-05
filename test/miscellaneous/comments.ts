@@ -735,4 +735,156 @@ describe('Miscellaneous - Comments', () => {
             sourceType: 'script'
           }
     });
+
+    pass(`/* block comment */--> comment`, {
+        source: '/* block comment */--> comment',
+        comments: true,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+              body: [],
+              comments: [
+                {
+                  end: 19,
+                  loc: {
+                    end: {
+                      column: 19,
+                      line: 1,
+                    },
+                    start: {
+                     column: 0,
+                      line: 1,
+                    }
+                  },
+                  start: 0,
+                  type: 'BlockComment',
+                  value: ' block comment ',
+                },
+                {
+                  end: 30,
+                  loc: {
+                    end: {
+                     column: 30,
+                      line: 1,
+                    },
+                   start: {
+                      column: 19,
+                      line: 1,
+                    },
+                  },
+                  start: 19,
+                  type: 'LineComment',
+                  value: ' comment',
+               }
+              ],
+              end: 30,
+              loc: {
+                end: {
+                  column: 30,
+                  line: 1,
+                },
+                start: {
+                  column: 0,
+                  line: 1,
+               },
+              },
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
+            }
+    });
+
+    pass(`0/*\n*/--> a comment`, {
+        source: '0/*\n*/--> a comment',
+        comments: true,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+              body: [
+                {
+                  end: 1,
+                  expression: {
+                    end: 1,
+                    loc: {
+                      end: {
+                        column: 1,
+                       line: 1,
+                      },
+                      start: {
+                        column: 0,
+                        line: 1,
+                      }
+                    },
+                    raw: '0',
+                    start: 0,
+                    type: 'Literal',
+                    value: 0,
+                  },
+                  loc: {
+                    end: {
+                      column: 1,
+                      line: 1,
+                    },
+                    start: {
+                      column: 0,
+                      line: 1,
+                    }
+                  },
+                  start: 0,
+                  type: 'ExpressionStatement'
+                }
+              ],
+              comments: [
+                {
+                  end: 6,
+                  loc: {
+                    end: {
+                      column: 2,
+                      line: 1,
+                    },
+                    start: {
+                      column: 1,
+                      line: 1,
+                    }
+                  },
+                  start: 1,
+                 type: 'BlockComment',
+                  value: '\n',
+                },
+                {
+                  end: 19,
+                  loc: {
+                    end: {
+                      column: 15,
+                      line: 1,
+                    },
+                    start: {
+                      column: 2,
+                      line: 2,
+                   }
+                  },
+                  start: 6,
+                  type: 'LineComment',
+                  value: ' a comment',
+                },
+              ],
+              end: 19,
+              loc: {
+                end: {
+                  column: 15,
+                  line: 2,
+                },
+                start: {
+                  column: 0,
+                  line: 1,
+                },
+              },
+              sourceType: 'script',
+              start: 0,
+              type: 'Program',
+            }
+    });
+
 });

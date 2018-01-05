@@ -129,6 +129,418 @@ describe('Destructuring - Binding pattern', () => {
                 }
             });
 
+            pass(`try {} catch ([e]) {}`, {
+                source: 'try {} catch ([e]) {}',
+                loc: true,
+                ranges: true,
+                raw: true,
+                expected: {
+                    type: 'Program',
+                    body: [
+                        {
+                            type: 'TryStatement',
+                            block: {
+                                type: 'BlockStatement',
+                                body: [],
+                                start: 4,
+                                end: 6,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 6
+                                    }
+                                }
+                            },
+                            handler: {
+                                type: 'CatchClause',
+                                param: {
+                                    type: 'ArrayPattern',
+                                    elements: [
+                                        {
+                                            type: 'Identifier',
+                                            name: 'e',
+                                            start: 15,
+                                            end: 16,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 15
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 16
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 14,
+                                    end: 17,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 14
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 17
+                                        }
+                                    }
+                                },
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    start: 19,
+                                    end: 21,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 19
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 21
+                                        }
+                                    }
+                                },
+                                start: 7,
+                                end: 21,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 7
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 21
+                                    }
+                                }
+                            },
+                            finalizer: null,
+                            start: 0,
+                            end: 21,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 21
+                                }
+                            }
+                        }
+                    ],
+                    sourceType: 'script',
+                    start: 0,
+                    end: 21,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 21
+                        }
+                    }
+                }
+            });
+
+            pass(`try {} catch ([e, ...a]) {}`, {
+                source: 'try {} catch ([e, ...a]) {}',
+                loc: true,
+                ranges: true,
+                raw: true,
+                expected: {
+                    type: 'Program',
+                    body: [
+                        {
+                            type: 'TryStatement',
+                            block: {
+                                type: 'BlockStatement',
+                                body: [],
+                                start: 4,
+                                end: 6,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 6
+                                    }
+                                }
+                            },
+                            handler: {
+                                type: 'CatchClause',
+                                param: {
+                                    type: 'ArrayPattern',
+                                    elements: [
+                                        {
+                                            type: 'Identifier',
+                                            name: 'e',
+                                            start: 15,
+                                            end: 16,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 15
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 16
+                                                }
+                                            }
+                                        },
+                                        {
+                                            type: 'RestElement',
+                                            argument: {
+                                                type: 'Identifier',
+                                                name: 'a',
+                                                start: 21,
+                                                end: 22,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 21
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 22
+                                                    }
+                                                }
+                                            },
+                                            start: 18,
+                                            end: 22,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 18
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 22
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 14,
+                                    end: 23,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 14
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 23
+                                        }
+                                    }
+                                },
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    start: 25,
+                                    end: 27,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 25
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 27
+                                        }
+                                    }
+                                },
+                                start: 7,
+                                end: 27,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 7
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 27
+                                    }
+                                }
+                            },
+                            finalizer: null,
+                            start: 0,
+                            end: 27,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 27
+                                }
+                            }
+                        }
+                    ],
+                    sourceType: 'script',
+                    start: 0,
+                    end: 27,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 27
+                        }
+                    }
+                }
+            });
+
+            pass(`var [a, ...a] = 0;`, {
+                source: 'var [a, ...a] = 0;',
+                loc: true,
+                ranges: true,
+                raw: true,
+                expected: {
+                    type: 'Program',
+                    body: [
+                        {
+                            type: 'VariableDeclaration',
+                            declarations: [
+                                {
+                                    type: 'VariableDeclarator',
+                                    init: {
+                                        type: 'Literal',
+                                        value: 0,
+                                        start: 16,
+                                        end: 17,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 16
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 17
+                                            }
+                                        },
+                                        raw: '0'
+                                    },
+                                    id: {
+                                        type: 'ArrayPattern',
+                                        elements: [
+                                            {
+                                                type: 'Identifier',
+                                                name: 'a',
+                                                start: 5,
+                                                end: 6,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 5
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 6
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                type: 'RestElement',
+                                                argument: {
+                                                    type: 'Identifier',
+                                                    name: 'a',
+                                                    start: 11,
+                                                    end: 12,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 11
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 12
+                                                        }
+                                                    }
+                                                },
+                                                start: 8,
+                                                end: 12,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 8
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 12
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        start: 4,
+                                        end: 13,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 4
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 13
+                                            }
+                                        }
+                                    },
+                                    start: 4,
+                                    end: 17,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 4
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 17
+                                        }
+                                    }
+                                }
+                            ],
+                            kind: 'var',
+                            start: 0,
+                            end: 18,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 18
+                                }
+                            }
+                        }
+                    ],
+                    sourceType: 'script',
+                    start: 0,
+                    end: 18,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 18
+                        }
+                    }
+                }
+            });
+
             pass(`let [...a] = 0;`, {
                 source: 'let [...a] = 0;',
                 loc: true,
@@ -2248,74 +2660,161 @@ describe('Destructuring - Binding pattern', () => {
                 }
             });
 
-           /* fail(`([a.b]) => 0`, {
+            fail(`([a.b]) => 0`, {
                 source: '([a.b]) => 0',
-                loc: true,
-                ranges: true,
-                raw: true
+                message: 'Invalid destructuring assignment target',
+                line: 1,
+                column: 0,
+                index: 1
             });
-*/
+
             fail(`function a([a.b]) {}`, {
                 source: 'function a([a.b]) {}',
-                loc: true,
-                ranges: true,
-                raw: true
+                message: 'Unexpected token',
+                line: 1,
+                column: 11,
+                index: 12
             });
 
             fail(`function* a([a.b]) {}`, {
                 source: 'function* a([a.b]) {}',
-                loc: true,
-                ranges: true,
-                raw: true
+                message: 'Unexpected token',
+                line: 1,
+                column: 12,
+                index: 13
             });
 
             fail(`(function ([a.b]) {})`, {
                 source: '(function ([a.b]) {})',
-                loc: true,
-                ranges: true,
-                raw: true
+                message: 'Unexpected token',
+                line: 1,
+                column: 11,
+                index: 12
             });
 
             fail(`(function* ([a.b]) {})`, {
                 source: '(function* ([a.b]) {})',
-                loc: true,
-                ranges: true,
-                raw: true
+                message: 'Unexpected token',
+                line: 1,
+                column: 12,
+                index: 13
             });
 
             fail(`({a([a.b]){}})`, {
                 source: '({a([a.b]){}})',
-                loc: true,
-                ranges: true,
-                raw: true
+                message: 'Unexpected token',
+                line: 1,
+                column: 4,
+                index: 5
             });
 
             fail(`({*a([a.b]){}})`, {
                 source: '({*a([a.b]){}})',
-                loc: true,
-                ranges: true,
-                raw: true
+                message: 'Unexpected token',
+                line: 1,
+                column: 5,
+                index: 6
             });
 
             fail(`({set a([a.b]){}})`, {
                 source: '({set a([a.b]){}})',
-                loc: true,
-                ranges: true,
-                raw: true
+                message: 'Unexpected token',
+                line: 1,
+                column: 8,
+                index: 9
             });
 
         });
 
         describe('Binding Identifier', () => {
-/*
+
             pass(`for(let in 0);`, {
                 source: 'for(let in 0);',
                 loc: true,
                 ranges: true,
                 raw: true,
-                expected: {}
+                expected: {
+                    type: 'Program',
+                    body: [
+                        {
+                            type: 'ForInStatement',
+                            body: {
+                                type: 'EmptyStatement',
+                                start: 13,
+                                end: 14,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 13
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 14
+                                    }
+                                }
+                            },
+                            left: {
+                                type: 'Identifier',
+                                name: 'let',
+                                start: 4,
+                                end: 7,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 7
+                                    }
+                                }
+                            },
+                            right: {
+                                type: 'Literal',
+                                value: 0,
+                                start: 11,
+                                end: 12,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 11
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 12
+                                    }
+                                },
+                                raw: '0'
+                            },
+                            start: 0,
+                            end: 14,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 14
+                                }
+                            }
+                        }
+                    ],
+                    sourceType: 'script',
+                    start: 0,
+                    end: 14,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 14
+                        }
+                    }
+                }
             });
-*/
         });
 
         describe('Object binding', () => {
@@ -4335,6 +4834,22 @@ describe('Destructuring - Binding pattern', () => {
                 line: 1,
                 column: 28,
                 index: 31
+            });
+
+            fail(`var ([x]) = 0`, {
+                source: 'var ([x]) = 0',
+                message: 'Unexpected token \'(\'',
+                line: 1,
+                column: 4,
+                index: 5
+            });
+
+            fail(`var [a.b] = 0`, {
+                source: 'var [a.b] = 0',
+                message: 'Unexpected token',
+                line: 1,
+                column: 6,
+                index: 7
             });
     });
 });

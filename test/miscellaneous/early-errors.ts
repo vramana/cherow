@@ -281,4 +281,77 @@ describe('Miscellaneous - Early errors', () => {
             column: 26,
             index: 27
         });
+
+        fail(`for(let [let] = 0;;);`, {
+            source: `for(let [let] = 0;;);`,
+            message: 'let is disallowed as a lexically bound name',
+            line: 1,
+            column: 9,
+            index: 12
+        });
+
+        fail(`(i\\u006E)`, {
+            source: `(i\\u006E)`,
+            message: 'Unexpected token \'in\'',
+            line: 1,
+            column: 1,
+            index: 8
+        });
+
+        fail(`var i\\u006E;`, {
+            source: `var i\\u006E;`,
+            message: 'Unexpected token \'in\'',
+            line: 1,
+            column: 4,
+            index: 11
+        });
+
+        fail(`function* g(){ ({ *m(...{a = yield}){} }); }`, {
+            source: `function* g(){ ({ *m(...{a = yield}){} }); }`,
+            message: 'Yield expression not allowed in formal parameter',
+            line: 1,
+            column: 21,
+            index: 24
+        });
+
+        fail(`function* g(){ function* f(...{a = yield}){} }`, {
+            source: `function* g(){ function* f(...{a = yield}){} }`,
+            message: 'Yield expression not allowed in formal parameter',
+            line: 1,
+            column: 27,
+            index: 30
+        });
+
+        fail(`function* g(){ !function*(...{a = yield}){} }`, {
+            source: `function* g(){ !function*(...{a = yield}){} }`,
+            message: 'Yield expression not allowed in formal parameter',
+            line: 1,
+            column: 26,
+            index: 29
+        });
+
+        fail(`"use strict"; if (0); else function f(){}`, {
+            source: `"use strict"; if (0); else function f(){}`,
+            message: 'function can\'t appear in single-statement context',
+            line: 1,
+            column: 27,
+            index: 35
+        });
+
+        fail(`labelA: while(0) continue labelB;`, {
+            source: `labelA: while(0) continue labelB;`,
+            message: 'Undefined label \'labelB\'',
+            line: 1,
+            column: 32,
+            index: 33
+        });
+
+        fail(`let a; export class a {};`, {
+            source: `let a; export class a {};`,
+            module: true,
+            message: '\'a\' has already been declared ',
+            line: 1,
+            column: 20,
+            index: 21
+        });
 });

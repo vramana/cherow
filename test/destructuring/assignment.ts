@@ -6962,6 +6962,278 @@ describe('Destructuring - Assignment', () => {
             }
             });
 
+            pass(`({d=0,f:h().a} = 0)`, {
+              source: '({d=0,f:h().a} = 0)',
+              loc: true,
+              ranges: true,
+              raw: true,
+              expected: {
+                type: 'Program',
+                body: [
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'AssignmentExpression',
+                            left: {
+                                type: 'ObjectPattern',
+                                properties: [
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'd',
+                                            start: 2,
+                                            end: 3,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 2
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 3
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'AssignmentPattern',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'd',
+                                                start: 2,
+                                                end: 3,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 2
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 3
+                                                    }
+                                                }
+                                            },
+                                            right: {
+                                                type: 'Literal',
+                                                value: 0,
+                                                start: 4,
+                                                end: 5,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 4
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 5
+                                                    }
+                                                },
+                                                raw: '0'
+                                            },
+                                            start: 2,
+                                            end: 5,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 2
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 5
+                                                }
+                                            }
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: true,
+                                        start: 2,
+                                        end: 5,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 2
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 5
+                                            }
+                                        }
+                                    },
+                                    {
+                                        type: 'Property',
+                                        key: {
+                                            type: 'Identifier',
+                                            name: 'f',
+                                            start: 6,
+                                            end: 7,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 6
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 7
+                                                }
+                                            }
+                                        },
+                                        value: {
+                                            type: 'MemberExpression',
+                                            object: {
+                                                type: 'CallExpression',
+                                                callee: {
+                                                    type: 'Identifier',
+                                                    name: 'h',
+                                                    start: 8,
+                                                    end: 9,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 8
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 9
+                                                        }
+                                                    }
+                                                },
+                                                arguments: [],
+                                                start: 8,
+                                                end: 11,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 8
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 11
+                                                    }
+                                                }
+                                            },
+                                            computed: false,
+                                            property: {
+                                                type: 'Identifier',
+                                                name: 'a',
+                                                start: 12,
+                                                end: 13,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 12
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 13
+                                                    }
+                                                }
+                                            },
+                                            start: 8,
+                                            end: 13,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 8
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 13
+                                                }
+                                            }
+                                        },
+                                        kind: 'init',
+                                        computed: false,
+                                        method: false,
+                                        shorthand: false,
+                                        start: 6,
+                                        end: 13,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 6
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 13
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 1,
+                                end: 14,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 1
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 14
+                                    }
+                                }
+                            },
+                            operator: '=',
+                            right: {
+                                type: 'Literal',
+                                value: 0,
+                                start: 17,
+                                end: 18,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 17
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 18
+                                    }
+                                },
+                                raw: '0'
+                            },
+                            start: 1,
+                            end: 18,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 1
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 18
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 19,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 19
+                            }
+                        }
+                    }
+                ],
+                sourceType: 'script',
+                start: 0,
+                end: 19,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 19
+                    }
+                }
+            }
+            });
+
             pass(`(function*() { [...{ x = yield }] = 0; })`, {
                 source: '(function*() { [...{ x = yield }] = 0; })',
                 loc: true,
@@ -7219,12 +7491,12 @@ describe('Destructuring - Assignment', () => {
                   }
             });
 
-            fail(`({a = 0});`, {
-                source: '({a = 0});',
-            });
-
-            fail(`0, { eval } = {};`, {
-                source: '0, { eval } = {};',
+            fail(`"use strict"; 0, { eval } = {};`, {
+                source: '"use strict"; 0, { eval } = {};',
+                message: 'The identifier \'eval\' must not be in binding position in strict mode',
+                line: 1,
+                column: 26,
+                index: 27
             });
 
             fail(`({a} += 0);`, {
@@ -7237,54 +7509,90 @@ describe('Destructuring - Assignment', () => {
 
             fail(`({a,,} = 0)`, {
                 source: '({a,,} = 0)',
+                message:  'Unexpected token \',\'',
+                line: 1,
+                column: 4,
+                index: 5
             });
 
             fail(`({,a,} = 0)`, {
                 source: '({,a,} = 0)',
+                message: 'Unexpected token \',\'',
+                line: 1,
+                column: 2,
+                index: 3
             });
 
             fail(`({a,,a} = 0)`, {
                 source: '({a,,a} = 0)',
+                message: 'Unexpected token \',\'',
+                line: 1,
+                column: 4,
+                index: 5
             });
 
             fail(`({function} = 0)`, {
                 source: '({function} = 0)',
+                message: 'Unexpected token \'function\'',
+                line: 1,
+                column: 10,
+                index: 11
             });
 
             fail(`({a:function} = 0)`, {
                 source: '({a:function} = 0)',
+                message: 'Unexpected token \'}\'',
+                line: 1,
+                column: 12,
+                index: 13
             });
 
             fail(`({a:for} = 0)`, {
                 source: '({a:for} = 0)',
+                message: 'Unexpected token \'for\'',
+                line: 1,
+                column: 4,
+                index: 7
             });
 
             fail(`({"a"} = 0)`, {
                 source: '({"a"} = 0)',
+                message: 'Unexpected token \'string\'',
+                line: 1,
+                column: 5,
+                index: 6
             });
 
             fail(`({var} = 0)`, {
                 source: '({var} = 0)',
+                message: 'Unexpected token \'var\'',
+                line: 1,
+                column: 5,
+                index: 6
             });
 
             fail(`({a.b} = 0)`, {
                 source: '({a.b} = 0)',
+                message: 'Unexpected token',
+                line: 1,
+                column: 3,
+                index: 4
             });
 
             fail(`({0} = 0)`, {
                 source: '({0} = 0)',
+                message: 'Unexpected token \'number\'',
+                line: 1,
+                column: 3,
+                index: 4
             });
-
-            fail(`({a = 0});`, {
-              source: '({a = 0});',
-          });
-
-            fail(`"use strict"; 0, { eval } = {};`, {
-              source: '"use strict"; 0, { eval } = {};',
-          });
 
             fail(`({a} += 0);`, {
               source: '({a} += 0);',
+              message: 'Invalid left-hand side in assignment',
+              line: 1,
+              column: 5,
+              index: 7
           });
 
         });
