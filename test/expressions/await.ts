@@ -101,7 +101,7 @@ describe('Expressions - Await', () => {
 
     fail(`async function f() { let await; }`, {
         source: 'async function f() { let await; }',
-        message: 'Unexpected token \'await\'',
+        message: 'Unexpected reserved word',
         line: 1,
         column: 25,
         index: 30
@@ -157,7 +157,7 @@ describe('Expressions - Await', () => {
 
     fail(`async function f(await) {}`, {
         source: 'async function f(await) {}',
-        message: 'Unexpected token \'await\'',
+        message: 'Unexpected reserved word',
         line: 1,
         column: 17,
         index: 22
@@ -165,7 +165,7 @@ describe('Expressions - Await', () => {
 
     fail(`class X { async f(await) {} }`, {
         source: 'class X { async f(await) {} }',
-        message: 'Unexpected token \'await\'',
+        message: 'Unexpected reserved word',
         line: 1,
         column: 18,
         index: 23
@@ -173,7 +173,7 @@ describe('Expressions - Await', () => {
 
     fail(`x = { async f(await){} }`, {
         source: 'x = { async f(await){} }',
-        message: 'Unexpected token \'await\'',
+        message: 'Unexpected reserved word',
         line: 1,
         column: 14,
         index: 19
@@ -229,7 +229,7 @@ describe('Expressions - Await', () => {
 
     fail(`(async function foo(await) { });`, {
         source: '(async function foo(await) { });',
-        message: 'Unexpected token \'await\'',
+        message: 'Unexpected reserved word',
         line: 1,
         column: 20,
         index: 25
@@ -237,7 +237,7 @@ describe('Expressions - Await', () => {
 
     fail(`async function foo(await) { };`, {
         source: 'async function foo(await) { };',
-        message:  'Unexpected token \'await\'',
+        message:  'Unexpected reserved word',
         line: 1,
         column: 19,
         index: 24

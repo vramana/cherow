@@ -692,6 +692,64 @@ describe('Statements - Numeric separators', () => {
         }
     });
 
+    pass(`0_1_2`, {
+        source: '0_1_2',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+              "body": [
+                {
+                 "end": 5,
+                  "expression": {
+                    "end": 5,
+                    "loc": {
+                      "end": {
+                        "column": 5,
+                        "line": 1,
+                      },
+                      "start": {
+                        "column": 0,
+                        "line": 1,
+                      }
+                    },
+                    "raw": "0_1_2",
+                    "start": 0,
+                    "type": "Literal",
+                    "value": 12,
+                  },
+                 "loc": {
+                    "end": {
+                      "column": 5,
+                      "line": 1,
+                    },
+                    "start": {
+                      "column": 0,
+                      "line": 1,
+                    }
+                  },
+                 "start": 0,
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "end": 5,
+              "loc": {
+                "end": {
+                 "column": 5,
+                  "line": 1,
+                },
+                "start": {
+                  "column": 0,
+                  "line": 1,
+                }
+              },
+              "sourceType": "script",
+              "start": 0,
+              "type": "Program"
+            }
+    });
+
     pass(`0X0_11_0101;`, {
         source: '0X0_11_0101;',
         loc: true,

@@ -123,7 +123,7 @@ describe('Next - Asynchronous Iteration', () => {
             }
           };`,
             next: true,
-            message: 'Unexpected token \'await\'',
+            message: 'Unexpected reserved word',
             line: 3,
             column: 18,
             index: 70

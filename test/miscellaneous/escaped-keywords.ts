@@ -87,7 +87,7 @@ describe('Miscellaneous - Escaped keywords', () => {
 
         fail('var fn = async function fn() { var \\u0061wait;  };', {
             source: 'var fn = async function fn() { var \\u0061wait;  };',
-            message: 'Unexpected token \'await\'',
+            message: 'Unexpected reserved word',
             line: 1,
             column: 35,
             index: 45

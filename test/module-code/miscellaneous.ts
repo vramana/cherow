@@ -22,7 +22,7 @@ describe('Module-code - Miscellaneous', () => {
         fail(`var await = 5;`, {
             source: `var await = 5;`,
             module: true,
-            message: 'Unexpected token \'await\'',
+            message: 'Unexpected reserved word',
             line: 1,
             column: 4,
             index: 9

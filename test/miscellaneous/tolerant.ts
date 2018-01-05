@@ -351,13 +351,13 @@ describe('Miscellaneous - Tolerant mode', () => {
                   ],
                   errors: [
                     {
-                      description: 'Unexpected reserved word',
+                      "description": "Unexpected eval or arguments in strict mode",
                       index: 31,
                       column: 30,
                       lineNumber: 1,
                     },
                     {
-                      description: 'Unexpected reserved word',
+                      "description": "Unexpected eval or arguments in strict mode",
                       index: 31,
                       column: 30,
                       lineNumber: 1,
@@ -547,7 +547,14 @@ describe('Miscellaneous - Tolerant mode', () => {
                   type: 'ExpressionStatement'
                }
               ],
-              errors: [],
+              errors: [
+                    {
+                     column: 6,
+                     description: "Octal literals are not allowed in strict mode",
+                     index: 18,
+                     lineNumber: 1
+                    }
+                  ],
               sourceType: 'script',
               type: 'Program'
             }

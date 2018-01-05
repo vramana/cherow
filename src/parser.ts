@@ -1258,7 +1258,7 @@ export class Parser {
         const next = (this.flags & Flags.OptionsNext) !== 0;
 
         let value = 0;
-        let isStart = (state & NumericState.Float) === 0;
+        let isOctal  = (state & NumericState.Float) === 0;
         let mainFragment: string = '';
         let decimalFragment: string = '';
         let scientificFragment: string = '';
@@ -1343,9 +1343,7 @@ export class Parser {
                                     state = this.scanNumericFragment(state);
                                     continue;
                                 } else if (ch === Chars.Eight || ch === Chars.Nine) {
-                                    // In cases like '008', either '8' or '9'
-                                    // are at the begining of a number sequence
-                                    isStart = false;
+                                    isOctal  = false;
                                     state = NumericState.DecimalWithLeadingZero;
                                     break;
                                 }
@@ -1379,7 +1377,7 @@ export class Parser {
             // Parse decimal digits and allow trailing fractional part.
             if (state & (NumericState.Decimal | NumericState.DecimalWithLeadingZero)) {
 
-                if (isStart) {
+                if (isOctal ) {
 
                     loop: while (this.hasNext()) {
                         ch = this.nextChar();
@@ -1729,9 +1727,9 @@ export class Parser {
 
                     if (next < Chars.Zero || next > Chars.Seven) {
                         // \0 is not octal escape sequence
-                        if ((code !== 0 || next === Chars.Eight || next === Chars.Nine) &&
-                            context & Context.Strict) {
-                            return Escape.StrictOctal;
+                        if (code !== 0 || next === Chars.Eight || next === Chars.Nine) {
+                            if (context & Context.Strict) return Escape.StrictOctal;
+                            this.flags |= Flags.Octal;
                         }
 
                     } else if (context & Context.Strict) {
@@ -1744,7 +1742,6 @@ export class Parser {
 
                         if (index < this.source.length) {
                             next = this.source.charCodeAt(index);
-
                             if (next >= Chars.Zero && next <= Chars.Seven) {
                                 this.lastChar = next;
                                 code = (code << 3) | (next - Chars.Zero);
@@ -2079,9 +2076,10 @@ export class Parser {
      * Consume a semicolon between tokens, optionally inserting it if necessary.
      */
     private consumeSemicolon(context: Context) {
-
+        
         switch (this.token) {
             case Token.Semicolon:
+            // consume the semicolon if it was explicitly provided.
                 this.expect(context, Token.Semicolon);
             case Token.RightBrace:
             case Token.EndOfSource:
@@ -3631,7 +3629,7 @@ export class Parser {
             if (context & Context.ClassFields &&
                 t === Token.TypeofKeyword &&
                 this.isEvalOrArguments(this.tokenValue)) {
-                this.tolerate(Errors.UnexpectedReservedWord);
+                this.tolerate(Errors.UnexpectedStrictReserved);
             }
             if (context & Context.Strict && t === Token.DeleteKeyword) {
                 if (argument.type === 'Identifier' || (this.flags & Flags.OptionsNext &&
@@ -4504,7 +4502,7 @@ export class Parser {
         const value = this.parseOptional(context, Token.Assign) ? this.parseAssignmentExpression(context) : null;
         // Syntax error if `arguments` or `eval` used in class field
         if (this.isEvalOrArguments(this.tokenValue)) {
-            this.tolerate(Errors.UnexpectedReservedWord);
+            this.tolerate(Errors.UnexpectedStrictReserved);
         }
         this.parseOptional(context, Token.Comma);
         return this.finishNode(context, pos as Location, {
@@ -4542,7 +4540,7 @@ export class Parser {
 
         if (this.parseOptional(context, Token.Assign)) {
             if (this.isEvalOrArguments(this.tokenValue)) {
-                this.tolerate(Errors.UnexpectedReservedWord);
+                this.tolerate(Errors.UnexpectedStrictReserved);
             }
             value = this.parseAssignmentExpression(context | Context.ClassFields);
         }
@@ -5429,7 +5427,9 @@ export class Parser {
                 return this.parseBindingIdentifier(context);
 
             case Token.AwaitKeyword:
-                if (context & (Context.Module | Context.Await)) this.tolerate(Errors.UnexpectedToken, tokenDesc(this.token));
+                if (context & (Context.Module | Context.Await)) {
+                    this.tolerate(Errors.UnexpectedReservedWord);
+                }
 
             default:
 

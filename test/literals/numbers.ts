@@ -32,6 +32,14 @@ describe('Literals - Numbers', () => {
         }
     }
 
+    fail(`"\\1"; "use strict";`, {
+        source: `"\\1"; "use strict";`,
+        message: "Octal literals are not allowed in strict mode",
+        line: 1,
+        column: 6,
+        index: 18
+    });
+
     fail(`const t = 2.34e-;const b = 4.3e--3;`, {
         source: 'const t = 2.34e-;const b = 4.3e--3;',
         message: 'Invalid or unexpected token',
