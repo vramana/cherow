@@ -1,6 +1,77 @@
 import { fail, pass } from '../utils';
+import { parseScript } from '../../src/cherow';
 
 describe('Statements - Numeric separators', () => {
+
+    for (let i = 1; i <= 7; i++) {
+
+        pass(`${i}_${i}`, {
+            source: `${i}_${i}`,
+            next: true,
+            expected: parseScript(`${i}_${i}`, {
+                next: true
+            })
+        });
+
+        for (let j = 2; j <= 7; j++) {
+
+            pass(`${i}_${j}_${j};`, {
+                source: `${i}_${j}_${j};`,
+                next: true,
+                expected: parseScript(`${i}_${j}_${j};`, {
+                    next: true
+                })
+            });
+
+            pass(`0x${i}0_0${j};`, {
+                source: `0x${i}0_0${j};`,
+                next: true,
+                expected: parseScript(`0x${i}0_0${j};`, {
+                    next: true
+                })
+            });
+
+            pass(`0o${i}0_0${j}`, {
+                source: `0o${i}0_0${j}`,
+                next: true,
+                expected: parseScript(`0o${i}0_0${j}`, {
+                    next: true
+                })
+            });
+
+            pass(`0o${i}_${j};`, {
+                source: `0o${i}_${j};`,
+                next: true,
+                expected: parseScript(`0o${i}_${j};`, {
+                    next: true
+                })
+            });
+
+            pass(`0o0${i}_${j}1;`, {
+                source: `0o0${i}_${j}1;`,
+                next: true,
+                expected: parseScript(`0o0${i}_${j}1;`, {
+                    next: true
+                })
+            });
+
+            pass(`var foo = 0o0${i}_${j}1 - (0o0${i}_${j}1) / (0x${i}0_0${j}) ** ${i}_${j}`, {
+                source: `var foo = 0o0${i}_${j}1 - (0o0${i}_${j}1) / (0x${i}0_0${j}) ** ${i}_${j}`,
+                next: true,
+                expected: parseScript(`var foo = 0o0${i}_${j}1 - (0o0${i}_${j}1) / (0x${i}0_0${j}) ** ${i}_${j}`, {
+                    next: true
+                })
+            });
+
+            pass(`function a${i}_${j}() { 0o0${i}_${j}1; / 0o0${i}_${j}_1;}`, {
+                source: `function a${i}_${j}() { 0o0${i}_${j}1 / 1_${j};}`,
+                next: true,
+                expected: parseScript(`function a${i}_${j}() { 0o0${i}_${j}1 / 1_${j};}`, {
+                    next: true
+                })
+            });
+        }
+    }
 
     fail(`"\\u{12_34}"`, {
         source: '"\\u{12_34}"',
@@ -446,6 +517,11 @@ describe('Statements - Numeric separators', () => {
         next: true
     });
 
+    fail(`0x0_`, {
+        source: '0x0_',
+        next: true
+    });
+
     fail(`0o_1`, {
         source: '0o_1',
         next: true
@@ -554,69 +630,66 @@ describe('Statements - Numeric separators', () => {
         raw: true,
         next: true,
         expected: {
-              body: [
-                {
-                  end: 7,
-                  expression: {
-                   end: 6,
+            body: [{
+                end: 7,
+                expression: {
+                    end: 6,
                     loc: {
-                      end: {
-                       column: 6,
-                        line: 1,
-                      },
-                     start: {
-                        column: 0,
-                        line: 1,
-                      }
+                        end: {
+                            column: 6,
+                            line: 1,
+                        },
+                        start: {
+                            column: 0,
+                            line: 1,
+                        }
                     },
-                   raw: '1.4e_2',
+                    raw: '1.4e_2',
                     start: 0,
                     type: 'Literal',
                     value: 140,
-                  },
-                  loc: {
+                },
+                loc: {
                     end: {
-                      column: 7,
-                      line: 1,
+                        column: 7,
+                        line: 1,
                     },
                     start: {
-                      column: 0,
-                      line: 1,
+                        column: 0,
+                        line: 1,
                     }
-                  },
-                  start: 0,
-                  type: 'ExpressionStatement'
-                }
-              ],
-             end: 7,
-              errors: [
-                {
-                  column: 4,
-                  description: 'Invalid or unexpected token',
-                  index: 4,
-                  lineNumber: 1,
-               },
-                {
-                  column: 4,
-                 description: 'Numeric separators are not allowed here',
-                  index: 4,
-                  lineNumber: 1,
-                }
-              ],
-              loc: {
-                end: {
-                 column: 7,
-                  line: 1,
                 },
-               start: {
-                  column: 0,
-                  line: 1,
+                start: 0,
+                type: 'ExpressionStatement'
+            }],
+            end: 7,
+            errors: [{
+                    column: 4,
+                    description: 'Invalid or unexpected token',
+                    index: 4,
+                    lineNumber: 1,
+                },
+                {
+                    column: 4,
+                    description: 'Numeric separators are not allowed here',
+                    index: 4,
+                    lineNumber: 1,
                 }
-              },
-             sourceType: 'script',
-              start: 0,
-              type: 'Program'
-            }
+            ],
+            loc: {
+                end: {
+                    column: 7,
+                    line: 1,
+                },
+                start: {
+                    column: 0,
+                    line: 1,
+                }
+            },
+            sourceType: 'script',
+            start: 0,
+            type: 'Program'
+        }
     });
 
     pass(`0X0_11_0101;`, {
@@ -626,15 +699,28 @@ describe('Statements - Numeric separators', () => {
         raw: true,
         next: true,
         expected: {
-    type: 'Program',
-    body: [
-        {
-            type: 'ExpressionStatement',
-            expression: {
-                type: 'Literal',
-                value: 1114369,
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Literal',
+                    value: 1114369,
+                    start: 0,
+                    end: 11,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 11
+                        }
+                    },
+                    raw: '0X0_11_0101'
+                },
                 start: 0,
-                end: 11,
+                end: 12,
                 loc: {
                     start: {
                         line: 1,
@@ -642,11 +728,11 @@ describe('Statements - Numeric separators', () => {
                     },
                     end: {
                         line: 1,
-                        column: 11
+                        column: 12
                     }
-                },
-                raw: '0X0_11_0101'
-            },
+                }
+            }],
+            sourceType: 'script',
             start: 0,
             end: 12,
             loc: {
@@ -660,21 +746,6 @@ describe('Statements - Numeric separators', () => {
                 }
             }
         }
-    ],
-    sourceType: 'script',
-    start: 0,
-    end: 12,
-    loc: {
-        start: {
-            line: 1,
-            column: 0
-        },
-        end: {
-            line: 1,
-            column: 12
-        }
-    }
-}
     });
 
     pass(`for (let i = 10; i < 1_4_5;++i) {}`, {
@@ -685,129 +756,95 @@ describe('Statements - Numeric separators', () => {
         next: true,
         expected: {
             type: 'Program',
-            body: [
-                {
-                    type: 'ForStatement',
-                    body: {
-                        type: 'BlockStatement',
-                        body: [],
-                        start: 32,
-                        end: 34,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 32
-                            },
-                            end: {
-                                line: 1,
-                                column: 34
-                            }
+            body: [{
+                type: 'ForStatement',
+                body: {
+                    type: 'BlockStatement',
+                    body: [],
+                    start: 32,
+                    end: 34,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 32
+                        },
+                        end: {
+                            line: 1,
+                            column: 34
                         }
-                    },
-                    init: {
-                        type: 'VariableDeclaration',
-                        declarations: [
-                            {
-                                type: 'VariableDeclarator',
-                                init: {
-                                    type: 'Literal',
-                                    value: 10,
-                                    start: 13,
-                                    end: 15,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 13
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 15
-                                        }
-                                    },
-                                    raw: '10'
+                    }
+                },
+                init: {
+                    type: 'VariableDeclaration',
+                    declarations: [{
+                        type: 'VariableDeclarator',
+                        init: {
+                            type: 'Literal',
+                            value: 10,
+                            start: 13,
+                            end: 15,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 13
                                 },
-                                id: {
-                                    type: 'Identifier',
-                                    name: 'i',
-                                    start: 9,
-                                    end: 10,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 9
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 10
-                                        }
-                                    }
+                                end: {
+                                    line: 1,
+                                    column: 15
+                                }
+                            },
+                            raw: '10'
+                        },
+                        id: {
+                            type: 'Identifier',
+                            name: 'i',
+                            start: 9,
+                            end: 10,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 9
                                 },
-                                start: 9,
-                                end: 15,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 9
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 15
-                                    }
+                                end: {
+                                    line: 1,
+                                    column: 10
                                 }
                             }
-                        ],
-                        kind: 'let',
-                        start: 5,
+                        },
+                        start: 9,
                         end: 15,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 5
+                                column: 9
                             },
                             end: {
                                 line: 1,
                                 column: 15
                             }
                         }
-                    },
-                    test: {
-                        type: 'BinaryExpression',
-                        left: {
-                            type: 'Identifier',
-                            name: 'i',
-                            start: 17,
-                            end: 18,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 17
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 18
-                                }
-                            }
+                    }],
+                    kind: 'let',
+                    start: 5,
+                    end: 15,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 5
                         },
-                        right: {
-                            type: 'Literal',
-                            value: 145,
-                            start: 21,
-                            end: 26,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 21
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 26
-                                }
-                            },
-                            raw: '1_4_5'
-                        },
-                        operator: '<',
+                        end: {
+                            line: 1,
+                            column: 15
+                        }
+                    }
+                },
+                test: {
+                    type: 'BinaryExpression',
+                    left: {
+                        type: 'Identifier',
+                        name: 'i',
                         start: 17,
-                        end: 26,
+                        end: 18,
                         loc: {
                             start: {
                                 line: 1,
@@ -815,36 +852,52 @@ describe('Statements - Numeric separators', () => {
                             },
                             end: {
                                 line: 1,
-                                column: 26
+                                column: 18
                             }
                         }
                     },
-                    update: {
-                        type: 'UpdateExpression',
-                        argument: {
-                            type: 'Identifier',
-                            name: 'i',
-                            start: 29,
-                            end: 30,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 29
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 30
-                                }
+                    right: {
+                        type: 'Literal',
+                        value: 145,
+                        start: 21,
+                        end: 26,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 21
+                            },
+                            end: {
+                                line: 1,
+                                column: 26
                             }
                         },
-                        operator: '++',
-                        prefix: true,
-                        start: 27,
+                        raw: '1_4_5'
+                    },
+                    operator: '<',
+                    start: 17,
+                    end: 26,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 17
+                        },
+                        end: {
+                            line: 1,
+                            column: 26
+                        }
+                    }
+                },
+                update: {
+                    type: 'UpdateExpression',
+                    argument: {
+                        type: 'Identifier',
+                        name: 'i',
+                        start: 29,
                         end: 30,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 27
+                                column: 29
                             },
                             end: {
                                 line: 1,
@@ -852,20 +905,34 @@ describe('Statements - Numeric separators', () => {
                             }
                         }
                     },
-                    start: 0,
-                    end: 34,
+                    operator: '++',
+                    prefix: true,
+                    start: 27,
+                    end: 30,
                     loc: {
                         start: {
                             line: 1,
-                            column: 0
+                            column: 27
                         },
                         end: {
                             line: 1,
-                            column: 34
+                            column: 30
                         }
                     }
+                },
+                start: 0,
+                end: 34,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 34
+                    }
                 }
-            ],
+            }],
             sourceType: 'script',
             start: 0,
             end: 34,
@@ -890,47 +957,15 @@ describe('Statements - Numeric separators', () => {
         next: true,
         expected: {
             type: 'Program',
-            body: [
-                {
-                    type: 'ExpressionStatement',
-                    expression: {
-                        type: 'BinaryExpression',
-                        left: {
-                            type: 'Identifier',
-                            name: 'i',
-                            start: 0,
-                            end: 1,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 0
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 1
-                                }
-                            }
-                        },
-                        right: {
-                            type: 'Literal',
-                            value: 81,
-                            start: 4,
-                            end: 10,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 4
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 10
-                                }
-                            },
-                            raw: '0o12_1'
-                        },
-                        operator: '+',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'BinaryExpression',
+                    left: {
+                        type: 'Identifier',
+                        name: 'i',
                         start: 0,
-                        end: 10,
+                        end: 1,
                         loc: {
                             start: {
                                 line: 1,
@@ -938,10 +973,28 @@ describe('Statements - Numeric separators', () => {
                             },
                             end: {
                                 line: 1,
-                                column: 10
+                                column: 1
                             }
                         }
                     },
+                    right: {
+                        type: 'Literal',
+                        value: 81,
+                        start: 4,
+                        end: 10,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 4
+                            },
+                            end: {
+                                line: 1,
+                                column: 10
+                            }
+                        },
+                        raw: '0o12_1'
+                    },
+                    operator: '+',
                     start: 0,
                     end: 10,
                     loc: {
@@ -954,8 +1007,20 @@ describe('Statements - Numeric separators', () => {
                             column: 10
                         }
                     }
+                },
+                start: 0,
+                end: 10,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 10
+                    }
                 }
-            ],
+            }],
             sourceType: 'script',
             start: 0,
             end: 10,
@@ -980,87 +1045,19 @@ describe('Statements - Numeric separators', () => {
         next: true,
         expected: {
             type: 'Program',
-            body: [
-                {
-                    type: 'ExpressionStatement',
-                    expression: {
-                        type: 'ArrowFunctionExpression',
-                        body: {
-                            type: 'BlockStatement',
-                            body: [],
-                            start: 14,
-                            end: 16,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 14
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 16
-                                }
-                            }
-                        },
-                        params: [
-                            {
-                                type: 'AssignmentPattern',
-                                left: {
-                                    type: 'Identifier',
-                                    name: 'i',
-                                    start: 2,
-                                    end: 3,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 2
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 3
-                                        }
-                                    }
-                                },
-                                right: {
-                                    type: 'Literal',
-                                    value: 11,
-                                    start: 6,
-                                    end: 9,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 6
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 9
-                                        }
-                                    },
-                                    raw: '1_1'
-                                },
-                                start: 2,
-                                end: 9,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 2
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 9
-                                    }
-                                }
-                            }
-                        ],
-                        id: null,
-                        async: false,
-                        generator: false,
-                        expression: false,
-                        start: 1,
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'ArrowFunctionExpression',
+                    body: {
+                        type: 'BlockStatement',
+                        body: [],
+                        start: 14,
                         end: 16,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 1
+                                column: 14
                             },
                             end: {
                                 line: 1,
@@ -1068,20 +1065,84 @@ describe('Statements - Numeric separators', () => {
                             }
                         }
                     },
-                    start: 0,
-                    end: 17,
+                    params: [{
+                        type: 'AssignmentPattern',
+                        left: {
+                            type: 'Identifier',
+                            name: 'i',
+                            start: 2,
+                            end: 3,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 2
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 3
+                                }
+                            }
+                        },
+                        right: {
+                            type: 'Literal',
+                            value: 11,
+                            start: 6,
+                            end: 9,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 6
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 9
+                                }
+                            },
+                            raw: '1_1'
+                        },
+                        start: 2,
+                        end: 9,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 2
+                            },
+                            end: {
+                                line: 1,
+                                column: 9
+                            }
+                        }
+                    }],
+                    id: null,
+                    async: false,
+                    generator: false,
+                    expression: false,
+                    start: 1,
+                    end: 16,
                     loc: {
                         start: {
                             line: 1,
-                            column: 0
+                            column: 1
                         },
                         end: {
                             line: 1,
-                            column: 17
+                            column: 16
                         }
                     }
+                },
+                start: 0,
+                end: 17,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 17
+                    }
                 }
-            ],
+            }],
             sourceType: 'script',
             start: 0,
             end: 17,
@@ -1107,26 +1168,11 @@ describe('Statements - Numeric separators', () => {
         next: true,
         expected: {
             type: 'Program',
-            body: [
-                {
-                    type: 'ExpressionStatement',
-                    expression: {
-                        type: 'Literal',
-                        value: 169,
-                        start: 0,
-                        end: 11,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 11
-                            }
-                        },
-                        raw: '0b1010_1001'
-                    },
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Literal',
+                    value: 169,
                     start: 0,
                     end: 11,
                     loc: {
@@ -1138,9 +1184,22 @@ describe('Statements - Numeric separators', () => {
                             line: 1,
                             column: 11
                         }
+                    },
+                    raw: '0b1010_1001'
+                },
+                start: 0,
+                end: 11,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 11
                     }
                 }
-            ],
+            }],
             sourceType: 'module',
             start: 0,
             end: 11,
@@ -1164,15 +1223,28 @@ describe('Statements - Numeric separators', () => {
         raw: true,
         next: true,
         expected: {
-    type: 'Program',
-    body: [
-        {
-            type: 'ExpressionStatement',
-            expression: {
-                type: 'Literal',
-                value: 2359305,
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Literal',
+                    value: 2359305,
+                    start: 0,
+                    end: 11,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 11
+                        }
+                    },
+                    raw: '0o1100_0011'
+                },
                 start: 0,
-                end: 11,
+                end: 12,
                 loc: {
                     start: {
                         line: 1,
@@ -1180,11 +1252,11 @@ describe('Statements - Numeric separators', () => {
                     },
                     end: {
                         line: 1,
-                        column: 11
+                        column: 12
                     }
-                },
-                raw: '0o1100_0011'
-            },
+                }
+            }],
+            sourceType: 'script',
             start: 0,
             end: 12,
             loc: {
@@ -1198,21 +1270,6 @@ describe('Statements - Numeric separators', () => {
                 }
             }
         }
-    ],
-    sourceType: 'script',
-    start: 0,
-    end: 12,
-    loc: {
-        start: {
-            line: 1,
-            column: 0
-        },
-        end: {
-            line: 1,
-            column: 12
-        }
-    }
-}
     });
 
     pass(`1_000_000_000`, {
@@ -1222,13 +1279,26 @@ describe('Statements - Numeric separators', () => {
         raw: true,
         next: true,
         expected: {
-    type: 'Program',
-    body: [
-        {
-            type: 'ExpressionStatement',
-            expression: {
-                type: 'Literal',
-                value: 1000000000,
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Literal',
+                    value: 1000000000,
+                    start: 0,
+                    end: 13,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 13
+                        }
+                    },
+                    raw: '1_000_000_000'
+                },
                 start: 0,
                 end: 13,
                 loc: {
@@ -1240,9 +1310,9 @@ describe('Statements - Numeric separators', () => {
                         line: 1,
                         column: 13
                     }
-                },
-                raw: '1_000_000_000'
-            },
+                }
+            }],
+            sourceType: 'script',
             start: 0,
             end: 13,
             loc: {
@@ -1256,21 +1326,6 @@ describe('Statements - Numeric separators', () => {
                 }
             }
         }
-    ],
-    sourceType: 'script',
-    start: 0,
-    end: 13,
-    loc: {
-        start: {
-            line: 1,
-            column: 0
-        },
-        end: {
-            line: 1,
-            column: 13
-        }
-    }
-}
     });
 
     pass(`1_2.3_4e5_6`, {
@@ -1280,13 +1335,26 @@ describe('Statements - Numeric separators', () => {
         raw: true,
         next: true,
         expected: {
-    type: 'Program',
-    body: [
-        {
-            type: 'ExpressionStatement',
-            expression: {
-                type: 'Literal',
-                value: 1.234e+57,
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'Literal',
+                    value: 1.234e+57,
+                    start: 0,
+                    end: 11,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 11
+                        }
+                    },
+                    raw: '1_2.3_4e5_6'
+                },
                 start: 0,
                 end: 11,
                 loc: {
@@ -1298,9 +1366,9 @@ describe('Statements - Numeric separators', () => {
                         line: 1,
                         column: 11
                     }
-                },
-                raw: '1_2.3_4e5_6'
-            },
+                }
+            }],
+            sourceType: 'script',
             start: 0,
             end: 11,
             loc: {
@@ -1314,21 +1382,6 @@ describe('Statements - Numeric separators', () => {
                 }
             }
         }
-    ],
-    sourceType: 'script',
-    start: 0,
-    end: 11,
-    loc: {
-        start: {
-            line: 1,
-            column: 0
-        },
-        end: {
-            line: 1,
-            column: 11
-        }
-    }
-}
     });
 
     pass(`1_9`, {
@@ -1440,6 +1493,95 @@ describe('Statements - Numeric separators', () => {
             sourceType: 'script',
             start: 0,
             type: 'Program'
+        }
+    });
+
+    pass(`0x0_1, 0x01`, {
+        source: '0x0_1, 0x01',
+        loc: true,
+        ranges: true,
+        raw: true,
+        next: true,
+        expected: {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'SequenceExpression',
+                    expressions: [{
+                            type: 'Literal',
+                            value: 1,
+                            start: 0,
+                            end: 5,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 5
+                                }
+                            },
+                            raw: '0x0_1'
+                        },
+                        {
+                            type: 'Literal',
+                            value: 1,
+                            start: 7,
+                            end: 11,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 7
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 11
+                                }
+                            },
+                            raw: '0x01'
+                        }
+                    ],
+                    start: 0,
+                    end: 11,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 11
+                        }
+                    }
+                },
+                start: 0,
+                end: 11,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 11
+                    }
+                }
+            }],
+            sourceType: 'script',
+            start: 0,
+            end: 11,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 11
+                }
+            }
         }
     });
 
@@ -2308,20 +2450,20 @@ describe('Statements - Numeric separators', () => {
     });
 
     pass(`3.14_15;`, {
-    source: '3.14_15;',
-    raw: true,
-    next: true,
-    expected: {
-        body: [{
-            expression: {
-                raw: '3.14_15',
-                type: 'Literal',
-                value: 3.1415,
-            },
-            type: 'ExpressionStatement'
-        }],
-        sourceType: 'script',
-        type: 'Program'
-    }
+        source: '3.14_15;',
+        raw: true,
+        next: true,
+        expected: {
+            body: [{
+                expression: {
+                    raw: '3.14_15',
+                    type: 'Literal',
+                    value: 3.1415,
+                },
+                type: 'ExpressionStatement'
+            }],
+            sourceType: 'script',
+            type: 'Program'
+        }
     });
-    });
+});

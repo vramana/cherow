@@ -4,174 +4,403 @@ import { parseScript, parseModule } from '../../src/cherow';
 describe('Literals - Strings', () => {
 
     fail('"\\u{g0g}"', {
-        source: '"\\u{g0g}"'
+        source: '"\\u{g0g}"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 4
     });
     fail('"\\u{g0g}"', {
-        source: '"\\u{g}"'
+        source: '"\\u{g}"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 4
     });
     fail('"\\u{g}"', {
-        source: '"\\u{g}"'
+        source: '"\\u{g}"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 4
     });
     fail('"\\u{g0}"', {
-        source: '"\\u{g0}"'
+        source: '"\\u{g0}"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 4
     });
     fail('"\\u{g0}"', {
-        source: '"\\u{g0}"'
+        source: '"\\u{g0}"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 4
     });
     fail('\\u{0g}', {
-        source: '\\u{0g}'
+        source: '\\u{0g}',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 4
     });
     fail('\\u{0g0}\r\n', {
-        source: '\\u{0g0}\r\n'
+        source: '\\u{0g0}\r\n',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 4
     });
     fail('"\\u{g0g}"', {
-        source: '"\\u{g0g}"'
+        source: '"\\u{g0g}"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 4
     });
     fail('"\\u{110000}"', {
-        source: '"\\u{110000}"'
+        source: '"\\u{110000}"',
+        message: 'Unicode escape code point out of range',
+        line: 1,
+        column: 0,
+        index: 9
     });
     fail('"\\u{11ffff}"', {
-        source: '"\\u{11ffff}"'
+        source: '"\\u{11ffff}"',
+        message: 'Unicode escape code point out of range',
+        line: 1,
+        column: 0,
+        index: 9
     });
     fail('"\\x0g"', {
-        source: '"\\x0g"'
+        source: '"\\x0g"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 4
     });
     fail('"\\xg0\r\n"', {
-        source: '"\\xg0\r\n"'
+        source: '"\\xg0\r\n"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 3
     });
     fail('"\\xgg"', {
-        source: '"\\xgg"'
+        source: '"\\xgg"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 3
     });
     fail('"\\xfg"', {
-        source: '"\\xfg"'
+        source: '"\\xfg"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 4
     });
     fail('"\\xFG"', {
-        source: '"\\xFG"'
+        source: '"\\xFG"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 4
     });
     fail('"\\u0g00"', {
-        source: '"\\u0g00"'
+        source: '"\\u0g00"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 4
     });
     fail('"\\u00g0"', {
-        source: '"\\u00g0"'
+        source: '"\\u00g0"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 5
     });
     fail('"\\uAA"', {
-        source: '"\\uAA"'
+        source: '"\\uAA"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 5
     });
     fail('"\\uAAA"', {
-        source: '"\\uAAA"'
+        source: '"\\uAAA"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 6
     });
     fail('"Hello\nworld"', {
-        source: '"Hello\nworld"'
+        source: '"Hello\nworld"',
+        message: 'Unterminated string literal',
+        line: 1,
+        column: 0,
+        index: 6
     });
     fail('"\n\r\t\v\b\f\\\'\"\0"', {
-        source: '"\n\r\t\v\b\f\\\'\"\0"'
+        source: '"\n\r\t\v\b\f\\\'\"\0"',
+        message: 'Unterminated string literal',
+        line: 1,
+        column: 0,
+        index: 1
     });
 
     fail('"use strict";  "\\08"', {
-        source: '"use strict"; \\08"'
+        source: '"use strict"; "\\08"',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
     });
 
-    fail('"\\u{110000}"', {
-        source: '"\\u{110000}"'
-    });
-    fail('"\\u{FFFFFFF}"', {
-        source: '"\\u{FFFFFFF}"'
+    fail('"use strict"; ("\\000")', {
+        source: '"use strict"; ("\\000")',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 15,
+        index: 17
     });
     fail('"use strict"; ("\\000")', {
-        source: '"use strict"; ("\\000")'
-    });
-    fail('"use strict"; ("\\000")', {
-        source: '"use strict"; ("\\000")'
+        source: '"use strict"; ("\\000")',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 15,
+        index: 17
     });
     fail('"use strict"; ("\\001")', {
-        source: '"use strict"; ("\\001")'
+        source: '"use strict"; ("\\001")',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 15,
+        index: 17
     });
     fail('"use strict"; ("\\123")', {
-        source: '"use strict"; ("\\123")'
+        source: '"use strict"; ("\\123")',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 15,
+        index: 17
     });
     fail('"use strict"; ("\\01")', {
-        source: '"use strict"; ("\\01")'
+        source: '"use strict"; ("\\01")',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 15,
+        index: 17
     });
     fail('"use strict"; ("\\41")', {
-        source: '"use strict"; ("\\41")'
+        source: '"use strict"; ("\\41")',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 15,
+        index: 17
     });
     fail('"use strict"; ("\\1")', {
-        source: '"use strict"; ("\\1")'
+        source: '"use strict"; ("\\1")',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 15,
+        index: 17
     });
     fail('"use strict"; ("\\4")', {
-        source: '"use strict"; ("\\4")'
+        source: '"use strict"; ("\\4")',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 15,
+        index: 17
     });
     fail('"use strict"; ("\\11")', {
-        source: '"use strict"; ("\\11")'
+        source: '"use strict"; ("\\11")',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 15,
+        index: 17
     });
     fail('"\\"', {
-        source: '"\\"'
+        source: '"\\"',
+        message: 'Unexpected token',
+        line: 1,
+        column: 0,
+        index: 3
     });
     fail('"use strict"; "\\10";', {
-        source: '"use strict"; \\10";'
+        source: '"use strict"; "\\10";',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
     });
     fail('"use strict"; "\\16";', {
-        source: '"use strict"; "\\16";'
+        source: '"use strict"; "\\16";',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
     });
     fail('"use strict"; "\\31";', {
-        source: '"use strict"; "\\31";'
+        source: '"use strict"; "\\31";',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
     });
     fail('"use strict"; "\\106";', {
-        source: '"use strict"; "\\106";'
+        source: '"use strict"; "\\106";',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
     });
     fail('"use strict"; "\\207";', {
-        source: '"use strict"; "\\207";'
+        source: '"use strict"; "\\207";',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
     });
     fail('"use strict"; "\\10";', {
-        source: '"use strict"; "\\10";'
+        source: '"use strict"; "\\10";',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
     });
     fail('"use strict"; "\\052"', {
-        source: '"use strict"; "\\052"'
+        source: '"use strict"; "\\052"',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
     });
     fail('"use strict"; "\\376";', {
-        source: '"use strict"; "\\376";'
+        source: '"use strict"; "\\376";',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
     });
     fail('"use strict"; "a\\4";', {
-        source: '"use strict"; "a\\4";'
+        source: '"use strict"; "a\\4";',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 17
     });
     fail('"use strict"; "z\\7";', {
-        source: '"use strict"; "z\\7";'
+        source: '"use strict"; "z\\7";',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 17
     });
     fail('"use strict"; "\\10";', {
-        source: '"use strict"; "\\10";'
+        source: '"use strict"; "\\10";',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
     });
     fail('"use strict"; "\\1\\2\\7"', {
-        source: '"use strict"; "\\1\\2\\7"'
+        source: '"use strict"; "\\1\\2\\7"',
+        message: 'Octal escapes are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
     });
     fail('"use strict"; "\\u1"', {
-        source: '"use strict"; "\\u1"'
+        source: '"use strict"; "\\u1"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 14,
+        index: 18
     });
     fail('"use strict"; "\\u1"', {
-        source: '"use strict"; "\\u1"'
+        source: '"use strict"; "\\u1"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 14,
+        index: 18
     });
     fail('"use strict"; "\\uAAA"', {
-        source: '"use strict"; "\\uAAA"'
+        source: '"use strict"; "\\uAAA"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 14,
+        index: 20
     });
     fail('"\\uAAA"', {
-        source: '"\\uAAA"'
+        source: '"\\uAAA"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 6
     });
     fail('"\\8"', {
-        source: '"\\8"'
+        source: '"\\8"',
+        message: 'Escapes \\8 or \\9 are not syntactically valid escapes',
+        line: 1,
+        column: 0,
+        index: 2
     });
     fail('"\\9"', {
-        source: '"\\9"'
+        source: '"\\9"',
+        message: 'Escapes \\8 or \\9 are not syntactically valid escapes',
+        line: 1,
+        column: 0,
+        index: 2
     });
 
     fail('"use strict"; "\\u1"', {
-        source: '"use strict"; "\\u1"'
+        source: '"use strict"; "\\u1"',
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 18
     });
 
-    fail('"use strict"; "\\08";', {
-        source: '"use strict"; "\\08";'
-    });
-
-    fail('"use strict"; "\\09";', {
-        source: '"use strict"; "\\09";'
+    pass('"\\9"', {
+        source: '"\\9"',
+        tolerant: true,
+        expected: {
+              body: [
+                {
+                  directive: '\\9',
+                  expression: {
+                    type: 'Literal',
+                    value: ''
+                  },
+                 type: 'ExpressionStatement'
+                }
+              ],
+              errors: [
+                {
+                  column: 0,
+                  description: 'Escapes \\8 or \\9 are not syntactically valid escapes',
+                  index: 2,
+                  lineNumber: 1
+                },
+                {
+                  column: 0,
+                  description: 'Invalid hexadecimal escape sequence',
+                 index: 2,
+                  lineNumber: 1
+                },
+                {
+                 column: 0,
+                  description: 'Unicode escape code point out of range',
+                  index: 2,
+                  lineNumber: 1,
+                }
+             ],
+              sourceType: 'script',
+              type: 'Program'
+            }
     });
 
     pass(`"abc"`, {

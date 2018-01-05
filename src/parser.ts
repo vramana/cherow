@@ -1234,8 +1234,9 @@ export class Parser {
             const converted = ch - Chars.Zero;
 
             if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= radix) break;
-            // Fall back to a slower solution for long octal / binary number,
+
             value = digits < 10 ? (value << secondRadix) | converted : value * radix + converted;
+
             this.advance();
             digits++;
         }
@@ -1626,7 +1627,7 @@ export class Parser {
                 case Chars.LineFeed:
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
-                    this.tolerate(Errors.UnterminatedString);
+                    this.error(Errors.UnterminatedString);
                 case Chars.Backslash:
                     ch = this.scanNext();
 
@@ -1650,7 +1651,10 @@ export class Parser {
                     ret += fromCodePoint(ch);
             }
 
-            ch = this.scanNext();
+            this.advance();
+            if (!this.hasNext()) this.error(Errors.Unexpected);
+            ch = this.nextCodePoint();
+
         }
 
         this.advance(); // Consume the quote
