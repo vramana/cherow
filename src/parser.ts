@@ -37,62 +37,62 @@ export interface Location {
 export class Parser {
 
     // The program to be parsed
-    public readonly source: string;
+    private readonly source: string;
 
     // Current position (end position of text of current token)
-    public index: number;
+    private index: number;
 
     // Current position (end position of column of current token)
-    public column: number;
+    private column: number;
 
     // Current position (end position of line of current token)
-    public line: number;
+    private line: number;
 
     // Start position of whitespace before current token
-    public startIndex: number;
+    private startIndex: number;
 
     // Start position of whitespace before current column
-    public startColumn: number;
+    private startColumn: number;
 
     // Start position of whitespace before current line
-    public startLine: number;
+    private startLine: number;
 
     // End position of source of current index
-    public lastIndex: number;
+    private lastIndex: number;
 
     // End position of column of current column
-    public lastColumn: number;
+    private lastColumn: number;
 
     // End position of line of current line
-    public lastLine: number;
+    private lastLine: number;
 
     // Contains the current value of parsed source
-    public tokenValue: any;
+    private tokenValue: any;
 
     // Hold current token
-    public token: Token;
+    private token: Token;
 
     // Raw value of current token
-    public tokenRaw: string;
+    private tokenRaw: string;
 
     // Mutable parser flags
-    public flags: Flags;
+    private flags: Flags;
 
-    public labelSet: any;
-    public blockScope: any;
-    public parentScope: any;
-    public functionScope: any;
-    public fieldSet: void | ClassFieldState[];
-    public errorLocation: void | Location;
-    public errors: ESTree.Errors[];
-    public comments: ESTree.Comment[];
-    public previousNode: void | ESTree.Program;
-    public trailingComments: ESTree.Comment[];
-    public leadingComments: ESTree.Comment[];
-    public commentStack: any[];
-    public locSource: void | string;
-    public lastChar: void | Chars;
-    public tokenRegExp: void | {
+    private labelSet: any;
+    private blockScope: any;
+    private parentScope: any;
+    private functionScope: any;
+    private fieldSet: void | ClassFieldState[];
+    private errorLocation: void | Location;
+    private errors: ESTree.Errors[];
+    private comments: ESTree.Comment[];
+    private previousNode: void | ESTree.Program;
+    private trailingComments: ESTree.Comment[];
+    private leadingComments: ESTree.Comment[];
+    private commentStack: any[];
+    private locSource: void | string;
+    private lastChar: void | Chars;
+    private tokenRegExp: void | {
         pattern: string;
         flags: string;
     };
