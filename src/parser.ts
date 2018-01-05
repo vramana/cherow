@@ -1211,7 +1211,7 @@ export class Parser {
         return ret + this.source.substring(start, this.index);
     }
 
-    private scanBinaryOrOctalDigits(state: NumericState, radix: number) {
+    private scanBinaryOrOctalDigits(state: NumericState, radix: number, msg: Errors) {
 
         this.advance(); // skip 'b' or 'o'
 
@@ -1237,7 +1237,7 @@ export class Parser {
             digits++;
         }
 
-        if (digits < 0) return digits;
+        if (digits < 0) this.report(msg);
 
         return value;
     }
@@ -1299,11 +1299,7 @@ export class Parser {
                     case Chars.UpperO:
                         {
                             state = NumericState.Octal | NumericState.AllowSeparator;
-                            value = this.scanBinaryOrOctalDigits(state, 8);
-                            if (value < 0) {
-                                this.report(Errors.MissingOctalDigits);
-                                value = 0;
-                            }
+                            value = this.scanBinaryOrOctalDigits(state, 8, Errors.MissingOctalDigits);
                             break;
                         }
 
@@ -1311,11 +1307,7 @@ export class Parser {
                     case Chars.UpperB:
                         {
                             state = NumericState.Binary | NumericState.AllowSeparator;
-                            value = this.scanBinaryOrOctalDigits(state, 2);
-                            if (value < 0) {
-                                this.report(Errors.MissingBinaryDigits);
-                                value = 0;
-                            }
+                            value = this.scanBinaryOrOctalDigits(state, 2, Errors.MissingBinaryDigits);
                             break;
                         }
 
@@ -2001,7 +1993,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: Location,
         node: any,

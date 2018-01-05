@@ -595,7 +595,7 @@ describe('Next - BigInt', () => {
                     type: 'BinaryExpression',
                     left: {
                         type: 'Literal',
-                        "value": 4.059726770363619e+44,
+                        value: 4.059726770363619e+44,
                         bigint: '0x123456789abcdef0fedcba9876543212345678n',
                         start: 0,
                         end: 41,
