@@ -840,58 +840,49 @@ export class Parser {
         }
     }
 
-    private skipBlockComment(state: ScanState): ScanState {
+    private skipBlockComment(state: ScanState): any {
 
-        const result = false;
-        const terminated = false;
         const startPos = this.index;
-        const attachable = (this.flags & Flags.Comments) !== 0;
 
-        scan:
-            while (this.hasNext()) {
-                const ch = this.nextChar();
-                switch (ch) {
+        while (this.hasNext()) {
+            const ch = this.nextChar();
+            switch (ch) {
 
-                    case Chars.CarriageReturn:
-                        state |= ScanState.LastIsCR | ScanState.LineStart;
-                        this.advanceNewline();
-                        break;
+                case Chars.CarriageReturn:
+                    state |= ScanState.LastIsCR | ScanState.LineStart;
+                    this.advanceNewline();
+                    break;
 
-                    case Chars.LineFeed:
-                        this.advanceNewline(state);
-                        state = state & ~ScanState.LastIsCR | ScanState.LineStart;
-                        break;
+                case Chars.LineFeed:
+                    this.advanceNewline(state);
+                    state = state & ~ScanState.LastIsCR | ScanState.LineStart;
+                    break;
 
-                    case Chars.LineSeparator:
-                    case Chars.ParagraphSeparator:
-                        state = state & ~ScanState.LastIsCR | ScanState.LineStart;
-                        this.advanceNewline();
-                        break;
+                case Chars.LineSeparator:
+                case Chars.ParagraphSeparator:
+                    state = state & ~ScanState.LastIsCR | ScanState.LineStart;
+                    this.advanceNewline();
+                    break;
 
-                    case Chars.Asterisk:
-
-                        if (this.index + 1 < this.source.length &&
-                            this.source.charCodeAt(this.index + 1) === Chars.Slash) {
-                            this.index += 2;
-                            this.column += 2;
-
-                            state |= ScanState.Terminated;
-
-                            break scan;
-                        }
-                        // falls through
-                    default:
+                case Chars.Asterisk:
+                    {
                         this.advance();
-                }
-            }
+                        state &= ~ScanState.LastIsCR;
+                        if (this.consume(Chars.Slash)) {
+                            if (this.flags & Flags.Comments) {
+                                this.addComment('BlockComment', this.source.slice(startPos, this.index - 2));
+                            }
 
-        if (!(state & ScanState.Terminated)) {
-            this.tolerate(Errors.UnterminatedComment);
-        } else if (this.flags & Flags.Comments) {
-            this.addComment('BlockComment', this.source.slice(startPos, this.index - 2));
+                            return state;
+                        }
+                        break;
+                    }
+                default:
+                    this.advance();
+            }
         }
 
-        return state;
+        this.tolerate(Errors.UnterminatedComment);
     }
 
     private addComment(type: ESTree.CommentType, value: string) {
@@ -1258,7 +1249,7 @@ export class Parser {
         const next = (this.flags & Flags.OptionsNext) !== 0;
 
         let value = 0;
-        let isOctal  = (state & NumericState.Float) === 0;
+        let isOctal = (state & NumericState.Float) === 0;
         let mainFragment: string = '';
         let decimalFragment: string = '';
         let scientificFragment: string = '';
@@ -1343,7 +1334,7 @@ export class Parser {
                                     state = this.scanNumericFragment(state);
                                     continue;
                                 } else if (ch === Chars.Eight || ch === Chars.Nine) {
-                                    isOctal  = false;
+                                    isOctal = false;
                                     state = NumericState.DecimalWithLeadingZero;
                                     break;
                                 }
@@ -1377,7 +1368,7 @@ export class Parser {
             // Parse decimal digits and allow trailing fractional part.
             if (state & (NumericState.Decimal | NumericState.DecimalWithLeadingZero)) {
 
-                if (isOctal ) {
+                if (isOctal) {
 
                     loop: while (this.hasNext()) {
                         ch = this.nextChar();
@@ -1419,8 +1410,7 @@ export class Parser {
                         state |= NumericState.Float;
                         decimalFragment = this.scanDecimalDigitsOrFragment();
                     }
-                }
-                else {
+                } else {
                     mainFragment = this.scanDecimalDigitsOrFragment();
                 }
             }
@@ -2007,7 +1997,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: Location,
         node: any,
@@ -2076,10 +2066,10 @@ export class Parser {
      * Consume a semicolon between tokens, optionally inserting it if necessary.
      */
     private consumeSemicolon(context: Context) {
-        
+
         switch (this.token) {
             case Token.Semicolon:
-            // consume the semicolon if it was explicitly provided.
+                // consume the semicolon if it was explicitly provided.
                 this.expect(context, Token.Semicolon);
             case Token.RightBrace:
             case Token.EndOfSource:
