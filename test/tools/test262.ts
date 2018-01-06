@@ -99,31 +99,6 @@ const test262Overrides: any = {
             type: 'both',
             pass: true
         },
-        'test/language/expressions/assignment/11.13.1-4-30-s.js': {
-            source: '(eval) = 20;',
-            type: 'onlyStrict',
-            pass: false
-        },
-        'test/language/expressions/assignment/11.13.1-4-28-s.js': {
-            source: 'var eval = 20;',
-            type: 'onlyStrict',
-            pass: false
-        },
-        'test/language/expressions/assignment/S11.13.1_A1.js': {
-            source: 'x\u0009=\u0009true; x\u000B=\u000Btrue; x\u000C=\u000Ctrue; x\u0020=\u0020true; x\u00A0=\u00A0true; x\u000A=\u000Atrue; x\u000D=\u000Dtrue; x\u2028=\u2028true; x\u2029=\u2029true; x\u0009\u000B\u000C\u0020\u00A0\u000A\u000D\u2028\u2029=\u0009\u000B\u000C\u0020\u00A0\u000A\u000D\u2028\u2029true',
-            type: 'both',
-            pass: true
-        },
-        'test/language/expressions/assignment/11.13.1-4-29-s.js': {
-            source: 'function testcase() { var arguments = 20; }',
-            type: 'onlyStrict',
-            pass: true
-        },
-        'test/language/expressions/assignment/11.13.1-4-31-s.js': {
-            source: 'function testcase() { (arguments) = 20; }',
-            type: 'onlyStrict',
-            pass: true
-        },
         'test/language/expressions/bitwise-and/S11.10.1_A1.js': {
             source: '1\u0009&\u00091; 1\u000B&\u000B1; 1\u000C&\u000C1; 1\u0020&\u00201; 1\u00A0&\u00A01; 1\u000A&\u000A1; 1\u000D&\u000D1; 1\u2028&\u20281; 1\u2029&\u20291; 1\u0009\u000B\u000C\u0020\u00A0\u000A\u000D\u2028\u2029&\u0009\u000B\u000C\u0020\u00A0\u000A\u000D\u2028\u20291',
             type: 'both',
@@ -1820,10 +1795,10 @@ export default (opts: any) => {
             });
             const pass = overrides[relative] != null ||
                 meta.negative == null ||
-                meta.negative.phase !== ('parse' || 'early' || 'resolution') ||
+                meta.negative.phase !== 'parse' ||
                 meta.negative.type !== 'SyntaxError';
             let type = 'both';
-            //in ["parse", "resolution"]
+
             if (meta.flags != null) {
                 if (meta.flags.includes('module')) type = 'module';
                 else if (meta.flags.includes('onlyStrict')) type = 'onlyStrict';
@@ -1869,6 +1844,8 @@ export default (opts: any) => {
         switch (desc.type) {
             case 'both':
                 test('non-strict');
+
+            case 'onlyStrict':
                 test('strict');
                 break;
 
@@ -1876,10 +1853,7 @@ export default (opts: any) => {
                 test('module');
                 break;
 
-            case 'onlyStrict':
-                test('strict');
-                break;
-
+  
             case 'noStrict':
                 test('non-strict');
                 break;
