@@ -795,6 +795,115 @@ describe('Miscellaneous - Comments', () => {
             }
     });
 
+    pass(`#! /usr/bin/env node`, {
+      source: `#! /usr/bin/env node`,
+      comments: true,
+      raw: true,
+      expected: {
+          body: [],
+          comments: [
+            {
+              end: 20,
+              start: 0,
+              type: 'LineComment',
+             value: ' /usr/bin/env node'
+            }
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+    });
+
+    pass(`function a() {
+      return x/*comment*/;
+    }`, {
+      source: `function a() {
+        return x/*comment*/;
+      }`,
+      comments: true,
+      raw: true,
+      expected: {
+          body: [
+            {
+              async: false,
+              body: {
+                body: [
+                  {
+                    argument: {
+                      name: 'x',
+                      type: 'Identifier'
+                   },
+                    type: 'ReturnStatement'
+                  },
+               ],
+                type: 'BlockStatement'
+              },
+              expression: false,
+              generator: false,
+              id: {
+                name: 'a',
+                type: 'Identifier'
+              },
+              params: [],
+              type: 'FunctionDeclaration'
+            }
+          ],
+          comments: [
+            {
+              end: 42,
+              start: 31,
+              type: 'BlockComment',
+             value: 'comment',
+            },
+          ],
+         sourceType: 'script',
+          type: 'Program'
+        }
+    });
+
+    pass(`//c `, {
+      source: '//c ',
+      comments: true,
+      loc: true,
+      ranges: true,
+      raw: true,
+      expected: {
+          body: [],
+          comments: [
+            {
+              end: 4,
+              loc: {
+                end: {
+                  column: 4,
+                 line: 1,
+                },
+                start: {
+                  column: 0,
+                  line: 1,
+                }
+              },
+              start: 0,
+              type: 'LineComment',
+              value: 'c ',
+            },
+         ],
+          end: 4,
+          loc: {
+            end: {
+              column: 4,
+              line: 1,
+            },
+            start: {
+              column: 0,
+              line: 1,
+           },
+          },
+          sourceType: 'script',
+          start: 0,
+          type: 'Program'
+        }
+    });
+
     pass(`0/*\n*/--> a comment`, {
         source: '0/*\n*/--> a comment',
         comments: true,

@@ -351,18 +351,18 @@ export class Parser {
             switch (first) {
 
                 case Chars.CarriageReturn:
-                    state |= ScanState.LastIsCR | ScanState.LineStart;
+                    state |= ScanState.LastIsCR | ScanState.NewLine;
                     this.advanceNewline();
                     break;
 
                 case Chars.LineFeed:
                     this.advanceNewline(state);
-                    state = state & ~ScanState.LastIsCR | ScanState.LineStart;
+                    state = state & ~ScanState.LastIsCR | ScanState.NewLine;
                     break;
 
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
-                    state = state & ~ScanState.LastIsCR | ScanState.LineStart;
+                    state = state & ~ScanState.LastIsCR | ScanState.NewLine;
                     this.advanceNewline();
                     break;
 
@@ -469,7 +469,7 @@ export class Parser {
                                 {
                                     this.advance();
                                     if (this.nextChar() === Chars.GreaterThan &&
-                                        !(context & Context.Module || !(state & ScanState.LineStart))) {
+                                        !(context & Context.Module || !(state & (ScanState.LineStart | ScanState.NewLine)))) {
                                         this.advance();
                                         this.skipSingleLineComment();
                                         continue;
@@ -490,6 +490,7 @@ export class Parser {
                     // `#`
                 case Chars.Hash:
                     this.advance();
+                    // if begins with shebang
                     if (state & ScanState.LineStart &&
                         this.consume(Chars.Exclamation)) {
                         this.skipSingleLineComment();
@@ -821,7 +822,7 @@ export class Parser {
 
     private skipSingleLineComment() {
 
-        const startPos = this.index;
+        const commentStart = this.index;
 
         scan: while (this.hasNext()) {
             switch (this.nextChar()) {
@@ -836,7 +837,7 @@ export class Parser {
         }
 
         if (this.flags & Flags.Comments) {
-            this.addComment('LineComment', this.source.slice(startPos, this.index));
+            this.addComment('LineComment', commentStart);
         }
     }
 
@@ -849,18 +850,18 @@ export class Parser {
             switch (ch) {
 
                 case Chars.CarriageReturn:
-                    state |= ScanState.LastIsCR | ScanState.LineStart;
+                    state |= ScanState.LastIsCR | ScanState.NewLine;
                     this.advanceNewline();
                     break;
 
                 case Chars.LineFeed:
                     this.advanceNewline(state);
-                    state = state & ~ScanState.LastIsCR | ScanState.LineStart;
+                    state = state & ~ScanState.LastIsCR | ScanState.NewLine;
                     break;
 
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
-                    state = state & ~ScanState.LastIsCR | ScanState.LineStart;
+                    state = state & ~ScanState.LastIsCR | ScanState.NewLine;
                     this.advanceNewline();
                     break;
 
@@ -870,9 +871,8 @@ export class Parser {
                         state &= ~ScanState.LastIsCR;
                         if (this.consume(Chars.Slash)) {
                             if (this.flags & Flags.Comments) {
-                                this.addComment('BlockComment', this.source.slice(startPos, this.index - 2));
+                                this.addComment('BlockComment', startPos);
                             }
-
                             return state;
                         }
                         break;
@@ -885,11 +885,11 @@ export class Parser {
         this.tolerate(Errors.UnterminatedComment);
     }
 
-    private addComment(type: ESTree.CommentType, value: string) {
+    private addComment(type: ESTree.CommentType, start: number) {
 
         const comment: ESTree.Comment = {
             type,
-            value,
+            value: this.source.slice(start, type === 'BlockComment' ? this.index - 2 : this.index),
             start: this.startIndex,
             end: this.index,
         };
@@ -1410,7 +1410,8 @@ export class Parser {
                         state |= NumericState.Float;
                         decimalFragment = this.scanDecimalDigitsOrFragment();
                     }
-                } else {
+                }
+                else {
                     mainFragment = this.scanDecimalDigitsOrFragment();
                 }
             }
@@ -1997,7 +1998,7 @@ export class Parser {
         };
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: Location,
         node: any,

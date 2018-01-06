@@ -1820,10 +1820,10 @@ export default (opts: any) => {
             });
             const pass = overrides[relative] != null ||
                 meta.negative == null ||
-                meta.negative.phase !== 'early' ||
+                meta.negative.phase !== ('parse' || 'early' || 'resolution') ||
                 meta.negative.type !== 'SyntaxError';
             let type = 'both';
-
+            //in ["parse", "resolution"]
             if (meta.flags != null) {
                 if (meta.flags.includes('module')) type = 'module';
                 else if (meta.flags.includes('onlyStrict')) type = 'onlyStrict';

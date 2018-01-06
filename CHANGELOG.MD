@@ -111,3 +111,8 @@
 
 *2018-1-3: Version 0.22.0*
 - Implemented tolerant parsing
+
+*2018-1-6: Version 0.23.2*
+- Support latest Test262 tests
+- Only allow Shebang at lineStart
+- Improved error messages for tolerant parsing

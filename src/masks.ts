@@ -120,7 +120,7 @@ export const enum ScanState {
     None            = 0,
     LastIsCR        = 1 << 0,
     LineStart       = 1 << 1,
-    Terminated      = 1 << 2,
+    NewLine         = 1 << 2,
 }
 
 export const enum NumericState {

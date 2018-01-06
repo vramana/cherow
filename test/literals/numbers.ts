@@ -34,7 +34,7 @@ describe('Literals - Numbers', () => {
 
     fail(`"\\1"; "use strict";`, {
         source: `"\\1"; "use strict";`,
-        message: "Octal literals are not allowed in strict mode",
+        message: 'Octal literals are not allowed in strict mode',
         line: 1,
         column: 6,
         index: 18

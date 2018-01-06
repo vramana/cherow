@@ -699,54 +699,54 @@ describe('Statements - Numeric separators', () => {
         raw: true,
         next: true,
         expected: {
-              "body": [
+              body: [
                 {
-                 "end": 5,
-                  "expression": {
-                    "end": 5,
-                    "loc": {
-                      "end": {
-                        "column": 5,
-                        "line": 1,
+                 end: 5,
+                  expression: {
+                    end: 5,
+                    loc: {
+                      end: {
+                        column: 5,
+                        line: 1,
                       },
-                      "start": {
-                        "column": 0,
-                        "line": 1,
+                      start: {
+                        column: 0,
+                        line: 1,
                       }
                     },
-                    "raw": "0_1_2",
-                    "start": 0,
-                    "type": "Literal",
-                    "value": 12,
+                    raw: '0_1_2',
+                    start: 0,
+                    type: 'Literal',
+                    value: 12,
                   },
-                 "loc": {
-                    "end": {
-                      "column": 5,
-                      "line": 1,
+                 loc: {
+                    end: {
+                      column: 5,
+                      line: 1,
                     },
-                    "start": {
-                      "column": 0,
-                      "line": 1,
+                    start: {
+                      column: 0,
+                      line: 1,
                     }
                   },
-                 "start": 0,
-                  "type": "ExpressionStatement"
+                 start: 0,
+                  type: 'ExpressionStatement'
                 }
               ],
-              "end": 5,
-              "loc": {
-                "end": {
-                 "column": 5,
-                  "line": 1,
+              end: 5,
+              loc: {
+                end: {
+                 column: 5,
+                  line: 1,
                 },
-                "start": {
-                  "column": 0,
-                  "line": 1,
+                start: {
+                  column: 0,
+                  line: 1,
                 }
               },
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 

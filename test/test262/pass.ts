@@ -149,7 +149,16 @@ describe('test262 tests', () => parserTest262({
         'test/language/types/boolean/S8.3_A2.1.js',
         'test/language/types/boolean/S8.3_A2.2.js',
         'test/language/types/reference/S8.7.2_A1_T1.js',
-        'test/language/types/reference/S8.7.2_A1_T2.js'
+        'test/language/types/reference/S8.7.2_A1_T2.js',
+        'test/language/expressions/assignment/id-arguments-strict.js',
+        'test/language/expressions/assignment/id-eval-strict.js',
+        'test/language/expressions/property-accessors/non-identifier-name.js',
+        'test/language/identifiers/vertical-tilde-continue-escaped.js',
+        'test/language/identifiers/vertical-tilde-continue.js',
+        'test/language/identifiers/vertical-tilde-start-escaped.js',
+        'test/language/identifiers/vertical-tilde-start.js',
+        'test/language/statements/variable/id-arguments-strict.js',
+        'test/language/statements/variable/id-eval-strict.js'
     ],
     parse: (file: string, source: string, opts: any) => {
         const cherowOpts = {
