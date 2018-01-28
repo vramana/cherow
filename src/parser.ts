@@ -346,7 +346,7 @@ export class Parser {
 
             let first = this.nextChar();
 
-            if (first >= 128) first = this.nextCodePoint();
+//            if (first >= 128) first = this.nextCodePoint();
 
             switch (first) {
 
@@ -811,7 +811,7 @@ export class Parser {
                     return this.scanIdentifier(context);
                 default:
                     if (isValidIdentifierStart(first)) {
-                        return this.scanIdentifier(context, true);
+                        //return this.scanIdentifier(context, true);
                     }
                     this.error(Errors.UnexpectedToken, fromCodePoint(first));
             }
