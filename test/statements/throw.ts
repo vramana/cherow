@@ -1,4 +1,4 @@
-import { pass } from '../test-utils';
+import { pass } from '../utils';
 
 describe('Statements - Throw', () => {
 

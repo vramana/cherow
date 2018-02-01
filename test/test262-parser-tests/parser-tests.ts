@@ -21,13 +21,7 @@ const expectations = {
         '574ea84fc61bdc31.js',
         '6c4fe38464c16309.js',
         '8643da76fe7e95c7.js',
-        '3dbb6e166b14a6c0.js',
-
-        '046a0bb70d03d0cc.js',
-        '08a39e4289b0c3f3.js',
-        '300a638d978d0f2c.js',
-        '44f31660bd715f05.js',
-        '4d2c7020de650d40.js',
+        '3dbb6e166b14a6c0.js'
     ],
     explicit: [
         // Same tests as above
@@ -45,13 +39,6 @@ const expectations = {
         '574ea84fc61bdc31.js',
         '6c4fe38464c16309.js',
         '8643da76fe7e95c7.js',
-
-        '046a0bb70d03d0cc.js',
-        '08a39e4289b0c3f3.js',
-        '300a638d978d0f2c.js',
-        '44f31660bd715f05.js',
-        '4d2c7020de650d40.js',
-        'ce5f3bc27d5ccaac.js'
     ],
     fail: [
         'ef2d369cccc5386c.js',
@@ -85,52 +72,7 @@ const expectations = {
         '03d13b6c40f6aaea.js',
         '147fa078a7436e0e.js',
         '0ebf57bd8c051d27.js',
-        '08bafe059b17ac92.js',
-
-        'a38011d2c010999e.js',
-        'f0f16b655e08b92c.js',
-        'ef81b93cf9bdb4ec.js',
-        'dfc6f1cc5533e0bb.js',
-        'dc14ac854168468f.js',
-        'c939f8663a298a09.js',
-        'c939f8663a298a09.js',
-        'bfadeead1ddbd122.js',
-        'c06e4b51c181990e.js',
-        'c06e4b51c181990e.js',
-        'c3731145e0e65d1d.js',
-        'd28e80d99f819136.js',
-        'fdfe30c3a1471ea1.js',
-        'a793dd27762c8ec8.js',
-        'ae0a7ac275bc9f5c.js',
-        '98204d734f8c72b3.js',
-        '976b6247ca78ab51.js',
-        '944ea2478d838026.js',
-        'a633b3217b5b8026.js',
-        'b7b057684207633b.js',
-        'b9422ea5edcddf0b.js',
-        '9f5a6dae7645976a.js',
-        '75b52e0f57aab958.js',
-        '73d1b1b1bc1dabfb.js',
-        '783aeb8c90c3775d.js',
-        '939b16a89d0e8704.js',
-        '5c63ac420337d014.js',
-        '5864c96b99472ffc.js',
-        '569a2c1bad3beeb2.js',
-        '4ff4b78ff3e2de6e.js',
-        '49edc77061449ae3.js',
-        '4ee75fab1ccee715.js',
-        '40449ddc6ec37b35.js',
-        '38816d56f582672f.js',
-        '3558f8c0f0ba825b.js',
-        '320eade064b2c635.js',
-        '2e8378f658290622.js',
-        '2884c585d2f035a5.js',
-        '1395e3a9d2acf65c.js',
-        '168502012959421f.js',
-        '1aefe47e20eb91fa.module.js',
-        '1c04d8bc2ab25c1e.js',
-        '247e71c8786de6b6.js',
-        '733a157cb1896d10.js'
+        '08bafe059b17ac92.js'
     ],
     early: [
 
@@ -241,7 +183,7 @@ describe('Test262 Parser tests', () => {
             });
         }
     });
-/*
+
     describe('Early errors', () => {
         for (const f of readdirSync(`${Test262Dir}/early`)) {
             if (expectations.early.indexOf(f) !== -1) continue;
@@ -253,5 +195,5 @@ describe('Test262 Parser tests', () => {
                 });
             });
         }
-    });*/
+    });
 });

@@ -1,4 +1,4 @@
-import { pass, fail } from '../test-utils';
+import { pass, fail } from '../utils';
 
 describe('Expressions - Binary', () => {
 
@@ -2385,9 +2385,9 @@ describe('Expressions - Binary', () => {
 
     fail(`-x ** y`, {
             source: '-x ** y',
-            message: 'Unexpected token **',
+            message: 'Unexpected token \'**\'',
             line: 1,
-            column: 2,
-            index: 2
+            column: 3,
+            index: 5
         });
 });

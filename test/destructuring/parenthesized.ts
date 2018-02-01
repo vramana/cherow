@@ -1,4 +1,4 @@
-import { pass, fail } from '../test-utils';
+import { pass, fail } from '../utils';
 import { parseScript } from '../../src/cherow';
 
 describe('Destructuring - Parenthesized', () => {
@@ -2145,6 +2145,113 @@ describe('Destructuring - Parenthesized', () => {
             }],
             sourceType: 'script'
         }
+    });
+
+    fail('([a]) = 0', {
+        source: '([a]) = 0',
+        message: 'Invalid parenthesized pattern',
+        line: 1,
+        column: 6,
+        index: 7
+    });
+    fail('({a}) = {}', {
+        source: '({a}) = {}',
+        message: 'Invalid parenthesized pattern',
+        line: 1,
+        column: 6,
+        index: 7
+    });
+    fail('([a]) = []', {
+        source: '([a]) = []',
+        message: 'Invalid parenthesized pattern',
+        line: 1,
+        column: 6,
+        index: 7
+    });
+
+    fail('var [(a)] = 0', {
+        source: 'var [(a)] = 0',
+        message: 'Unexpected token \'(\'',
+        line: 1,
+        column: 5,
+        index: 6
+    });
+
+    fail('var {a:(b)} = 0', {
+        source: 'var {a:(b)} = 0',
+        message: 'Unexpected token \'(\'',
+        line: 1,
+        column: 7,
+        index: 8
+    });
+
+    fail('({a:(b = 0)} = 1)', {
+        source: '({a:(b = 0)} = 1)'
+    });
+
+    fail('([a]) = 0', {
+        source: '([a]) = 0',
+        message: 'Invalid parenthesized pattern',
+        line: 1,
+        column: 6,
+        index: 7
+    });
+    fail('({(a)} = 0)', {
+        source: '({(a)} = 0)',
+        message: 'Unexpected token',
+        line: 1,
+        column: 5,
+        index: 6
+    });
+    fail('(a, (b)) => 42', {
+        source: '(a, (b)) => 42',
+        message: 'Invalid parenthesized pattern',
+        line: 1,
+        column: 9,
+        index: 11
+    });
+    fail('({a, b}) = {a: 1, b: 2};', {
+        source: '({a, b}) = {a: 1, b: 2};',
+        message: 'Invalid parenthesized pattern',
+        line: 1,
+        column: 9,
+        index: 10
+    });
+    fail('({a, b}) = {a: 1, b:2};', {
+        source: '({a, b}) = {a: 1, b:2};',
+        message: 'Invalid parenthesized pattern',
+        line: 1,
+        column: 9,
+        index: 10
+    });
+    fail('{a:(b = 0)} = 1', {
+        source: '{a:(b = 0)} = 1',
+        message: 'Unexpected token \'=\'',
+        line: 1,
+        column: 12,
+        index: 13
+    });
+    fail('{b} = b;', {
+        source: '{b} = b;',
+        message: 'Unexpected token \'=\'',
+        line: 1,
+        column: 4,
+        index: 5
+    });
+    fail('([b]) = b;', {
+        source: '([b]) = b;',
+        message: 'Invalid parenthesized pattern',
+        line: 1,
+        column: 6,
+        index: 7
+    });
+
+    fail('([{constructor(){}}] = b);', {
+        source: '([{constructor(){}}] = b);',
+        message: 'Invalid destructuring assignment target',
+        line: 1,
+        column: 21,
+        index: 22
     });
 
 });

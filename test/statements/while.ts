@@ -1,7 +1,7 @@
-import { pass, fail } from '../test-utils';
+import { pass, fail } from '../utils';
 
 describe('Statements - While', () => {
-/*
+
       fail(`while({1}){ break ; };`, {
           source: 'while({1}){ break ; };',
           message: 'Unexpected token \'number\'',
@@ -56,7 +56,7 @@ describe('Statements - While', () => {
           line: 1,
           column: 0,
           index: 38,
-      });*/
+      });
 
       pass(`while(1);`, {
           source: 'while(1);',

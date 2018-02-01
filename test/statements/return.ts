@@ -1,32 +1,8 @@
-import { pass, fail } from '../test-utils';
+import { pass, fail } from '../utils';
 
 describe('Statements - Return', () => {
 
-    fail(`{ return; }`, {
-        source: '{ return; }',
-        message: 'Illegal return statement',
-        line: 1,
-        column: 1,
-        index: 1,
-    });
-
-    fail(`if (false) { return; }`, {
-        source: 'if (false) { return; }',
-        message: 'Illegal return statement',
-        line: 1,
-        column: 12,
-        index: 12,
-    });
-
-    fail(`{ var x=1; return; var y=2; }`, {
-      source: '{ var x=1; return; var y=2; }',
-      message: 'Illegal return statement',
-      line: 1,
-      column: 10,
-      index: 10,
-  });
-
-    pass(`(function(){ return })`, {
+      pass(`(function(){ return })`, {
           source: '(function(){ return })',
           loc: true,
           ranges: true,
@@ -115,7 +91,7 @@ describe('Statements - Return', () => {
           }
       });
 
-    pass(`(function(){ return; })`, {
+      pass(`(function(){ return; })`, {
           source: '(function(){ return; })',
           loc: true,
           ranges: true,
@@ -204,7 +180,7 @@ describe('Statements - Return', () => {
           }
       });
 
-    pass(`(function(){ return x; })`, {
+      pass(`(function(){ return x; })`, {
           source: '(function(){ return x; })',
           loc: true,
           ranges: true,
@@ -308,7 +284,7 @@ describe('Statements - Return', () => {
           }
       });
 
-    pass(`(function(){ return x * y })`, {
+      pass(`(function(){ return x * y })`, {
           source: '(function(){ return x * y })',
           loc: true,
           ranges: true,
@@ -444,7 +420,23 @@ describe('Statements - Return', () => {
           }
       });
 
-    pass(`_ => { return 0; }`, {
+      pass(`return`, {
+        source: 'return',
+        globalReturn: true,
+        impliedStrict: true,
+        expected: {
+              body: [
+                {
+                  argument: null,
+                  type: 'ReturnStatement'
+                }
+              ],
+             sourceType: 'script',
+              type: 'Program'
+            }
+      });
+
+      pass(`_ => { return 0; }`, {
           source: '_ => { return 0; }',
           loc: true,
           ranges: true,
@@ -563,21 +555,21 @@ describe('Statements - Return', () => {
               sourceType: 'script'
           }
       });
-/*
+
       fail(`return;`, {
         source: 'return;',
         message: 'Illegal return statement',
         line: 1,
         column: 0,
-        index: 0,
+        index: 6,
     });
 
       fail(`{ return; }`, {
           source: '{ return; }',
           message: 'Illegal return statement',
           line: 1,
-          column: 1,
-          index: 1,
+          column: 0,
+          index: 8,
       });
 
       fail(`if (false) { return; }`, {
@@ -594,5 +586,5 @@ describe('Statements - Return', () => {
         line: 1,
         column: 0,
         index: 17,
-    }); */
+    });
   });

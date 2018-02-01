@@ -1,62 +1,58 @@
-import { pass, fail } from '../test-utils';
+import { pass, fail } from '../utils';
 
 describe('Module-code - Miscellaneous', () => {
 
-    fail(`class C {}
-    new C().#x;`, {
-        source: `class C {}
-        new C().#x;`,
-        module: true,
-        line: 2
-    });
-
         fail(`yield;`, {
             source: `yield;`,
-            module: true,
-            line: 1
+            module: true
         });
 
         fail(`?`, {
             source: `?';`,
-            module: true,
-            line: 1
+            module: true
         });
 
         fail(`var g;
         function* g() {}`, {
             source: `var g;
             function* g() {}';`,
-            module: true,
-            line: 2
+            module: true
         });
 
         fail(`var await = 5;`, {
             source: `var await = 5;`,
             module: true,
-            line: 1
+            message: 'Unexpected reserved word',
+            line: 1,
+            column: 4,
+            index: 9
         });
 
         fail(`await 5;`, {
             source: `await 5;';`,
-            module: true,
-            line: 1
+            module: true
         });
 
         fail(`function f() { await 5; }`, {
             source: `function f() { await 5; }`,
             module: true,
-            line: 1
+            message: 'Unexpected token \'await\'',
+            line: 1,
+            column: 15,
+            index: 20
         });
 
         fail(`export var await;`, {
             source: `export var await;`,
-            module: true,
-            line: 1
+            module: true
         });
 
         fail(`await => 1;`, {
             source: `await => 1;';`,
             module: true,
-            line: 1
+            message: 'Unexpected token \'await\'',
+            line: 1,
+            column: 0,
+            index: 5
         });
 });

@@ -1,26 +1,59 @@
-import { pass, fail } from '../test-utils';
+import { pass, fail } from '../utils';
 
 describe('Statements - Labelled', () => {
 
-    fail(`aw\\u0061it: 1;`, {
-        source: 'aw\\u0061it: 1;',
-      message: 'Unexpected token await',
-      module: true,
-      line: 1
-    });
+        fail(`label: async function f() {}`, {
+          source: 'label: async function f() {}',
+          message: 'Async functions can only be declared at the top level or inside a block',
+          line: 1,
+          column: 7,
+          index: 12,
+      });
 
-    fail(`label: async function f() {}`, {
-        source: 'label: async function f() {}',
-      line: 1,
-    });
+        fail(`label: class C {}`, {
+          source: 'label: class C {}',
+          message: 'class can\'t appear in single-statement context',
+          line: 1,
+          column: 7,
+          index: 12
+      });
 
-    fail(`await: 1;`, {
-        source: 'await: 1;',
-      line: 1,
-      module: true
-    });
+        fail(`label: const x = null;`, {
+          source: 'label: const x = null;',
+          message: 'Unexpected token \'const\'',
+          line: 1,
+          column: 7,
+          index: 12,
+      });
 
-    pass(`start: while (true) break start`, {
+        fail(`label: function g() {}`, {
+          source: 'label: function g() {}',
+          module: true,
+          message: 'In strict mode code, functions can only be declared at top level or inside a block',
+          line: 1,
+          column: 7,
+          index: 15,
+      });
+
+        fail(`aw\\u0061it: 1;`, {
+          source: 'aw\\u0061it: 1;',
+          module: true,
+          message: 'Unexpected token \'await\'',
+          line: 1,
+          column: 0,
+          index: 10,
+      });
+
+        fail(`yield: 1;`, {
+          source: 'yield: 1;',
+          module: true,
+          message: 'Unexpected token \'yield\'',
+          line: 1,
+          column: 0,
+          index: 5,
+      });
+
+        pass(`start: while (true) break start`, {
           source: 'start: while (true) break start',
           loc: true,
           ranges: true,
@@ -137,76 +170,7 @@ describe('Statements - Labelled', () => {
           }
       });
 
-    pass(`L: let\nx`, {
-        source: 'L: let\nx',
-        raw: true,
-        expected: {
-              body: [
-                {
-                  body: {
-                    expression: {
-                      name: 'let',
-                      type: 'Identifier'
-                    },
-                    type: 'ExpressionStatement'
-                  },
-                  label: {
-                    name: 'L',
-                    type: 'Identifier'
-                 },
-                  type: 'LabeledStatement'
-                },
-                {
-                  expression: {
-                    name: 'x',
-                    type: 'Identifier'
-                  },
-                  type: 'ExpressionStatement'
-                }
-              ],
-              sourceType: 'script',
-              type: 'Program'
-            }
-    });
-
-    pass(`L: let\n{x}`, {
-        source: 'L: let\n{x}',
-        raw: true,
-        expected: {
-              body: [
-                {
-                  body: {
-                    expression: {
-                      name: 'let',
-                      type: 'Identifier'
-                    },
-                    type: 'ExpressionStatement'
-                  },
-                  label: {
-                    name: 'L',
-                    type: 'Identifier'
-                  },
-                  type: 'LabeledStatement'
-                },
-                {
-                  body: [
-                    {
-                      expression: {
-                        name: 'x',
-                        type: 'Identifier'
-                     },
-                      type: 'ExpressionStatement'
-                    }
-                  ],
-                 type: 'BlockStatement'
-                }
-              ],
-              sourceType: 'script',
-              type: 'Program'
-            }
-    });
-
-    pass(`__proto__: test`, {
+        pass(`__proto__: test`, {
           source: '__proto__: test',
           loc: true,
           ranges: true,
@@ -291,7 +255,7 @@ describe('Statements - Labelled', () => {
           }
       });
 
-    pass(`async: await`, {
+        pass(`async: await`, {
           source: 'async: await',
           loc: true,
           ranges: true,
@@ -376,7 +340,7 @@ describe('Statements - Labelled', () => {
           }
       });
 
-    pass(`a:{break a;}`, {
+        pass(`a:{break a;}`, {
           source: 'a:{break a;}',
           loc: true,
           ranges: true,

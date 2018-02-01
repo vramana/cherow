@@ -1,10 +1,6 @@
-import { pass, fail } from '../test-utils';
+import { pass, fail } from '../utils';
 
 describe('Statements - Break', () => {
-
-  fail(`{ var x=1; break LABEL; var y=2; }`, {
-    source: '{ var x=1; break LABEL; var y=2; }'
-  });
 
   pass(`while (true) { break }`, {
           source: 'while (true) { break }',
@@ -504,3 +500,19 @@ describe('Statements - Break', () => {
           }
       });
     });
+
+fail(`{ var x=1; break LABEL; var y=2; }`, {
+    source: '{ var x=1; break LABEL; var y=2; }'
+  });
+
+fail(`LABEL : x=3.14; var x=1; break LABEL; var y=2; `, {
+    source: 'LABEL : x=3.14; var x=1; break LABEL; var y=2; ',
+    message: 'Undefined label \'LABEL\'',
+    line: 1,
+    column: 36,
+    index: 37
+  });
+
+fail(`{ var x=1; break LABEL; var y=2; }`, {
+    source: '{ var x=1; break LABEL; var y=2; }'
+  });

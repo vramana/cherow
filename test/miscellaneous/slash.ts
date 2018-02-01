@@ -1,4 +1,4 @@
-import { pass, fail } from '../test-utils';
+import { pass, fail } from '../utils';
 
 // A number of slash-disambiguation corner cases
 describe('Miscellaneous - Slash', () => {

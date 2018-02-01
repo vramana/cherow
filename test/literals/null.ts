@@ -1,4 +1,4 @@
-import { fail, pass } from '../test-utils';
+import { pass, fail } from '../utils';
 
 describe('Literal - Null', () => {
 

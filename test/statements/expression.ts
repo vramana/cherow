@@ -1,4 +1,4 @@
-import { pass, fail } from '../test-utils';
+import { pass } from '../utils';
 
 describe('Statements - Expression', () => {
 
@@ -90,4 +90,77 @@ describe('Statements - Expression', () => {
             sourceType: 'script'
           }
       });
+
+      pass(`a\\u0061`, {
+          source: 'a\\u0061',
+          expected: {
+              body: [
+                {
+                  expression: {
+                    name: 'aa',
+                    type: 'Identifier',
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+      });
+  // \u0061
+   /*   pass(`\\u0061a'`, {
+          source: '\\u0061a',
+          loc: true,
+          ranges: true,
+          raw: true,
+          expected: {
+            "type": "Program",
+            "start": 0,
+            "end": 7,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 7
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 7,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 7
+                  }
+                },
+                "expression": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 7,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 7
+                    }
+                  },
+                  "name": "aa"
+                }
+              }
+            ],
+            "sourceType": "script"
+          }
+      });*/
   });

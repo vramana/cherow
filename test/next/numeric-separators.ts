@@ -1,4 +1,4 @@
-import { pass, fail } from '../test-utils';
+import { fail, pass } from '../utils';
 import { parseScript } from '../../src/cherow';
 
 describe('Statements - Numeric separators', () => {
@@ -76,45 +76,81 @@ describe('Statements - Numeric separators', () => {
     fail(`"\\u{12_34}"`, {
         source: '"\\u{12_34}"',
         next: true,
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 6
     });
 
     fail(`"let a\\u{12_34} = 5"`, {
         source: '"let a\\u{12_34} = 5"',
         next: true,
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 11
     });
 
     fail(`"\\u12_34"`, {
         source: '"\\u12_34"',
         next: true,
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 5
     });
 
     fail(`5_______2;`, {
         source: '5_______2;',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 0,
+        index: 2
     });
 
     fail(`0x_52`, {
         source: '0x_52',
         next: true,
+        message: 'Missing hexadecimal digits after \'0x\'',
+        line: 1,
+        column: 0,
+        index: 2
     });
 
     fail(`1_`, {
         source: '1_',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 0,
+        index: 2
     });
 
     fail(`3_.1415F;`, {
         source: '3_.1415F;',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 0,
+        index: 2
     });
 
     fail(`.4_3_1`, {
         source: '.4_3_1',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 0,
+        index: 2
     });
 
     fail(`3._1415F;`, {
         source: '3._1415F;',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 0,
+        index: 2
     });
 
     fail(`0b_`, {
@@ -125,71 +161,127 @@ describe('Statements - Numeric separators', () => {
     fail(`0b0__0`, {
         source: '0b0__0',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 0,
+        index: 4
     });
 
     fail(`1__0123456789`, {
         source: '1__0123456789',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     fail(`(1_1_)`, {
         source: '(1_1_)',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 5,
+        index: 5
     });
 
     fail(`(1__1)`, {
         source: '(1__1)',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     fail(`(1_1_.1_1)`, {
         source: '(1_1_.1_1)',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 5,
+        index: 5
     });
 
     fail(`(1_1.1_E1)`, {
         source: '(1_1.1_E1)',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 7,
+        index: 7
     });
 
     fail(`\\u{10_ffff}`, {
         source: '\\u{10_ffff}',
         next: true,
+        message: 'Invalid hexadecimal escape sequence',
+        line: 1,
+        column: 0,
+        index: 5
     });
 
     fail(`0xa_1_`, {
         source: '0xa_1_',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 6,
+        index: 6
     });
 
     fail(`(0x_a_1)`, {
         source: '(0x_a_1)',
         next: true,
+        message: 'Missing hexadecimal digits after \'0x\'',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     fail(`(0o_1_1)`, {
         source: '(0o_1_1)',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 5,
+        index: 5
     });
 
     fail(`0x_a_1`, {
         source: '0x_a_1',
         next: true,
+        message: 'Missing hexadecimal digits after \'0x\'',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     fail(`{1_}`, {
         source: '{1_}',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     fail(`{1__1}`, {
         source: '{1__1}',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     fail(`{0x_1_1_}`, {
         source: '{0x_1_1_}',
         next: true,
+        message: 'Missing hexadecimal digits after \'0x\'',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     fail(`0xZ_1`, {
@@ -215,31 +307,55 @@ describe('Statements - Numeric separators', () => {
     fail(`1_`, {
         source: '1_',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     fail(`0x_1`, {
         source: '0x_1',
         next: true,
+        message: 'Missing hexadecimal digits after \'0x\'',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     fail(`0x0__0`, {
         source: '0x0__0',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 4,
+        index: 4
     });
 
     fail(`0x0_`, {
         source: '0x0_',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 4,
+        index: 4
     });
 
     fail(`10_`, {
         source: '10_',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     fail(`10__0123456789`, {
         source: '10__0123456789',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     fail(`0b_1`, {
@@ -250,20 +366,130 @@ describe('Statements - Numeric separators', () => {
     fail(`0b0__0`, {
         source: '0b0__0',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 4,
+        index: 4
     });
 
     fail(`0b0_`, {
         source: '0b0_',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 4,
+        index: 4
     });
     fail(`10.0_e1`, {
         source: '10.0_e1',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 5,
+        index: 5
     });
 
     fail(`0.00e0__0`, {
         source: '0.00e0__0',
         next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 7,
+        index: 7
+    });
+
+    fail(`0._0e+0`, {
+        source: '0._0e+0',
+        next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 2,
+        index: 2
+    });
+
+    fail(`0_e+0`, {
+        source: '0_e+0',
+        next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 2,
+        index: 2
+    });
+
+    fail(`0e-0__0`, {
+        source: '0e-0__0',
+        next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    fail(`0.0e-_0`, {
+        source: '0.0e-_0',
+        next: true,
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    fail(`0__0.0e-0`, {
+        source: '0__0.0e-0',
+        next: true,
+        message: 'Numeric separators are not allowed here',
+        line: 1,
+        column: 2,
+        index: 2
+    });
+
+    fail(`10._e1`, {
+        source: '10._e1',
+        next: true
+    });
+
+    fail(`1.0e_+10`, {
+        source: '1.0e_+10',
+        next: true
+    });
+
+    fail(`1.0e_-10`, {
+        source: '1.0e_-10',
+        next: true
+    });
+
+    fail(`0.0__0`, {
+        source: '0.0__0',
+        next: true
+    });
+
+    fail(`0.0__ : 0`, {
+        source: '0.0__ : 0',
+        next: true
+    });
+
+    fail(`10._e1`, {
+        source: '10._e1',
+        next: true
+    });
+
+    fail(`10._`, {
+        source: '10._',
+        next: true
+    });
+
+    fail(`.0_e1`, {
+        source: '.0_e1',
+        next: true
+    });
+
+    fail(`._e1`, {
+        source: '._e1',
+        next: true,
+        message: 'Unexpected token \'.\'',
+        line: 1,
+        column: 0,
+        index: 1
     });
 
     fail(`0o0_`, {
@@ -394,6 +620,76 @@ describe('Statements - Numeric separators', () => {
     fail(`1.4_e2`, {
         source: '1.4_e2',
         next: true
+    });
+
+    pass(`1.4e_2;`, {
+        source: '1.4e_2;',
+        loc: true,
+        ranges: true,
+        tolerant: true,
+        raw: true,
+        next: true,
+        expected: {
+            body: [{
+                end: 7,
+                expression: {
+                    end: 6,
+                    loc: {
+                        end: {
+                            column: 6,
+                            line: 1,
+                        },
+                        start: {
+                            column: 0,
+                            line: 1,
+                        }
+                    },
+                    raw: '1.4e_2',
+                    start: 0,
+                    type: 'Literal',
+                    value: 140,
+                },
+                loc: {
+                    end: {
+                        column: 7,
+                        line: 1,
+                    },
+                    start: {
+                        column: 0,
+                        line: 1,
+                    }
+                },
+                start: 0,
+                type: 'ExpressionStatement'
+            }],
+            end: 7,
+            errors: [{
+                    column: 4,
+                    description: 'Invalid or unexpected token',
+                    index: 4,
+                    lineNumber: 1,
+                },
+                {
+                    column: 4,
+                    description: 'Numeric separators are not allowed here',
+                    index: 4,
+                    lineNumber: 1,
+                }
+            ],
+            loc: {
+                end: {
+                    column: 7,
+                    line: 1,
+                },
+                start: {
+                    column: 0,
+                    line: 1,
+                }
+            },
+            sourceType: 'script',
+            start: 0,
+            type: 'Program'
+        }
     });
 
     pass(`0_1_2`, {

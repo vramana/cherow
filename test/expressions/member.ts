@@ -1,4 +1,4 @@
-import { pass } from '../test-utils';
+import { pass } from '../utils';
 
 describe('Expressions - Member', () => {
 
@@ -906,5 +906,4 @@ describe('Expressions - Member', () => {
                 }
             }
         });
-
-    });
+});

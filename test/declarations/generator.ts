@@ -1,4 +1,4 @@
-import { pass, fail } from '../test-utils';
+import { pass, fail } from '../utils';
 
 describe('Declarations - Generator', () => {
 
@@ -7,22 +7,22 @@ describe('Declarations - Generator', () => {
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 11,
-        index: 11
+        index: 16
     });
 
     fail(`function*g({yield}){}`, {
         source: 'function*g({yield}){}',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 17,
-        index: 17
+        column: 11,
+        index: 12
     });
 
     fail(`function*g([yield]){}`, {
         source: 'function*g([yield]){}',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 12,
+        column: 11,
         index: 12
     });
 
@@ -30,8 +30,8 @@ describe('Declarations - Generator', () => {
         source: 'function*g({a: yield}){}',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 14,
-        index: 14
+        column: 11,
+        index: 12
     });
 
     fail(`function*g(yield = 0){}`, {
@@ -39,39 +39,39 @@ describe('Declarations - Generator', () => {
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 11,
-        index: 11
+        index: 16
     });
 
     fail(`function*g(){ var yield = 1; }`, {
         source: 'function*g(){ var yield = 1; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 17,
-        index: 17
+        column: 18,
+        index: 23
     });
 
     fail(`function*g(){ function yield(){}; }`, {
         source: 'function*g(){ function yield(){}; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 22,
-        index: 22
+        column: 23,
+        index: 28
     });
 
     fail(`function*g() { var yield; }`, {
         source: 'function*g() { var yield; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 18,
-        index: 18
+        column: 19,
+        index: 24
     });
 
     fail(`function*g() { let yield; }`, {
         source: 'function*g() { let yield; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 18,
-        index: 18
+        column: 19,
+        index: 24
     });
 
     fail(`function*g() { try {} catch (yield) {} }`, {
@@ -79,7 +79,7 @@ describe('Declarations - Generator', () => {
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 29,
-        index: 29
+        index: 34
     });
 
     fail(`function*g() { ({yield}); }`, {
@@ -87,14 +87,14 @@ describe('Declarations - Generator', () => {
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 22,
-        index: 22
+        index: 23
     });
     fail(`function*g() { ({yield} = 0); }`, {
         source: 'function*g() { ({yield} = 0); }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 22,
-        index: 22
+        index: 23
     });
 
     fail(`function*g() { var {yield} = 0; }`, {
@@ -102,7 +102,7 @@ describe('Declarations - Generator', () => {
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 25,
-        index: 25
+        index: 26
     });
 
     fail(`function*g() { for ({yield} in 0); }`, {
@@ -110,41 +110,41 @@ describe('Declarations - Generator', () => {
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 26,
-        index: 26
+        index: 27
     });
 
     fail(`function*g() { ({yield = 0}); }`, {
         source: 'function*g() { ({yield = 0}); }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 22,
-        index: 22
+        column: 23,
+        index: 24
     });
 
     fail(`function*g() { ({yield = 0} = 0); }`, {
         source: 'function*g() { ({yield = 0} = 0); }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 22,
-        index: 22
+        column: 23,
+        index: 24
     });
 
     fail(`function*g() { var {yield = 0} = 0; }`, {
         source: 'function*g() { var {yield = 0} = 0; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 25,
-        index: 25
+        column: 26,
+        index: 27
     });
 
     fail(`function*g() { for ({yield = 0} in 0); }`, {
         source: 'function*g() { for ({yield = 0} in 0); }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 26,
-        index: 26
+        column: 27,
+        index: 28
     });
-/*
+
     fail(`label: function* a(){}`, {
         source: 'label: function* a(){}',
         message: 'Generators can only be declared at the top level or inside a block.',
@@ -152,61 +152,61 @@ describe('Declarations - Generator', () => {
         column: 15,
         index: 16
     });
-*/
+
     fail(`function*g(){ var yield; }`, {
         source: 'function*g(){ var yield; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 17,
-        index: 17
+        column: 18,
+        index: 23
     });
 
     fail(`function*g() { ({yield = 0} = 0); }`, {
         source: 'function*g() { ({yield = 0} = 0); }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 22,
-        index: 22
+        column: 23,
+        index: 24
     });
 
     fail(`function*g() { var {yield = 0} = 0; }`, {
         source: 'function*g() { var {yield = 0} = 0; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 25,
-        index: 25
+        column: 26,
+        index: 27
     });
 
     fail(`function*g() { for ({yield = 0} in 0); }`, {
         source: 'function*g() { for ({yield = 0} in 0); }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 26,
-        index: 26
+        column: 27,
+        index: 28
     });
 
     fail(`function* a({e: a.b}) {}`, {
         source: 'function* a({e: a.b}) {}',
         message: 'Unexpected token',
         line: 1,
-        column: 18,
-        index: 18
+        column: 12,
+        index: 13
     });
 
     fail(`function* gf() { 1 + yield; }`, {
         source: 'function* gf() { 1 + yield; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 20,
-        index: 20
+        column: 21,
+        index: 26
     });
 
     fail(`function* gf() { 1 + yield 2; }`, {
         source: 'function* gf() { 1 + yield 2; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 20,
-        index: 20
+        column: 21,
+        index: 26
     });
 
     fail(`function* gf() { +yield* 'foo'; }`, {
@@ -214,23 +214,23 @@ describe('Declarations - Generator', () => {
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 18,
-        index: 18
+        index: 23
     });
 
     fail(`function* gf() { yield++; }`, {
         source: 'function* gf() { yield++; }',
-        message: 'Unexpected token',
+        message: 'Unexpected token \';\'',
         line: 1,
         column: 24,
-        index: 24
+        index: 25
     });
 
     fail(`function *gf(b, a = 1 + yield) {}`, {
         source: 'function *gf(b, a = 1 + yield) {}',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 23,
-        index: 23
+        column: 24,
+        index: 29
     });
 
     pass(`function* t() {};`, {
@@ -2562,5 +2562,4 @@ describe('Declarations - Generator', () => {
             }
         }
     });
-
 });

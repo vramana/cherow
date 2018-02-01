@@ -1,7 +1,7 @@
-import { pass, fail } from '../test-utils';
+import { pass, fail } from '../utils';
 
 describe('Statements - With', () => {
-/*
+
 fail(`with ({}) class C {}`, {
     source: 'with ({}) class C {}',
     message: 'class can\'t appear in single-statement context',
@@ -17,7 +17,7 @@ fail(`with in strict mode`, {
     column: 14,
     index: 18,
   });
-*/
+
 pass(`with (x) foo`, {
           source: 'with (x) foo',
           loc: true,
@@ -280,165 +280,4 @@ pass(`with(1);`, {
             sourceType: 'script'
           }
       });
-
-pass(`with ({}) {}`, {
-        source: 'with ({}) {}',
-        loc: true,
-        ranges: true,
-        raw: true,
-        expected: {
-          type: 'Program',
-          body: [
-              {
-                  type: 'WithStatement',
-                  object: {
-                      type: 'ObjectExpression',
-                      properties: [],
-                      start: 6,
-                      end: 8,
-                      loc: {
-                          start: {
-                              line: 1,
-                              column: 6
-                          },
-                          end: {
-                              line: 1,
-                              column: 8
-                          }
-                      }
-                  },
-                  body: {
-                      type: 'BlockStatement',
-                      body: [],
-                      start: 10,
-                      end: 12,
-                      loc: {
-                          start: {
-                              line: 1,
-                              column: 10
-                          },
-                          end: {
-                              line: 1,
-                              column: 12
-                          }
-                      }
-                  },
-                  start: 0,
-                  end: 12,
-                  loc: {
-                      start: {
-                          line: 1,
-                          column: 0
-                      },
-                      end: {
-                          line: 1,
-                          column: 12
-                      }
-                  }
-              }
-          ],
-          sourceType: 'script',
-          start: 0,
-          end: 12,
-          loc: {
-              start: {
-                  line: 1,
-                  column: 0
-              },
-              end: {
-                  line: 1,
-                  column: 12
-              }
-          }
-      }
-      });
-
-pass(`with ({}) 12`, {
-        source: 'with ({}) 12',
-        loc: true,
-        ranges: true,
-        raw: true,
-        expected: {
-          type: 'Program',
-          body: [
-              {
-                  type: 'WithStatement',
-                  object: {
-                      type: 'ObjectExpression',
-                      properties: [],
-                      start: 6,
-                      end: 8,
-                      loc: {
-                          start: {
-                              line: 1,
-                              column: 6
-                          },
-                          end: {
-                              line: 1,
-                              column: 8
-                          }
-                      }
-                  },
-                  body: {
-                      type: 'ExpressionStatement',
-                      expression: {
-                          type: 'Literal',
-                          value: 12,
-                          start: 10,
-                          end: 12,
-                          loc: {
-                              start: {
-                                  line: 1,
-                                  column: 10
-                              },
-                              end: {
-                                  line: 1,
-                                  column: 12
-                              }
-                          },
-                          raw: '12'
-                      },
-                      start: 10,
-                      end: 12,
-                      loc: {
-                          start: {
-                              line: 1,
-                              column: 10
-                          },
-                          end: {
-                              line: 1,
-                              column: 12
-                          }
-                      }
-                  },
-                  start: 0,
-                  end: 12,
-                  loc: {
-                      start: {
-                          line: 1,
-                          column: 0
-                      },
-                      end: {
-                          line: 1,
-                          column: 12
-                      }
-                  }
-              }
-          ],
-          sourceType: 'script',
-          start: 0,
-          end: 12,
-          loc: {
-              start: {
-                  line: 1,
-                  column: 0
-              },
-              end: {
-                  line: 1,
-                  column: 12
-              }
-          }
-      }
-      });
-
   });

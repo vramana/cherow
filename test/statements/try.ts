@@ -1,6 +1,14 @@
-import { pass, fail } from '../test-utils';
+import { pass, fail } from '../utils';
 
 describe('Statements - Try', () => {
+
+    fail(`try { } catch (x) { let x; }`, {
+        source: `try { } catch (x) { let x; }`,
+        message:  '\'x\' has already been declared ',
+        line: 1,
+        column: 24,
+        index: 25,
+    });
 
     pass(`try { } catch (eval) { }`, {
         source: 'try { } catch (eval) { }',
@@ -1501,5 +1509,4 @@ describe('Statements - Try', () => {
                 sourceType: 'script'
             }
         });
-
-});
+    });

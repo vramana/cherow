@@ -1,4 +1,4 @@
-import { pass, fail } from '../test-utils';
+import { pass, fail } from '../utils';
 
 describe('Expressions - Grouped', () => {
 
@@ -424,5 +424,29 @@ describe('Expressions - Grouped', () => {
                     }
                 }
             }
+        });
+
+        fail(`(0, {a = 0}) = 0`, {
+            source: '(0, {a = 0}) = 0',
+            message: 'Invalid destructuring assignment target',
+            line: 1,
+            column: 13,
+            index: 14
+        });
+
+        fail(`({a = 0}, {a = 0}, 0) => 0`, {
+            source: '({a = 0}, {a = 0}, 0) => 0',
+            message: '\'a\' has already been declared ',
+            line: 1,
+            column: 0,
+            index: 1
+        });
+
+        fail(`(0, {a = 0}) => 0`, {
+            source: '(0, {a = 0}) => 0',
+            message: 'Invalid destructuring assignment target',
+            line: 1,
+            column: 16,
+            index: 17
         });
 });

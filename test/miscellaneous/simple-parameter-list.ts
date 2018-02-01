@@ -1,4 +1,4 @@
-import { fail, pass } from '../test-utils';
+import { fail, pass } from '../utils';
 
 describe('Miscellaneous - Simple parameter list', () => {
 

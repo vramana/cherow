@@ -1,62 +1,71 @@
-import { pass, fail } from '../test-utils';
+import { pass, fail } from '../utils';
 
 describe('Declarations - Const', () => {
 
     fail('for (;false;) const x = 1;', {
         source: 'for (;false;) const x = 1;',
-        message: 'Unexpected token',
+        message: 'Unexpected token \'const\'',
         line: 1,
-        column: 13,
-        index: 13
+        column: 14,
+        index: 19
     });
 
     fail('if (true) {} else const x = 1;', {
         source: 'if (true) {} else const x = 1;',
-        message: 'Unexpected token',
+        message: 'Unexpected token \'const\'',
         line: 1,
-        column: 17,
-        index: 17
+        column: 18,
+        index: 23
     });
 
     fail('label: const x = 1;', {
         source: 'label: const x = 1;',
-        message: 'Unexpected token',
+        message: 'Unexpected token \'const\'',
         line: 1,
-        column: 6,
-        index: 6
+        column: 7,
+        index: 12
     });
 
     fail('switch (true) { default: const x; }', {
         source: 'switch (true) { default: const x; }',
-        message: 'Unexpected token',
+        message: 'Missing initializer',
         line: 1,
         column: 32,
-        index: 32
+        index: 33
     });
 
     fail('while (false) const x;', {
         source: 'while (false) const x;',
-        message:  'Unexpected token',
+        message: 'Unexpected token \'const\'',
         line: 1,
-        column: 13,
-        index: 13
+        column: 14,
+        index: 19
     });
 
     fail(`const
             let = "irrelevant initializer";`, {
-        source: `const let = "irrelevant initializer";`,
+        source: `const
+            let = "irrelevant initializer";`,
         message: 'let is disallowed as a lexically bound name',
-        line: 1,
-        column: 5,
-        index: 5
+        line: 2,
+        column: 12,
+        index: 21
     });
 
     fail('const x, y = 1;', {
         source: 'const x, y = 1;',
-        message: 'Unexpected token',
+        message: 'Missing initializer',
         line: 1,
         column: 7,
-        index: 7
+        index: 8
+    });
+
+    fail('(function() { "use strict"; { const f = 1; var f; } })', {
+        source: '(function() { "use strict"; { const f = 1; var f; } })',
+        message: '\'f\' has already been declared ',
+        line: 1,
+        column: 47,
+        index: 48
     });
 
     fail('const [...[x], y] = [1, 2, 3];', {
@@ -64,21 +73,21 @@ describe('Declarations - Const', () => {
         message: 'Unexpected token',
         line: 1,
         column: 13,
-        index: 13
+        index: 14
     });
     fail('const [...x = []] = [];', {
         source: 'const [...x = []] = [];',
-        message: 'Unexpected token',
+        message: 'Unexpected token \'=\'',
         line: 1,
-        column: 11,
-        index: 11
+        column: 12,
+        index: 13
     });
     fail('const a;', {
         source: 'const a;',
-        message: 'Unexpected token',
+        message: 'Missing initializer',
         line: 1,
         column: 7,
-        index: 7
+        index: 8
     });
 
     pass(`const x = function foo() {} /42/i`, {

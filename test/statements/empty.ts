@@ -1,4 +1,4 @@
-import { pass, fail } from '../test-utils';
+import { pass } from '../utils';
 
 describe('Statements - Empty', () => {
 

@@ -1,4 +1,4 @@
-import { fail, pass } from '../test-utils';
+import { fail, pass } from '../utils';
 
 describe('Literals - Numbers', () => {
 
@@ -34,102 +34,202 @@ describe('Literals - Numbers', () => {
 
     fail(`"\\1"; "use strict";`, {
         source: `"\\1"; "use strict";`,
+        message: 'Octal literals are not allowed in strict mode',
+        line: 1,
+        column: 6,
+        index: 18
     });
 
     fail(`const t = 2.34e-;const b = 4.3e--3;`, {
         source: 'const t = 2.34e-;const b = 4.3e--3;',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 16,
+        index: 16
     });
 
     fail(`"use strict"; var foo = 000;`, {
         source: '"use strict"; var foo = 000;',
+        message: 'Octal literals are not allowed in strict mode',
+        line: 1,
+        column: 24,
+        index: 27
     });
 
     fail(`"use strict"; var foo = 07;`, {
         source: '"use strict"; var foo = 07;',
+        message: 'Octal literals are not allowed in strict mode',
+        line: 1,
+        column: 24,
+        index: 26
     });
 
     fail(`"use strict"; var foo = 05;`, {
         source: '"use strict"; var foo = 05;',
+        message: 'Octal literals are not allowed in strict mode',
+        line: 1,
+        column: 24,
+        index: 26
     });
 
     fail(`0o`, {
         source: '0o',
+        message: 'Missing octal digits after \'0o\'',
+        line: 1,
+        column: 0,
+        index: 2
     });
 
     fail(`06.7`, {
         source: '06.7',
+        message: 'Unexpected token \'number\'',
+        line: 1,
+        column: 2,
+        index: 4
     });
 
     fail(`0b;`, {
         source: '0b;',
+        message: 'Missing binary digits after \'0b\'',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     fail(`00b0;`, {
         source: '00b0;',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     fail(`"use strict"; 01;`, {
         source: '"use strict"; 01;',
+        message: 'Octal literals are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
     });
 
     fail(`0\\u00620;`, {
         source: '0\\u00620;',
+        message: 'Unexpected token \'identifier\'',
+        line: 1,
+        column: 1,
+        index: 8
     });
 
     fail(`0b8;`, {
         source: '0b8;',
+        message: 'Missing binary digits after \'0b\'',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     fail(`0o8;`, {
         source: '0o8;',
+        message: 'Missing octal digits after \'0o\'',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     fail(`0o;`, {
         source: '0o;',
+        message: 'Missing octal digits after \'0o\'',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     fail(`"use strict"; 08;`, {
         source: '"use strict"; 08;',
+        message: 'Octal literals are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 16
     });
 
     fail(`0x¤%&/()`, {
         source: '0x¤%&/()',
+        message: 'Missing hexadecimal digits after \'0x\'',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     fail(`"use strict"; 018`, {
         source: '"use strict"; 018',
+        message: 'Octal literals are not allowed in strict mode',
+        line: 1,
+        column: 14,
+        index: 17
     });
 
     fail(`0\\u00620`, {
         source: '0\\u00620',
+        message:  'Unexpected token \'identifier\'',
+        line: 1,
+        column: 1,
+        index: 8
     });
 
     fail(`1.e`, {
         source: '1.e',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     fail(`0b2`, {
         source: '0b2',
+        message: 'Missing binary digits after \'0b\'',
+        line: 1,
+        column: 2,
+        index: 2
     });
 
     fail(`0b1a;`, {
         source: '0b1a',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     fail(`0B18`, {
         source: '0B18',
+        message: 'Unexpected token \'number\'',
+        line: 1,
+        column: 3,
+        index: 4
     });
 
     fail(`0o1a;`, {
         source: '0o1a',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     fail(`09.x`, {
         source: '09.x',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     fail(`0b1a;`, {
         source: '0b1a',
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     pass(`0o1 & 0o10;`, {
