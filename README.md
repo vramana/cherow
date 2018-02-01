@@ -1,4 +1,4 @@
-# Cherow
+# Cherow (*1.0.0 Beta*)
 
 [![NPM version](https://img.shields.io/npm/v/cherow.svg)](https://www.npmjs.com/package/cherow)
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/cherow/cherow)
@@ -16,30 +16,24 @@ It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ec
 
 * Full support for ECMAScript® 2017 [(ECMA-262 8th Edition)](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
 * ECmaScript Next (*Stage 3 proposals*)
-* [JSX](https://facebook.github.io/react/docs/jsx-in-depth.html), a syntax extension for React
 * Skips hashbang comment nodes by default
 * Skips BOM (*U+FEFF*) by default
 * Tolerant parsing
 * Optional tracking of syntax node location (index-based and line-column)
-* Heavily tested (~56 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
-* Parameterized plugin system
+* Heavily tested (~52 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
+* Plugin system
 
 ## ESNext features
 
 `Stage 3` features support. These need to be enabled with the `next` option. 
 
 * [Import()](https://github.com/tc39/proposal-dynamic-import)
-* [Asynchronous Iteration](https://github.com/tc39/proposal-async-iteration)
 * [Class Fields](https://github.com/tc39/proposal-class-fields)
 * [Numeric Separators](https://github.com/tc39/proposal-numeric-separator)
 * [Private methods and fields](https://github.com/tc39/proposal-private-methods)
-* [Rest/Spread Properties](https://github.com/tc39/proposal-object-rest-spread)
 * [Optional catch binding](https://github.com/tc39/proposal-optional-catch-binding)
 * [BigInt](https://github.com/tc39/proposal-bigint)
-* [RegExp Lookbehind Assertions](https://github.com/tc39/proposal-regexp-lookbehind)
-* [RegExp named capture groups](https://github.com/tc39/proposal-regexp-named-groups)
 * [Import.meta](https://github.com/tc39/proposal-import-meta)
-* [Throw expressions](https://github.com/tc39/proposal-throw-expressions)
 
 ## API
 Cherow generates AST according to [ESTree AST format](https://github.com/estree/estree), and can be used to perform [syntactic analysis](https://en.wikipedia.org/wiki/Parsing) (parsing) of a JavaScript program, and with ES2015 and later a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and this is achieved by choosing [`parseScript`](http://www.ecma-international.org/ecma-262/8.0/#sec-parse-script) function to parse a script and [`parseModule`](http://www.ecma-international.org/ecma-262/8.0/#sec-parsemodule) function to parse a module.
@@ -93,10 +87,6 @@ parseScript('1', { ranges: true, loc: true });`:
 | ----------- | ------------------------------------------------------------ |
 | `comments`        | Create a top-level comments array containing all comments |
 | `tolerant`        | Create a top-level error array containing all "*skipped*" errors |
-| `attachComment`   | Attach comments to the closest relevant AST nodes |
-| `globalReturn`    | Allow return statement in global scope     |
-| `impliedStrict`   | Allow implied strict mode in sloppy mode (*modules are strict by default*) |
-| `jsx`             | Enable React JSX parsing   |
 | `loc      `       | Attach line/column location information to each node |
 | `ranges`          | Attach range information to each node |
 | `next`            | Allow experimental ECMAScript features (*Stage 3 proposals*) |
@@ -119,64 +109,6 @@ either be `LineComment` for a single-line comment (`//`) or `BlockComment` for a
     
  cherow.parseScript('function foo() { /* bar */ return /* baz */;}', { attachComment: true }));
 
-```
-## Tolerant parsing
-
-The tolerant algorithm used by `Cherow` deviates slightly from both `Esprima` and `Acorn` due to the 
-parsers complexity, and it's primarily for early errors, and other errors that are basically valid syntax but just not allowed. 
-
-A top-level errors array containing all "*skipped*" errors will be attached to the root node (*Program*),
- 
-An example can be seen [here](https://cherow.github.io/cherow/?code=function%20()%20%7B%7D%0A%0A&method=parse&range=true&loc=undefined&next=false&module=false&raw=false&jsx=false&directives=false&attachComment=false&tolerant=true)
-
-## Plugins
-
-Cherow is designed to support parameterized plugins wich, within reasonable bounds, redefine the way the parser works. A  parameterized plugin gives 
-you far more benefits than a traditional one , and let you extend the parser with code from 3rd party libraries or 
-simply let you create a walker function.
-
-Note that the plugin options takes only an array of plugins ` [ plugin1(args...), plugin2(args...), plugin3(args...)]`
-
-After the parser object has been created, the initialization functions for the chosen plugins are called with the `(parser)` argument. 
-
-```js
-function plugin() {
-    return (parser) => {
-      // your plugin code
-   }
-}
-```
-###  Create a plugin
-
-Here is a simple example plugin wich creates a new literal node with a pre-defined value `123`.
-
-```js
-
-// Create a new plugin
-function plugin(value) {
-    return (parser) => {
-        parser.parseLiteral = function(context) {
-
-            // Get the start pos of line, column
-            const pos = this.getLocations();
-
-            // Call for the next token in the stream
-            this.nextToken(context);
-
-            return this.finishNode(pos, {
-                type: 'Literal',
-                value // The value will be '123'
-            });
-        }
-    }
-}
-
-// Parse with the new plugin enabled
-parseScript('1', {
-    plugins: [
-        plugin(123);
-    ]
-});
 ```
 
 You can find and try the plugin example in the [cherow-dummy-plugin repo](https://github.com/cherow/cherow-dummy-plugin) repo
