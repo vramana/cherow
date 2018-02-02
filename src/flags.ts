@@ -5,43 +5,44 @@ export const enum Context {
     OptionsNext             = 1 << 0,
     OptionsRanges           = 1 << 1,
     OptionsLoc              = 1 << 2,
-    OptionsJSX              = 1 << 3,
-    OptionsRaw              = 1 << 4,
-    OptionsSource           = 1 << 5,
-    OptionsComments         = 1 << 6,
-    OptionsEarly            = 1 << 7,
+    OptionsRaw              = 1 << 3,
+    OptionsSource           = 1 << 4,
+    OptionsComments         = 1 << 5,
+    OptionsEarly            = 1 << 6,
 
     /* miscellaneous */
-    AllowIn                 = 1 << 8,  // Node was parsed in a context where 'in-expressions' are allowed
-    Strict                  = 1 << 9,  // Node was parsed in a strict mode context
-    Module                  = 1 << 10, // Node was parsed in a module code context
-    TaggedTemplate          = 1 << 11, // Node was parsed as the body of an IFStatement - 'consequent' or 'alternate'
-    IfBody                  = 1 << 12,
-    Expression              = 1 << 13,
-    InParameter             = 1 << 14,
-    YieldContext            = 1 << 15,  // Node was parsed in the 'yield' context created when parsing an async function
-    AsyncContext            = 1 << 16,  // Node was parsed in the 'async' context created when parsing an async function
-    InArrowParameterList    = 1 << 17,
-    ArrowFunction           = 1 << 18,
-    TopLevel                = 1 << 19,
-    Optional                = 1 << 20,
-    AllowConstructor        = 1 << 21,
-    ValidateEscape          = 1 << 22,
-    Let                     = 1 << 23,  // Variable declaration
-    Const                   = 1 << 24,  // Variable declaration
-    Statement               = 1 << 25,
-    Method                  = 1 << 26,
-    AsyncFunction           = 1 << 27,
-    ProhibitWhitespace      = 1 << 28, // Scanner related.
-    ForStatement            = 1 << 29,
-    InParenthesis           = 1 << 30,
-    InClass                 = 1 << 31,
+    AllowIn                 = 1 << 7,  // Node was parsed in a context where 'in-expressions' are allowed
+    Strict                  = 1 << 8,  // Node was parsed in a strict mode context
+    Module                  = 1 << 9, // Node was parsed in a module code context
+    TaggedTemplate          = 1 << 10, // Node was parsed as the body of an IFStatement - 'consequent' or 'alternate'
+    IfBody                  = 1 << 11,
+    Expression              = 1 << 12,
+    InParameter             = 1 << 13,
+    YieldContext            = 1 << 14,  // Node was parsed in the 'yield' context created when parsing an async function
+    AsyncContext            = 1 << 15,  // Node was parsed in the 'async' context created when parsing an async function
+    InArrowParameterList    = 1 << 16,
+    ArrowFunction           = 1 << 17,
+    TopLevel                = 1 << 18,
+    Optional                = 1 << 19,
+    AllowConstructor        = 1 << 20,
+    ValidateEscape          = 1 << 21,
+    Let                     = 1 << 22,  // Variable declaration
+    Const                   = 1 << 23,  // Variable declaration
+    Statement               = 1 << 24,
+    Method                  = 1 << 25,
+    AsyncFunction           = 1 << 26,
+    ProhibitWhitespace      = 1 << 27, // Scanner related.
+    ForStatement            = 1 << 28,
+    InParenthesis           = 1 << 29,
+    InClass                 = 1 << 30,
+    InTypeAnnotation        = 1 << 31,
 
     BlockScoped  = Let | Const
 
 }
 
 /* Mutable parser flags */
+
 export const enum Flags {
     None                    = 0,
     LineTerminator          = 1 << 0,
@@ -85,6 +86,7 @@ export const enum ObjectState {
 }
 
 /* Scanner */
+
 export const enum ScannerState {
     None        = 0,
     NewLine     = 1 << 0,
@@ -92,12 +94,16 @@ export const enum ScannerState {
     LastIsCR    = 1 << 2,
     LineStart   = 1 << 3,
 
+    /* Misc */
+
+    InTypeAnnotation = 1 << 4,
+
     /* comments */
-    SingleLine  = 1 << 4,
-    HTMLOpen    = 1 << 5,
-    HTMLClose   = 1 << 6,
-    SheBang     = 1 << 7,
-    FlowComment = 1 << 8,
+    SingleLine  = 1 << 5,
+    HTMLOpen    = 1 << 6,
+    HTMLClose   = 1 << 7,
+    SheBang     = 1 << 8,
+    FlowComment = 1 << 9,
 }
 
 /* Shared between string literal and templates */
@@ -128,6 +134,7 @@ export const enum RegexFlags {
 }
 
 /* Numeric literal state flags */
+
 export const enum NumericState {
     None                    = 0,
     Decimal                 = 1 << 0,
@@ -146,10 +153,10 @@ export const enum NumericState {
 
 export const enum ParenthesizedState {
     None               = 0,
-    NestedParenthesis  = 1 << 0,   // E.g. '((a = function b() {}))'
-    BindingPattern     = 1 << 1,   // E.g. '({foo: bar})', '{[()]}'
-    FutureReserved     = 1 << 2,    // E.g. '(package')
-    EvalOrArguments    = 1 << 3,   // Use this to track 'eval' and 'arguments
+    NestedParenthesis  = 1 << 0,  // E.g. '((a = function b() {}))'
+    BindingPattern     = 1 << 1,  // E.g. '({foo: bar})', '{[()]}'
+    FutureReserved     = 1 << 2,  // E.g. '(package')
+    EvalOrArguments    = 1 << 3,  // Use this to track 'eval' and 'arguments
     Await              = 1 << 4,
     Yield              = 1 << 5,
     Trailing           = 1 << 6,

@@ -8,7 +8,7 @@
 
 A very fast, standards-compliant, self-hosted ECMAScript parser with high focus on both performance and stability.
 
-It strictly follows the [ECMAScript® 2017 Language Specification](http://www.ecma-international.org/publications/standards/Ecma-262.htm) and should parse according to these specifications.
+It strictly follows the [ECMAScript® 2018 Language Specification](https://tc39.github.io/ecma262/) and should parse according to these specifications.
 
 ## [Demo](https://cherow.github.io/cherow/) and [Benchmark](https://cherow.github.io/cherow/performance/)
 

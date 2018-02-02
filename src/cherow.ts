@@ -7,16 +7,15 @@ export type OnComment = void | ESTree.Comment[] | (
 );
 
 export interface Options {
-    comments ?: OnComment;
-    plugins ?: any[];
-    next ?: boolean;
-    ranges ?: boolean;
-    offset ?: boolean;
-    source ?: boolean;
-    loc ?: boolean;
-    jsx ?: boolean;
-    raw ?: boolean;
-    early ?: boolean;
+    comments?: OnComment;
+    plugins?: any[];
+    next?: boolean;
+    ranges?: boolean;
+    offset?: boolean;
+    source?: boolean;
+    loc?: boolean;
+    raw?: boolean;
+    early?: boolean;
 }
 
 function parse(source: string, context: Context, options: Options | void) {
@@ -26,7 +25,6 @@ function parse(source: string, context: Context, options: Options | void) {
 
     if (options != null) {
         if (options.next) context |= Context.OptionsNext;
-        if (options.jsx) context |= Context.OptionsJSX;
         if (options.ranges) context |= Context.OptionsRanges;
         if (options.raw) context |= Context.OptionsRaw;
         if (options.loc) context |= Context.OptionsLoc;
@@ -78,7 +76,7 @@ function parse(source: string, context: Context, options: Options | void) {
             (node.loc as any).source = parser.fileName;
         }
     }
-    
+
     if (context & Context.OptionsEarly) {
         node.earlyErors = parser.earlyErors;
     }
@@ -89,10 +87,13 @@ function parse(source: string, context: Context, options: Options | void) {
 
     return node;
 }
+ // https://tc39.github.io/ecma262/#sec-scripts
 
 export const parseScript = (source: string, options ?: Options) => {
     return parse(source, Context.TopLevel, options);
 };
+
+// https://tc39.github.io/ecma262/#sec-modules
 
 export const parseModule = (source: string, options ?: Options) => {
     return parse(source, Context.Strict | Context.Module | Context.TopLevel, options);

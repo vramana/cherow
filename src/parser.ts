@@ -355,7 +355,11 @@ export class Parser {
                 case Chars.Asterisk:
                     {
                         this.advance();
+
                         if (!this.hasNext()) return Token.Multiply;
+
+                        if (context & Context.InTypeAnnotation || !this.hasNext()) return Token.Multiply;
+
                         const next = this.nextChar();
 
                         if (next === Chars.EqualSign) {
@@ -465,6 +469,9 @@ export class Parser {
                 case Chars.GreaterThan:
                     {
                         this.advance();
+
+                        if (context & Context.InTypeAnnotation) return Token.GreaterThan;
+
                         if (!this.hasNext()) return Token.GreaterThan;
                         const next = this.nextChar();
 
@@ -1732,6 +1739,8 @@ export class Parser {
         };
     }
 
+    // https://tc39.github.io/ecma262/#sec-directive-prologues-and-the-use-strict-directive
+
     private parseDirective(context: Context) {
         const pos = this.getLocation();
         const directive = this.tokenRaw.slice(1, -1);
@@ -2209,6 +2218,8 @@ export class Parser {
         }
     }
 
+    // https://tc39.github.io/ecma262/#sec-block
+
     private parseStatementListItem(context: Context): any {
         switch (this.token) {
             case Token.FunctionKeyword:
@@ -2234,6 +2245,8 @@ export class Parser {
                 return this.parseStatement(context);
         }
     }
+
+    // https://tc39.github.io/ecma262/#sec-ecmascript-language-statements-and-declarations
 
     private parseStatement(context: Context): any {
 
@@ -2288,6 +2301,8 @@ export class Parser {
                 return this.parseExpressionOrLabeledStatement(context);
         }
     }
+
+    // https://tc39.github.io/ecma262/#sec-labelled-statements
 
     private parseExpressionOrLabeledStatement(context: Context): ESTree.ExpressionStatement | ESTree.LabeledStatement {
         const pos = this.getLocation();
@@ -2398,6 +2413,8 @@ export class Parser {
         });
     }
 
+    // https://tc39.github.io/ecma262/#sec-while-statement
+
     private parseWhileStatement(context: Context): ESTree.WhileStatement {
         const pos = this.getLocation();
         this.expect(context, Token.WhileKeyword);
@@ -2415,6 +2432,8 @@ export class Parser {
         });
     }
 
+    // https://tc39.github.io/ecma262/#sec-with-statement
+
     private parseWithStatement(context: Context): ESTree.WhileStatement {
         if (context & Context.Strict) this.early(context, Errors.StrictModeWith);
         const pos = this.getLocation();
@@ -2429,6 +2448,8 @@ export class Parser {
             body
         });
     }
+
+    // https://tc39.github.io/ecma262/#sec-do-while-statement
 
     private parseDoWhileStatement(context: Context): ESTree.DoWhileStatement {
         const pos = this.getLocation();
@@ -2454,6 +2475,8 @@ export class Parser {
         });
     }
 
+     // https://tc39.github.io/ecma262/#sec-continue-statement
+
     private parseContinueStatement(context: Context): ESTree.ContinueStatement {
         // Appearing of continue without an IterationStatement leads to syntax error
         if (!(this.flags & Flags.AllowContinue)) {
@@ -2475,6 +2498,8 @@ export class Parser {
         });
     }
 
+     // https://tc39.github.io/ecma262/#sec-break-statement
+
     private parseBreakStatement(context: Context): ESTree.BreakStatement {
         const pos = this.getLocation();
         this.expect(context, Token.BreakKeyword);
@@ -2493,6 +2518,8 @@ export class Parser {
             label
         });
     }
+
+    // https://tc39.github.io/ecma262/#sec-throw-statement
 
     private parseThrowStatement(context: Context): ESTree.ThrowStatement {
         const pos = this.getLocation();
@@ -2598,6 +2625,7 @@ export class Parser {
         });
     }
 
+     // https://tc39.github.io/ecma262/#sec-switch-statement
     private parseSwitchCases(context: Context): ESTree.SwitchCase {
         const pos = this.getLocation();
         let test: ESTree.Expression | null = null;
@@ -2632,6 +2660,8 @@ export class Parser {
         });
     }
 
+    // https://tc39.github.io/ecma262/#sec-return-statement
+
     private parseReturnStatement(context: Context): ESTree.ReturnStatement {
         if (!(this.flags & Flags.InFunctionBody)) this.early(context, Errors.IllegalReturn);
         const pos = this.getLocation();
@@ -2651,6 +2681,8 @@ export class Parser {
         });
     }
 
+    // https://tc39.github.io/ecma262/#sec-debugger-statement
+
     private parseDebuggerStatement(context: Context): ESTree.DebuggerStatement {
         const pos = this.getLocation();
         if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
@@ -2660,6 +2692,8 @@ export class Parser {
             type: 'DebuggerStatement'
         });
     }
+
+     // https://tc39.github.io/ecma262/#sec-empty-statement
 
     private parseEmptyStatement(context: Context): ESTree.EmptyStatement {
         const pos = this.getLocation();
@@ -2695,6 +2729,7 @@ export class Parser {
         });
     }
 
+     // https://tc39.github.io/ecma262/#sec-let-and-const-declarations
     private parseVariableStatement(context: Context) {
         const pos = this.getLocation();
         const t = this.token;
@@ -2770,6 +2805,8 @@ export class Parser {
         });
     }
 
+    // https://tc39.github.io/ecma262/#sec-expression-statement
+
     private parseExpressionStatement(context: Context): ESTree.ExpressionStatement {
         const pos = this.getLocation();
         const expr = this.parseExpression(context, pos);
@@ -2779,6 +2816,8 @@ export class Parser {
             expression: expr
         });
     }
+
+   // https://tc39.github.io/ecma262/#sec-comma-operator
 
     private parseExpression(context: Context, pos: Location): ESTree.Expression {
         const expr = this.parseAssignmentExpression(context);
@@ -2958,6 +2997,8 @@ export class Parser {
         return expr;
     }
 
+    // https://tc39.github.io/ecma262/#sec-conditional-operator
+
     private parseConditionalExpression(context: Context, pos: Location) {
         const expr = this.parseBinaryExpression(context, 0, pos);
 
@@ -2977,6 +3018,15 @@ export class Parser {
 
         return expr;
     }
+
+    // https://tc39.github.io/ecma262/#sec-exp-operator
+    // https://tc39.github.io/ecma262/#sec-multiplicative-operators
+    // https://tc39.github.io/ecma262/#sec-additive-operators
+    // https://tc39.github.io/ecma262/#sec-bitwise-shift-operators
+    // https://tc39.github.io/ecma262/#sec-relational-operators
+    // https://tc39.github.io/ecma262/#sec-equality-operators
+    // https://tc39.github.io/ecma262/#sec-binary-bitwise-operators
+    // https://tc39.github.io/ecma262/#sec-binary-logical-operators
 
     private parseBinaryExpression(
         context: Context,
@@ -3003,6 +3053,8 @@ export class Parser {
 
         return expr;
     }
+
+    // https://tc39.github.io/ecma262/#sec-unary-operators
 
     private parseAwaitExpression(context: Context, pos: Location): ESTree.AwaitExpression {
         if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
@@ -3049,6 +3101,8 @@ export class Parser {
     private isEvalOrArguments(value: string): boolean {
         return value === 'eval' || value === 'arguments';
     }
+
+    // https://tc39.github.io/ecma262/#sec-update-expressions
 
     private parseUpdateExpression(context: Context, pos: Location): any {
 
@@ -3371,6 +3425,8 @@ export class Parser {
         }
     }
 
+    // https://tc39.github.io/ecma262/#sec-left-hand-side-expressions
+
     private parseCallArguments(context: Context): ESTree.Expression[] {
         this.expect(context, Token.LeftParen);
 
@@ -3394,6 +3450,8 @@ export class Parser {
         return expressions;
     }
 
+    // https://tc39.github.io/ecma262/#sec-array-initializer
+
     private parseSpreadExpression(context: Context, pos = this.getLocation()): ESTree.SpreadElement {
 
         const t = this.token;
@@ -3412,6 +3470,8 @@ export class Parser {
             argument: arg
         });
     }
+
+    // https://tc39.github.io/ecma262/#sec-primary-expression
 
     private parsePrimaryExpression(context: Context, pos: Location): any {
 
@@ -3953,7 +4013,7 @@ export class Parser {
             body
         });
     }
-
+// https://tc39.github.io/ecma262/#sec-class-definitions
     private parseClassElement(context: Context, state: ObjectState): any {
 
         let t = this.token;
@@ -4388,6 +4448,8 @@ export class Parser {
         return this.parseArrayElementsBindingPattern(context, params);
     }
 
+    // https://tc39.github.io/ecma262/#sec-destructuring-binding-patterns
+
     private parseAssignmentRestElement(context: Context, params: any[] = []): ESTree.RestElement {
         const pos = this.getLocation();
         this.expect(context, Token.Ellipsis);
@@ -4548,6 +4610,8 @@ export class Parser {
         });
     }
 
+    // https://tc39.github.io/ecma262/#sec-variable-statement
+
     private parseBindingIdentifier(context: Context): ESTree.Identifier {
 
         const t = this.token;
@@ -4657,6 +4721,8 @@ export class Parser {
             id
         });
     }
+
+    // https://tc39.github.io/ecma262/#sec-function-definitions
 
     private parseFunctionBody(context: Context, params: any[] = []): any {
 
@@ -4796,6 +4862,9 @@ export class Parser {
             args
         };
     }
+
+    // https://tc39.github.io/ecma262/#sec-for-statement
+    // https://tc39.github.io/ecma262/#sec-for-in-and-for-of-statements
 
     private parseForStatement(context: Context): ESTree.ForStatement | ESTree.ForInStatement | ESTree.ForOfStatement {
 
