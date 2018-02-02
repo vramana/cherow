@@ -12,18 +12,29 @@ describe('Module - Export', () => {
         source: `export "string_constant";`,
         module: true
     });
-    fail(`export const const1;`, {
-        source: `export const const1;`,
-        module: true
-    });
+
     fail(`export function () { }`, {
         source: `export function () { }`,
-        module: true
+        module: true,
+        line: 1
     });
 
     fail(`export class { }`, {
         source: `export class { }`,
-        module: true
+        module: true,
+        line: 1
+    });
+
+    fail(`export * from foo`, {
+        source: `export * from foo`,
+        module: true,
+        line: 1
+    });
+
+    fail(`export { bar } from foo`, {
+        source: `export { bar } from foo`,
+        module: true,
+        line: 1
     });
 
     fail(`export {default} +`, {
@@ -212,6 +223,78 @@ with (house) {
     fail(`export default default`, {
             source: `export default default`,
         });
+
+    pass('export default class Foo {}++x', {
+            source: 'export default class Foo {}++x',
+            module: true,
+            expected: {
+                  body: [
+                    {
+                      declaration: {
+                        body: {
+                          body: [],
+                          type: 'ClassBody'
+                        },
+                        id: {
+                          name: 'Foo',
+                          type: 'Identifier'
+                        },
+                        superClass: null,
+                        type: 'ClassDeclaration'
+                      },
+                      type: 'ExportDefaultDeclaration'
+                    },
+                    {
+                      expression: {
+                        argument: {
+                          name: 'x',
+                          type: 'Identifier'
+                        },
+                        operator: '++',
+                        prefix: true,
+                        type: 'UpdateExpression'
+                      },
+                      type: 'ExpressionStatement'
+                    }
+                  ],
+                  sourceType: 'module',
+                  type: 'Program'
+                }
+        });
+    pass('export default function(x) {};', {
+            source: 'export default function(x) {};',
+            module: true,
+            expected: {
+                  body: [
+                    {
+                      declaration: {
+                        async: false,
+                        body: {
+                          body: [],
+                          type: 'BlockStatement',
+                        },
+                        expression: false,
+                        generator: false,
+                        id: null,
+                        params: [
+                          {
+                            name: 'x',
+                            type: 'Identifier'
+                          },
+                        ],
+                        type: 'FunctionDeclaration'
+                      },
+                      type: 'ExportDefaultDeclaration'
+                    },
+                    {
+                      type: 'EmptyStatement'
+                    }
+                  ],
+                 sourceType: 'module',
+                  type: 'Program'
+                }
+        });
+
     pass('export var foo;', {
         source: 'export var foo;',
         loc: true,

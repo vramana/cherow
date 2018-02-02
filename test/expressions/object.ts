@@ -33,6 +33,16 @@ describe('Expressions - Object expression', () => {
         line: 1
     });
 
+    fail(`({ 5 }) => {}`, {
+        source: '({ 5 }) => {}',
+        line: 1
+    });
+
+    fail(`(...[ 5 ]) => {}`, {
+        source: '(...[ 5 ]) => {}',
+        line: 1
+    });
+
     fail(`({ set bar(x, y) {} })`, {
         source: '({ set bar(x, y) {} })',
         line: 1
@@ -376,6 +386,134 @@ describe('Expressions - Object expression', () => {
                 end: {
                     line: 1,
                     column: 33
+                }
+            }
+        }
+    });
+
+    pass(`({ async delete() {} })`, {
+        source: `({ async delete() {} })`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ObjectExpression',
+                        properties: [
+                            {
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'delete',
+                                    start: 9,
+                                    end: 15,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 9
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 15
+                                        }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 18,
+                                        end: 20,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 18
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 20
+                                            }
+                                        }
+                                    },
+                                    async: true,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 15,
+                                    end: 20,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 20
+                                        }
+                                    }
+                                },
+                                kind: 'init',
+                                computed: false,
+                                method: true,
+                                shorthand: false,
+                                start: 3,
+                                end: 20,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 3
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 20
+                                    }
+                                }
+                            }
+                        ],
+                        start: 1,
+                        end: 22,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 1
+                            },
+                            end: {
+                                line: 1,
+                                column: 22
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 23,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 23
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 23,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 23
                 }
             }
         }

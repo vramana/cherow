@@ -152,7 +152,7 @@ A top-level errors array containing all "*skipped*" early errors will be attache
                   type: 'FunctionDeclaration',
                 },
               ],
-              earlyErors: [
+              earlyErrors: [
                 {
                   column: 21,
                   description: 'Undefined label "b"',

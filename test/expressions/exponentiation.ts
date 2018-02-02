@@ -123,6 +123,197 @@ describe('Expressions - Exponentiation', () => {
         line: 1
     });
 
+    pass(`(-2) ** 2;
+    ((-2) ** 2);`, {
+        source: `(-2) ** 2;
+        ((-2) ** 2);`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'BinaryExpression',
+                        left: {
+                            type: 'UnaryExpression',
+                            operator: '-',
+                            argument: {
+                                type: 'Literal',
+                                value: 2,
+                                start: 2,
+                                end: 3,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 2
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 3
+                                    }
+                                },
+                                raw: '2'
+                            },
+                            prefix: true,
+                            start: 1,
+                            end: 3,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 1
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 3
+                                }
+                            }
+                        },
+                        right: {
+                            type: 'Literal',
+                            value: 2,
+                            start: 8,
+                            end: 9,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 8
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 9
+                                }
+                            },
+                            raw: '2'
+                        },
+                        operator: '**',
+                        start: 0,
+                        end: 9,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 9
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 10,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 10
+                        }
+                    }
+                },
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'BinaryExpression',
+                        left: {
+                            type: 'UnaryExpression',
+                            operator: '-',
+                            argument: {
+                                type: 'Literal',
+                                value: 2,
+                                start: 22,
+                                end: 23,
+                                loc: {
+                                    start: {
+                                        line: 2,
+                                        column: 11
+                                    },
+                                    end: {
+                                        line: 2,
+                                        column: 12
+                                    }
+                                },
+                                raw: '2'
+                            },
+                            prefix: true,
+                            start: 21,
+                            end: 23,
+                            loc: {
+                                start: {
+                                    line: 2,
+                                    column: 10
+                                },
+                                end: {
+                                    line: 2,
+                                    column: 12
+                                }
+                            }
+                        },
+                        right: {
+                            type: 'Literal',
+                            value: 2,
+                            start: 28,
+                            end: 29,
+                            loc: {
+                                start: {
+                                    line: 2,
+                                    column: 17
+                                },
+                                end: {
+                                    line: 2,
+                                    column: 18
+                                }
+                            },
+                            raw: '2'
+                        },
+                        operator: '**',
+                        start: 20,
+                        end: 29,
+                        loc: {
+                            start: {
+                                line: 2,
+                                column: 9
+                            },
+                            end: {
+                                line: 2,
+                                column: 18
+                            }
+                        }
+                    },
+                    start: 19,
+                    end: 31,
+                    loc: {
+                        start: {
+                            line: 2,
+                            column: 8
+                        },
+                        end: {
+                            line: 2,
+                            column: 20
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 31,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 2,
+                    column: 20
+                }
+            }
+        }
+    });
+
     pass(`var O = { p: 1 }, x = 10; ; if ( (delete O.p) ** 10) { foo(); }`, {
         source: 'var O = { p: 1 }, x = 10; ; if ( (delete O.p) ** 10) { foo(); }',
         loc: true,

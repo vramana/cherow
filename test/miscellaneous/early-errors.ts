@@ -1151,7 +1151,7 @@ describe('Miscellaneous - Early errors', () => {
                   type: 'FunctionDeclaration',
                 },
               ],
-              earlyErors: [
+              earlyErrors: [
                 {
                   column: 21,
                   description: 'Undefined label \'b\'',

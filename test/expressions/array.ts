@@ -2,6 +2,372 @@ import { pass, fail } from '../test-utils';
 
 describe('Expressions - Array', () => {
 
+    pass(`[1 <= 0]`, {
+        source: '[1 <= 0]',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrayExpression',
+                        elements: [
+                            {
+                                type: 'BinaryExpression',
+                                left: {
+                                    type: 'Literal',
+                                    value: 1,
+                                    start: 1,
+                                    end: 2,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 1
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 2
+                                        }
+                                    },
+                                    raw: '1'
+                                },
+                                right: {
+                                    type: 'Literal',
+                                    value: 0,
+                                    start: 6,
+                                    end: 7,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 6
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 7
+                                        }
+                                    },
+                                    raw: '0'
+                                },
+                                operator: '<=',
+                                start: 1,
+                                end: 7,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 1
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 7
+                                    }
+                                }
+                            }
+                        ],
+                        start: 0,
+                        end: 8,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 8
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 8,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 8
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 8,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 8
+                }
+            }
+        }
+    });
+
+    pass(`[a.r] = b`, {
+        source: '[a.r] = b',
+        loc: true,
+        ranges: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'AssignmentExpression',
+                        left: {
+                            type: 'ArrayPattern',
+                            elements: [
+                                {
+                                    type: 'MemberExpression',
+                                    object: {
+                                        type: 'Identifier',
+                                        name: 'a',
+                                        start: 1,
+                                        end: 2,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 1
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 2
+                                            }
+                                        }
+                                    },
+                                    computed: false,
+                                    property: {
+                                        type: 'Identifier',
+                                        name: 'r',
+                                        start: 3,
+                                        end: 4,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 3
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 4
+                                            }
+                                        }
+                                    },
+                                    start: 1,
+                                    end: 4,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 1
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 4
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 0,
+                            end: 5,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 5
+                                }
+                            }
+                        },
+                        operator: '=',
+                        right: {
+                            type: 'Identifier',
+                            name: 'b',
+                            start: 8,
+                            end: 9,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 8
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 9
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 9,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 9
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 9,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 9
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 9,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 9
+                }
+            }
+        }
+    });
+
+    pass(`let [a,,b] = c`, {
+        source: 'let [a,,b] = c',
+        loc: true,
+        ranges: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'VariableDeclaration',
+                    declarations: [
+                        {
+                            type: 'VariableDeclarator',
+                            init: {
+                                type: 'Identifier',
+                                name: 'c',
+                                start: 13,
+                                end: 14,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 13
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 14
+                                    }
+                                }
+                            },
+                            id: {
+                                type: 'ArrayPattern',
+                                elements: [
+                                    {
+                                        type: 'Identifier',
+                                        name: 'a',
+                                        start: 5,
+                                        end: 6,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 5
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 6
+                                            }
+                                        }
+                                    },
+                                    null,
+                                    {
+                                        type: 'Identifier',
+                                        name: 'b',
+                                        start: 8,
+                                        end: 9,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 8
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 9
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 4,
+                                end: 10,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 10
+                                    }
+                                }
+                            },
+                            start: 4,
+                            end: 14,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 14
+                                }
+                            }
+                        }
+                    ],
+                    kind: 'let',
+                    start: 0,
+                    end: 14,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 14
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 14,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 14
+                }
+            }
+        }
+    });
+
     pass(`[ 1 ]`, {
         source: '[ 1 ]',
         loc: true,

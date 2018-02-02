@@ -23,6 +23,11 @@ describe('Declarations - Function', () => {
         index: 31
     });
 
+    fail('(function ({ a(){} }) {})', {
+        source: '(function ({ a(){} }) {})',
+       line: 1
+    });
+
     fail('function f(x,x){}', {
         source: '"use strict"; function f(x,x){ "use strict"; }',
         index: 46

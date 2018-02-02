@@ -78,7 +78,7 @@ function parse(source: string, context: Context, options: Options | void) {
     }
 
     if (context & Context.OptionsEarly) {
-        node.earlyErors = parser.earlyErors;
+        node.earlyErrors = parser.earlyErors;
     }
 
     if (context & Context.OptionsComments) {

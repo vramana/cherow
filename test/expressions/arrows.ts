@@ -4,7 +4,49 @@ describe('Expressions - Arrows', () => {
 
     fail(`bar ? (=> 0) : baz;`, {
         source: 'bar ? (=> 0) : baz;',
+        message:  'Unexpected token',
+        line: 1,
+    });
+
+    fail(`() => {} || true`, {
+        source: '() => {} || true',
+        message:  'Unexpected token ||',
+        line: 1,
+    });
+
+    fail(`() => {} ? a : b`, {
+        source: '() => {} ? a : b',
+        message: 'Unexpected token ?',
+        line: 1,
+    });
+
+    fail(`() => {}a`, {
+        source: '() => {}a',
         message: 'Unexpected token',
+        line: 1,
+    });
+
+    fail(`(localVar |= defaultValue) => {}`, {
+        source: '(localVar |= defaultValue) => {}',
+        message: 'Unexpected token',
+        line: 1,
+    });
+
+    fail(`() => {} 1`, {
+        source: '() => {} 1',
+        message:  'Unexpected token',
+        line: 1,
+    });
+
+    fail(`() => {} a()`, {
+        source: '() => {} a()',
+        message: 'Unexpected token',
+        line: 1,
+    });
+
+    fail(`() => {} a`, {
+        source: '() => {} a',
+        message:  'Unexpected token',
         line: 1,
     });
 
@@ -361,6 +403,555 @@ describe('Expressions - Arrows', () => {
         line: 1,
         column: 23,
         index: 23
+    });
+
+    pass(`(a) => b;  // 1 args
+    (a, b) => c;  // n args
+    () => b;  // 0 args
+    (a) => (b) => c;  // func returns func returns func
+    (a) => ((b) => c);  // So these parens are dropped
+    () => (b,c) => d;  // func returns func returns func
+    a=>{return b;}
+    a => 'e';  // Dropping the parens`, {
+        source: `(a) => b;  // 1 args
+        (a, b) => c;  // n args
+        () => b;  // 0 args
+        (a) => (b) => c;  // func returns func returns func
+        (a) => ((b) => c);  // So these parens are dropped
+        () => (b,c) => d;  // func returns func returns func
+        a=>{return b;}
+        a => 'e';  // Dropping the parens`,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'Identifier',
+                            name: 'b'
+                        },
+                        params: [
+                            {
+                                type: 'Identifier',
+                                name: 'a'
+                            }
+                        ],
+                        id: null,
+                        async: false,
+                        generator: false,
+                        expression: true
+                    }
+                },
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'Identifier',
+                            name: 'c'
+                        },
+                        params: [
+                            {
+                                type: 'Identifier',
+                                name: 'a'
+                            },
+                            {
+                                type: 'Identifier',
+                                name: 'b'
+                            }
+                        ],
+                        id: null,
+                        async: false,
+                        generator: false,
+                        expression: true
+                    }
+                },
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'Identifier',
+                            name: 'b'
+                        },
+                        params: [],
+                        id: null,
+                        async: false,
+                        generator: false,
+                        expression: true
+                    }
+                },
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'ArrowFunctionExpression',
+                            body: {
+                                type: 'Identifier',
+                                name: 'c'
+                            },
+                            params: [
+                                {
+                                    type: 'Identifier',
+                                    name: 'b'
+                                }
+                            ],
+                            id: null,
+                            async: false,
+                            generator: false,
+                            expression: true
+                        },
+                        params: [
+                            {
+                                type: 'Identifier',
+                                name: 'a'
+                            }
+                        ],
+                        id: null,
+                        async: false,
+                        generator: false,
+                        expression: true
+                    }
+                },
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'ArrowFunctionExpression',
+                            body: {
+                                type: 'Identifier',
+                                name: 'c'
+                            },
+                            params: [
+                                {
+                                    type: 'Identifier',
+                                    name: 'b'
+                                }
+                            ],
+                            id: null,
+                            async: false,
+                            generator: false,
+                            expression: true
+                        },
+                        params: [
+                            {
+                                type: 'Identifier',
+                                name: 'a'
+                            }
+                        ],
+                        id: null,
+                        async: false,
+                        generator: false,
+                        expression: true
+                    }
+                },
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'ArrowFunctionExpression',
+                            body: {
+                                type: 'Identifier',
+                                name: 'd'
+                            },
+                            params: [
+                                {
+                                    type: 'Identifier',
+                                    name: 'b'
+                                },
+                                {
+                                    type: 'Identifier',
+                                    name: 'c'
+                                }
+                            ],
+                            id: null,
+                            async: false,
+                            generator: false,
+                            expression: true
+                        },
+                        params: [],
+                        id: null,
+                        async: false,
+                        generator: false,
+                        expression: true
+                    }
+                },
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'Identifier',
+                                        name: 'b'
+                                    }
+                                }
+                            ]
+                        },
+                        params: [
+                            {
+                                type: 'Identifier',
+                                name: 'a'
+                            }
+                        ],
+                        id: null,
+                        async: false,
+                        generator: false,
+                        expression: false
+                    }
+                },
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ArrowFunctionExpression',
+                        body: {
+                            type: 'Literal',
+                            value: 'e',
+                            raw: '\'e\''
+                        },
+                        params: [
+                            {
+                                type: 'Identifier',
+                                name: 'a'
+                            }
+                        ],
+                        id: null,
+                        async: false,
+                        generator: false,
+                        expression: true
+                    }
+                }
+            ]
+        }
+    });
+
+    pass(`(() => {}) || true;
+    (() => {}) ? a : b;`, {
+        source: `(() => {}) || true;
+        (() => {}) ? a : b;`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'LogicalExpression',
+                        left: {
+                            type: 'ArrowFunctionExpression',
+                            body: {
+                                type: 'BlockStatement',
+                                body: [],
+                                start: 7,
+                                end: 9,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 7
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 9
+                                    }
+                                }
+                            },
+                            params: [],
+                            id: null,
+                            async: false,
+                            generator: false,
+                            expression: false,
+                            start: 1,
+                            end: 9,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 1
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 9
+                                }
+                            }
+                        },
+                        right: {
+                            type: 'Literal',
+                            value: true,
+                            start: 14,
+                            end: 18,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 14
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 18
+                                }
+                            },
+                            raw: 'true'
+                        },
+                        operator: '||',
+                        start: 0,
+                        end: 18,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 18
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 19,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 19
+                        }
+                    }
+                },
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'ConditionalExpression',
+                        test: {
+                            type: 'ArrowFunctionExpression',
+                            body: {
+                                type: 'BlockStatement',
+                                body: [],
+                                start: 35,
+                                end: 37,
+                                loc: {
+                                    start: {
+                                        line: 2,
+                                        column: 15
+                                    },
+                                    end: {
+                                        line: 2,
+                                        column: 17
+                                    }
+                                }
+                            },
+                            params: [],
+                            id: null,
+                            async: false,
+                            generator: false,
+                            expression: false,
+                            start: 29,
+                            end: 37,
+                            loc: {
+                                start: {
+                                    line: 2,
+                                    column: 9
+                                },
+                                end: {
+                                    line: 2,
+                                    column: 17
+                                }
+                            }
+                        },
+                        consequent: {
+                            type: 'Identifier',
+                            name: 'a',
+                            start: 41,
+                            end: 42,
+                            loc: {
+                                start: {
+                                    line: 2,
+                                    column: 21
+                                },
+                                end: {
+                                    line: 2,
+                                    column: 22
+                                }
+                            }
+                        },
+                        alternate: {
+                            type: 'Identifier',
+                            name: 'b',
+                            start: 45,
+                            end: 46,
+                            loc: {
+                                start: {
+                                    line: 2,
+                                    column: 25
+                                },
+                                end: {
+                                    line: 2,
+                                    column: 26
+                                }
+                            }
+                        },
+                        start: 28,
+                        end: 46,
+                        loc: {
+                            start: {
+                                line: 2,
+                                column: 8
+                            },
+                            end: {
+                                line: 2,
+                                column: 26
+                            }
+                        }
+                    },
+                    start: 28,
+                    end: 47,
+                    loc: {
+                        start: {
+                            line: 2,
+                            column: 8
+                        },
+                        end: {
+                            line: 2,
+                            column: 27
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 47,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 2,
+                    column: 27
+                }
+            }
+        }
+    });
+
+    pass(`(() => {}) + 2`, {
+        source: '(() => {}) + 2',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'BinaryExpression',
+                        left: {
+                            type: 'ArrowFunctionExpression',
+                            body: {
+                                type: 'BlockStatement',
+                                body: [],
+                                start: 7,
+                                end: 9,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 7
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 9
+                                    }
+                                }
+                            },
+                            params: [],
+                            id: null,
+                            async: false,
+                            generator: false,
+                            expression: false,
+                            start: 1,
+                            end: 9,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 1
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 9
+                                }
+                            }
+                        },
+                        right: {
+                            type: 'Literal',
+                            value: 2,
+                            start: 13,
+                            end: 14,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 14
+                                }
+                            },
+                            raw: '2'
+                        },
+                        operator: '+',
+                        start: 0,
+                        end: 14,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 14
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 14,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 14
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 14,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 14
+                }
+            }
+        }
     });
 
     pass(`bar ? ( (x) => x ) : baz;`, {

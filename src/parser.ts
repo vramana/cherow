@@ -3034,7 +3034,9 @@ export class Parser {
         pos: Location,
         expr: ESTree.Expression = this.parseUnaryExpression(context)
     ): ESTree.Expression {
+
         const bit = context & Context.AllowIn ^ Context.AllowIn;
+
         while (hasMask(this.token, Token.IsBinaryOperator)) {
             const t = this.token;
             const prec = t & Token.Precedence;
@@ -4165,24 +4167,39 @@ export class Parser {
         pos: Location,
         params: ESTree.Node[],
         args: string[] = []
-    ): any {
+    ): ESTree.ArrowFunctionExpression {
 
-        if (this.flags & Flags.LineTerminator) this.early(context, Errors.LineBreakAfterAsync);
+        if (this.flags & Flags.LineTerminator) {
+            this.early(context, Errors.LineBreakAfterAsync);
+        }
 
-        if (this.flags & Flags.HasCommaSeparator) this.early(context, Errors.ElementAfterRest);
+        if (this.flags & Flags.HasCommaSeparator) {
+            this.early(context, Errors.ElementAfterRest);
+        }
 
         this.expect(context, Token.Arrow);
 
-        if (context & Context.InClass && this.token & Token.IsEvalArguments) this.early(context, Errors.UnexpectedStrictReserved);
+        if (context & Context.InClass && this.token & Token.IsEvalArguments) {
+            this.early(context, Errors.UnexpectedStrictReserved);
+        }
 
         for (const i in params) this.toAssignable(context | Context.InArrowParameterList, params[i]);
 
         let body;
         let expression = false;
+        
         if (this.token === Token.LeftBrace) {
-            body = this.parseFunctionBody(context & ~(Context.InParenthesis | Context.YieldContext) | Context.AllowIn | Context.ArrowFunction, params);
+
+            body = this.parseFunctionBody(context | Context.AllowIn | Context.ArrowFunction, params);
+
+            // Invalid: '() => {} a || true'
+            // Invalid: '() => {} ? a : b'
+            if ((context & Context.InParenthesis) && (hasMask(this.token, Token.IsBinaryOperator) || this.token === Token.QuestionMark)) {
+                this.report(Errors.UnexpectedToken, tokenDesc(this.token));
+            }
+
         } else {
-            body = this.parseAssignmentExpression(context & ~(Context.InParenthesis | Context.YieldContext) | Context.AllowIn | Context.ArrowFunction);
+            body = this.parseAssignmentExpression(context | Context.AllowIn | Context.ArrowFunction);
             expression = true;
         }
         return this.finishNode(context, pos, {
