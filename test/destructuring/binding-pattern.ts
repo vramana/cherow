@@ -1,8 +1,48 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Destructuring - Binding pattern', () => {
 
         describe('Array binding', () => {
+
+            fail(`([a.b]) => 0`, {
+                source: '([a.b]) => 0',
+                line: 1,
+            });
+
+            fail(`function a([a.b]) {}`, {
+                source: 'function a([a.b]) {}',
+                line: 1,
+            });
+
+            fail(`function* a([a.b]) {}`, {
+                source: 'function* a([a.b]) {}',
+                line: 1,
+            });
+
+            fail(`(function ([a.b]) {})`, {
+                source: '(function ([a.b]) {})',
+                line: 1,
+            });
+
+            fail(`(function* ([a.b]) {})`, {
+                source: '(function* ([a.b]) {})',
+                line: 1,
+            });
+
+            fail(`({a([a.b]){}})`, {
+                source: '({a([a.b]){}})',
+                line: 1,
+            });
+
+            fail(`({*a([a.b]){}})`, {
+                source: '({*a([a.b]){}})',
+                line: 1,
+            });
+
+            fail(`({set a([a.b]){}})`, {
+                source: '({set a([a.b]){}})',
+                line: 1,
+            });
 
             pass(`let [a,,b]=0`, {
                 source: 'let [a,,b]=0',
@@ -2659,71 +2699,6 @@ describe('Destructuring - Binding pattern', () => {
                     }
                 }
             });
-
-            fail(`([a.b]) => 0`, {
-                source: '([a.b]) => 0',
-                message: 'Invalid destructuring assignment target',
-                line: 1,
-                column: 0,
-                index: 1
-            });
-
-            fail(`function a([a.b]) {}`, {
-                source: 'function a([a.b]) {}',
-                message: 'Unexpected token',
-                line: 1,
-                column: 11,
-                index: 12
-            });
-
-            fail(`function* a([a.b]) {}`, {
-                source: 'function* a([a.b]) {}',
-                message: 'Unexpected token',
-                line: 1,
-                column: 12,
-                index: 13
-            });
-
-            fail(`(function ([a.b]) {})`, {
-                source: '(function ([a.b]) {})',
-                message: 'Unexpected token',
-                line: 1,
-                column: 11,
-                index: 12
-            });
-
-            fail(`(function* ([a.b]) {})`, {
-                source: '(function* ([a.b]) {})',
-                message: 'Unexpected token',
-                line: 1,
-                column: 12,
-                index: 13
-            });
-
-            fail(`({a([a.b]){}})`, {
-                source: '({a([a.b]){}})',
-                message: 'Unexpected token',
-                line: 1,
-                column: 4,
-                index: 5
-            });
-
-            fail(`({*a([a.b]){}})`, {
-                source: '({*a([a.b]){}})',
-                message: 'Unexpected token',
-                line: 1,
-                column: 5,
-                index: 6
-            });
-
-            fail(`({set a([a.b]){}})`, {
-                source: '({set a([a.b]){}})',
-                message: 'Unexpected token',
-                line: 1,
-                column: 8,
-                index: 9
-            });
-
         });
 
         describe('Binding Identifier', () => {
@@ -4780,76 +4755,59 @@ describe('Destructuring - Binding pattern', () => {
                 }
             });
 
+            fail(`"use strict"; 1, { arguments } = [];`, {
+                source: '"use strict"; 1, { arguments } = [];',
+                line: 1,
+            });
+/*
+            fail(`({ src: ([dest]) } = obj)`, {
+                source: '({ src: ([dest]) } = obj)',
+                line: 1,
+            });*/
+
             fail(`function* a({e: a.b}) {}`, {
                 source: 'function* a({e: a.b}) {}',
-                message: 'Unexpected token',
                 line: 1,
-                column: 12,
-                index: 13
             });
 
             fail(`({*a({e: a.b}){}})`, {
                 source: '({*a({e: a.b}){}})',
-                message: 'Unexpected token',
                 line: 1,
-                column: 5,
-                index: 6
             });
 
             fail(`({e: a.b}) => 0`, {
                 source: '({e: a.b}) => 0',
-                message: 'Invalid destructuring assignment target',
                 line: 1,
-                column: 0,
-                index: 1
             });
 
             fail(`function a({e: a.b}) {}`, {
                 source: 'function a({e: a.b}) {}',
-                message: 'Unexpected token',
                 line: 1,
-                column: 11,
-                index: 12
             });
 
             fail(`({set a({e: a.b}){}})`, {
                 source: '({set a({e: a.b}){}})',
-                message: 'Unexpected token',
                 line: 1,
-                column: 8,
-                index: 9
             });
 
             fail(`"use strict"; for (let {x: y = let};;) {}`, {
                 source: '"use strict"; for (let {x: y = let};;) {}',
-                message: 'The identifier \'let\' must not be in expression position in strict mode',
                 line: 1,
-                column: 31,
-                index: 34
             });
 
             fail(`"use strict"; for (let [x = let];;) {}`, {
                 source: '"use strict"; for (let [x = let];;) {}',
-                message: 'The identifier \'let\' must not be in expression position in strict mode',
                 line: 1,
-                column: 28,
-                index: 31
             });
 
             fail(`var ([x]) = 0`, {
                 source: 'var ([x]) = 0',
-                message: 'Unexpected token \'(\'',
                 line: 1,
-                column: 4,
-                index: 5
             });
 
             fail(`var [a.b] = 0`, {
                 source: 'var [a.b] = 0',
-                message: 'Unexpected token',
                 line: 1,
-                column: 6,
-                index: 7
             });
     });
 });

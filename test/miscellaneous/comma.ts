@@ -1,10 +1,10 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 import { parseScript, parseModule } from '../../src/cherow';
 
 describe('Miscellaneous - Comma (ES2017)', () => {
 
     const conciseBody = (arg: string) => `let fun = (${arg}) => foo`;
-    const arrow = (arg: string) => `let fun = (${arg}) => {}`;
+    const arrow = (arg: string) => `fun = (${arg}) => {}`;
     const asyncArrow = (arg: string) => `async (${arg}) => a
     async (${arg}) => {}`;
     const functionExpression =  (arg: string) => `function* f(${arg}) {}`;
@@ -66,8 +66,6 @@ describe('Miscellaneous - Comma (ES2017)', () => {
             })`;
 
     const tests = [
-        arrow,
-        asyncArrow,
         conciseBody,
         functionExpression,
         generatorExpression,
@@ -296,102 +294,742 @@ describe('Miscellaneous - Comma (ES2017)', () => {
         });
     }
 
-    fail(`{ foo(a, b,) {} };`, {
-        source: `{ foo(a, b,) {} };`,
-        message:  'Unexpected token \'{\'',
-        line: 1,
-        column: 13,
-        index: 14
-    });
-
-    fail(`() => (...a, )`, {
-        source: `() => (...a, )`,
-        message: 'Rest parameter must be last formal parameter',
-        line: 1,
-        column: 11,
-        index: 12
-    });
-
-    fail(`() => (a, , b)`, {
-        source: `() => (a, , b)`,
-        message:  'Unexpected token \',\'',
-        line: 1,
-        column: 10,
-        index: 11
-    });
-
     fail(`() => (, a)`, {
         source: `() => (, a)`,
+        line: 1
     });
 
     fail(`() => (a, , )`, {
         source: `() => (a, , )`,
+        line: 1
     });
 
     fail(`() => (...a, , )`, {
         source: `() => (...a, , )`,
-    });
-
-    fail(`() => (a, => null)`, {
-        source: `() => (a, => null)`,
-        message: 'Unexpected token \'=>\'',
-        line: 1,
-        column: 10,
-        index: 12
+        line: 1
     });
 
     fail(`(,) => 0;`, {
         source: '(,) => 0;',
+        line: 1
     });
 
     fail(`f(,);`, {
         source: 'f(,);',
-    });
-
-    fail(`class A { constructor(,) {} }`, {
-        source: 'class A { constructor(,) {} }',
-        message:  'Unexpected token \',\'',
-        line: 1,
-        column: 22,
-        index: 23
+        line: 1
     });
 
     fail(`function f(,){}`, {
         source: 'function f(,){}',
+        line: 1
     });
 
     fail(`function f(...a,) {}`, {
         source: 'function f(...a,) {}',
-        module: true
+        module: true,
+        line: 1
     });
 
     fail(`async (,) => a`, {
         source: 'async (,) => a',
-        module: true
-    });
-
-    fail(`export default (function foo(,) { })`, {
-        source: 'export default (function foo(,) { })',
-        module: true
-    });
-
-    fail(`export default function foo(,) { }`, {
-        source: 'export default function foo(,) { }',
-        message:  'Unexpected token \',\'',
         module: true,
-        line: 1,
-        column: 28,
-        index: 29
+        line: 1
     });
 
     fail(`async (...a,) => a`, {
         source: 'async (...a,) => a',
-        module: true
+        module: true,
+        line: 1
     });
 
     fail(`class A {foo(...a,) {}}`, {
         source: 'class A {foo(...a,) {}}',
-        module: true
+        module: true,
+        line: 1
+    });
+
+    fail(`"use strict"; (function   (b,,) {})`, {
+        source: '"use strict"; (function   (b,,) {})',
+        module: true,
+        line: 1
+    });
+
+    fail(`"use strict"; (b,,) => {};`, {
+        source: '"use strict"; (b,,) => {};',
+        module: true,
+        line: 1
+    });
+
+    fail(`"use strict"; a(1,,);`, {
+        source: '"use strict"; a(1,,);',
+        module: true,
+        line: 1
+    });
+
+    fail(`"use strict";  function* a2(,) {}`, {
+        source: '"use strict";  function* a2(,) {}',
+        module: true,
+        line: 1
+    });
+
+    fail(`"use strict"; (function  a(...b,) {});`, {
+        source: '"use strict"; (function  a(...b,) {});',
+        module: true,
+        line: 1
+    });
+
+    fail(`"use strict"; (function* a(b, c, ...d,) {});`, {
+        source: '"use strict"; (function* a(b, c, ...d,) {});',
+        module: true,
+        line: 1
+    });
+
+    fail(`"use strict"; a1(,);`, {
+        source: '"use strict"; a1(,);',
+        module: true,
+        line: 1
+    });
+
+    fail(`"use strict"; (a,b,c,);`, {
+        source: '"use strict"; (a,b,c,);',
+        module: true,
+        line: 1
+    });
+
+    fail(`"use strict"; (a,);`, {
+        source: '"use strict"; (a,);',
+        module: true,
+        line: 1
+    });
+
+    fail(`"use strict"; (function* a(b,,) {})`, {
+        source: '"use strict"; (function* a(b,,) {})',
+        module: true,
+        line: 1
+    });
+
+    pass(` function  a(b,) {}`, {
+        source: 'function  a(b,) {}',
+        ranges: true,
+        next: true,
+        loc: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [
+                        {
+                            type: 'Identifier',
+                            name: 'b',
+                            start: 12,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 12
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            }
+                        }
+                    ],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [],
+                        start: 16,
+                        end: 18,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 16
+                            },
+                            end: {
+                                line: 1,
+                                column: 18
+                            }
+                        }
+                    },
+                    async: false,
+                    generator: false,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'a',
+                        start: 10,
+                        end: 11,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 10
+                            },
+                            end: {
+                                line: 1,
+                                column: 11
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 18,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 18
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 18,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 18
+                }
+            }
+        }
+    });
+
+    pass(` function  a(b,c,d,) {}`, {
+        source: ' function  a(b,c,d,) {}',
+        ranges: true,
+        next: true,
+        loc: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [
+                        {
+                            type: 'Identifier',
+                            name: 'b',
+                            start: 13,
+                            end: 14,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 14
+                                }
+                            }
+                        },
+                        {
+                            type: 'Identifier',
+                            name: 'c',
+                            start: 15,
+                            end: 16,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 15
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 16
+                                }
+                            }
+                        },
+                        {
+                            type: 'Identifier',
+                            name: 'd',
+                            start: 17,
+                            end: 18,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 17
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 18
+                                }
+                            }
+                        }
+                    ],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [],
+                        start: 21,
+                        end: 23,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 21
+                            },
+                            end: {
+                                line: 1,
+                                column: 23
+                            }
+                        }
+                    },
+                    async: false,
+                    generator: false,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'a',
+                        start: 11,
+                        end: 12,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 11
+                            },
+                            end: {
+                                line: 1,
+                                column: 12
+                            }
+                        }
+                    },
+                    start: 1,
+                    end: 23,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 1
+                        },
+                        end: {
+                            line: 1,
+                            column: 23
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 23,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 23
+                }
+            }
+        }
+    });
+
+    pass(`a(1,2,3,);`, {
+        source: 'a(1,2,3,);',
+        ranges: true,
+        next: true,
+        loc: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Identifier',
+                            name: 'a',
+                            start: 0,
+                            end: 1,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 1
+                                }
+                            }
+                        },
+                        arguments: [
+                            {
+                                type: 'Literal',
+                                value: 1,
+                                start: 2,
+                                end: 3,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 2
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 3
+                                    }
+                                },
+                                raw: '1'
+                            },
+                            {
+                                type: 'Literal',
+                                value: 2,
+                                start: 4,
+                                end: 5,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 5
+                                    }
+                                },
+                                raw: '2'
+                            },
+                            {
+                                type: 'Literal',
+                                value: 3,
+                                start: 6,
+                                end: 7,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 6
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 7
+                                    }
+                                },
+                                raw: '3'
+                            }
+                        ],
+                        start: 0,
+                        end: 9,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 9
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 10,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 10
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 10,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 10
+                }
+            }
+        }
+    });
+
+    pass(`a(...[], 2, ...[],);`, {
+        source: 'a(...[], 2, ...[],);',
+        ranges: true,
+        next: true,
+        loc: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 20,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 20
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 20,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 20
+                  }
+                },
+                expression: {
+                  type: 'CallExpression',
+                  start: 0,
+                  end: 19,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 19
+                    }
+                  },
+                  callee: {
+                    type: 'Identifier',
+                    start: 0,
+                    end: 1,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 1
+                      }
+                    },
+                    name: 'a'
+                  },
+                  arguments: [
+                    {
+                      type: 'SpreadElement',
+                      start: 2,
+                      end: 7,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 2
+                        },
+                        end: {
+                          line: 1,
+                          column: 7
+                        }
+                      },
+                      argument: {
+                        type: 'ArrayExpression',
+                        start: 5,
+                        end: 7,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 5
+                          },
+                          end: {
+                            line: 1,
+                            column: 7
+                          }
+                        },
+                        elements: []
+                      }
+                    },
+                    {
+                      type: 'Literal',
+                      start: 9,
+                      end: 10,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 9
+                        },
+                        end: {
+                          line: 1,
+                          column: 10
+                        }
+                      },
+                      value: 2,
+                      raw: '2'
+                    },
+                    {
+                      type: 'SpreadElement',
+                      start: 12,
+                      end: 17,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 12
+                        },
+                        end: {
+                          line: 1,
+                          column: 17
+                        }
+                      },
+                      argument: {
+                        type: 'ArrayExpression',
+                        start: 15,
+                        end: 17,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 15
+                          },
+                          end: {
+                            line: 1,
+                            column: 17
+                          }
+                        },
+                        elements: []
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`(function*  (b,c,d,) {});`, {
+        source: '(function*  (b,c,d,) {});',
+        ranges: true,
+        next: true,
+        loc: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 25,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 25
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 25,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 25
+                  }
+                },
+                expression: {
+                  type: 'FunctionExpression',
+                  start: 1,
+                  end: 23,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 1
+                    },
+                    end: {
+                      line: 1,
+                      column: 23
+                    }
+                  },
+                  id: null,
+                  generator: true,
+                  expression: false,
+                  async: false,
+                  params: [
+                    {
+                      type: 'Identifier',
+                      start: 13,
+                      end: 14,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 13
+                        },
+                        end: {
+                          line: 1,
+                          column: 14
+                        }
+                      },
+                      name: 'b'
+                    },
+                    {
+                      type: 'Identifier',
+                      start: 15,
+                      end: 16,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 15
+                        },
+                        end: {
+                          line: 1,
+                          column: 16
+                        }
+                      },
+                      name: 'c'
+                    },
+                    {
+                      type: 'Identifier',
+                      start: 17,
+                      end: 18,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 17
+                        },
+                        end: {
+                          line: 1,
+                          column: 18
+                        }
+                      },
+                      name: 'd'
+                    }
+                  ],
+                  body: {
+                    type: 'BlockStatement',
+                    start: 21,
+                    end: 23,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 21
+                      },
+                      end: {
+                        line: 1,
+                        column: 23
+                      }
+                    },
+                    body: []
+                  }
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
     });
 
     pass(`var foo = (a, b,) => {};`, {

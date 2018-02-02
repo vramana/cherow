@@ -1,14 +1,6 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Expressions - Postfix', () => {
-
-    fail(`"use stricts"; arguments--`, {
-        source: '"use strict"; arguments--',
-    });
-
-    fail(`"use stricts"; eval--`, {
-        source: '"use strict"; eval--',
-    });
 
     pass(`x--`, {
         source: 'x--',

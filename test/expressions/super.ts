@@ -1,4 +1,4 @@
-import { fail, pass } from '../utils';
+import { fail, pass } from '../test-utils';
 
 describe('Statements - Super', () => {
 

@@ -1,4 +1,4 @@
-import { fail, pass } from '../utils';
+import { fail, pass } from '../test-utils';
 
 describe('Miscellaneous - Simple parameter list', () => {
 
@@ -156,52 +156,69 @@ describe('Miscellaneous - Simple parameter list', () => {
 
     fail(`function a([ option1, option2 ] = []) {  "use strict"; }`, {
         source: 'function a([ option1, option2 ] = []) {  "use strict"; }',
+        line: 1
     });
 
     fail(`function foo(a=2) { "use strict"; }`, {
         source: 'function foo(a=2) { "use strict"; }',
+        line: 1
     });
 
     fail(`function foo({a}) { "use strict"; }`, {
         source: 'function foo({a}) { "use strict"; }',
+        line: 1
     });
 
     fail(`function foo([a]) { "use strict"; }`, {
         source: 'function foo([a]) { "use strict"; }',
+        line: 1
     });
 
     fail(`function foo({a}) { "use strict"; }`, {
         source: 'function foo({a}) { "use strict"; }',
+        line: 1
     });
 
     fail(`({a}) => { "use strict"; }`, {
         source: '({a}) => { "use strict"; }',
-        module: true
+        module: true,
+        line: 1
     });
 
     fail(`function a([ option1, option2 ]) { "use strict"; }`, {
         source: 'function a([ option1, option2 ]) { "use strict"; }',
+        line: 1
     });
 
     fail(`function a(options = {}) { "use strict"; }`, {
         source: 'function a(options = {}) { "use strict"; }',
+        line: 1
     });
 
     fail(`function a(...options) { "use strict"; }`, {
         source: 'function a(...options) { "use strict"; }',
+        line: 1
     });
 
     fail(`var a = async (options = {}) => { "use strict"; }`, {
         source: 'var a = async (options = {}) => { "use strict"; }',
+        line: 1
     });
 
     fail(`function a([ option1, option2 ]) { "use strict"; }`, {
         source: 'function a([ option1, option2 ]) { "use strict"; }',
+        line: 1
     });
 
     fail(`function a([ option1, option2 ]) { "use strict"; }`, {
         source: 'function a([ option1, option2 ]) { "use strict"; }',
-        module: true
+        module: true,
+        line: 1
+    });
+
+    fail(`function f([x] = [1]) { "use strict" }`, {
+        source: 'function f([x] = [1]) { "use strict" }',
+        line: 1
     });
 
 });

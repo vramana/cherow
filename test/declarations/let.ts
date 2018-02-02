@@ -1,4 +1,4 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Declarations - Let', () => {
 
@@ -7,7 +7,7 @@ describe('Declarations - Let', () => {
         message:  'Unexpected token',
         line: 1,
         column: 10,
-        index: 11
+        index: 10
     });
 
     fail('let Infinity', {
@@ -18,9 +18,9 @@ describe('Declarations - Let', () => {
         source: `let
     let = foo;`,
     message: 'let is disallowed as a lexically bound name',
-    line: 2,
-    column: 4,
-    index: 11
+    line: 1,
+    column: 3,
+    index: 3
     });
 
     fail(`do let
@@ -29,9 +29,9 @@ describe('Declarations - Let', () => {
         source: `do let
         [x] = 0
         while (false);`,
-        message: 'Unexpected token \'let\'',
+        message: 'Unexpected token let',
         line: 1,
-        column: 3,
+        column: 6,
         index: 6
     });
 
@@ -39,9 +39,9 @@ describe('Declarations - Let', () => {
     [a] = 0;`, {
         source: `for (var x in null) let
         [a] = 0;`,
-        message: 'Unexpected token \'let\'',
+        message: 'Unexpected token let',
         line: 1,
-        column: 20,
+        column: 23,
         index: 23
     });
 
@@ -49,90 +49,66 @@ describe('Declarations - Let', () => {
     [a] = 0;`, {
         source: `if (false) let
         [a] = 0;`,
-        message: 'Unexpected token \'let\'',
+        message: 'Unexpected token let',
         line: 1,
-        column: 11,
+        column: 14,
         index: 14
-    });
-
-    fail('"use strict"; for (let in o) { }', {
-        source: '"use strict"; for (let in o) { }',
-        message: 'The identifier \'let\' must not be in expression position in strict mode',
-        line: 1,
-        column: 19,
-        index: 22
     });
 
     fail('let [x]', {
         source: 'let [x]',
         message: 'Missing initializer in destructuring declaration',
         line: 1,
-        column: 6,
+        column: 7,
         index: 7
-    });
-
-    fail('(function() { "use strict"; { let f; var f; } })', {
-        source: '(function() { "use strict"; { let f; var f; } })',
-        message:  '\'f\' has already been declared ',
-        line: 1,
-        column: 41,
-        index: 42
-    });
-
-    fail('le\\u0074 x = 5', {
-        source: 'le\\u0074 x = 5',
-        message: 'Unexpected escaped keyword',
-        line: 1,
-        column: 0,
-        index: 8
     });
 
     fail('let {x}', {
         source: 'let {x}',
         message: 'Missing initializer in destructuring declaration',
         line: 1,
-        column: 6,
+        column: 7,
         index: 7
     });
 
     fail('for (;false;) let x;', {
         source: 'for (;false;) let x;',
-        message:  'Unexpected token \'identifier\'',
+        message:  'Unexpected token',
         line: 1,
-        column: 18,
-        index: 19
+        column: 17,
+        index: 17
     });
 
     fail('if (true) {} else let x;', {
         source: 'if (true) {} else let x;',
-        message:  'Unexpected token \'identifier\'',
+        message:  'Unexpected token',
         line: 1,
-        column: 22,
-        index: 23
+        column: 21,
+        index: 21
     });
 
     fail('a: let a', {
         source: 'a: let a',
-        message:  'Unexpected token \'identifier\'',
+        message:  'Unexpected token',
         line: 1,
-        column: 7,
-        index: 8
+        column: 6,
+        index: 6
     });
 
     fail('if (true) let x = 1;', {
         source: 'if (true) let x = 1;',
-        message:  'Unexpected token \'identifier\'',
+        message:  'Unexpected token',
         line: 1,
-        column: 14,
-        index: 15
+        column: 13,
+        index: 13
     });
 
     fail('while (false) let x;', {
         source: 'while (false) let x;',
-        message:  'Unexpected token \'identifier\'',
+        message:  'Unexpected token',
         line: 1,
-        column: 18,
-        index: 19
+        column: 17,
+        index: 17
     });
 
     fail(`function f() {
@@ -143,34 +119,26 @@ describe('Declarations - Let', () => {
             let
             await 0;
         }`,
-        message: 'Unexpected token \'number\'',
+        message: 'Unexpected token',
         line: 3,
-        column: 18,
-        index: 50
-    });
-
-    fail('{ let f; var f; }', {
-        source: '{ let f; var f; }',
-        message: '\'f\' has already been declared ',
-        line: 1,
-        column: 13,
-        index: 14
+        column: 17,
+        index: 48
     });
 
     fail('let test = 2, let = 1;', {
         source: 'let test = 2, let = 1;',
         message: 'let is disallowed as a lexically bound name',
         line: 1,
-        column: 14,
-        index: 17
+        column: 13,
+        index: 13
     });
 
     fail('let [a, let, b] = [1, 2, 3];', {
         source: 'let [a, let, b] = [1, 2, 3];',
         message: 'let is disallowed as a lexically bound name',
         line: 1,
-        column: 8,
-        index: 11
+        column: 7,
+        index: 7
     });
 
     // 'let' should not be an allowed name in destructuring let declarations
@@ -178,48 +146,155 @@ describe('Declarations - Let', () => {
         source: 'let [a, let, b] = [1, 2, 3];',
         message: 'let is disallowed as a lexically bound name',
         line: 1,
-        column: 8,
-        index: 11
+        column: 7,
+        index: 7
     });
 
     fail('for(let let in { }) { };', {
         source: 'for(let let in { }) { };',
         message: 'let is disallowed as a lexically bound name',
         line: 1,
-        column: 8,
-        index: 11
+        column: 7,
+        index: 7
     });
 
-    fail('let x = 1;const x = 1;', {
-        source: 'let x = 1;const x = 1;',
-        message: '\'x\' has already been declared ',
-        line: 1,
-        column: 16,
-        index: 17
-    });
-
-    fail('var x = 1;let x = 1;', {
-        source: 'var x = 1;let x = 1;',
-        message: '\'x\' has already been declared ',
-        line: 1,
-        column: 14,
-        index: 15
-    });
-
-    fail('function a() { function f(x) { let x; } } a();', {
-        source: 'function a() { function f(x) { let x; } } a();',
-        message: '\'x\' has already been declared ',
-        line: 1,
-        column: 35,
-        index: 36
-    });
-
-    fail('var x; { function x() {}; } let x;', {
-        source: 'var x; { function x() {}; } let x;',
-        message: '\'x\' has already been declared ',
-        line: 1,
-        column: 32,
-        index: 33
+    pass(`let eval = 1, arguments = 2`, {
+        source: `let eval = 1, arguments = 2`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'VariableDeclaration',
+                    declarations: [
+                        {
+                            type: 'VariableDeclarator',
+                            init: {
+                                type: 'Literal',
+                                value: 1,
+                                start: 11,
+                                end: 12,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 11
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 12
+                                    }
+                                },
+                                raw: '1'
+                            },
+                            id: {
+                                type: 'Identifier',
+                                name: 'eval',
+                                start: 4,
+                                end: 8,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 8
+                                    }
+                                }
+                            },
+                            start: 4,
+                            end: 12,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 12
+                                }
+                            }
+                        },
+                        {
+                            type: 'VariableDeclarator',
+                            init: {
+                                type: 'Literal',
+                                value: 2,
+                                start: 26,
+                                end: 27,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 26
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 27
+                                    }
+                                },
+                                raw: '2'
+                            },
+                            id: {
+                                type: 'Identifier',
+                                name: 'arguments',
+                                start: 14,
+                                end: 23,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 14
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 23
+                                    }
+                                }
+                            },
+                            start: 14,
+                            end: 27,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 14
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 27
+                                }
+                            }
+                        }
+                    ],
+                    kind: 'let',
+                    start: 0,
+                    end: 27,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 27
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 27,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 27
+                }
+            }
+        }
     });
 
     pass(`let [a,,b] = c`, {
@@ -336,6 +411,257 @@ describe('Declarations - Let', () => {
                 end: {
                     line: 1,
                     column: 14
+                }
+            }
+        }
+    });
+
+    pass(`let++;`, {
+        source: 'let++;',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'UpdateExpression',
+                        argument: {
+                            type: 'Identifier',
+                            name: 'let',
+                            start: 0,
+                            end: 3,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 3
+                                }
+                            }
+                        },
+                        operator: '++',
+                        prefix: false,
+                        start: 0,
+                        end: 5,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 5
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 6,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 6
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 6,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 6
+                }
+            }
+        }
+    });
+
+    pass(`let: 34`, {
+        source: 'let: 34',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+              body: [
+                {
+                  body: {
+                    end: 7,
+                    expression: {
+                      end: 7,
+                      loc: {
+                       end: {
+                          column: 7,
+                          line: 1
+                        },
+                        start: {
+                          column: 5,
+                          line: 1,
+                        }
+                      },
+                      raw: '34',
+                      start: 5,
+                      type: 'Literal',
+                     value: 34
+                    },
+                    loc: {
+                      end: {
+                        column: 7,
+                        line: 1,
+                      },
+                      start: {
+                        column: 5,
+                        line: 1,
+                      }
+                    },
+                    start: 5,
+                    type: 'ExpressionStatement'
+                  },
+                  end: 7,
+                  label: {
+                    end: 3,
+                    loc: {
+                      end: {
+                        column: 3,
+                        line: 1,
+                      },
+                      start: {
+                        column: 0,
+                       line: 1,
+                      }
+                    },
+                    name: 'let',
+                    start: 0,
+                    type: 'Identifier'
+                  },
+                  loc: {
+                    end: {
+                     column: 7,
+                      line: 1,
+                    },
+                    start: {
+                      column: 0,
+                      line: 1,
+                    }
+                  },
+                  start: 0,
+                  type: 'LabeledStatement'
+                }
+             ],
+              end: 7,
+              loc: {
+                end: {
+                  column: 7,
+                  line: 1,
+                },
+                start: {
+                  column: 0,
+                  line: 1,
+                }
+              },
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
+            }
+    });
+
+    pass(`let(100)`, {
+        source: 'let(100)',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Identifier',
+                            name: 'let',
+                            start: 0,
+                            end: 3,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 3
+                                }
+                            }
+                        },
+                        arguments: [
+                            {
+                                type: 'Literal',
+                                value: 100,
+                                start: 4,
+                                end: 7,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 7
+                                    }
+                                },
+                                raw: '100'
+                            }
+                        ],
+                        start: 0,
+                        end: 8,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 8
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 8,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 8
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 8,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 8
                 }
             }
         }

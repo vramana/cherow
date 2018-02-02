@@ -1,4 +1,5 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
+import { parseScript } from '../../src/cherow';
 
 describe('Miscellaneous - Chinese', () => {
 
@@ -1154,4 +1155,4 @@ describe('Miscellaneous - Chinese', () => {
             }
         }
     });
-});
+  });

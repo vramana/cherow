@@ -1,8 +1,56 @@
-import { pass } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Statements - Do while', () => {
 
-      pass(`do keep(); while (true);`, {
+    fail(`do{
+      ;
+  }while({0});;`, {
+      source: `do{
+        ;
+    }while({0});;`,
+      line: 3,
+  });
+
+    fail(`do break; while 1;;`, {
+    source: 'do break; while 1;;',
+    line: 1,
+});
+
+    fail(`do break; while 0;`, {
+  source: 'do break; while 0;',
+  line: 1,
+});
+
+    fail(`do break; while true;`, {
+  source: 'do break; while true;',
+  line: 1,
+});
+
+    fail(`do const x = null; while (false);`, {
+  source: 'do const x = null; while (false);',
+  line: 1,
+});
+
+    fail(`do function* g() {} while (false);`, {
+  source: 'do function* g() {} while (false);',
+  line: 1,
+});
+
+    fail(`do label1: label2: function f() {} while (false);`, {
+  source: 'do label1: label2: function f() {} while (false);',
+  line: 1,
+});
+
+    fail(`do let
+[x] = 0
+while (false);`, {
+  source: `do let
+  [x] = 0
+  while (false);`,
+  line: 1,
+});
+
+    pass(`do keep(); while (true);`, {
           source: 'do keep(); while (true);',
           loc: true,
           ranges: true,
@@ -106,7 +154,7 @@ describe('Statements - Do while', () => {
           }
       });
 
-      pass(`do continue; while(1);`, {
+    pass(`do continue; while(1);`, {
           source: 'do continue; while(1);',
           loc: true,
           ranges: true,
@@ -179,7 +227,7 @@ describe('Statements - Do while', () => {
           }
       });
 
-      pass(`do ; while (true)`, {
+    pass(`do ; while (true)`, {
           source: 'do ; while (true)',
           loc: true,
           ranges: true,
@@ -251,7 +299,7 @@ describe('Statements - Do while', () => {
           }
       });
 
-      pass(`do {} while (true)`, {
+    pass(`do {} while (true)`, {
           source: 'do {} while (true)',
           loc: true,
           ranges: true,
@@ -324,7 +372,7 @@ describe('Statements - Do while', () => {
           }
       });
 
-      pass(`{do ; while(false); false}`, {
+    pass(`{do ; while(false); false}`, {
           source: '{do ; while(false); false}',
           loc: true,
           ranges: true,

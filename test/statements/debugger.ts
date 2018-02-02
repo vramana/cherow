@@ -1,8 +1,13 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
-describe('Statements - Continue', () => {
+describe('Statements - Debugger', () => {
 
-      pass(`debugger`, {
+  fail(`(debugger);`, {
+    source: '(debugger);',
+    line: 1
+  });
+
+  pass(`debugger`, {
           source: 'debugger',
           loc: true,
           ranges: true,
@@ -42,7 +47,7 @@ describe('Statements - Continue', () => {
           }
       });
 
-      pass(`debugger;`, {
+  pass(`debugger;`, {
         source: 'debugger;',
         loc: true,
         ranges: true,

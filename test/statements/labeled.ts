@@ -1,59 +1,59 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Statements - Labelled', () => {
 
-        fail(`label: async function f() {}`, {
-          source: 'label: async function f() {}',
-          message: 'Async functions can only be declared at the top level or inside a block',
-          line: 1,
-          column: 7,
-          index: 12,
-      });
+    fail(`aw\\u0061it: 1;`, {
+        source: 'aw\\u0061it: 1;',
+      message: 'Unexpected token await',
+      module: true,
+      line: 1
+    });
 
-        fail(`label: class C {}`, {
-          source: 'label: class C {}',
-          message: 'class can\'t appear in single-statement context',
-          line: 1,
-          column: 7,
-          index: 12
-      });
+    fail(`label: async function f() {}`, {
+        source: 'label: async function f() {}',
+      line: 1,
+    });
 
-        fail(`label: const x = null;`, {
-          source: 'label: const x = null;',
-          message: 'Unexpected token \'const\'',
-          line: 1,
-          column: 7,
-          index: 12,
-      });
+    fail(`label: function* g() {}`, {
+        source: 'label: function* g() {}',
+      line: 1,
+    });
 
-        fail(`label: function g() {}`, {
-          source: 'label: function g() {}',
-          module: true,
-          message: 'In strict mode code, functions can only be declared at top level or inside a block',
-          line: 1,
-          column: 7,
-          index: 15,
-      });
+    fail(`await: 1;`, {
+        source: 'await: 1;',
+      line: 1,
+      module: true
+    });
 
-        fail(`aw\\u0061it: 1;`, {
-          source: 'aw\\u0061it: 1;',
-          module: true,
-          message: 'Unexpected token \'await\'',
-          line: 1,
-          column: 0,
-          index: 10,
-      });
+    fail(`label: class C {};`, {
+    source: 'label: class C {};',
+    line: 1,
+});
 
-        fail(`yield: 1;`, {
-          source: 'yield: 1;',
-          module: true,
-          message: 'Unexpected token \'yield\'',
-          line: 1,
-          column: 0,
-          index: 5,
-      });
+    fail(`"use strict"; label: function g() {};`, {
+    source: '"use strict"; label: function g() {};',
+    line: 1,
+});
 
-        pass(`start: while (true) break start`, {
+    fail(` L: let
+[a] = 0;`, {
+    source: ` L: let
+    [a] = 0;`,
+    line: 1,
+});
+
+    fail(`label: async function* g() {};`, {
+    source: 'label: async function* g() {};',
+    line: 1,
+});
+
+    fail(`await: 1;`, {
+    source: 'await: 1;',
+    module: true,
+    line: 1,
+});
+
+    pass(`start: while (true) break start`, {
           source: 'start: while (true) break start',
           loc: true,
           ranges: true,
@@ -170,7 +170,39 @@ describe('Statements - Labelled', () => {
           }
       });
 
-        pass(`__proto__: test`, {
+    pass(`L: let\nx`, {
+        source: 'L: let\nx',
+        raw: true,
+        expected: {
+              body: [
+                {
+                  body: {
+                    expression: {
+                      name: 'let',
+                      type: 'Identifier'
+                    },
+                    type: 'ExpressionStatement'
+                  },
+                  label: {
+                    name: 'L',
+                    type: 'Identifier'
+                 },
+                  type: 'LabeledStatement'
+                },
+                {
+                  expression: {
+                    name: 'x',
+                    type: 'Identifier'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
+    pass(`__proto__: test`, {
           source: '__proto__: test',
           loc: true,
           ranges: true,
@@ -255,7 +287,7 @@ describe('Statements - Labelled', () => {
           }
       });
 
-        pass(`async: await`, {
+    pass(`async: await`, {
           source: 'async: await',
           loc: true,
           ranges: true,
@@ -340,7 +372,7 @@ describe('Statements - Labelled', () => {
           }
       });
 
-        pass(`a:{break a;}`, {
+    pass(`a:{break a;}`, {
           source: 'a:{break a;}',
           loc: true,
           ranges: true,

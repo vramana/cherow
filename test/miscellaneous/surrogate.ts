@@ -1,4 +1,4 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Miscellaneous - Surrogate pair', () => {
 
@@ -7,15 +7,15 @@ describe('Miscellaneous - Surrogate pair', () => {
     message: 'Unexpected surrogate pair',
     line: 1,
     column: 0,
-    index: 9
+    index: 0
   });
 
   fail(`var 🀒`, {
     source: 'var 🀒',
-    message: 'Unexpected token \'🀒\'',
+    message: 'Unexpected token 🀒',
     line: 1,
     column: 0,
-    index: 4
+    index: 0
   });
 
   pass(`var _\\u{1EE03}`, {
@@ -230,156 +230,6 @@ describe('Miscellaneous - Surrogate pair', () => {
       loc: {
         end: {
           column: 15,
-          line: 1,
-        },
-        start: {
-          column: 0,
-          line: 1,
-        }
-      },
-      sourceType: 'script',
-      start: 0,
-      type: 'Program'
-    }
-  });
-
-  pass(`var 𞸀`, {
-    source: 'var 𞸀',
-    loc: true,
-    ranges: true,
-    raw: true,
-    expected: {
-      body: [
-        {
-          declarations: [
-            {
-             end: 6,
-              id: {
-                end: 6,
-                loc: {
-                  end: {
-                    column: 6,
-                   line: 1,
-                  },
-                 start: {
-                    column: 4,
-                    line: 1,
-                  },
-                },
-                name: '𞸀',
-                start: 4,
-                type: 'Identifier',
-              },
-              init: null,
-              loc: {
-                end: {
-                  column: 6,
-                  line: 1,
-                },
-                start: {
-                  column: 4,
-                  line: 1,
-                }
-              },
-              start: 4,
-              type: 'VariableDeclarator',
-            }
-          ],
-          end: 6,
-          kind: 'var',
-          loc: {
-            end: {
-              column: 6,
-              line: 1,
-            },
-            start: {
-              column: 0,
-              line: 1,
-            },
-          },
-          start: 0,
-          type: 'VariableDeclaration',
-        },
-      ],
-      end: 6,
-      loc: {
-        end: {
-          column: 6,
-          line: 1,
-        },
-        start: {
-          column: 0,
-          line: 1,
-        }
-      },
-      sourceType: 'script',
-      start: 0,
-      type: 'Program',
-    }
-  });
-
-  pass(`var 𞸊𞸋`, {
-    source: 'var 𞸊𞸋',
-    loc: true,
-    ranges: true,
-    raw: true,
-    expected: {
-      body: [
-       {
-          declarations: [
-            {
-              end: 8,
-              id: {
-                end: 8,
-                loc: {
-                  end: {
-                    column: 8,
-                    line: 1,
-                  },
-                  start: {
-                   column: 4,
-                    line: 1,
-                  },
-                },
-                name: '𞸊𞸋',
-                start: 4,
-                type: 'Identifier',
-              },
-              init: null,
-              loc: {
-                end: {
-                  column: 8,
-                  line: 1,
-                },
-                start: {
-                 column: 4,
-                  line: 1,
-                }
-              },
-              start: 4,
-             type: 'VariableDeclarator',
-            }
-          ],
-          end: 8,
-          kind: 'var',
-          loc: {
-            end: {
-              column: 8,
-              line: 1,
-            },
-            start: {
-              column: 0,
-              line: 1,
-            }
-          },
-          start: 0,
-          type: 'VariableDeclaration',
-        }
-      ],
-      end: 8,
-      loc: {
-        end: {
-          column: 8,
           line: 1,
         },
         start: {

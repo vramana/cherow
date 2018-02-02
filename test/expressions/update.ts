@@ -1,4 +1,4 @@
-import { pass } from '../utils';
+import { pass } from '../test-utils';
 
 describe('Expressions - Update', () => {
 

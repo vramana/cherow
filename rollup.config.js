@@ -21,7 +21,7 @@ const config = {
     replace({
       __VERSION__: pkg.version
     }),
-    buble({exclude: './node_modules/**'}),
+    buble({exclude: './node_modules/**', transforms: { dangerousForOf: true }}),
   ],
   sourcemap: false,
   output

@@ -1,264 +1,6 @@
-import { pass, fail } from '../utils';
-import { parseScript } from '../../src/cherow';
+import { pass, fail } from '../test-utils';
+
 describe('Declarations - Lexical', () => {
-
-    const invalidSyntax = [
-        '[]',
-        '[a]',
-        '[] = []',
-        '[a--] = [];',
-        '[a + 1] = [];',
-        '[++a] = [];',
-        'a; [a--] = [];',
-        'a; [1, a] = [];',
-        '[...a, ...b] = [];',
-        '[...a, b] = [];',
-        '[...a = 1] = [];',
-        '[a + 1] = [];',
-        '[++a] = [];',
-        ' [((a)] = [];',
-        '[a)] = [];',
-        '{a: ...[]}',
-        '{x:x}.x'
-    ];
-
-    for (const arg of invalidSyntax) {
-
-        fail(`let ${arg}`, {
-            source: `let ${arg}`
-        });
-
-        fail(`const ${arg}`, {
-            source: `const ${arg}`
-        });
-
-        fail(`for (let ${arg} = {}; ;  ) { }`, {
-            source: `for (let ${arg} = {}; ;  ) { }`
-        });
-
-        fail(`for (let ${arg} of '' ) { }`, {
-            source: `for (let ${arg} of '' ) { }`
-        });
-    }
-
-    const vaidSyntax = [
-        '[a, b] = [1];',
-        '[,] = [];',
-        '[a,] = [];',
-        '[a] = [,,];',
-        '[...a] = [];',
-        '[a = 1] = [];',
-        '[a = 1, b] = [];',
-        '[[a]] = [[]];',
-        '[[...a], ...b] = [[],];',
-    ];
-
-    for (const arg of vaidSyntax) {
-
-        pass(`let ${arg}`, {
-            source: `let ${arg}`,
-            expected: parseScript(`let ${arg}`)
-        });
-
-        pass(`const ${arg}`, {
-            source: `const ${arg}`,
-            expected: parseScript(`const ${arg}`)
-        });
-
-        pass(`var ${arg}`, {
-            source: `var ${arg}`,
-            expected: parseScript(`var ${arg}`)
-        });
-    }
-
-    pass(`let a`, {
-        source: 'let a',
-        loc: true,
-        ranges: true,
-        raw: true,
-        expected: {
-            type: 'Program',
-            start: 0,
-            end: 5,
-            loc: {
-                start: {
-                    line: 1,
-                    column: 0
-                },
-                end: {
-                    line: 1,
-                    column: 5
-                }
-            },
-            body: [{
-                type: 'VariableDeclaration',
-                start: 0,
-                end: 5,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 1,
-                        column: 5
-                    }
-                },
-                declarations: [{
-                    type: 'VariableDeclarator',
-                    start: 4,
-                    end: 5,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 4
-                        },
-                        end: {
-                            line: 1,
-                            column: 5
-                        }
-                    },
-                    id: {
-                        type: 'Identifier',
-                        start: 4,
-                        end: 5,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 4
-                            },
-                            end: {
-                                line: 1,
-                                column: 5
-                            }
-                        },
-                        name: 'a'
-                    },
-                    init: null
-                }],
-                kind: 'let'
-            }],
-            sourceType: 'script'
-        }
-    });
-
-    pass(`let.let = foo`, {
-        source: 'let.let = foo',
-        loc: true,
-        ranges: true,
-        raw: true,
-        expected: {
-            type: 'Program',
-            body: [{
-                type: 'ExpressionStatement',
-                expression: {
-                    type: 'AssignmentExpression',
-                    left: {
-                        type: 'MemberExpression',
-                        object: {
-                            type: 'Identifier',
-                            name: 'let',
-                            start: 0,
-                            end: 3,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 0
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 3
-                                }
-                            }
-                        },
-                        computed: false,
-                        property: {
-                            type: 'Identifier',
-                            name: 'let',
-                            start: 4,
-                            end: 7,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 4
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 7
-                                }
-                            }
-                        },
-                        start: 0,
-                        end: 7,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 7
-                            }
-                        }
-                    },
-                    operator: '=',
-                    right: {
-                        type: 'Identifier',
-                        name: 'foo',
-                        start: 10,
-                        end: 13,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 10
-                            },
-                            end: {
-                                line: 1,
-                                column: 13
-                            }
-                        }
-                    },
-                    start: 0,
-                    end: 13,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 1,
-                            column: 13
-                        }
-                    }
-                },
-                start: 0,
-                end: 13,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 1,
-                        column: 13
-                    }
-                }
-            }],
-            sourceType: 'script',
-            start: 0,
-            end: 13,
-            loc: {
-                start: {
-                    line: 1,
-                    column: 0
-                },
-                end: {
-                    line: 1,
-                    column: 13
-                }
-            }
-        }
-    });
 
     pass(`switch (answer) { case 42: let t = 42; break; }`, {
         source: 'switch (answer) { case 42: let t = 42; break; }',
@@ -476,6 +218,331 @@ describe('Declarations - Lexical', () => {
                 end: {
                     line: 1,
                     column: 4
+                }
+            }
+        }
+    });
+
+    pass(`let a`, {
+        source: 'let a',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 5,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 5
+                }
+            },
+            body: [{
+                type: 'VariableDeclaration',
+                start: 0,
+                end: 5,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 5
+                    }
+                },
+                declarations: [{
+                    type: 'VariableDeclarator',
+                    start: 4,
+                    end: 5,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 4
+                        },
+                        end: {
+                            line: 1,
+                            column: 5
+                        }
+                    },
+                    id: {
+                        type: 'Identifier',
+                        start: 4,
+                        end: 5,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 4
+                            },
+                            end: {
+                                line: 1,
+                                column: 5
+                            }
+                        },
+                        name: 'a'
+                    },
+                    init: null
+                }],
+                kind: 'let'
+            }],
+            sourceType: 'script'
+        }
+    });
+
+    pass(`let.let = foo`, {
+        source: 'let.let = foo',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [{
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'AssignmentExpression',
+                    left: {
+                        type: 'MemberExpression',
+                        object: {
+                            type: 'Identifier',
+                            name: 'let',
+                            start: 0,
+                            end: 3,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 3
+                                }
+                            }
+                        },
+                        computed: false,
+                        property: {
+                            type: 'Identifier',
+                            name: 'let',
+                            start: 4,
+                            end: 7,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 7
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        }
+                    },
+                    operator: '=',
+                    right: {
+                        type: 'Identifier',
+                        name: 'foo',
+                        start: 10,
+                        end: 13,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 10
+                            },
+                            end: {
+                                line: 1,
+                                column: 13
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 13,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 13
+                        }
+                    }
+                },
+                start: 0,
+                end: 13,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 13
+                    }
+                }
+            }],
+            sourceType: 'script',
+            start: 0,
+            end: 13,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 13
+                }
+            }
+        }
+    });
+
+    pass('let a = 3,b =4;', {
+        source: 'let a = 3,b =4;',
+        loc: true,
+        ranges: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'VariableDeclaration',
+                    declarations: [
+                        {
+                            type: 'VariableDeclarator',
+                            init: {
+                                type: 'Literal',
+                                value: 3,
+                                start: 8,
+                                end: 9,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 8
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 9
+                                    }
+                                }
+                            },
+                            id: {
+                                type: 'Identifier',
+                                name: 'a',
+                                start: 4,
+                                end: 5,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 5
+                                    }
+                                }
+                            },
+                            start: 4,
+                            end: 9,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 9
+                                }
+                            }
+                        },
+                        {
+                            type: 'VariableDeclarator',
+                            init: {
+                                type: 'Literal',
+                                value: 4,
+                                start: 13,
+                                end: 14,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 13
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 14
+                                    }
+                                }
+                            },
+                            id: {
+                                type: 'Identifier',
+                                name: 'b',
+                                start: 10,
+                                end: 11,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 10
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 11
+                                    }
+                                }
+                            },
+                            start: 10,
+                            end: 14,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 10
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 14
+                                }
+                            }
+                        }
+                    ],
+                    kind: 'let',
+                    start: 0,
+                    end: 15,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 15
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 15,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 15
                 }
             }
         }
@@ -991,6 +1058,95 @@ describe('Declarations - Lexical', () => {
           }
     });
 
+    pass(`l\\u0065t // ASI
+    a;`, {
+        source: `l\\u0065t // ASI
+        a;`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Identifier',
+                        name: 'let',
+                        start: 0,
+                        end: 8,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 8
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 8,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 8
+                        }
+                    }
+                },
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Identifier',
+                        name: 'a',
+                        start: 24,
+                        end: 25,
+                        loc: {
+                            start: {
+                                line: 2,
+                                column: 8
+                            },
+                            end: {
+                                line: 2,
+                                column: 9
+                            }
+                        }
+                    },
+                    start: 24,
+                    end: 26,
+                    loc: {
+                        start: {
+                            line: 2,
+                            column: 8
+                        },
+                        end: {
+                            line: 2,
+                            column: 10
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 26,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 2,
+                    column: 10
+                }
+            }
+        }
+    });
+
     pass(`const [...a] = [];`, {
         source: 'const [...a] = [];',
         loc: true,
@@ -1113,32 +1269,16 @@ describe('Declarations - Lexical', () => {
           }
     });
 
-    fail(`let [a, a] = [];`, {
-        source: 'let [a, a] = [];',
-        message: '\'a\' has already been declared ',
-        line: 1,
-        column: 8,
-        index: 9
-    });
-
     fail(`let [[(a)], ((((((([b])))))))] = [[],[]];`, {
         source: 'let [[(a)], ((((((([b])))))))] = [[],[]];',
-        message: 'Unexpected token \'(\'',
+        message: 'Unexpected token',
         line: 1,
         column: 6,
-        index: 7
+        index: 6
     });
 
     fail(`const [((((a)))), b] = [];`, {
         source: 'const [((((a)))), b] = [];',
-    });
-
-    fail(`let a, b; [...a, ...b] = [];`, {
-        source: 'let a, b; [...a, ...b] = [];',
-        message: 'Invalid left-hand side in assignment',
-        line: 1,
-        column: 10,
-        index: 11
     });
 
     fail(`let [1] = [];`, {
@@ -1182,9 +1322,9 @@ describe('Declarations - Lexical', () => {
 
     fail(`let x,`, {
         source: 'let x,',
-        message: 'Unexpected token \'end of source\'',
+        message: 'Unexpected token',
         line: 1,
-        column: 5,
+        column: 6,
         index: 6
     });
 
@@ -1192,16 +1332,16 @@ describe('Declarations - Lexical', () => {
         source: 'let let;',
         message: 'let is disallowed as a lexically bound name',
         line: 1,
-        column: 4,
-        index: 7
+        column: 3,
+        index: 3
     });
 
     fail(`for (const let = 1;;;) {}`, {
         source: 'for (const let = 1;;;) {}',
         message: 'let is disallowed as a lexically bound name',
         line: 1,
-        column: 11,
-        index: 14
+        column: 10,
+        index: 10
     });
 
     fail(`const let`, {
@@ -1212,7 +1352,7 @@ describe('Declarations - Lexical', () => {
         source: 'let []',
         message: 'Missing initializer in destructuring declaration',
         line: 1,
-        column: 5,
+        column: 6,
         index: 6
     });
 

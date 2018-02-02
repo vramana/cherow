@@ -1,124 +1,111 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Expressions - Assignment', () => {
 
-        pass(`[a,b] = [b,a];`, {
-            source: '[a,b] = [b,a];',
-            loc: true,
-            ranges: true,
-            raw: true,
-            expected: {
-                type: 'Program',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'AssignmentExpression',
-                            left: {
-                                type: 'ArrayPattern',
-                                elements: [
-                                    {
-                                        type: 'Identifier',
-                                        name: 'a',
-                                        start: 1,
-                                        end: 2,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 1
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 2
-                                            }
-                                        }
-                                    },
-                                    {
-                                        type: 'Identifier',
-                                        name: 'b',
-                                        start: 3,
-                                        end: 4,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 3
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 4
-                                            }
+    pass(`[a,b] = [b,a];`, {
+        source: '[a,b] = [b,a];',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'AssignmentExpression',
+                        left: {
+                            type: 'ArrayPattern',
+                            elements: [
+                                {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    start: 1,
+                                    end: 2,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 1
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 2
                                         }
                                     }
-                                ],
-                                start: 0,
-                                end: 5,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 0
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 5
+                                },
+                                {
+                                    type: 'Identifier',
+                                    name: 'b',
+                                    start: 3,
+                                    end: 4,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 3
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 4
+                                        }
                                     }
                                 }
-                            },
-                            operator: '=',
-                            right: {
-                                type: 'ArrayExpression',
-                                elements: [
-                                    {
-                                        type: 'Identifier',
-                                        name: 'b',
-                                        start: 9,
-                                        end: 10,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 9
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 10
-                                            }
-                                        }
-                                    },
-                                    {
-                                        type: 'Identifier',
-                                        name: 'a',
-                                        start: 11,
-                                        end: 12,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 11
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 12
-                                            }
-                                        }
-                                    }
-                                ],
-                                start: 8,
-                                end: 13,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 8
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 13
-                                    }
-                                }
-                            },
+                            ],
                             start: 0,
-                            end: 13,
+                            end: 5,
                             loc: {
                                 start: {
                                     line: 1,
                                     column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 5
+                                }
+                            }
+                        },
+                        operator: '=',
+                        right: {
+                            type: 'ArrayExpression',
+                            elements: [
+                                {
+                                    type: 'Identifier',
+                                    name: 'b',
+                                    start: 9,
+                                    end: 10,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 9
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 10
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    start: 11,
+                                    end: 12,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 11
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 12
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 8,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 8
                                 },
                                 end: {
                                     line: 1,
@@ -127,7 +114,7 @@ describe('Expressions - Assignment', () => {
                             }
                         },
                         start: 0,
-                        end: 14,
+                        end: 13,
                         loc: {
                             start: {
                                 line: 1,
@@ -135,107 +122,57 @@ describe('Expressions - Assignment', () => {
                             },
                             end: {
                                 line: 1,
-                                column: 14
+                                column: 13
                             }
                         }
-                    }
-                ],
-                sourceType: 'script',
-                start: 0,
-                end: 14,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
                     },
-                    end: {
-                        line: 1,
-                        column: 14
+                    start: 0,
+                    end: 14,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 14
+                        }
                     }
                 }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 14,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 14
+                }
             }
-        });
+        }
+    });
 
-        pass(`a = (b, c)`, {
-            source: 'a = (b, c)',
-            loc: true,
-            ranges: true,
-            raw: true,
-            expected: {
-                type: 'Program',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'AssignmentExpression',
-                            left: {
-                                type: 'Identifier',
-                                name: 'a',
-                                start: 0,
-                                end: 1,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 0
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 1
-                                    }
-                                }
-                            },
-                            operator: '=',
-                            right: {
-                                type: 'SequenceExpression',
-                                expressions: [
-                                    {
-                                        type: 'Identifier',
-                                        name: 'b',
-                                        start: 5,
-                                        end: 6,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 5
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 6
-                                            }
-                                        }
-                                    },
-                                    {
-                                        type: 'Identifier',
-                                        name: 'c',
-                                        start: 8,
-                                        end: 9,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 8
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 9
-                                            }
-                                        }
-                                    }
-                                ],
-                                start: 5,
-                                end: 9,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 5
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 9
-                                    }
-                                }
-                            },
+    pass(`a = (b, c)`, {
+        source: 'a = (b, c)',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'AssignmentExpression',
+                        left: {
+                            type: 'Identifier',
+                            name: 'a',
                             start: 0,
-                            end: 10,
+                            end: 1,
                             loc: {
                                 start: {
                                     line: 1,
@@ -243,7 +180,57 @@ describe('Expressions - Assignment', () => {
                                 },
                                 end: {
                                     line: 1,
-                                    column: 10
+                                    column: 1
+                                }
+                            }
+                        },
+                        operator: '=',
+                        right: {
+                            type: 'SequenceExpression',
+                            expressions: [
+                                {
+                                    type: 'Identifier',
+                                    name: 'b',
+                                    start: 5,
+                                    end: 6,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 5
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 6
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'Identifier',
+                                    name: 'c',
+                                    start: 8,
+                                    end: 9,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 8
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 9
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 5,
+                            end: 9,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 5
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 9
                                 }
                             }
                         },
@@ -259,25 +246,38 @@ describe('Expressions - Assignment', () => {
                                 column: 10
                             }
                         }
-                    }
-                ],
-                sourceType: 'script',
-                start: 0,
-                end: 10,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
                     },
-                    end: {
-                        line: 1,
-                        column: 10
+                    start: 0,
+                    end: 10,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 10
+                        }
                     }
                 }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 10,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 10
+                }
             }
-        });
+        }
+    });
 
-        pass(`x <<= 42`, {
+    pass(`x <<= 42`, {
             source: 'x <<= 42',
             loc: true,
             ranges: true,
@@ -364,7 +364,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`x &= 42;`, {
+    pass(`x &= 42;`, {
             source: 'x &= 42;',
             loc: true,
             ranges: true,
@@ -451,7 +451,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`x /= 42`, {
+    pass(`x /= 42`, {
             source: 'x /= 42',
             loc: true,
             ranges: true,
@@ -538,7 +538,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`arguments = 42`, {
+    pass(`arguments = 42`, {
             source: 'arguments = 42',
             loc: true,
             ranges: true,
@@ -625,7 +625,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`x >>>= 42`, {
+    pass(`x >>>= 42`, {
             source: 'x >>>= 42',
             loc: true,
             ranges: true,
@@ -712,7 +712,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`x >>= 42;`, {
+    pass(`x >>= 42;`, {
             source: 'x >>= 42',
             loc: true,
             ranges: true,
@@ -799,7 +799,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`x |= 42`, {
+    pass(`x |= 42`, {
             source: 'x |= 42',
             loc: true,
             ranges: true,
@@ -886,7 +886,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`a=0;`, {
+    pass(`a=0;`, {
             source: 'a=0;',
             loc: true,
             ranges: true,
@@ -973,7 +973,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`(a)=(0);`, {
+    pass(`(a)=(0);`, {
             source: '(a)=(0);',
             loc: true,
             ranges: true,
@@ -1060,7 +1060,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`x = 0`, {
+    pass(`x = 0`, {
             source: 'x = 0',
             loc: true,
             ranges: true,
@@ -1147,7 +1147,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`eval = 0`, {
+    pass(`eval = 0`, {
             source: 'eval = 0',
             loc: true,
             ranges: true,
@@ -1234,7 +1234,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`x *= 0`, {
+    pass(`x *= 0`, {
             source: 'x *= 0',
             loc: true,
             ranges: true,
@@ -1321,7 +1321,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`x.x *= 0`, {
+    pass(`x.x *= 0`, {
             source: 'x.x *= 0',
             loc: true,
             ranges: true,
@@ -1440,7 +1440,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`x /= 0`, {
+    pass(`x /= 0`, {
             source: 'x /= 0',
             loc: true,
             ranges: true,
@@ -1527,7 +1527,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`x %= 0`, {
+    pass(`x %= 0`, {
             source: 'x %= 0',
             loc: true,
             ranges: true,
@@ -1614,7 +1614,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`x **= 0`, {
+    pass(`x **= 0`, {
             source: 'x **= 0',
             loc: true,
             ranges: true,
@@ -1701,7 +1701,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`x <<= 0`, {
+    pass(`x <<= 0`, {
             source: 'x <<= 0',
             loc: true,
             ranges: true,
@@ -1788,7 +1788,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`x |= 0`, {
+    pass(`x |= 0`, {
             source: 'x |= 0',
             loc: true,
             ranges: true,
@@ -1875,7 +1875,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`((((((((((((((((((((((((((((((((((((((((a)))))))))))))))))))))))))))))))))))))))) = 0`, {
+    pass(`((((((((((((((((((((((((((((((((((((((((a)))))))))))))))))))))))))))))))))))))))) = 0`, {
             source: '((((((((((((((((((((((((((((((((((((((((a)))))))))))))))))))))))))))))))))))))))) = 0',
             loc: true,
             ranges: true,
@@ -1962,7 +1962,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`((((((((((((((((((((((((((((((((((((((((a.a)))))))))))))))))))))))))))))))))))))))) = 0`, {
+    pass(`((((((((((((((((((((((((((((((((((((((((a.a)))))))))))))))))))))))))))))))))))))))) = 0`, {
             source: '((((((((((((((((((((((((((((((((((((((((a.a)))))))))))))))))))))))))))))))))))))))) = 0',
             loc: true,
             ranges: true,
@@ -2081,7 +2081,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`[0].length = 0`, {
+    pass(`[0].length = 0`, {
             source: '[0].length = 0',
             loc: true,
             ranges: true,
@@ -2216,7 +2216,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`([0].length) = 0`, {
+    pass(`([0].length) = 0`, {
             source: '([0].length) = 0',
             loc: true,
             ranges: true,
@@ -2351,7 +2351,7 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        pass(`(a**b).c=0`, {
+    pass(`(a**b).c=0`, {
             source: '(a**b).c=0',
             loc: true,
             ranges: true,
@@ -2502,53 +2502,46 @@ describe('Expressions - Assignment', () => {
             }
         });
 
-        fail(`"use strict"; (arguments) = 20;`, {
+    fail(`"use strict"; (arguments) = 20;`, {
             source: '"use strict"; (arguments) = 20;',
             loc: true,
             ranges: true,
             raw: true
         });
 
-        fail(`(({a})=0);`, {
+    fail(`(({a})=0);`, {
             source: '(({a})=0);',
             loc: true,
             ranges: true,
             raw: true
         });
 
-        fail(`"use strict"; (arguments) = 20;`, {
+    fail(`"use strict"; (arguments) = 20;`, {
             source: '"use strict"; (arguments) = 20;',
             loc: true,
             ranges: true,
             raw: true
         });
 
-        fail(`(([a])=0);`, {
+    fail(`(([a])=0);`, {
             source: '(([a])=0);',
             loc: true,
             ranges: true,
             raw: true
         });
-        /*
-                fail(`({a: (b = 0)} = {})`, {
-                    source: '({a: (b = 0)} = {})',
-                    loc: true,
-                    ranges: true,
-                    raw: true
-                });
-                */
-        fail(`([(a = b)] = []`, {
+
+    fail(`([(a = b)] = []`, {
             source: '([(a = b)] = []',
             loc: true,
             ranges: true,
             raw: true
         });
 
-        fail(`42 = 42;`, {
+    fail(`42 = 42;`, {
            source: '42 = 42;',
         });
 
-        fail(`"x" = 42;`, {
+    fail(`"x" = 42;`, {
            source: '"x" = 42;',
         });
 

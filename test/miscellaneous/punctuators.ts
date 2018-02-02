@@ -1,39 +1,6 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Miscellaneous - Punctuators', () => {
-
-    fail(`1\\u002C2;`, {
-        source: `1\\u002C2;`,
-        loc: true,
-        ranges: true,
-        raw: true,
-        message:  'Invalid Unicode escape sequence',
-        line: 1,
-        column: 0,
-        index: 6
-    });
-
-    fail(`this\\u002Ex;`, {
-        source: `this\\u002Ex;`,
-        loc: true,
-        ranges: true,
-        raw: true,
-        message:  'Invalid Unicode escape sequence',
-        line: 1,
-        column: 0,
-        index: 9
-    });
-
-    fail(`1\\u003B;`, {
-        source: `1\\u003B;`,
-        loc: true,
-        ranges: true,
-        raw: true,
-        message:  'Invalid Unicode escape sequence',
-        line: 1,
-        column: 1,
-        index: 6
-    });
 
     pass(`interpretation of all punctuators`, {
         source: `({});[];

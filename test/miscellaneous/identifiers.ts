@@ -1,10 +1,98 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 import { parseScript } from '../../src/cherow';
 
 describe('Miscellaneous - Identifiers', () => {
 
     fail('var a\ = 5;', {
         source: 'var a\ = 5;'
+    });
+
+    pass(`T‍ = ([]);`, {
+      source: 'T‍ = ([]);',
+      loc: true,
+      ranges: true,
+      raw: true,
+      expected: {
+          body: [
+            {
+              end: 10,
+              expression: {
+                end: 9,
+                left: {
+                  end: 1,
+                  loc: {
+                   end: {
+                      column: 1,
+                      line: 1,
+                    },
+                    start: {
+                      column: 0,
+                      line: 1,
+                    }
+                  },
+                  name: 'T',
+                  start: 0,
+                  type: 'Identifier',
+                },
+                loc: {
+                  end: {
+                    column: 9,
+                    line: 1,
+                  },
+                  start: {
+                    column: 0,
+                    line: 1,
+                  }
+                },
+                operator: '=',
+                right: {
+                  elements: [],
+                  end: 8,
+                 loc: {
+                    end: {
+                      column: 8,
+                      line: 1,
+                    },
+                    start: {
+                      column: 6,
+                      line: 1,
+                    }
+                  },
+                  start: 6,
+                  type: 'ArrayExpression'
+                },
+                start: 0,
+                type: 'AssignmentExpression'
+              },
+              loc: {
+                end: {
+                  column: 10,
+                  line: 1,
+                },
+                start: {
+                  column: 0,
+                  line: 1,
+                }
+              },
+              start: 0,
+              type: 'ExpressionStatement'
+           }
+          ],
+          end: 10,
+          loc: {
+            end: {
+              column: 10,
+              line: 1,
+            },
+            start: {
+              column: 0,
+              line: 1,
+            }
+          },
+          sourceType: 'script',
+          start: 0,
+          type: 'Program'
+        }
     });
 
     pass(`\\u{0069}`, {

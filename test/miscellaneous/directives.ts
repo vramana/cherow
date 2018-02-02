@@ -1,4 +1,4 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Miscellaneous - Directives', () => {
 
@@ -964,61 +964,53 @@ describe('Miscellaneous - Directives', () => {
 
     fail('strict directive after legacy octal ', {
             source: '"\\1;" "use strict";',
-            message: 'Unexpected token \'string\'',
+            message: 'Unexpected token',
             line: 1,
-            column: 0,
-            index: 18
+            column: 5,
+            index: 5
         });
     fail('strict directive after legacy octal in function body', {
             source: '"use strict"; function f(){"\\1";}',
-
             message: 'Octal escapes are not allowed in strict mode',
             line: 1,
             column: 27,
-            index: 29
+            index: 27
         });
     fail('strict directive after legacy octal followed by null', {
             source: '"\\1;" "use strict"; null',
-            message: 'Unexpected token \'string\'',
+            message: 'Unexpected token',
             line: 1,
-            column: 0,
-            index: 18
+            column: 5,
+            index: 5
         });
     fail('strict directive before legacy octal', {
             source: '"use strict"; "\\1;"',
             message: 'Octal escapes are not allowed in strict mode',
             line: 1,
-            column: 14,
-            index: 16
+            column: 13,
+            index: 13
         });
-    fail('strict directive before legacy octal', {
+    fail('strict directive before asdfasdfadsfaddsf octal', {
             source: '"\\1;"',
             module: true,
             message: 'Octal escapes are not allowed in strict mode',
             line: 1,
             column: 0,
-            index: 2
+            index: 0
         });
     fail('strict directive before legacy octal followed by null', {
             source: '"use strict"; "\\1;" null',
             message: 'Octal escapes are not allowed in strict mode',
             line: 1,
-            column: 0,
-            index: 16
+            column: 13,
+            index: 13
         });
     fail('legacy octal inside function body', {
             source: '"use strict"; function f(){"\\1";}',
             message: 'Octal escapes are not allowed in strict mode',
             line: 1,
-            column: 0,
-            index: 29
-        });
-    fail('invalid newlines after null escapes', {
-            source: '"random\\0\nnewline"',
-            message: 'Unterminated string literal',
-            line: 1,
-            column: 0,
-            index: 9
+            column: 27,
+            index: 27
         });
 
     fail('invalid newlines after ASCII \\x0', {
@@ -1026,28 +1018,28 @@ describe('Miscellaneous - Directives', () => {
             message: 'Invalid hexadecimal escape sequence',
             line: 1,
             column: 0,
-            index: 10
+            index: 0
         });
     fail('invalid newlines after Unicode \\u', {
             source: '"random\\u\nnewline"',
             message: 'Invalid hexadecimal escape sequence',
             line: 1,
             column: 0,
-            index: 9
+            index: 0
         });
     fail('invalid newlines after Unicode \\u0', {
             source: '"random\\u0\nnewline"',
             message: 'Invalid hexadecimal escape sequence',
             line: 1,
             column: 0,
-            index: 10
+            index: 0
         });
     fail('invalid newlines after Unicode \\ua', {
             source: '"random\\ua\nnewline"',
             message: 'Invalid hexadecimal escape sequence',
             line: 1,
             column: 0,
-            index: 10
+            index: 0
         });
     fail('invalid paragraph separators after Unicode \\ua', {
             source: '"random\\ua\u2029newline"',

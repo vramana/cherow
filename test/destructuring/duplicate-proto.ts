@@ -1,9 +1,9 @@
-import { pass } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Destructuring - Duplicate proto', () => {
 
-    pass(`({__proto__: a, __proto__: b} = {});`, {
-        source: '({__proto__: a, __proto__: b} = {});',
+    pass(`({ __proto__: {}, set __proto__(v) {} });`, {
+        source: '({ __proto__: {}, set __proto__(v) {} });',
         loc: true,
         ranges: true,
         raw: true,
@@ -13,145 +13,150 @@ describe('Destructuring - Duplicate proto', () => {
                 {
                     type: 'ExpressionStatement',
                     expression: {
-                        type: 'AssignmentExpression',
-                        left: {
-                            type: 'ObjectPattern',
-                            properties: [
-                                {
-                                    type: 'Property',
-                                    key: {
-                                        type: 'Identifier',
-                                        name: '__proto__',
-                                        start: 2,
-                                        end: 11,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 2
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 11
-                                            }
-                                        }
-                                    },
-                                    value: {
-                                        type: 'Identifier',
-                                        name: 'a',
-                                        start: 13,
-                                        end: 14,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 13
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 14
-                                            }
-                                        }
-                                    },
-                                    kind: 'init',
-                                    computed: false,
-                                    method: false,
-                                    shorthand: false,
-                                    start: 2,
-                                    end: 14,
+                        type: 'ObjectExpression',
+                        properties: [
+                            {
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: '__proto__',
+                                    start: 3,
+                                    end: 12,
                                     loc: {
                                         start: {
                                             line: 1,
-                                            column: 2
+                                            column: 3
                                         },
                                         end: {
+                                            line: 1,
+                                            column: 12
+                                        }
+                                    }
+                                },
+                                value: {
+                                    type: 'ObjectExpression',
+                                    properties: [],
+                                    start: 14,
+                                    end: 16,
+                                    loc: {
+                                        start: {
                                             line: 1,
                                             column: 14
-                                        }
-                                    }
-                                },
-                                {
-                                    type: 'Property',
-                                    key: {
-                                        type: 'Identifier',
-                                        name: '__proto__',
-                                        start: 16,
-                                        end: 25,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 16
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 25
-                                            }
-                                        }
-                                    },
-                                    value: {
-                                        type: 'Identifier',
-                                        name: 'b',
-                                        start: 27,
-                                        end: 28,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 27
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 28
-                                            }
-                                        }
-                                    },
-                                    kind: 'init',
-                                    computed: false,
-                                    method: false,
-                                    shorthand: false,
-                                    start: 16,
-                                    end: 28,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 16
                                         },
                                         end: {
                                             line: 1,
-                                            column: 28
+                                            column: 16
                                         }
                                     }
-                                }
-                            ],
-                            start: 1,
-                            end: 29,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 1
                                 },
-                                end: {
-                                    line: 1,
-                                    column: 29
+                                kind: 'init',
+                                computed: false,
+                                method: false,
+                                shorthand: false,
+                                start: 3,
+                                end: 16,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 3
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 16
+                                    }
+                                }
+                            },
+                            {
+                                type: 'Property',
+                                key: {
+                                    type: 'Identifier',
+                                    name: '__proto__',
+                                    start: 22,
+                                    end: 31,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 22
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 31
+                                        }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [
+                                        {
+                                            type: 'Identifier',
+                                            name: 'v',
+                                            start: 32,
+                                            end: 33,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 32
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 33
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [],
+                                        start: 35,
+                                        end: 37,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 35
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 37
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 31,
+                                    end: 37,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 31
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 37
+                                        }
+                                    }
+                                },
+                                kind: 'set',
+                                computed: false,
+                                method: false,
+                                shorthand: false,
+                                start: 18,
+                                end: 37,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 18
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 37
+                                    }
                                 }
                             }
-                        },
-                        operator: '=',
-                        right: {
-                            type: 'ObjectExpression',
-                            properties: [],
-                            start: 32,
-                            end: 34,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 32
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 34
-                                }
-                            }
-                        },
+                        ],
                         start: 1,
-                        end: 34,
+                        end: 39,
                         loc: {
                             start: {
                                 line: 1,
@@ -159,12 +164,12 @@ describe('Destructuring - Duplicate proto', () => {
                             },
                             end: {
                                 line: 1,
-                                column: 34
+                                column: 39
                             }
                         }
                     },
                     start: 0,
-                    end: 36,
+                    end: 41,
                     loc: {
                         start: {
                             line: 1,
@@ -172,14 +177,14 @@ describe('Destructuring - Duplicate proto', () => {
                         },
                         end: {
                             line: 1,
-                            column: 36
+                            column: 41
                         }
                     }
                 }
             ],
             sourceType: 'script',
             start: 0,
-            end: 36,
+            end: 41,
             loc: {
                 start: {
                     line: 1,
@@ -187,7 +192,7 @@ describe('Destructuring - Duplicate proto', () => {
                 },
                 end: {
                     line: 1,
-                    column: 36
+                    column: 41
                 }
             }
         }
@@ -971,264 +976,4 @@ describe('Destructuring - Duplicate proto', () => {
         }
     });
 
-    pass(`var f3 = ({__proto__: a, __proto__: b} = {}) => {}`, {
-        source: 'var f3 = ({__proto__: a, __proto__: b} = {}) => {}',
-        loc: true,
-        ranges: true,
-        raw: true,
-        expected: {
-            type: 'Program',
-            body: [
-                {
-                    type: 'VariableDeclaration',
-                    declarations: [
-                        {
-                            type: 'VariableDeclarator',
-                            init: {
-                                type: 'ArrowFunctionExpression',
-                                body: {
-                                    type: 'BlockStatement',
-                                    body: [],
-                                    start: 48,
-                                    end: 50,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 48
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 50
-                                        }
-                                    }
-                                },
-                                params: [
-                                    {
-                                        type: 'AssignmentPattern',
-                                        left: {
-                                            type: 'ObjectPattern',
-                                            properties: [
-                                                {
-                                                    type: 'Property',
-                                                    key: {
-                                                        type: 'Identifier',
-                                                        name: '__proto__',
-                                                        start: 11,
-                                                        end: 20,
-                                                        loc: {
-                                                            start: {
-                                                                line: 1,
-                                                                column: 11
-                                                            },
-                                                            end: {
-                                                                line: 1,
-                                                                column: 20
-                                                            }
-                                                        }
-                                                    },
-                                                    value: {
-                                                        type: 'Identifier',
-                                                        name: 'a',
-                                                        start: 22,
-                                                        end: 23,
-                                                        loc: {
-                                                            start: {
-                                                                line: 1,
-                                                                column: 22
-                                                            },
-                                                            end: {
-                                                                line: 1,
-                                                                column: 23
-                                                            }
-                                                        }
-                                                    },
-                                                    kind: 'init',
-                                                    computed: false,
-                                                    method: false,
-                                                    shorthand: false,
-                                                    start: 11,
-                                                    end: 23,
-                                                    loc: {
-                                                        start: {
-                                                            line: 1,
-                                                            column: 11
-                                                        },
-                                                        end: {
-                                                            line: 1,
-                                                            column: 23
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    type: 'Property',
-                                                    key: {
-                                                        type: 'Identifier',
-                                                        name: '__proto__',
-                                                        start: 25,
-                                                        end: 34,
-                                                        loc: {
-                                                            start: {
-                                                                line: 1,
-                                                                column: 25
-                                                            },
-                                                            end: {
-                                                                line: 1,
-                                                                column: 34
-                                                            }
-                                                        }
-                                                    },
-                                                    value: {
-                                                        type: 'Identifier',
-                                                        name: 'b',
-                                                        start: 36,
-                                                        end: 37,
-                                                        loc: {
-                                                            start: {
-                                                                line: 1,
-                                                                column: 36
-                                                            },
-                                                            end: {
-                                                                line: 1,
-                                                                column: 37
-                                                            }
-                                                        }
-                                                    },
-                                                    kind: 'init',
-                                                    computed: false,
-                                                    method: false,
-                                                    shorthand: false,
-                                                    start: 25,
-                                                    end: 37,
-                                                    loc: {
-                                                        start: {
-                                                            line: 1,
-                                                            column: 25
-                                                        },
-                                                        end: {
-                                                            line: 1,
-                                                            column: 37
-                                                        }
-                                                    }
-                                                }
-                                            ],
-                                            start: 10,
-                                            end: 38,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 10
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 38
-                                                }
-                                            }
-                                        },
-                                        right: {
-                                            type: 'ObjectExpression',
-                                            properties: [],
-                                            start: 41,
-                                            end: 43,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 41
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 43
-                                                }
-                                            }
-                                        },
-                                        start: 10,
-                                        end: 43,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 10
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 43
-                                            }
-                                        }
-                                    }
-                                ],
-                                id: null,
-                                async: false,
-                                generator: false,
-                                expression: false,
-                                start: 9,
-                                end: 50,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 9
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 50
-                                    }
-                                }
-                            },
-                            id: {
-                                type: 'Identifier',
-                                name: 'f3',
-                                start: 4,
-                                end: 6,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 4
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 6
-                                    }
-                                }
-                            },
-                            start: 4,
-                            end: 50,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 4
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 50
-                                }
-                            }
-                        }
-                    ],
-                    kind: 'var',
-                    start: 0,
-                    end: 50,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 1,
-                            column: 50
-                        }
-                    }
-                }
-            ],
-            sourceType: 'script',
-            start: 0,
-            end: 50,
-            loc: {
-                start: {
-                    line: 1,
-                    column: 0
-                },
-                end: {
-                    line: 1,
-                    column: 50
-                }
-            }
-        }
-    });
 });

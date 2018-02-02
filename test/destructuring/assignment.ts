@@ -1,10 +1,100 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Destructuring - Assignment', () => {
 
         describe('Array binding', () => {
 
-            pass(`[x] = 0`, {
+          fail(`[v] += ary`, {
+            source: '[v] += ary',
+            line: 1,
+        });
+
+          fail(`[x] += 0`, {
+            source: '[x] += 0',
+            line: 1
+        });
+
+          fail(`[, x, ...y,] = 0`, {
+            source: '[, x, ...y,] = 0',
+            line: 1
+        });
+
+          fail(`[...x, ...y] = 0`, {
+            source: '[...x, ...y] = 0',
+            line: 1
+        });
+/*
+          fail(`[(a = 0)] = 1`, {
+            source: '[(a = 0)] = 1',
+            line: 1
+          });*/
+
+          fail(`[...x, y] = 0`, {
+            source: '[...x, y] = 0',
+            line: 1
+          });
+
+          fail(`[0,{a=0}] = 0`, {
+            source: '[0,{a=0}] = 0',
+            line: 1
+        });
+
+          fail(`[{a=0},{b=0},0] = 0`, {
+            source: '[{a=0},{b=0},0] = 0',
+            line: 1
+        });
+/*
+        fail(`[{a=0},...0]`, {
+            source: '[{a=0},...0]',
+            line: 1
+        });*/
+
+          fail(`[...0,a]=0`, {
+          source: '[...0,a]=0',
+          line: 1
+      });
+
+          fail(`[...0,{a=0}]=0`, {
+          source: '[...0,{a=0}]=0',
+          line: 1
+      });
+
+          fail(`[...0,...{a=0}]=0`, {
+          source: '[...0,...{a=0}]=0',
+          line: 1
+      });
+/*
+      fail(`[...{a=0},]`, {
+          source: '[...{a=0},]',
+          line: 1
+      });
+
+      fail(`[...{a=0},]=0`, {
+          source: '[...{a=0},]=0',
+          line: 1
+      });*/
+
+          fail(`[0] = 0`, {
+          source: '[0] = 0',
+          line: 1
+      });
+/*
+      fail(`[a, ...b, {c=0}]`, {
+          source: '[a, ...b, {c=0}]',
+          line: 1
+      });*/
+
+          fail(`{a = [...b, c]} = 0`, {
+          source: '{a = [...b, c]} = 0',
+          line: 1
+      });
+
+          fail(`[a, ...(b = c)] = 0`, {
+            source: '[a, ...(b = c)] = 0',
+            line: 1
+        });
+
+          pass(`[x] = 0`, {
                 source: '[x] = 0',
                 loc: true,
                 ranges: true,
@@ -106,7 +196,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[x,] = 0`, {
+          pass(`[x,] = 0`, {
                 source: '[x,] = 0',
                 loc: true,
                 ranges: true,
@@ -208,7 +298,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[x,,] = 0`, {
+          pass(`[x,,] = 0`, {
                 source: '[x,,] = 0',
                 loc: true,
                 ranges: true,
@@ -312,7 +402,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[x, {y = 1}] = [0, {}];`, {
+          pass(`[x, {y = 1}] = [0, {}];`, {
               source: '[x, {y = 1}] = [0, {}];',
               loc: true,
               ranges: true,
@@ -551,7 +641,7 @@ describe('Destructuring - Assignment', () => {
             }
             });
 
-            pass(`[a, {b: {c = 1}}] = arr`, {
+          pass(`[a, {b: {c = 1}}] = arr`, {
               source: '[a, {b: {c = 1}}] = arr',
               loc: true,
               ranges: true,
@@ -808,7 +898,7 @@ describe('Destructuring - Assignment', () => {
             }
             });
 
-            pass(`[[x]] = 0`, {
+          pass(`[[x]] = 0`, {
                 source: '[[x]] = 0',
                 loc: true,
                 ranges: true,
@@ -925,7 +1015,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[x, y, ...z] = 0`, {
+          pass(`[x, y, ...z] = 0`, {
                 source: '[x, y, ...z] = 0',
                 loc: true,
                 ranges: true,
@@ -1075,7 +1165,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[, x,,] = 0`, {
+          pass(`[, x,,] = 0`, {
                 source: '[, x,,] = 0',
                 loc: true,
                 ranges: true,
@@ -1181,7 +1271,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[...[x]] = 0`, {
+          pass(`[...[x]] = 0`, {
                 source: '[...[x]] = 0',
                 loc: true,
                 ranges: true,
@@ -1313,192 +1403,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[x, ...{0: y}] = 0`, {
-                source: '[x, ...{0: y}] = 0',
-                loc: true,
-                ranges: true,
-                raw: true,
-                expected: {
-                    type: 'Program',
-                    start: 0,
-                    end: 18,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 1,
-                            column: 18
-                        }
-                    },
-                    body: [{
-                        type: 'ExpressionStatement',
-                        start: 0,
-                        end: 18,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 18
-                            }
-                        },
-                        expression: {
-                            type: 'AssignmentExpression',
-                            start: 0,
-                            end: 18,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 0
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 18
-                                }
-                            },
-                            operator: '=',
-                            left: {
-                                type: 'ArrayPattern',
-                                start: 0,
-                                end: 14,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 0
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 14
-                                    }
-                                },
-                                elements: [{
-                                        type: 'Identifier',
-                                        start: 1,
-                                        end: 2,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 1
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 2
-                                            }
-                                        },
-                                        name: 'x'
-                                    },
-                                    {
-                                        type: 'RestElement',
-                                        start: 4,
-                                        end: 13,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 4
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 13
-                                            }
-                                        },
-                                        argument: {
-                                            type: 'ObjectPattern',
-                                            start: 7,
-                                            end: 13,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 7
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 13
-                                                }
-                                            },
-                                            properties: [{
-                                                type: 'Property',
-                                                start: 8,
-                                                end: 12,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 8
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 12
-                                                    }
-                                                },
-                                                method: false,
-                                                shorthand: false,
-                                                computed: false,
-                                                key: {
-                                                    type: 'Literal',
-                                                    start: 8,
-                                                    end: 9,
-                                                    loc: {
-                                                        start: {
-                                                            line: 1,
-                                                            column: 8
-                                                        },
-                                                        end: {
-                                                            line: 1,
-                                                            column: 9
-                                                        }
-                                                    },
-                                                    value: 0,
-                                                    raw: '0'
-                                                },
-                                                value: {
-                                                    type: 'Identifier',
-                                                    start: 11,
-                                                    end: 12,
-                                                    loc: {
-                                                        start: {
-                                                            line: 1,
-                                                            column: 11
-                                                        },
-                                                        end: {
-                                                            line: 1,
-                                                            column: 12
-                                                        }
-                                                    },
-                                                    name: 'y'
-                                                },
-                                                kind: 'init'
-                                            }]
-                                        }
-                                    }
-                                ]
-                            },
-                            right: {
-                                type: 'Literal',
-                                start: 17,
-                                end: 18,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 17
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 18
-                                    }
-                                },
-                                value: 0,
-                                raw: '0'
-                            }
-                        }
-                    }],
-                    sourceType: 'script'
-                }
-            });
-
-            pass(`[x, x] = 0`, {
+          pass(`[x, x] = 0`, {
                 source: '[x, x] = 0',
                 loc: true,
                 ranges: true,
@@ -1617,7 +1522,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[x, ...x] = 0`, {
+          pass(`[x, ...x] = 0`, {
                 source: '[x, ...x] = 0',
                 loc: true,
                 ranges: true,
@@ -1751,7 +1656,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[x.a=a] = b`, {
+          pass(`[x.a=a] = b`, {
                 source: '[x.a=a] = b',
                 loc: true,
                 ranges: true,
@@ -1915,7 +1820,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[x[a]=a] = b`, {
+          pass(`[x[a]=a] = b`, {
                 source: '[x[a]=a] = b',
                 loc: true,
                 ranges: true,
@@ -2079,7 +1984,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[...[...a[x]]] = b`, {
+          pass(`[...[...a[x]]] = b`, {
                 source: '[...[...a[x]]] = b',
                 loc: true,
                 ranges: true,
@@ -2257,7 +2162,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[] = 0`, {
+          pass(`[] = 0`, {
                 source: '[] = 0',
                 loc: true,
                 ranges: true,
@@ -2344,7 +2249,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[{a=0},{a=0}] = 0`, {
+          pass(`[{a=0},{a=0}] = 0`, {
                 source: '[{a=0},{a=0}] = 0',
                 loc: true,
                 ranges: true,
@@ -2627,255 +2532,7 @@ describe('Destructuring - Assignment', () => {
                 }
             });
 
-            pass(`[a = 0, ...{b = 0}] = 0`, {
-                source: '[a = 0, ...{b = 0}] = 0',
-                loc: true,
-                ranges: true,
-                raw: true,
-                expected: {
-                    type: 'Program',
-                    start: 0,
-                    end: 23,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 1,
-                            column: 23
-                        }
-                    },
-                    body: [{
-                        type: 'ExpressionStatement',
-                        start: 0,
-                        end: 23,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 23
-                            }
-                        },
-                        expression: {
-                            type: 'AssignmentExpression',
-                            start: 0,
-                            end: 23,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 0
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 23
-                                }
-                            },
-                            operator: '=',
-                            left: {
-                                type: 'ArrayPattern',
-                                start: 0,
-                                end: 19,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 0
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 19
-                                    }
-                                },
-                                elements: [{
-                                        type: 'AssignmentPattern',
-                                        start: 1,
-                                        end: 6,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 1
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 6
-                                            }
-                                        },
-                                        left: {
-                                            type: 'Identifier',
-                                            start: 1,
-                                            end: 2,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 1
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 2
-                                                }
-                                            },
-                                            name: 'a'
-                                        },
-                                        right: {
-                                            type: 'Literal',
-                                            start: 5,
-                                            end: 6,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 5
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 6
-                                                }
-                                            },
-                                            value: 0,
-                                            raw: '0'
-                                        }
-                                    },
-                                    {
-                                        type: 'RestElement',
-                                        start: 8,
-                                        end: 18,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 8
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 18
-                                            }
-                                        },
-                                        argument: {
-                                            type: 'ObjectPattern',
-                                            start: 11,
-                                            end: 18,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 11
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 18
-                                                }
-                                            },
-                                            properties: [{
-                                                type: 'Property',
-                                                start: 12,
-                                                end: 17,
-                                                loc: {
-                                                    start: {
-                                                        line: 1,
-                                                        column: 12
-                                                    },
-                                                    end: {
-                                                        line: 1,
-                                                        column: 17
-                                                    }
-                                                },
-                                                method: false,
-                                                shorthand: true,
-                                                computed: false,
-                                                key: {
-                                                    type: 'Identifier',
-                                                    start: 12,
-                                                    end: 13,
-                                                    loc: {
-                                                        start: {
-                                                            line: 1,
-                                                            column: 12
-                                                        },
-                                                        end: {
-                                                            line: 1,
-                                                            column: 13
-                                                        }
-                                                    },
-                                                    name: 'b'
-                                                },
-                                                kind: 'init',
-                                                value: {
-                                                    type: 'AssignmentPattern',
-                                                    start: 12,
-                                                    end: 17,
-                                                    loc: {
-                                                        start: {
-                                                            line: 1,
-                                                            column: 12
-                                                        },
-                                                        end: {
-                                                            line: 1,
-                                                            column: 17
-                                                        }
-                                                    },
-                                                    left: {
-                                                        type: 'Identifier',
-                                                        start: 12,
-                                                        end: 13,
-                                                        loc: {
-                                                            start: {
-                                                                line: 1,
-                                                                column: 12
-                                                            },
-                                                            end: {
-                                                                line: 1,
-                                                                column: 13
-                                                            }
-                                                        },
-                                                        name: 'b'
-                                                    },
-                                                    right: {
-                                                        type: 'Literal',
-                                                        start: 16,
-                                                        end: 17,
-                                                        loc: {
-                                                            start: {
-                                                                line: 1,
-                                                                column: 16
-                                                            },
-                                                            end: {
-                                                                line: 1,
-                                                                column: 17
-                                                            }
-                                                        },
-                                                        value: 0,
-                                                        raw: '0'
-                                                    }
-                                                }
-                                            }]
-                                        }
-                                    }
-                                ]
-                            },
-                            right: {
-                                type: 'Literal',
-                                start: 22,
-                                end: 23,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 22
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 23
-                                    }
-                                },
-                                value: 0,
-                                raw: '0'
-                            }
-                        }
-                    }],
-                    sourceType: 'script'
-                }
-            });
-
-            pass(`[{a=0}, ...b] = 0`, {
+          pass(`[{a=0}, ...b] = 0`, {
                 source: '[{a=0}, ...b] = 0',
                 loc: true,
                 ranges: true,
@@ -3090,118 +2747,6 @@ describe('Destructuring - Assignment', () => {
                     sourceType: 'script'
                 }
             });
-
-            fail(`[x] += 0`, {
-                source: '[x] += 0',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-
-            fail(`[, x, ...y,] = 0`, {
-                source: '[, x, ...y,] = 0',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-
-            fail(`[...x, ...y] = 0`, {
-                source: '[...x, ...y] = 0',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-
-            fail(`[...x, y] = 0`, {
-                source: '[...x, y] = 0',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-
-            fail(`[0,{a=0}] = 0`, {
-                source: '[0,{a=0}] = 0',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-
-            fail(`[{a=0},{b=0},0] = 0`, {
-                source: '[{a=0},{b=0},0] = 0',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-
-            /*fail(`[{a=0},...0]`, {
-                source: '[{a=0},...0]',
-                loc: true,
-                ranges: true,
-                raw: true
-            });*/
-
-            fail(`[...0,a]=0`, {
-                source: '[...0,a]=0',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-    /*
-            fail(`[...0,{a=0}]=0`, {
-                source: '[...0,{a=0}]=0',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-
-            fail(`[...0,...{a=0}]=0`, {
-                source: '[...0,...{a=0}]=0',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-
-            fail(`[...{a=0},]`, {
-                source: '[...{a=0},]',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-
-            fail(`[...{a=0},]=0`, {
-                source: '[...{a=0},]=0',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-    */
-            fail(`[0] = 0`, {
-                source: '[0] = 0',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-    /*
-            fail(`[a, ...b, {c=0}]`, {
-                source: '[a, ...b, {c=0}]',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-    */
-            fail(`{a = [...b, c]} = 0`, {
-                source: '{a = [...b, c]} = 0',
-                loc: true,
-                ranges: true,
-                raw: true
-            });
-
-            /*  fail(`[a, ...(b = c)] = 0`, {
-                  source: '[a, ...(b = c)] = 0',
-                  loc: true,
-                  ranges: true,
-                  raw: true
-              });*/
 
         });
 
@@ -7233,367 +6778,71 @@ describe('Destructuring - Assignment', () => {
                 }
             }
             });
-
-            pass(`(function*() { [...{ x = yield }] = 0; })`, {
-                source: '(function*() { [...{ x = yield }] = 0; })',
-                loc: true,
-                ranges: true,
-                raw: true,
-                expected: {
-                    type: 'Program',
-                    start: 0,
-                    end: 41,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 0
-                      },
-                      end: {
-                        line: 1,
-                        column: 41
-                      }
-                    },
-                    body: [
-                      {
-                        type: 'ExpressionStatement',
-                        start: 0,
-                        end: 41,
-                        loc: {
-                          start: {
-                            line: 1,
-                            column: 0
-                          },
-                          end: {
-                            line: 1,
-                            column: 41
-                          }
-                        },
-                        expression: {
-                          type: 'FunctionExpression',
-                          start: 1,
-                          end: 40,
-                          loc: {
-                            start: {
-                              line: 1,
-                              column: 1
-                            },
-                            end: {
-                              line: 1,
-                              column: 40
-                            }
-                          },
-                          id: null,
-                          generator: true,
-                          expression: false,
-                          async: false,
-                          params: [],
-                          body: {
-                            type: 'BlockStatement',
-                            start: 13,
-                            end: 40,
-                            loc: {
-                              start: {
-                                line: 1,
-                                column: 13
-                              },
-                              end: {
-                                line: 1,
-                                column: 40
-                              }
-                            },
-                            body: [
-                              {
-                                type: 'ExpressionStatement',
-                                start: 15,
-                                end: 38,
-                                loc: {
-                                  start: {
-                                    line: 1,
-                                    column: 15
-                                  },
-                                  end: {
-                                    line: 1,
-                                    column: 38
-                                  }
-                                },
-                                expression: {
-                                  type: 'AssignmentExpression',
-                                  start: 15,
-                                  end: 37,
-                                  loc: {
-                                    start: {
-                                      line: 1,
-                                      column: 15
-                                    },
-                                    end: {
-                                      line: 1,
-                                      column: 37
-                                    }
-                                  },
-                                  operator: '=',
-                                  left: {
-                                    type: 'ArrayPattern',
-                                    start: 15,
-                                    end: 33,
-                                    loc: {
-                                      start: {
-                                        line: 1,
-                                        column: 15
-                                      },
-                                      end: {
-                                        line: 1,
-                                        column: 33
-                                      }
-                                    },
-                                    elements: [
-                                      {
-                                        type: 'RestElement',
-                                        start: 16,
-                                        end: 32,
-                                        loc: {
-                                          start: {
-                                            line: 1,
-                                            column: 16
-                                          },
-                                          end: {
-                                            line: 1,
-                                            column: 32
-                                          }
-                                        },
-                                        argument: {
-                                          type: 'ObjectPattern',
-                                          start: 19,
-                                          end: 32,
-                                          loc: {
-                                            start: {
-                                              line: 1,
-                                              column: 19
-                                            },
-                                            end: {
-                                              line: 1,
-                                              column: 32
-                                            }
-                                          },
-                                          properties: [
-                                            {
-                                              type: 'Property',
-                                              start: 21,
-                                              end: 30,
-                                              loc: {
-                                                start: {
-                                                  line: 1,
-                                                  column: 21
-                                                },
-                                                end: {
-                                                  line: 1,
-                                                  column: 30
-                                                }
-                                              },
-                                              method: false,
-                                              shorthand: true,
-                                              computed: false,
-                                              key: {
-                                                type: 'Identifier',
-                                                start: 21,
-                                                end: 22,
-                                                loc: {
-                                                  start: {
-                                                    line: 1,
-                                                    column: 21
-                                                  },
-                                                  end: {
-                                                    line: 1,
-                                                    column: 22
-                                                  }
-                                                },
-                                                name: 'x'
-                                              },
-                                              kind: 'init',
-                                              value: {
-                                                type: 'AssignmentPattern',
-                                                start: 21,
-                                                end: 30,
-                                                loc: {
-                                                  start: {
-                                                    line: 1,
-                                                    column: 21
-                                                  },
-                                                  end: {
-                                                    line: 1,
-                                                    column: 30
-                                                  }
-                                                },
-                                                left: {
-                                                  type: 'Identifier',
-                                                  start: 21,
-                                                  end: 22,
-                                                  loc: {
-                                                    start: {
-                                                      line: 1,
-                                                      column: 21
-                                                    },
-                                                    end: {
-                                                      line: 1,
-                                                      column: 22
-                                                    }
-                                                  },
-                                                  name: 'x'
-                                                },
-                                                right: {
-                                                  type: 'YieldExpression',
-                                                  start: 25,
-                                                  end: 30,
-                                                  loc: {
-                                                    start: {
-                                                      line: 1,
-                                                      column: 25
-                                                    },
-                                                    end: {
-                                                      line: 1,
-                                                      column: 30
-                                                    }
-                                                  },
-                                                  delegate: false,
-                                                  argument: null
-                                                }
-                                              }
-                                            }
-                                          ]
-                                        }
-                                      }
-                                    ]
-                                  },
-                                  right: {
-                                    type: 'Literal',
-                                    start: 36,
-                                    end: 37,
-                                    loc: {
-                                      start: {
-                                        line: 1,
-                                        column: 36
-                                      },
-                                      end: {
-                                        line: 1,
-                                        column: 37
-                                      }
-                                    },
-                                    value: 0,
-                                    raw: '0'
-                                  }
-                                }
-                              }
-                            ]
-                          }
-                        }
-                      }
-                    ],
-                    sourceType: 'script'
-                  }
-            });
-
-            fail(`"use strict"; 0, { eval } = {};`, {
-                source: '"use strict"; 0, { eval } = {};',
-                message: 'The identifier \'eval\' must not be in binding position in strict mode',
-                line: 1,
-                column: 26,
-                index: 27
-            });
-
-            fail(`({a} += 0);`, {
-                source: '({a} += 0);',
-                message: 'Invalid left-hand side in assignment',
-                line: 1,
-                column: 5,
-                index: 7
-            });
-
-            fail(`({a,,} = 0)`, {
-                source: '({a,,} = 0)',
-                message:  'Unexpected token \',\'',
-                line: 1,
-                column: 4,
-                index: 5
-            });
-
-            fail(`({,a,} = 0)`, {
-                source: '({,a,} = 0)',
-                message: 'Unexpected token \',\'',
-                line: 1,
-                column: 2,
-                index: 3
-            });
-
-            fail(`({a,,a} = 0)`, {
-                source: '({a,,a} = 0)',
-                message: 'Unexpected token \',\'',
-                line: 1,
-                column: 4,
-                index: 5
-            });
-
-            fail(`({function} = 0)`, {
-                source: '({function} = 0)',
-                message: 'Unexpected token \'function\'',
-                line: 1,
-                column: 10,
-                index: 11
-            });
-
-            fail(`({a:function} = 0)`, {
-                source: '({a:function} = 0)',
-                message: 'Unexpected token \'}\'',
-                line: 1,
-                column: 12,
-                index: 13
-            });
-
-            fail(`({a:for} = 0)`, {
-                source: '({a:for} = 0)',
-                message: 'Unexpected token \'for\'',
-                line: 1,
-                column: 4,
-                index: 7
-            });
-
-            fail(`({"a"} = 0)`, {
-                source: '({"a"} = 0)',
-                message: 'Unexpected token \'string\'',
-                line: 1,
-                column: 5,
-                index: 6
-            });
-
-            fail(`({var} = 0)`, {
-                source: '({var} = 0)',
-                message: 'Unexpected token \'var\'',
-                line: 1,
-                column: 5,
-                index: 6
-            });
-
-            fail(`({a.b} = 0)`, {
-                source: '({a.b} = 0)',
-                message: 'Unexpected token',
-                line: 1,
-                column: 3,
-                index: 4
-            });
-
-            fail(`({0} = 0)`, {
-                source: '({0} = 0)',
-                message: 'Unexpected token \'number\'',
-                line: 1,
-                column: 3,
-                index: 4
-            });
-
-            fail(`({a} += 0);`, {
-              source: '({a} += 0);',
-              message: 'Invalid left-hand side in assignment',
-              line: 1,
-              column: 5,
-              index: 7
-          });
-
         });
+
+        fail(`"use strict"; 0, { eval } = {};`, {
+          source: '"use strict"; 0, { eval } = {};',
+          line: 1,
+      });
+
+        fail(`({a} += 0);`, {
+          source: '({a} += 0);',
+          line: 1,
+      });
+
+        fail(`({a,,} = 0)`, {
+          source: '({a,,} = 0)',
+          line: 1,
+      });
+
+        fail(`({,a,} = 0)`, {
+          source: '({,a,} = 0)',
+          line: 1,
+      });
+
+        fail(`({a,,a} = 0)`, {
+          source: '({a,,a} = 0)',
+          line: 1,
+      });
+
+        fail(`({function} = 0)`, {
+          source: '({function} = 0)',
+          line: 1,
+      });
+
+        fail(`({a:function} = 0)`, {
+          source: '({a:function} = 0)',
+          line: 1,
+      });
+
+        fail(`({a:for} = 0)`, {
+          source: '({a:for} = 0)',
+          line: 1,
+      });
+
+        fail(`({"a"} = 0)`, {
+          source: '({"a"} = 0)',
+          line: 1,
+      });
+
+        fail(`({var} = 0)`, {
+          source: '({var} = 0)',
+          line: 1,
+      });
+
+        fail(`({a.b} = 0)`, {
+          source: '({a.b} = 0)',
+          line: 1,
+      });
+
+        fail(`({0} = 0)`, {
+          source: '({0} = 0)',
+          line: 1,
+      });
+
+        fail(`({a} += 0);`, {
+        source: '({a} += 0);',
+        line: 1,
+    });
+
     });

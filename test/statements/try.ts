@@ -1,13 +1,70 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Statements - Try', () => {
 
-    fail(`try { } catch (x) { let x; }`, {
-        source: `try { } catch (x) { let x; }`,
-        message:  '\'x\' has already been declared ',
+    fail(`try`, {
+        source: `try`,
         line: 1,
-        column: 24,
-        index: 25,
+    });
+
+    fail(`try(e1){
+    }
+    catch(e){}`, {
+        source: `try(e1){
+            }
+            catch(e){}`,
+        line: 1,
+    });
+
+    fail(`try{
+        }
+        finally(e){}`, {
+        source: `try{
+            }
+            finally(e){}`,
+        line: 3,
+    });
+
+    fail(`finally`, {
+        source: `finally`,
+        line: 1,
+    });
+
+    fail(`try{}
+        catch()`, {
+        source: `try{}
+            catch()`,
+        line: 2,
+    });
+
+    fail(`try{
+            catch(){}`, {
+        source: `try{
+                catch(){}`,
+        line: 1,
+    });
+
+    fail(`try{}
+        catch(){`, {
+        source: `try{}
+            catch(){`,
+        line: 2,
+    });
+
+    fail(`try{}
+        catch(){
+        finally{}`, {
+        source: `try{}
+            catch(){
+            finally{}`,
+        line: 2,
+    });
+
+    fail(`catch(){}
+        finally{}`, {
+        source: `catch(){}
+            finally{}`,
+        line: 1,
     });
 
     pass(`try { } catch (eval) { }`, {
@@ -17,65 +74,51 @@ describe('Statements - Try', () => {
         raw: true,
         expected: {
             type: 'Program',
-            body: [
-                {
-                    type: 'TryStatement',
-                    block: {
-                        type: 'BlockStatement',
-                        body: [],
-                        start: 4,
-                        end: 7,
+            body: [{
+                type: 'TryStatement',
+                block: {
+                    type: 'BlockStatement',
+                    body: [],
+                    start: 4,
+                    end: 7,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 4
+                        },
+                        end: {
+                            line: 1,
+                            column: 7
+                        }
+                    }
+                },
+                handler: {
+                    type: 'CatchClause',
+                    param: {
+                        type: 'Identifier',
+                        name: 'eval',
+                        start: 15,
+                        end: 19,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 4
+                                column: 15
                             },
                             end: {
                                 line: 1,
-                                column: 7
+                                column: 19
                             }
                         }
                     },
-                    handler: {
-                        type: 'CatchClause',
-                        param: {
-                            type: 'Identifier',
-                            name: 'eval',
-                            start: 15,
-                            end: 19,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 15
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 19
-                                }
-                            }
-                        },
-                        body: {
-                            type: 'BlockStatement',
-                            body: [],
-                            start: 21,
-                            end: 24,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 21
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 24
-                                }
-                            }
-                        },
-                        start: 8,
+                    body: {
+                        type: 'BlockStatement',
+                        body: [],
+                        start: 21,
                         end: 24,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 8
+                                column: 21
                             },
                             end: {
                                 line: 1,
@@ -83,21 +126,33 @@ describe('Statements - Try', () => {
                             }
                         }
                     },
-                    finalizer: null,
-                    start: 0,
+                    start: 8,
                     end: 24,
                     loc: {
                         start: {
                             line: 1,
-                            column: 0
+                            column: 8
                         },
                         end: {
                             line: 1,
                             column: 24
                         }
                     }
+                },
+                finalizer: null,
+                start: 0,
+                end: 24,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 24
+                    }
                 }
-            ],
+            }],
             sourceType: 'script',
             start: 0,
             end: 24,
@@ -121,8 +176,7 @@ describe('Statements - Try', () => {
         raw: true,
         expected: {
             type: 'Program',
-            body: [
-                {
+            body: [{
                     type: 'ExpressionStatement',
                     expression: {
                         type: 'Literal',
@@ -252,12 +306,26 @@ describe('Statements - Try', () => {
     });
 
     pass(`try{}catch(a){}`, {
-            source: 'try{}catch(a){}',
-            loc: true,
-            ranges: true,
-            raw: true,
-            expected: {
-                type: 'Program',
+        source: 'try{}catch(a){}',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 15,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 15
+                }
+            },
+            body: [{
+                type: 'TryStatement',
                 start: 0,
                 end: 15,
                 loc: {
@@ -270,96 +338,96 @@ describe('Statements - Try', () => {
                         column: 15
                     }
                 },
-                body: [{
-                    type: 'TryStatement',
-                    start: 0,
+                block: {
+                    type: 'BlockStatement',
+                    start: 3,
+                    end: 5,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 3
+                        },
+                        end: {
+                            line: 1,
+                            column: 5
+                        }
+                    },
+                    body: []
+                },
+                handler: {
+                    type: 'CatchClause',
+                    start: 5,
                     end: 15,
                     loc: {
                         start: {
                             line: 1,
-                            column: 0
+                            column: 5
                         },
                         end: {
                             line: 1,
                             column: 15
                         }
                     },
-                    block: {
-                        type: 'BlockStatement',
-                        start: 3,
-                        end: 5,
+                    param: {
+                        type: 'Identifier',
+                        start: 11,
+                        end: 12,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 3
+                                column: 11
                             },
                             end: {
                                 line: 1,
-                                column: 5
+                                column: 12
                             }
                         },
-                        body: []
+                        name: 'a'
                     },
-                    handler: {
-                        type: 'CatchClause',
-                        start: 5,
+                    body: {
+                        type: 'BlockStatement',
+                        start: 13,
                         end: 15,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 5
+                                column: 13
                             },
                             end: {
                                 line: 1,
                                 column: 15
                             }
                         },
-                        param: {
-                            type: 'Identifier',
-                            start: 11,
-                            end: 12,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 11
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 12
-                                }
-                            },
-                            name: 'a'
-                        },
-                        body: {
-                            type: 'BlockStatement',
-                            start: 13,
-                            end: 15,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 13
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 15
-                                }
-                            },
-                            body: []
-                        }
-                    },
-                    finalizer: null
-                }],
-                sourceType: 'script'
-            }
-        });
+                        body: []
+                    }
+                },
+                finalizer: null
+            }],
+            sourceType: 'script'
+        }
+    });
 
     pass(`try { } catch (e) { let a; }`, {
-            source: 'try { } catch (e) { let a; }',
-            loc: true,
-            ranges: true,
-            raw: true,
-            expected: {
-                type: 'Program',
+        source: 'try { } catch (e) { let a; }',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 28,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 28
+                }
+            },
+            body: [{
+                type: 'TryStatement',
                 start: 0,
                 end: 28,
                 loc: {
@@ -372,96 +440,96 @@ describe('Statements - Try', () => {
                         column: 28
                     }
                 },
-                body: [{
-                    type: 'TryStatement',
-                    start: 0,
+                block: {
+                    type: 'BlockStatement',
+                    start: 4,
+                    end: 7,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 4
+                        },
+                        end: {
+                            line: 1,
+                            column: 7
+                        }
+                    },
+                    body: []
+                },
+                handler: {
+                    type: 'CatchClause',
+                    start: 8,
                     end: 28,
                     loc: {
                         start: {
                             line: 1,
-                            column: 0
+                            column: 8
                         },
                         end: {
                             line: 1,
                             column: 28
                         }
                     },
-                    block: {
-                        type: 'BlockStatement',
-                        start: 4,
-                        end: 7,
+                    param: {
+                        type: 'Identifier',
+                        start: 15,
+                        end: 16,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 4
+                                column: 15
                             },
                             end: {
                                 line: 1,
-                                column: 7
+                                column: 16
                             }
                         },
-                        body: []
+                        name: 'e'
                     },
-                    handler: {
-                        type: 'CatchClause',
-                        start: 8,
+                    body: {
+                        type: 'BlockStatement',
+                        start: 18,
                         end: 28,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 8
+                                column: 18
                             },
                             end: {
                                 line: 1,
                                 column: 28
                             }
                         },
-                        param: {
-                            type: 'Identifier',
-                            start: 15,
-                            end: 16,
+                        body: [{
+                            type: 'VariableDeclaration',
+                            start: 20,
+                            end: 26,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 15
+                                    column: 20
                                 },
                                 end: {
                                     line: 1,
-                                    column: 16
+                                    column: 26
                                 }
                             },
-                            name: 'e'
-                        },
-                        body: {
-                            type: 'BlockStatement',
-                            start: 18,
-                            end: 28,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 18
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 28
-                                }
-                            },
-                            body: [{
-                                type: 'VariableDeclaration',
-                                start: 20,
-                                end: 26,
+                            declarations: [{
+                                type: 'VariableDeclarator',
+                                start: 24,
+                                end: 25,
                                 loc: {
                                     start: {
                                         line: 1,
-                                        column: 20
+                                        column: 24
                                     },
                                     end: {
                                         line: 1,
-                                        column: 26
+                                        column: 25
                                     }
                                 },
-                                declarations: [{
-                                    type: 'VariableDeclarator',
+                                id: {
+                                    type: 'Identifier',
                                     start: 24,
                                     end: 25,
                                     loc: {
@@ -474,41 +542,41 @@ describe('Statements - Try', () => {
                                             column: 25
                                         }
                                     },
-                                    id: {
-                                        type: 'Identifier',
-                                        start: 24,
-                                        end: 25,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 24
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 25
-                                            }
-                                        },
-                                        name: 'a'
-                                    },
-                                    init: null
-                                }],
-                                kind: 'let'
-                            }]
-                        }
-                    },
-                    finalizer: null
-                }],
-                sourceType: 'script'
-            }
-        });
+                                    name: 'a'
+                                },
+                                init: null
+                            }],
+                            kind: 'let'
+                        }]
+                    }
+                },
+                finalizer: null
+            }],
+            sourceType: 'script'
+        }
+    });
 
     pass(`try { } catch (arguments) { }`, {
-            source: 'try { } catch (arguments) { }',
-            loc: true,
-            ranges: true,
-            raw: true,
-            expected: {
-                type: 'Program',
+        source: 'try { } catch (arguments) { }',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 29,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 29
+                }
+            },
+            body: [{
+                type: 'TryStatement',
                 start: 0,
                 end: 29,
                 loc: {
@@ -521,96 +589,96 @@ describe('Statements - Try', () => {
                         column: 29
                     }
                 },
-                body: [{
-                    type: 'TryStatement',
-                    start: 0,
+                block: {
+                    type: 'BlockStatement',
+                    start: 4,
+                    end: 7,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 4
+                        },
+                        end: {
+                            line: 1,
+                            column: 7
+                        }
+                    },
+                    body: []
+                },
+                handler: {
+                    type: 'CatchClause',
+                    start: 8,
                     end: 29,
                     loc: {
                         start: {
                             line: 1,
-                            column: 0
+                            column: 8
                         },
                         end: {
                             line: 1,
                             column: 29
                         }
                     },
-                    block: {
-                        type: 'BlockStatement',
-                        start: 4,
-                        end: 7,
+                    param: {
+                        type: 'Identifier',
+                        start: 15,
+                        end: 24,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 4
+                                column: 15
                             },
                             end: {
                                 line: 1,
-                                column: 7
+                                column: 24
                             }
                         },
-                        body: []
+                        name: 'arguments'
                     },
-                    handler: {
-                        type: 'CatchClause',
-                        start: 8,
+                    body: {
+                        type: 'BlockStatement',
+                        start: 26,
                         end: 29,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 8
+                                column: 26
                             },
                             end: {
                                 line: 1,
                                 column: 29
                             }
                         },
-                        param: {
-                            type: 'Identifier',
-                            start: 15,
-                            end: 24,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 15
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 24
-                                }
-                            },
-                            name: 'arguments'
-                        },
-                        body: {
-                            type: 'BlockStatement',
-                            start: 26,
-                            end: 29,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 26
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 29
-                                }
-                            },
-                            body: []
-                        }
-                    },
-                    finalizer: null
-                }],
-                sourceType: 'script'
-            }
-        });
+                        body: []
+                    }
+                },
+                finalizer: null
+            }],
+            sourceType: 'script'
+        }
+    });
 
     pass(`try { } catch (e) { say(e) }`, {
-            source: 'try { } catch (e) { say(e) }',
-            loc: true,
-            ranges: true,
-            raw: true,
-            expected: {
-                type: 'Program',
+        source: 'try { } catch (e) { say(e) }',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 28,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 28
+                }
+            },
+            body: [{
+                type: 'TryStatement',
                 start: 0,
                 end: 28,
                 loc: {
@@ -623,82 +691,82 @@ describe('Statements - Try', () => {
                         column: 28
                     }
                 },
-                body: [{
-                    type: 'TryStatement',
-                    start: 0,
+                block: {
+                    type: 'BlockStatement',
+                    start: 4,
+                    end: 7,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 4
+                        },
+                        end: {
+                            line: 1,
+                            column: 7
+                        }
+                    },
+                    body: []
+                },
+                handler: {
+                    type: 'CatchClause',
+                    start: 8,
                     end: 28,
                     loc: {
                         start: {
                             line: 1,
-                            column: 0
+                            column: 8
                         },
                         end: {
                             line: 1,
                             column: 28
                         }
                     },
-                    block: {
-                        type: 'BlockStatement',
-                        start: 4,
-                        end: 7,
+                    param: {
+                        type: 'Identifier',
+                        start: 15,
+                        end: 16,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 4
+                                column: 15
                             },
                             end: {
                                 line: 1,
-                                column: 7
+                                column: 16
                             }
                         },
-                        body: []
+                        name: 'e'
                     },
-                    handler: {
-                        type: 'CatchClause',
-                        start: 8,
+                    body: {
+                        type: 'BlockStatement',
+                        start: 18,
                         end: 28,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 8
+                                column: 18
                             },
                             end: {
                                 line: 1,
                                 column: 28
                             }
                         },
-                        param: {
-                            type: 'Identifier',
-                            start: 15,
-                            end: 16,
+                        body: [{
+                            type: 'ExpressionStatement',
+                            start: 20,
+                            end: 26,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 15
+                                    column: 20
                                 },
                                 end: {
                                     line: 1,
-                                    column: 16
+                                    column: 26
                                 }
                             },
-                            name: 'e'
-                        },
-                        body: {
-                            type: 'BlockStatement',
-                            start: 18,
-                            end: 28,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 18
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 28
-                                }
-                            },
-                            body: [{
-                                type: 'ExpressionStatement',
+                            expression: {
+                                type: 'CallExpression',
                                 start: 20,
                                 end: 26,
                                 loc: {
@@ -711,10 +779,10 @@ describe('Statements - Try', () => {
                                         column: 26
                                     }
                                 },
-                                expression: {
-                                    type: 'CallExpression',
+                                callee: {
+                                    type: 'Identifier',
                                     start: 20,
-                                    end: 26,
+                                    end: 23,
                                     loc: {
                                         start: {
                                             line: 1,
@@ -722,58 +790,58 @@ describe('Statements - Try', () => {
                                         },
                                         end: {
                                             line: 1,
-                                            column: 26
+                                            column: 23
                                         }
                                     },
-                                    callee: {
-                                        type: 'Identifier',
-                                        start: 20,
-                                        end: 23,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 20
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 23
-                                            }
+                                    name: 'say'
+                                },
+                                arguments: [{
+                                    type: 'Identifier',
+                                    start: 24,
+                                    end: 25,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 24
                                         },
-                                        name: 'say'
+                                        end: {
+                                            line: 1,
+                                            column: 25
+                                        }
                                     },
-                                    arguments: [{
-                                        type: 'Identifier',
-                                        start: 24,
-                                        end: 25,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 24
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 25
-                                            }
-                                        },
-                                        name: 'e'
-                                    }]
-                                }
-                            }]
-                        }
-                    },
-                    finalizer: null
-                }],
-                sourceType: 'script'
-            }
-        });
+                                    name: 'e'
+                                }]
+                            }
+                        }]
+                    }
+                },
+                finalizer: null
+            }],
+            sourceType: 'script'
+        }
+    });
 
     pass(`try { doThat(); } catch (e) { say(e) }`, {
-            source: 'try { doThat(); } catch (e) { say(e) }',
-            loc: true,
-            ranges: true,
-            raw: true,
-            expected: {
-                type: 'Program',
+        source: 'try { doThat(); } catch (e) { say(e) }',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 38,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 38
+                }
+            },
+            body: [{
+                type: 'TryStatement',
                 start: 0,
                 end: 38,
                 loc: {
@@ -786,38 +854,38 @@ describe('Statements - Try', () => {
                         column: 38
                     }
                 },
-                body: [{
-                    type: 'TryStatement',
-                    start: 0,
-                    end: 38,
+                block: {
+                    type: 'BlockStatement',
+                    start: 4,
+                    end: 17,
                     loc: {
                         start: {
                             line: 1,
-                            column: 0
+                            column: 4
                         },
                         end: {
                             line: 1,
-                            column: 38
+                            column: 17
                         }
                     },
-                    block: {
-                        type: 'BlockStatement',
-                        start: 4,
-                        end: 17,
+                    body: [{
+                        type: 'ExpressionStatement',
+                        start: 6,
+                        end: 15,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 4
+                                column: 6
                             },
                             end: {
                                 line: 1,
-                                column: 17
+                                column: 15
                             }
                         },
-                        body: [{
-                            type: 'ExpressionStatement',
+                        expression: {
+                            type: 'CallExpression',
                             start: 6,
-                            end: 15,
+                            end: 14,
                             loc: {
                                 start: {
                                     line: 1,
@@ -825,13 +893,13 @@ describe('Statements - Try', () => {
                                 },
                                 end: {
                                     line: 1,
-                                    column: 15
+                                    column: 14
                                 }
                             },
-                            expression: {
-                                type: 'CallExpression',
+                            callee: {
+                                type: 'Identifier',
                                 start: 6,
-                                end: 14,
+                                end: 12,
                                 loc: {
                                     start: {
                                         line: 1,
@@ -839,75 +907,75 @@ describe('Statements - Try', () => {
                                     },
                                     end: {
                                         line: 1,
-                                        column: 14
+                                        column: 12
                                     }
                                 },
-                                callee: {
-                                    type: 'Identifier',
-                                    start: 6,
-                                    end: 12,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 6
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 12
-                                        }
-                                    },
-                                    name: 'doThat'
-                                },
-                                arguments: []
-                            }
-                        }]
+                                name: 'doThat'
+                            },
+                            arguments: []
+                        }
+                    }]
+                },
+                handler: {
+                    type: 'CatchClause',
+                    start: 18,
+                    end: 38,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 18
+                        },
+                        end: {
+                            line: 1,
+                            column: 38
+                        }
                     },
-                    handler: {
-                        type: 'CatchClause',
-                        start: 18,
+                    param: {
+                        type: 'Identifier',
+                        start: 25,
+                        end: 26,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 25
+                            },
+                            end: {
+                                line: 1,
+                                column: 26
+                            }
+                        },
+                        name: 'e'
+                    },
+                    body: {
+                        type: 'BlockStatement',
+                        start: 28,
                         end: 38,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 18
+                                column: 28
                             },
                             end: {
                                 line: 1,
                                 column: 38
                             }
                         },
-                        param: {
-                            type: 'Identifier',
-                            start: 25,
-                            end: 26,
+                        body: [{
+                            type: 'ExpressionStatement',
+                            start: 30,
+                            end: 36,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 25
+                                    column: 30
                                 },
                                 end: {
                                     line: 1,
-                                    column: 26
+                                    column: 36
                                 }
                             },
-                            name: 'e'
-                        },
-                        body: {
-                            type: 'BlockStatement',
-                            start: 28,
-                            end: 38,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 28
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 38
-                                }
-                            },
-                            body: [{
-                                type: 'ExpressionStatement',
+                            expression: {
+                                type: 'CallExpression',
                                 start: 30,
                                 end: 36,
                                 loc: {
@@ -920,10 +988,10 @@ describe('Statements - Try', () => {
                                         column: 36
                                     }
                                 },
-                                expression: {
-                                    type: 'CallExpression',
+                                callee: {
+                                    type: 'Identifier',
                                     start: 30,
-                                    end: 36,
+                                    end: 33,
                                     loc: {
                                         start: {
                                             line: 1,
@@ -931,58 +999,58 @@ describe('Statements - Try', () => {
                                         },
                                         end: {
                                             line: 1,
-                                            column: 36
+                                            column: 33
                                         }
                                     },
-                                    callee: {
-                                        type: 'Identifier',
-                                        start: 30,
-                                        end: 33,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 30
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 33
-                                            }
+                                    name: 'say'
+                                },
+                                arguments: [{
+                                    type: 'Identifier',
+                                    start: 34,
+                                    end: 35,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 34
                                         },
-                                        name: 'say'
+                                        end: {
+                                            line: 1,
+                                            column: 35
+                                        }
                                     },
-                                    arguments: [{
-                                        type: 'Identifier',
-                                        start: 34,
-                                        end: 35,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 34
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 35
-                                            }
-                                        },
-                                        name: 'e'
-                                    }]
-                                }
-                            }]
-                        }
-                    },
-                    finalizer: null
-                }],
-                sourceType: 'script'
-            }
-        });
+                                    name: 'e'
+                                }]
+                            }
+                        }]
+                    }
+                },
+                finalizer: null
+            }],
+            sourceType: 'script'
+        }
+    });
 
     pass(`try { } finally { cleanup(stuff) }`, {
-            source: 'try { } finally { cleanup(stuff) }',
-            loc: true,
-            ranges: true,
-            raw: true,
-            expected: {
-                type: 'Program',
+        source: 'try { } finally { cleanup(stuff) }',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 34,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 34
+                }
+            },
+            body: [{
+                type: 'TryStatement',
                 start: 0,
                 end: 34,
                 loc: {
@@ -995,53 +1063,53 @@ describe('Statements - Try', () => {
                         column: 34
                     }
                 },
-                body: [{
-                    type: 'TryStatement',
-                    start: 0,
+                block: {
+                    type: 'BlockStatement',
+                    start: 4,
+                    end: 7,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 4
+                        },
+                        end: {
+                            line: 1,
+                            column: 7
+                        }
+                    },
+                    body: []
+                },
+                handler: null,
+                finalizer: {
+                    type: 'BlockStatement',
+                    start: 16,
                     end: 34,
                     loc: {
                         start: {
                             line: 1,
-                            column: 0
+                            column: 16
                         },
                         end: {
                             line: 1,
                             column: 34
                         }
                     },
-                    block: {
-                        type: 'BlockStatement',
-                        start: 4,
-                        end: 7,
+                    body: [{
+                        type: 'ExpressionStatement',
+                        start: 18,
+                        end: 32,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 4
+                                column: 18
                             },
                             end: {
                                 line: 1,
-                                column: 7
+                                column: 32
                             }
                         },
-                        body: []
-                    },
-                    handler: null,
-                    finalizer: {
-                        type: 'BlockStatement',
-                        start: 16,
-                        end: 34,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 16
-                            },
-                            end: {
-                                line: 1,
-                                column: 34
-                            }
-                        },
-                        body: [{
-                            type: 'ExpressionStatement',
+                        expression: {
+                            type: 'CallExpression',
                             start: 18,
                             end: 32,
                             loc: {
@@ -1054,10 +1122,10 @@ describe('Statements - Try', () => {
                                     column: 32
                                 }
                             },
-                            expression: {
-                                type: 'CallExpression',
+                            callee: {
+                                type: 'Identifier',
                                 start: 18,
-                                end: 32,
+                                end: 25,
                                 loc: {
                                     start: {
                                         line: 1,
@@ -1065,56 +1133,56 @@ describe('Statements - Try', () => {
                                     },
                                     end: {
                                         line: 1,
-                                        column: 32
+                                        column: 25
                                     }
                                 },
-                                callee: {
-                                    type: 'Identifier',
-                                    start: 18,
-                                    end: 25,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 18
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 25
-                                        }
+                                name: 'cleanup'
+                            },
+                            arguments: [{
+                                type: 'Identifier',
+                                start: 26,
+                                end: 31,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 26
                                     },
-                                    name: 'cleanup'
+                                    end: {
+                                        line: 1,
+                                        column: 31
+                                    }
                                 },
-                                arguments: [{
-                                    type: 'Identifier',
-                                    start: 26,
-                                    end: 31,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 26
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 31
-                                        }
-                                    },
-                                    name: 'stuff'
-                                }]
-                            }
-                        }]
-                    }
-                }],
-                sourceType: 'script'
-            }
-        });
+                                name: 'stuff'
+                            }]
+                        }
+                    }]
+                }
+            }],
+            sourceType: 'script'
+        }
+    });
 
     pass(`try{}catch(a){}finally{}`, {
-            source: 'try{}catch(a){}finally{}',
-            loc: true,
-            ranges: true,
-            raw: true,
-            expected: {
-                type: 'Program',
+        source: 'try{}catch(a){}finally{}',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 24,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 24
+                }
+            },
+            body: [{
+                type: 'TryStatement',
                 start: 0,
                 end: 24,
                 loc: {
@@ -1127,111 +1195,111 @@ describe('Statements - Try', () => {
                         column: 24
                     }
                 },
-                body: [{
-                    type: 'TryStatement',
-                    start: 0,
-                    end: 24,
+                block: {
+                    type: 'BlockStatement',
+                    start: 3,
+                    end: 5,
                     loc: {
                         start: {
                             line: 1,
-                            column: 0
+                            column: 3
                         },
                         end: {
                             line: 1,
-                            column: 24
+                            column: 5
                         }
                     },
-                    block: {
-                        type: 'BlockStatement',
-                        start: 3,
-                        end: 5,
+                    body: []
+                },
+                handler: {
+                    type: 'CatchClause',
+                    start: 5,
+                    end: 15,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 5
+                        },
+                        end: {
+                            line: 1,
+                            column: 15
+                        }
+                    },
+                    param: {
+                        type: 'Identifier',
+                        start: 11,
+                        end: 12,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 3
+                                column: 11
                             },
                             end: {
                                 line: 1,
-                                column: 5
+                                column: 12
                             }
                         },
-                        body: []
+                        name: 'a'
                     },
-                    handler: {
-                        type: 'CatchClause',
-                        start: 5,
+                    body: {
+                        type: 'BlockStatement',
+                        start: 13,
                         end: 15,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 5
+                                column: 13
                             },
                             end: {
                                 line: 1,
                                 column: 15
                             }
                         },
-                        param: {
-                            type: 'Identifier',
-                            start: 11,
-                            end: 12,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 11
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 12
-                                }
-                            },
-                            name: 'a'
-                        },
-                        body: {
-                            type: 'BlockStatement',
-                            start: 13,
-                            end: 15,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 13
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 15
-                                }
-                            },
-                            body: []
-                        }
-                    },
-                    finalizer: {
-                        type: 'BlockStatement',
-                        start: 22,
-                        end: 24,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 22
-                            },
-                            end: {
-                                line: 1,
-                                column: 24
-                            }
-                        },
                         body: []
                     }
-                }],
-                sourceType: 'script'
-            }
-        });
+                },
+                finalizer: {
+                    type: 'BlockStatement',
+                    start: 22,
+                    end: 24,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 22
+                        },
+                        end: {
+                            line: 1,
+                            column: 24
+                        }
+                    },
+                    body: []
+                }
+            }],
+            sourceType: 'script'
+        }
+    });
 
     pass(`try { doThat(); } catch (e) { say(e) } finally { cleanup(stuff) }`, {
-            source: 'try { doThat(); } catch (e) { say(e) } finally { cleanup(stuff) }',
-            loc: true,
-            ranges: true,
-            raw: true,
-            expected: {
-                type: 'Program',
+        source: 'try { doThat(); } catch (e) { say(e) } finally { cleanup(stuff) }',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 65,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 65
+                }
+            },
+            body: [{
+                type: 'TryStatement',
                 start: 0,
                 end: 65,
                 loc: {
@@ -1244,38 +1312,38 @@ describe('Statements - Try', () => {
                         column: 65
                     }
                 },
-                body: [{
-                    type: 'TryStatement',
-                    start: 0,
-                    end: 65,
+                block: {
+                    type: 'BlockStatement',
+                    start: 4,
+                    end: 17,
                     loc: {
                         start: {
                             line: 1,
-                            column: 0
+                            column: 4
                         },
                         end: {
                             line: 1,
-                            column: 65
+                            column: 17
                         }
                     },
-                    block: {
-                        type: 'BlockStatement',
-                        start: 4,
-                        end: 17,
+                    body: [{
+                        type: 'ExpressionStatement',
+                        start: 6,
+                        end: 15,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 4
+                                column: 6
                             },
                             end: {
                                 line: 1,
-                                column: 17
+                                column: 15
                             }
                         },
-                        body: [{
-                            type: 'ExpressionStatement',
+                        expression: {
+                            type: 'CallExpression',
                             start: 6,
-                            end: 15,
+                            end: 14,
                             loc: {
                                 start: {
                                     line: 1,
@@ -1283,13 +1351,13 @@ describe('Statements - Try', () => {
                                 },
                                 end: {
                                     line: 1,
-                                    column: 15
+                                    column: 14
                                 }
                             },
-                            expression: {
-                                type: 'CallExpression',
+                            callee: {
+                                type: 'Identifier',
                                 start: 6,
-                                end: 14,
+                                end: 12,
                                 loc: {
                                     start: {
                                         line: 1,
@@ -1297,75 +1365,75 @@ describe('Statements - Try', () => {
                                     },
                                     end: {
                                         line: 1,
-                                        column: 14
+                                        column: 12
                                     }
                                 },
-                                callee: {
-                                    type: 'Identifier',
-                                    start: 6,
-                                    end: 12,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 6
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 12
-                                        }
-                                    },
-                                    name: 'doThat'
-                                },
-                                arguments: []
-                            }
-                        }]
+                                name: 'doThat'
+                            },
+                            arguments: []
+                        }
+                    }]
+                },
+                handler: {
+                    type: 'CatchClause',
+                    start: 18,
+                    end: 38,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 18
+                        },
+                        end: {
+                            line: 1,
+                            column: 38
+                        }
                     },
-                    handler: {
-                        type: 'CatchClause',
-                        start: 18,
+                    param: {
+                        type: 'Identifier',
+                        start: 25,
+                        end: 26,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 25
+                            },
+                            end: {
+                                line: 1,
+                                column: 26
+                            }
+                        },
+                        name: 'e'
+                    },
+                    body: {
+                        type: 'BlockStatement',
+                        start: 28,
                         end: 38,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 18
+                                column: 28
                             },
                             end: {
                                 line: 1,
                                 column: 38
                             }
                         },
-                        param: {
-                            type: 'Identifier',
-                            start: 25,
-                            end: 26,
+                        body: [{
+                            type: 'ExpressionStatement',
+                            start: 30,
+                            end: 36,
                             loc: {
                                 start: {
                                     line: 1,
-                                    column: 25
+                                    column: 30
                                 },
                                 end: {
                                     line: 1,
-                                    column: 26
+                                    column: 36
                                 }
                             },
-                            name: 'e'
-                        },
-                        body: {
-                            type: 'BlockStatement',
-                            start: 28,
-                            end: 38,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 28
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 38
-                                }
-                            },
-                            body: [{
-                                type: 'ExpressionStatement',
+                            expression: {
+                                type: 'CallExpression',
                                 start: 30,
                                 end: 36,
                                 loc: {
@@ -1378,10 +1446,10 @@ describe('Statements - Try', () => {
                                         column: 36
                                     }
                                 },
-                                expression: {
-                                    type: 'CallExpression',
+                                callee: {
+                                    type: 'Identifier',
                                     start: 30,
-                                    end: 36,
+                                    end: 33,
                                     loc: {
                                         start: {
                                             line: 1,
@@ -1389,61 +1457,61 @@ describe('Statements - Try', () => {
                                         },
                                         end: {
                                             line: 1,
-                                            column: 36
+                                            column: 33
                                         }
                                     },
-                                    callee: {
-                                        type: 'Identifier',
-                                        start: 30,
-                                        end: 33,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 30
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 33
-                                            }
+                                    name: 'say'
+                                },
+                                arguments: [{
+                                    type: 'Identifier',
+                                    start: 34,
+                                    end: 35,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 34
                                         },
-                                        name: 'say'
+                                        end: {
+                                            line: 1,
+                                            column: 35
+                                        }
                                     },
-                                    arguments: [{
-                                        type: 'Identifier',
-                                        start: 34,
-                                        end: 35,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 34
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 35
-                                            }
-                                        },
-                                        name: 'e'
-                                    }]
-                                }
-                            }]
+                                    name: 'e'
+                                }]
+                            }
+                        }]
+                    }
+                },
+                finalizer: {
+                    type: 'BlockStatement',
+                    start: 47,
+                    end: 65,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 47
+                        },
+                        end: {
+                            line: 1,
+                            column: 65
                         }
                     },
-                    finalizer: {
-                        type: 'BlockStatement',
-                        start: 47,
-                        end: 65,
+                    body: [{
+                        type: 'ExpressionStatement',
+                        start: 49,
+                        end: 63,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 47
+                                column: 49
                             },
                             end: {
                                 line: 1,
-                                column: 65
+                                column: 63
                             }
                         },
-                        body: [{
-                            type: 'ExpressionStatement',
+                        expression: {
+                            type: 'CallExpression',
                             start: 49,
                             end: 63,
                             loc: {
@@ -1456,10 +1524,10 @@ describe('Statements - Try', () => {
                                     column: 63
                                 }
                             },
-                            expression: {
-                                type: 'CallExpression',
+                            callee: {
+                                type: 'Identifier',
                                 start: 49,
-                                end: 63,
+                                end: 56,
                                 loc: {
                                     start: {
                                         line: 1,
@@ -1467,46 +1535,33 @@ describe('Statements - Try', () => {
                                     },
                                     end: {
                                         line: 1,
-                                        column: 63
+                                        column: 56
                                     }
                                 },
-                                callee: {
-                                    type: 'Identifier',
-                                    start: 49,
-                                    end: 56,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 49
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 56
-                                        }
+                                name: 'cleanup'
+                            },
+                            arguments: [{
+                                type: 'Identifier',
+                                start: 57,
+                                end: 62,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 57
                                     },
-                                    name: 'cleanup'
+                                    end: {
+                                        line: 1,
+                                        column: 62
+                                    }
                                 },
-                                arguments: [{
-                                    type: 'Identifier',
-                                    start: 57,
-                                    end: 62,
-                                    loc: {
-                                        start: {
-                                            line: 1,
-                                            column: 57
-                                        },
-                                        end: {
-                                            line: 1,
-                                            column: 62
-                                        }
-                                    },
-                                    name: 'stuff'
-                                }]
-                            }
-                        }]
-                    }
-                }],
-                sourceType: 'script'
-            }
-        });
+                                name: 'stuff'
+                            }]
+                        }
+                    }]
+                }
+            }],
+            sourceType: 'script'
+        }
     });
+
+});

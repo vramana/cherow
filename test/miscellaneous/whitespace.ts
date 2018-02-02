@@ -1,15 +1,7 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 import { parseScript } from '../../src/cherow';
 
 describe('Miscellaneous - Whitespace', () => {
-
-  fail ('\\u180E', {
-    source: '\\u180E',
-    message: 'Invalid Unicode escape sequence',
-    line: 1,
-    column: 0,
-    index: 5
-  });
 
   const whitespaceCharacters = [
     '\u0009',
@@ -518,51 +510,4 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
-  pass(`block HTML close with line feed`, {
-        source: ' \t /*\t*/  --> the comment extends to these characters ',
-        loc: true,
-        ranges: true,
-        raw: true,
-        expected: {
-              body: [],
-              end: 54,
-              loc: {
-                end: {
-                  column: 54,
-                  line: 1,
-                },
-                start: {
-                  column: 0,
-                  line: 1,
-               },
-              },
-              sourceType: 'script',
-              start: 0,
-              type: 'Program'
-            }
-    });
-
-  pass(`single HTML close comment w/o line terminator`, {
-        source: '  \t -->  ',
-        loc: true,
-        ranges: true,
-        raw: true,
-        expected: {
-              body: [],
-              end: 9,
-              loc: {
-                end: {
-                  column: 9,
-                  line: 1,
-                },
-                start: {
-                  column: 0,
-                  line: 1,
-                }
-              },
-              sourceType: 'script',
-              start: 0,
-              type: 'Program'
-            }
-    });
 });

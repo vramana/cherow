@@ -1,28 +1,33 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Declarations - Generator', () => {
+
+    fail(`function *a() { ({b = yield}) => {} }`, {
+        source: 'function *a() { ({b = yield}) => {} }',
+        line: 1,
+    });
 
     fail(`function*g(yield){}`, {
         source: 'function*g(yield){}',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 11,
-        index: 16
+        index: 11
     });
 
     fail(`function*g({yield}){}`, {
         source: 'function*g({yield}){}',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 11,
-        index: 12
+        column: 17,
+        index: 17
     });
 
     fail(`function*g([yield]){}`, {
         source: 'function*g([yield]){}',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 11,
+        column: 12,
         index: 12
     });
 
@@ -30,8 +35,8 @@ describe('Declarations - Generator', () => {
         source: 'function*g({a: yield}){}',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 11,
-        index: 12
+        column: 14,
+        index: 14
     });
 
     fail(`function*g(yield = 0){}`, {
@@ -39,39 +44,39 @@ describe('Declarations - Generator', () => {
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 11,
-        index: 16
+        index: 11
     });
 
     fail(`function*g(){ var yield = 1; }`, {
         source: 'function*g(){ var yield = 1; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 18,
-        index: 23
+        column: 17,
+        index: 17
     });
 
     fail(`function*g(){ function yield(){}; }`, {
         source: 'function*g(){ function yield(){}; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 23,
-        index: 28
+        column: 22,
+        index: 22
     });
 
     fail(`function*g() { var yield; }`, {
         source: 'function*g() { var yield; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 19,
-        index: 24
+        column: 18,
+        index: 18
     });
 
     fail(`function*g() { let yield; }`, {
         source: 'function*g() { let yield; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 19,
-        index: 24
+        column: 18,
+        index: 18
     });
 
     fail(`function*g() { try {} catch (yield) {} }`, {
@@ -79,7 +84,7 @@ describe('Declarations - Generator', () => {
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 29,
-        index: 34
+        index: 29
     });
 
     fail(`function*g() { ({yield}); }`, {
@@ -87,14 +92,14 @@ describe('Declarations - Generator', () => {
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 22,
-        index: 23
+        index: 22
     });
     fail(`function*g() { ({yield} = 0); }`, {
         source: 'function*g() { ({yield} = 0); }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 22,
-        index: 23
+        index: 22
     });
 
     fail(`function*g() { var {yield} = 0; }`, {
@@ -102,7 +107,7 @@ describe('Declarations - Generator', () => {
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 25,
-        index: 26
+        index: 25
     });
 
     fail(`function*g() { for ({yield} in 0); }`, {
@@ -110,46 +115,46 @@ describe('Declarations - Generator', () => {
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 26,
-        index: 27
+        index: 26
     });
 
     fail(`function*g() { ({yield = 0}); }`, {
         source: 'function*g() { ({yield = 0}); }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 23,
-        index: 24
+        column: 22,
+        index: 22
     });
 
     fail(`function*g() { ({yield = 0} = 0); }`, {
         source: 'function*g() { ({yield = 0} = 0); }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 23,
-        index: 24
+        column: 22,
+        index: 22
     });
 
     fail(`function*g() { var {yield = 0} = 0; }`, {
         source: 'function*g() { var {yield = 0} = 0; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 26,
-        index: 27
+        column: 25,
+        index: 25
     });
 
     fail(`function*g() { for ({yield = 0} in 0); }`, {
         source: 'function*g() { for ({yield = 0} in 0); }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 27,
-        index: 28
+        column: 26,
+        index: 26
     });
 
     fail(`label: function* a(){}`, {
         source: 'label: function* a(){}',
-        message: 'Generators can only be declared at the top level or inside a block.',
+        message: 'Generator declarations are not allowed in legacy contexts',
         line: 1,
-        column: 15,
+        column: 16,
         index: 16
     });
 
@@ -157,56 +162,56 @@ describe('Declarations - Generator', () => {
         source: 'function*g(){ var yield; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 18,
-        index: 23
+        column: 17,
+        index: 17
     });
 
     fail(`function*g() { ({yield = 0} = 0); }`, {
         source: 'function*g() { ({yield = 0} = 0); }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 23,
-        index: 24
+        column: 22,
+        index: 22
     });
 
     fail(`function*g() { var {yield = 0} = 0; }`, {
         source: 'function*g() { var {yield = 0} = 0; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 26,
-        index: 27
+        column: 25,
+        index: 25
     });
 
     fail(`function*g() { for ({yield = 0} in 0); }`, {
         source: 'function*g() { for ({yield = 0} in 0); }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 27,
-        index: 28
+        column: 26,
+        index: 26
     });
 
     fail(`function* a({e: a.b}) {}`, {
         source: 'function* a({e: a.b}) {}',
         message: 'Unexpected token',
         line: 1,
-        column: 12,
-        index: 13
+        column: 18,
+        index: 18
     });
 
     fail(`function* gf() { 1 + yield; }`, {
         source: 'function* gf() { 1 + yield; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 21,
-        index: 26
+        column: 20,
+        index: 20
     });
 
     fail(`function* gf() { 1 + yield 2; }`, {
         source: 'function* gf() { 1 + yield 2; }',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 21,
-        index: 26
+        column: 20,
+        index: 20
     });
 
     fail(`function* gf() { +yield* 'foo'; }`, {
@@ -214,23 +219,646 @@ describe('Declarations - Generator', () => {
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 18,
-        index: 23
+        index: 18
     });
 
     fail(`function* gf() { yield++; }`, {
         source: 'function* gf() { yield++; }',
-        message: 'Unexpected token \';\'',
+        message: 'Unexpected token',
         line: 1,
         column: 24,
-        index: 25
+        index: 24
     });
 
     fail(`function *gf(b, a = 1 + yield) {}`, {
         source: 'function *gf(b, a = 1 + yield) {}',
         message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
-        column: 24,
-        index: 29
+        column: 23,
+        index: 23
+    });
+
+    pass(`function *f1() {
+        function g() {
+          return yield / 1;
+        }
+      }`, {
+        source: `function *f1() {
+            function g() {
+              return yield / 1;
+            }
+          }`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'FunctionDeclaration',
+                                params: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                        {
+                                            type: 'ReturnStatement',
+                                            argument: {
+                                                type: 'BinaryExpression',
+                                                left: {
+                                                    type: 'Identifier',
+                                                    name: 'yield',
+                                                    start: 65,
+                                                    end: 70,
+                                                    loc: {
+                                                        start: {
+                                                            line: 3,
+                                                            column: 21
+                                                        },
+                                                        end: {
+                                                            line: 3,
+                                                            column: 26
+                                                        }
+                                                    }
+                                                },
+                                                right: {
+                                                    type: 'Literal',
+                                                    value: 1,
+                                                    start: 73,
+                                                    end: 74,
+                                                    loc: {
+                                                        start: {
+                                                            line: 3,
+                                                            column: 29
+                                                        },
+                                                        end: {
+                                                            line: 3,
+                                                            column: 30
+                                                        }
+                                                    },
+                                                    raw: '1'
+                                                },
+                                                operator: '/',
+                                                start: 65,
+                                                end: 74,
+                                                loc: {
+                                                    start: {
+                                                        line: 3,
+                                                        column: 21
+                                                    },
+                                                    end: {
+                                                        line: 3,
+                                                        column: 30
+                                                    }
+                                                }
+                                            },
+                                            start: 58,
+                                            end: 75,
+                                            loc: {
+                                                start: {
+                                                    line: 3,
+                                                    column: 14
+                                                },
+                                                end: {
+                                                    line: 3,
+                                                    column: 31
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 42,
+                                    end: 89,
+                                    loc: {
+                                        start: {
+                                            line: 2,
+                                            column: 25
+                                        },
+                                        end: {
+                                            line: 4,
+                                            column: 13
+                                        }
+                                    }
+                                },
+                                async: false,
+                                generator: false,
+                                expression: false,
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'g',
+                                    start: 38,
+                                    end: 39,
+                                    loc: {
+                                        start: {
+                                            line: 2,
+                                            column: 21
+                                        },
+                                        end: {
+                                            line: 2,
+                                            column: 22
+                                        }
+                                    }
+                                },
+                                start: 29,
+                                end: 89,
+                                loc: {
+                                    start: {
+                                        line: 2,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 4,
+                                        column: 13
+                                    }
+                                }
+                            }
+                        ],
+                        start: 15,
+                        end: 101,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 15
+                            },
+                            end: {
+                                line: 5,
+                                column: 11
+                            }
+                        }
+                    },
+                    async: false,
+                    generator: true,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'f1',
+                        start: 10,
+                        end: 12,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 10
+                            },
+                            end: {
+                                line: 1,
+                                column: 12
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 101,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 5,
+                            column: 11
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 101,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 5,
+                    column: 11
+                }
+            }
+        }
+    });
+
+    pass(`function *f2() {
+        () => yield / 1
+      }`, {
+        source: `function *f2() {
+            () => yield / 1
+          }`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                    type: 'ArrowFunctionExpression',
+                                    body: {
+                                        type: 'BinaryExpression',
+                                        left: {
+                                            type: 'Identifier',
+                                            name: 'yield',
+                                            start: 35,
+                                            end: 40,
+                                            loc: {
+                                                start: {
+                                                    line: 2,
+                                                    column: 18
+                                                },
+                                                end: {
+                                                    line: 2,
+                                                    column: 23
+                                                }
+                                            }
+                                        },
+                                        right: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 43,
+                                            end: 44,
+                                            loc: {
+                                                start: {
+                                                    line: 2,
+                                                    column: 26
+                                                },
+                                                end: {
+                                                    line: 2,
+                                                    column: 27
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        operator: '/',
+                                        start: 35,
+                                        end: 44,
+                                        loc: {
+                                            start: {
+                                                line: 2,
+                                                column: 18
+                                            },
+                                            end: {
+                                                line: 2,
+                                                column: 27
+                                            }
+                                        }
+                                    },
+                                    params: [],
+                                    id: null,
+                                    async: false,
+                                    generator: false,
+                                    expression: true,
+                                    start: 29,
+                                    end: 44,
+                                    loc: {
+                                        start: {
+                                            line: 2,
+                                            column: 12
+                                        },
+                                        end: {
+                                            line: 2,
+                                            column: 27
+                                        }
+                                    }
+                                },
+                                start: 29,
+                                end: 44,
+                                loc: {
+                                    start: {
+                                        line: 2,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 2,
+                                        column: 27
+                                    }
+                                }
+                            }
+                        ],
+                        start: 15,
+                        end: 56,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 15
+                            },
+                            end: {
+                                line: 3,
+                                column: 11
+                            }
+                        }
+                    },
+                    async: false,
+                    generator: true,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'f2',
+                        start: 10,
+                        end: 12,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 10
+                            },
+                            end: {
+                                line: 1,
+                                column: 12
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 56,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 3,
+                            column: 11
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 56,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 3,
+                    column: 11
+                }
+            }
+        }
+    });
+
+    pass(`function *f3() {
+        ({
+          g() {
+            return yield / 1;
+          }
+        })
+      }`, {
+        source: `function *f3() {
+            ({
+              g() {
+                return yield / 1;
+              }
+            })
+          }`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                    type: 'ObjectExpression',
+                                    properties: [
+                                        {
+                                            type: 'Property',
+                                            key: {
+                                                type: 'Identifier',
+                                                name: 'g',
+                                                start: 46,
+                                                end: 47,
+                                                loc: {
+                                                    start: {
+                                                        line: 3,
+                                                        column: 14
+                                                    },
+                                                    end: {
+                                                        line: 3,
+                                                        column: 15
+                                                    }
+                                                }
+                                            },
+                                            value: {
+                                                type: 'FunctionExpression',
+                                                params: [],
+                                                body: {
+                                                    type: 'BlockStatement',
+                                                    body: [
+                                                        {
+                                                            type: 'ReturnStatement',
+                                                            argument: {
+                                                                type: 'BinaryExpression',
+                                                                left: {
+                                                                    type: 'Identifier',
+                                                                    name: 'yield',
+                                                                    start: 75,
+                                                                    end: 80,
+                                                                    loc: {
+                                                                        start: {
+                                                                            line: 4,
+                                                                            column: 23
+                                                                        },
+                                                                        end: {
+                                                                            line: 4,
+                                                                            column: 28
+                                                                        }
+                                                                    }
+                                                                },
+                                                                right: {
+                                                                    type: 'Literal',
+                                                                    value: 1,
+                                                                    start: 83,
+                                                                    end: 84,
+                                                                    loc: {
+                                                                        start: {
+                                                                            line: 4,
+                                                                            column: 31
+                                                                        },
+                                                                        end: {
+                                                                            line: 4,
+                                                                            column: 32
+                                                                        }
+                                                                    },
+                                                                    raw: '1'
+                                                                },
+                                                                operator: '/',
+                                                                start: 75,
+                                                                end: 84,
+                                                                loc: {
+                                                                    start: {
+                                                                        line: 4,
+                                                                        column: 23
+                                                                    },
+                                                                    end: {
+                                                                        line: 4,
+                                                                        column: 32
+                                                                    }
+                                                                }
+                                                            },
+                                                            start: 68,
+                                                            end: 85,
+                                                            loc: {
+                                                                start: {
+                                                                    line: 4,
+                                                                    column: 16
+                                                                },
+                                                                end: {
+                                                                    line: 4,
+                                                                    column: 33
+                                                                }
+                                                            }
+                                                        }
+                                                    ],
+                                                    start: 50,
+                                                    end: 101,
+                                                    loc: {
+                                                        start: {
+                                                            line: 3,
+                                                            column: 18
+                                                        },
+                                                        end: {
+                                                            line: 5,
+                                                            column: 15
+                                                        }
+                                                    }
+                                                },
+                                                async: false,
+                                                generator: false,
+                                                expression: false,
+                                                id: null,
+                                                start: 47,
+                                                end: 101,
+                                                loc: {
+                                                    start: {
+                                                        line: 3,
+                                                        column: 15
+                                                    },
+                                                    end: {
+                                                        line: 5,
+                                                        column: 15
+                                                    }
+                                                }
+                                            },
+                                            kind: 'init',
+                                            computed: false,
+                                            method: true,
+                                            shorthand: false,
+                                            start: 46,
+                                            end: 101,
+                                            loc: {
+                                                start: {
+                                                    line: 3,
+                                                    column: 14
+                                                },
+                                                end: {
+                                                    line: 5,
+                                                    column: 15
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 30,
+                                    end: 115,
+                                    loc: {
+                                        start: {
+                                            line: 2,
+                                            column: 13
+                                        },
+                                        end: {
+                                            line: 6,
+                                            column: 13
+                                        }
+                                    }
+                                },
+                                start: 29,
+                                end: 116,
+                                loc: {
+                                    start: {
+                                        line: 2,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 6,
+                                        column: 14
+                                    }
+                                }
+                            }
+                        ],
+                        start: 15,
+                        end: 128,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 15
+                            },
+                            end: {
+                                line: 7,
+                                column: 11
+                            }
+                        }
+                    },
+                    async: false,
+                    generator: true,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'f3',
+                        start: 10,
+                        end: 12,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 10
+                            },
+                            end: {
+                                line: 1,
+                                column: 12
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 128,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 7,
+                            column: 11
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 128,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 7,
+                    column: 11
+                }
+            }
+        }
     });
 
     pass(`function* t() {};`, {
@@ -2562,4 +3190,5 @@ describe('Declarations - Generator', () => {
             }
         }
     });
+
 });

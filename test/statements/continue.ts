@@ -1,8 +1,47 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Statements - Continue', () => {
 
-      pass(`while (true) { continue; }`, {
+  fail(`do { test262: { continue test262; } } while (false)`, {
+    source: 'do { test262: { continue test262; } } while (false)'
+  });
+
+  fail(`while ( false ) Label: continue Label;`, {
+    source: 'while ( false ) Label: continue Label;',
+    message: 'continue  statement must be nested within an iteration statement',
+    line: 1,
+    column: 22,
+    index: 22
+  });
+
+  fail(`LABEL_OUT : var x=0, y=0;
+  LABEL_DO_LOOP : do {
+     LABEL_IN : x++;
+     if(x===10)break;
+     continue IN_DO_FUNC;
+     LABEL_IN_2 : y++;
+     function IN_DO_FUNC(){}
+  } while(0);
+
+  LABEL_ANOTHER_LOOP : do {
+      ;
+  } while(0);`, {
+    source: `LABEL_OUT : var x=0, y=0;
+    LABEL_DO_LOOP : do {
+       LABEL_IN : x++;
+       if(x===10)break;
+       continue IN_DO_FUNC;
+       LABEL_IN_2 : y++;
+       function IN_DO_FUNC(){}
+    } while(0);
+
+    LABEL_ANOTHER_LOOP : do {
+        ;
+    } while(0);`,
+    line: 5
+  });
+
+  pass(`while (true) { continue; }`, {
           source: 'while (true) { continue; }',
           loc: true,
           ranges: true,
@@ -92,7 +131,7 @@ describe('Statements - Continue', () => {
           }
       });
 
-      pass(`while (true) { continue }`, {
+  pass(`while (true) { continue }`, {
           source: 'while (true) { continue }',
           loc: true,
           ranges: true,
@@ -182,7 +221,7 @@ describe('Statements - Continue', () => {
           }
       });
 
-      pass(`done: while (true) { continue done }`, {
+  pass(`done: while (true) { continue done }`, {
           source: 'done: while (true) { continue done }',
           loc: true,
           ranges: true,
@@ -318,7 +357,7 @@ describe('Statements - Continue', () => {
           }
       });
 
-      pass(`__proto__: while (true) { continue __proto__; }`, {
+  pass(`__proto__: while (true) { continue __proto__; }`, {
           source: '__proto__: while (true) { continue __proto__; }',
           loc: true,
           ranges: true,
@@ -454,7 +493,7 @@ describe('Statements - Continue', () => {
           }
       });
 
-      pass(`a: do continue a; while(1);`, {
+  pass(`a: do continue a; while(1);`, {
           source: 'a: do continue a; while(1);',
           loc: true,
           ranges: true,
@@ -573,7 +612,7 @@ describe('Statements - Continue', () => {
           }
       });
 
-      pass(`a: while (0) { continue \r b; }`, {
+  pass(`a: while (0) { continue \r b; }`, {
         source: 'a: while (0) { continue \r b; }',
         expected: {
               body: [
@@ -613,59 +652,4 @@ describe('Statements - Continue', () => {
             }
       });
 
-      fail(`do { test262: { continue test262; } } while (false)`, {
-        source: 'do { test262: { continue test262; } } while (false)'
-      });
-
-      fail(`a: while (0) { continue /*\\u2028*/ b; }`, {
-        source: 'a: while (0) { continue /*\\u2028*/ b; }',
-        message: 'Undefined label \'b\'',
-        line: 1,
-        column: 36,
-        index: 37
-      });
-
-      fail(`while ( false ) Label: continue Label;`, {
-        source: 'while ( false ) Label: continue Label;',
-        message: 'continue  statement must be nested within an iteration statement',
-        line: 1,
-        column: 16,
-        index: 21
-      });
-
-      fail(`LABEL_OUT : var x=0, y=0;
-
-      LABEL_DO_LOOP : do {
-         LABEL_IN : x++;
-         if(x===10)break;
-         continue LABEL_IN;
-         LABEL_IN_2 : y++;
-         function IN_DO_FUNC(){}
-      } while(0);
-
-      LABEL_ANOTHER_LOOP : do {
-          ;
-      } while(0);
-
-      function OUT_FUNC(){}`, {
-        source: `LABEL_OUT : var x=0, y=0;
-
-        LABEL_DO_LOOP : do {
-           LABEL_IN : x++;
-           if(x===10)break;
-           continue LABEL_IN;
-           LABEL_IN_2 : y++;
-           function IN_DO_FUNC(){}
-        } while(0);
-
-        LABEL_ANOTHER_LOOP : do {
-            ;
-        } while(0);
-
-        function OUT_FUNC(){}`,
-        message: 'Undefined label \'LABEL_IN\'',
-        line: 6,
-        column: 28,
-        index: 140
-      });
   });

@@ -1,4 +1,4 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Miscellaneous - Unicode', () => {
 

@@ -1,4 +1,4 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Next - Rest property', () => {
 
@@ -7,8 +7,8 @@ describe('Next - Rest property', () => {
         next: true,
         message: '`...` must be followed by an identifier in declaration contexts',
         line: 1,
-        column: 11,
-        index: 12
+        column: 10,
+        index: 10
     });
 
     fail('let { ...x = y } = z;', {
@@ -16,17 +16,17 @@ describe('Next - Rest property', () => {
         next: true,
         message: '`...` must be followed by an identifier in declaration contexts',
         line: 1,
-        column: 11,
-        index: 12
+        column: 10,
+        index: 10
     });
 
     fail('let { a, ...b, c } = x;', {
         source: `let { a, ...b, c } = x;`,
         next: true,
-        message: 'Rest element must be last element',
+        message: 'Rest elements cannot have a default value',
         line: 1,
         column: 13,
-        index: 14
+        index: 13
     });
 
     pass(`let { x, y, ...z } = { x: 1, y: 2, a: 3, b: 4 };`, {
@@ -585,4 +585,5 @@ describe('Next - Rest property', () => {
             }
         }
     });
+
 });

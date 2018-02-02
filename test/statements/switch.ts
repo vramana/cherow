@@ -1,8 +1,6 @@
-import {  pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Statements - Switch', () => {
-
-      describe('Redeclaration', () => {
 
           fail(`duplicate default`, {
               source: `function SwitchTest(value){
@@ -21,210 +19,46 @@ describe('Statements - Switch', () => {
 
                 return result;
               }`,
+              line: 12
           });
 
-          fail(`switch (0) { case 1: const f = 0; default: async function f() {} }`, {
-              source: 'switch (0) { case 1: const f = 0; default: async function f() {} }',
-              message: 'Async functions can only be declared at the top level or inside a block',
-              line: 1,
-              column: 43,
-              index: 48,
-          });
+          fail(`switch(value) {
+            case:
+              result += 2;
+            default:
+              result += 32;
+              break;
+          }`, {
+            source: `switch(value) {
+                case:
+                  result += 2;
+                default:
+                  result += 32;
+                  break;
+              }`,
+            line: 2
+        });
 
-          fail(`switch (0) { case 1: const f = 0; default: async function* f() {} }`, {
-              source: 'switch (0) { case 1: const f = 0; default: async function* f() {} }',
-              message: 'Async functions can only be declared at the top level or inside a block',
-              line: 1,
-              column: 43,
-              index: 48,
-          });
+          fail(`switch(value) {
+            result =2;
+          case 0:
+            result += 2;
+          default:
+            result += 32;
+            break;
+        }`, {
+            source: `switch(value) {
+                result =2;
+              case 0:
+                result += 2;
+              default:
+                result += 32;
+                break;
+            }`,
+            line: 1
+        });
 
-          fail(`switch (0) { case 1: const f = 0; default: class f {}; }`, {
-              source: 'switch (0) { case 1: const f = 0; default: class f {}; }',
-              message: '\'f\' has already been declared ',
-              line: 1,
-              column: 49,
-              index: 50,
-          });
-
-          fail(`switch (0) { case 1: const f = 0; default: const f = 0; }`, {
-              source: 'switch (0) { case 1: const f = 0; default: const f = 0; }',
-              message: '\'f\' has already been declared ',
-              line: 1,
-              column: 49,
-              index: 50,
-          });
-
-          fail(`switch (0) { case 1: const f = 0; default: function f() {} }`, {
-              source: 'switch (0) { case 1: const f = 0; default: function f() {} }',
-              message: 'Duplicate binding f',
-              line: 1,
-              column: 52,
-              index: 53,
-          });
-
-          fail(`switch (0) { case 1: const f = 0; default: function* f() {} }`, {
-              source: 'switch (0) { case 1: const f = 0; default: function* f() {} }',
-              message: 'Duplicate binding f',
-              line: 1,
-              column: 53,
-              index: 54,
-          });
-
-          fail(`switch (0) { case 1: const f = 0; default: let f; }`, {
-              source: 'switch (0) { case 1: const f = 0; default: let f; }',
-              message: '\'f\' has already been declared ',
-              line: 1,
-              column: 47,
-              index: 48,
-          });
-
-          fail(`switch (0) { case 1: const f = 0; default: var f; }`, {
-              source: 'switch (0) { case 1: const f = 0; default: var f; }',
-              message: '\'f\' has already been declared ',
-              line: 1,
-              column: 47,
-              index: 48,
-          });
-
-          fail(`switch (0) { case 1: function f() {} default: async function f() {} }`, {
-              source: 'switch (0) { case 1: function f() {} default: async function f() {} }',
-              message: 'Async functions can only be declared at the top level or inside a block',
-              line: 1,
-              column: 46,
-              index: 51,
-          });
-
-          fail(`switch (0) { case 1: function f() {} default: async function* f() {} }`, {
-              source: 'switch (0) { case 1: function f() {} default: async function* f() {} }',
-              message: 'Async functions can only be declared at the top level or inside a block',
-              line: 1,
-              column: 46,
-              index: 51,
-          });
-
-          fail(`switch (0) { case 1: function f() {} default: const f = 0; }`, {
-              source: 'switch (0) { case 1: function f() {} default: const f = 0; }',
-              message:  '\'f\' has already been declared ',
-              line: 1,
-              column: 52,
-              index: 53,
-          });
-
-          fail(`switch (0) { case 1: function f() {} default: function f() {} }`, {
-              source: 'switch (0) { case 1: function f() {} default: function f() {} }',
-              message:  'Duplicate binding f',
-              line: 1,
-              column: 55,
-              index: 56
-          });
-
-          fail(`switch (0) { case 1: function f() {} default: function* f() {} }`, {
-              source: 'switch (0) { case 1: function f() {} default: function* f() {} }',
-              message: 'Duplicate binding f',
-              line: 1,
-              column: 56,
-              index: 57
-          });
-
-          fail(`switch (0) { case 1: function f() {} default: let f; }`, {
-              source: 'switch (0) { case 1: function f() {} default: let f; }',
-              message:  '\'f\' has already been declared ',
-              line: 1,
-              column: 50,
-              index: 51,
-          });
-
-          fail(`switch (0) { case 1: function* f() {} default: async function f() {} }`, {
-              source: 'switch (0) { case 1: function* f() {} default: async function f() {} }',
-              message:  'Async functions can only be declared at the top level or inside a block',
-              line: 1,
-              column: 47,
-              index: 52,
-          });
-
-          fail(`switch (0) { case 1: function* f() {} default: async function* f() {} }`, {
-              source: 'switch (0) { case 1: function* f() {} default: async function* f() {} }',
-              message:  'Async functions can only be declared at the top level or inside a block',
-              line: 1,
-              column: 47,
-              index: 52,
-          });
-
-          fail(`switch (0) { case 1: function* f() {} default: class f {}; }`, {
-              source: 'switch (0) { case 1: function* f() {} default: class f {}; }',
-              message:  '\'f\' has already been declared ',
-              line: 1,
-              column: 53,
-              index: 54,
-          });
-
-          fail(`switch (0) { case 1: function* f() {} default: const f = 0; }`, {
-              source: 'switch (0) { case 1: function* f() {} default: const f = 0; }',
-              message:  '\'f\' has already been declared ',
-              line: 1,
-              column: 53,
-              index: 54,
-          });
-
-          fail(`switch (0) { case 1: function* f() {} default: function f() {} }`, {
-              source: 'switch (0) { case 1: function* f() {} default: function f() {} }',
-              message:  'Duplicate binding f',
-              line: 1,
-              column: 56,
-              index: 57,
-          });
-
-          fail(`switch (0) { case 1: function* f() {} default: function* f() {} }`, {
-              source: 'switch (0) { case 1: function* f() {} default: function* f() {} }',
-              message:  'Duplicate binding f',
-              line: 1,
-              column: 57,
-              index: 58,
-          });
-
-          fail(`switch (0) { case 1: function* f() {} default: let f; }`, {
-              source: 'switch (0) { case 1: function* f() {} default: let f; }',
-              message: '\'f\' has already been declared ',
-              line: 1,
-              column: 51,
-              index: 52,
-          });
-
-          fail(`switch (0) { case 1: async function f() {} default: let f; }`, {
-              source: 'switch (0) { case 1: async function f() {} default: let f; }',
-              message: 'Async functions can only be declared at the top level or inside a block',
-              line: 1,
-              column: 21,
-              index: 26,
-          });
-
-          fail(`switch (0) { case 1: async function* f() {} default: async function f() {} }`, {
-              source: 'switch (0) { case 1: async function* f() {} default: async function f() {} }',
-              message: 'Async functions can only be declared at the top level or inside a block',
-              line: 1,
-              column: 21,
-              index: 26,
-          });
-
-          fail(`switch (0) { case 1: async function* f() {} default: function f() {} }`, {
-              source: 'switch (0) { case 1: async function* f() {} default: function f() {} }',
-              message: 'Async functions can only be declared at the top level or inside a block',
-              line: 1,
-              column: 21,
-              index: 26,
-          });
-
-          fail(`switch (0) { case 1: async function* f() {} default: let f; }`, {
-              source: 'switch (0) { case 1: async function* f() {} default: let f; }',
-              message: 'Async functions can only be declared at the top level or inside a block',
-              line: 1,
-              column: 21,
-              index: 26,
-          });
-      });
-
-      pass(`switch (x) {}`, {
+          pass(`switch (x) {}`, {
           source: 'switch (x) {}',
           loc: true,
           ranges: true,
@@ -279,7 +113,7 @@ describe('Statements - Switch', () => {
           }
       });
 
-      pass(`switch(a){case 1:}`, {
+          pass(`switch(a){case 1:}`, {
           source: 'switch(a){case 1:}',
           loc: true,
           ranges: true,
@@ -366,7 +200,7 @@ describe('Statements - Switch', () => {
           }
       });
 
-      pass(`switch (answer) { case 0: hi(); break; }`, {
+          pass(`switch (answer) { case 0: hi(); break; }`, {
           source: 'switch (answer) { case 0: hi(); break; }',
           loc: true,
           ranges: true,
@@ -516,7 +350,7 @@ describe('Statements - Switch', () => {
           }
       });
 
-      pass(`switch (answer) { case 0: let a; } switch (answer) { case 0: let a; }`, {
+          pass(`switch (answer) { case 0: let a; } switch (answer) { case 0: let a; }`, {
           source: 'switch (answer) { case 0: let a; } switch (answer) { case 0: let a; }',
           loc: true,
           ranges: true,
@@ -762,7 +596,7 @@ describe('Statements - Switch', () => {
           }
       });
 
-      pass(`switch (answer) { case 0: let a; }`, {
+          pass(`switch (answer) { case 0: let a; }`, {
           source: 'switch (answer) { case 0: let a; }',
           loc: true,
           ranges: true,
@@ -895,4 +729,308 @@ describe('Statements - Switch', () => {
               sourceType: 'script'
           }
       });
+
+          pass(`switch ({}) { default: }`, {
+        source: 'switch ({}) { default: }',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'SwitchStatement',
+                    discriminant: {
+                        type: 'ObjectExpression',
+                        properties: [],
+                        start: 8,
+                        end: 10,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 8
+                            },
+                            end: {
+                                line: 1,
+                                column: 10
+                            }
+                        }
+                    },
+                    cases: [
+                        {
+                            type: 'SwitchCase',
+                            test: null,
+                            consequent: [],
+                            start: 14,
+                            end: 22,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 14
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 22
+                                }
+                            }
+                        }
+                    ],
+                    start: 0,
+                    end: 24,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 24
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 24,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 24
+                }
+            }
+        }
+      });
+
+          pass(`function foo() { "use strict"; switch(x) { case 1: function f() { }}}`, {
+        source: 'function foo() { "use strict"; switch(x) { case 1: function f() { }}}',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                    type: 'Literal',
+                                    value: 'use strict',
+                                    start: 17,
+                                    end: 29,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 17
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 29
+                                        }
+                                    },
+                                    raw: '"use strict"'
+                                },
+                                directive: 'use strict',
+                                start: 17,
+                                end: 30,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 17
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 30
+                                    }
+                                }
+                            },
+                            {
+                                type: 'SwitchStatement',
+                                discriminant: {
+                                    type: 'Identifier',
+                                    name: 'x',
+                                    start: 38,
+                                    end: 39,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 38
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 39
+                                        }
+                                    }
+                                },
+                                cases: [
+                                    {
+                                        type: 'SwitchCase',
+                                        test: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 48,
+                                            end: 49,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 48
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 49
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        consequent: [
+                                            {
+                                                type: 'FunctionDeclaration',
+                                                params: [],
+                                                body: {
+                                                    type: 'BlockStatement',
+                                                    body: [],
+                                                    start: 64,
+                                                    end: 67,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 64
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 67
+                                                        }
+                                                    }
+                                                },
+                                                async: false,
+                                                generator: false,
+                                                expression: false,
+                                                id: {
+                                                    type: 'Identifier',
+                                                    name: 'f',
+                                                    start: 60,
+                                                    end: 61,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 60
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 61
+                                                        }
+                                                    }
+                                                },
+                                                start: 51,
+                                                end: 67,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 51
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 67
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        start: 43,
+                                        end: 67,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 43
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 67
+                                            }
+                                        }
+                                    }
+                                ],
+                                start: 31,
+                                end: 68,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 31
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 68
+                                    }
+                                }
+                            }
+                        ],
+                        start: 15,
+                        end: 69,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 15
+                            },
+                            end: {
+                                line: 1,
+                                column: 69
+                            }
+                        }
+                    },
+                    async: false,
+                    generator: false,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'foo',
+                        start: 9,
+                        end: 12,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 9
+                            },
+                            end: {
+                                line: 1,
+                                column: 12
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 69,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 69
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 69,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 69
+                }
+            }
+        }
+      });
+
   });

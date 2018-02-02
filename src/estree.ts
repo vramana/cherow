@@ -3,8 +3,12 @@ interface _Node<T extends string> {
     loc?: SourceLocation | null;
     start?: number;
     end?: number;
-    comments?: Comment[];
-    errors?: Errors[];
+    earlyErors?: any;
+    comments?: any;
+    tokens?: any;
+    leadingComments?: Comment[];
+    trailingComments?: Comment[];
+    innerComments?: Comment[];
 }
 
 export type Specifiers = (ImportSpecifier |
@@ -41,7 +45,6 @@ export type Node =
     | SwitchCase
     | CatchClause
     | Statement
-    | Directive
     | Expression
     | Property
     | AssignmentProperty
@@ -259,16 +262,16 @@ export interface Position {
     column: number;
 }
 
-export type CommentType = 'LineComment' | 'BlockComment' | 'Shebang';
+export type CommentType = 'SingleLine' | 'MultiLine' | 'HTMLOpen' | 'HTMLClose' | 'SheBang';
 
 export interface Comment {
     type: CommentType;
     value: string;
-    start?: any;
-    end?: any;
+    start?: number | undefined;
+    end?: number | undefined;
     loc?: any;
 }
-export type Errors = { description: string; index: number; lineNumber: number; column: number; }[];
+
 /**
  * Core types
  */
@@ -344,10 +347,6 @@ export interface CatchClause extends _Node<'CatchClause'> {
     body: BlockStatement;
 }
 
-export interface Directive extends _Node<'ExpressionStatement'> {
-    expression: Expression | Literal;
-    directive: string;
-}
 export interface ClassBody extends _Node<'ClassBody'> {
     body: MethodDefinition[];
 }
@@ -482,7 +481,7 @@ export interface LabeledStatement extends _Statement<'LabeledStatement'> {
     body: Statement;
 }
 export interface BigIntLiteral extends _Expression<'Literal'> {
-    value: number;
+    value: number | null;
     bigint: string;
     raw?: string;
 }

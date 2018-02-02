@@ -1,8 +1,12 @@
-import { pass } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Statements - Block', () => {
 
-        pass(`{}`, {
+fail(`y={__func;}();`, {
+  source: `y={__func;}();`,
+  line: 1,
+});
+pass(`{}`, {
             source: '{}',
             loc: true,
             ranges: true,
@@ -42,7 +46,7 @@ describe('Statements - Block', () => {
             }
         });
 
-        pass(`{ foo }`, {
+pass(`{ foo }`, {
             source: '{ foo }',
             loc: true,
             ranges: true,
@@ -111,7 +115,7 @@ describe('Statements - Block', () => {
             }
         });
 
-        pass(`{ doThis(); doThat(); }`, {
+pass(`{ doThis(); doThat(); }`, {
             source: '{ doThis(); doThat(); }',
             loc: true,
             ranges: true,

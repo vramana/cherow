@@ -1,23 +1,252 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
+
 describe('Statements - If', () => {
 
-    fail(`if (true) async function f() {  }`, {
-      source: 'if (true) async function f() {  }',
-      message: 'Async functions can only be declared at the top level or inside a block',
-      line: 1,
-      column: 0,
-      index: 15,
-  });
+      fail(`if(1) break;`, {
+        source: 'if(1) break;',
+        message: 'break  statement must be nested within an iteration statement',
+        line: 1,
+        column: 11,
+        index: 11,
+    });
 
-    fail(`if(1) break;`, {
-      source: 'if(1) break;',
-      message: 'break  statement must be nested within an iteration statement',
-      line: 1,
-      column: 6,
-      index: 11,
-  });
+      fail(`"use strict"; if (true) function* g() {  }`, {
+        source: '"use strict"; if (true) function* g() {  }',
+        line: 1,
+    });
 
-    pass(`label: function g() {}`, {
+      fail(`if(1)class A{}`, {
+        source: 'if(1)class A{}',
+        line: 1,
+    });
+
+      fail(`"use strict"; if (true) function* g() {  } else function* _g() {}`, {
+        source: '"use strict"; if (true) function* g() {  } else function* _g() {}',
+        line: 1,
+    });
+
+      fail(`if (true) async function* f() {  } else ;`, {
+        source: 'if (true) async function* f() {  } else ;',
+        line: 1,
+        message: 'Async functions can only be declared at the top level or inside a block'
+    });
+
+      fail(`if (true) async function* f() {  }`, {
+        source: 'if (true) async function* f() {  }',
+        line: 1,
+        message: 'Async functions can only be declared at the top level or inside a block'
+    });
+
+      fail(`if (true) async function f() {  } else ;`, {
+        source: 'if (true) async function f() {  } else ;',
+        line: 1,
+        message: 'Async functions can only be declared at the top level or inside a block'
+    });
+
+      fail(`"use strict"; if (true) function f() {}`, {
+        source: '"use strict"; if (true) function f() {}',
+        line: 1,
+    });
+
+      fail(`if (true) ; else label1: label2: function test262() {}`, {
+        source: 'if (true) ; else label1: label2: function test262() {}',
+        line: 1,
+    });
+
+      fail(`if (true) ; else label1: label2: function test262() {}`, {
+        source: 'if (true) ; else label1: label2: function test262() {}',
+        line: 1,
+    });
+
+      fail(`if (false) label1: label2: function test262() {}`, {
+        source: 'if (false) label1: label2: function test262() {}',
+        line: 1,
+    });
+
+      fail(`if (false) label1: label2: function test262() {} else ;`, {
+        source: 'if (false) label1: label2: function test262() {} else ;',
+        line: 1,
+    });
+
+      pass(`if (async) { async }`, {
+        source: 'if (async) { async }',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'IfStatement',
+                    test: {
+                        type: 'Identifier',
+                        name: 'async',
+                        start: 4,
+                        end: 9,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 4
+                            },
+                            end: {
+                                line: 1,
+                                column: 9
+                            }
+                        }
+                    },
+                    alternate: null,
+                    consequent: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                    type: 'Identifier',
+                                    name: 'async',
+                                    start: 13,
+                                    end: 18,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 13
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 18
+                                        }
+                                    }
+                                },
+                                start: 13,
+                                end: 18,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 13
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 18
+                                    }
+                                }
+                            }
+                        ],
+                        start: 11,
+                        end: 20,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 11
+                            },
+                            end: {
+                                line: 1,
+                                column: 20
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 20,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 20
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 20,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 20
+                }
+            }
+        }
+    });
+
+      pass(`if (async) {}`, {
+        source: 'if (async) {}',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            body: [
+                {
+                    type: 'IfStatement',
+                    test: {
+                        type: 'Identifier',
+                        name: 'async',
+                        start: 4,
+                        end: 9,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 4
+                            },
+                            end: {
+                                line: 1,
+                                column: 9
+                            }
+                        }
+                    },
+                    alternate: null,
+                    consequent: {
+                        type: 'BlockStatement',
+                        body: [],
+                        start: 11,
+                        end: 13,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 11
+                            },
+                            end: {
+                                line: 1,
+                                column: 13
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 13,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 13
+                        }
+                    }
+                }
+            ],
+            sourceType: 'script',
+            start: 0,
+            end: 13,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 13
+                }
+            }
+        }
+    });
+
+      pass(`label: function g() {}`, {
       source: 'label: function g() {}',
       loc: true,
       ranges: true,
@@ -122,7 +351,7 @@ describe('Statements - If', () => {
       }
   });
 
-    pass(`label1: label2: function f() {}`, {
+      pass(`label1: label2: function f() {}`, {
       source: 'label1: label2: function f() {}',
       loc: true,
       ranges: true,
@@ -258,7 +487,7 @@ describe('Statements - If', () => {
       }
   });
 
-    pass(`if (morning) goodMorning()`, {
+      pass(`if (morning) goodMorning()`, {
       source: 'if (morning) goodMorning()',
       loc: true,
       ranges: true,
@@ -360,7 +589,7 @@ describe('Statements - If', () => {
       }
   });
 
-    pass(`if (morning) (function(){})`, {
+      pass(`if (morning) (function(){})`, {
       source: 'if (morning) (function(){})',
       loc: true,
       ranges: true,
@@ -466,7 +695,7 @@ describe('Statements - If', () => {
       }
   });
 
-    pass(`if (morning) var x = 0;`, {
+      pass(`if (morning) var x = 0;`, {
       source: 'if (morning) var x = 0;',
       loc: true,
       ranges: true,
@@ -585,7 +814,7 @@ describe('Statements - If', () => {
       }
   });
 
-    pass(`if (morning) goodMorning(); else goodDay()`, {
+      pass(`if (morning) goodMorning(); else goodDay()`, {
       source: 'if (morning) goodMorning(); else goodDay()',
       loc: true,
       ranges: true,
@@ -733,7 +962,7 @@ describe('Statements - If', () => {
       }
   });
 
-    pass(`if(a)b;`, {
+      pass(`if(a)b;`, {
       source: 'if(a)b;',
       loc: true,
       ranges: true,
@@ -819,7 +1048,7 @@ describe('Statements - If', () => {
       }
   });
 
-    pass(`if(a)b;else c;`, {
+      pass(`if(a)b;else c;`, {
       source: 'if(a)b;else c;',
       loc: true,
       ranges: true,

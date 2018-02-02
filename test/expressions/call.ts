@@ -1,4 +1,4 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Expressions - Call', () => {
 
@@ -1014,11 +1014,10 @@ describe('Expressions - Call', () => {
               }
         });
 
-        pass(`f(....0);`, {
-            source: 'f(....0)',
+        pass(`f(...0);`, {
+            source: 'f(...0)',
             loc: true,
             ranges: true,
-            raw: true,
             expected: {
                 type: 'Program',
                 body: [
@@ -1049,7 +1048,7 @@ describe('Expressions - Call', () => {
                                         type: 'Literal',
                                         value: 0,
                                         start: 5,
-                                        end: 7,
+                                        end: 6,
                                         loc: {
                                             start: {
                                                 line: 1,
@@ -1057,13 +1056,12 @@ describe('Expressions - Call', () => {
                                             },
                                             end: {
                                                 line: 1,
-                                                column: 7
+                                                column: 6
                                             }
-                                        },
-                                        raw: '.0'
+                                        }
                                     },
                                     start: 2,
-                                    end: 7,
+                                    end: 6,
                                     loc: {
                                         start: {
                                             line: 1,
@@ -1071,13 +1069,13 @@ describe('Expressions - Call', () => {
                                         },
                                         end: {
                                             line: 1,
-                                            column: 7
+                                            column: 6
                                         }
                                     }
                                 }
                             ],
                             start: 0,
-                            end: 8,
+                            end: 7,
                             loc: {
                                 start: {
                                     line: 1,
@@ -1085,12 +1083,12 @@ describe('Expressions - Call', () => {
                                 },
                                 end: {
                                     line: 1,
-                                    column: 8
+                                    column: 7
                                 }
                             }
                         },
                         start: 0,
-                        end: 8,
+                        end: 7,
                         loc: {
                             start: {
                                 line: 1,
@@ -1098,14 +1096,14 @@ describe('Expressions - Call', () => {
                             },
                             end: {
                                 line: 1,
-                                column: 8
+                                column: 7
                             }
                         }
                     }
                 ],
                 sourceType: 'script',
                 start: 0,
-                end: 8,
+                end: 7,
                 loc: {
                     start: {
                         line: 1,
@@ -1113,14 +1111,14 @@ describe('Expressions - Call', () => {
                     },
                     end: {
                         line: 1,
-                        column: 8
+                        column: 7
                     }
                 }
             }
         });
 
-        pass(`f(.0)`, {
-            source: 'f(.0)',
+        pass(`f(0)`, {
+            source: 'f(0)',
             loc: true,
             ranges: true,
             raw: true,
@@ -1152,7 +1150,7 @@ describe('Expressions - Call', () => {
                                     type: 'Literal',
                                     value: 0,
                                     start: 2,
-                                    end: 4,
+                                    end: 3,
                                     loc: {
                                         start: {
                                             line: 1,
@@ -1160,14 +1158,14 @@ describe('Expressions - Call', () => {
                                         },
                                         end: {
                                             line: 1,
-                                            column: 4
+                                            column: 3
                                         }
                                     },
-                                    raw: '.0'
+                                    raw: '0'
                                 }
                             ],
                             start: 0,
-                            end: 5,
+                            end: 4,
                             loc: {
                                 start: {
                                     line: 1,
@@ -1175,12 +1173,12 @@ describe('Expressions - Call', () => {
                                 },
                                 end: {
                                     line: 1,
-                                    column: 5
+                                    column: 4
                                 }
                             }
                         },
                         start: 0,
-                        end: 5,
+                        end: 4,
                         loc: {
                             start: {
                                 line: 1,
@@ -1188,14 +1186,14 @@ describe('Expressions - Call', () => {
                             },
                             end: {
                                 line: 1,
-                                column: 5
+                                column: 4
                             }
                         }
                     }
                 ],
                 sourceType: 'script',
                 start: 0,
-                end: 5,
+                end: 4,
                 loc: {
                     start: {
                         line: 1,
@@ -1203,33 +1201,9 @@ describe('Expressions - Call', () => {
                     },
                     end: {
                         line: 1,
-                        column: 5
+                        column: 4
                     }
                 }
             }
-        });
-
-        fail(`f(..a)`, {
-            source: 'f(..a)',
-            message: 'Unexpected token \'.\'',
-            line: 1,
-            column: 2,
-            index: 3
-        });
-
-        fail(`f(....a)`, {
-            source: 'f(....a)',
-            message: 'Unexpected token \'.\'',
-            line: 1,
-            column: 5,
-            index: 6
-        });
-
-        fail(`f(... ... a)`, {
-            source: 'f(... ... a)',
-            message:  'Unexpected token \'...\'',
-            line: 1,
-            column: 6,
-            index: 9
         });
 });

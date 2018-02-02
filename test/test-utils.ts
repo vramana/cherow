@@ -1,6 +1,7 @@
 import { writeFileSync, readdir, readFileSync, statSync } from 'fs';
 import { join, resolve, extname, basename } from 'path';
-import { parseScript, parseModule, version } from '../src/cherow';
+import { parseScript, parseModule } from '../src/cherow';
+
 import { Program } from '../src/estree';
 import * as t from 'assert';
 interface Opts {
@@ -10,8 +11,9 @@ interface Opts {
     next ?: boolean;
     raw ?: boolean;
     ranges ?: boolean;
+    offset ?: boolean;
     loc ?: boolean;
-    tolerant ?: boolean;
+    early ?: boolean;
     plugins ?: any;
     directives ?: any;
     jsx ?: boolean;
@@ -24,6 +26,7 @@ interface Opts {
     line ?: any;
     column ?: any;
     index ?: any;
+    tokens?: any;
 }
 
 export const pass = (name: string, opts: Opts) => {
@@ -34,7 +37,7 @@ export const pass = (name: string, opts: Opts) => {
         raw: opts.raw,
         loc: opts.loc,
         plugins: opts.plugins,
-        toleran: opts.tolerant,
+        toleran: opts.early,
         directives: opts.directives,
         ranges: opts.ranges,
         globalReturn: opts.globalReturn,
@@ -42,13 +45,15 @@ export const pass = (name: string, opts: Opts) => {
         impliedStrict: opts.impliedStrict,
         comments: opts.comments,
         attachComment: opts.attachComment,
-        tolerant: opts.tolerant
+        early: opts.early,
+        offset: opts.offset,
+        tokens: opts.tokens
     };
 
     it('Should pass "' + name + '"', () => {
         opts.module ?
-            t.deepEqual(parseModule(opts.source, CherowOpts) as Program, opts.expected) :
-            t.deepEqual(parseScript(opts.source, CherowOpts) as Program, opts.expected);
+            t.deepEqual(parseModule(opts.source, CherowOpts) as any, opts.expected) :
+            t.deepEqual(parseScript(opts.source, CherowOpts) as any, opts.expected);
     });
 };
 
@@ -66,6 +71,7 @@ export const fail = (name: string, opts: Opts) => {
         jsx: opts.jsx,
         impliedStrict: opts.impliedStrict,
         comments: opts.comments,
+        early: opts.early,
         attachComment: opts.attachComment
     };
     it('Should fail on ' + name, () => {
@@ -83,11 +89,6 @@ export const fail = (name: string, opts: Opts) => {
         throw new Error('Expecting error');
     });
 };
-
-it('version should be a string value', () => {
-    // Version hasn't been replaced by Rollup at this stage
-    t.equal(version, '__VERSION__');
-});
 
 export function n(type: string, opts ?: any): any {
     if (opts == null) return {

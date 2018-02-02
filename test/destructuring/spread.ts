@@ -1,13 +1,10 @@
-import { pass, fail } from '../utils';
+import { pass, fail } from '../test-utils';
 
 describe('Destructuring - Spread', () => {
 
     fail(`[...a, b] = c;`, {
         source: '[...a, b] = c;',
-        message: 'Invalid left-hand side in assignment',
         line: 1,
-        column: 0,
-        index: 1
     });
 
     pass(`[{ a, b }, ...c] = d;`, {

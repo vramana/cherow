@@ -1853,7 +1853,6 @@ export default (opts: any) => {
                 test('module');
                 break;
 
-  
             case 'noStrict':
                 test('non-strict');
                 break;
