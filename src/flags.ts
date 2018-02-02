@@ -96,7 +96,7 @@ export const enum ScannerState {
 
     /* Misc */
 
-    InTypeAnnotation = 1 << 4,
+    Escape      = 1 << 4,
 
     /* comments */
     SingleLine  = 1 << 5,

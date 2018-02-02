@@ -240,21 +240,31 @@ export class Parser {
 
                         this.advance();
 
-                        const next = this.nextChar();
-                        if (next === Chars.Slash) {
-                            this.advance();
-                            state = this.skipSingleLineComment(context, state | ScannerState.SingleLine);
-                        } else if (next === Chars.Asterisk) {
-                            this.advance();
-                            state = this.skipMultiLineComment(context, state) as ScannerState;
-                        } else if (next === Chars.EqualSign) {
-                            this.advance();
-                            return Token.DivideAssign;
-                        } else {
+                        switch (this.nextChar()) {
 
-                            return Token.Divide;
+                            // Look for a single-line comment.
+                            case Chars.Slash:
+                                {
+                                    this.advance();
+                                    state = this.skipSingleLineComment(context, state | ScannerState.SingleLine);
+                                    continue;
+                                }
+
+                                // Look for a multi-line comment.
+                            case Chars.Asterisk:
+                                {
+                                    this.advance();
+                                    state = this.skipMultiLineComment(context, state) as ScannerState;
+                                    continue;
+                                }
+                            case Chars.EqualSign:
+                                {
+                                    this.advance();
+                                    return Token.DivideAssign;
+                                }
+                            default:
+                                return Token.Divide;
                         }
-                        continue;
                     }
 
                 case Chars.LessThan:
@@ -267,17 +277,15 @@ export class Parser {
                             this.consume(Chars.Exclamation) &&
                             this.consume(Chars.Hyphen) &&
                             this.consume(Chars.Hyphen)) {
+                            // Treat HTML begin-comment as comment-till-end-of-line.
                             state = this.skipSingleLineComment(context, state | ScannerState.HTMLOpen);
                         } else {
                             switch (this.nextChar()) {
                                 case Chars.LessThan:
                                     this.advance();
-                                    if (this.consume(Chars.EqualSign)) {
-                                        return Token.ShiftLeftAssign;
-                                    } else {
-                                        return Token.ShiftLeft;
-                                    }
-
+                                    return this.consume(Chars.EqualSign) ?
+                                        Token.ShiftLeftAssign :
+                                        Token.ShiftLeft
                                 case Chars.EqualSign:
                                     this.advance();
                                     return Token.LessThanOrEqual;
@@ -356,9 +364,7 @@ export class Parser {
                     {
                         this.advance();
 
-                        if (!this.hasNext()) return Token.Multiply;
-
-                        if (context & Context.InTypeAnnotation || !this.hasNext()) return Token.Multiply;
+                        if (!this.hasNext() || context & Context.InTypeAnnotation) return Token.Multiply;
 
                         const next = this.nextChar();
 
@@ -452,11 +458,9 @@ export class Parser {
 
                         if (next === Chars.EqualSign) {
                             this.advance();
-                            if (this.consume(Chars.EqualSign)) {
-                                return Token.StrictEqual;
-                            } else {
-                                return Token.LooseEqual;
-                            }
+                            return this.consume(Chars.EqualSign) ?
+                                Token.StrictEqual :
+                                Token.LooseEqual;
                         } else if (next === Chars.GreaterThan) {
                             this.advance();
                             return Token.Arrow;
@@ -470,9 +474,8 @@ export class Parser {
                     {
                         this.advance();
 
-                        if (context & Context.InTypeAnnotation) return Token.GreaterThan;
+                        if (!this.hasNext() || context & Context.InTypeAnnotation) return Token.GreaterThan;
 
-                        if (!this.hasNext()) return Token.GreaterThan;
                         const next = this.nextChar();
 
                         if (next === Chars.EqualSign) {
@@ -481,6 +484,7 @@ export class Parser {
                         }
 
                         if (next !== Chars.GreaterThan) return Token.GreaterThan;
+
                         this.advance();
 
                         if (this.hasNext()) {
@@ -488,11 +492,9 @@ export class Parser {
 
                             if (next === Chars.GreaterThan) {
                                 this.advance();
-                                if (this.consume(Chars.EqualSign)) {
-                                    return Token.LogicalShiftRightAssign;
-                                } else {
-                                    return Token.LogicalShiftRight;
-                                }
+                                return this.consume(Chars.EqualSign) ?
+                                    Token.LogicalShiftRightAssign :
+                                    Token.LogicalShiftRight;
                             } else if (next === Chars.EqualSign) {
                                 this.advance();
                                 return Token.ShiftRightAssign;
@@ -870,10 +872,10 @@ export class Parser {
         return code;
     }
 
-    private scanNumericFragment(state: NumericState): NumericState {
+    private scanNumericFragment(context: Context, state: NumericState): NumericState {
         this.flags |= Flags.ContainsSeparator;
         if (!(state & NumericState.AllowSeparator)) {
-            this.report(Errors.Unexpected);
+            this.early(context, Errors.Unexpected);
         }
         state &= ~NumericState.AllowSeparator;
         this.advance();
@@ -929,6 +931,7 @@ export class Parser {
     }
 
     private scanBinaryOrOctalDigits(
+        context: Context,
         state: NumericState,
         radix: number,
         secondRadix: number,
@@ -943,7 +946,7 @@ export class Parser {
             const ch = this.nextChar();
 
             if (ch === Chars.Underscore) {
-                state = this.scanNumericFragment(state);
+                state = this.scanNumericFragment(context, state);
                 continue;
             }
 
@@ -971,7 +974,7 @@ export class Parser {
         let mainFragment: string = '';
         let decimalFragment: string = '';
         let scientificFragment: string = '';
-        let ch: any;
+        let ch: number | null = 0;
 
         if (state & NumericState.Float) {
             this.advance();
@@ -999,7 +1002,7 @@ export class Parser {
                             while (this.hasNext()) {
                                 ch = this.nextChar();
                                 if (ch === Chars.Underscore) {
-                                    state = this.scanNumericFragment(state);
+                                    state = this.scanNumericFragment(context, state);
                                     continue;
                                 }
 
@@ -1018,7 +1021,7 @@ export class Parser {
                     case Chars.UpperO:
                         {
                             state = NumericState.Octal | NumericState.AllowSeparator;
-                            value = this.scanBinaryOrOctalDigits(state, 8, 3, Errors.Unexpected);
+                            value = this.scanBinaryOrOctalDigits(context, state, 8, 3, Errors.Unexpected);
                             break;
                         }
 
@@ -1026,7 +1029,7 @@ export class Parser {
                     case Chars.UpperB:
                         {
                             state = NumericState.Binary | NumericState.AllowSeparator;
-                            value = this.scanBinaryOrOctalDigits(state, 2, 1, Errors.Unexpected);
+                            value = this.scanBinaryOrOctalDigits(context, state, 2, 1, Errors.Unexpected);
                             break;
                         }
 
@@ -1049,7 +1052,7 @@ export class Parser {
                             while (this.hasNext()) {
                                 ch = this.nextChar();
                                 if (ch === Chars.Underscore) {
-                                    state = this.scanNumericFragment(state);
+                                    state = this.scanNumericFragment(context, state);
                                     continue;
                                 } else if (ch === Chars.Eight || ch === Chars.Nine) {
                                     isOctal = false;
@@ -1237,12 +1240,12 @@ export class Parser {
                         case Chars.LineFeed:
                         case Chars.LineSeparator:
                         case Chars.ParagraphSeparator:
-                            this.report(Errors.Unexpected);
+                            this.report(Errors.UnexpectedTokenRegExp);
                         default: // ignore
                     }
                 }
 
-                if (!this.hasNext()) this.report(Errors.Unexpected);
+                if (!this.hasNext()) this.report(Errors.UnterminatedRegExp);
             }
 
         const bodyEnd = this.index - 1;
@@ -1256,39 +1259,39 @@ export class Parser {
                 switch (code) {
 
                     case Chars.LowerG:
-                        if (mask & RegexFlags.Global) this.early(context, Errors.Unexpected, 'g');
+                        if (mask & RegexFlags.Global) this.early(context, Errors.DuplicateRegExpFlag, 'g');
                         mask |= RegexFlags.Global;
                         break;
 
                     case Chars.LowerI:
-                        if (mask & RegexFlags.IgnoreCase) this.early(context, Errors.Unexpected, 'i');
+                        if (mask & RegexFlags.IgnoreCase) this.early(context, Errors.DuplicateRegExpFlag, 'i');
                         mask |= RegexFlags.IgnoreCase;
                         break;
 
                     case Chars.LowerM:
-                        if (mask & RegexFlags.Multiline) this.early(context, Errors.Unexpected, 'm');
+                        if (mask & RegexFlags.Multiline) this.early(context, Errors.DuplicateRegExpFlag, 'm');
                         mask |= RegexFlags.Multiline;
                         break;
 
                     case Chars.LowerU:
-                        if (mask & RegexFlags.Unicode) this.early(context, Errors.Unexpected, 'u');
+                        if (mask & RegexFlags.Unicode) this.early(context, Errors.DuplicateRegExpFlag, 'u');
                         mask |= RegexFlags.Unicode;
                         break;
 
                     case Chars.LowerY:
-                        if (mask & RegexFlags.Sticky) this.early(context, Errors.Unexpected, 'y');
+                        if (mask & RegexFlags.Sticky) this.early(context, Errors.DuplicateRegExpFlag, 'y');
                         mask |= RegexFlags.Sticky;
                         break;
 
                         // Stage 3 proposal
                     case Chars.LowerS:
-                        if (mask & RegexFlags.DotAll) this.early(context, Errors.Unexpected, 's');
+                        if (mask & RegexFlags.DotAll) this.early(context, Errors.DuplicateRegExpFlag, 's');
                         mask |= RegexFlags.DotAll;
                         break;
 
                     default:
                         if (!isIdentifierPart(code)) break loop;
-                        this.early(context, Errors.Unexpected);
+                        this.early(context, Errors.UnexpectedTokenRegExpFlag);
                 }
 
                 this.advance();
@@ -1315,7 +1318,7 @@ export class Parser {
         try {
             RegExp(pattern);
         } catch (e) {
-            this.report(Errors.Unexpected);
+            this.report(Errors.UnexpectedTokenRegExp);
         }
 
         try {
@@ -1329,8 +1332,8 @@ export class Parser {
 
         const start = this.index;
         const lastChar = this.lastChar;
-        let ret = '';
-        let hasEscape = false;
+        let ret: string = '';
+        let state = ScannerState.None;
         let ch = this.readNext(quote); // Consume the quote
         while (ch !== quote) {
             switch (ch) {
@@ -1342,7 +1345,10 @@ export class Parser {
 
                 case Chars.Backslash:
                     ch = this.readNext(ch);
-                    hasEscape = true;
+                    
+                    state |= ScannerState.Escape;
+
+                    
                     if (ch >= 128) {
                         ret += fromCodePoint(ch);
                     } else {
@@ -1365,7 +1371,10 @@ export class Parser {
 
         this.storeRaw(start);
 
-        if (!hasEscape && ret === 'use strict') this.flags |= Flags.StrictDirective;
+        // TODO! Improvate directive parsing
+        if (!(state & ScannerState.Escape) && ret === 'use strict') {
+            this.flags |= Flags.StrictDirective;
+        }
 
         this.tokenValue = ret;
         this.lastChar = lastChar;
@@ -1448,7 +1457,7 @@ export class Parser {
 
                     if (next < Chars.Zero || next > Chars.Seven) {
 
-                        // \0 is not octal escape sequence
+                        // Strict mode code allows only \0, then a non-digit.
                         if (code !== 0 || next === Chars.Eight || next === Chars.Nine) {
                             if (context & Context.Strict) return Escape.StrictOctal;
                             this.flags |= Flags.Octal;
@@ -1459,7 +1468,7 @@ export class Parser {
                     } else {
 
                         this.lastChar = next;
-                        code = (code << 3) | (next - Chars.Zero);
+                        code = code * 8 + (next - Chars.Zero);
                         index++;
                         column++;
 
@@ -1469,7 +1478,7 @@ export class Parser {
                             if (next >= Chars.Zero && next <= Chars.Seven) {
 
                                 this.lastChar = next;
-                                code = (code << 3) | (next - Chars.Zero);
+                                code = code * 8 + (next - Chars.Zero);
                                 index++;
                                 column++;
                             }
@@ -1497,7 +1506,7 @@ export class Parser {
                         const next = this.source.charCodeAt(index);
 
                         if (next >= Chars.Zero && next <= Chars.Seven) {
-                            code = (code << 3) | (next - Chars.Zero);
+                            code = code * 8 + (next - Chars.Zero);
                             this.lastChar = next;
                             this.index = index;
                             this.column = column;
@@ -1525,7 +1534,7 @@ export class Parser {
                     return hi << 4 | lo;
                 }
 
-                // UCS-2/Unicode escapes
+               // Unicode character specification.
             case Chars.LowerU:
                 {
                     let ch = this.lastChar = this.readNext(first);
@@ -4187,7 +4196,7 @@ export class Parser {
 
         let body;
         let expression = false;
-        
+
         if (this.token === Token.LeftBrace) {
 
             body = this.parseFunctionBody(context | Context.AllowIn | Context.ArrowFunction, params);

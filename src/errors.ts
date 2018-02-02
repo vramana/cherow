@@ -70,7 +70,11 @@ export const enum Errors {
     AsyncFunctionInSingleStatementContext,
     ExportDeclAtTopLevel,
     ImportDeclAtTopLevel,
-    GeneratorInLegacyContext
+    GeneratorInLegacyContext,
+    UnterminatedRegExp,
+    UnexpectedTokenRegExp,
+    DuplicateRegExpFlag,
+    UnexpectedTokenRegExpFlag
 }
 
 export const ErrorMessages: {
@@ -147,6 +151,10 @@ export const ErrorMessages: {
     [Errors.ImportDeclAtTopLevel]: 'Import declarations may only appear at top level of a module',
     [Errors.UnknownLabel]: 'Undefined label \'%0\'',
     [Errors.GeneratorInLegacyContext]: 'Generator declarations are not allowed in legacy contexts',
+    [Errors.DuplicateRegExpFlag]: 'Duplicate regular expression flag %0',
+    [Errors.UnexpectedTokenRegExp]: 'Unexpected regular expression',
+    [Errors.UnexpectedTokenRegExpFlag]: 'Unexpected regular expression flag',
+    [Errors.UnterminatedRegExp]: 'Unterminated regular expression literal',
 };
 
 function constructError(msg: string, column: number): Error {
