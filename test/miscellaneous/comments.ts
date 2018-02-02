@@ -435,7 +435,7 @@ describe('Miscellaneous - Comments', () => {
             ],
             comments: [
              {
-                end: 4,
+                end: 11,
                 start: 4,
                 type: 'HTMLOpen',
                 value: 'bar'
@@ -446,6 +446,284 @@ describe('Miscellaneous - Comments', () => {
             start: 0,
             type: 'Program'
           }
+  });
+
+  pass(`/* assignmenr */
+  a = b`, {
+    source: `/* assignmenr */
+    a = b`,
+    comments: true,
+    module: true,
+    raw: true,
+    expected: {
+        "body": [
+          {
+            "expression": {
+              "left": {
+                "name": "a",
+                "type": "Identifier"
+              },
+              "operator": "=",
+              "right": {
+                "name": "b",
+                "type": "Identifier"
+              },
+              "type": "AssignmentExpression"
+            },
+            "type": "ExpressionStatement"
+          }
+        ],
+        "comments": [
+          {
+            "end": 16,
+            "start": 0,
+            "type": "MultiLine",
+            "value": " assignmenr "
+          }
+        ],
+        "sourceType": "module",
+        "type": "Program"
+      }
+  });
+
+
+  pass(`42 /* the * answer */`, {
+    source: `42 /* the * answer */`,
+    comments: true,
+    module: true,
+    raw: true,
+    expected: {
+        "body": [
+          {
+            "expression": {
+              "raw": "42",
+              "type": "Literal",
+              "value": 42,
+            },
+            "type": "ExpressionStatement"
+          }
+        ],
+        "comments": [
+          {
+            "end": 21,
+            "start": 3,
+            "type": "MultiLine",
+            "value": " the * answer "
+         }
+        ],
+        "sourceType": "module",
+        "type": "Program"
+      }
+  });
+
+
+  pass(`// Hello, world!`, {
+    source: `// Hello, world!`,
+    comments: true,
+    module: true,
+    raw: true,
+    expected: {
+        "body": [],
+        "comments": [
+          {
+            "end": 16,
+            "start": 0,
+            "type": "SingleLine",
+            "value": " Hello, world!"
+         },
+        ],
+        "sourceType": "module",
+        "type": "Program"
+      }
+  });
+
+
+  pass(`if (x) { doThat() // Some comment
+  }`, {
+    source: `if (x) { doThat() // Some comment
+    }`,
+    comments: true,
+    module: true,
+    raw: true,
+    expected: {
+        "body": [
+          {
+            "alternate": null,
+            "consequent": {
+             "body": [
+                {
+                  "expression": {
+                    "arguments": [],
+                    "callee": {
+                      "name": "doThat",
+                      "type": "Identifier"
+                    },
+                    "type": "CallExpression"
+                },
+                  "type": "ExpressionStatement",
+                },
+              ],
+              "type": "BlockStatement"
+            },
+            "test": {
+              "name": "x",
+              "type": "Identifier",
+            },
+            "type": "IfStatement"
+         }
+        ],
+      
+        "comments": [
+         {
+            "end": 34,
+            "start": 18,
+            "type": "SingleLine",
+            "value": " Some comment\n"
+          }
+        ],
+        "sourceType": "module",
+        "type": "Program"
+      }
+  });
+
+
+  pass(`function f() { /* infinite */ while (true) { } /* bar */ var each; }`, {
+    source: `function f() { /* infinite */ while (true) { } /* bar */ var each; }`,
+    comments: true,
+    module: true,
+    raw: true,
+    expected: {
+        "body": [
+          {
+            "async": false,
+            "body": {
+              "body": [
+                {
+                 "body": {
+                    "body": [],
+                    "type": "BlockStatement"
+                  },
+                  "test": {
+                    "raw": "true",
+                    "type": "Literal",
+                    "value": true
+                  },
+                  "type": "WhileStatement"
+                },
+                {
+                  "declarations": [
+                    {
+                      "id": {
+                        "name": "each",
+                       "type": "Identifier",
+                      },
+                      "init": null,
+                      "type": "VariableDeclarator"
+                    },
+                  ],
+                  "kind": "var",
+                  "type": "VariableDeclaration"
+                },
+              ],
+              "type": "BlockStatement",
+            },
+            "expression": false,
+            "generator": false,
+            "id": {
+              "name": "f",
+              "type": "Identifier"
+            },
+            "params": [],
+           "type": "FunctionDeclaration"
+          },
+        ],
+        "comments": [
+          {
+            "end": 29,
+            "start": 15,
+            "type": "MultiLine",
+            "value": " infinite ",
+          },
+          {
+            "end": 56,
+            "start": 47,
+            "type": "MultiLine",
+            "value": " bar ",
+         },
+        ],
+        "sourceType": "module",
+        "type": "Program"
+      }
+  });
+
+
+  pass(`o_po // foo`, {
+    source: `o_po // foo`,
+    comments: true,
+    module: true,
+    raw: true,
+    expected: {
+        "body": [
+          {
+            "expression": {
+              "name": "o_po",
+              "type": "Identifier"
+            },
+           "type": "ExpressionStatement"
+          }
+       ],
+        "comments": [
+          {
+            "end": 11,
+            "start": 5,
+            "type": "SingleLine",
+            "value": " foo",
+          },
+        ],
+        "sourceType": "module",
+        "type": "Program"
+      }
+  });
+
+
+  pass(`function a() {
+    // foo
+  }`, {
+    source: `function a() {
+      // foo
+    }`,
+    comments: true,
+    module: true,
+    raw: true,
+    expected: {
+        "body": [
+          {
+            "async": false,
+            "body": {
+              "body": [],
+              "type": "BlockStatement"
+            },
+            "expression": false,
+            "generator": false,
+            "id": {
+              "name": "a",
+              "type": "Identifier"
+            },
+            "params": [],
+            "type": "FunctionDeclaration"
+          }
+        ],
+        "comments": [
+              {
+                "end": 28,
+                "start": 21,
+                "type": "SingleLine",
+                "value": " foo\n"
+              }
+            ],
+       "sourceType": "module",
+        "type": "Program"
+      }
   });
 
     pass(`foo <!--bar`, {
@@ -511,13 +789,13 @@ describe('Miscellaneous - Comments', () => {
       body: [],
      comments: [
         {
-          end: 0,
+          end: 19,
           start: 0,
           type: 'MultiLine',
           value: ' block comment '
         },
         {
-          end: 19,
+          end: 30,
           start: 19,
           type: 'HTMLClose',
           value: ' comment',
@@ -567,9 +845,503 @@ describe('Miscellaneous - Comments', () => {
                 type: 'SingleLine',
                 value: ' a',
                 start: 7,
-                end: 7,
+                end: 11,
               }
             ]
           }
     });
+
+    pass(`/**/42`, {
+      source: '/**/42',
+      loc: true,
+      ranges: true,
+      raw: true,
+      expected: {
+          type: 'Program',
+          start: 0,
+          end: 6,
+          loc: {
+              start: {
+                  line: 1,
+                  column: 0
+              },
+              end: {
+                  line: 1,
+                  column: 6
+              }
+          },
+          body: [{
+              type: 'ExpressionStatement',
+              start: 4,
+              end: 6,
+              loc: {
+                  start: {
+                      line: 1,
+                      column: 4
+                  },
+                  end: {
+                      line: 1,
+                      column: 6
+                  }
+              },
+              expression: {
+                  type: 'Literal',
+                  start: 4,
+                  end: 6,
+                  loc: {
+                      start: {
+                          line: 1,
+                          column: 4
+                      },
+                      end: {
+                          line: 1,
+                          column: 6
+                      }
+                  },
+                  value: 42,
+                  raw: '42'
+              }
+          }],
+          sourceType: 'script'
+      }
+  });
+
+  pass(`function x(){ /*foo*/ return; /*bar*/}`, {
+    source: 'function x(){ /*foo*/ return; /*bar*/}',
+    loc: true,
+    ranges: true,
+    raw: true,
+    expected: {
+        type: 'Program',
+        start: 0,
+        end: 38,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 38
+          }
+        },
+        body: [
+          {
+            type: 'FunctionDeclaration',
+            start: 0,
+            end: 38,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 38
+              }
+            },
+            id: {
+              type: 'Identifier',
+              start: 9,
+              end: 10,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 9
+                },
+                end: {
+                  line: 1,
+                  column: 10
+                }
+              },
+              name: 'x'
+            },
+            generator: false,
+            expression: false,
+            async: false,
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              start: 12,
+              end: 38,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 12
+                },
+                end: {
+                  line: 1,
+                  column: 38
+                }
+              },
+              body: [
+                {
+                  type: 'ReturnStatement',
+                  start: 22,
+                  end: 29,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 22
+                    },
+                    end: {
+                      line: 1,
+                      column: 29
+                    }
+                  },
+                  argument: null
+                }
+              ]
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+});
+
+pass(`0 /*The*/ /*Answer*/`, {
+    source: '0 /*The*/ /*Answer*/',
+    loc: true,
+    ranges: true,
+    raw: true,
+    expected: {
+        type: 'Program',
+        start: 0,
+        end: 20,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 1,
+            column: 20
+          }
+        },
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 1,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 1
+              }
+            },
+            expression: {
+              type: 'Literal',
+              start: 0,
+              end: 1,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 1
+                }
+              },
+              value: 0,
+              raw: '0'
+            }
+          }
+        ],
+        sourceType: 'script'
+      }
+});
+
+pass(`if (x) { // Some comment\ndoThat(); }`, {
+    source: 'if (x) { // Some comment\ndoThat(); }',
+    loc: true,
+    ranges: true,
+    raw: true,
+    expected: {
+        body: [{
+            alternate: null,
+            consequent: {
+                body: [{
+                    end: 34,
+                    expression: {
+                        arguments: [],
+                        callee: {
+                            end: 31,
+                            loc: {
+                                end: {
+                                    column: 6,
+                                    line: 2,
+                                },
+                                start: {
+                                    column: 0,
+                                    line: 2,
+                                }
+                            },
+                            name: 'doThat',
+                            start: 25,
+                            type: 'Identifier',
+                        },
+                        end: 33,
+                        loc: {
+                            end: {
+                                column: 8,
+                                line: 2,
+                            },
+                            start: {
+                                column: 0,
+                                line: 2,
+                            }
+                        },
+                        start: 25,
+                        type: 'CallExpression',
+                    },
+                    loc: {
+                        end: {
+                            column: 9,
+                            line: 2,
+                        },
+                        start: {
+                            column: 0,
+                            line: 2,
+                        },
+                    },
+                    start: 25,
+                    type: 'ExpressionStatement'
+                }, ],
+                end: 36,
+                loc: {
+                    end: {
+                        column: 11,
+                        line: 2,
+                    },
+                    start: {
+                        column: 7,
+                        line: 1,
+                    },
+                },
+                start: 7,
+                type: 'BlockStatement',
+            },
+            end: 36,
+            loc: {
+                end: {
+                    column: 11,
+                    line: 2,
+                },
+                start: {
+                    column: 0,
+                    line: 1,
+                }
+            },
+            start: 0,
+            test: {
+                end: 5,
+                loc: {
+                    end: {
+                        column: 5,
+                        line: 1,
+                    },
+                    start: {
+                        column: 4,
+                        line: 1,
+                    },
+                },
+                name: 'x',
+                start: 4,
+                type: 'Identifier',
+            },
+            type: 'IfStatement'
+        }],
+        end: 36,
+        loc: {
+            end: {
+                column: 11,
+                line: 2,
+            },
+            start: {
+                column: 0,
+                line: 1,
+            },
+        },
+        sourceType: 'script',
+        start: 0,
+        type: 'Program',
+    }
+});
+
+pass(`/**/ function a() {/**/function o() {}}`, {
+  source: '/**/ function a() {/**/function o() {}}',
+  loc: true,
+  ranges: true,
+  raw: true,
+  expected: {
+      type: 'Program',
+      start: 0,
+      end: 39,
+      loc: {
+        start: {
+          line: 1,
+          column: 0
+        },
+        end: {
+          line: 1,
+          column: 39
+        }
+      },
+      body: [
+        {
+          type: 'FunctionDeclaration',
+          start: 5,
+          end: 39,
+          loc: {
+            start: {
+              line: 1,
+              column: 5
+            },
+            end: {
+              line: 1,
+              column: 39
+            }
+          },
+          id: {
+            type: 'Identifier',
+            start: 14,
+            end: 15,
+            loc: {
+              start: {
+                line: 1,
+                column: 14
+              },
+              end: {
+                line: 1,
+                column: 15
+              }
+            },
+            name: 'a'
+          },
+          generator: false,
+          expression: false,
+          async: false,
+          params: [],
+          body: {
+            type: 'BlockStatement',
+            start: 18,
+            end: 39,
+            loc: {
+              start: {
+                line: 1,
+                column: 18
+              },
+              end: {
+                line: 1,
+                column: 39
+              }
+            },
+            body: [
+              {
+                type: 'FunctionDeclaration',
+                start: 23,
+                end: 38,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 23
+                  },
+                  end: {
+                    line: 1,
+                    column: 38
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  start: 32,
+                  end: 33,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 32
+                    },
+                    end: {
+                      line: 1,
+                      column: 33
+                    }
+                  },
+                  name: 'o'
+                },
+                generator: false,
+                expression: false,
+                async: false,
+                params: [],
+                body: {
+                  type: 'BlockStatement',
+                  start: 36,
+                  end: 38,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 36
+                    },
+                    end: {
+                      line: 1,
+                      column: 38
+                    }
+                  },
+                  body: []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      sourceType: 'script'
+    }
+});
+
+pass(`var a; // a`, {
+  source: `var a; // a`,
+  ranges: true,
+  comments: true,
+  raw: true,
+  expected: {
+      "body": [
+        {
+          "declarations": [
+            {
+              "end": 5,
+              "id": {
+                "end": 5,
+               "name": "a",
+                "start": 4,
+                "type": "Identifier",
+             },
+              "init": null,
+              "start": 4,
+              "type": "VariableDeclarator"
+            },
+          ],
+          "end": 6,
+          "kind": "var",
+          "start": 0,
+          "type": "VariableDeclaration"
+        },
+      ],
+      "comments": [
+       {
+          "end": 11,
+          "start": 7,
+          "type": "SingleLine",
+          "value": " a",
+        }
+      ],
+      "end": 11,
+      "sourceType": "script",
+      "start": 0,
+      "type": "Program"
+    }
+});
+
 });

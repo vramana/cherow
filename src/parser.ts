@@ -663,7 +663,7 @@ export class Parser {
                     this.advance();
                     state &= ~ScannerState.LastIsCR;
                     if (this.consume(Chars.Slash)) {
-                        if (this.comments) {
+                        if (context & Context.OptionsComments) {
                             this.addComment(context, 'MultiLine', start);
                         }
 
@@ -698,27 +698,27 @@ export class Parser {
 
     private skipSingleLineComment(context: Context, state: ScannerState): ScannerState {
         const start = this.index;
-        while (this.hasNext()) {
-            switch (this.nextChar()) {
-                case Chars.CarriageReturn:
-                    this.advanceNewline();
-                    if (this.hasNext() && this.nextChar() === Chars.LineFeed) this.index++;
-                    return state | ScannerState.NewLine;
-
-                case Chars.LineFeed:
-                case Chars.LineSeparator:
-                case Chars.ParagraphSeparator:
-                    this.advanceNewline();
-                    return state | ScannerState.NewLine;
-
-                default:
-                    this.advance();
+        scan:
+            while (this.hasNext()) {
+                switch (this.nextChar()) {
+                    case Chars.CarriageReturn:
+                        this.advanceNewline();
+                        if (this.hasNext() && this.nextChar() === Chars.LineFeed) this.index++;
+                        state | ScannerState.NewLine;
+                        break scan;
+                    case Chars.LineFeed:
+                    case Chars.LineSeparator:
+                    case Chars.ParagraphSeparator:
+                        this.advanceNewline();
+                        state | ScannerState.NewLine;
+                        break scan;
+                    default:
+                        this.advance();
+                }
             }
-        }
 
-        // TODO! Fix this!
-        if (this.comments) {
-
+        if (context & Context.OptionsComments) {
+            // TODO! Fix this!
             this.addComment(context, state & ScannerState.SingleLine ?
                 'SingleLine' :
                 state & ScannerState.HTMLOpen ?
@@ -738,7 +738,7 @@ export class Parser {
             type,
             value: this.source.slice(commentStart, type === 'MultiLine' ? this.index - 2 : this.index),
             start: this.startIndex,
-            end: this.startIndex,
+            end: this.index,
         };
 
         if (context & Context.OptionsLoc) {
@@ -1825,7 +1825,7 @@ export class Parser {
                 (t & Token.Contextual) === Token.Contextual);
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: Location,
         node: any,
@@ -2475,7 +2475,7 @@ export class Parser {
         });
     }
 
-     // https://tc39.github.io/ecma262/#sec-continue-statement
+    // https://tc39.github.io/ecma262/#sec-continue-statement
 
     private parseContinueStatement(context: Context): ESTree.ContinueStatement {
         // Appearing of continue without an IterationStatement leads to syntax error
@@ -2498,7 +2498,7 @@ export class Parser {
         });
     }
 
-     // https://tc39.github.io/ecma262/#sec-break-statement
+    // https://tc39.github.io/ecma262/#sec-break-statement
 
     private parseBreakStatement(context: Context): ESTree.BreakStatement {
         const pos = this.getLocation();
@@ -2625,7 +2625,7 @@ export class Parser {
         });
     }
 
-     // https://tc39.github.io/ecma262/#sec-switch-statement
+    // https://tc39.github.io/ecma262/#sec-switch-statement
     private parseSwitchCases(context: Context): ESTree.SwitchCase {
         const pos = this.getLocation();
         let test: ESTree.Expression | null = null;
@@ -2693,7 +2693,7 @@ export class Parser {
         });
     }
 
-     // https://tc39.github.io/ecma262/#sec-empty-statement
+    // https://tc39.github.io/ecma262/#sec-empty-statement
 
     private parseEmptyStatement(context: Context): ESTree.EmptyStatement {
         const pos = this.getLocation();
@@ -2729,7 +2729,7 @@ export class Parser {
         });
     }
 
-     // https://tc39.github.io/ecma262/#sec-let-and-const-declarations
+    // https://tc39.github.io/ecma262/#sec-let-and-const-declarations
     private parseVariableStatement(context: Context) {
         const pos = this.getLocation();
         const t = this.token;
@@ -2817,7 +2817,7 @@ export class Parser {
         });
     }
 
-   // https://tc39.github.io/ecma262/#sec-comma-operator
+    // https://tc39.github.io/ecma262/#sec-comma-operator
 
     private parseExpression(context: Context, pos: Location): ESTree.Expression {
         const expr = this.parseAssignmentExpression(context);
@@ -4013,7 +4013,7 @@ export class Parser {
             body
         });
     }
-// https://tc39.github.io/ecma262/#sec-class-definitions
+    // https://tc39.github.io/ecma262/#sec-class-definitions
     private parseClassElement(context: Context, state: ObjectState): any {
 
         let t = this.token;
