@@ -96,10 +96,14 @@ parseScript('1', { ranges: true, loc: true });`:
 
 ## Comments
 
-Single line, multiline and HTML comments are supported by `Cherow`, and the parser can be instructed to collect comments by setting the `comments option` to *true*,  or attach the comments to the AST node by setting `attachComment` to *true*.
+Single line, multiline and HTML comments are supported by `Cherow`, and the parser can be instructed to collect comments by setting the `comments option` to *true*.
 
 A top-level comments array containing all comments will be attached to the root node (*Program*), and the type of each comment can 
-either be `LineComment` for a single-line comment (`//`) or `BlockComment` for a MultiLineComment (`/* */`).
+either be [`SingleLine`](https://tc39.github.io/ecma262/#prod-SingleLineComment) for a single-line comment (`//`) or [`MultiLine`](https://tc39.github.io/ecma262/#prod-MultiLineComment) for a MultiLineComment (`/* */`).
+
+HTML comments is not a part of the ECMAScript specifications, and the way Cherow deals with them deviates slightly from other
+parsers. In Cherow `HTMLOpen` are used for a HTML open comments (`<!--`) and `HTMLClose` for a HTML close comment (`-->`).
+In other  ECMAScripts parsers both are seen as a [`single-line comment `](https://tc39.github.io/ecma262/#prod-SingleLineComment).
 
 ## Early error tolerant parsing
 

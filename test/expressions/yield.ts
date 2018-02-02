@@ -2,102 +2,111 @@ import { pass, fail } from '../test-utils';
 
 describe('Expressions - Yield', () => {
 
-fail(`function *a(){yield\n*a}`, {
+    // Esprima issue #1871
+    fail(`var obj = { *g(yield) {} };`, {
+        source: 'var obj = { *g(yield) {} };',
+        message:  '\'yield\' may not be used as an identifier in this context',
+        line: 1,
+        column: 15,
+        index: 15
+    });
+
+    fail(`function *a(){yield\n*a}`, {
     source: 'function *a(){yield\n*a}',
     line: 1
 });
 
-fail(`var obj = { *g(yield) {} };`, {
+    fail(`var obj = { *g(yield) {} };`, {
     source: 'var obj = { *g(yield) {} };',
     line: 1
 });
 
-fail(`"use strict"; function not_gen() { (function yield() { }) }`, {
+    fail(`"use strict"; function not_gen() { (function yield() { }) }`, {
     source: '"use strict"; function not_gen() { (function yield() { }) }',
     line: 1
 });
 
-fail(`"use strict"; function not_gen() { function foo(bar, yield) { } }`, {
+    fail(`"use strict"; function not_gen() { function foo(bar, yield) { } }`, {
     source: '"use strict"; function not_gen() { function foo(bar, yield) { } }',
     line: 1
 });
 
-fail(`"use strict"; function not_gen() { try { } catch (yield) { } }`, {
+    fail(`"use strict"; function not_gen() { try { } catch (yield) { } }`, {
     source: '"use strict"; function not_gen() { try { } catch (yield) { } }',
     line: 1
 });
 
-fail(`"use strict"; function not_gen() { function yield() { } }`, {
+    fail(`"use strict"; function not_gen() { function yield() { } }`, {
     source: '"use strict"; function not_gen() { function yield() { } }',
     line: 1
 });
 
-fail(`"use strict"; var [yield] = [42];`, {
+    fail(`"use strict"; var [yield] = [42];`, {
     source: '"use strict"; var [yield] = [42];',
     line: 1
 });
 
-fail(`"use strict"; function not_gen() { function yield() { } }`, {
+    fail(`"use strict"; function not_gen() { function yield() { } }`, {
     source: '"use strict"; function not_gen() { function yield() { } }',
     line: 1
 });
 
-fail(`function test_func() { "use strict"; function * yield() { }}`, {
+    fail(`function test_func() { "use strict"; function * yield() { }}`, {
     source: 'function test_func() { "use strict"; function * yield() { } }',
     line: 1
 });
 
-fail(`function test_func() { "use strict"; function * yield() { } }`, {
+    fail(`function test_func() { "use strict"; function * yield() { } }`, {
     source: 'function test_func() { "use strict"; function * yield() { } }',
     line: 1
 });
 
-fail(`"use strict"; function * gen() { function not_gen() { function foo(yield) { } }`, {
+    fail(`"use strict"; function * gen() { function not_gen() { function foo(yield) { } }`, {
     source: '"use strict"; function * gen() { function not_gen() { function foo(yield) { } }',
     line: 1
 });
 
-fail(`"use strict"; function * gen() { function not_gen() { yield = 1; }`, {
+    fail(`"use strict"; function * gen() { function not_gen() { yield = 1; }`, {
     source: '"use strict"; function * gen() { function not_gen() {  yield = 1;}',
     line: 1
 });
 
-fail(`"use strict"; function * gen() { function not_gen() { try { } catch (yield) { } }`, {
+    fail(`"use strict"; function * gen() { function not_gen() { try { } catch (yield) { } }`, {
     source: '"use strict"; function * gen() { function not_gen() { try { } catch (yield) { } }',
     line: 1
 });
 
-fail(`function *a(){yield*}`, {
+    fail(`function *a(){yield*}`, {
     source: 'function *a(){yield*}',
     line: 1
 });
 
-fail(`(a = yield 3) {}`, {
+    fail(`(a = yield 3) {}`, {
     source: '(a = yield 3) {}',
     line: 1
 });
 
-fail(`(yield 3) {}`, {
+    fail(`(yield 3) {}`, {
     source: '(yield 3) {}',
     line: 1
 });
 
-fail(`(a = yield) {}`, {
+    fail(`(a = yield) {}`, {
     source: '(a = yield) {}',
     line: 1
 });
 
-fail(`(yield = 1) {}`, {
+    fail(`(yield = 1) {}`, {
     source: '(yield = 1) {}',
     line: 1
 });
 
-fail(`(yield) {}`, {
+    fail(`(yield) {}`, {
     source: '(yield) {}',
     line: 1
 });
 
-const yieldInParameters = [
+    const yieldInParameters = [
         `(a = yield) => {}`,
         `(a = yield /a/g) => {}`, // Should parse as division, not yield expression with regexp.
         `yield => {};`,
@@ -111,7 +120,7 @@ const yieldInParameters = [
         `({yield = 0}) => {};`,
     ];
 
-const yieldInBody = [
+    const yieldInBody = [
         `() => yield;`,
         `() => yield /a/g;`,
         `() => { var x = yield; }`,
@@ -145,33 +154,33 @@ const yieldInBody = [
     ];
 
     // Script context.
-for (const test of [...yieldInParameters, ...yieldInBody]) {
+    for (const test of [...yieldInParameters, ...yieldInBody]) {
         fail(`"use strict"; ${test}`, {
             source: `"use strict"; ${test}`
         });
     }
 
     // Function context.
-for (const test of [...yieldInParameters, ...yieldInBody]) {
+    for (const test of [...yieldInParameters, ...yieldInBody]) {
     fail(`"use strict"; function f() { ${test} }`, {
         source: `"use strict"; function f() { ${test} }`
     });
 }
 
 // Generator context.
-for (const test of yieldInParameters) {
+    for (const test of yieldInParameters) {
     fail(`function* g() { ${test} }`, {
         source: `function* g() { ${test} }`
     });
 }
 
-for (const test of [...yieldInParameters, ...yieldInBody]) {
+    for (const test of [...yieldInParameters, ...yieldInBody]) {
     fail(`"use strict"; function* g() { ${test} }`, {
         source: `"use strict"; function* g() { ${test} }`
     });
 }
 
-pass(`(function not_gen() { ({ get yield() { 1 } }) })`, {
+    pass(`(function not_gen() { ({ get yield() { 1 } }) })`, {
     source: '(function not_gen() { ({ get yield() { 1 } }) })',
     loc: true,
     ranges: true,
@@ -399,7 +408,7 @@ pass(`(function not_gen() { ({ get yield() { 1 } }) })`, {
     }
 });
 
-pass(`(function * gen() { (function not_gen() { try { } catch (yield) { } }) })`, {
+    pass(`(function * gen() { (function not_gen() { try { } catch (yield) { } }) })`, {
     source: '(function * gen() { (function not_gen() { try { } catch (yield) { } }) })',
     loc: true,
     ranges: true,
@@ -637,7 +646,7 @@ pass(`(function * gen() { (function not_gen() { try { } catch (yield) { } }) })`
     }
 });
 
-pass(`function *a(){yield 0}`, {
+    pass(`function *a(){yield 0}`, {
     source: 'function *a(){yield 0}',
     loc: true,
     ranges: true,
@@ -762,7 +771,7 @@ pass(`function *a(){yield 0}`, {
     }
 });
 
-pass('function * gen() { yield a; }', {
+    pass('function * gen() { yield a; }', {
         source: 'function * gen() { yield a; }',
         loc: true,
         ranges: true,
@@ -885,7 +894,7 @@ pass('function * gen() { yield a; }', {
         }
     });
 
-pass('function * gen() { yield * \n a; }', {
+    pass('function * gen() { yield * \n a; }', {
         source: 'function * gen() { yield * \n a; }',
         expected: {
               body: [
@@ -922,7 +931,7 @@ pass('function * gen() { yield * \n a; }', {
             }
     });
 
-pass('function * gen() { yield yield a; }', {
+    pass('function * gen() { yield yield a; }', {
         source: 'function * gen() { yield yield a; }',
         loc: true,
         ranges: true,
@@ -1061,7 +1070,7 @@ pass('function * gen() { yield yield a; }', {
         }
     });
 
-pass('function * gen() { (yield * a) + (yield * b);; }', {
+    pass('function * gen() { (yield * a) + (yield * b);; }', {
         source: 'function * gen() { (yield * a) + (yield * b);; }',
         loc: true,
         ranges: true,
@@ -1247,7 +1256,7 @@ pass('function * gen() { (yield * a) + (yield * b);; }', {
         }
     });
 
-pass('function * gen() { yield * a; return }', {
+    pass('function * gen() { yield * a; return }', {
         source: 'function * gen() { yield * a; return }',
         loc: true,
         ranges: true,
@@ -1386,7 +1395,7 @@ pass('function * gen() { yield * a; return }', {
         }
     });
 
-pass('function * gen() { yield, yield }', {
+    pass('function * gen() { yield, yield }', {
         source: 'function * gen() { yield, yield }',
         loc: true,
         ranges: true,
@@ -1528,7 +1537,7 @@ pass('function * gen() { yield, yield }', {
         }
     });
 
-pass('function * gen() { (yield) ? yield : yield }', {
+    pass('function * gen() { (yield) ? yield : yield }', {
         source: 'function * gen() { (yield) ? yield : yield }',
         loc: true,
         ranges: true,
@@ -1685,7 +1694,7 @@ pass('function * gen() { (yield) ? yield : yield }', {
         }
     });
 
-pass('function * gen() { yield /* comment */ }', {
+    pass('function * gen() { yield /* comment */ }', {
         source: 'function * gen() { yield /* comment */ }',
         loc: true,
         ranges: true,
@@ -1793,7 +1802,7 @@ pass('function * gen() { yield /* comment */ }', {
         }
     });
 
-pass('function * gen() { (yield) \n ? yield : yield }', {
+    pass('function * gen() { (yield) \n ? yield : yield }', {
         source: 'function * gen() { (yield) \n ? yield : yield }',
         expected: {
               body: [
@@ -1840,7 +1849,7 @@ pass('function * gen() { (yield) \n ? yield : yield }', {
             }
     });
 
-pass('x = class extends (yield) {}', {
+    pass('x = class extends (yield) {}', {
         source: 'x = class extends (a) {}',
         loc: true,
         ranges: true,
@@ -1959,7 +1968,7 @@ pass('x = class extends (yield) {}', {
         }
     });
 
-pass('function * gen() { (yield) }', {
+    pass('function * gen() { (yield) }', {
         source: 'function * gen() { (yield) }',
         loc: true,
         ranges: true,
@@ -2067,7 +2076,7 @@ pass('function * gen() { (yield) }', {
         }
     });
 
-pass(`function *a(){yield null}`, {
+    pass(`function *a(){yield null}`, {
         source: 'function *a(){yield null}',
         loc: true,
         ranges: true,
@@ -2192,7 +2201,7 @@ pass(`function *a(){yield null}`, {
         }
     });
 
-pass(`function *a(){yield+0}`, {
+    pass(`function *a(){yield+0}`, {
         source: 'function *a(){yield+0}',
         loc: true,
         ranges: true,
@@ -2334,7 +2343,7 @@ pass(`function *a(){yield+0}`, {
         }
     });
 
-pass(`function *a(){yield "a"}`, {
+    pass(`function *a(){yield "a"}`, {
         source: 'function *a(){yield "a"}',
         loc: true,
         ranges: true,
@@ -2459,7 +2468,7 @@ pass(`function *a(){yield "a"}`, {
         }
     });
 
-pass(`function *a(){yield delete 0}`, {
+    pass(`function *a(){yield delete 0}`, {
         source: 'function *a(){yield delete 0}',
         loc: true,
         ranges: true,
@@ -2601,7 +2610,7 @@ pass(`function *a(){yield delete 0}`, {
         }
     });
 
-pass(`function *a(){yield typeof 0}`, {
+    pass(`function *a(){yield typeof 0}`, {
         source: 'function *a(){yield typeof 0}',
         loc: true,
         ranges: true,
@@ -2743,7 +2752,7 @@ pass(`function *a(){yield typeof 0}`, {
         }
     });
 
-pass(`function *a(){yield 2e308}`, {
+    pass(`function *a(){yield 2e308}`, {
         source: 'function *a(){yield 2e308}',
         loc: true,
         ranges: true,
@@ -2868,7 +2877,7 @@ pass(`function *a(){yield 2e308}`, {
         }
     });
 
-pass(`function*a(){yield*a}`, {
+    pass(`function*a(){yield*a}`, {
         source: 'function*a(){yield*a}',
         loc: true,
         ranges: true,
@@ -2992,7 +3001,7 @@ pass(`function*a(){yield*a}`, {
         }
     });
 
-pass(`function a(){yield*a}`, {
+    pass(`function a(){yield*a}`, {
         source: 'function a(){yield*a}',
         loc: true,
         ranges: true,
@@ -3132,7 +3141,7 @@ pass(`function a(){yield*a}`, {
         }
     });
 
-pass(`function *a(){({get b(){yield}})}`, {
+    pass(`function *a(){({get b(){yield}})}`, {
         source: 'function *a(){({get b(){yield}})}',
         loc: true,
         ranges: true,
@@ -3344,7 +3353,7 @@ pass(`function *a(){({get b(){yield}})}`, {
         }
     });
 
-pass(`function a(){({*[yield](){}})}`, {
+    pass(`function a(){({*[yield](){}})}`, {
         source: 'function a(){({*[yield](){}})}',
         loc: true,
         ranges: true,
@@ -3524,7 +3533,7 @@ pass(`function a(){({*[yield](){}})}`, {
         }
     });
 
-pass(`function *a(){({*[yield](){}})}`, {
+    pass(`function *a(){({*[yield](){}})}`, {
         source: 'function *a(){({*[yield](){}})}',
         loc: true,
         ranges: true,
@@ -3705,7 +3714,7 @@ pass(`function *a(){({*[yield](){}})}`, {
         }
     });
 
-pass(`function *a(){({set b(yield){}})}`, {
+    pass(`function *a(){({set b(yield){}})}`, {
         source: 'function *a(){({set b(yield){}})}',
         loc: true,
         ranges: true,
@@ -3902,7 +3911,7 @@ pass(`function *a(){({set b(yield){}})}`, {
         }
     });
 
-pass(`function *a(){yield delete 0}`, {
+    pass(`function *a(){yield delete 0}`, {
         source: 'function *a(){yield delete 0}',
         loc: true,
         ranges: true,
@@ -4044,7 +4053,7 @@ pass(`function *a(){yield delete 0}`, {
         }
     });
 
-pass(`yield: 34`, {
+    pass(`yield: 34`, {
         source: 'yield: 34',
         loc: true,
         ranges: true,
@@ -4132,7 +4141,7 @@ pass(`yield: 34`, {
         }
     });
 
-pass(`function yield(yield) { yield: yield (yield + yield(0)); }`, {
+    pass(`function yield(yield) { yield: yield (yield + yield(0)); }`, {
         source: 'function yield(yield) { yield: yield (yield + yield(0)); }',
         loc: true,
         ranges: true,
@@ -4387,7 +4396,7 @@ pass(`function yield(yield) { yield: yield (yield + yield(0)); }`, {
         }
     });
 
-pass(`({ get yield() { 1 } })`, {
+    pass(`({ get yield() { 1 } })`, {
         source: '({ get yield() { 1 } })',
         loc: true,
         ranges: true,
@@ -4548,7 +4557,7 @@ pass(`({ get yield() { 1 } })`, {
         }
     });
 
-pass(`yield[100]`, {
+    pass(`yield[100]`, {
         source: 'yield[100]',
         loc: true,
         ranges: true,
@@ -4637,7 +4646,7 @@ pass(`yield[100]`, {
         }
     });
 
-pass(`try { } catch (yield) { }`, {
+    pass(`try { } catch (yield) { }`, {
         source: 'try { } catch (yield) { }',
         loc: true,
         ranges: true,
@@ -4741,7 +4750,7 @@ pass(`try { } catch (yield) { }`, {
         }
     });
 
-pass(`var foo = yield = 1;`, {
+    pass(`var foo = yield = 1;`, {
         source: 'var foo = yield = 1;',
         loc: true,
         ranges: true,
@@ -4864,7 +4873,7 @@ pass(`var foo = yield = 1;`, {
         }
     });
 
-pass(`function foo(bar, yield) { }`, {
+    pass(`function foo(bar, yield) { }`, {
         source: 'function foo(bar, yield) { }',
         loc: true,
         ranges: true,
@@ -4973,7 +4982,7 @@ pass(`function foo(bar, yield) { }`, {
         }
     });
 
-pass(`yield = 1;`, {
+    pass(`yield = 1;`, {
         source: 'yield = 1;',
         loc: true,
         ranges: true,
@@ -5062,7 +5071,7 @@ pass(`yield = 1;`, {
         }
     });
 
-pass(`++yield;`, {
+    pass(`++yield;`, {
         source: '++yield;',
         loc: true,
         ranges: true,
@@ -5135,7 +5144,7 @@ pass(`++yield;`, {
         }
     });
 
-pass(`function *a(){yield ++a;}`, {
+    pass(`function *a(){yield ++a;}`, {
         source: 'function *a(){yield ++a;}',
         loc: true,
         ranges: true,
@@ -5276,7 +5285,7 @@ pass(`function *a(){yield ++a;}`, {
         }
     });
 
-pass(`function * gen() { yield * 2; }`, {
+    pass(`function * gen() { yield * 2; }`, {
         source: 'function * gen() { yield * 2; }',
         loc: true,
         ranges: true,
@@ -5400,7 +5409,7 @@ pass(`function * gen() { yield * 2; }`, {
             }
         }
     });
-pass(`function * gen() { (yield * 3) + (yield * 4); }`, {
+    pass(`function * gen() { (yield * 3) + (yield * 4); }`, {
         source: 'function * gen() { (yield * 3) + (yield * 4); }',
         loc: true,
         ranges: true,
@@ -5574,7 +5583,7 @@ pass(`function * gen() { (yield * 3) + (yield * 4); }`, {
         }
     });
 
-pass(`function * gen() { ({ yield: 1 }) }`, {
+    pass(`function * gen() { ({ yield: 1 }) }`, {
         source: 'function * gen() { ({ yield: 1 }) }',
         loc: true,
         ranges: true,
@@ -5735,7 +5744,7 @@ pass(`function * gen() { ({ yield: 1 }) }`, {
         }
     });
 
-pass(`(function * () { x = class extends (yield) {} });`, {
+    pass(`(function * () { x = class extends (yield) {} });`, {
         source: '(function * () { x = class extends (yield) {} });',
         loc: true,
         ranges: true,
@@ -5908,7 +5917,7 @@ pass(`(function * () { x = class extends (yield) {} });`, {
         }
     });
 
-pass(`(function * () { x = class extends (a ? null : yield) { } });`, {
+    pass(`(function * () { x = class extends (a ? null : yield) { } });`, {
         source: '(function * () { x = class extends (a ? null : yield) { } });',
         loc: true,
         ranges: true,
@@ -6129,7 +6138,7 @@ pass(`(function * () { x = class extends (a ? null : yield) { } });`, {
         }
     });
 
-pass(`(function * () { yield * 1; return 37; yield * "dead"; });`, {
+    pass(`(function * () { yield * 1; return 37; yield * "dead"; });`, {
         source: '(function * () { yield * 1; return 37; yield * "dead"; });',
         loc: true,
         ranges: true,
@@ -6334,7 +6343,7 @@ pass(`(function * () { yield * 1; return 37; yield * "dead"; });`, {
         }
     });
 
-pass(`(function * () { ({ [yield]: x } = { }) });`, {
+    pass(`(function * () { ({ [yield]: x } = { }) });`, {
         source: '(function * () { ({ [yield]: x } = { }) });',
         loc: true,
         ranges: true,

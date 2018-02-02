@@ -413,6 +413,123 @@ describe('Miscellaneous - Comments', () => {
               type: 'Program'
             }
     });
+
+    pass(`foo <!--bar`, {
+        source: `foo <!--bar`,
+        ranges: true,
+        comments: true,
+        raw: true,
+        expected: {
+            body: [
+              {
+                end: 3,
+                expression: {
+                  end: 3,
+                  name: 'foo',
+                  start: 0,
+                  type: 'Identifier'
+                },
+                start: 0,
+                type: 'ExpressionStatement'
+              }
+            ],
+            comments: [
+             {
+                end: 4,
+                start: 4,
+                type: 'HTMLOpen',
+                value: 'bar'
+              },
+            ],
+            end: 11,
+            sourceType: 'script',
+            start: 0,
+            type: 'Program'
+          }
+  });
+
+    pass(`foo <!--bar`, {
+    source: `foo <!--bar`,
+    ranges: true,
+    comments: true,
+    module: true,
+    raw: true,
+    expected: {
+        body: [
+          {
+            end: 11,
+            expression: {
+              end: 11,
+              left: {
+                end: 3,
+                name: 'foo',
+                start: 0,
+               type: 'Identifier'
+              },
+              operator: '<',
+              right: {
+                argument: {
+                  argument: {
+                   end: 11,
+                    name: 'bar',
+                    start: 8,
+                    type: 'Identifier'
+                  },
+                  end: 11,
+                  operator: '--',
+                  prefix: true,
+                  start: 6,
+                  type: 'UpdateExpression'
+                },
+                end: 11,
+                operator: '!',
+               prefix: true,
+                start: 5,
+                type: 'UnaryExpression'
+              },
+              start: 0,
+              type: 'BinaryExpression'
+            },
+            start: 0,
+            type: 'ExpressionStatement'
+          }
+       ],
+        comments: [],
+       end: 11,
+        sourceType: 'module',
+        start: 0,
+        type: 'Program'
+      }
+});
+
+    pass(`/* block comment */--> comment`, {
+  source: `/* block comment */--> comment`,
+  ranges: true,
+  comments: true,
+  raw: true,
+  expected: {
+      body: [],
+     comments: [
+        {
+          end: 0,
+          start: 0,
+          type: 'MultiLine',
+          value: ' block comment '
+        },
+        {
+          end: 19,
+          start: 19,
+          type: 'HTMLClose',
+          value: ' comment',
+        }
+      ],
+      end: 30,
+      sourceType: 'script',
+      start: 0,
+      type: 'Program'
+    }
+});
+
     pass(`var a; // a`, {
         source: `var a; // a`,
         ranges: true,

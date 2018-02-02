@@ -1066,114 +1066,114 @@ describe('Miscellaneous - Early errors', () => {
         early: true,
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "async": false,
-                  "body": {
-                    "body": [
+                  async: false,
+                  body: {
+                    body: [
                       {
-                        "end": 22,
-                        "label": {
-                          "end": 21,
-                          "loc": {
-                            "end": {
-                              "column": 21,
-                              "line": 1,
+                        end: 22,
+                        label: {
+                          end: 21,
+                          loc: {
+                            end: {
+                              column: 21,
+                              line: 1,
                             },
-                            "start": {
-                              "column": 20,
-                              "line": 1,
+                            start: {
+                              column: 20,
+                              line: 1,
                             }
                           },
-                          "name": "b",
-                          "start": 20,
-                          "type": "Identifier"
+                          name: 'b',
+                          start: 20,
+                          type: 'Identifier'
                         },
-                        "loc": {
-                          "end": {
-                            "column": 22,
-                            "line": 1,
+                        loc: {
+                          end: {
+                            column: 22,
+                            line: 1,
                           },
-                          "start": {
-                           "column": 14,
-                            "line": 1,
+                          start: {
+                           column: 14,
+                            line: 1,
                           }
                         },
-                        "start": 14,
-                        "type": "BreakStatement"
+                        start: 14,
+                        type: 'BreakStatement'
                       },
                     ],
-                    "end": 24,
-                    "loc": {
-                      "end": {
-                        "column": 24,
-                        "line": 1,
+                    end: 24,
+                    loc: {
+                      end: {
+                        column: 24,
+                        line: 1,
                       },
-                      "start": {
-                        "column": 12,
-                        "line": 1,
+                      start: {
+                        column: 12,
+                        line: 1,
                       },
                     },
-                    "start": 12,
-                    "type": "BlockStatement"
+                    start: 12,
+                    type: 'BlockStatement'
                  },
-                  "end": 24,
-                  "expression": false,
-                  "generator": false,
-                  "id": {
-                    "end": 10,
-                    "loc": {
-                      "end": {
-                        "column": 10,
-                        "line": 1,
+                  end: 24,
+                  expression: false,
+                  generator: false,
+                  id: {
+                    end: 10,
+                    loc: {
+                      end: {
+                        column: 10,
+                        line: 1,
                       },
-                      "start": {
-                        "column": 9,
-                        "line": 1,
+                      start: {
+                        column: 9,
+                        line: 1,
                       },
                     },
-                    "name": "a",
-                    "start": 9,
-                    "type": "Identifier",
+                    name: 'a',
+                    start: 9,
+                    type: 'Identifier',
                   },
-                  "loc": {
-                    "end": {
-                      "column": 24,
-                     "line": 1,
+                  loc: {
+                    end: {
+                      column: 24,
+                     line: 1,
                     },
-                    "start": {
-                      "column": 0,
-                      "line": 1,
+                    start: {
+                      column: 0,
+                      line: 1,
                     }
                   },
-                  "params": [],
-                  "start": 0,
-                  "type": "FunctionDeclaration",
+                  params: [],
+                  start: 0,
+                  type: 'FunctionDeclaration',
                 },
               ],
-              "earlyErors": [
+              earlyErors: [
                 {
-                  "column": 21,
-                 "columnNumber": 21,
-                  "description": "Undefined label 'b'",
-                  "index": 21,
-                  "lineNumber": 1,
+                  column: 21,
+                 columnNumber: 21,
+                  description: 'Undefined label \'b\'',
+                  index: 21,
+                  lineNumber: 1,
                 },
               ],
-              "end": 24,
-              "loc": {
-                "end": {
-                  "column": 24,
-                  "line": 1,
+              end: 24,
+              loc: {
+                end: {
+                  column: 24,
+                  line: 1,
                 },
-                "start": {
-                 "column": 0,
-                  "line": 1,
+                start: {
+                 column: 0,
+                  line: 1,
                 },
               },
-              "sourceType": "script",
-              "start": 0,
-              "type": "Program"
+              sourceType: 'script',
+              start: 0,
+              type: 'Program'
             }
     });
 

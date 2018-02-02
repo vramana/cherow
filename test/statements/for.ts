@@ -2,6 +2,14 @@ import { pass, fail } from '../test-utils';
 
 describe('Statements - For', () => {
 
+    // Esprima issue #1052
+    fail(`for(;;){ a: continue a; }`, {
+        source: 'for(;;){ a: continue a; }',
+        message: 'continue  statement must be nested within an iteration statement',
+        line: 1,
+        column: 11,
+        index: 11
+    });
     fail(`for (const x; false; ) { var x; }`, {
         source: 'for (const x; false; ) { var x; }',
         message: 'Unexpected token',

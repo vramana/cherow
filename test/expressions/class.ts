@@ -53,6 +53,199 @@ describe('Expressions - Class', () => {
         line: 1,
     });
 
+    // Esprima issue #1875
+    pass(`class UserRepo{ async get(id) { return id; }  }`, {
+        source: `class UserRepo{ async get(id) { return id; }  }`,
+        loc: true,
+        ranges: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'UserRepo',
+                        start: 6,
+                        end: 14,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 14
+                            }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [
+                            {
+                                type: 'MethodDefinition',
+                                kind: 'method',
+                                static: false,
+                                computed: false,
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'get',
+                                    start: 22,
+                                    end: 25,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 22
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 25
+                                        }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [
+                                        {
+                                            type: 'Identifier',
+                                            name: 'id',
+                                            start: 26,
+                                            end: 28,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 26
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 28
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'ReturnStatement',
+                                                argument: {
+                                                    type: 'Identifier',
+                                                    name: 'id',
+                                                    start: 39,
+                                                    end: 41,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 39
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 41
+                                                        }
+                                                    }
+                                                },
+                                                start: 32,
+                                                end: 42,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 32
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 42
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        start: 30,
+                                        end: 44,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 30
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 44
+                                            }
+                                        }
+                                    },
+                                    async: true,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 25,
+                                    end: 44,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 25
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 44
+                                        }
+                                    }
+                                },
+                                start: 16,
+                                end: 44,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 16
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 44
+                                    }
+                                }
+                            }
+                        ],
+                        start: 14,
+                        end: 47,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 14
+                            },
+                            end: {
+                                line: 1,
+                                column: 47
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 47,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 47
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 47,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 47
+                }
+            }
+        }
+    });
+
     pass(`(class {prototype() {}})`, {
         source: `(class {prototype() {}})`,
         expected: {
