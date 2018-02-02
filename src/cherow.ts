@@ -98,3 +98,5 @@ export const parseScript = (source: string, options ?: Options) => {
 export const parseModule = (source: string, options ?: Options) => {
     return parse(source, Context.Strict | Context.Module | Context.TopLevel, options);
 };
+
+export const version = '__VERSION__';
