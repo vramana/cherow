@@ -1154,7 +1154,6 @@ describe('Miscellaneous - Early errors', () => {
               earlyErors: [
                 {
                   column: 21,
-                 columnNumber: 21,
                   description: 'Undefined label \'b\'',
                   index: 21,
                   lineNumber: 1,

@@ -174,7 +174,5 @@ export function createError(type: Errors, index: number, line: number, column: n
     error.index = index;
     error.lineNumber = line;
     error.description = description;
-    error.columnNumber = column;
-
     return error;
 }

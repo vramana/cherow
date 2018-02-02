@@ -1,4 +1,4 @@
-# Cherow (beta)
+# Cherow
 
 [![NPM version](https://img.shields.io/npm/v/cherow.svg)](https://www.npmjs.com/package/cherow)
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/cherow/cherow)
@@ -21,6 +21,7 @@ It strictly follows the [ECMAScript® 2018 Language Specification](https://tc39.
 * Early error tolerant parsing
 * Optional tracking of syntax node location (index-based and line-column)
 * Heavily tested (~53 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
+* Can be extended through plugins
 
 ## ESNext features
 
@@ -41,7 +42,7 @@ Here is a quick example:
 
 ```js
 
-cherow.parseScript('const fooBar = 123;');
+cherow.parseScript('const fooBar = 123;', { ranges: true});
 
 ```
 
@@ -50,6 +51,7 @@ This will return when serialized in json:
 ```js
 {
     "type": "Program",
+    "sourceType": "script",
     "body": [
         {
             "type": "VariableDeclaration",
@@ -58,18 +60,27 @@ This will return when serialized in json:
                     "type": "VariableDeclarator",
                     "init": {
                         "type": "Literal",
-                        "value": 123
+                        "value": 123,
+                        "start": 15,
+                        "end": 18
                     },
                     "id": {
                         "type": "Identifier",
-                        "name": "fooBar"
-                    }
+                        "name": "fooBar",
+                        "start": 6,
+                        "end": 12
+                    },
+                    "start": 6,
+                    "end": 18
                 }
             ],
-            "kind": "const"
+            "kind": "const",
+            "start": 0,
+            "end": 19
         }
     ],
-    "sourceType": "script"
+    "start": 0,
+    "end": 19
 }
 ```
 
@@ -86,7 +97,6 @@ parseScript('1', { ranges: true, loc: true });`:
 | ----------- | ------------------------------------------------------------ |
 | `comments`        | Create a top-level comments array containing all comments |
 | `early`           | Create a top-level error array containing all "*skipped*" early errors |
-| `globalReturn`    | Allow return statement in global scope     |
 | `loc      `       | Attach line/column location information to each node |
 | `ranges`          | Attach range information to each node |
 | `next`            | Allow experimental ECMAScript features (*Stage 3 proposals*) |
@@ -110,7 +120,50 @@ In other  ECMAScripts parsers both are seen as a [`single-line comment `](https:
 The tolerant algorithm used by `Cherow` deviates slightly from both `Esprima` and `Acorn` due to the 
 parsers complexity, and it's primarily for early errors, and other errors that are basically valid syntax but just not allowed. 
 
-A top-level errors array containing all "*skipped*" errors will be attached to the root node (*Program*),
+A top-level errors array containing all "*skipped*" early errors will be attached to the root node (*Program*),
+
+```js
+
+// function a(){ break b; }
+
+{
+              body: [
+                {
+                  async: false,
+                  body: {
+                    body: [
+                      {
+                        label: {
+                          name: 'b',
+                          type: 'Identifier'
+                        },
+                        type: 'BreakStatement'
+                      },
+                    ],
+                    type: 'BlockStatement'
+                 },
+                  expression: false,
+                  generator: false,
+                  id: {
+                    name: 'a',
+                    type: 'Identifier',
+                  },
+                  params: [],
+                  type: 'FunctionDeclaration',
+                },
+              ],
+              earlyErors: [
+                {
+                  column: 21,
+                  description: 'Undefined label "b"',
+                  index: 21,
+                  lineNumber: 1,
+                },
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+```
 
 ## Bug reporting
 
