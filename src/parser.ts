@@ -143,7 +143,7 @@ export class Parser {
         if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
         const lo = this.source.charCodeAt(index + 1);
         if (lo < Chars.TrailSurrogateMin || lo > Chars.TrailSurrogateMax) return hi;
-        return Chars.NonBMPMin + ( (hi & 0x3FF) << 10) | lo & 0x3FF;
+        return Chars.NonBMPMin + ((hi & 0x3FF) << 10) | lo & 0x3FF;
     }
 
     private consume(code: number): boolean {
@@ -1344,10 +1344,10 @@ export class Parser {
 
                 case Chars.Backslash:
                     ch = this.readNext(ch);
-                    
+
                     state |= ScannerState.Escape;
 
-                    
+
                     if (ch >= 128) {
                         ret += fromCodePoint(ch);
                     } else {
@@ -1533,7 +1533,7 @@ export class Parser {
                     return hi << 4 | lo;
                 }
 
-               // Unicode character specification.
+                // Unicode character specification.
             case Chars.LowerU:
                 {
                     let ch = this.lastChar = this.readNext(first);
@@ -2615,7 +2615,7 @@ export class Parser {
 
             if (clause.test === null) {
                 // Error on duplicate 'default' clauses
-               if (seenDefault) this.early(context, Errors.MultipleDefaultsInSwitch);
+                if (seenDefault) this.early(context, Errors.MultipleDefaultsInSwitch);
                 seenDefault = true;
             }
 
@@ -2854,12 +2854,15 @@ export class Parser {
             (t & Token.FutureReserved) === Token.FutureReserved;
     }
 
-    private toAssignable(context: Context, node: any): any {
+    // Reinterpret various expressions as pattern
+    // This Is only used for assignment and arrow parameter list
+    private reinterpret(context: Context, node: any): void {
 
         switch (node.type) {
             case 'ArrayPattern':
             case 'AssignmentPattern':
             case 'ObjectPattern':
+            case 'RestElement':
             case 'MetaProperty':
             case 'Identifier':
                 return; //skip
@@ -2868,7 +2871,7 @@ export class Parser {
                 node.type = 'ObjectPattern';
                 // ObjectPattern and ObjectExpression are isomorphic
                 for (let i = 0; i < node.properties.length; i++) {
-                    this.toAssignable(context, node.properties[i]);
+                    this.reinterpret(context, node.properties[i]);
                 }
                 return;
 
@@ -2876,28 +2879,30 @@ export class Parser {
                 node.type = 'ArrayPattern';
                 for (let i = 0; i < node.elements.length; ++i) {
                     // skip holes in pattern
-                    if (node.elements[i] !== null) this.toAssignable(context, node.elements[i]);
+                    if (node.elements[i] !== null) {
+                        this.reinterpret(context, node.elements[i]);
+                    }
                 }
                 return;
 
             case 'Property':
-                return this.toAssignable(context, node.value);
+                return this.reinterpret(context, node.value);
 
             case 'SpreadElement':
                 node.type = 'RestElement';
-                this.toAssignable(context, node.argument);
-
-                // Fall through
-
-            case 'RestElement':
-                this.toAssignable(context, node.argument);
-                if (node.argument.type === 'AssignmentPattern') this.early(context, Errors.InvalidRestDefaultValue);
+                this.reinterpret(context, node.argument);
+                if (node.argument.type === 'AssignmentPattern') {
+                    this.early(context, Errors.InvalidRestDefaultValue);
+                }
                 return;
+
             case 'AssignmentExpression':
-                if (node.operator !== '=') this.report(Errors.UnexpectedToken, tokenDesc(this.token));
+                if (node.operator !== '=') {
+                    this.report(Errors.UnexpectedToken, tokenDesc(this.token));
+                } else delete node.operator;
                 node.type = 'AssignmentPattern';
-                delete node.operator;
-                this.toAssignable(context, node.left);
+
+                this.reinterpret(context, node.left);
                 return;
 
             case 'MemberExpression':
@@ -2912,8 +2917,16 @@ export class Parser {
         context: Context,
         pos: Location
     ): ESTree.YieldExpression {
-        if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
-        if (context & Context.InParameter) this.early(context, Errors.YieldInParameter);
+
+        if (this.flags & Flags.ExtendedUnicodeEscape) {
+            this.early(context, Errors.UnexpectedEscapedKeyword);
+        }
+
+        if (context & Context.InParameter) {
+            this.early(context, (context & Context.YieldContext) 
+                ? Errors.InvalidGeneratorParam 
+                : Errors.YieldInParameter);
+        }
 
         this.expect(context, Token.YieldKeyword);
 
@@ -2936,17 +2949,17 @@ export class Parser {
         });
     }
 
-    private parseAssignmentExpression(context: Context): any {
+    private parseAssignmentExpression(
+        context: Context
+    ): ESTree.AssignmentExpression | ESTree.YieldExpression | ESTree.ArrowFunctionExpression {
+    
         const pos = this.getLocation();
         const t = this.token;
 
         if (context & Context.YieldContext && this.token & Token.IsYield) {
-            // Invalid: 'function* foo(a = 1 + (yield 2)) { }'
-            if (context & Context.InParameter && !(this.flags & Flags.InFunctionBody)) {
-                this.early(context, Errors.InvalidGeneratorParam);
-            }
-            return this.parseYieldExpression(context, pos);
+                return this.parseYieldExpression(context, pos);
         }
+
         const expr = this.parseConditionalExpression(context, pos);
 
         if (this.token === Token.Arrow && (this.isIdentifier(context, t))) {
@@ -2960,8 +2973,6 @@ export class Parser {
 
         if (hasMask(this.token, Token.IsAssignOperator)) {
 
-            const operator = this.token;
-
             if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                 this.early(context, Errors.StrictLHSAssignment);
                 // Note: A functions parameter list is already parsed as pattern, so no need to reinterpret
@@ -2974,10 +2985,12 @@ export class Parser {
                     this.errorLocation = this.getLocation();
                     this.flags |= Flags.SimpleParameterList;
                 }
-                this.toAssignable(context, expr);
+                this.reinterpret(context, expr);
             } else if (!isValidSimpleAssignmentTarget(expr)) {
                 this.early(context, Errors.InvalidLHSInAssignment);
             }
+
+            const operator = this.token;
 
             this.nextToken(context);
             // Note! An arrow parameters must not contain yield expressions, but at this stage we doesn't know
@@ -3008,9 +3021,7 @@ export class Parser {
 
     private parseConditionalExpression(context: Context, pos: Location) {
         const expr = this.parseBinaryExpression(context, 0, pos);
-
-        if (this.parseOptional(context, Token.QuestionMark)) {
-
+        if (!this.parseOptional(context, Token.QuestionMark)) return expr;
             const consequent = this.parseAssignmentExpression(context | Context.AllowIn);
             this.expect(context, Token.Colon);
             if (context & Context.InClass && this.token & Token.IsEvalArguments) this.early(context, Errors.UnexpectedStrictReserved);
@@ -3021,9 +3032,6 @@ export class Parser {
                 consequent,
                 alternate
             });
-        }
-
-        return expr;
     }
 
     // https://tc39.github.io/ecma262/#sec-exp-operator
@@ -3066,7 +3074,9 @@ export class Parser {
     // https://tc39.github.io/ecma262/#sec-unary-operators
 
     private parseAwaitExpression(context: Context, pos: Location): ESTree.AwaitExpression {
-        if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
+        if (this.flags & Flags.ExtendedUnicodeEscape) {
+            this.early(context, Errors.UnexpectedEscapedKeyword);
+        }
         this.expect(context, Token.AwaitKeyword);
         return this.finishNode(context, pos, {
             type: 'AwaitExpression',
@@ -3113,7 +3123,7 @@ export class Parser {
 
     // https://tc39.github.io/ecma262/#sec-update-expressions
 
-    private parseUpdateExpression(context: Context, pos: Location): any {
+    private parseUpdateExpression(context: Context, pos: Location): ESTree.Expression {
 
         let expr: ESTree.Expression;
 
@@ -3529,7 +3539,7 @@ export class Parser {
             case Token.YieldKeyword:
                 if (context & Context.YieldContext) {
                     this.early(context, Errors.DisallowedInContext, tokenDesc(this.token));
-                } 
+                }
             case Token.AwaitKeyword:
                 if (context & Context.Module) {
                     this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
@@ -3708,9 +3718,9 @@ export class Parser {
             properties.push(this.token === Token.Ellipsis ?
                 this.parseSpreadExpression(context) :
                 this.parseObjectElement(context & ~Context.InClass));
-                if (this.token !== Token.RightBrace) {
-                    this.expect(context, Token.Comma);
-                }
+            if (this.token !== Token.RightBrace) {
+                this.expect(context, Token.Comma);
+            }
 
         }
         if (this.flags & Flags.DuplicateProtoField && this.token !== Token.Assign) {
@@ -4185,7 +4195,7 @@ export class Parser {
             this.early(context, Errors.UnexpectedStrictReserved);
         }
 
-        for (const i in params) this.toAssignable(context | Context.InArrowParameterList, params[i]);
+        for (const i in params) this.reinterpret(context | Context.InArrowParameterList, params[i]);
 
         let body;
         let expression = false;
@@ -4946,7 +4956,7 @@ export class Parser {
             type = 'ForOfStatement';
             right = this.parseAssignmentExpression(context | Context.AllowIn);
             if (!declarations) {
-                this.toAssignable(context, init);
+                this.reinterpret(context, init);
             }
         } else {
 
@@ -4959,7 +4969,7 @@ export class Parser {
                     if (!isValidDestructuringAssignmentTarget(init) || init.type === 'AssignmentExpression') {
                         this.early(context, Errors.InvalidLHSInForLoop);
                     }
-                    this.toAssignable(context, init);
+                    this.reinterpret(context, init);
                 }
             } else {
 

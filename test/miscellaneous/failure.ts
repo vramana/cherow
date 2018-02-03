@@ -1115,13 +1115,13 @@ describe('Miscellaneous - Failure', () => {
 
     fail('function* g(){ ({ *m([a = yield]){} }); }', {
         source: `function* g(){ ({ *m([a = yield]){} }); }`,
-        message: 'Yield expression not allowed in formal parameter',
+        message: 'Generator parameters must not contain yield expressions',
         line: 1,
     });
 
     fail('function* g(){ !function*([a = yield]){} }', {
         source: `function* g(){ !function*([a = yield]){} }`,
-        message: 'Yield expression not allowed in formal parameter',
+        message: 'Generator parameters must not contain yield expressions',
         line: 1,
     });
 
