@@ -5,25 +5,25 @@ describe('Next - Import meta', () => {
     fail(`var import.meta`, {
         source: 'var import.meta',
         module: true,
+        next: true,
         line: 1
     });
 
     fail(`for (var import.meta of [1]) {}`, {
         source: 'for (var import.meta of [1]) {}',
         module: true,
+        next: true,
         line: 1
     });
-
-    fail(`([ import meta ] = [1])`, {
-        source: '([ import.meta ] = [1])',
+    
+    fail('"ariya" as property name', {
+        source: `import.ariya`,
         module: true,
-        line: 1
-    });
-
-    fail(`([ import meta ] = [1])`, {
-        source: '([ import.meta ] = [1])',
-        module: true,
-        line: 1
+        next: true,
+        message: 'Unexpected token identifier',
+        line: 1,
+        column: 7,
+        index: 7
     });
 
     pass('"use strict"; ({m() { () => import.meta }})', {
@@ -1178,16 +1178,6 @@ describe('Next - Import meta', () => {
               type: 'Program'
             }
     });
-
-    fail('"ariya" as property name', {
-      source: `import.ariya`,
-      module: true,
-      next: true,
-      message: 'Unexpected token',
-      line: 1,
-      column: 7,
-      index: 7
-  });
 
     pass(`one dot and no assignment`, {
       source: 'import.meta;',

@@ -3142,11 +3142,11 @@ export class Parser {
 
         const argument = this.parseLeftHandSideExpression(context, pos);
 
-        const isExpression = hasMask(this.token, Token.IsUpdateOperator) && !(this.flags & Flags.LineTerminator);
+        const isPostfix = hasMask(this.token, Token.IsUpdateOperator) && !(this.flags & Flags.LineTerminator);
 
-        if (!prefix && !isExpression) return argument;
+        if (!prefix && !isPostfix) return argument;
 
-        if (context & Context.Strict && 
+        if (context & Context.Strict &&
             this.isEvalOrArguments((argument as ESTree.Identifier).name)) {
             this.early(context, Errors.StrictLHSPrefixPostFix, prefix ? 'Prefix' : 'Postfix');
         } else if (!isValidSimpleAssignmentTarget(argument)) {
@@ -3166,24 +3166,25 @@ export class Parser {
         });
     }
 
-    private parseSuper(context: Context): ESTree.Expression {
+    private parseSuperExpression(context: Context): ESTree.Expression {
         const pos = this.getLocation();
         if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
         this.expect(context, Token.SuperKeyword);
 
-        switch (this.token) {
+        // If we have seen "super" it must be followed by '(', '[' or '.'.
+        const t = this.token;
 
-            // '('
+        switch (t) {
+
             case Token.LeftParen:
                 {
                     // The super property has to be within a class constructor
-                    if (!(context & Context.AllowConstructor)) {
+                    if (!(context & Context.AllowSuperProperty)) {
                         this.early(context, context & Context.Method ? Errors.UnexpectedSuper : Errors.BadSuperCall);
                     }
                     break;
                 }
 
-                // '.', '['
             case Token.LeftBracket:
             case Token.Period:
                 {
@@ -3194,7 +3195,7 @@ export class Parser {
                 }
 
             default:
-                this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
+                this.early(context, Errors.UnexpectedToken, tokenDesc(t));
         }
 
         return this.finishNode(context, pos, {
@@ -3204,11 +3205,11 @@ export class Parser {
 
     private parseImportCall(context: Context, pos: Location) {
         const id = this.parseIdentifier(context);
-
-        // Import.meta - Stage 3 proposal
-        if (this.parseOptional(context, Token.Period)) {
+        
+        if (context & Context.OptionsNext && this.parseOptional(context, Token.Period)) {
+            // Import.meta - Stage 3 proposal
             if (!(context & Context.Module) || this.tokenValue !== 'meta') {
-                this.early(context, Errors.Unexpected);
+                this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
             }
             return this.parseMetaProperty(context, id, pos);
         }
@@ -3218,11 +3219,7 @@ export class Parser {
         });
     }
 
-    private parseMetaProperty(
-        context: Context,
-        meta: ESTree.Identifier,
-        pos: Location
-    ): ESTree.MetaProperty {
+    private parseMetaProperty(context: Context, meta: ESTree.Identifier, pos: Location): ESTree.MetaProperty {
         return this.finishNode(context, pos, {
             meta,
             type: 'MetaProperty',
@@ -3231,13 +3228,15 @@ export class Parser {
     }
 
     private parseNewExpression(context: Context): ESTree.MetaProperty | ESTree.NewExpression {
-        if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
-        const pos = this.getLocation();
+        if (this.flags & Flags.ExtendedUnicodeEscape) {
+            this.early(context, Errors.UnexpectedEscapedKeyword);
+        }
 
+        const pos = this.getLocation();
         const id = this.parseIdentifierName(context, this.token);
 
         if (this.parseOptional(context | Context.ValidateEscape, Token.Period)) {
-            if (this.token & Token.IsIdentifier) {
+            
                 if (this.tokenValue !== 'target') {
                     this.early(context, Errors.MetaNotInFunctionBody);
                 }
@@ -3249,8 +3248,7 @@ export class Parser {
                         this.early(context, Errors.MetaNotInFunctionBody);
                     }
                 }
-            }
-
+            
             return this.parseMetaProperty(context, (id as ESTree.Identifier), pos);
         }
 
@@ -3264,8 +3262,9 @@ export class Parser {
     private parseLeftHandSideExpression(context: Context, pos: Location): ESTree.Expression {
 
         let expr;
+        
         if (this.token === Token.SuperKeyword) {
-            expr = this.parseSuper(context);
+            expr = this.parseSuperExpression(context);
         } else if (this.token === Token.ImportKeyword) {
             if (!(context & Context.OptionsNext)) this.early(context, Errors.Unexpected);
             expr = this.parseImportCall(context | Context.AllowIn, pos);
@@ -3511,7 +3510,7 @@ export class Parser {
             case Token.LeftBrace:
                 return this.parseObjectInitializer(context & ~Context.ValidateEscape);
             case Token.SuperKeyword:
-                return this.parseSuper(context);
+                return this.parseSuperExpression(context);
             case Token.ClassKeyword:
                 return this.parseClass(context | Context.Expression);
             case Token.FunctionKeyword:
@@ -3704,7 +3703,7 @@ export class Parser {
     private parseObjectInitializer(context: Context): ESTree.ObjectExpression {
         const pos = this.getLocation();
         // Disallow class constructors within object expressions
-        context &= ~Context.AllowConstructor;
+        context &= ~Context.AllowSuperProperty;
 
         this.expect(context, Token.LeftBrace);
         const properties: (ESTree.Property | ESTree.SpreadElement)[] = [];
@@ -4126,7 +4125,7 @@ export class Parser {
     private parseFieldOrMethodDeclaration(context: Context, state: ObjectState, key: any, pos: Location) {
 
         if (state & ObjectState.Heritage && state & ObjectState.Constructor) {
-            context |= Context.AllowConstructor;
+            context |= Context.AllowSuperProperty;
         }
 
         if (!key && state & ObjectState.Generator) {
@@ -4667,8 +4666,8 @@ export class Parser {
 
         if (!(state & ObjectState.Method)) {
 
-            // Unset masks Object / Class Method, and disallow class constructors in this context
-            context &= ~(Context.Method | Context.AllowConstructor);
+            // Unset masks Object / Class Method, and disallow derived class constructors in this context
+            context &= ~(Context.Method | Context.AllowSuperProperty);
 
             const prevContext = context;
 

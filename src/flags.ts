@@ -24,7 +24,7 @@ export const enum Context {
     ArrowFunction           = 1 << 17,
     TopLevel                = 1 << 18,
     Optional                = 1 << 19,
-    AllowConstructor        = 1 << 20,
+    AllowSuperProperty      = 1 << 20,
     ValidateEscape          = 1 << 21,
     Let                     = 1 << 22,  // Variable declaration
     Const                   = 1 << 23,  // Variable declaration
