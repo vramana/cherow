@@ -28,7 +28,6 @@ describe('Expressions - Arrows', () => {
 
     fail(`(localVar |= defaultValue) => {}`, {
         source: '(localVar |= defaultValue) => {}',
-        message: 'Unexpected token',
         line: 1,
     });
 

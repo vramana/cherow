@@ -74,7 +74,9 @@ export const enum Errors {
     UnterminatedRegExp,
     UnexpectedTokenRegExp,
     DuplicateRegExpFlag,
-    UnexpectedTokenRegExpFlag
+    UnexpectedTokenRegExpFlag,
+    UnterminatedComment,
+    YieldInParameter
 }
 
 export const ErrorMessages: {
@@ -155,6 +157,8 @@ export const ErrorMessages: {
     [Errors.UnexpectedTokenRegExp]: 'Unexpected regular expression',
     [Errors.UnexpectedTokenRegExpFlag]: 'Unexpected regular expression flag',
     [Errors.UnterminatedRegExp]: 'Unterminated regular expression literal',
+    [Errors.UnterminatedComment]: 'Unterminated comment',
+    [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter',
 };
 
 function constructError(msg: string, column: number): Error {

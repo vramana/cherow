@@ -24,7 +24,6 @@ export const enum Token {
     IsYield           = 1 << 28,
     IsBindingPattern  = 1 << 29,
     IsShorthand       = 1 << 30,
-    IsVarDecl         = 1 << 40,
 
     /* Node types */
     EndOfSource = 0, // Pseudo
@@ -112,9 +111,9 @@ export const enum Token {
     BitwiseXor         = 70 | IsBinaryOperator  | 4 << PrecStart, // ^
 
     /* Variable declaration kinds */
-    VarKeyword   = 71 | Reserved | IsExpressionStart | IsVarDecl,
-    LetKeyword   = 72 | FutureReserved | IsExpressionStart  | IsVarDecl,
-    ConstKeyword = 73 | Reserved | IsExpressionStart  | IsVarDecl,
+    VarKeyword   = 71 | Reserved       | IsExpressionStart,
+    LetKeyword   = 72 | FutureReserved | IsExpressionStart,
+    ConstKeyword = 73 | Reserved       | IsExpressionStart,
 
     /* Other reserved words */
     BreakKeyword    = 74 | Reserved,
@@ -259,11 +258,7 @@ const KeywordDescTable = [
  * The conversion function between token and its string description/representation.
  */
 export function tokenDesc(token: Token): string {
-    if ((token & Token.Type) < KeywordDescTable.length) {
         return KeywordDescTable[token & Token.Type];
-    } else {
-        throw new Error('unreachable');
-    }
 }
 
 // Used `Object.create(null)` to avoid potential `Object.prototype`

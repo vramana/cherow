@@ -123,7 +123,7 @@ export class Parser {
         if (ch > 0xffff) this.index++;
     }
 
-    private nextChar() {
+    private nextChar(): number {
         return this.source.charCodeAt(this.index);
     }
 
@@ -137,16 +137,16 @@ export class Parser {
         return this.nextUnicodeChar();
     }
 
-    private nextUnicodeChar() {
-        const hi = this.source.charCodeAt(this.index);
+    private nextUnicodeChar(): number {
+        let index = this.index;
+        const hi = this.source.charCodeAt(index);
         if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
-        const lo = this.source.charCodeAt(this.index + 1);
+        const lo = this.source.charCodeAt(index + 1);
         if (lo < Chars.TrailSurrogateMin || lo > Chars.TrailSurrogateMax) return hi;
-        const a = hi & 0x3FF;
-        return Chars.NonBMPMin + (a << 10) | lo & 0x3FF;
+        return Chars.NonBMPMin + ( (hi & 0x3FF) << 10) | lo & 0x3FF;
     }
 
-    private consume(code: number) {
+    private consume(code: number): boolean {
         if (this.source.charCodeAt(this.index) !== code) return false;
         this.index++;
         this.column++;
@@ -271,8 +271,6 @@ export class Parser {
                     {
                         this.advance(); // skip `<`
 
-                        if (!this.hasNext()) return Token.LessThan;
-
                         if (!(context & Context.Module) &&
                             this.consume(Chars.Exclamation) &&
                             this.consume(Chars.Hyphen) &&
@@ -343,7 +341,7 @@ export class Parser {
                 case Chars.Ampersand:
                     {
                         this.advance();
-                        if (!this.hasNext()) return Token.BitwiseAnd;
+
                         const next = this.nextChar();
 
                         if (next === Chars.Ampersand) {
@@ -453,7 +451,7 @@ export class Parser {
                 case Chars.EqualSign:
                     {
                         this.advance();
-                        if (!this.hasNext()) return Token.Assign;
+
                         const next = this.nextChar();
 
                         if (next === Chars.EqualSign) {
@@ -518,7 +516,7 @@ export class Parser {
                 case Chars.VerticalBar:
                     {
                         this.advance();
-                        if (!this.hasNext()) return Token.BitwiseOr;
+
                         const next = this.nextChar();
 
                         if (next === Chars.VerticalBar) {
@@ -695,7 +693,7 @@ export class Parser {
             }
         }
 
-        this.report(Errors.Unexpected);
+        this.report(Errors.UnterminatedComment);
     }
 
     private skipSingleLineComment(context: Context, state: ScannerState): ScannerState {
@@ -1255,7 +1253,7 @@ export class Parser {
 
         loop:
             while (this.hasNext()) {
-                const code = this.nextChar();
+                let code = this.nextChar();
                 switch (code) {
 
                     case Chars.LowerG:
@@ -1290,6 +1288,7 @@ export class Parser {
                         break;
 
                     default:
+                        if (code >= 0xd800 && code <= 0xdc00) code = this.nextUnicodeChar();
                         if (!isIdentifierPart(code)) break loop;
                         this.early(context, Errors.UnexpectedTokenRegExpFlag);
                 }
@@ -1400,7 +1399,7 @@ export class Parser {
                 this.early(context, Errors.UnicodeOutOfRange);
 
             default:
-                this.early(context, Errors.Unexpected);
+                // ignore
         }
     }
 
@@ -2896,7 +2895,7 @@ export class Parser {
                 if (node.argument.type === 'AssignmentPattern') this.early(context, Errors.InvalidRestDefaultValue);
                 return;
             case 'AssignmentExpression':
-                if (node.operator !== '=') this.early(context, Errors.Unexpected);
+                if (node.operator !== '=') this.report(Errors.UnexpectedToken, tokenDesc(this.token));
                 node.type = 'AssignmentPattern';
                 delete node.operator;
                 this.toAssignable(context, node.left);
@@ -2915,7 +2914,7 @@ export class Parser {
         pos: Location
     ): ESTree.YieldExpression {
         if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
-        if (context & Context.InParameter) this.early(context, Errors.Unexpected);
+        if (context & Context.InParameter) this.early(context, Errors.YieldInParameter);
 
         this.expect(context, Token.YieldKeyword);
 
@@ -3530,11 +3529,7 @@ export class Parser {
             case Token.YieldKeyword:
                 if (context & Context.YieldContext) {
                     this.early(context, Errors.DisallowedInContext, tokenDesc(this.token));
-                } else if (context & Context.Strict) {
-                    if (this.flags & Flags.ExtendedUnicodeEscape) {
-                        this.early(context, Errors.UnexpectedEscapedKeyword);
-                    }
-                }
+                } 
             case Token.AwaitKeyword:
                 if (context & Context.Module) {
                     this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
@@ -4917,7 +4912,9 @@ export class Parser {
         if (t !== Token.Semicolon) {
 
             // 'var', let', 'const
-            if (t & Token.IsVarDecl) {
+            if (t === Token.VarKeyword ||
+                t === Token.LetKeyword ||
+                t === Token.ConstKeyword) {
                 switch (t) {
                     case Token.LetKeyword:
                         {

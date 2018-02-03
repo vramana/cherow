@@ -71,6 +71,10 @@ describe('Literals - RegExp', () => {
         source: '/./gig;',
     });
 
+    fail(`/(?:)/m🀒`, {
+        source: '/(?:)/m🀒',
+    });
+
     fail(`/\\n\\r`, {
         source: '/\\n\\r',
     });
