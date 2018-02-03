@@ -2923,9 +2923,9 @@ export class Parser {
         }
 
         if (context & Context.InParameter) {
-            this.early(context, (context & Context.YieldContext) 
-                ? Errors.InvalidGeneratorParam 
-                : Errors.YieldInParameter);
+            this.early(context, (context & Context.YieldContext) ?
+                Errors.InvalidGeneratorParam :
+                Errors.YieldInParameter);
         }
 
         this.expect(context, Token.YieldKeyword);
@@ -2952,12 +2952,12 @@ export class Parser {
     private parseAssignmentExpression(
         context: Context
     ): ESTree.AssignmentExpression | ESTree.YieldExpression | ESTree.ArrowFunctionExpression {
-    
+
         const pos = this.getLocation();
         const t = this.token;
 
         if (context & Context.YieldContext && this.token & Token.IsYield) {
-                return this.parseYieldExpression(context, pos);
+            return this.parseYieldExpression(context, pos);
         }
 
         const expr = this.parseConditionalExpression(context, pos);
@@ -3022,16 +3022,18 @@ export class Parser {
     private parseConditionalExpression(context: Context, pos: Location) {
         const expr = this.parseBinaryExpression(context, 0, pos);
         if (!this.parseOptional(context, Token.QuestionMark)) return expr;
-            const consequent = this.parseAssignmentExpression(context | Context.AllowIn);
-            this.expect(context, Token.Colon);
-            if (context & Context.InClass && this.token & Token.IsEvalArguments) this.early(context, Errors.UnexpectedStrictReserved);
-            const alternate = this.parseAssignmentExpression(context);
-            return this.finishNode(context, pos, {
-                type: 'ConditionalExpression',
-                test: expr,
-                consequent,
-                alternate
-            });
+        const consequent = this.parseAssignmentExpression(context | Context.AllowIn);
+        this.expect(context, Token.Colon);
+        if (context & Context.InClass && this.token & Token.IsEvalArguments) {
+            this.early(context, Errors.UnexpectedStrictReserved);
+        }
+        const alternate = this.parseAssignmentExpression(context);
+        return this.finishNode(context, pos, {
+            type: 'ConditionalExpression',
+            test: expr,
+            consequent,
+            alternate
+        });
     }
 
     // https://tc39.github.io/ecma262/#sec-exp-operator
@@ -3087,10 +3089,11 @@ export class Parser {
     private parseUnaryExpression(context: Context): ESTree.UnaryExpression | ESTree.Expression {
         const pos = this.getLocation();
         let t = this.token;
-        if (t & Token.IsAwait && context & Context.AsyncContext) {
 
+        if (t & Token.IsAwait && context & Context.AsyncContext) {
             return this.parseAwaitExpression(context, pos);
         }
+
         if (hasMask(t, Token.IsUnaryOperator)) {
             t = this.token;
             if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
@@ -3125,50 +3128,42 @@ export class Parser {
 
     private parseUpdateExpression(context: Context, pos: Location): ESTree.Expression {
 
-        let expr: ESTree.Expression;
+        let prefix = false;
+        let operator: Token | undefined;
 
         if (hasMask(this.token, Token.IsUpdateOperator)) {
-            const operator = this.token;
+            operator = this.token;
+            prefix = true;
             this.nextToken(context);
-            const t = this.token;
-            if (context & Context.YieldContext && t & Token.IsAwait) this.early(context, Errors.UnexpectedToken, tokenDesc(t));
-            const argument = this.parseLeftHandSideExpression(context, pos);
-            if (context & Context.Strict && this.isEvalOrArguments((argument as ESTree.Identifier).name)) {
-                this.early(context, Errors.StrictLHSPrefixPostFix, 'Prefix');
-            } else if (!isValidSimpleAssignmentTarget(argument)) {
-                this.early(context, Errors.InvalidLhsInPrefixPostFixOp, 'prefix');
+            if (context & Context.YieldContext && this.token & Token.IsAwait) {
+                this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
             }
-            return this.finishNode(context, pos, {
-                type: 'UpdateExpression',
-                argument,
-                operator: tokenDesc(operator),
-                prefix: true
-            });
-        } else {
-
-            const t = this.token;
-
-            expr = this.parseLeftHandSideExpression(context, pos);
-
-            if (!(this.flags & Flags.LineTerminator) && hasMask(this.token, Token.IsUpdateOperator)) {
-                if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
-                    this.early(context, Errors.StrictLHSPrefixPostFix, 'Postfix');
-                } else
-                if (!isValidSimpleAssignmentTarget(expr)) {
-                    this.early(context, Errors.InvalidLhsInPrefixPostFixOp, 'postfix');
-                }
-                const operator = this.token;
-                this.nextToken(context);
-                return this.finishNode(context, pos, {
-                    type: 'UpdateExpression',
-                    argument: expr,
-                    operator: tokenDesc(operator),
-                    prefix: false
-                });
-            }
-
-            return expr;
         }
+
+        const argument = this.parseLeftHandSideExpression(context, pos);
+
+        const isExpression = hasMask(this.token, Token.IsUpdateOperator) && !(this.flags & Flags.LineTerminator);
+
+        if (!prefix && !isExpression) return argument;
+
+        if (context & Context.Strict && 
+            this.isEvalOrArguments((argument as ESTree.Identifier).name)) {
+            this.early(context, Errors.StrictLHSPrefixPostFix, prefix ? 'Prefix' : 'Postfix');
+        } else if (!isValidSimpleAssignmentTarget(argument)) {
+            this.early(context, Errors.InvalidLhsInPrefixPostFixOp, prefix ? 'Prefix' : 'Postfix');
+        }
+
+        if (!prefix) {
+            operator = this.token;
+            this.nextToken(context);
+        }
+
+        return this.finishNode(context, pos, {
+            type: 'UpdateExpression',
+            argument,
+            operator: tokenDesc(operator as Token),
+            prefix
+        });
     }
 
     private parseSuper(context: Context): ESTree.Expression {
