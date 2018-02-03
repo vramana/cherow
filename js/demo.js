@@ -28,7 +28,7 @@
       'change #jsx': 'onJsxChange',
       'change #directives': 'onDirectivesChange',
       'change #attachComment': 'onAttachComment',
-      'change #tolerant': 'onTolerant',
+      'change #early': 'onearly',
       'change #module': 'onModuleChange',
     },
 
@@ -50,7 +50,7 @@
       this.$jsx = this.$el.find('#jsx');
       this.$directives = this.$el.find('#directives');
       this.$attachComment = this.$el.find('#attachComment');
-      this.$tolerant = this.$el.find('#tolerant');
+      this.$early = this.$el.find('#early');
       
       
       EventBus.on('resize:window', this.onWindowResize);
@@ -62,7 +62,7 @@
       this.onModuleChange();
       this.onDirectivesChange();
       this.onAttachComment();
-      this.onTolerant();
+      this.onearly();
       this.onJsxChange();
       this.parseURL();
       this.parse();
@@ -100,8 +100,8 @@
       this._options.attachComment = this.$attachComment.prop('checked');
       this.parse();
     },
-    onTolerant: function(event) {
-      this._options.tolerant = this.$tolerant.prop('checked');
+    onearly: function(event) {
+      this._options.early = this.$early.prop('checked');
       this.parse();
     },
     onModuleChange: function(event) {
@@ -148,7 +148,7 @@
         jsx: this._options.jsx,
         directives: this._options.directives,
         attachComment: this._options.attachComment,
-        tolerant: this._options.tolerant
+        early: this._options.early
       };
       var href = location.href.replace(/[?#].*$/, '');
       var url = href + '?' + Util.buildParams(params);
@@ -179,8 +179,8 @@
         this.$attachComment.prop('checked', true).change();
       }
 
-      if (params.tolerant === 'true') {
-        this.$tolerant.prop('checked', true).change();
+      if (params.early === 'true') {
+        this.$early.prop('checked', true).change();
       }
       
       if (params.jsx === 'true') {
