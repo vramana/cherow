@@ -76,7 +76,7 @@ describe('Statements - Variable', () => {
 
     fail(`var new A = 0;`, {
         source: 'var new A = 0;',
-        message: 'Unexpected token',
+        message: 'Unexpected token new',
         line: 1,
         column: 3,
         index: 3,

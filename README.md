@@ -15,13 +15,14 @@ It strictly follows the [ECMAScript® 2018 Language Specification](https://tc39.
 ## Features
 
 * Full support for ECMAScript® 2017 [(ECMA-262 8th Edition)](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
-* ECmaScript Next (*Stage 3 proposals*)
+* Full support for all stage 3 proposals via option
+* Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
+* Optimzed for handheld devices 
+* Early error tolerant parsing
 * Skips hashbang comment nodes by default
 * Skips BOM (*U+FEFF*) by default
-* Early error tolerant parsing
 * Optional tracking of syntax node location (index-based and line-column)
-* Heavily tested (~53 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
-* Can be extended through plugins
+* Very well tested (~53 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
 
 ## ESNext features
 
@@ -36,6 +37,7 @@ It strictly follows the [ECMAScript® 2018 Language Specification](https://tc39.
 * [Import.meta](https://github.com/tc39/proposal-import-meta)
 
 ## API
+
 Cherow generates AST according to [ESTree AST format](https://github.com/estree/estree), and can be used to perform [syntactic analysis](https://en.wikipedia.org/wiki/Parsing) (parsing) of a JavaScript program, and with ES2015 and later a JavaScript program can be either [a script or a module](http://www.ecma-international.org/ecma-262/8.0/index.html#sec-ecmascript-language-scripts-and-modules) and this is achieved by choosing [`parseScript`](http://www.ecma-international.org/ecma-262/8.0/#sec-parse-script) function to parse a script and [`parseModule`](http://www.ecma-international.org/ecma-262/8.0/#sec-parsemodule) function to parse a module.
 
 Here is a quick example:
@@ -86,12 +88,7 @@ This will return when serialized in json:
 
 ## Options
 
-Cherow supports several options as listed below, and they can be used as the second argument during parsing: 
-
-```js
-parseScript('1', { ranges: true, loc: true });`:
-```
-
+Both methods accept the following options, none required:
 
 | Option        | Description |
 | ----------- | ------------------------------------------------------------ |

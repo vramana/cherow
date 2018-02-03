@@ -109,6 +109,23 @@ describe('Expressions - Async Generator', () => {
         line: 1,
     });
 
+    fail(`"use strict"; async function *gen() {
+        callCount += 1;
+        (function() {
+            var yield;
+            throw new Test262Error();
+          }())
+      }`, {
+        source: `"use strict"; async function *gen() {
+            callCount += 1;
+            (function() {
+                var yield;
+                throw new Test262Error();
+              }())
+          }`,
+        line: 4,
+    });
+
     pass(`async function * gen() { (yield * 3) + (yield * 4); }`, {
         source: 'async function * gen() { (yield * 3) + (yield * 4); }',
         ranges: true,

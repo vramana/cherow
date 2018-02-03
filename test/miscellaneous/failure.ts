@@ -251,7 +251,7 @@ describe('Miscellaneous - Failure', () => {
     });
     fail('1 + { t:t ', {
         source: `1 + { t:t `,
-        message: 'Unexpected token end of source',
+        message:  'Unexpected token',
         line: 1,
     });
     fail('1 + {', {
@@ -372,7 +372,7 @@ describe('Miscellaneous - Failure', () => {
     });
     fail('function true() { }', {
         source: `function true() { }`,
-        message: 'Unexpected token',
+        message: 'Unexpected token true',
         line: 1,
     });
     fail('"\\ux";', {
@@ -1166,7 +1166,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('unresolvableReference."";', {
         source: `unresolvableReference."";`,
-        message: 'Unexpected token',
+        message: 'Unexpected token string',
         line: 1,
     });
 

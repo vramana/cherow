@@ -12,10 +12,20 @@ describe('Declarations - Function', () => {
 
     fail(`(function((a)){})`, {
         source: '(function((a)){})',
-        message: 'Unexpected token',
+        message:  'Unexpected token (',
         line: 1,
         column: 10,
         index: 10
+    });
+
+    fail(`"use strict"; function f_10_5_1_gs(){
+        arguments = 7;
+    }`, {
+        source: `"use strict"; function f_10_5_1_gs(){
+            arguments = 7;
+        }`,
+        message:  'Eval or arguments can\'t be assigned to in strict mode code',
+        line: 2,
     });
 
     fail('function f(x,x){}', {

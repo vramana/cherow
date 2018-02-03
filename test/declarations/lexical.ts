@@ -1271,7 +1271,7 @@ describe('Declarations - Lexical', () => {
 
     fail(`let [[(a)], ((((((([b])))))))] = [[],[]];`, {
         source: 'let [[(a)], ((((((([b])))))))] = [[],[]];',
-        message: 'Unexpected token',
+        message: 'Unexpected token (',
         line: 1,
         column: 6,
         index: 6
@@ -1279,50 +1279,56 @@ describe('Declarations - Lexical', () => {
 
     fail(`const [((((a)))), b] = [];`, {
         source: 'const [((((a)))), b] = [];',
+        line: 1
     });
 
     fail(`let [1] = [];`, {
         source: 'let [1] = [];',
+        line: 1
     });
 
     fail(`const [1, a] = [];`, {
         source: 'const [1, a] = [];',
+        line: 1
     });
 
     fail(`let [a];`, {
         source: 'let [a];',
+        line: 1
     });
+
     fail(`while(true) let a`, {
         source: 'while(true) let a',
+        line: 1
     });
 
     fail(`while(true) const a`, {
         source: 'while(true) const a',
+        line: 1
     });
 
     fail(`with(true) let a`, {
         source: 'with(true) let a',
+        line: 1
     });
 
     fail(`with(true) class a {}`, {
         source: 'with(true) class a {}',
+        line: 1
     });
 
     fail(`a: let a`, {
         source: 'a: let a',
+        line: 1
     });
 
     fail(`const x = 0, y = 1,;`, {
         source: 'const x = 0, y = 1,;',
     });
 
-    fail(`let x,;`, {
-        source: 'let x,;',
-    });
-
     fail(`let x,`, {
         source: 'let x,',
-        message: 'Unexpected token',
+        message: 'Unexpected token end of source',
         line: 1,
         column: 6,
         index: 6

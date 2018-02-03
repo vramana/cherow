@@ -873,7 +873,7 @@ export class Parser {
     private scanNumericFragment(context: Context, state: NumericState): NumericState {
         this.flags |= Flags.ContainsSeparator;
         if (!(state & NumericState.AllowSeparator)) {
-            this.early(context, Errors.Unexpected);
+            this.early(context, Errors.InvalidNumericSeparators);
         }
         state &= ~NumericState.AllowSeparator;
         this.advance();
@@ -895,7 +895,7 @@ export class Parser {
                     case Chars.Underscore:
                         if (!next) break loop;
                         if (!(state & NumericState.AllowSeparator)) {
-                            this.early(context, Errors.Unexpected);
+                            this.early(context, Errors.InvalidNumericSeparators);
                         }
                         this.flags |= Flags.ContainsSeparator;
                         state &= ~NumericState.AllowSeparator;
@@ -922,7 +922,7 @@ export class Parser {
             }
 
         if (next && this.source.charCodeAt(this.index - 1) === Chars.Underscore) {
-            this.early(context, Errors.Unexpected);
+            this.early(context, Errors.InvalidNumericSeparators);
         }
 
         return ret + this.source.substring(start, this.index);
@@ -991,7 +991,7 @@ export class Parser {
 
                             value = toHex(ch);
 
-                            if (value < 0) this.early(context, Errors.Unexpected);
+                            if (value < 0) this.early(context, Errors.MissingHexDigits);
 
                             state = NumericState.Hexadecimal | NumericState.AllowSeparator;
 
@@ -1019,7 +1019,7 @@ export class Parser {
                     case Chars.UpperO:
                         {
                             state = NumericState.Octal | NumericState.AllowSeparator;
-                            value = this.scanBinaryOrOctalDigits(context, state, 8, 3, Errors.Unexpected);
+                            value = this.scanBinaryOrOctalDigits(context, state, 8, 3, Errors.MissingOctalDigits);
                             break;
                         }
 
@@ -1027,7 +1027,7 @@ export class Parser {
                     case Chars.UpperB:
                         {
                             state = NumericState.Binary | NumericState.AllowSeparator;
-                            value = this.scanBinaryOrOctalDigits(context, state, 2, 1, Errors.Unexpected);
+                            value = this.scanBinaryOrOctalDigits(context, state, 2, 1, Errors.MissingBinaryDigits);
                             break;
                         }
 
@@ -1079,7 +1079,7 @@ export class Parser {
 
                 if (this.flags & Flags.ContainsSeparator) {
                     if (this.source.charCodeAt(this.index - 1) === Chars.Underscore) {
-                        this.early(context, Errors.Unexpected);
+                        this.early(context, Errors.InvalidNumericSeparators);
                     }
                 }
             }
@@ -1118,7 +1118,7 @@ export class Parser {
 
                     if (context & Context.OptionsNext && this.nextChar() === Chars.Underscore) {
                         this.advance();
-                        if (!this.hasNext()) this.early(context, Errors.Unexpected);
+                        if (!this.hasNext()) this.early(context, Errors.InvalidNumericSeparators);
                         this.flags |= Flags.ContainsSeparator;
                         mainFragment = value += this.scanDecimalDigitsOrFragment(context);
                     }
@@ -1146,7 +1146,7 @@ export class Parser {
 
                     // It is a Syntax Error if the MV is not an integer.
                     if (state & (NumericState.ImplicitOctal | NumericState.Float)) {
-                        this.early(context, Errors.Unexpected);
+                        this.early(context, Errors.InvalidBigIntLiteral);
                     }
 
                     state |= NumericState.BigInt;
@@ -2052,7 +2052,7 @@ export class Parser {
 
     private parseFromClause(context: Context): ESTree.Literal {
         this.expect(context, Token.FromKeyword);
-        if (this.token !== Token.StringLiteral) this.report(Errors.Unexpected);
+        if (this.token !== Token.StringLiteral) this.report(Errors.InvalidModuleSpecifier);
         return this.parseLiteral(context);
     }
 
@@ -2067,7 +2067,7 @@ export class Parser {
 
         // Invalid: 'import { arguments } from './foo';'
         if (t & Token.IsEvalArguments && this.token === Token.RightBrace) {
-            this.early(context, Errors.UnexpectedReservedWord);
+            this.early(context, Errors.UnexpectedStrictReserved);
         }
 
         if (this.token & Token.Contextual) {
@@ -2080,9 +2080,9 @@ export class Parser {
         let local;
 
         if (!hasAs) {
-            if (t & Token.Reserved) this.early(context, Errors.Unexpected);
+            if (t & Token.Reserved) this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
             if (this.token & Token.IsEvalArguments) {
-                this.early(context, Errors.Unexpected);
+                this.early(context, Errors.UnexpectedStrictReserved);
             }
             local = imported;
         } else local = this.parseBindingIdentifier(context);
@@ -2120,7 +2120,7 @@ export class Parser {
     ) {
         const pos = this.getLocation();
         this.expect(context | Context.ValidateEscape, Token.Multiply);
-        this.expect(context, Token.AsKeyword, Errors.Unexpected);
+        this.expect(context, Token.AsKeyword, Errors.NoAsAfterImportNamespace);
         const local = this.parseBindingIdentifier(context);
         specifiers.push(this.finishNode(context, pos, {
             type: 'ImportNamespaceSpecifier',
@@ -2183,7 +2183,7 @@ export class Parser {
                         } else if (t === Token.LeftBrace) {
                             this.parseNamedImport(context, specifiers);
                         } else {
-                            this.early(context, Errors.Unexpected);
+                            this.report(Errors.UnexpectedToken, tokenDesc(t));
                         }
                     }
 
@@ -2201,7 +2201,7 @@ export class Parser {
                 break;
 
             default:
-                this.early(context, Errors.Unexpected);
+                this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
         }
         return specifiers;
     }
@@ -2615,10 +2615,10 @@ export class Parser {
 
             if (clause.test === null) {
                 // Error on duplicate 'default' clauses
-                if (seenDefault) this.early(context, Errors.Unexpected);
-
+               if (seenDefault) this.early(context, Errors.MultipleDefaultsInSwitch);
                 seenDefault = true;
             }
+
             cases.push(clause);
         }
 
@@ -2634,13 +2634,12 @@ export class Parser {
     }
 
     // https://tc39.github.io/ecma262/#sec-switch-statement
+
     private parseSwitchCases(context: Context): ESTree.SwitchCase {
         const pos = this.getLocation();
         let test: ESTree.Expression | null = null;
 
-        if (this.parseOptional(context, Token.DefaultKeyword)) {
-            test = null;
-        } else {
+        if (!this.parseOptional(context, Token.DefaultKeyword)) {
             this.expect(context, Token.CaseKeyword);
             test = this.parseExpression(context, pos);
         }
@@ -3203,8 +3202,9 @@ export class Parser {
 
         // Import.meta - Stage 3 proposal
         if (this.parseOptional(context, Token.Period)) {
-            if (!(context & Context.Module)) this.early(context, Errors.Unexpected);
-            if (this.tokenValue !== 'meta') this.early(context, Errors.Unexpected);
+            if (!(context & Context.Module) || this.tokenValue !== 'meta') {
+                this.early(context, Errors.Unexpected);
+            }
             return this.parseMetaProperty(context, id, pos);
         }
 
@@ -3352,7 +3352,7 @@ export class Parser {
         });
     }
     private consumeTemplateBrace(context: Context): Token {
-        if (!this.hasNext()) this.early(context, Errors.Unexpected);
+        if (!this.hasNext()) this.early(context, Errors.UnterminatedTemplate);
         // Upon reaching a '}', consume it and rewind the scanner state
         this.index--;
         this.column--;
@@ -3708,11 +3708,9 @@ export class Parser {
             properties.push(this.token === Token.Ellipsis ?
                 this.parseSpreadExpression(context) :
                 this.parseObjectElement(context & ~Context.InClass));
-            if (this.parseOptional(context, Token.Comma)) {
-                if (this.parseOptional(context, Token.Comma)) {
-                    this.early(context, Errors.Unexpected);
+                if (this.token !== Token.RightBrace) {
+                    this.expect(context, Token.Comma);
                 }
-            }
 
         }
         if (this.flags & Flags.DuplicateProtoField && this.token !== Token.Assign) {
@@ -3966,7 +3964,7 @@ export class Parser {
         const pos = this.getLocation();
         this.expect(context, Token.ClassKeyword);
         const id = this.token !== Token.ExtendsKeyword && this.isIdentifier(context, this.token) ? this.parseBindingIdentifier(context) : null;
-        if (!id && !(context & Context.Expression) && !optional) this.early(context, Errors.Unexpected);
+        if (!id && !(context & Context.Expression) && !optional) this.early(context, Errors.UnNamedClassDecl);
         return this.parseClassTail(context, id, pos) as ESTree.ClassExpression;
     }
 
@@ -4054,7 +4052,7 @@ export class Parser {
             if (t & Token.IsAsync && !(state & ObjectState.Computed) && !(state & ObjectState.Generator)) {
 
                 // No linebreak after async
-                if (this.flags & Flags.LineTerminator) this.early(context, Errors.Unexpected);
+                if (this.flags & Flags.LineTerminator) this.early(context, Errors.LineBreakAfterAsync);
 
                 state |= ObjectState.Async;
 
@@ -4554,12 +4552,7 @@ export class Parser {
                 // Comma is not permitted after the rest element
             } else {
                 properties.push(this.parseAssignmentProperty(context, params));
-
-                if (this.parseOptional(context, Token.Comma)) {
-                    if (this.parseOptional(context, Token.Comma)) {
-                        this.early(context, Errors.Unexpected);
-                    }
-                }
+                if (this.token !== Token.RightBrace) this.parseOptional(context, Token.Comma);
             }
 
         }
@@ -4640,7 +4633,7 @@ export class Parser {
         if (context & Context.Strict && hasMask(t, Token.IsEvalArguments)) {
             this.early(context, Errors.InvalidBindingStrictMode, tokenDesc(t));
         } else if (!this.isIdentifier(context, t)) {
-            this.early(context, Errors.Unexpected);
+            this.early(context, Errors.UnexpectedToken, tokenDesc(t));
         } else if (context & Context.BlockScoped && t === Token.LetKeyword) {
             this.early(context, Errors.LetInLexicalBinding);
         }
@@ -4657,7 +4650,7 @@ export class Parser {
 
     private parseIdentifierName(context: Context, t: Token) {
         if (t & (Token.IsIdentifier | Token.Keyword)) return this.parseIdentifier(context);
-        this.early(context, Errors.Unexpected);
+        this.early(context, Errors.UnexpectedToken, tokenDesc(t));
     }
 
     private parseFunction(

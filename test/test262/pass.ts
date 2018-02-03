@@ -11,17 +11,9 @@ describe('test262 tests', () => parserTest262({
 
         'test/language/arguments-object/10.5-1-s.js',
         'test/language/identifiers/val-yield-strict.js',
-        'test/language/arguments-object/10.5-1-s.js',
-        'test/language/arguments-object/10.5-1gs.js',
-        'test/language/statements/async-generator/yield-identifier-strict.js',
-        'test/language/statements/async-generator/yield-identifier-strict.js',
         'test/language/statements/async-generator/dflt-params-duplicates.js',
-        'test/language/future-reserved-words/yield-strict-escaped.js',
-        'test/language/asi/S7.9_A5.7_T1.js',
-        'test/annexB/language/statements/labeled/function-declaration.js',
         'test/annexB/language/statements/for-in/strict-initializer.js',
         'test/annexB/language/expressions/template-literal/legacy-octal-escape-sequence-strict.js',
-        'test/annexB/language/statements/for-in/nonstrict-initializer.js',
         'test/language/statements/async-generator/yield-identifier-spread-strict.js',
         'test/language/statements/async-function/syntax-declaration-no-line-terminator.js',
         'test/language/statements/async-function/early-errors-declaration-formals-body-duplicate.js',
@@ -33,15 +25,9 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/async-function/early-errors-declaration-arguments-in-formal-parameters.js',
         'test/language/statements/async-function/early-errors-declaration-duplicate-parameters.js',
         'test/language/statements/async-function/dflt-params-duplicates.js',
-        'test/language/statements/async-function/early-errors-declaration-arguments-in-formal-parameters.js',
-        'test/language/statements/async-function/early-errors-declaration-arguments-in-formal-parameters.js',
         'test/language/statements/class/syntax/early-errors/class-definition-evaluation-scriptbody-duplicate-binding.js',
         'test/language/statements/class/syntax/early-errors/class-definition-evaluation-block-duplicate-binding.js',
         'test/language/statements/class/syntax/early-errors/class-definition-evaluation-block-duplicate-binding.js',
-        'test/language/statements/class/static-method-param-yield.js',
-        'test/language/statements/class/definition/methods-gen-yield-as-identifier-in-nested-function.js',
-        'test/language/statements/class/definition/methods-async-super-call-param.js',
-        'test/language/statements/class/definition/early-errors-class-method-NSPL-with-USD.js',
         'test/language/statements/class/classelementname-abrupt-completion.js',
         'test/language/statements/class/method-param-yield.js',
         'test/language/statements/class/definition/early-errors-class-method-formals-body-duplicate.js',
@@ -66,13 +52,7 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/class/definition/setters-non-configurable-err.js',
         'test/language/statements/class/definition/setters-non-configurable-err.js',
         'test/language/statements/class/definition/getters-non-configurable-err.js',
-
-        //'test/language/statements/continue/*.js',
         'test/language/statements/switch/syntax/redeclaration/**/*.js',
-        //'test/language/statements/for-await-of/*.js',
-        //'test/language/statements/for-in/*.js',
-        //'test/language/statements/for-of/*.js',
-
         'test/language/statements/for/head-let-bound-names-in-stmt.js',
         'test/language/statements/for/decl-async-gen.js',
         'test/language/statements/for/decl-async-fun.js',
@@ -85,7 +65,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/for-of/dstr-obj-prop-nested-obj-yield-ident-invalid.js',
         'test/language/statements/for-of/dstr-obj-id-init-yield-ident-invalid.js',
         'test/language/statements/for-of/dstr-array-rest-yield-ident-invalid.js',
-        'test/language/statements/for-of/dstr-obj-id-identifier-yield-ident-invalid.js',
         'test/language/statements/for-of/dstr-array-elem-target-yield-invalid.js',
         'test/language/statements/for-of/dstr-array-elem-init-yield-ident-invalid.js',
         'test/language/statements/for-of/decl-async-gen.js',
@@ -106,7 +85,7 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/for-in/decl-async-gen.js',
         'test/language/statements/for-in/dstr-array-elem-init-yield-ident-invalid.js',
         'test/language/statements/for-in/decl-async-fun.js',
-
+        'test/annexB/language/statements/for-in/nonstrict-initializer.js',
         'test/language/statements/for-of/dstr-obj-prop-elem-target-yield-ident-invalid.js',
         'test/language/statements/for-of/dstr-obj-id-init-simple-strict.js',
         'test/language/statements/for-of/dstr-array-rest-nested-obj-yield-ident-invalid.js',
@@ -119,9 +98,7 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/for-in/dstr-array-rest-nested-obj-yield-ident-invalid.js',
         'test/language/statements/for-in/dstr-array-elem-target-yield-invalid.js',
         'test/language/statements/for-in/dstr-array-elem-nested-obj-yield-ident-invalid.js',
-
         'test/language/statements/for-of/dstr-array-elem-nested-array-yield-ident-invalid.js',
-
         'test/language/statements/do-while/decl-async-fun.js',
         'test/language/statements/do-while/decl-async-fun.js',
         'test/language/statements/do-while/decl-async-gen.js',
@@ -166,11 +143,11 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/if/if-gen-no-else.js',
         'test/language/statements/if/if-gen-else-stmt.js',
         'test/language/statements/if/if-gen-else-gen.js',
+        'test/language/statements/for-of/dstr-obj-id-identifier-yield-ident-invalid.js',
         'test/language/statements/if/if-decl-else-decl-strict.js',
         'test/language/statements/if/if-decl-else-stmt-strict.js',
         'test/language/statements/if/if-fun-else-fun-strict.js',
         'test/language/statements/if/if-fun-no-else-strict.js',
-        'test/language/statements/if/if-fun-else-fun-strict.js',
         'test/language/statements/let/syntax/identifier-let-allowed-as-lefthandside-expression-strict.js',
         'test/language/statements/let/syntax/attempt-to-redeclare-let-binding-with-var.js',
         'test/language/statements/let/syntax/attempt-to-redeclare-let-binding-with-var.js',
@@ -200,7 +177,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/with/12.10.1-11gs.js',
         'test/language/statements/with/12.10.1-11-s.js',
         'test/language/statements/with/12.10.1-11-s.js',
-
         'test/language/statements/variable/id-eval-strict.js',
         'test/language/statements/variable/id-arguments-strict.js',
         'test/language/statements/variable/12.2.1-4gs.js',
@@ -458,7 +434,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/literals/string/7.8.4-8-s.js',
         'test/language/literals/string/7.8.4-4-s.js',
         'test/language/literals/string/S7.8.4_A4.3_T2.js',
-
         'test/language/literals/string/7.8.4-6-s.js',
         'test/language/literals/string/7.8.4-30-s.js',
         'test/language/literals/string/7.8.4-3-s.js',
@@ -518,14 +493,21 @@ describe('test262 tests', () => parserTest262({
         'test/language/statements/function/13.1-36-s.js',
         'test/language/statements/function/13.1-38-s.js',
         'test/language/statements/function/13.1-40-s.js',
-        'test/language/statements/function/13.1-42-s.js'
+        'test/language/statements/function/13.1-42-s.js',
+        'test/language/statements/function/13.1-42-s.js',
+        'test/language/statements/function/13.1-42-s.js',
+        'test/language/arguments-object/10.5-1gs.js',
+        'test/language/asi/S7.9_A5.7_T1.js',
+        'test/language/future-reserved-words/yield-strict-escaped.js',
+        'test/language/statements/async-generator/yield-identifier-strict.js',
+
     ],
     parse: (file: string, source: string, opts: any) => {
         const cherowOpts = {
-            impliedStrict: opts.type === 'strict',
             directives: true,
             next: true
         };
+   //     if (opts.type === 'strict') source = '"use strict"; ' + source;
         if (opts.type === 'module') return parseModule(source, cherowOpts);
         return parseScript(source, cherowOpts);
     },

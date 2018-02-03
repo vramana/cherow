@@ -22,6 +22,11 @@ describe('Miscellaneous - Escaped keywords', () => {
         line: 1
     });
 
+    fail('"use strict"; var \\u0079ield = 123;', {
+        source: '"use strict"; var \\u0079ield = 123;',
+        line: 1
+    });
+
     fail('({ g\\u0065t m() {} });', {
         source: '({ g\\u0065t m() {} });',
         line: 1

@@ -76,7 +76,17 @@ export const enum Errors {
     DuplicateRegExpFlag,
     UnexpectedTokenRegExpFlag,
     UnterminatedComment,
-    YieldInParameter
+    YieldInParameter,
+    UnNamedClassDecl,
+    InvalidNumericSeparators,
+    InvalidBigIntLiteral,
+    MissingHexDigits,
+    MissingOctalDigits,
+    MissingBinaryDigits,
+    InvalidModuleSpecifier,
+    NoAsAfterImportNamespace,
+    MultipleDefaultsInSwitch,
+    UnterminatedTemplate
 }
 
 export const ErrorMessages: {
@@ -159,6 +169,16 @@ export const ErrorMessages: {
     [Errors.UnterminatedRegExp]: 'Unterminated regular expression literal',
     [Errors.UnterminatedComment]: 'Unterminated comment',
     [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter',
+    [Errors.UnNamedClassDecl]: 'Class declaration requires a name',
+    [Errors.InvalidNumericSeparators]: 'Numeric separators are not allowed here',
+    [Errors.InvalidBigIntLiteral]: 'Invalid BigIntLiteral',
+    [Errors.MissingBinaryDigits]: 'Missing binary digits after \'0b\'',
+    [Errors.MissingOctalDigits]: 'Missing octal digits after \'0o\'',
+    [Errors.MissingHexDigits]: 'Missing hexadecimal digits after \'0x\'',
+    [Errors.InvalidModuleSpecifier]: 'Invalid module specifier',
+    [Errors.NoAsAfterImportNamespace]: 'Missing \'as\' keyword after import namespace',
+    [Errors.MultipleDefaultsInSwitch]: 'More than one default clause in switch statement',
+    [Errors.UnterminatedTemplate]: 'Unterminated template literal',
 };
 
 function constructError(msg: string, column: number): Error {
