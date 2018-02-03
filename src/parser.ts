@@ -1574,6 +1574,14 @@ export class Parser {
         }
     }
 
+    private consumeTemplateBrace(context: Context): Token {
+        if (!this.hasNext()) this.early(context, Errors.UnterminatedTemplate);
+        // Upon reaching a '}', consume it and rewind the scanner state
+        this.index--;
+        this.column--;
+        return this.scanTemplate(context, Chars.RightBrace);
+    }
+
     private scanTemplate(context: Context, first: number): any {
         const start = this.index;
         const lastChar = this.lastChar;
@@ -1830,6 +1838,8 @@ export class Parser {
         this.rewindState(savedState);
         return !(savedFlag & Flags.ExtendedUnicodeEscape && flags & Flags.LineTerminator) &&
             !!(t & (Token.IsBindingPattern | Token.IsIdentifier | Token.IsYield) ||
+                t === Token.LetKeyword ||
+                t === Token.LeftBracket ||
                 (t & Token.Contextual) === Token.Contextual);
     }
 
@@ -3205,7 +3215,7 @@ export class Parser {
 
     private parseImportCall(context: Context, pos: Location) {
         const id = this.parseIdentifier(context);
-        
+
         if (context & Context.OptionsNext && this.parseOptional(context, Token.Period)) {
             // Import.meta - Stage 3 proposal
             if (!(context & Context.Module) || this.tokenValue !== 'meta') {
@@ -3236,19 +3246,19 @@ export class Parser {
         const id = this.parseIdentifierName(context, this.token);
 
         if (this.parseOptional(context | Context.ValidateEscape, Token.Period)) {
-            
-                if (this.tokenValue !== 'target') {
+
+            if (this.tokenValue !== 'target') {
+                this.early(context, Errors.MetaNotInFunctionBody);
+            }
+            if (!(context & Context.InParameter)) {
+                // An ArrowFunction in global code may not contain `new.target`
+                if (context & Context.ArrowFunction && context & Context.TopLevel) {
+                    this.early(context, Errors.NewTargetArrow);
+                } else if (!(this.flags & Flags.InFunctionBody)) {
                     this.early(context, Errors.MetaNotInFunctionBody);
                 }
-                if (!(context & Context.InParameter)) {
-                    // An ArrowFunction in global code may not contain `new.target`
-                    if (context & Context.ArrowFunction && context & Context.TopLevel) {
-                        this.early(context, Errors.NewTargetArrow);
-                    } else if (!(this.flags & Flags.InFunctionBody)) {
-                        this.early(context, Errors.MetaNotInFunctionBody);
-                    }
-                }
-            
+            }
+
             return this.parseMetaProperty(context, (id as ESTree.Identifier), pos);
         }
 
@@ -3262,7 +3272,7 @@ export class Parser {
     private parseLeftHandSideExpression(context: Context, pos: Location): ESTree.Expression {
 
         let expr;
-        
+
         if (this.token === Token.SuperKeyword) {
             expr = this.parseSuperExpression(context);
         } else if (this.token === Token.ImportKeyword) {
@@ -3355,13 +3365,7 @@ export class Parser {
             tail: true
         });
     }
-    private consumeTemplateBrace(context: Context): Token {
-        if (!this.hasNext()) this.early(context, Errors.UnterminatedTemplate);
-        // Upon reaching a '}', consume it and rewind the scanner state
-        this.index--;
-        this.column--;
-        return this.scanTemplate(context, Chars.RightBrace);
-    }
+
     private parseTemplateHead(context: Context, cooked: string, raw: string, pos: Location): ESTree.TemplateElement {
         this.token = this.consumeTemplateBrace(context);
 
@@ -3545,31 +3549,19 @@ export class Parser {
     }
 
     private parseLet(context: Context): ESTree.Identifier {
-        const name = this.tokenValue;
-        const pos = this.getLocation();
-        const flag = this.flags;
-        const t = this.token;
         // 'let' must not be in expression position in strict mode
-        if (context & Context.Strict) this.early(context, Errors.InvalidStrictExpPostion, tokenDesc(t));
-
-        this.expect(context, Token.LetKeyword);
-
-        switch (this.token) {
-            case Token.LetKeyword:
-                this.early(context, Errors.LetInLexicalBinding);
-            case Token.LeftBracket:
-                {
-                    if (this.flags & Flags.LineTerminator) {
-                        // Note: ExpressionStatement has a lookahead restriction for `let [`.
-                        this.early(context, Errors.UnexpectedToken, tokenDesc(t));
-                    }
-                }
+        if (context & Context.Strict) {
+            this.early(context, Errors.InvalidStrictExpPostion, 'let');
+        }
+        const letIdentifier = this.parseIdentifier(context);
+        if (this.token === Token.LeftBracket &&
+            this.flags & Flags.LineTerminator) {
+                // Note: ExpressionStatement has a lookahead restriction for `let [`.
+                this.early(context, Errors.UnexpectedToken, 'let');
         }
 
-        return this.finishNode(context, pos, {
-            type: 'Identifier',
-            name
-        });
+        return letIdentifier;
+
     }
 
     // http://www.ecma-international.org/ecma-262/8.0/#prod-AsyncFunctionExpression
