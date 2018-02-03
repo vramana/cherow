@@ -3531,9 +3531,26 @@ export class Parser {
             case Token.AsyncKeyword:
                 return this.parseAsyncFunctionExpression(context, pos);
             case Token.LetKeyword:
-                return this.parseLet(context);
+                {
+                    // 'let' must not be in expression position in strict mode
+                    if (context & Context.Strict) {
+                        this.early(context, Errors.InvalidStrictExpPostion, 'let');
+                    }
+                    const letIdentifier = this.parseIdentifier(context);
+
+                    // Note: ExpressionStatement has a lookahead restriction for `let [`.
+                    if (this.token === Token.LeftBracket &&
+                        this.flags & Flags.LineTerminator) {
+                        this.early(context, Errors.UnexpectedToken, 'let');
+                    }
+
+                    return letIdentifier;
+                }
+
             case Token.Hash:
-                if (context & Context.InClass) return this.parsePrivateName(context);
+                if (context & Context.InClass) {
+                    return this.parsePrivateName(context);
+                }
             case Token.YieldKeyword:
                 if (context & Context.YieldContext) {
                     this.early(context, Errors.DisallowedInContext, tokenDesc(this.token));
@@ -3543,25 +3560,11 @@ export class Parser {
                     this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
                 }
             default:
-                if (this.isIdentifier(context, this.token)) return this.parseIdentifier(context);
+                if (this.isIdentifier(context, this.token)) {
+                    return this.parseIdentifier(context);
+                }
                 this.early(context, Errors.Unexpected);
         }
-    }
-
-    private parseLet(context: Context): ESTree.Identifier {
-        // 'let' must not be in expression position in strict mode
-        if (context & Context.Strict) {
-            this.early(context, Errors.InvalidStrictExpPostion, 'let');
-        }
-        const letIdentifier = this.parseIdentifier(context);
-        if (this.token === Token.LeftBracket &&
-            this.flags & Flags.LineTerminator) {
-                // Note: ExpressionStatement has a lookahead restriction for `let [`.
-                this.early(context, Errors.UnexpectedToken, 'let');
-        }
-
-        return letIdentifier;
-
     }
 
     // http://www.ecma-international.org/ecma-262/8.0/#prod-AsyncFunctionExpression
