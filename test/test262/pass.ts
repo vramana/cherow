@@ -501,6 +501,8 @@ describe('test262 tests', () => parserTest262({
         'test/language/future-reserved-words/yield-strict-escaped.js',
         'test/language/statements/async-generator/yield-identifier-strict.js',
         'test/language/expressions/arrow-function/throw-new.js',
+        'test/language/line-terminators/S7.3_A2.3.js',
+        'test/language/line-terminators/S7.3_A2.4.js'
     ],
     parse: (file: string, source: string, opts: any) => {
         const cherowOpts = {

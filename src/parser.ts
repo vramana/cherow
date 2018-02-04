@@ -1338,10 +1338,11 @@ export class Parser {
             switch (ch) {
                 case Chars.CarriageReturn:
                 case Chars.LineFeed:
+                    this.report(Errors.UnterminatedString);
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
+                    if (context & Context.OptionsNext) break;
                     this.report(Errors.UnterminatedString);
-
                 case Chars.Backslash:
                     ch = this.readNext(ch);
 

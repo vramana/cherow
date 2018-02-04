@@ -33,6 +33,7 @@ It strictly follows the [ECMAScript® 2018 Language Specification](https://tc39.
 * [Numeric Separators](https://github.com/tc39/proposal-numeric-separator)
 * [Private methods and fields](https://github.com/tc39/proposal-private-methods)
 * [Optional catch binding](https://github.com/tc39/proposal-optional-catch-binding)
+* [JSON Superset](https://github.com/tc39/proposal-json-superset)
 * [BigInt](https://github.com/tc39/proposal-bigint)
 * [Import.meta](https://github.com/tc39/proposal-import-meta)
 
