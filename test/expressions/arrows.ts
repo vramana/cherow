@@ -953,6 +953,36 @@ describe('Expressions - Arrows', () => {
         }
     });
 
+    pass(`new (() => {});`, {
+        source: 'new (() => {});',
+        raw: true,
+        expected: {
+              body: [
+                {
+                  expression: {
+                    arguments: [],
+                    callee: {
+                      async: false,
+                      body: {
+                        body: [],
+                        type: 'BlockStatement'
+                      },
+                      expression: false,
+                      generator: false,
+                     id: null,
+                      params: [],
+                      type: 'ArrowFunctionExpression'
+                    },
+                    type: 'NewExpression'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
     pass(`bar ? ( (x) => x ) : baz;`, {
         source: 'bar ? ( (x) => x ) : baz;',
         loc: true,

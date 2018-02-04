@@ -43,46 +43,46 @@ describe('Expressions - Async arrow', () => {
         source: '({foo: bar}) => {}',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "async": false,
-                    "body": {
-                      "body": [],
-                      "type": "BlockStatement"
+                  expression: {
+                    async: false,
+                    body: {
+                      body: [],
+                      type: 'BlockStatement'
                     },
-                    "expression": false,
-                    "generator": false,
-                    "id": null,
-                    "params": [
+                    expression: false,
+                    generator: false,
+                    id: null,
+                    params: [
                       {
-                        "properties": [
+                        properties: [
                           {
-                            "computed": false,
-                           "key": {
-                              "name": "foo",
-                             "type": "Identifier"
+                            computed: false,
+                           key: {
+                              name: 'foo',
+                             type: 'Identifier'
                             },
-                            "kind": "init",
-                           "method": false,
-                            "shorthand": false,
-                            "type": "Property",
-                            "value": {
-                              "name": "bar",
-                              "type": "Identifier",
+                            kind: 'init',
+                           method: false,
+                            shorthand: false,
+                            type: 'Property',
+                            value: {
+                              name: 'bar',
+                              type: 'Identifier',
                             },
                           }
                         ],
-                        "type": "ObjectPattern"
+                        type: 'ObjectPattern'
                       }
                     ],
-                    "type": "ArrowFunctionExpression"
+                    type: 'ArrowFunctionExpression'
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program"
+              sourceType: 'script',
+              type: 'Program'
             }
     });
 

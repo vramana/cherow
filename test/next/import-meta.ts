@@ -15,7 +15,7 @@ describe('Next - Import meta', () => {
         next: true,
         line: 1
     });
-    
+
     fail('"ariya" as property name', {
         source: `import.ariya`,
         module: true,

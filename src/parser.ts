@@ -2580,10 +2580,7 @@ export class Parser {
     private parseCatchBlock(context: Context): ESTree.CatchClause {
         const pos = this.getLocation();
         this.expect(context, Token.CatchKeyword);
-
         let param = null;
-        let arg;
-
         if (this.parseOptional(context, Token.LeftParen)) {
             const params: any[] = [];
             param = this.parseBindingIdentifierOrPattern(context, params);
@@ -4200,10 +4197,13 @@ export class Parser {
             this.early(context, Errors.ElementAfterRest);
         }
 
-        if (this.flags & Flags.DisallowArrowFunction) {
+        // Invalid: 'new () => {};'
+        // Valid: 'new (() => {});'
+        if (!(context & Context.InParenthesis) &&
+            this.flags & Flags.DisallowArrowFunction) {
             this.early(context, Errors.InvalidArrowConstructor);
         }
-        // var foo = new () => {};
+
         this.expect(context, Token.Arrow);
 
         if (context & Context.InClass && this.token & Token.IsEvalArguments) {

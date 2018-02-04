@@ -13,13 +13,13 @@ describe('Miscellaneous - ASI', () => {
     line: 4,
 });
 
-fail(`invalid Do-While Statement ASI`, {
+  fail(`invalid Do-While Statement ASI`, {
     source: `do {}; \n while(false)`,
     message: 'Unexpected token',
     line: 1,
   });
-  
-    fail(`for header is (false \n false \n)`, {
+
+  fail(`for header is (false \n false \n)`, {
     source: `for(false
       false
   ) {
@@ -28,8 +28,8 @@ fail(`invalid Do-While Statement ASI`, {
   message: 'Unexpected token',
   line: 1,
   });
-  
-    fail(`for header is (\n false \n)`, {
+
+  fail(`for header is (\n false \n)`, {
     source: `for(
       false
   ) {
@@ -44,18 +44,18 @@ fail(`invalid Do-While Statement ASI`, {
         break;
       }`,
   });
-  
-    fail(`for(false;false;;false) { break; }`, {
+
+  fail(`for(false;false;;false) { break; }`, {
           source: `for(false;false;;false) {
               break;
             }`,
       });
-  
-    fail(`\n while(false)`, {
+
+  fail(`\n while(false)`, {
           source: `\n while(false)`,
       });
-  
-    pass(`;;1;;1;;1`, {
+
+  pass(`;;1;;1;;1`, {
         source: `;;1;;1;;1`,
         loc: true,
         ranges: true,
@@ -236,7 +236,7 @@ fail(`invalid Do-While Statement ASI`, {
       }
       });
 
-      pass(`;;;;`, {
+  pass(`;;;;`, {
         source: `;;;;`,
         loc: true,
         ranges: true,
@@ -320,8 +320,8 @@ fail(`invalid Do-While Statement ASI`, {
           }
       }
       });
-  
-    pass(`0\n;`, {
+
+  pass(`0\n;`, {
         source: `0\n;`,
         raw: true,
         expected: {
@@ -339,8 +339,8 @@ fail(`invalid Do-While Statement ASI`, {
             type: 'Program'
           }
       });
-  
-    pass(`x: while(true) { continue x\n; }`, {
+
+  pass(`x: while(true) { continue x\n; }`, {
         source: `    \t \f\v 'abc'  \t `,
         raw: true,
         expected: {
@@ -359,8 +359,8 @@ fail(`invalid Do-While Statement ASI`, {
             type: 'Program'
           }
       });
-  
-    pass(`    \t \f\v\n 'abc'  \t `, {
+
+  pass(`    \t \f\v\n 'abc'  \t `, {
         source: `    \t \f\v\n 'abc'  \t `,
         raw: true,
         expected: {
@@ -379,8 +379,8 @@ fail(`invalid Do-While Statement ASI`, {
             type: 'Program'
           }
       });
-  
-    pass(`    \t \f\v\n`, {
+
+  pass(`    \t \f\v\n`, {
         source: `    \t \f\v\n`,
         raw: true,
         expected: {
@@ -389,7 +389,7 @@ fail(`invalid Do-While Statement ASI`, {
             type: 'Program'
           }
       });
-    
+
   pass(`;;1;;1;;1`, {
     source: `;;1;;1;;1`,
     loc: true,
@@ -571,7 +571,7 @@ fail(`invalid Do-While Statement ASI`, {
   }
   });
 
-pass(`;;;;`, {
+  pass(`;;;;`, {
     source: `;;;;`,
     loc: true,
     ranges: true,
@@ -656,7 +656,7 @@ pass(`;;;;`, {
   }
   });
 
-pass(`0\n;`, {
+  pass(`0\n;`, {
     source: `0\n;`,
     raw: true,
     expected: {
@@ -675,7 +675,7 @@ pass(`0\n;`, {
       }
   });
 
-pass(`x: while(true) { continue x\n; }`, {
+  pass(`x: while(true) { continue x\n; }`, {
     source: `    \t \f\v 'abc'  \t `,
     raw: true,
     expected: {
@@ -695,7 +695,7 @@ pass(`x: while(true) { continue x\n; }`, {
       }
   });
 
-pass(`    \t \f\v\n 'abc'  \t `, {
+  pass(`    \t \f\v\n 'abc'  \t `, {
     source: `    \t \f\v\n 'abc'  \t `,
     raw: true,
     expected: {
@@ -715,7 +715,7 @@ pass(`    \t \f\v\n 'abc'  \t `, {
       }
   });
 
-pass(`    \t \f\v\n`, {
+  pass(`    \t \f\v\n`, {
     source: `    \t \f\v\n`,
     raw: true,
     expected: {
@@ -725,7 +725,7 @@ pass(`    \t \f\v\n`, {
       }
   });
 
-pass(`do {} \n while(false)`, {
+  pass(`do {} \n while(false)`, {
       source: `do {}
        while(false)`,
       raw: true,
@@ -749,7 +749,7 @@ pass(`do {} \n while(false)`, {
     }
   });
 
-pass(`for(false\n    ;;false\n) {\n  break;\n}`, {
+  pass(`for(false\n    ;;false\n) {\n  break;\n}`, {
     source: `for(false\n    ;;false\n) {\n  break;\n}`,
     expected:  n('Program', {
       sourceType: 'script',
@@ -766,7 +766,7 @@ pass(`for(false\n    ;;false\n) {\n  break;\n}`, {
   })
   });
 
-pass(`for(;\n  ;\n) {\n  break;\n}`, {
+  pass(`for(;\n  ;\n) {\n  break;\n}`, {
     source: `for(;\n  ;\n) {\n  break;\n}`,
     expected: n('Program', {
       sourceType: 'script',
@@ -783,7 +783,7 @@ pass(`for(;\n  ;\n) {\n  break;\n}`, {
   })
   });
 
-pass(`var x =\n1`, {
+  pass(`var x =\n1`, {
     source: `var x =\n1`,
     expected: n('Program', {
       sourceType: 'script',
@@ -798,7 +798,7 @@ pass(`var x =\n1`, {
   })
   });
 
-pass(`var x\ny`, {
+  pass(`var x\ny`, {
     source: `var x\ny`,
     expected: n('Program', {
       sourceType: 'script',
@@ -814,7 +814,7 @@ pass(`var x\ny`, {
   })
   });
 
-pass(`;1;\n;1\n;1;\n;1`, {
+  pass(`;1;\n;1\n;1;\n;1`, {
     source: `;1;\n;1\n;1;\n;1`,
     expected: n('Program', {
       sourceType: 'script',
@@ -830,7 +830,7 @@ pass(`;1;\n;1\n;1;\n;1`, {
   })
   });
 
-pass(`var\nx\n=\n1`, {
+  pass(`var\nx\n=\n1`, {
     source: `var\nx\n=\n1`,
     expected:  n('Program', {
       sourceType: 'script',
@@ -845,7 +845,7 @@ pass(`var\nx\n=\n1`, {
   })
   });
 
-pass(`var x /* comment */;`, {
+  pass(`var x /* comment */;`, {
     source: `var x /* comment */;`,
     expected: n('Program', {
       sourceType: 'script',
@@ -860,7 +860,7 @@ pass(`var x /* comment */;`, {
   })
   });
 
-pass(`0\n;`, {
+  pass(`0\n;`, {
     source: `0\n;`,
     expected: n('Program', {
       sourceType: 'script',
@@ -870,7 +870,7 @@ pass(`0\n;`, {
   })
   });
 
-pass(`debugger\n;`, {
+  pass(`debugger\n;`, {
     source: `debugger\n;`,
     expected: n('Program', {
       sourceType: 'script',
@@ -880,7 +880,7 @@ pass(`debugger\n;`, {
   })
   });
 
-pass(`while(true) { break\n; }`, {
+  pass(`while(true) { break\n; }`, {
     source: `while(true) { break\n; }`,
     expected: n('Program', {
       sourceType: 'script',
@@ -895,7 +895,7 @@ pass(`while(true) { break\n; }`, {
   })
   });
 
-pass(`var x /* comment */;`, {
+  pass(`var x /* comment */;`, {
     source: `var x /* comment */;`,
     expected: n('Program', {
       sourceType: 'script',
@@ -910,7 +910,7 @@ pass(`var x /* comment */;`, {
   })
   });
 
-pass(`x: while(true) { continue x\n; }`, {
+  pass(`x: while(true) { continue x\n; }`, {
     source: `x: while(true) { continue x\n; }`,
     expected: n('Program', {
       sourceType: 'script',
@@ -928,7 +928,7 @@ pass(`x: while(true) { continue x\n; }`, {
   })
   });
 
-pass(`var x\n;`, {
+  pass(`var x\n;`, {
     source: `var x\n;`,
     module: true,
     expected:  n('Program', {
