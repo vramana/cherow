@@ -2,102 +2,71 @@ import { pass, fail } from '../test-utils';
 
 describe('Statements - For of', () => {
 
-    pass('for (j of x) { var foo = j }', {
-        source: 'for (j of x) { var foo = j }',
+      pass('for ([arguments, eval] of [[2, 3]]) {}', {
+        source: 'for ([arguments, eval] of [[2, 3]]) {}',
         loc: true,
         ranges: true,
+        raw: true,
         expected: {
             type: 'Program',
+            sourceType: 'script',
             body: [
                 {
                     type: 'ForOfStatement',
                     body: {
                         type: 'BlockStatement',
-                        body: [
-                            {
-                                type: 'VariableDeclaration',
-                                declarations: [
-                                    {
-                                        type: 'VariableDeclarator',
-                                        init: {
-                                            type: 'Identifier',
-                                            name: 'j',
-                                            start: 25,
-                                            end: 26,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 25
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 26
-                                                }
-                                            }
-                                        },
-                                        id: {
-                                            type: 'Identifier',
-                                            name: 'foo',
-                                            start: 19,
-                                            end: 22,
-                                            loc: {
-                                                start: {
-                                                    line: 1,
-                                                    column: 19
-                                                },
-                                                end: {
-                                                    line: 1,
-                                                    column: 22
-                                                }
-                                            }
-                                        },
-                                        start: 19,
-                                        end: 26,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 19
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 26
-                                            }
-                                        }
-                                    }
-                                ],
-                                kind: 'var',
-                                start: 15,
-                                end: 26,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 15
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 26
-                                    }
-                                }
-                            }
-                        ],
-                        start: 13,
-                        end: 28,
+                        body: [],
+                        start: 36,
+                        end: 38,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 13
+                                column: 36
                             },
                             end: {
                                 line: 1,
-                                column: 28
+                                column: 38
                             }
                         }
                     },
                     left: {
-                        type: 'Identifier',
-                        name: 'j',
+                        type: 'ArrayPattern',
+                        elements: [
+                            {
+                                type: 'Identifier',
+                                name: 'arguments',
+                                start: 6,
+                                end: 15,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 6
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 15
+                                    }
+                                }
+                            },
+                            {
+                                type: 'Identifier',
+                                name: 'eval',
+                                start: 17,
+                                end: 21,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 17
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 21
+                                    }
+                                }
+                            }
+                        ],
                         start: 5,
-                        end: 6,
+                        end: 22,
                         loc: {
                             start: {
                                 line: 1,
@@ -105,29 +74,81 @@ describe('Statements - For of', () => {
                             },
                             end: {
                                 line: 1,
-                                column: 6
+                                column: 22
                             }
                         }
                     },
                     right: {
-                        type: 'Identifier',
-                        name: 'x',
-                        start: 10,
-                        end: 11,
+                        type: 'ArrayExpression',
+                        elements: [
+                            {
+                                type: 'ArrayExpression',
+                                elements: [
+                                    {
+                                        type: 'Literal',
+                                        value: 2,
+                                        start: 28,
+                                        end: 29,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 28
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 29
+                                            }
+                                        },
+                                        raw: '2'
+                                    },
+                                    {
+                                        type: 'Literal',
+                                        value: 3,
+                                        start: 31,
+                                        end: 32,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 31
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 32
+                                            }
+                                        },
+                                        raw: '3'
+                                    }
+                                ],
+                                start: 27,
+                                end: 33,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 27
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 33
+                                    }
+                                }
+                            }
+                        ],
+                        start: 26,
+                        end: 34,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 10
+                                column: 26
                             },
                             end: {
                                 line: 1,
-                                column: 11
+                                column: 34
                             }
                         }
                     },
                     await: false,
                     start: 0,
-                    end: 28,
+                    end: 38,
                     loc: {
                         start: {
                             line: 1,
@@ -135,14 +156,13 @@ describe('Statements - For of', () => {
                         },
                         end: {
                             line: 1,
-                            column: 28
+                            column: 38
                         }
                     }
                 }
             ],
-            sourceType: 'script',
             start: 0,
-            end: 28,
+            end: 38,
             loc: {
                 start: {
                     line: 1,
@@ -150,13 +170,13 @@ describe('Statements - For of', () => {
                 },
                 end: {
                     line: 1,
-                    column: 28
+                    column: 38
                 }
             }
         }
-    });
+      });
 
-    pass('for (j of x) { function foo() {return j} }', {
+      pass('for (j of x) { function foo() {return j} }', {
         source: 'for (j of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -335,7 +355,7 @@ describe('Statements - For of', () => {
         expected: {}}
     });
 */
-    pass('for (var j of x) { function foo() {return j} }', {
+      pass('for (var j of x) { function foo() {return j} }', {
         source: 'for (var j of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -541,7 +561,7 @@ describe('Statements - For of', () => {
         }
     });
 
-    pass('for (var {j} of x) { function foo() {return j} }', {
+      pass('for (var {j} of x) { function foo() {return j} }', {
         source: 'for (var {j} of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -799,7 +819,7 @@ describe('Statements - For of', () => {
         }
     });
 
-    pass('for (let {j} of x) { function foo() {return j} }', {
+      pass('for (let {j} of x) { function foo() {return j} }', {
         source: 'for (let {j} of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -1057,7 +1077,7 @@ describe('Statements - For of', () => {
         }
     });
 
-    pass('for (const j of x) { let foo = j }', {
+      pass('for (const j of x) { let foo = j }', {
         source: 'for (const j of x) { let foo = j }',
         loc: true,
         ranges: true,
@@ -1245,7 +1265,7 @@ describe('Statements - For of', () => {
         }
     });
 
-    pass('for (let {j} of x) { let foo = j }', {
+      pass('for (let {j} of x) { let foo = j }', {
         source: 'for (let {j} of x) { let foo = j }',
         loc: true,
         ranges: true,
@@ -1485,7 +1505,7 @@ describe('Statements - For of', () => {
         }
     });
 
-    pass('for ([x] of [[a],[b],[c]]) {}', {
+      pass('for ([x] of [[a],[b],[c]]) {}', {
         source: 'for ([x] of [[a],[b],[c]]) {}',
         loc: true,
         ranges: true,
@@ -1690,7 +1710,7 @@ describe('Statements - For of', () => {
         }
     });
 
-    pass('for (const j of x) { foo = j }', {
+      pass('for (const j of x) { foo = j }', {
         source: 'for (const j of x) { foo = j }',
         loc: true,
         ranges: true,
@@ -1876,7 +1896,7 @@ describe('Statements - For of', () => {
         }
     });
 
-    pass('for (const {j} of x) { let [foo] = [j] }', {
+      pass('for (const {j} of x) { let [foo] = [j] }', {
         source: 'for (const {j} of x) { let [foo] = [j] }',
         loc: true,
         ranges: true,
@@ -2150,7 +2170,7 @@ describe('Statements - For of', () => {
         }
     });
 
-    pass('for (j of x) { function foo() {return j} }', {
+      pass('for (j of x) { function foo() {return j} }', {
         source: 'for (j of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -2322,7 +2342,7 @@ describe('Statements - For of', () => {
         }
     });
 
-    pass('for (let {j} of x) { function foo() {return j} }', {
+      pass('for (let {j} of x) { function foo() {return j} }', {
         source: 'for (let {j} of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -2580,7 +2600,7 @@ describe('Statements - For of', () => {
         }
     });
 
-    pass('function* g() { for(const x of yield) {} }', {
+      pass('function* g() { for(const x of yield) {} }', {
         source: 'function* g() { for(const x of yield) {} }',
         loc: true,
         ranges: true,
@@ -2755,7 +2775,7 @@ describe('Statements - For of', () => {
         }
     });
 
-    pass('for ([x] of [for (const j of x) { function foo() {return j} }', {
+      pass('for ([x] of [for (const j of x) { function foo() {return j} }', {
         source: 'for (const j of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -2961,7 +2981,7 @@ describe('Statements - For of', () => {
         }
     });
 
-    pass(`"use strict";  for (var value of arguments) {  }`, {
+      pass(`"use strict";  for (var value of arguments) {  }`, {
         source: '"use strict";  for (var value of arguments) {  }',
         loc: true,
         ranges: true,
@@ -3117,7 +3137,7 @@ describe('Statements - For of', () => {
         }
     });
 
-    pass(`for (var x of list) process(x);`, {
+      pass(`for (var x of list) process(x);`, {
             source: 'for (var x of list) process(x);',
             loc: true,
             ranges: true,
@@ -3288,7 +3308,7 @@ describe('Statements - For of', () => {
             }
         });
 
-    pass(`for(var a of b);`, {
+      pass(`for(var a of b);`, {
             source: 'for(var a of b);',
             loc: true,
             ranges: true,
@@ -3410,7 +3430,7 @@ describe('Statements - For of', () => {
             }
         });
 
-    pass(`for(a of b);`, {
+      pass(`for(a of b);`, {
             source: 'for(a of b);',
             loc: true,
             ranges: true,
@@ -3498,7 +3518,7 @@ describe('Statements - For of', () => {
             }
         });
 
-    pass(`for(let [a] of b);`, {
+      pass(`for(let [a] of b);`, {
             source: 'for(let [a] of b);',
             loc: true,
             ranges: true,
@@ -3637,7 +3657,7 @@ describe('Statements - For of', () => {
             }
         });
 
-    pass(`for(let of of b);`, {
+      pass(`for(let of of b);`, {
             source: 'for(let of of b);',
             loc: true,
             ranges: true,
@@ -3759,7 +3779,7 @@ describe('Statements - For of', () => {
             }
         });
 
-    pass(`function a(a, b, c) { 'use strict';  for (var value of x) {   a = b;  } }`, {
+      pass(`function a(a, b, c) { 'use strict';  for (var value of x) {   a = b;  } }`, {
             source: 'function a(a, b, c) { "use strict";  for (var value of x) {   a = b;  } }',
             loc: true,
             ranges: true,
@@ -4079,99 +4099,4 @@ describe('Statements - For of', () => {
                 }
             }
         });
-
-    fail(`for ({...rest, b} of [{} ]) ;`, {
-            source: 'for ({...rest, b} of [{} ]) ;',
-            next: true,
-            line: 1,
-            column: 13,
-            index: 13
-        });
-
-    fail(`for (const a of b, c);`, {
-            source: 'for (const a of b, c);',
-            next: true,
-            line: 1,
-            column: 17,
-            index: 17
-     });
-
-    fail(`for ({...rest, b} of [{} ]) ;`, {
-            source: 'for ({...rest, b} of [{} ]) ;',
-            line: 1,
-            column: 13,
-            index: 13
-    });
-
-    fail(`for(var a of b, c);`, {
-        source: 'for(var a of b, c);',
-        message: 'Unexpected token',
-        line: 1,
-        column: 14,
-        index: 14
-    });
-
-    fail(`for(a of b, c);`, {
-        source: 'for(a of b, c);',
-        message: 'Unexpected token',
-        line: 1,
-        column: 10,
-        index: 10
-    });
-
-    fail(`for(var a = 0 of b);`, {
-        source: 'for(var a = 0 of b);',
-        message: 'for-of loop variable declaration may not have an initializer',
-        line: 1,
-        column: 13,
-        index: 13
-    });
-
-    fail(`for(let a = 0 of b);`, {
-        source: 'for(let a = 0 of b);',
-        message: 'for-of loop variable declaration may not have an initializer',
-        line: 1,
-        column: 13,
-        index: 13
-    });
-
-    fail(`for(let of 0);`, {
-        source: 'for(let of 0);',
-        message: 'Unexpected token',
-        line: 1,
-        column: 10,
-        index: 10
-    });
-
-    fail(`for(this of 0);`, {
-        source: 'for(this of 0);',
-        message:  'Unexpected token',
-        line: 1,
-        column: 13,
-        index: 13
-    });
-
-    fail(`for ([[(x, y)]] of [[[]]]) ;`, {
-        source: 'for ([[(x, y)]] of [[[]]]) ;',
-        message: 'Unexpected token',
-        line: 1,
-        column: 25,
-        index: 25
-    });
-
-    fail(`for(let of 0);`, {
-        source: 'for(let of 0);',
-        message: 'Unexpected token',
-        line: 1,
-        column: 10,
-        index: 10
-    });
-
-    fail(`for(this of 0);`, {
-        source: 'for(this of 0);',
-        message: 'Unexpected token',
-        line: 1,
-        column: 13,
-        index: 13
-    });
 });

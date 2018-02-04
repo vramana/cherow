@@ -87,7 +87,8 @@ export const enum Errors {
     NoAsAfterImportNamespace,
     MultipleDefaultsInSwitch,
     UnterminatedTemplate,
-    InvalidArrowConstructor
+    InvalidArrowConstructor,
+    InvalidDestructuringTarget
 }
 
 export const ErrorMessages: {
@@ -181,6 +182,8 @@ export const ErrorMessages: {
     [Errors.MultipleDefaultsInSwitch]: 'More than one default clause in switch statement',
     [Errors.UnterminatedTemplate]: 'Unterminated template literal',
     [Errors.InvalidArrowConstructor]: 'Arrow functions cannot be used as constructors',
+    [Errors.InvalidDestructuringTarget]: 'Invalid destructuring assignment target',
+    
 
 };
 

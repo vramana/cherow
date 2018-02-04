@@ -2,494 +2,488 @@ import { pass, fail } from '../test-utils';
 
 describe('Statements - Do while', () => {
 
-    fail(`do{
-      ;
-  }while({0});;`, {
+  fail(`do{
+    ;
+}while({0});;`, {
       source: `do{
-        ;
-    }while({0});;`,
+      ;
+  }while({0});;`,
       line: 3,
   });
 
-    fail(`do break; while 1;;`, {
-    source: 'do break; while 1;;',
-    line: 1,
-});
+  fail(`do break; while 1;;`, {
+      source: 'do break; while 1;;',
+      line: 1,
+  });
 
-    fail(`do break; while 0;`, {
-  source: 'do break; while 0;',
-  line: 1,
-});
+  fail(`do break; while 0;`, {
+      source: 'do break; while 0;',
+      line: 1,
+  });
 
-    fail(`do break; while true;`, {
-  source: 'do break; while true;',
-  line: 1,
-});
+  fail(`do async function f() {} while (false)`, {
+      source: 'do async function f() {} while (false)',
+      line: 1,
+  });
 
-    fail(`do const x = null; while (false);`, {
-  source: 'do const x = null; while (false);',
-  line: 1,
-});
+  fail(`do break; while true;`, {
+      source: 'do break; while true;',
+      line: 1,
+  });
 
-    fail(`do function* g() {} while (false);`, {
-  source: 'do function* g() {} while (false);',
-  line: 1,
-});
+  fail(`do const x = null; while (false);`, {
+      source: 'do const x = null; while (false);',
+      line: 1,
+  });
 
-    fail(`do label1: label2: function f() {} while (false);`, {
-  source: 'do label1: label2: function f() {} while (false);',
-  line: 1,
-});
+  fail(`do function* g() {} while (false);`, {
+      source: 'do function* g() {} while (false);',
+      line: 1,
+  });
 
-    fail(`do let
+  fail(`do label1: label2: function f() {} while (false);`, {
+      source: 'do label1: label2: function f() {} while (false);',
+      line: 1,
+  });
+
+  fail(`do let
 [x] = 0
 while (false);`, {
-  source: `do let
-  [x] = 0
-  while (false);`,
-  line: 1,
-});
+      source: `do let
+[x] = 0
+while (false);`,
+      line: 1,
+  });
 
-    pass(`do keep(); while (true);`, {
-          source: 'do keep(); while (true);',
-          loc: true,
-          ranges: true,
-          raw: true,
-          expected: {
-            type: 'Program',
-            start: 0,
-            end: 24,
-            loc: {
+  pass(`do keep(); while (true);`, {
+      source: 'do keep(); while (true);',
+      loc: true,
+      ranges: true,
+      raw: true,
+      expected: {
+          type: 'Program',
+          start: 0,
+          end: 24,
+          loc: {
               start: {
-                line: 1,
-                column: 0
+                  line: 1,
+                  column: 0
               },
               end: {
-                line: 1,
-                column: 24
+                  line: 1,
+                  column: 24
               }
-            },
-            body: [
-              {
-                type: 'DoWhileStatement',
-                start: 0,
-                end: 24,
-                loc: {
+          },
+          body: [{
+              type: 'DoWhileStatement',
+              start: 0,
+              end: 24,
+              loc: {
                   start: {
-                    line: 1,
-                    column: 0
+                      line: 1,
+                      column: 0
                   },
                   end: {
-                    line: 1,
-                    column: 24
+                      line: 1,
+                      column: 24
                   }
-                },
-                body: {
+              },
+              body: {
                   type: 'ExpressionStatement',
                   start: 3,
                   end: 10,
                   loc: {
-                    start: {
-                      line: 1,
-                      column: 3
-                    },
-                    end: {
-                      line: 1,
-                      column: 10
-                    }
-                  },
-                  expression: {
-                    type: 'CallExpression',
-                    start: 3,
-                    end: 9,
-                    loc: {
                       start: {
-                        line: 1,
-                        column: 3
-                      },
-                      end: {
-                        line: 1,
-                        column: 9
-                      }
-                    },
-                    callee: {
-                      type: 'Identifier',
-                      start: 3,
-                      end: 7,
-                      loc: {
-                        start: {
                           line: 1,
                           column: 3
-                        },
-                        end: {
-                          line: 1,
-                          column: 7
-                        }
                       },
-                      name: 'keep'
-                    },
-                    arguments: []
+                      end: {
+                          line: 1,
+                          column: 10
+                      }
+                  },
+                  expression: {
+                      type: 'CallExpression',
+                      start: 3,
+                      end: 9,
+                      loc: {
+                          start: {
+                              line: 1,
+                              column: 3
+                          },
+                          end: {
+                              line: 1,
+                              column: 9
+                          }
+                      },
+                      callee: {
+                          type: 'Identifier',
+                          start: 3,
+                          end: 7,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 3
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 7
+                              }
+                          },
+                          name: 'keep'
+                      },
+                      arguments: []
                   }
-                },
-                test: {
+              },
+              test: {
                   type: 'Literal',
                   start: 18,
                   end: 22,
                   loc: {
-                    start: {
-                      line: 1,
-                      column: 18
-                    },
-                    end: {
-                      line: 1,
-                      column: 22
-                    }
+                      start: {
+                          line: 1,
+                          column: 18
+                      },
+                      end: {
+                          line: 1,
+                          column: 22
+                      }
                   },
                   value: true,
                   raw: 'true'
-                }
               }
-            ],
-            sourceType: 'script'
-          }
-      });
+          }],
+          sourceType: 'script'
+      }
+  });
 
-    pass(`do continue; while(1);`, {
-          source: 'do continue; while(1);',
-          loc: true,
-          ranges: true,
-          raw: true,
-          expected: {
-            type: 'Program',
-            start: 0,
-            end: 22,
-            loc: {
+  pass(`do continue; while(1);`, {
+      source: 'do continue; while(1);',
+      loc: true,
+      ranges: true,
+      raw: true,
+      expected: {
+          type: 'Program',
+          start: 0,
+          end: 22,
+          loc: {
               start: {
-                line: 1,
-                column: 0
+                  line: 1,
+                  column: 0
               },
               end: {
-                line: 1,
-                column: 22
+                  line: 1,
+                  column: 22
               }
-            },
-            body: [
-              {
-                type: 'DoWhileStatement',
-                start: 0,
-                end: 22,
-                loc: {
+          },
+          body: [{
+              type: 'DoWhileStatement',
+              start: 0,
+              end: 22,
+              loc: {
                   start: {
-                    line: 1,
-                    column: 0
+                      line: 1,
+                      column: 0
                   },
                   end: {
-                    line: 1,
-                    column: 22
+                      line: 1,
+                      column: 22
                   }
-                },
-                body: {
+              },
+              body: {
                   type: 'ContinueStatement',
                   start: 3,
                   end: 12,
                   loc: {
-                    start: {
-                      line: 1,
-                      column: 3
-                    },
-                    end: {
-                      line: 1,
-                      column: 12
-                    }
+                      start: {
+                          line: 1,
+                          column: 3
+                      },
+                      end: {
+                          line: 1,
+                          column: 12
+                      }
                   },
                   label: null
-                },
-                test: {
+              },
+              test: {
                   type: 'Literal',
                   start: 19,
                   end: 20,
                   loc: {
-                    start: {
-                      line: 1,
-                      column: 19
-                    },
-                    end: {
-                      line: 1,
-                      column: 20
-                    }
+                      start: {
+                          line: 1,
+                          column: 19
+                      },
+                      end: {
+                          line: 1,
+                          column: 20
+                      }
                   },
                   value: 1,
                   raw: '1'
-                }
               }
-            ],
-            sourceType: 'script'
-          }
-      });
+          }],
+          sourceType: 'script'
+      }
+  });
 
-    pass(`do ; while (true)`, {
-          source: 'do ; while (true)',
-          loc: true,
-          ranges: true,
-          raw: true,
-          expected: {
-            type: 'Program',
-            start: 0,
-            end: 17,
-            loc: {
+  pass(`do ; while (true)`, {
+      source: 'do ; while (true)',
+      loc: true,
+      ranges: true,
+      raw: true,
+      expected: {
+          type: 'Program',
+          start: 0,
+          end: 17,
+          loc: {
               start: {
-                line: 1,
-                column: 0
+                  line: 1,
+                  column: 0
               },
               end: {
-                line: 1,
-                column: 17
+                  line: 1,
+                  column: 17
               }
-            },
-            body: [
-              {
-                type: 'DoWhileStatement',
-                start: 0,
-                end: 17,
-                loc: {
+          },
+          body: [{
+              type: 'DoWhileStatement',
+              start: 0,
+              end: 17,
+              loc: {
                   start: {
-                    line: 1,
-                    column: 0
+                      line: 1,
+                      column: 0
                   },
                   end: {
-                    line: 1,
-                    column: 17
+                      line: 1,
+                      column: 17
                   }
-                },
-                body: {
+              },
+              body: {
                   type: 'EmptyStatement',
                   start: 3,
                   end: 4,
                   loc: {
-                    start: {
-                      line: 1,
-                      column: 3
-                    },
-                    end: {
-                      line: 1,
-                      column: 4
-                    }
+                      start: {
+                          line: 1,
+                          column: 3
+                      },
+                      end: {
+                          line: 1,
+                          column: 4
+                      }
                   }
-                },
-                test: {
+              },
+              test: {
                   type: 'Literal',
                   start: 12,
                   end: 16,
                   loc: {
-                    start: {
-                      line: 1,
-                      column: 12
-                    },
-                    end: {
-                      line: 1,
-                      column: 16
-                    }
+                      start: {
+                          line: 1,
+                          column: 12
+                      },
+                      end: {
+                          line: 1,
+                          column: 16
+                      }
                   },
                   value: true,
                   raw: 'true'
-                }
               }
-            ],
-            sourceType: 'script'
-          }
-      });
+          }],
+          sourceType: 'script'
+      }
+  });
 
-    pass(`do {} while (true)`, {
-          source: 'do {} while (true)',
-          loc: true,
-          ranges: true,
-          raw: true,
-          expected: {
-            type: 'Program',
-            start: 0,
-            end: 18,
-            loc: {
+  pass(`do {} while (true)`, {
+      source: 'do {} while (true)',
+      loc: true,
+      ranges: true,
+      raw: true,
+      expected: {
+          type: 'Program',
+          start: 0,
+          end: 18,
+          loc: {
               start: {
-                line: 1,
-                column: 0
+                  line: 1,
+                  column: 0
               },
               end: {
-                line: 1,
-                column: 18
+                  line: 1,
+                  column: 18
               }
-            },
-            body: [
-              {
-                type: 'DoWhileStatement',
-                start: 0,
-                end: 18,
-                loc: {
+          },
+          body: [{
+              type: 'DoWhileStatement',
+              start: 0,
+              end: 18,
+              loc: {
                   start: {
-                    line: 1,
-                    column: 0
+                      line: 1,
+                      column: 0
                   },
                   end: {
-                    line: 1,
-                    column: 18
+                      line: 1,
+                      column: 18
                   }
-                },
-                body: {
+              },
+              body: {
                   type: 'BlockStatement',
                   start: 3,
                   end: 5,
                   loc: {
-                    start: {
-                      line: 1,
-                      column: 3
-                    },
-                    end: {
-                      line: 1,
-                      column: 5
-                    }
+                      start: {
+                          line: 1,
+                          column: 3
+                      },
+                      end: {
+                          line: 1,
+                          column: 5
+                      }
                   },
                   body: []
-                },
-                test: {
+              },
+              test: {
                   type: 'Literal',
                   start: 13,
                   end: 17,
                   loc: {
-                    start: {
-                      line: 1,
-                      column: 13
-                    },
-                    end: {
-                      line: 1,
-                      column: 17
-                    }
+                      start: {
+                          line: 1,
+                          column: 13
+                      },
+                      end: {
+                          line: 1,
+                          column: 17
+                      }
                   },
                   value: true,
                   raw: 'true'
-                }
               }
-            ],
-            sourceType: 'script'
-          }
-      });
+          }],
+          sourceType: 'script'
+      }
+  });
 
-    pass(`{do ; while(false); false}`, {
-          source: '{do ; while(false); false}',
-          loc: true,
-          ranges: true,
-          raw: true,
-          expected: {
-            type: 'Program',
-            start: 0,
-            end: 26,
-            loc: {
+  pass(`{do ; while(false); false}`, {
+      source: '{do ; while(false); false}',
+      loc: true,
+      ranges: true,
+      raw: true,
+      expected: {
+          type: 'Program',
+          start: 0,
+          end: 26,
+          loc: {
               start: {
-                line: 1,
-                column: 0
+                  line: 1,
+                  column: 0
               },
               end: {
-                line: 1,
-                column: 26
+                  line: 1,
+                  column: 26
               }
-            },
-            body: [
-              {
-                type: 'BlockStatement',
-                start: 0,
-                end: 26,
-                loc: {
+          },
+          body: [{
+              type: 'BlockStatement',
+              start: 0,
+              end: 26,
+              loc: {
                   start: {
-                    line: 1,
-                    column: 0
+                      line: 1,
+                      column: 0
                   },
                   end: {
-                    line: 1,
-                    column: 26
+                      line: 1,
+                      column: 26
                   }
-                },
-                body: [
-                  {
-                    type: 'DoWhileStatement',
-                    start: 1,
-                    end: 19,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 1
-                      },
-                      end: {
-                        line: 1,
-                        column: 19
-                      }
-                    },
-                    body: {
-                      type: 'EmptyStatement',
-                      start: 4,
-                      end: 5,
+              },
+              body: [{
+                      type: 'DoWhileStatement',
+                      start: 1,
+                      end: 19,
                       loc: {
-                        start: {
-                          line: 1,
-                          column: 4
-                        },
-                        end: {
-                          line: 1,
-                          column: 5
-                        }
-                      }
-                    },
-                    test: {
-                      type: 'Literal',
-                      start: 12,
-                      end: 17,
-                      loc: {
-                        start: {
-                          line: 1,
-                          column: 12
-                        },
-                        end: {
-                          line: 1,
-                          column: 17
-                        }
+                          start: {
+                              line: 1,
+                              column: 1
+                          },
+                          end: {
+                              line: 1,
+                              column: 19
+                          }
                       },
-                      value: false,
-                      raw: 'false'
-                    }
+                      body: {
+                          type: 'EmptyStatement',
+                          start: 4,
+                          end: 5,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 4
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 5
+                              }
+                          }
+                      },
+                      test: {
+                          type: 'Literal',
+                          start: 12,
+                          end: 17,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 12
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 17
+                              }
+                          },
+                          value: false,
+                          raw: 'false'
+                      }
                   },
                   {
-                    type: 'ExpressionStatement',
-                    start: 20,
-                    end: 25,
-                    loc: {
-                      start: {
-                        line: 1,
-                        column: 20
-                      },
-                      end: {
-                        line: 1,
-                        column: 25
-                      }
-                    },
-                    expression: {
-                      type: 'Literal',
+                      type: 'ExpressionStatement',
                       start: 20,
                       end: 25,
                       loc: {
-                        start: {
-                          line: 1,
-                          column: 20
-                        },
-                        end: {
-                          line: 1,
-                          column: 25
-                        }
+                          start: {
+                              line: 1,
+                              column: 20
+                          },
+                          end: {
+                              line: 1,
+                              column: 25
+                          }
                       },
-                      value: false,
-                      raw: 'false'
-                    }
+                      expression: {
+                          type: 'Literal',
+                          start: 20,
+                          end: 25,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 20
+                              },
+                              end: {
+                                  line: 1,
+                                  column: 25
+                              }
+                          },
+                          value: false,
+                          raw: 'false'
+                      }
                   }
-                ]
-              }
-            ],
-            sourceType: 'script'
-          }
-      });
-    });
+              ]
+          }],
+          sourceType: 'script'
+      }
+  });
+});

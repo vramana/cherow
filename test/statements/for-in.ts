@@ -3992,7 +3992,7 @@ describe('Statements - For in', () => {
 
     fail(`for ([{ get x() {} }] in [[{}]]) ;`, {
         source: 'for ([{ get x() {} }] in [[{}]]) ;',
-        message: 'Unexpected token',
+        message: 'Invalid destructuring assignment target',
         line: 1,
         column: 31,
         index: 31
@@ -4030,10 +4030,34 @@ describe('Statements - For in', () => {
         index: 25
     });
 
+    fail(`"use strict"; for ([[x[yield]]] in [[[]]]) ;`, {
+        source: '"use strict"; for ([[x[yield]]] in [[[]]]) ;',
+        message: 'Unexpected token',
+        line: 1,
+        column: 23,
+        index: 23
+    });
+
+    fail(`"use strict"; for ([arguments] in [[]]) ;`, {
+        source: '"use strict"; for ([arguments] in [[]]) ;',
+        message: 'Unexpected reserved word',
+        line: 1,
+        column: 20,
+        index: 20
+    });
+
+    fail(`"use strict"; for ({ eval = 0 } in [{}]) ;`, {
+        source: '"use strict"; for ({ eval = 0 } in [{}]) ;',
+        message: 'Unexpected eval or arguments in strict mode',
+        line: 1,
+        column: 25,
+        index: 25
+    });
+
     fail(`for (var x in null) let // ASI
     {}`, {
         source: 'for ([...{ get x() {} }] in [[[]]]) ;',
-        message: 'Unexpected token',
+        message: 'Invalid destructuring assignment target',
         line: 1,
         column: 34,
         index: 34

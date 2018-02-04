@@ -100,96 +100,96 @@ describe('Destructuring - Assignment', () => {
           ranges: true,
           raw: true,
           expected: {
-              "type": "Program",
-              "sourceType": "script",
-              "body": [{
-                  "type": "VariableDeclaration",
-                  "declarations": [{
-                      "type": "VariableDeclarator",
-                      "init": {
-                          "type": "ArrayExpression",
-                          "elements": [],
-                          "start": 12,
-                          "end": 14,
-                          "loc": {
-                              "start": {
-                                  "line": 1,
-                                  "column": 12
+              type: 'Program',
+              sourceType: 'script',
+              body: [{
+                  type: 'VariableDeclaration',
+                  declarations: [{
+                      type: 'VariableDeclarator',
+                      init: {
+                          type: 'ArrayExpression',
+                          elements: [],
+                          start: 12,
+                          end: 14,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 12
                               },
-                              "end": {
-                                  "line": 1,
-                                  "column": 14
+                              end: {
+                                  line: 1,
+                                  column: 14
                               }
                           }
                       },
-                      "id": {
-                          "type": "ArrayPattern",
-                          "elements": [{
-                              "type": "Identifier",
-                              "name": "a",
-                              "start": 7,
-                              "end": 8,
-                              "loc": {
-                                  "start": {
-                                      "line": 1,
-                                      "column": 7
+                      id: {
+                          type: 'ArrayPattern',
+                          elements: [{
+                              type: 'Identifier',
+                              name: 'a',
+                              start: 7,
+                              end: 8,
+                              loc: {
+                                  start: {
+                                      line: 1,
+                                      column: 7
                                   },
-                                  "end": {
-                                      "line": 1,
-                                      "column": 8
+                                  end: {
+                                      line: 1,
+                                      column: 8
                                   }
                               }
                           }],
-                          "start": 6,
-                          "end": 9,
-                          "loc": {
-                              "start": {
-                                  "line": 1,
-                                  "column": 6
+                          start: 6,
+                          end: 9,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 6
                               },
-                              "end": {
-                                  "line": 1,
-                                  "column": 9
+                              end: {
+                                  line: 1,
+                                  column: 9
                               }
                           }
                       },
-                      "start": 6,
-                      "end": 14,
-                      "loc": {
-                          "start": {
-                              "line": 1,
-                              "column": 6
+                      start: 6,
+                      end: 14,
+                      loc: {
+                          start: {
+                              line: 1,
+                              column: 6
                           },
-                          "end": {
-                              "line": 1,
-                              "column": 14
+                          end: {
+                              line: 1,
+                              column: 14
                           }
                       }
                   }],
-                  "kind": "const",
-                  "start": 0,
-                  "end": 15,
-                  "loc": {
-                      "start": {
-                          "line": 1,
-                          "column": 0
+                  kind: 'const',
+                  start: 0,
+                  end: 15,
+                  loc: {
+                      start: {
+                          line: 1,
+                          column: 0
                       },
-                      "end": {
-                          "line": 1,
-                          "column": 15
+                      end: {
+                          line: 1,
+                          column: 15
                       }
                   }
               }],
-              "start": 0,
-              "end": 15,
-              "loc": {
-                  "start": {
-                      "line": 1,
-                      "column": 0
+              start: 0,
+              end: 15,
+              loc: {
+                  start: {
+                      line: 1,
+                      column: 0
                   },
-                  "end": {
-                      "line": 1,
-                      "column": 15
+                  end: {
+                      line: 1,
+                      column: 15
                   }
               }
           }
@@ -6774,143 +6774,141 @@ describe('Destructuring - Assignment', () => {
           }
       });
 
-
       pass(`let {a:b} = {};`, {
           source: 'let {a:b} = {};',
           loc: true,
           ranges: true,
           raw: true,
           expected: {
-              "type": "Program",
-              "sourceType": "script",
-              "body": [{
-                  "type": "VariableDeclaration",
-                  "declarations": [{
-                      "type": "VariableDeclarator",
-                      "init": {
-                          "type": "ObjectExpression",
-                          "properties": [],
-                          "start": 12,
-                          "end": 14,
-                          "loc": {
-                              "start": {
-                                  "line": 1,
-                                  "column": 12
+              type: 'Program',
+              sourceType: 'script',
+              body: [{
+                  type: 'VariableDeclaration',
+                  declarations: [{
+                      type: 'VariableDeclarator',
+                      init: {
+                          type: 'ObjectExpression',
+                          properties: [],
+                          start: 12,
+                          end: 14,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 12
                               },
-                              "end": {
-                                  "line": 1,
-                                  "column": 14
+                              end: {
+                                  line: 1,
+                                  column: 14
                               }
                           }
                       },
-                      "id": {
-                          "type": "ObjectPattern",
-                          "properties": [{
-                              "type": "Property",
-                              "kind": "init",
-                              "key": {
-                                  "type": "Identifier",
-                                  "name": "a",
-                                  "start": 5,
-                                  "end": 6,
-                                  "loc": {
-                                      "start": {
-                                          "line": 1,
-                                          "column": 5
+                      id: {
+                          type: 'ObjectPattern',
+                          properties: [{
+                              type: 'Property',
+                              kind: 'init',
+                              key: {
+                                  type: 'Identifier',
+                                  name: 'a',
+                                  start: 5,
+                                  end: 6,
+                                  loc: {
+                                      start: {
+                                          line: 1,
+                                          column: 5
                                       },
-                                      "end": {
-                                          "line": 1,
-                                          "column": 6
+                                      end: {
+                                          line: 1,
+                                          column: 6
                                       }
                                   }
                               },
-                              "computed": false,
-                              "value": {
-                                  "type": "Identifier",
-                                  "name": "b",
-                                  "start": 7,
-                                  "end": 8,
-                                  "loc": {
-                                      "start": {
-                                          "line": 1,
-                                          "column": 7
+                              computed: false,
+                              value: {
+                                  type: 'Identifier',
+                                  name: 'b',
+                                  start: 7,
+                                  end: 8,
+                                  loc: {
+                                      start: {
+                                          line: 1,
+                                          column: 7
                                       },
-                                      "end": {
-                                          "line": 1,
-                                          "column": 8
+                                      end: {
+                                          line: 1,
+                                          column: 8
                                       }
                                   }
                               },
-                              "method": false,
-                              "shorthand": false,
-                              "start": 5,
-                              "end": 8,
-                              "loc": {
-                                  "start": {
-                                      "line": 1,
-                                      "column": 5
+                              method: false,
+                              shorthand: false,
+                              start: 5,
+                              end: 8,
+                              loc: {
+                                  start: {
+                                      line: 1,
+                                      column: 5
                                   },
-                                  "end": {
-                                      "line": 1,
-                                      "column": 8
+                                  end: {
+                                      line: 1,
+                                      column: 8
                                   }
                               }
                           }],
-                          "start": 4,
-                          "end": 9,
-                          "loc": {
-                              "start": {
-                                  "line": 1,
-                                  "column": 4
+                          start: 4,
+                          end: 9,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 4
                               },
-                              "end": {
-                                  "line": 1,
-                                  "column": 9
+                              end: {
+                                  line: 1,
+                                  column: 9
                               }
                           }
                       },
-                      "start": 4,
-                      "end": 14,
-                      "loc": {
-                          "start": {
-                              "line": 1,
-                              "column": 4
+                      start: 4,
+                      end: 14,
+                      loc: {
+                          start: {
+                              line: 1,
+                              column: 4
                           },
-                          "end": {
-                              "line": 1,
-                              "column": 14
+                          end: {
+                              line: 1,
+                              column: 14
                           }
                       }
                   }],
-                  "kind": "let",
-                  "start": 0,
-                  "end": 15,
-                  "loc": {
-                      "start": {
-                          "line": 1,
-                          "column": 0
+                  kind: 'let',
+                  start: 0,
+                  end: 15,
+                  loc: {
+                      start: {
+                          line: 1,
+                          column: 0
                       },
-                      "end": {
-                          "line": 1,
-                          "column": 15
+                      end: {
+                          line: 1,
+                          column: 15
                       }
                   }
               }],
-              "start": 0,
-              "end": 15,
-              "loc": {
-                  "start": {
-                      "line": 1,
-                      "column": 0
+              start: 0,
+              end: 15,
+              loc: {
+                  start: {
+                      line: 1,
+                      column: 0
                   },
-                  "end": {
-                      "line": 1,
-                      "column": 15
+                  end: {
+                      line: 1,
+                      column: 15
                   }
               }
           }
       });
-
 
       pass(`const {a:b} = {};`, {
           source: 'const {a:b} = {};',
@@ -6918,136 +6916,135 @@ describe('Destructuring - Assignment', () => {
           ranges: true,
           raw: true,
           expected: {
-              "type": "Program",
-              "sourceType": "script",
-              "body": [{
-                  "type": "VariableDeclaration",
-                  "declarations": [{
-                      "type": "VariableDeclarator",
-                      "init": {
-                          "type": "ObjectExpression",
-                          "properties": [],
-                          "start": 14,
-                          "end": 16,
-                          "loc": {
-                              "start": {
-                                  "line": 1,
-                                  "column": 14
+              type: 'Program',
+              sourceType: 'script',
+              body: [{
+                  type: 'VariableDeclaration',
+                  declarations: [{
+                      type: 'VariableDeclarator',
+                      init: {
+                          type: 'ObjectExpression',
+                          properties: [],
+                          start: 14,
+                          end: 16,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 14
                               },
-                              "end": {
-                                  "line": 1,
-                                  "column": 16
+                              end: {
+                                  line: 1,
+                                  column: 16
                               }
                           }
                       },
-                      "id": {
-                          "type": "ObjectPattern",
-                          "properties": [{
-                              "type": "Property",
-                              "kind": "init",
-                              "key": {
-                                  "type": "Identifier",
-                                  "name": "a",
-                                  "start": 7,
-                                  "end": 8,
-                                  "loc": {
-                                      "start": {
-                                          "line": 1,
-                                          "column": 7
+                      id: {
+                          type: 'ObjectPattern',
+                          properties: [{
+                              type: 'Property',
+                              kind: 'init',
+                              key: {
+                                  type: 'Identifier',
+                                  name: 'a',
+                                  start: 7,
+                                  end: 8,
+                                  loc: {
+                                      start: {
+                                          line: 1,
+                                          column: 7
                                       },
-                                      "end": {
-                                          "line": 1,
-                                          "column": 8
+                                      end: {
+                                          line: 1,
+                                          column: 8
                                       }
                                   }
                               },
-                              "computed": false,
-                              "value": {
-                                  "type": "Identifier",
-                                  "name": "b",
-                                  "start": 9,
-                                  "end": 10,
-                                  "loc": {
-                                      "start": {
-                                          "line": 1,
-                                          "column": 9
+                              computed: false,
+                              value: {
+                                  type: 'Identifier',
+                                  name: 'b',
+                                  start: 9,
+                                  end: 10,
+                                  loc: {
+                                      start: {
+                                          line: 1,
+                                          column: 9
                                       },
-                                      "end": {
-                                          "line": 1,
-                                          "column": 10
+                                      end: {
+                                          line: 1,
+                                          column: 10
                                       }
                                   }
                               },
-                              "method": false,
-                              "shorthand": false,
-                              "start": 7,
-                              "end": 10,
-                              "loc": {
-                                  "start": {
-                                      "line": 1,
-                                      "column": 7
+                              method: false,
+                              shorthand: false,
+                              start: 7,
+                              end: 10,
+                              loc: {
+                                  start: {
+                                      line: 1,
+                                      column: 7
                                   },
-                                  "end": {
-                                      "line": 1,
-                                      "column": 10
+                                  end: {
+                                      line: 1,
+                                      column: 10
                                   }
                               }
                           }],
-                          "start": 6,
-                          "end": 11,
-                          "loc": {
-                              "start": {
-                                  "line": 1,
-                                  "column": 6
+                          start: 6,
+                          end: 11,
+                          loc: {
+                              start: {
+                                  line: 1,
+                                  column: 6
                               },
-                              "end": {
-                                  "line": 1,
-                                  "column": 11
+                              end: {
+                                  line: 1,
+                                  column: 11
                               }
                           }
                       },
-                      "start": 6,
-                      "end": 16,
-                      "loc": {
-                          "start": {
-                              "line": 1,
-                              "column": 6
+                      start: 6,
+                      end: 16,
+                      loc: {
+                          start: {
+                              line: 1,
+                              column: 6
                           },
-                          "end": {
-                              "line": 1,
-                              "column": 16
+                          end: {
+                              line: 1,
+                              column: 16
                           }
                       }
                   }],
-                  "kind": "const",
-                  "start": 0,
-                  "end": 17,
-                  "loc": {
-                      "start": {
-                          "line": 1,
-                          "column": 0
+                  kind: 'const',
+                  start: 0,
+                  end: 17,
+                  loc: {
+                      start: {
+                          line: 1,
+                          column: 0
                       },
-                      "end": {
-                          "line": 1,
-                          "column": 17
+                      end: {
+                          line: 1,
+                          column: 17
                       }
                   }
               }],
-              "start": 0,
-              "end": 17,
-              "loc": {
-                  "start": {
-                      "line": 1,
-                      "column": 0
+              start: 0,
+              end: 17,
+              loc: {
+                  start: {
+                      line: 1,
+                      column: 0
                   },
-                  "end": {
-                      "line": 1,
-                      "column": 17
+                  end: {
+                      line: 1,
+                      column: 17
                   }
               }
           }
       });
-
 
       fail(`"use strict"; 0, { eval } = {};`, {
           source: '"use strict"; 0, { eval } = {};',

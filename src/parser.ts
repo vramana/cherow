@@ -704,13 +704,11 @@ export class Parser {
                     case Chars.CarriageReturn:
                         this.advanceNewline();
                         if (this.hasNext() && this.nextChar() === Chars.LineFeed) this.index++;
-                        state | ScannerState.NewLine;
                         break scan;
                     case Chars.LineFeed:
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
                         this.advanceNewline();
-                        state | ScannerState.NewLine;
                         break scan;
                     default:
                         this.advance();
@@ -1585,7 +1583,7 @@ export class Parser {
         const start = this.index;
         const lastChar = this.lastChar;
         let tail = true;
-        let ret: string | void = '';
+        let ret: any = '';
 
         let ch = this.readNext(first);
 
@@ -2346,6 +2344,7 @@ export class Parser {
             let body;
 
             switch (t) {
+
                 case Token.ContinueKeyword:
                     {
                         if (this.flags & Flags.AllowContinue) {
@@ -2353,6 +2352,7 @@ export class Parser {
                         }
                         break;
                     }
+                    // Annex B allows a function declaration in non-strict mode
                 case Token.FunctionKeyword:
                     {
 
@@ -2474,7 +2474,7 @@ export class Parser {
 
         const savedFlag = this.flags;
         this.flags |= (Flags.AllowBreak | Flags.AllowContinue);
-        const body = this.parseStatement(context);
+        const body = this.parseStatement(context | Context.Statement);
         this.flags = savedFlag;
 
         this.expect(context, Token.WhileKeyword);
@@ -2892,6 +2892,7 @@ export class Parser {
                 return;
 
             case 'Property':
+                if (node.kind !== "init") this.report(Errors.InvalidDestructuringTarget)
                 return this.reinterpret(context, node.value);
 
             case 'SpreadElement':
@@ -3065,6 +3066,7 @@ export class Parser {
             const prec = t & Token.Precedence;
             const delta = ((t === Token.Exponentiate) as any) << Token.PrecStart;
             if (bit && t === Token.InKeyword) break;
+            // Break if equal or higher precendence
             if ((prec) + delta <= minPrec) break;
             this.nextToken(context);
 
@@ -4007,8 +4009,14 @@ export class Parser {
             // E.g. 'f = ([...[x], y]) => {}'
             //
             this.flags |= Flags.HasCommaSeparator;
-        } else if (state & ArrayState.EvalOrArguments && this.token === Token.Assign) {
-            this.early(context, Errors.UnexpectedReservedWord);
+        } else if (state & ArrayState.EvalOrArguments) {
+            if (context & Context.ForStatement){
+                if (context & Context.Strict) this.early(context, Errors.UnexpectedReservedWord);
+            }
+            else if (this.token === Token.Assign) {
+                this.early(context, Errors.UnexpectedReservedWord);
+            }
+            
         }
 
         return this.finishNode(context, pos, {
@@ -4017,7 +4025,7 @@ export class Parser {
         });
     }
 
-    private parseClass(context: Context, identifierIsOptional?: boolean): ESTree.ClassExpression | ESTree.ClassDeclaration {
+    private parseClass(context: Context, identifierIsOptional? : boolean): ESTree.ClassExpression | ESTree.ClassDeclaration {
 
         if (this.flags & Flags.ExtendedUnicodeEscape) {
             this.early(context, Errors.UnexpectedEscapedKeyword);
@@ -4036,7 +4044,7 @@ export class Parser {
         } else if (!(context & Context.Expression) && !identifierIsOptional) {
             this.early(context, Errors.UnNamedClassDecl);
         }
-      
+
         if (this.parseOptional(context, Token.ExtendsKeyword)) {
             superClass = this.parseLeftHandSideExpression(context | Context.Strict, pos);
             state |= ObjectState.Heritage;
@@ -4129,7 +4137,7 @@ export class Parser {
                     state |= t === Token.GetKeyword ? ObjectState.Get : ObjectState.Set;
 
                     if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
-                    
+
                     this.errorLocation = this.getLocation();
                     key = this.parsePropertyName(context, state);
 
@@ -4715,7 +4723,7 @@ export class Parser {
 
     private parseFunction(
         context: Context,
-        identifierIsOptional?: boolean,
+        identifierIsOptional? : boolean,
         state: ObjectState = ObjectState.None,
         pos = this.getLocation()) {
 
@@ -4775,7 +4783,7 @@ export class Parser {
                     this.parseIdentifierName(context, t) :
                     this.parseBindingIdentifier(context);
 
-            } else if (!identifierIsOptional &&!(context & Context.Expression)) {
+            } else if (!identifierIsOptional && !(context & Context.Expression)) {
                 this.early(context, Errors.UnNamedFunctionStmt);
             }
         }
@@ -5040,7 +5048,7 @@ export class Parser {
 
         this.expect(context, Token.RightParen);
 
-        const body = this.parseMaybeInvalidBlockStatement(context);
+        const body = this.parseMaybeInvalidBlockStatement(context | Context.Statement);
 
         this.flags = savedFlag;
 

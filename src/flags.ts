@@ -35,7 +35,6 @@ export const enum Context {
     InParenthesis           = 1 << 28,
     InClass                 = 1 << 29,
     InTypeAnnotation        = 1 << 30,
-
     BlockScoped  = Let | Const
 
 }
@@ -60,7 +59,9 @@ export const enum Flags {
     WhiteSpace              = 1 << 13,
     ReservedWords           = 1 << 14,
     HasCommaSeparator       = 1 << 15,
-    DisallowArrowFunction   = 1 << 16 // Disallow arrows in 'new expression' context
+    DisallowArrowFunction   = 1 << 16, // Disallow arrows in 'new expression' context
+    CoverInitializedName = 1 << 17,
+    CoverGrammer = 1 << 18
 }
 
 /** Shared between class and objects */

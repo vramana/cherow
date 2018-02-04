@@ -6188,6 +6188,229 @@ describe('Statements - For await of', () => {
         }
     });
 
+    pass('async function * fn() {for await ([arguments, eval] of [[2, 3]]) {} }', {
+        source: 'async function * fn() {for await ([arguments, eval] of [[2, 3]]) {} }',
+        loc: true,
+        ranges: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'ForOfStatement',
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [],
+                                    start: 65,
+                                    end: 67,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 65
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 67
+                                        }
+                                    }
+                                },
+                                left: {
+                                    type: 'ArrayPattern',
+                                    elements: [
+                                        {
+                                            type: 'Identifier',
+                                            name: 'arguments',
+                                            start: 35,
+                                            end: 44,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 35
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 44
+                                                }
+                                            }
+                                        },
+                                        {
+                                            type: 'Identifier',
+                                            name: 'eval',
+                                            start: 46,
+                                            end: 50,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 46
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 50
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 34,
+                                    end: 51,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 34
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 51
+                                        }
+                                    }
+                                },
+                                right: {
+                                    type: 'ArrayExpression',
+                                    elements: [
+                                        {
+                                            type: 'ArrayExpression',
+                                            elements: [
+                                                {
+                                                    type: 'Literal',
+                                                    value: 2,
+                                                    start: 57,
+                                                    end: 58,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 57
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 58
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    type: 'Literal',
+                                                    value: 3,
+                                                    start: 60,
+                                                    end: 61,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 60
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 61
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            start: 56,
+                                            end: 62,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 56
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 62
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 55,
+                                    end: 63,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 55
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 63
+                                        }
+                                    }
+                                },
+                                await: true,
+                                start: 23,
+                                end: 67,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 23
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 67
+                                    }
+                                }
+                            }
+                        ],
+                        start: 22,
+                        end: 69,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 22
+                            },
+                            end: {
+                                line: 1,
+                                column: 69
+                            }
+                        }
+                    },
+                    async: true,
+                    generator: true,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'fn',
+                        start: 17,
+                        end: 19,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 17
+                            },
+                            end: {
+                                line: 1,
+                                column: 19
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 69,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 69
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 69,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 69
+                }
+            }
+        }
+    });
+
     pass('async function fn() { for await (var [, , ...x] of asyncIter) {} }', {
         source: 'async function fn() { for await (var [, , ...x] of asyncIter) {} }',
         loc: true,

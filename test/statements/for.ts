@@ -18,6 +18,38 @@ describe('Statements - For', () => {
         index: 12
     });
 
+    fail(`for ( ; false; ) async function* g() {}`, {
+        source: 'for ( ; false; ) async function* g() {}',
+        message: 'Async functions can only be declared at the top level or inside a block',
+        line: 1,
+        column: 16,
+        index: 16
+    });
+
+    fail('"use strict";  for ({ eval } of [{}]) ;', {
+        source: '"use strict";  for ({ eval } of [{}]) ;',
+        message: 'Unexpected eval or arguments in strict mode',
+        line: 1,
+        column: 26,
+        index: 26
+    });
+
+    fail('"use strict";  for ({ x: x = yield } of [{}]) ;', {
+        source: '"use strict";  for ({ x: x = yield } of [{}]) ;',
+        message: 'Unexpected token',
+        line: 1,
+        column: 28,
+        index: 28
+    });
+
+    fail('"use strict"; for ([...{ x = yield }] of [[{}]]) ;', {
+        source: '"use strict";  for ([...{ x = yield }] of [[{}]]) ;',
+        message: 'Unexpected token',
+        line: 1,
+        column: 29,
+        index: 29
+    });
+
     fail(`for(let a, let;;);`, {
         source: 'for(let a, let;;);',
         message: 'let is disallowed as a lexically bound name',
