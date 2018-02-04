@@ -138,7 +138,7 @@ export class Parser {
     }
 
     private nextUnicodeChar(): number {
-        let index = this.index;
+        const index = this.index;
         const hi = this.source.charCodeAt(index);
         if (hi < Chars.LeadSurrogateMin || hi > Chars.LeadSurrogateMax) return hi;
         const lo = this.source.charCodeAt(index + 1);
@@ -283,7 +283,7 @@ export class Parser {
                                     this.advance();
                                     return this.consume(Chars.EqualSign) ?
                                         Token.ShiftLeftAssign :
-                                        Token.ShiftLeft
+                                        Token.ShiftLeft;
                                 case Chars.EqualSign:
                                     this.advance();
                                     return Token.LessThanOrEqual;
@@ -1347,7 +1347,6 @@ export class Parser {
 
                     state |= ScannerState.Escape;
 
-
                     if (ch >= 128) {
                         ret += fromCodePoint(ch);
                     } else {
@@ -1843,7 +1842,7 @@ export class Parser {
                 (t & Token.Contextual) === Token.Contextual);
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: Location,
         node: any,
@@ -3004,7 +3003,7 @@ export class Parser {
 
             this.nextToken(context);
             // Note! An arrow parameters must not contain yield expressions, but at this stage we doesn't know
-            // if this is an "normal" parenthesis or inside and arrow param list, so we set 
+            // if this is an "normal" parenthesis or inside and arrow param list, so we set
             // th "HasYield" flag now
             if (context & Context.YieldContext && context & Context.InParenthesis && this.token & Token.IsYield) {
                 this.errorLocation = this.getLocation();
@@ -3238,6 +3237,7 @@ export class Parser {
     }
 
     private parseNewExpression(context: Context): ESTree.MetaProperty | ESTree.NewExpression {
+
         if (this.flags & Flags.ExtendedUnicodeEscape) {
             this.early(context, Errors.UnexpectedEscapedKeyword);
         }
@@ -3262,9 +3262,15 @@ export class Parser {
             return this.parseMetaProperty(context, (id as ESTree.Identifier), pos);
         }
 
+        // Arrow functions cannot be used as constructors, so programs
+        // like this: '(new () => {});' are disallowed
+        this.flags |= Flags.DisallowArrowFunction;
+        const callee = this.parseMemberExpression(context, pos);
+        this.flags &= ~Flags.DisallowArrowFunction;
+
         return this.finishNode(context, pos, {
             type: 'NewExpression',
-            callee: this.parseMemberExpression(context, pos),
+            callee,
             arguments: this.token === Token.LeftParen ? this.parseCallArguments(context) : []
         });
     }
@@ -3464,7 +3470,9 @@ export class Parser {
         }
 
         this.expect(context, Token.RightParen);
-
+        if (this.token === Token.Arrow) {
+            this.report(Errors.UnexpectedToken, tokenDesc(this.token));
+        }
         return expressions;
     }
 
@@ -3560,10 +3568,8 @@ export class Parser {
                     this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
                 }
             default:
-                if (this.isIdentifier(context, this.token)) {
-                    return this.parseIdentifier(context);
-                }
-                this.early(context, Errors.Unexpected);
+                if (!this.isIdentifier(context, this.token)) this.early(context, Errors.Unexpected);
+                return this.parseIdentifier(context);
         }
     }
 
@@ -3600,8 +3606,8 @@ export class Parser {
             // If we have a LineTerminator here, it can't be an arrow functions. So simply
             // return the identifer.
             if (this.flags & Flags.LineTerminator) return id;
-            // The yield keyword may not be used in an arrow function's body (except when permitted 
-            // within functions further nested within it). As a consequence, arrow functions 
+            // The yield keyword may not be used in an arrow function's body (except when permitted
+            // within functions further nested within it). As a consequence, arrow functions
             // cannot be used as generators.
             if (context & Context.YieldContext && t & Token.IsYield) {
                 this.early(context, Errors.Unexpected);
@@ -3634,34 +3640,34 @@ export class Parser {
                 if (this.token === Token.Comma) state |= ParenthesizedState.Trailing;
                 args.push(elem);
                 break;
-            } 
-                // Start of a binding pattern inside parenthesis - '({foo: bar})', '{[()]}'
-                if (hasBit(this.token, Token.IsBindingPattern)) {
-                    this.errorLocation = this.getLocation();
-                    state |= ParenthesizedState.BindingPattern;
-                }
+            }
+            // Start of a binding pattern inside parenthesis - '({foo: bar})', '{[()]}'
+            if (hasBit(this.token, Token.IsBindingPattern)) {
+                this.errorLocation = this.getLocation();
+                state |= ParenthesizedState.BindingPattern;
+            }
 
-                if (hasBit(this.token, Token.IsEvalArguments)) {
-                    this.errorLocation = this.getLocation();
-                    state |= ParenthesizedState.EvalOrArguments;
-                }
+            if (hasBit(this.token, Token.IsEvalArguments)) {
+                this.errorLocation = this.getLocation();
+                state |= ParenthesizedState.EvalOrArguments;
+            }
 
-                if (hasBit(this.token, Token.IsYield)) {
-                    this.errorLocation = this.getLocation();
-                    state |= ParenthesizedState.Yield;
-                }
-                if (this.token === Token.LeftParen) {
-                    this.errorLocation = this.getLocation();
-                    state |= ParenthesizedState.NestedParenthesis;
-                }
+            if (hasBit(this.token, Token.IsYield)) {
+                this.errorLocation = this.getLocation();
+                state |= ParenthesizedState.Yield;
+            }
+            if (this.token === Token.LeftParen) {
+                this.errorLocation = this.getLocation();
+                state |= ParenthesizedState.NestedParenthesis;
+            }
 
-                if (hasBit(this.token, Token.IsAwait)) {
-                    this.errorLocation = this.getLocation();
-                    state |= ParenthesizedState.Await;
-                    this.flags |= Flags.HasAwait;
-                }
+            if (hasBit(this.token, Token.IsAwait)) {
+                this.errorLocation = this.getLocation();
+                state |= ParenthesizedState.Await;
+                this.flags |= Flags.HasAwait;
+            }
 
-                args.push(this.parseAssignmentExpression(context | Context.InParenthesis));
+            args.push(this.parseAssignmentExpression(context | Context.InParenthesis));
 
             this.parseOptional(context, Token.Comma);
         }
@@ -4194,6 +4200,10 @@ export class Parser {
             this.early(context, Errors.ElementAfterRest);
         }
 
+        if (this.flags & Flags.DisallowArrowFunction) {
+            this.early(context, Errors.InvalidArrowConstructor);
+        }
+        // var foo = new () => {};
         this.expect(context, Token.Arrow);
 
         if (context & Context.InClass && this.token & Token.IsEvalArguments) {

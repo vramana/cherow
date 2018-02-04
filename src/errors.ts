@@ -86,7 +86,8 @@ export const enum Errors {
     InvalidModuleSpecifier,
     NoAsAfterImportNamespace,
     MultipleDefaultsInSwitch,
-    UnterminatedTemplate
+    UnterminatedTemplate,
+    InvalidArrowConstructor
 }
 
 export const ErrorMessages: {
@@ -179,6 +180,8 @@ export const ErrorMessages: {
     [Errors.NoAsAfterImportNamespace]: 'Missing \'as\' keyword after import namespace',
     [Errors.MultipleDefaultsInSwitch]: 'More than one default clause in switch statement',
     [Errors.UnterminatedTemplate]: 'Unterminated template literal',
+    [Errors.InvalidArrowConstructor]: 'Arrow functions cannot be used as constructors',
+
 };
 
 function constructError(msg: string, column: number): Error {

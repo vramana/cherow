@@ -13,6 +13,12 @@ describe('Expressions - Async arrow', () => {
         message: 'Unexpected eval or arguments in strict mode'
     });
 
+    fail(`async (this) => { "use strict"; }`, {
+        source: 'async (this) => { "use strict"; }',
+        line: 1,
+        message: 'Unexpected token'
+    });
+
     fail(`function* g() { async yield => X }`, {
         source: 'function* g() { async yield => X }',
         line: 1
