@@ -6441,4 +6441,44 @@ describe('Statements - For await of', () => {
         line: 1
     });
 
+    fail(`do break; while 1;;`, {
+        source: 'do break; while 1;;',
+        line: 1,
+    });
+
+    fail(`f = () => { for await (x of xs); }`, {
+        source: 'f = () => { for await (x of xs); }',
+        line: 1,
+    });
+
+    fail(`function f() { for await (x of xs); }`, {
+        source: 'function f() { for await (x of xs); }',
+        line: 1,
+    });
+
+    fail(`function f() { for await (x of xs); }`, {
+        source: 'function f() { for await (x of xs); }',
+        line: 1,
+    });
+
+    fail(`for await (x of xs);`, {
+        source: 'for await (x of xs);',
+        line: 1,
+    });
+
+    fail(`async function f() { for await (;;); }`, {
+        source: 'async function f() { for await (;;); }',
+        line: 1,
+    });
+
+    fail(`async function f() { for await (x;;); }`, {
+        source: 'async function f() { for await (x;;); }',
+        line: 1,
+    });
+
+    fail(`async function f() { for await (x in xs); }`, {
+        source: 'async function f() { for await (x in xs); }',
+        line: 1,
+    });
+
 });

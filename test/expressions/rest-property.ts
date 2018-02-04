@@ -29,6 +29,46 @@ describe('Next - Rest property', () => {
         index: 13
     });
 
+    fail(`async function f() { for await (x in xs); }`, {
+        source: 'async function f() { for await (x in xs); }',
+        line: 1,
+    });
+
+    fail(`let {...obj1,...obj2} = foo`, {
+        source: 'let {...obj1,...obj2} = foo',
+        line: 1,
+    });
+
+    fail(`let {...obj1,a} = foo`, {
+        source: 'let {...obj1,a} = foo',
+        line: 1,
+    });
+
+    fail(`let {...(obj)} = foo`, {
+        source: 'let {...(obj)} = foo',
+        line: 1,
+    });
+
+    fail(`({...(a,b)} = foo)`, {
+        source: '({...(a,b)} = foo)',
+        line: 1,
+    });
+
+    fail(`({...(a,b)}) => {}`, {
+        source: '({...(a,b)}) => {}',
+        line: 1,
+    });
+
+    fail(`let {...obj1,} = foo`, {
+        source: 'let {...obj1,} = foo',
+        line: 1,
+    });
+
+    fail(`let {...(a,b)} = foo`, {
+        source: 'let {...(a,b)} = foo',
+        line: 1,
+    });
+
     pass(`let { x, y, ...z } = { x: 1, y: 2, a: 3, b: 4 };`, {
         source: 'let { x, y, ...z } = { x: 1, y: 2, a: 3, b: 4 };',
         loc: true,

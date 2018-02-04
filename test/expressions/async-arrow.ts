@@ -39,6 +39,30 @@ describe('Expressions - Async arrow', () => {
         line: 1
     });
 
+    fail(`new async () => foo;`, {
+        source: 'new async () => foo;',
+        line: 1,
+        message: 'Arrow functions cannot be used as constructors',
+        column: 12,
+        index: 12
+    });
+
+    fail(`new acorn () => foo;`, {
+        source: 'new acorn () => foo;',
+        line: 1,
+        message: 'Unexpected token =>',
+        column: 12,
+        index: 12
+    });
+/*
+    fail(`new () => foo;`, {
+        source: 'new () => foo;',
+        line: 1,
+        message: 'Unexpected token =>',
+        column: 12,
+        index: 12
+    });
+  */
     pass(`({foo: bar}) => {}`, {
         source: '({foo: bar}) => {}',
         raw: true,

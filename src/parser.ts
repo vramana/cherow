@@ -3434,11 +3434,11 @@ export class Parser {
 
         while (true) {
 
-            expr = this.parseMemberExpression(context, pos, expr);
+        expr = this.parseMemberExpression(context, pos, expr);
 
-            if (this.token !== Token.LeftParen) return expr;
+        if (this.token !== Token.LeftParen) return expr;
 
-            expr = this.finishNode(context, pos, {
+        expr = this.finishNode(context, pos, {
                 type: 'CallExpression',
                 callee: expr,
                 arguments: this.parseCallArguments(context)
@@ -3582,7 +3582,7 @@ export class Parser {
 
         const id = this.parseIdentifier(context);
 
-        if (this.flags & Flags.LineTerminator) this.early(context, Errors.LineBreakAfterAsync);
+        if (this.flags & Flags.LineTerminator) return id;
 
         // To avoid a look-ahead, we simply set the 'AsyncFunction' bit after
         // consuming the 'async' token before parsing out the 'FunctionExpression' itself.

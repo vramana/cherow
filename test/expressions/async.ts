@@ -2148,8 +2148,8 @@ describe('Expressions - Async', () => {
       }
   }
   });
-/*
-pass(`var obj = { async *method([{ x, y, z } = { x: 44, y: 55, z: 66 }] = []) {} }`, {
+
+    pass(`var obj = { async *method([{ x, y, z } = { x: 44, y: 55, z: 66 }] = []) {} }`, {
       source: `a = async
       function f(){}`,
       loc: true,
@@ -2157,138 +2157,138 @@ pass(`var obj = { async *method([{ x, y, z } = { x: 44, y: 55, z: 66 }] = []) {}
       next: true,
       raw: true,
       expected: {
-          type: 'Program',
-          body: [
-              {
-                  type: 'ExpressionStatement',
-                  expression: {
-                      type: 'AssignmentExpression',
-                      left: {
-                          type: 'Identifier',
-                          name: 'a',
-                          start: 0,
-                          end: 1,
-                          loc: {
-                              start: {
-                                  line: 1,
-                                  column: 0
-                              },
-                              end: {
-                                  line: 1,
-                                  column: 1
-                              }
-                          }
-                      },
-                      operator: '=',
-                      right: {
-                          type: 'Identifier',
-                          name: 'async',
-                          start: 4,
-                          end: 9,
-                          loc: {
-                              start: {
-                                  line: 1,
-                                  column: 4
-                              },
-                              end: {
-                                  line: 1,
-                                  column: 9
-                              }
-                          }
-                      },
-                      start: 0,
-                      end: 9,
-                      loc: {
-                          start: {
-                              line: 1,
-                              column: 0
-                          },
-                          end: {
-                              line: 1,
-                              column: 9
-                          }
-                      }
-                  },
-                  start: 0,
-                  end: 9,
-                  loc: {
-                      start: {
-                          line: 1,
-                          column: 0
-                      },
-                      end: {
-                          line: 1,
-                          column: 9
-                      }
-                  }
-              },
-              {
-                  type: 'FunctionDeclaration',
-                  params: [],
-                  body: {
-                      type: 'BlockStatement',
-                      body: [],
-                      start: 34,
-                      end: 36,
-                      loc: {
-                          start: {
-                              line: 2,
-                              column: 24
-                          },
-                          end: {
-                              line: 2,
-                              column: 26
-                          }
-                      }
-                  },
-                  async: false,
-                  generator: false,
-                  expression: false,
-                  id: {
-                      type: 'Identifier',
-                      name: 'f',
-                      start: 31,
-                      end: 32,
-                      loc: {
-                          start: {
-                              line: 2,
-                              column: 21
-                          },
-                          end: {
-                              line: 2,
-                              column: 22
-                          }
-                      }
-                  },
-                  start: 22,
-                  end: 36,
-                  loc: {
-                      start: {
-                          line: 2,
-                          column: 12
-                      },
-                      end: {
-                          line: 2,
-                          column: 26
-                      }
-                  }
-              }
-          ],
-          sourceType: 'script',
-          start: 0,
-          end: 36,
-          loc: {
+        type: 'Program',
+        start: 0,
+        end: 30,
+        loc: {
+          start: {
+            line: 1,
+            column: 0
+          },
+          end: {
+            line: 2,
+            column: 20
+          }
+        },
+        body: [
+          {
+            type: 'ExpressionStatement',
+            start: 0,
+            end: 9,
+            loc: {
               start: {
-                  line: 1,
-                  column: 0
+                line: 1,
+                column: 0
               },
               end: {
-                  line: 2,
-                  column: 26
+                line: 1,
+                column: 9
               }
+            },
+            expression: {
+              type: 'AssignmentExpression',
+              start: 0,
+              end: 9,
+              loc: {
+                start: {
+                  line: 1,
+                  column: 0
+                },
+                end: {
+                  line: 1,
+                  column: 9
+                }
+              },
+              operator: '=',
+              left: {
+                type: 'Identifier',
+                start: 0,
+                end: 1,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 1
+                  }
+                },
+                name: 'a'
+              },
+              right: {
+                type: 'Identifier',
+                start: 4,
+                end: 9,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 4
+                  },
+                  end: {
+                    line: 1,
+                    column: 9
+                  }
+                },
+                name: 'async'
+              }
+            }
+          },
+          {
+            type: 'FunctionDeclaration',
+            start: 16,
+            end: 30,
+            loc: {
+              start: {
+                line: 2,
+                column: 6
+              },
+              end: {
+                line: 2,
+                column: 20
+              }
+            },
+            id: {
+              type: 'Identifier',
+              start: 25,
+              end: 26,
+              loc: {
+                start: {
+                  line: 2,
+                  column: 15
+                },
+                end: {
+                  line: 2,
+                  column: 16
+                }
+              },
+              name: 'f'
+            },
+            generator: false,
+            expression: false,
+            async: false,
+            params: [],
+            body: {
+              type: 'BlockStatement',
+              start: 28,
+              end: 30,
+              loc: {
+                start: {
+                  line: 2,
+                  column: 18
+                },
+                end: {
+                  line: 2,
+                  column: 20
+                }
+              },
+              body: []
+            }
           }
+        ],
+        sourceType: 'script'
       }
-  });*/
+  });
 
     pass(`var async; async = 3;`, {
       source: 'var async; async = 3;',
