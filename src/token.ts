@@ -189,9 +189,6 @@ export const enum Token {
     KeyOfKeyword       = 129 | IsIdentifier,
     IsKeyword          = 130 | IsIdentifier,
     ReadOnlyKeyword    = 131 | IsIdentifier,
-
-    /* Misc */
-    EscapedKeyword     = 132,
 }
 
 // Note: this *must* be kept in sync with the enum's order.

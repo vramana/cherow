@@ -97,6 +97,12 @@ describe('Declarations - Class', () => {
         });
     }
 
+    fail(`class C { *() {} }`, {
+        source: 'class C { *() {} }',
+        message: 'Unexpected token )',
+        line: 1
+    });
+
     fail(`class C {async *method(...x = []) {}}`, {
         source: 'class C {async *method(...x = []) {}}',
         message: 'Rest elements cannot have a initializer',

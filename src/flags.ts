@@ -23,19 +23,18 @@ export const enum Context {
     InArrowParameterList    = 1 << 16,
     ArrowFunction           = 1 << 17,
     TopLevel                = 1 << 18,
-    Optional                = 1 << 19,
-    AllowSuperProperty      = 1 << 20,
-    ValidateEscape          = 1 << 21,
-    Let                     = 1 << 22,  // Variable declaration
-    Const                   = 1 << 23,  // Variable declaration
-    Statement               = 1 << 24,
-    Method                  = 1 << 25,
-    AsyncFunction           = 1 << 26,
-    ProhibitWhitespace      = 1 << 27, // Scanner related.
-    ForStatement            = 1 << 28,
-    InParenthesis           = 1 << 29,
-    InClass                 = 1 << 30,
-    InTypeAnnotation        = 1 << 31,
+    AllowSuperProperty      = 1 << 19,
+    ValidateEscape          = 1 << 20,
+    Let                     = 1 << 21,  // Variable declaration
+    Const                   = 1 << 22,  // Variable declaration
+    Statement               = 1 << 23,
+    Method                  = 1 << 24,
+    AsyncFunction           = 1 << 25,
+    ProhibitWhitespace      = 1 << 26, // Scanner related.
+    ForStatement            = 1 << 27,
+    InParenthesis           = 1 << 28,
+    InClass                 = 1 << 29,
+    InTypeAnnotation        = 1 << 30,
 
     BlockScoped  = Let | Const
 
