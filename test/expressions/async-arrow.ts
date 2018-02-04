@@ -7,6 +7,12 @@ describe('Expressions - Async arrow', () => {
         line: 1
     });
 
+    fail(`async (eval) => { "use strict"; }`, {
+        source: 'async (eval) => { "use strict"; }',
+        line: 1,
+        message: 'Unexpected eval or arguments in strict mode'
+    });
+
     fail(`function* g() { async yield => X }`, {
         source: 'function* g() { async yield => X }',
         line: 1
@@ -25,6 +31,53 @@ describe('Expressions - Async arrow', () => {
     fail(`function* g() { async ({yield}) => X }`, {
         source: 'function* g() { async ({yield}) => X }',
         line: 1
+    });
+
+    pass(`({foo: bar}) => {}`, {
+        source: '({foo: bar}) => {}',
+        raw: true,
+        expected: {
+              "body": [
+                {
+                  "expression": {
+                    "async": false,
+                    "body": {
+                      "body": [],
+                      "type": "BlockStatement"
+                    },
+                    "expression": false,
+                    "generator": false,
+                    "id": null,
+                    "params": [
+                      {
+                        "properties": [
+                          {
+                            "computed": false,
+                           "key": {
+                              "name": "foo",
+                             "type": "Identifier"
+                            },
+                            "kind": "init",
+                           "method": false,
+                            "shorthand": false,
+                            "type": "Property",
+                            "value": {
+                              "name": "bar",
+                              "type": "Identifier",
+                            },
+                          }
+                        ],
+                        "type": "ObjectPattern"
+                      }
+                    ],
+                    "type": "ArrowFunctionExpression"
+                  },
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
     });
 
     pass(`async X => {yield}`, {

@@ -1,5 +1,5 @@
 import * as ESTree from './estree';
-import { fromCodePoint, toHex, isPrologueDirective, hasMask, map, isValidSimpleAssignmentTarget, isValidDestructuringAssignmentTarget, isInOrOfKeyword } from './common';
+import { fromCodePoint, toHex, isPrologueDirective, hasBit, map, isValidSimpleAssignmentTarget, isValidDestructuringAssignmentTarget, isInOrOfKeyword } from './common';
 import { Options, OnComment } from './cherow';
 import { Chars } from './chars';
 import { Token, tokenDesc, descKeyword } from './token';
@@ -2981,7 +2981,7 @@ export class Parser {
             return this.parseArrowFunctionExpression(context & ~Context.AsyncContext, pos, [expr]);
         }
 
-        if (hasMask(this.token, Token.IsAssignOperator)) {
+        if (hasBit(this.token, Token.IsAssignOperator)) {
 
             if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                 this.early(context, Errors.StrictLHSAssignment);
@@ -3004,8 +3004,8 @@ export class Parser {
 
             this.nextToken(context);
             // Note! An arrow parameters must not contain yield expressions, but at this stage we doesn't know
-            // if this is an "normal" parenthesis or inside and arrow param list, so we mark the "yield" as found
-            // so we later can throw an "simple param list error" if this is an arrow param list.
+            // if this is an "normal" parenthesis or inside and arrow param list, so we set 
+            // th "HasYield" flag now
             if (context & Context.YieldContext && context & Context.InParenthesis && this.token & Token.IsYield) {
                 this.errorLocation = this.getLocation();
                 this.flags |= Flags.HasYield;
@@ -3064,7 +3064,7 @@ export class Parser {
 
         const bit = context & Context.AllowIn ^ Context.AllowIn;
 
-        while (hasMask(this.token, Token.IsBinaryOperator)) {
+        while (hasBit(this.token, Token.IsBinaryOperator)) {
             const t = this.token;
             const prec = t & Token.Precedence;
             const delta = ((t === Token.Exponentiate) as any) << Token.PrecStart;
@@ -3104,7 +3104,7 @@ export class Parser {
             return this.parseAwaitExpression(context, pos);
         }
 
-        if (hasMask(t, Token.IsUnaryOperator)) {
+        if (hasBit(t, Token.IsUnaryOperator)) {
             t = this.token;
             if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
             this.nextToken(context);
@@ -3141,7 +3141,7 @@ export class Parser {
         let prefix = false;
         let operator: Token | undefined;
 
-        if (hasMask(this.token, Token.IsUpdateOperator)) {
+        if (hasBit(this.token, Token.IsUpdateOperator)) {
             operator = this.token;
             prefix = true;
             this.nextToken(context);
@@ -3152,7 +3152,7 @@ export class Parser {
 
         const argument = this.parseLeftHandSideExpression(context, pos);
 
-        const isPostfix = hasMask(this.token, Token.IsUpdateOperator) && !(this.flags & Flags.LineTerminator);
+        const isPostfix = hasBit(this.token, Token.IsUpdateOperator) && !(this.flags & Flags.LineTerminator);
 
         if (!prefix && !isPostfix) return argument;
 
@@ -3575,13 +3575,13 @@ export class Parser {
 
         const hasEscape = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
 
-        const flags = this.flags |= Flags.SimpleParameterList;
+        const flags = this.flags;
 
         const id = this.parseIdentifier(context);
 
         if (this.flags & Flags.LineTerminator) this.early(context, Errors.LineBreakAfterAsync);
 
-        // Note! To avoid a look-ahead, we simply set the 'AsyncFunction' bit after
+        // To avoid a look-ahead, we simply set the 'AsyncFunction' bit after
         // consuming the 'async' token before parsing out the 'FunctionExpression' itself.
         if (this.token === Token.FunctionKeyword) {
             if (hasEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
@@ -3593,13 +3593,19 @@ export class Parser {
 
         const t = this.token;
 
-        // Check if we have an un-parenthesized async arrow function followed by either
-        // and identifer or 'yield'
+        // Check if we this is a "concise body" async arrow function followed by either
+        // an identifer or 'yield'
         if (t & (Token.IsIdentifier | Token.IsYield)) {
             if (hasEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
-            // Found a 'LT', so this is an plain identifier, return.
+            // If we have a LineTerminator here, it can't be an arrow functions. So simply
+            // return the identifer.
             if (this.flags & Flags.LineTerminator) return id;
-            if (context & Context.YieldContext && t & Token.IsYield) this.early(context, Errors.Unexpected);
+            // The yield keyword may not be used in an arrow function's body (except when permitted 
+            // within functions further nested within it). As a consequence, arrow functions 
+            // cannot be used as generators.
+            if (context & Context.YieldContext && t & Token.IsYield) {
+                this.early(context, Errors.Unexpected);
+            }
             const expr = this.parseIdentifier(context);
 
             if (this.token !== Token.Arrow) this.early(context, Errors.Unexpected);
@@ -3628,33 +3634,34 @@ export class Parser {
                 if (this.token === Token.Comma) state |= ParenthesizedState.Trailing;
                 args.push(elem);
                 break;
-            } else {
-
-                if (context & Context.Strict) {
-                    if (hasMask(this.token, Token.IsEvalArguments)) state |= ParenthesizedState.EvalOrArguments;
+            } 
+                // Start of a binding pattern inside parenthesis - '({foo: bar})', '{[()]}'
+                if (hasBit(this.token, Token.IsBindingPattern)) {
+                    this.errorLocation = this.getLocation();
+                    state |= ParenthesizedState.BindingPattern;
                 }
 
-                if (this.token & Token.IsYield) {
+                if (hasBit(this.token, Token.IsEvalArguments)) {
+                    this.errorLocation = this.getLocation();
+                    state |= ParenthesizedState.EvalOrArguments;
+                }
+
+                if (hasBit(this.token, Token.IsYield)) {
                     this.errorLocation = this.getLocation();
                     state |= ParenthesizedState.Yield;
                 }
-                if (this.token & Token.IsAwait) {
-                    this.errorLocation = this.getLocation();
-                    state |= ParenthesizedState.Await;
-                }
-
                 if (this.token === Token.LeftParen) {
                     this.errorLocation = this.getLocation();
                     state |= ParenthesizedState.NestedParenthesis;
                 }
 
-                if (this.token & Token.IsAwait) {
+                if (hasBit(this.token, Token.IsAwait)) {
                     this.errorLocation = this.getLocation();
+                    state |= ParenthesizedState.Await;
                     this.flags |= Flags.HasAwait;
                 }
 
-                args.push(this.parseAssignmentExpression(context));
-            }
+                args.push(this.parseAssignmentExpression(context | Context.InParenthesis));
 
             this.parseOptional(context, Token.Comma);
         }
@@ -3665,7 +3672,12 @@ export class Parser {
 
             if (hasEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
 
-            // async arrows cannot have a line terminator between "async" and the formals
+            if (state & ParenthesizedState.BindingPattern) {
+                // this.errorLocation = this.getLocation();
+                this.flags |= Flags.SimpleParameterList;
+            }
+
+            // A async arrows cannot have a line terminator between "async" and the formals
             if (flags & Flags.LineTerminator) {
                 this.early(context, Errors.LineBreakAfterAsync);
             }
@@ -3676,7 +3688,11 @@ export class Parser {
                 this.early(context, Errors.InvalidAwaitInArrowParam);
             }
             if (state & ParenthesizedState.EvalOrArguments) {
-                this.early(context, Errors.UnexpectedStrictReserved);
+                // Invalid: '"use strict"; (eval = 10) => 42;'
+                if (context & Context.Strict) this.early(context, Errors.UnexpectedStrictReserved);
+                // Invalid: '(eval = 10) => { "use strict"; }'
+                // this.errorLocation = this.getLocation();
+                this.flags |= Flags.ReservedWords;
             }
             if (state & ParenthesizedState.NestedParenthesis) {
                 this.early(context, Errors.InvalidParenthesizedPattern);
@@ -4195,7 +4211,7 @@ export class Parser {
 
             // Invalid: '() => {} a || true'
             // Invalid: '() => {} ? a : b'
-            if ((context & Context.InParenthesis) && (hasMask(this.token, Token.IsBinaryOperator) || this.token === Token.QuestionMark)) {
+            if ((context & Context.InParenthesis) && (hasBit(this.token, Token.IsBinaryOperator) || this.token === Token.QuestionMark)) {
                 this.report(Errors.UnexpectedToken, tokenDesc(this.token));
             }
 
@@ -4248,7 +4264,7 @@ export class Parser {
 
         let isSequence = false;
 
-        if (context & Context.YieldContext && hasMask(this.token, Token.IsYield)) {
+        if (context & Context.YieldContext && hasBit(this.token, Token.IsYield)) {
             this.errorLocation = this.getLocation();
             this.flags |= Flags.HasYield;
         }
@@ -4260,20 +4276,20 @@ export class Parser {
         }
 
         // Start of a binding pattern inside parenthesis - '({foo: bar})', '{[()]}'
-        if (hasMask(this.token, Token.IsBindingPattern)) {
-            // this.errorLocation = sequencepos;
+        if (hasBit(this.token, Token.IsBindingPattern)) {
+            this.errorLocation = this.getLocation();
             state |= ParenthesizedState.BindingPattern;
         }
 
         // The parenthesis contain a future reserved word. Flag it and throw
         // later on if it turns out that we are in a strict mode context
-        if (hasMask(this.token, Token.FutureReserved)) {
+        if (hasBit(this.token, Token.FutureReserved)) {
             this.errorLocation = this.getLocation();
             state |= ParenthesizedState.FutureReserved;
         }
 
-        if (hasMask(this.token, Token.IsEvalArguments)) {
-            // this.errorLocation = this.getLocation();
+        if (hasBit(this.token, Token.IsEvalArguments)) {
+            this.errorLocation = this.getLocation();
             state |= ParenthesizedState.EvalOrArguments;
         }
 
@@ -4306,7 +4322,7 @@ export class Parser {
                         // this.errorLocation = this.getLocation();
                         state |= ParenthesizedState.NestedParenthesis;
                     }
-                    if (hasMask(this.token, Token.IsEvalArguments)) {
+                    if (hasBit(this.token, Token.IsEvalArguments)) {
                         // this.errorLocation = this.getLocation();
                         state |= ParenthesizedState.EvalOrArguments;
 
@@ -4629,7 +4645,7 @@ export class Parser {
 
         const t = this.token;
 
-        if (context & Context.Strict && hasMask(t, Token.IsEvalArguments)) {
+        if (context & Context.Strict && hasBit(t, Token.IsEvalArguments)) {
             this.early(context, Errors.InvalidBindingStrictMode, tokenDesc(t));
         } else if (!this.isIdentifier(context, t)) {
             this.early(context, Errors.UnexpectedToken, tokenDesc(t));

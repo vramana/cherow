@@ -7,7 +7,7 @@ export const isInOrOfKeyword = (t: Token) => t === Token.InKeyword || t === Toke
 export const isPrologueDirective = (node: Statement): node is ExpressionStatement & {
     expression: Literal & { value: string }; } => node.type === 'ExpressionStatement' && node.expression.type === 'Literal';
 
-export const hasMask = (mask: number, flags: number) => (mask & flags) === flags;
+export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
 
 export const fromCodePoint = (code: Chars) => {
     return code <= 0xFFFF

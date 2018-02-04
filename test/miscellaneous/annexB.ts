@@ -4978,8 +4978,8 @@ describe('Miscellaneous - AnnexB', () => {
                  source: `({  __proto__: null,  other: null,  '__proto__': null });`,
                  message: 'Property name __proto__ appears more than once in object literal',
                  line: 1,
-                 column: 53,
-                 index: 53
+                 column: 1,
+                 index: 1
                  });
 
                 pass(`o = { __proto__: function() {} };`, {

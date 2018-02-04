@@ -196,8 +196,8 @@ describe('Expressions - Arrows', () => {
         source: '"use strict"; var af = (arguments) => 1;',
         message: 'Unexpected eval or arguments in strict mode',
         line: 1,
-        column: 34,
-        index: 34
+        column: 24,
+        index: 24
     });
 
     fail(`((a = 0) => { "use strict"; })`, {
@@ -220,8 +220,8 @@ describe('Expressions - Arrows', () => {
         source: '"use strict"; var af = (eval) => 1;',
         message: 'Unexpected eval or arguments in strict mode',
         line: 1,
-        column: 29,
-        index: 29
+        column: 24,
+        index: 24
     });
 
     fail(`"use strict"; var af = eval => 1;`, {
@@ -400,8 +400,8 @@ describe('Expressions - Arrows', () => {
         source: '"use strict"; (eval, a) => 42;',
         message: 'Unexpected eval or arguments in strict mode',
         line: 1,
-        column: 23,
-        index: 23
+        column: 15,
+        index: 15
     });
 
     pass(`(a) => b;  // 1 args

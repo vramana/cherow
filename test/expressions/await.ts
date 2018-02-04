@@ -55,8 +55,8 @@ describe('Expressions - Await', () => {
         module: true,
         message: 'Unexpected token',
         line: 1,
-        column: 21,
-        index: 21
+        column: 1,
+        index: 1
     });
 
     fail(`async await => 1;`, {

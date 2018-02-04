@@ -4179,8 +4179,8 @@ describe('Statements - For in', () => {
         source: 'for (var [arguments] = ({ get y(){} }) in y ) (x);',
         message: 'Invalid variable declaration in for-in statement',
         line: 1,
-        column: 38,
-        index: 38
+        column: 24,
+        index: 24
     });
 
     fail(`for (var [arguments] = ({ get y(){} }) in y ) (x);`, {
