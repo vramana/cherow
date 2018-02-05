@@ -17,7 +17,7 @@ It strictly follows the [ECMAScript® 2018 Language Specification](https://tc39.
 * Full support for ECMAScript® 2017 [(ECMA-262 8th Edition)](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
 * Full support for all stage 3 proposals via option
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
-* Optimzed for handheld devices 
+* Optimized for handheld devices 
 * Early error tolerant parsing
 * Skips hashbang comment nodes by default
 * Skips BOM (*U+FEFF*) by default
