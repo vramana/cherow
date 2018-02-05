@@ -235,7 +235,11 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/async-arrow-function/params-trailing-comma-multiple.js',
         'test/language/expressions/postfix-decrement/11.3.2-2-1-s.js',
         'test/language/expressions/prefix-decrement/11.4.5-2-2-s.js',
-        'test/language/expressions/arrow-function/dflt-params-arg-val-undefined.js'
+        'test/language/expressions/arrow-function/dflt-params-arg-val-undefined.js',
+        'test/language/expressions/function/name-arguments-strict-body.js',
+        'test/language/expressions/function/name-eval-strict-body.js',
+        'test/language/statements/function/name-arguments-strict-body.js',
+        'test/language/statements/function/name-eval-strict-body.js'
     ],
     parse: (file: string, source: string, opts: any) => {
         const cherowOpts = {
