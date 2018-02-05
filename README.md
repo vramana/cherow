@@ -95,13 +95,13 @@ Both methods accept the following options, none required:
 | ----------- | ------------------------------------------------------------ |
 | `comments`        | Create a top-level comments array containing all comments |
 | `early`           | Create a top-level error array containing all "*skipped*" early errors |
-| `loc      `       | Attach line/column location information to each node |
-| `ranges`          | Attach range information to each node |
-| `impliedStrict`   | Allow implied strict mode in sloppy mode (modules are strict by default) |
-| `next`            | Allow experimental ECMAScript features (*Stage 3 proposals*) |
+| `loc      `       | Set to true to append line/column offsets to each node |
+| `ranges`          | Set to true to append start and end offsets to each node |
+| `impliedStrict`   | Set to true to allow implied strict mode |
+| `next`            | Set to true to enable stage 3 support |
 | `plugins`         | Array containing the parameterized plugins that you want to enable   |
 | `source`          | Correlate output AST nodes with their source filename  |
-| `raw`             | Attach raw property on literal nodes (*Esprima and Acorn feature*)     |
+| `raw`             | Set to true to attach raw property to each literal node    |
 
 ## Comments
 
