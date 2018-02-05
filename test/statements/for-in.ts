@@ -231,6 +231,310 @@ describe('Statements - For in', () => {
         }
     });
 
+    pass(`for (a(b in c)[0] in d);`, {
+        source: 'for (a(b in c)[0] in d);',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ForInStatement',
+                    body: {
+                        type: 'EmptyStatement',
+                        start: 23,
+                        end: 24,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 23
+                            },
+                            end: {
+                                line: 1,
+                                column: 24
+                            }
+                        }
+                    },
+                    left: {
+                        type: 'MemberExpression',
+                        object: {
+                            type: 'CallExpression',
+                            callee: {
+                                type: 'Identifier',
+                                name: 'a',
+                                start: 5,
+                                end: 6,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 5
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 6
+                                    }
+                                }
+                            },
+                            arguments: [
+                                {
+                                    type: 'BinaryExpression',
+                                    left: {
+                                        type: 'Identifier',
+                                        name: 'b',
+                                        start: 7,
+                                        end: 8,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 7
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 8
+                                            }
+                                        }
+                                    },
+                                    right: {
+                                        type: 'Identifier',
+                                        name: 'c',
+                                        start: 12,
+                                        end: 13,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 12
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 13
+                                            }
+                                        }
+                                    },
+                                    operator: 'in',
+                                    start: 7,
+                                    end: 13,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 7
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 13
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 5,
+                            end: 14,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 5
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 14
+                                }
+                            }
+                        },
+                        computed: true,
+                        property: {
+                            type: 'Literal',
+                            value: 0,
+                            start: 15,
+                            end: 16,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 15
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 16
+                                }
+                            },
+                            raw: '0'
+                        },
+                        start: 5,
+                        end: 17,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 5
+                            },
+                            end: {
+                                line: 1,
+                                column: 17
+                            }
+                        }
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'd',
+                        start: 21,
+                        end: 22,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 21
+                            },
+                            end: {
+                                line: 1,
+                                column: 22
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 24,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 24
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 24,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 24
+                }
+            }
+        }
+    });
+
+    pass(`for (a.in in a);`, {
+        source: 'for (a.in in a);',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ForInStatement',
+                    body: {
+                        type: 'EmptyStatement',
+                        start: 15,
+                        end: 16,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 15
+                            },
+                            end: {
+                                line: 1,
+                                column: 16
+                            }
+                        }
+                    },
+                    left: {
+                        type: 'MemberExpression',
+                        object: {
+                            type: 'Identifier',
+                            name: 'a',
+                            start: 5,
+                            end: 6,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 5
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 6
+                                }
+                            }
+                        },
+                        computed: false,
+                        property: {
+                            type: 'Identifier',
+                            name: 'in',
+                            start: 7,
+                            end: 9,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 7
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 9
+                                }
+                            }
+                        },
+                        start: 5,
+                        end: 9,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 5
+                            },
+                            end: {
+                                line: 1,
+                                column: 9
+                            }
+                        }
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'a',
+                        start: 13,
+                        end: 14,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 13
+                            },
+                            end: {
+                                line: 1,
+                                column: 14
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 16,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 16
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 16,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 16
+                }
+            }
+        }
+    });
+
     pass(`for(let [a=b in c] in null);`, {
         source: 'for(let [a=b in c] in null);',
         loc: true,
@@ -4016,7 +4320,7 @@ describe('Statements - For in', () => {
 
     fail(`for (const x in {}) {  var x;  }`, {
         source: 'for (const x in {}) {  var x;  }',
-        message: 'Unexpected token',
+        message: 'Missing initializer in const declaration',
         line: 1,
         column: 28,
         index: 28
@@ -4445,6 +4749,16 @@ describe('Statements - For in', () => {
 
     fail(`for (var x = y = z in q);`, {
         source: 'for (var x = y = z in q); ',
+        line: 1,
+    });
+
+    fail(`for (x=0 in y);`, {
+        source: 'for (x=0 in y);',
+        line: 1,
+    });
+
+    fail(`"use strict"; for (x in let) {}`, {
+        source: '"use strict"; for (x in let) {}',
         line: 1,
     });
 

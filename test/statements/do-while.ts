@@ -298,6 +298,232 @@ while (false);`,
       }
   });
 
+  pass(`{ do { } while (false) false }`, {
+    source: '{ do { } while (false) false }',
+    loc: true,
+    ranges: true,
+    raw: true,
+    expected: {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+            {
+                type: 'BlockStatement',
+                body: [
+                    {
+                        type: 'DoWhileStatement',
+                        body: {
+                            type: 'BlockStatement',
+                            body: [],
+                            start: 5,
+                            end: 8,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 5
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 8
+                                }
+                            }
+                        },
+                        test: {
+                            type: 'Literal',
+                            value: false,
+                            start: 16,
+                            end: 21,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 16
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 21
+                                }
+                            },
+                            raw: 'false'
+                        },
+                        start: 2,
+                        end: 22,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 2
+                            },
+                            end: {
+                                line: 1,
+                                column: 22
+                            }
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'Literal',
+                            value: false,
+                            start: 23,
+                            end: 28,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 23
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 28
+                                }
+                            },
+                            raw: 'false'
+                        },
+                        start: 23,
+                        end: 28,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 23
+                            },
+                            end: {
+                                line: 1,
+                                column: 28
+                            }
+                        }
+                    }
+                ],
+                start: 0,
+                end: 30,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 30
+                    }
+                }
+            }
+        ],
+        start: 0,
+        end: 30,
+        loc: {
+            start: {
+                line: 1,
+                column: 0
+            },
+            end: {
+                line: 1,
+                column: 30
+            }
+        }
+    }
+  });
+
+  pass(`do that();while (true)`, {
+    source: 'do that();while (true)',
+    loc: true,
+    ranges: true,
+    raw: true,
+    expected: {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+            {
+                type: 'DoWhileStatement',
+                body: {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'CallExpression',
+                        callee: {
+                            type: 'Identifier',
+                            name: 'that',
+                            start: 3,
+                            end: 7,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 3
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 7
+                                }
+                            }
+                        },
+                        arguments: [],
+                        start: 3,
+                        end: 9,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 3
+                            },
+                            end: {
+                                line: 1,
+                                column: 9
+                            }
+                        }
+                    },
+                    start: 3,
+                    end: 10,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 3
+                        },
+                        end: {
+                            line: 1,
+                            column: 10
+                        }
+                    }
+                },
+                test: {
+                    type: 'Literal',
+                    value: true,
+                    start: 17,
+                    end: 21,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 17
+                        },
+                        end: {
+                            line: 1,
+                            column: 21
+                        }
+                    },
+                    raw: 'true'
+                },
+                start: 0,
+                end: 22,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 22
+                    }
+                }
+            }
+        ],
+        start: 0,
+        end: 22,
+        loc: {
+            start: {
+                line: 1,
+                column: 0
+            },
+            end: {
+                line: 1,
+                column: 22
+            }
+        }
+    }
+  });
+
   pass(`do {} while (true)`, {
       source: 'do {} while (true)',
       loc: true,

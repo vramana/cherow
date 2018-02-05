@@ -28,7 +28,7 @@ describe('Declarations - Const', () => {
 
     fail('switch (true) { default: const x; }', {
         source: 'switch (true) { default: const x; }',
-        message: 'Unexpected token',
+        message: 'Missing initializer in const declaration',
         line: 1,
         column: 32,
         index: 32
@@ -53,7 +53,7 @@ describe('Declarations - Const', () => {
 
     fail('const x, y = 1;', {
         source: 'const x, y = 1;',
-        message: 'Unexpected token',
+        message: 'Missing initializer in const declaration',
         line: 1,
         column: 7,
         index: 7
@@ -75,7 +75,7 @@ describe('Declarations - Const', () => {
     });
     fail('const a;', {
         source: 'const a;',
-        message: 'Unexpected token',
+        message: 'Missing initializer in const declaration',
         line: 1,
         column: 7,
         index: 7

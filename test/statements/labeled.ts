@@ -9,11 +9,6 @@ describe('Statements - Labelled', () => {
       line: 1
     });
 
-    fail(`label: async function f() {}`, {
-        source: 'label: async function f() {}',
-      line: 1,
-    });
-
     fail(`label: function* g() {}`, {
         source: 'label: function* g() {}',
       line: 1,

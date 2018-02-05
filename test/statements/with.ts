@@ -18,7 +18,7 @@ with ({}) let
 }`,
       line: 2,
   });
-  
+
   fail(`with ({}) async function f() {}`, {
     source: `with ({}) async function f() {}`,
     module: true,

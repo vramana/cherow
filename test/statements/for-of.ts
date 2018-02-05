@@ -2,7 +2,42 @@ import { pass, fail } from '../test-utils';
 
 describe('Statements - For of', () => {
 
-      pass('for ([arguments, eval] of [[2, 3]]) {}', {
+    fail(`for (const x = 1 of y);`, {
+        source: 'for (const x = 1 of y);',
+        line: 1,
+    });
+
+    fail(`for (var [p]=q of r);`, {
+        source: 'for (var [p]=q of r);',
+        line: 1,
+    });
+
+    fail(`for (let x = 1 of y);`, {
+        source: 'for (let x = 1 of y);',
+        line: 1,
+    });
+
+    fail(`for (this of that);`, {
+        source: 'for (this of that);',
+        line: 1,
+    });
+
+    fail(`"use strict"; for (x of let) {}`, {
+        source: '"use strict"; for (x of let) {}',
+        line: 1,
+    });
+
+    fail(`for (let let of x);`, {
+        source: 'for (let let of x);',
+        line: 1,
+    });
+
+    fail(`for (const of 42);`, {
+        source: 'for (const of 42);',
+        line: 1,
+    });
+
+    pass('for ([arguments, eval] of [[2, 3]]) {}', {
         source: 'for ([arguments, eval] of [[2, 3]]) {}',
         loc: true,
         ranges: true,
@@ -176,7 +211,7 @@ describe('Statements - For of', () => {
         }
       });
 
-      pass('for (j of x) { function foo() {return j} }', {
+    pass('for (j of x) { function foo() {return j} }', {
         source: 'for (j of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -355,7 +390,7 @@ describe('Statements - For of', () => {
         expected: {}}
     });
 */
-      pass('for (var j of x) { function foo() {return j} }', {
+    pass('for (var j of x) { function foo() {return j} }', {
         source: 'for (var j of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -561,7 +596,7 @@ describe('Statements - For of', () => {
         }
     });
 
-      pass('for (var {j} of x) { function foo() {return j} }', {
+    pass('for (var {j} of x) { function foo() {return j} }', {
         source: 'for (var {j} of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -819,7 +854,7 @@ describe('Statements - For of', () => {
         }
     });
 
-      pass('for (let {j} of x) { function foo() {return j} }', {
+    pass('for (let {j} of x) { function foo() {return j} }', {
         source: 'for (let {j} of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -1077,7 +1112,7 @@ describe('Statements - For of', () => {
         }
     });
 
-      pass('for (const j of x) { let foo = j }', {
+    pass('for (const j of x) { let foo = j }', {
         source: 'for (const j of x) { let foo = j }',
         loc: true,
         ranges: true,
@@ -1265,7 +1300,7 @@ describe('Statements - For of', () => {
         }
     });
 
-      pass('for (let {j} of x) { let foo = j }', {
+    pass('for (let {j} of x) { let foo = j }', {
         source: 'for (let {j} of x) { let foo = j }',
         loc: true,
         ranges: true,
@@ -1505,7 +1540,7 @@ describe('Statements - For of', () => {
         }
     });
 
-      pass('for ([x] of [[a],[b],[c]]) {}', {
+    pass('for ([x] of [[a],[b],[c]]) {}', {
         source: 'for ([x] of [[a],[b],[c]]) {}',
         loc: true,
         ranges: true,
@@ -1710,7 +1745,7 @@ describe('Statements - For of', () => {
         }
     });
 
-      pass('for (const j of x) { foo = j }', {
+    pass('for (const j of x) { foo = j }', {
         source: 'for (const j of x) { foo = j }',
         loc: true,
         ranges: true,
@@ -1896,7 +1931,7 @@ describe('Statements - For of', () => {
         }
     });
 
-      pass('for (const {j} of x) { let [foo] = [j] }', {
+    pass('for (const {j} of x) { let [foo] = [j] }', {
         source: 'for (const {j} of x) { let [foo] = [j] }',
         loc: true,
         ranges: true,
@@ -2170,7 +2205,7 @@ describe('Statements - For of', () => {
         }
     });
 
-      pass('for (j of x) { function foo() {return j} }', {
+    pass('for (j of x) { function foo() {return j} }', {
         source: 'for (j of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -2342,7 +2377,7 @@ describe('Statements - For of', () => {
         }
     });
 
-      pass('for (let {j} of x) { function foo() {return j} }', {
+    pass('for (let {j} of x) { function foo() {return j} }', {
         source: 'for (let {j} of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -2600,7 +2635,7 @@ describe('Statements - For of', () => {
         }
     });
 
-      pass('function* g() { for(const x of yield) {} }', {
+    pass('function* g() { for(const x of yield) {} }', {
         source: 'function* g() { for(const x of yield) {} }',
         loc: true,
         ranges: true,
@@ -2775,7 +2810,7 @@ describe('Statements - For of', () => {
         }
     });
 
-      pass('for ([x] of [for (const j of x) { function foo() {return j} }', {
+    pass('for ([x] of [for (const j of x) { function foo() {return j} }', {
         source: 'for (const j of x) { function foo() {return j} }',
         loc: true,
         ranges: true,
@@ -2981,7 +3016,7 @@ describe('Statements - For of', () => {
         }
     });
 
-      pass(`"use strict";  for (var value of arguments) {  }`, {
+    pass(`"use strict";  for (var value of arguments) {  }`, {
         source: '"use strict";  for (var value of arguments) {  }',
         loc: true,
         ranges: true,
@@ -3137,7 +3172,7 @@ describe('Statements - For of', () => {
         }
     });
 
-      pass(`for (var x of list) process(x);`, {
+    pass(`for (var x of list) process(x);`, {
             source: 'for (var x of list) process(x);',
             loc: true,
             ranges: true,
@@ -3308,7 +3343,7 @@ describe('Statements - For of', () => {
             }
         });
 
-      pass(`for(var a of b);`, {
+    pass(`for(var a of b);`, {
             source: 'for(var a of b);',
             loc: true,
             ranges: true,
@@ -3430,7 +3465,7 @@ describe('Statements - For of', () => {
             }
         });
 
-      pass(`for(a of b);`, {
+    pass(`for(a of b);`, {
             source: 'for(a of b);',
             loc: true,
             ranges: true,
@@ -3518,7 +3553,7 @@ describe('Statements - For of', () => {
             }
         });
 
-      pass(`for(let [a] of b);`, {
+    pass(`for(let [a] of b);`, {
             source: 'for(let [a] of b);',
             loc: true,
             ranges: true,
@@ -3657,7 +3692,1033 @@ describe('Statements - For of', () => {
             }
         });
 
-      pass(`for(let of of b);`, {
+    pass(`for (x of let) {}`, {
+            source: 'for (x of let) {}',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'ForOfStatement',
+                        body: {
+                            type: 'BlockStatement',
+                            body: [],
+                            start: 15,
+                            end: 17,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 15
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 17
+                                }
+                            }
+                        },
+                        left: {
+                            type: 'Identifier',
+                            name: 'x',
+                            start: 5,
+                            end: 6,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 5
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 6
+                                }
+                            }
+                        },
+                        right: {
+                            type: 'Identifier',
+                            name: 'let',
+                            start: 10,
+                            end: 13,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 10
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 13
+                                }
+                            }
+                        },
+                        await: false,
+                        start: 0,
+                        end: 17,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 17
+                            }
+                        }
+                    }
+                ],
+                start: 0,
+                end: 17,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 17
+                    }
+                }
+            }
+        });
+
+    pass(`for (var x of list);`, {
+            source: 'for (var x of list);',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                start: 0,
+                end: 20,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 20
+                  }
+                },
+                body: [
+                  {
+                    type: 'ForOfStatement',
+                    await: false,
+                    start: 0,
+                    end: 20,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 20
+                      }
+                    },
+                    left: {
+                      type: 'VariableDeclaration',
+                      start: 5,
+                      end: 10,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 5
+                        },
+                        end: {
+                          line: 1,
+                          column: 10
+                        }
+                      },
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          start: 9,
+                          end: 10,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 9
+                            },
+                            end: {
+                              line: 1,
+                              column: 10
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 9,
+                            end: 10,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 9
+                              },
+                              end: {
+                                line: 1,
+                                column: 10
+                              }
+                            },
+                            name: 'x'
+                          },
+                          init: null
+                        }
+                      ],
+                      kind: 'var'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      start: 14,
+                      end: 18,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 14
+                        },
+                        end: {
+                          line: 1,
+                          column: 18
+                        }
+                      },
+                      name: 'list'
+                    },
+                    body: {
+                      type: 'EmptyStatement',
+                      start: 19,
+                      end: 20,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 19
+                        },
+                        end: {
+                          line: 1,
+                          column: 20
+                        }
+                      }
+                    }
+                  }
+                ],
+                sourceType: 'script'
+              }
+        });
+
+    pass(`for (p of q);`, {
+            source: 'for (p of q);',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                start: 0,
+                end: 13,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 13
+                  }
+                },
+                body: [
+                  {
+                    type: 'ForOfStatement',
+                    await: false,
+                    start: 0,
+                    end: 13,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 13
+                      }
+                    },
+                    left: {
+                      type: 'Identifier',
+                      start: 5,
+                      end: 6,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 5
+                        },
+                        end: {
+                          line: 1,
+                          column: 6
+                        }
+                      },
+                      name: 'p'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      start: 10,
+                      end: 11,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 10
+                        },
+                        end: {
+                          line: 1,
+                          column: 11
+                        }
+                      },
+                      name: 'q'
+                    },
+                    body: {
+                      type: 'EmptyStatement',
+                      start: 12,
+                      end: 13,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 12
+                        },
+                        end: {
+                          line: 1,
+                          column: 13
+                        }
+                      }
+                    }
+                  }
+                ],
+                sourceType: 'script'
+              }
+        });
+
+    pass(`for (let of of xyz);`, {
+            source: 'for (let of of xyz);',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                start: 0,
+                end: 20,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 20
+                  }
+                },
+                body: [
+                  {
+                    type: 'ForOfStatement',
+                    await: false,
+                    start: 0,
+                    end: 20,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 20
+                      }
+                    },
+                    left: {
+                      type: 'VariableDeclaration',
+                      start: 5,
+                      end: 11,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 5
+                        },
+                        end: {
+                          line: 1,
+                          column: 11
+                        }
+                      },
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          start: 9,
+                          end: 11,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 9
+                            },
+                            end: {
+                              line: 1,
+                              column: 11
+                            }
+                          },
+                          id: {
+                            type: 'Identifier',
+                            start: 9,
+                            end: 11,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 9
+                              },
+                              end: {
+                                line: 1,
+                                column: 11
+                              }
+                            },
+                            name: 'of'
+                          },
+                          init: null
+                        }
+                      ],
+                      kind: 'let'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      start: 15,
+                      end: 18,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 15
+                        },
+                        end: {
+                          line: 1,
+                          column: 18
+                        }
+                      },
+                      name: 'xyz'
+                    },
+                    body: {
+                      type: 'EmptyStatement',
+                      start: 19,
+                      end: 20,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 19
+                        },
+                        end: {
+                          line: 1,
+                          column: 20
+                        }
+                      }
+                    }
+                  }
+                ],
+                sourceType: 'script'
+              }
+        });
+
+    pass(`for (var {x, y} of z);`, {
+            source: 'for (var {x, y} of z);',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'ForOfStatement',
+                       body: {
+                            type: 'EmptyStatement',
+                            start: 21,
+                            end: 22,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 21
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 22
+                                }
+                            }
+                        },
+                        left: {
+                            type: 'VariableDeclaration',
+                            declarations: [
+                                {
+                                    type: 'VariableDeclarator',
+                                    init: null,
+                                    id: {
+                                        type: 'ObjectPattern',
+                                        properties: [
+                                            {
+                                                type: 'Property',
+                                                kind: 'init',
+                                                key: {
+                                                    type: 'Identifier',
+                                                    name: 'x',
+                                                    start: 10,
+                                                    end: 11,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 10
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 11
+                                                        }
+                                                    }
+                                                },
+                                                computed: false,
+                                                value: {
+                                                    type: 'Identifier',
+                                                    name: 'x',
+                                                    start: 10,
+                                                    end: 11,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 10
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 11
+                                                        }
+                                                    }
+                                                },
+                                                method: false,
+                                                shorthand: true,
+                                                start: 10,
+                                                end: 11,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 10
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 11
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                type: 'Property',
+                                                kind: 'init',
+                                                key: {
+                                                    type: 'Identifier',
+                                                    name: 'y',
+                                                    start: 13,
+                                                    end: 14,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 13
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 14
+                                                        }
+                                                    }
+                                                },
+                                                computed: false,
+                                                value: {
+                                                    type: 'Identifier',
+                                                    name: 'y',
+                                                    start: 13,
+                                                    end: 14,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 13
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 14
+                                                        }
+                                                    }
+                                                },
+                                                method: false,
+                                                shorthand: true,
+                                                start: 13,
+                                                end: 14,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 13
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 14
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        start: 9,
+                                        end: 15,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 9
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 15
+                                            }
+                                        }
+                                    },
+                                    start: 9,
+                                    end: 15,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 9
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 15
+                                        }
+                                    }
+                                }
+                            ],
+                            kind: 'var',
+                            start: 5,
+                            end: 15,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 5
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 15
+                                }
+                            }
+                        },
+                        right: {
+                            type: 'Identifier',
+                            name: 'z',
+                            start: 19,
+                            end: 20,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 19
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 20
+                                }
+                            }
+                        },
+                        await: false,
+                        start: 0,
+                        end: 22,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 22
+                            }
+                        }
+                    }
+                ],
+                start: 0,
+                end: 22,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 22
+                    }
+                }
+            }
+        });
+
+    pass(`for (let [p, q] of r);`, {
+            source: 'for (let [p, q] of r);',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                start: 0,
+                end: 22,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 22
+                  }
+                },
+                body: [
+                  {
+                    type: 'ForOfStatement',
+                    await: false,
+                    start: 0,
+                    end: 22,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 22
+                      }
+                    },
+                    left: {
+                      type: 'VariableDeclaration',
+                      start: 5,
+                      end: 15,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 5
+                        },
+                        end: {
+                          line: 1,
+                          column: 15
+                        }
+                      },
+                      declarations: [
+                        {
+                          type: 'VariableDeclarator',
+                          start: 9,
+                          end: 15,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 9
+                            },
+                            end: {
+                              line: 1,
+                              column: 15
+                            }
+                          },
+                          id: {
+                            type: 'ArrayPattern',
+                            start: 9,
+                            end: 15,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 9
+                              },
+                              end: {
+                                line: 1,
+                                column: 15
+                              }
+                            },
+                            elements: [
+                              {
+                                type: 'Identifier',
+                                start: 10,
+                                end: 11,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 10
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 11
+                                  }
+                                },
+                                name: 'p'
+                              },
+                              {
+                                type: 'Identifier',
+                                start: 13,
+                                end: 14,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 13
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 14
+                                  }
+                                },
+                                name: 'q'
+                              }
+                            ]
+                          },
+                          init: null
+                        }
+                      ],
+                      kind: 'let'
+                    },
+                    right: {
+                      type: 'Identifier',
+                      start: 19,
+                      end: 20,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 19
+                        },
+                        end: {
+                          line: 1,
+                          column: 20
+                        }
+                      },
+                      name: 'r'
+                    },
+                    body: {
+                      type: 'EmptyStatement',
+                      start: 21,
+                      end: 22,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 21
+                        },
+                        end: {
+                          line: 1,
+                          column: 22
+                        }
+                      }
+                    }
+                  }
+                ],
+                sourceType: 'script'
+              }
+        });
+
+    pass(`for (const {x, y} of z);`, {
+            source: 'for (const {x, y} of z);',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'ForOfStatement',
+                        body: {
+                            type: 'EmptyStatement',
+                            start: 23,
+                            end: 24,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 23
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 24
+                                }
+                            }
+                        },
+                        left: {
+                            type: 'VariableDeclaration',
+                            declarations: [
+                                {
+                                    type: 'VariableDeclarator',
+                                    init: null,
+                                    id: {
+                                        type: 'ObjectPattern',
+                                        properties: [
+                                            {
+                                                type: 'Property',
+                                                kind: 'init',
+                                                key: {
+                                                    type: 'Identifier',
+                                                    name: 'x',
+                                                    start: 12,
+                                                    end: 13,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 12
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 13
+                                                        }
+                                                    }
+                                                },
+                                                computed: false,
+                                                value: {
+                                                    type: 'Identifier',
+                                                    name: 'x',
+                                                    start: 12,
+                                                    end: 13,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 12
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 13
+                                                        }
+                                                    }
+                                                },
+                                                method: false,
+                                                shorthand: true,
+                                                start: 12,
+                                                end: 13,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 12
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 13
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                type: 'Property',
+                                                kind: 'init',
+                                                key: {
+                                                    type: 'Identifier',
+                                                    name: 'y',
+                                                    start: 15,
+                                                    end: 16,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 15
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 16
+                                                        }
+                                                    }
+                                                },
+                                                computed: false,
+                                                value: {
+                                                    type: 'Identifier',
+                                                    name: 'y',
+                                                    start: 15,
+                                                    end: 16,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 15
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 16
+                                                        }
+                                                    }
+                                                },
+                                                method: false,
+                                                shorthand: true,
+                                                start: 15,
+                                                end: 16,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 15
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 16
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        start: 11,
+                                        end: 17,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 11
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 17
+                                            }
+                                        }
+                                    },
+                                    start: 11,
+                                    end: 17,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 11
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 17
+                                        }
+                                    }
+                                }
+                            ],
+                            kind: 'const',
+                            start: 5,
+                            end: 17,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 5
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 17
+                                }
+                            }
+                        },
+                        right: {
+                            type: 'Identifier',
+                            name: 'z',
+                            start: 21,
+                            end: 22,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 21
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 22
+                                }
+                            }
+                        },
+                        await: false,
+                        start: 0,
+                        end: 24,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 24
+                            }
+                        }
+                    }
+                ],
+                start: 0,
+                end: 24,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 24
+                    }
+                }
+            }
+        });
+
+    pass(`for(let of of b);`, {
             source: 'for(let of of b);',
             loc: true,
             ranges: true,
@@ -3779,7 +4840,7 @@ describe('Statements - For of', () => {
             }
         });
 
-      pass(`function a(a, b, c) { 'use strict';  for (var value of x) {   a = b;  } }`, {
+    pass(`function a(a, b, c) { 'use strict';  for (var value of x) {   a = b;  } }`, {
             source: 'function a(a, b, c) { "use strict";  for (var value of x) {   a = b;  } }',
             loc: true,
             ranges: true,

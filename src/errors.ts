@@ -90,7 +90,8 @@ export const enum Errors {
     InvalidArrowConstructor,
     InvalidDestructuringTarget,
     VariableExists,
-    DuplicateParameter
+    DuplicateParameter,
+    MissingConstInitializer
 }
 
 export const ErrorMessages: {
@@ -158,7 +159,7 @@ export const ErrorMessages: {
     [Errors.InvalidAwaitInArrowParam]: '\'await\' is not a valid identifier name in an async function',
     [Errors.UnNamedFunctionStmt]: 'Function statement requires a name',
     [Errors.InvalidLHSInForLoop]: 'Invalid left-hand side in for-loop',
-    [Errors.ForInOfLoopMultiBindings]: 'Invalid left-hand side in %0 loop: Must have a single binding.',
+    [Errors.ForInOfLoopMultiBindings]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
     [Errors.InvalidArrowYieldParam]: 'Arrow parameters must not contain yield expressions',
     [Errors.IllegalUseStrict]: 'Illegal \'use strict\' directive in function with non-simple parameter list',
     [Errors.InvalidLHSInAssignment]: 'Invalid left-hand side in assignment',
@@ -187,8 +188,7 @@ export const ErrorMessages: {
     [Errors.InvalidDestructuringTarget]: 'Invalid destructuring assignment target',
     [Errors.VariableExists]: 'Identifier \'%0\' has already been declared!',
     [Errors.DuplicateParameter]: 'Duplicate parameter \'%0\'',
-    
-
+    [Errors.MissingConstInitializer]: 'Missing initializer in const declaration',
 };
 
 function constructError(msg: string, column: number): Error {

@@ -9,118 +9,118 @@ describe('Expressions - Member', () => {
             raw: true,
             expected: {
                 type: 'Program',
-                body: [
-                    {
-                        type: 'ExpressionStatement',
-                        expression: {
-                            type: 'MemberExpression',
-                            object: {
-                                type: 'Identifier',
-                                name: 'a',
-                                start: 0,
-                                end: 1,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 0
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 1
-                                    }
-                                }
-                            },
-                            computed: true,
-                            property: {
-                                type: 'SequenceExpression',
-                                expressions: [
-                                    {
-                                        type: 'Identifier',
-                                        name: 'b',
-                                        start: 2,
-                                        end: 3,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 2
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 3
-                                            }
-                                        }
-                                    },
-                                    {
-                                        type: 'Identifier',
-                                        name: 'c',
-                                        start: 5,
-                                        end: 6,
-                                        loc: {
-                                            start: {
-                                                line: 1,
-                                                column: 5
-                                            },
-                                            end: {
-                                                line: 1,
-                                                column: 6
-                                            }
-                                        }
-                                    }
-                                ],
-                                start: 2,
-                                end: 6,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 2
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 6
-                                    }
-                                }
-                            },
-                            start: 0,
-                            end: 7,
-                            loc: {
-                                start: {
-                                    line: 1,
-                                    column: 0
-                                },
-                                end: {
-                                    line: 1,
-                                    column: 7
-                                }
-                            }
-                        },
-                        start: 0,
-                        end: 7,
-                        loc: {
-                            start: {
-                                line: 1,
-                                column: 0
-                            },
-                            end: {
-                                line: 1,
-                                column: 7
-                            }
-                        }
-                    }
-                ],
-                sourceType: 'script',
                 start: 0,
                 end: 7,
                 loc: {
-                    start: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 7
+                  }
+                },
+                body: [
+                  {
+                    type: 'ExpressionStatement',
+                    start: 0,
+                    end: 7,
+                    loc: {
+                      start: {
                         line: 1,
                         column: 0
-                    },
-                    end: {
+                      },
+                      end: {
                         line: 1,
                         column: 7
+                      }
+                    },
+                    expression: {
+                      type: 'MemberExpression',
+                      start: 0,
+                      end: 7,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 0
+                        },
+                        end: {
+                          line: 1,
+                          column: 7
+                        }
+                      },
+                      object: {
+                        type: 'Identifier',
+                        start: 0,
+                        end: 1,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 0
+                          },
+                          end: {
+                            line: 1,
+                            column: 1
+                          }
+                        },
+                        name: 'a'
+                      },
+                      property: {
+                        type: 'SequenceExpression',
+                        start: 2,
+                        end: 6,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 2
+                          },
+                          end: {
+                            line: 1,
+                            column: 6
+                          }
+                        },
+                        expressions: [
+                          {
+                            type: 'Identifier',
+                            start: 2,
+                            end: 3,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 2
+                              },
+                              end: {
+                                line: 1,
+                                column: 3
+                              }
+                            },
+                            name: 'b'
+                          },
+                          {
+                            type: 'Identifier',
+                            start: 5,
+                            end: 6,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 5
+                              },
+                              end: {
+                                line: 1,
+                                column: 6
+                              }
+                            },
+                            name: 'c'
+                          }
+                        ]
+                      },
+                      computed: true
                     }
-                }
-            }
+                  }
+                ],
+                sourceType: 'script'
+              }
         });
 
         pass(`(a[b]||(c[d]=e))`, {

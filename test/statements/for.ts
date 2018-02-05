@@ -12,7 +12,7 @@ describe('Statements - For', () => {
     });
     fail(`for (const x; false; ) { var x; }`, {
         source: 'for (const x; false; ) { var x; }',
-        message: 'Unexpected token',
+        message: 'Missing initializer in const declaration',
         line: 1,
         column: 12,
         index: 12
@@ -137,77 +137,201 @@ describe('Statements - For', () => {
         raw: true,
         expected: {
             type: 'Program',
+            start: 0,
+            end: 12,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 12
+              }
+            },
+            body: [
+              {
+                type: 'ForStatement',
+                start: 0,
+                end: 12,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 12
+                  }
+                },
+                init: {
+                  type: 'SequenceExpression',
+                  start: 4,
+                  end: 8,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 4
+                    },
+                    end: {
+                      line: 1,
+                      column: 8
+                    }
+                  },
+                  expressions: [
+                    {
+                      type: 'Identifier',
+                      start: 4,
+                      end: 5,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 4
+                        },
+                        end: {
+                          line: 1,
+                          column: 5
+                        }
+                      },
+                      name: 'x'
+                    },
+                    {
+                      type: 'Identifier',
+                      start: 7,
+                      end: 8,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 7
+                        },
+                        end: {
+                          line: 1,
+                          column: 8
+                        }
+                      },
+                      name: 'y'
+                    }
+                  ]
+                },
+                test: null,
+                update: null,
+                body: {
+                  type: 'EmptyStatement',
+                  start: 11,
+                  end: 12,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 11
+                    },
+                    end: {
+                      line: 1,
+                      column: 12
+                    }
+                  }
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`for (let x = let;;) {}`, {
+        source: 'for (let x = let;;) {}',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
             body: [
                 {
                     type: 'ForStatement',
                     body: {
-                        type: 'EmptyStatement',
-                        start: 11,
-                        end: 12,
+                        type: 'BlockStatement',
+                        body: [],
+                        start: 20,
+                        end: 22,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 11
+                                column: 20
                             },
                             end: {
                                 line: 1,
-                                column: 12
+                                column: 22
                             }
                         }
                     },
                     init: {
-                        type: 'SequenceExpression',
-                        expressions: [
+                        type: 'VariableDeclaration',
+                        declarations: [
                             {
-                                type: 'Identifier',
-                                name: 'x',
-                                start: 4,
-                                end: 5,
-                                loc: {
-                                    start: {
-                                        line: 1,
-                                        column: 4
-                                    },
-                                    end: {
-                                        line: 1,
-                                        column: 5
+                                type: 'VariableDeclarator',
+                                init: {
+                                    type: 'Identifier',
+                                    name: 'let',
+                                    start: 13,
+                                    end: 16,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 13
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 16
+                                        }
                                     }
-                                }
-                            },
-                            {
-                                type: 'Identifier',
-                                name: 'y',
-                                start: 7,
-                                end: 8,
+                                },
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'x',
+                                    start: 9,
+                                    end: 10,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 9
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 10
+                                        }
+                                    }
+                                },
+                                start: 9,
+                                end: 16,
                                 loc: {
                                     start: {
                                         line: 1,
-                                        column: 7
+                                        column: 9
                                     },
                                     end: {
                                         line: 1,
-                                        column: 8
+                                        column: 16
                                     }
                                 }
                             }
                         ],
-                        start: 0,
-                        end: 8,
+                        kind: 'let',
+                        start: 5,
+                        end: 16,
                         loc: {
                             start: {
                                 line: 1,
-                                column: 0
+                                column: 5
                             },
                             end: {
                                 line: 1,
-                                column: 8
+                                column: 16
                             }
                         }
                     },
                     test: null,
                     update: null,
                     start: 0,
-                    end: 12,
+                    end: 22,
                     loc: {
                         start: {
                             line: 1,
@@ -215,14 +339,13 @@ describe('Statements - For', () => {
                         },
                         end: {
                             line: 1,
-                            column: 12
+                            column: 22
                         }
                     }
                 }
             ],
-            sourceType: 'script',
             start: 0,
-            end: 12,
+            end: 22,
             loc: {
                 start: {
                     line: 1,
@@ -230,10 +353,132 @@ describe('Statements - For', () => {
                 },
                 end: {
                     line: 1,
-                    column: 12
+                    column: 22
                 }
             }
         }
+    });
+
+    pass(`for(a,b,c;;);`, {
+        source: 'for(a,b,c;;);',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 13,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 13
+              }
+            },
+            body: [
+              {
+                type: 'ForStatement',
+                start: 0,
+                end: 13,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 13
+                  }
+                },
+                init: {
+                  type: 'SequenceExpression',
+                  start: 4,
+                  end: 9,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 4
+                    },
+                    end: {
+                      line: 1,
+                      column: 9
+                    }
+                  },
+                  expressions: [
+                    {
+                      type: 'Identifier',
+                      start: 4,
+                      end: 5,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 4
+                        },
+                        end: {
+                          line: 1,
+                          column: 5
+                        }
+                      },
+                      name: 'a'
+                    },
+                    {
+                      type: 'Identifier',
+                      start: 6,
+                      end: 7,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 6
+                        },
+                        end: {
+                          line: 1,
+                          column: 7
+                        }
+                      },
+                      name: 'b'
+                    },
+                    {
+                      type: 'Identifier',
+                      start: 8,
+                      end: 9,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 8
+                        },
+                        end: {
+                          line: 1,
+                          column: 9
+                        }
+                      },
+                      name: 'c'
+                    }
+                  ]
+                },
+                test: null,
+                update: null,
+                body: {
+                  type: 'EmptyStatement',
+                  start: 12,
+                  end: 13,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 12
+                    },
+                    end: {
+                      line: 1,
+                      column: 13
+                    }
+                  }
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
     });
 
     pass(`for(x = 0;;);`, {
@@ -3984,7 +4229,11 @@ describe('Statements - For', () => {
             }
     });
 
-    pass(`for(x, y;;);`, {
+    pass(`var c = 1;
+    {
+      const b = 2;
+     var c = 2;
+    }`, {
         source: `var c = 1;
         {
           const b = 2;
