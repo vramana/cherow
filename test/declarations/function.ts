@@ -2,6 +2,38 @@ import { pass, fail } from '../test-utils';
 
 describe('Declarations - Function', () => {
 
+    fail('function eval() { "use strict"; }', {
+        source: 'function eval() { "use strict"; }',
+        message: 'Unexpected eval or arguments in strict mode',
+        line: 1,
+        column: 9,
+        index: 9
+    });
+
+    fail('function arguments() { "use strict"; }', {
+        source: 'function arguments() { "use strict"; }',
+        message: 'Unexpected eval or arguments in strict mode',
+        line: 1,
+        column: 9,
+        index: 9
+    });
+
+    fail('(function eval() {"use strict";});', {
+        source: '(function eval() {"use strict";});',
+        message: 'Unexpected eval or arguments in strict mode',
+        line: 1,
+        column: 10,
+        index: 10
+    });
+
+    fail('(function arguments() {"use strict";});', {
+        source: '(function arguments() {"use strict";});',
+        message: 'Unexpected eval or arguments in strict mode',
+        line: 1,
+        column: 10,
+        index: 10
+    });
+
     fail(`"use strict"; function _13_1_5_fun(param, param) { }`, {
         source: '"use strict"; function _13_1_5_fun(param, param) { }',
         message: 'Duplicate binding param',
@@ -372,116 +404,6 @@ describe('Declarations - Function', () => {
                 }
             }
         }
-    });
-
-    pass(`function arguments() {'use strict'; }`, {
-        source: `function arguments() {'use strict'; }`,
-        loc: true,
-        ranges: true,
-        raw: true,
-        expected: {
-              body: [
-                {
-                  async: false,
-                  body: {
-                    body: [
-                      {
-                        directive: 'use strict',
-                        end: 35,
-                        expression: {
-                          end: 34,
-                          loc: {
-                            end: {
-                              column: 34,
-                              line: 1,
-                            },
-                            start: {
-                              column: 22,
-                              line: 1,
-                            }
-                          },
-                          raw: '\'use strict\'',
-                          start: 22,
-                          type: 'Literal',
-                          value: 'use strict',
-                        },
-                        loc: {
-                          end: {
-                            column: 35,
-                            line: 1,
-                          },
-                          start: {
-                            column: 22,
-                            line: 1,
-                          }
-                        },
-                        start: 22,
-                       type: 'ExpressionStatement'
-                      },
-                    ],
-                    end: 37,
-                    loc: {
-                      end: {
-                        column: 37,
-                        line: 1,
-                      },
-                      start: {
-                        column: 21,
-                        line: 1,
-                      },
-                    },
-                    start: 21,
-                    type: 'BlockStatement',
-                  },
-                  end: 37,
-                  expression: false,
-                  generator: false,
-                 id: {
-                    end: 18,
-                    loc: {
-                      end: {
-                        column: 18,
-                        line: 1,
-                      },
-                      start: {
-                        column: 9,
-                        line: 1,
-                      }
-                    },
-                   name: 'arguments',
-                    start: 9,
-                    type: 'Identifier',
-                  },
-                  loc: {
-                    end: {
-                      column: 37,
-                      line: 1,
-                    },
-                    start: {
-                      column: 0,
-                      line: 1,
-                    }
-                  },
-                  params: [],
-                  start: 0,
-                  type: 'FunctionDeclaration'
-                },
-              ],
-              end: 37,
-              loc: {
-                end: {
-                  column: 37,
-                  line: 1,
-                },
-                start: {
-                  column: 0,
-                  line: 1,
-                },
-              },
-              sourceType: 'script',
-              start: 0,
-              type: 'Program'
-            }
     });
 
     pass(`(function() { if (false) {} else function f() { }; })()`, {

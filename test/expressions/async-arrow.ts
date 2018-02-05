@@ -235,6 +235,101 @@ describe('Expressions - Async arrow', () => {
         }
     });
 
+    pass(`var ref = async (a, b,) => {}`, {
+        source: 'var ref = async (a, b,) => {}',
+        expected:  {
+              body: [
+                {
+                  declarations: [
+                   {
+                      id: {
+                        name: 'ref',
+                        type: 'Identifier'
+                      },
+                      init: {
+                        async: true,
+                        body: {
+                          body: [],
+                          type: 'BlockStatement'
+                        },
+                        expression: false,
+                        generator: false,
+                        id: null,
+                        params: [
+                          {
+                            name: 'a',
+                            type: 'Identifier'
+                          },
+                          {
+                            name: 'b',
+                            type: 'Identifier'
+                          },
+                        ],
+                        type: 'ArrowFunctionExpression'
+                     },
+                      type: 'VariableDeclarator'
+                    }
+                  ],
+                  kind: 'var',
+                  type: 'VariableDeclaration'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
+    pass(`var ref = async (a, b = 39,) => {}`, {
+        source: 'var ref = async (a, b = 39,) => {}',
+        expected:  {
+              body: [
+                {
+                  declarations: [
+                    {
+                      id: {
+                        name: 'ref',
+                       type: 'Identifier'
+                      },
+                      init: {
+                        async: true,
+                        body: {
+                          body: [],
+                          type: 'BlockStatement',
+                        },
+                        expression: false,
+                        generator: false,
+                        id: null,
+                        params: [
+                          {
+                            name: 'a',
+                            type: 'Identifier'
+                          },
+                          {
+                            left: {
+                              name: 'b',
+                              type: 'Identifier'
+                            },
+                            right: {
+                              type: 'Literal',
+                              value: 39
+                            },
+                            type: 'AssignmentPattern'
+                          },
+                        ],
+                        type: 'ArrowFunctionExpression'
+                      },
+                      type: 'VariableDeclarator',
+                    },
+                 ],
+                  kind: 'var',
+                  type: 'VariableDeclaration',
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
     pass(`a ? b : async () => {1}`, {
         source: 'a ? b : async () => {1}',
         ranges: true,

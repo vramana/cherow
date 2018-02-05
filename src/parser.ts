@@ -4771,10 +4771,10 @@ export class Parser {
                 const t = this.token;
                 const name = this.tokenValue;
 
-                // https://github.com/tc39/ecma262/issues/632
-                // https://github.com/jquery/esprima/issues/1502
-                if (context & Context.Strict && t & Token.IsEvalArguments) {
-                    this.early(context, Errors.StrictLHSAssignment);
+                if (t & Token.IsEvalArguments) {
+                    if (context & Context.Strict) this.early(context, Errors.StrictLHSAssignment);
+                    this.errorLocation = this.getLocation();
+                    this.flags |= Flags.ReservedWords;
                 }
 
                 if (context & (Context.Expression | Context.IfBody)) {

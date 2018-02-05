@@ -237,16 +237,13 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/prefix-decrement/11.4.5-2-2-s.js',
         'test/language/expressions/arrow-function/dflt-params-arg-val-undefined.js',
         'test/language/expressions/function/name-arguments-strict-body.js',
-        'test/language/expressions/function/name-eval-strict-body.js',
-        'test/language/statements/function/name-arguments-strict-body.js',
-        'test/language/statements/function/name-eval-strict-body.js'
     ],
     parse: (file: string, source: string, opts: any) => {
         const cherowOpts = {
             impliedStrict: opts.type === 'strict',
             next: true
         };
-        
+
         if (opts.type === 'module') return parseModule(source, cherowOpts);
         return parseScript(source, cherowOpts);
     },
