@@ -10,6 +10,12 @@ describe('Expressions - Await', () => {
         index: 5
     });
 
+    fail(`async function foo() { (await 1) = 1; }`, {
+        source: 'async function foo() { (await 1) = 1; }',
+        message: 'Unexpected token',
+        line: 1,
+    });
+
     fail(`async(x = await) => {  }`, {
         source: 'async(x = await) => {  }',
         message: '\'await\' is not a valid identifier name in an async function',

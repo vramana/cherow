@@ -88,7 +88,9 @@ export const enum Errors {
     MultipleDefaultsInSwitch,
     UnterminatedTemplate,
     InvalidArrowConstructor,
-    InvalidDestructuringTarget
+    InvalidDestructuringTarget,
+    VariableExists,
+    DuplicateParameter
 }
 
 export const ErrorMessages: {
@@ -183,6 +185,8 @@ export const ErrorMessages: {
     [Errors.UnterminatedTemplate]: 'Unterminated template literal',
     [Errors.InvalidArrowConstructor]: 'Arrow functions cannot be used as constructors',
     [Errors.InvalidDestructuringTarget]: 'Invalid destructuring assignment target',
+    [Errors.VariableExists]: 'Identifier \'%0\' has already been declared!',
+    [Errors.DuplicateParameter]: 'Duplicate parameter \'%0\'',
     
 
 };
