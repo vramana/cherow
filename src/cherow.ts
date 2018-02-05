@@ -16,6 +16,7 @@ export interface Options {
     loc?: boolean;
     raw?: boolean;
     early?: boolean;
+    impliedStrict?: boolean;
 }
 
 function parse(source: string, context: Context, options: Options | void) {
@@ -31,6 +32,7 @@ function parse(source: string, context: Context, options: Options | void) {
         if (options.ranges) context |= Context.OptionsRanges;
         if (options.source) context |= Context.OptionsSource;
         if (options.early) context |= Context.OptionsEarly;
+        if (options.impliedStrict) context |= Context.Strict;
         if (options.comments) {
             context |= Context.OptionsComments;
         }

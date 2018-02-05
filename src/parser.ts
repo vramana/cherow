@@ -2458,7 +2458,7 @@ export class Parser {
         this.expect(context, Token.LeftParen);
         const object = this.parseExpression(context | Context.AllowIn, pos);
         this.expect(context, Token.RightParen);
-        const body = this.parseMaybeInvalidBlockStatement(context & ~Context.TopLevel | Context.ValidateEscape);
+        const body = this.parseMaybeInvalidBlockStatement(context & ~Context.TopLevel | Context.Statement | Context.ValidateEscape);
         return this.finishNode(context, pos, {
             type: 'WithStatement',
             object,

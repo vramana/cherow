@@ -18,6 +18,12 @@ with ({}) let
 }`,
       line: 2,
   });
+  
+  fail(`with ({}) async function f() {}`, {
+    source: `with ({}) async function f() {}`,
+    module: true,
+    line: 1,
+});
 
   fail(`with ({}) async function* g() {}`, {
       source: `with ({}) async function* g() {}`,

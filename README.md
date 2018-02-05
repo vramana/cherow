@@ -97,6 +97,7 @@ Both methods accept the following options, none required:
 | `early`           | Create a top-level error array containing all "*skipped*" early errors |
 | `loc      `       | Attach line/column location information to each node |
 | `ranges`          | Attach range information to each node |
+| `impliedStrict`   | Allow implied strict mode in sloppy mode (modules are strict by default) |
 | `next`            | Allow experimental ECMAScript features (*Stage 3 proposals*) |
 | `plugins`         | Array containing the parameterized plugins that you want to enable   |
 | `source`          | Correlate output AST nodes with their source filename  |
