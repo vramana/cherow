@@ -8,21 +8,21 @@ export const enum Context {
     OptionsRaw              = 1 << 3,
     OptionsComments         = 1 << 4,
     OptionsEarly            = 1 << 5,
+    OptionsJSX              = 1 << 6,
 
     /* miscellaneous */
-    AllowIn                 = 1 << 6,  // Node was parsed in a context where 'in-expressions' are allowed
-    Strict                  = 1 << 7,  // Node was parsed in a strict mode context
-    Module                  = 1 << 8,  // Node was parsed in a module code context
-    TaggedTemplate          = 1 << 9,
-    IfBody                  = 1 << 10, // Node was parsed as the body of an IFStatement - 'consequent' or 'alternate'
-    Expression              = 1 << 11, // Node was parsed within an expression context
-    InParameter             = 1 << 12, //
-    YieldContext            = 1 << 13, // Node was parsed in the 'yield' context created when parsing an generator function
-    AsyncContext            = 1 << 14, // Node was parsed in the 'async' context created when parsing an async function
-    InArrowParameterList    = 1 << 15,
+    AllowIn                 = 1 << 7,  // Node was parsed in a context where 'in-expressions' are allowed
+    Strict                  = 1 << 8,  // Node was parsed in a strict mode context
+    Module                  = 1 << 9,  // Node was parsed in a module code context
+    TaggedTemplate          = 1 << 10,
+    IfBody                  = 1 << 11, // Node was parsed as the body of an IFStatement - 'consequent' or 'alternate'
+    Expression              = 1 << 12, // Node was parsed within an expression context
+    InParameter             = 1 << 13, //
+    YieldContext            = 1 << 14, // Node was parsed in the 'yield' context created when parsing an generator function
+    AsyncContext            = 1 << 15, // Node was parsed in the 'async' context created when parsing an async function
     ArrowFunction           = 1 << 16,
-    TopLevel                = 1 << 17, // Allow super property
-    AllowSuperProperty      = 1 << 18,
+    TopLevel                = 1 << 17,
+    AllowSuperProperty      = 1 << 18,  // Allow super property
     ValidateEscape          = 1 << 19,
     Let                     = 1 << 20,  // Variable declaration
     Const                   = 1 << 21,  // Variable declaration

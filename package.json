@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Fast, standard-compliant ECMAScript parser written in ECMAScript",
   "main": "dist/cherow.js",
   "author": "KFlash",

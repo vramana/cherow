@@ -2886,7 +2886,7 @@ export class Parser {
                 return;
 
             case 'MemberExpression':
-                if (!(context & Context.InArrowParameterList)) return;
+                if (!(context & Context.ArrowFunction)) return;
                 // Fall through
             default:
                 this.report(Errors.Unexpected);
@@ -4256,7 +4256,7 @@ export class Parser {
             this.early(context, Errors.UnexpectedStrictEvalOrArguments);
         }
 
-        for (const i in params) this.reinterpret(context | Context.InArrowParameterList, params[i]);
+        for (const i in params) this.reinterpret(context | Context.ArrowFunction, params[i]);
 
         let body;
         let expression = false;
@@ -4425,7 +4425,11 @@ export class Parser {
                 this.errorLocation = this.getLocation();
                 this.flags |= Flags.ReservedWords;
             }
-            return this.parseArrowFunctionExpression(context & ~(Context.AsyncContext | Context.YieldContext), pos, isSequence ? (expr as any).expressions : [expr], params);
+            return this.parseArrowFunctionExpression(
+                context & ~(Context.AsyncContext | Context.YieldContext), 
+                pos, 
+                isSequence ? (expr as any).expressions : [expr], params
+            );
         }
 
         return expr;
