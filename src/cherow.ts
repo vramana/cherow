@@ -12,7 +12,7 @@ export interface Options {
     next?: boolean;
     ranges?: boolean;
     offset?: boolean;
-    source?: boolean;
+    sourceFile?: boolean;
     loc?: boolean;
     raw?: boolean;
     early?: boolean;
@@ -22,6 +22,7 @@ export interface Options {
 function parse(source: string, context: Context, options: Options | void) {
 
     const comments: OnComment = [];
+    let sourceFile: any;
     let cherow: any = Parser;
 
     if (options != null) {
@@ -30,7 +31,7 @@ function parse(source: string, context: Context, options: Options | void) {
         if (options.raw) context |= Context.OptionsRaw;
         if (options.loc) context |= Context.OptionsLoc;
         if (options.ranges) context |= Context.OptionsRanges;
-        if (options.source) context |= Context.OptionsSource;
+        if (options.sourceFile) sourceFile = options.sourceFile;
         if (options.early) context |= Context.OptionsEarly;
         if (options.impliedStrict) context |= Context.Strict;
         if (options.comments) {
@@ -46,7 +47,7 @@ function parse(source: string, context: Context, options: Options | void) {
         }
     }
 
-    const parser = new cherow(source, comments);
+    const parser = new cherow(source, comments, sourceFile);
 
     const node: ESTree.Program = {
         type: 'Program',
@@ -74,8 +75,8 @@ function parse(source: string, context: Context, options: Options | void) {
             }
         };
 
-        if (context & Context.OptionsSource) {
-            (node.loc as any).source = parser.fileName;
+        if (sourceFile) {
+            (node.loc as any).source = sourceFile;
         }
     }
 

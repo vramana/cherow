@@ -101,7 +101,7 @@ Both methods accept the following options, none required:
 | `impliedStrict`   | Set to true to allow implied strict mode |
 | `next`            | Set to true to enable stage 3 support |
 | `plugins`         | Array containing the parameterized plugins that you want to enable   |
-| `source`          | Correlate output AST nodes with their source filename  |
+| `sourceFile`      | Set to true to record the source file in every node's `loc` object when the `loc option` is set.  |
 | `raw`             | Set to true to attach raw property to each literal node    |
 
 ## Comments

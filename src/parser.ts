@@ -35,13 +35,13 @@ export class Parser {
     private tokenRaw: string;
     private tokenRegExp: any;
     private lastChar: number;
-    private fileName: string;
+    private sourceFile: string;
     private comments: any;
     private earlyErors: any;
     private labelSet: any;
     private errorLocation: any;
 
-    constructor(source: string, onComment: OnComment) {
+    constructor(source: string, onComment: OnComment, sourceFile: string) {
         this.source = source;
         this.token = Token.EndOfSource;
         this.flags = Flags.None;
@@ -61,8 +61,7 @@ export class Parser {
         this.labelSet = undefined;
         this.errorLocation = undefined;
         this.lastChar = 0;
-        this.fileName = '';
-
+        this.sourceFile = sourceFile;
         this.comments = [];
         this.earlyErors = [];
     }
@@ -1864,8 +1863,8 @@ export class Parser {
                 }
             };
 
-            if (context & Context.OptionsSource) {
-                node.loc.source = this.fileName;
+            if (this.sourceFile) {
+                node.loc.source = this.sourceFile;
             }
         }
 
