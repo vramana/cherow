@@ -33,7 +33,6 @@ It strictly follows the [ECMAScript® 2018 Language Specification](https://tc39.
 * [Import()](https://github.com/tc39/proposal-dynamic-import)
 * [Class field declarations for JavaScript](https://github.com/tc39/proposal-class-fields)
 * [Numeric Separators](https://github.com/tc39/proposal-numeric-separator)
-* [Private methods and fields](https://github.com/tc39/proposal-private-methods)
 * [Private methods and getter/setters for JavaScript classes](https://github.com/tc39/proposal-private-methods)
 * [Optional catch binding](https://github.com/tc39/proposal-optional-catch-binding)
 * [JSON Superset](https://github.com/tc39/proposal-json-superset)
