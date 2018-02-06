@@ -26,7 +26,6 @@ interface Opts {
     line ?: any;
     column ?: any;
     index ?: any;
-    tokens?: any;
 }
 
 export const pass = (name: string, opts: Opts) => {
@@ -47,7 +46,6 @@ export const pass = (name: string, opts: Opts) => {
         attachComment: opts.attachComment,
         early: opts.early,
         offset: opts.offset,
-        tokens: opts.tokens
     };
 
     it('Should pass "' + name + '"', () => {

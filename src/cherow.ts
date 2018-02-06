@@ -2,17 +2,19 @@ import * as ESTree from './estree';
 import { Parser } from './parser';
 import { Context } from './flags';
 
+export type PluginHandler = (core: any) => void;
+
 export type OnComment = void | ESTree.Comment[] | (
     (type: string, value: string, start: number, end: number) => any
 );
 
 export interface Options {
     comments?: OnComment;
-    plugins?: any[];
+    plugins?: PluginHandler[];
     next?: boolean;
     ranges?: boolean;
     offset?: boolean;
-    sourceFile?: boolean;
+    source?: string;
     loc?: boolean;
     raw?: boolean;
     early?: boolean;
@@ -22,7 +24,7 @@ export interface Options {
 function parse(source: string, context: Context, options: Options | void) {
 
     const comments: OnComment = [];
-    let sourceFile: any;
+    let sourceFile: string = '';
     let cherow: any = Parser;
 
     if (options != null) {
@@ -31,12 +33,10 @@ function parse(source: string, context: Context, options: Options | void) {
         if (options.raw) context |= Context.OptionsRaw;
         if (options.loc) context |= Context.OptionsLoc;
         if (options.ranges) context |= Context.OptionsRanges;
-        if (options.sourceFile) sourceFile = options.sourceFile;
         if (options.early) context |= Context.OptionsEarly;
         if (options.impliedStrict) context |= Context.Strict;
-        if (options.comments) {
-            context |= Context.OptionsComments;
-        }
+        if (options.source) sourceFile = options.source;
+        if (options.comments) context |= Context.OptionsComments;
 
         // TODO! Cache this, and make sure the extended class are extended
         // once, and reused across parses.
