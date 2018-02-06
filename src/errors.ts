@@ -92,7 +92,8 @@ export const enum Errors {
     VariableExists,
     DuplicateParameter,
     MissingConstInitializer,
-    UnexpectedStrictEvalOrArguments
+    UnexpectedStrictEvalOrArguments,
+    BadImportCallArity
 }
 
 export const ErrorMessages: {
@@ -191,8 +192,7 @@ export const ErrorMessages: {
     [Errors.MissingConstInitializer]: 'Missing initializer in const declaration',
     [Errors.UnexpectedStrictReserved]: 'Unexpected strict mode reserved word',
     [Errors.UnexpectedStrictEvalOrArguments]: 'Unexpected eval or arguments in strict mode',
-    
-    
+    [Errors.BadImportCallArity]: 'Dynamic import must have one specifier as an argument',
 };
 
 function constructError(msg: string, column: number): Error {

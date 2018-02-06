@@ -2,6 +2,16 @@ import { pass, fail } from '../test-utils';
 
 describe('Expressions - Postfix', () => {
 
+    fail(`"use strict"; arguments++;`, {
+        source: '"use strict"; arguments++;',
+        line: 1
+    });
+
+    fail(`"use strict"; ++eval;`, {
+        source: '"use strict"; ++eval;;',
+        line: 1
+    });
+
     pass(`x--`, {
         source: 'x--',
         loc: true,

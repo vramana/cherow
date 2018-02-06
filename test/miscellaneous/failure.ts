@@ -925,7 +925,7 @@ describe('Miscellaneous - Failure', () => {
     fail('let a, b, a;', {
         source: `let a, b, a;`,
     });
- 
+
     fail('{ const a; }', {
         source: `{ const a; }`,
         line: 1

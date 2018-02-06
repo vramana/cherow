@@ -1417,19 +1417,6 @@ export class Parser {
 
                 // Line continuations
             case Chars.CarriageReturn:
-                {
-                    const index = this.index;
-
-                    if (index < this.source.length) {
-                        const ch = this.source.charCodeAt(index);
-
-                        if (ch === Chars.LineFeed) {
-                            this.lastChar = ch;
-                            this.index = index + 1;
-                        }
-                    }
-                }
-                // falls through
             case Chars.LineFeed:
             case Chars.LineSeparator:
             case Chars.ParagraphSeparator:
@@ -1631,12 +1618,6 @@ export class Parser {
                         break;
 
                     case Chars.CarriageReturn:
-                        if (this.hasNext() && this.nextChar() === Chars.LineFeed) {
-                            if (ret != null) ret += fromCodePoint(ch);
-                            ch = this.nextChar();
-                            this.index++;
-                        }
-                        // falls through
                     case Chars.LineFeed:
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
@@ -1839,7 +1820,7 @@ export class Parser {
                 (t & Token.Contextual) === Token.Contextual);
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: Location,
         node: any,
@@ -2087,9 +2068,6 @@ export class Parser {
 
         if (!hasAs) {
             if (t & Token.Reserved) this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
-            if (this.token & Token.IsEvalArguments) {
-                this.early(context, Errors.UnexpectedStrictEvalOrArguments);
-            }
             local = imported;
         } else local = this.parseBindingIdentifier(context);
 
@@ -2372,14 +2350,6 @@ export class Parser {
                     t = this.token;
 
                     body = this.parseStatement(context | Context.Statement);
-
-                    // ExpressionStatement has a lookahead restriction for `let [`
-                    if (context & Context.Strict &&
-                        t === Token.LetKeyword &&
-                        this.token === Token.LeftBracket &&
-                        this.flags & Flags.LineTerminator) {
-                        this.early(context, Errors.UnexpectedToken, tokenDesc(t));
-                    }
             }
 
             this.labelSet[key] = false;
@@ -3299,7 +3269,6 @@ export class Parser {
                 expr = this.parseMemberExpression(context | Context.AllowIn, pos);
         }
 
-
         return expr.type === 'ArrowFunctionExpression' && this.token !== Token.LeftParen ?
             expr :
             this.parseCallExpression(context | Context.AllowIn, pos, expr);
@@ -3448,10 +3417,18 @@ export class Parser {
 
             if (this.token !== Token.LeftParen) return expr;
 
+            const args = this.parseArgumentList(context);
+
+            if (context & Context.OptionsNext && expr.type === 'Import' &&
+                args.length !== 1 &&
+                expr.type as string === 'Import') {
+                this.early(context, Errors.BadImportCallArity);
+            }
+
             expr = this.finishNode(context, pos, {
                 type: 'CallExpression',
                 callee: expr,
-                arguments: this.parseArgumentList(context)
+                arguments: args
             });
         }
     }
@@ -3663,10 +3640,6 @@ export class Parser {
                 this.errorLocation = this.getLocation();
                 state |= ParenthesizedState.Yield;
             }
-            if (this.token === Token.LeftParen) {
-                this.errorLocation = this.getLocation();
-                state |= ParenthesizedState.NestedParenthesis;
-            }
 
             // The parenthesis contain a future reserved word. Flag it and throw
             // later on if it turns out that we are in a strict mode context
@@ -3679,6 +3652,12 @@ export class Parser {
                 this.errorLocation = this.getLocation();
                 state |= ParenthesizedState.Await;
                 this.flags |= Flags.HasAwait;
+            }
+
+            // Maybe nested parenthesis - ((foo))
+            if (this.token === Token.LeftParen) {
+                this.errorLocation = this.getLocation();
+                state |= ParenthesizedState.NestedParenthesis;
             }
 
             args.push(this.parseAssignmentExpression(context | Context.InParenthesis));

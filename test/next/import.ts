@@ -1,5 +1,61 @@
 import { pass, fail } from '../test-utils';
+
 describe('Next - Dynamic Import', () => {
+
+    fail('direct calls', {
+        source: `function failsParse() { return import.then(); }`,
+        next: true,
+        message: 'Unexpected token identifier',
+        line: 1,
+        column: 38,
+        index: 38
+    });
+
+    fail('import call many arguments', {
+        source: `import(x, y).then(z);`,
+        next: true,
+        message: 'Dynamic import must have one specifier as an argument',
+        line: 1,
+        column: 12,
+        index: 12
+    });
+
+    fail('non callee', {
+        source: `import.then(doLoad);`,
+        next: true,
+        message:  'Unexpected token identifier',
+        line: 1,
+        column: 7,
+        index: 7
+    });
+
+    fail('import call no arguments', {
+        source: `import().then(doThat);`,
+        next: true,
+        message: 'Dynamic import must have one specifier as an argument',
+        line: 1,
+        column: 8,
+        index: 8
+    });
+
+    fail('invalid new import call', {
+        source: `import.EcmaParser`,
+        next: true,
+        message: 'Unexpected token identifier',
+        line: 1,
+        column: 7,
+        index: 7
+    });
+
+    fail('no arguments', {
+        source: `import.EcmaParser`,
+        next: true
+    });
+
+    fail('"EcmaParser" as property name', {
+        source: `import.EcmaParser`,
+        next: true
+    });
 
     pass(`with strict directive`, {
             source: '"use strict"; import("test.js");',

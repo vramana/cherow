@@ -13,7 +13,7 @@ export const enum Context {
     AllowIn                 = 1 << 6,  // Node was parsed in a context where 'in-expressions' are allowed
     Strict                  = 1 << 7,  // Node was parsed in a strict mode context
     Module                  = 1 << 8,  // Node was parsed in a module code context
-    TaggedTemplate          = 1 << 9,  
+    TaggedTemplate          = 1 << 9,
     IfBody                  = 1 << 10, // Node was parsed as the body of an IFStatement - 'consequent' or 'alternate'
     Expression              = 1 << 11, // Node was parsed within an expression context
     InParameter             = 1 << 12, //
@@ -32,8 +32,8 @@ export const enum Context {
     ProhibitWhitespace      = 1 << 25, // Scanner related.
     ForStatement            = 1 << 26,
     InParenthesis           = 1 << 27,
-    InClass                 = 1 << 28, 
-    OptionalIdentifier      = 1 << 29, 
+    InClass                 = 1 << 28,
+    OptionalIdentifier      = 1 << 29,
     InTypeAnnotation        = 1 << 30, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
     BlockScoped  = Let | Const
 
@@ -59,9 +59,7 @@ export const enum Flags {
     WhiteSpace              = 1 << 13,
     ReservedWords           = 1 << 14,
     HasCommaSeparator       = 1 << 15,
-    DisallowArrowFunction   = 1 << 16, // Disallow arrows in 'new expression' context
-    CoverInitializedName = 1 << 17,
-    CoverGrammer = 1 << 18
+    DisallowArrowFunction   = 1 << 16 // Disallow arrows in 'new expression' context
 }
 
 /** Shared between class and objects */

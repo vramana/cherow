@@ -19,6 +19,26 @@ describe('Expressions - Async arrow', () => {
         message: 'Unexpected token'
     });
 
+    fail(`async (eval) => { "use strict"; }`, {
+        source: 'async (eval) => { "use strict"; }',
+        line: 1
+    });
+
+    fail(`async (a, (b)) => {}`, {
+        source: 'async (a, (b)) => {}',
+        line: 1
+    });
+
+    fail(`async ((a), b) => {}`, {
+        source: 'async ((a), b) => {}',
+        line: 1
+    });
+
+    fail(`async ((a)) => {}`, {
+        source: 'async ((a)) => {}',
+        line: 1
+    });
+
     fail(`function* g() { async yield => X }`, {
         source: 'function* g() { async yield => X }',
         line: 1

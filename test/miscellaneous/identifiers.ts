@@ -60,6 +60,95 @@ describe('Miscellaneous - Identifiers', () => {
         index: 5
     });
 
+    pass(`async
+    foo`, {
+        source: `async
+        foo`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 17,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 2,
+                column: 11
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 5,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 5
+                  }
+                },
+                expression: {
+                  type: 'Identifier',
+                  start: 0,
+                  end: 5,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 5
+                    }
+                  },
+                  name: 'async'
+                }
+              },
+              {
+                type: 'ExpressionStatement',
+                start: 14,
+                end: 17,
+                loc: {
+                  start: {
+                    line: 2,
+                    column: 8
+                  },
+                  end: {
+                    line: 2,
+                    column: 11
+                  }
+                },
+                expression: {
+                  type: 'Identifier',
+                  start: 14,
+                  end: 17,
+                  loc: {
+                    start: {
+                      line: 2,
+                      column: 8
+                    },
+                    end: {
+                      line: 2,
+                      column: 11
+                    }
+                  },
+                  name: 'foo'
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
     pass(`\\u{0069}`, {
         source: '\\u{0069}',
         loc: true,

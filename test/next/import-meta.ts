@@ -16,8 +16,8 @@ describe('Next - Import meta', () => {
         line: 1
     });
 
-    fail('"ariya" as property name', {
-        source: `import.ariya`,
+    fail('"EcamaScript" as property name', {
+        source: `import.EcamaScript`,
         module: true,
         next: true,
         message: 'Unexpected token identifier',
