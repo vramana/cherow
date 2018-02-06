@@ -115,6 +115,16 @@ HTML comments is not a part of the ECMAScript specifications, and the way Cherow
 parsers. In Cherow `HTMLOpen` are used for a HTML open comments (`<!--`) and `HTMLClose` for a HTML close comment (`-->`).
 In other  ECMAScripts parsers both are seen as a [`single-line comment `](https://tc39.github.io/ecma262/#prod-SingleLineComment).
 
+## Plugins
+
+Cherow can be extended through plugins. See [this repo](https://github.com/cherow/cherow-do-expressions) as an example on how to build your own plugins. 
+
+To add a plugin:
+
+```js
+Cherow.parseScript("foo", { plugins: [MyPlugin] }
+```
+
 ## Early error tolerant parsing
 
 The tolerant algorithm used by `Cherow` deviates slightly from both `Esprima` and `Acorn` due to the 
