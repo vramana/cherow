@@ -165,7 +165,6 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/super/call-spread-err-sngl-err-expr-throws.js',
         'test/language/expressions/this/S11.1.1_A1.js',
         'test/language/expressions/tagged-template/invalid-escape-sequences.js',
-        'test/language/expressions/template-literal/invalid-legacy-octal-escape-sequence.js',
         'test/language/expressions/prefix-increment/target-newtarget.js',
         'test/language/expressions/prefix-increment/target-cover-yieldexpr.js',
         'test/language/expressions/prefix-increment/target-cover-newtarget.js',

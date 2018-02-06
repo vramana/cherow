@@ -2,6 +2,34 @@ import { pass, fail } from '../test-utils';
 
 describe('Declarations - Generator', () => {
 
+    fail(`(function*() {
+        function({x: y = yield 3}) {}
+    })`, {
+        source: `(function*() {
+            function({x: y = yield 3}) {}
+        })`,
+        line: 2,
+    });
+
+    fail(`class Foo { * }`, {
+        source: 'class Foo { * }',
+        line: 1,
+    });
+
+    fail(`a: function *g() {}`, {
+        source: 'a: function *g() {}',
+        line: 1,
+    });
+
+    fail(`(function*() {
+        { *[yield iter]() {} }
+    })`, {
+        source: `(function*() {
+            { *[yield iter]() {} }
+        })`,
+        line: 2,
+    });
+
     fail(`function *a() { ({b = yield}) => {} }`, {
         source: 'function *a() { ({b = yield}) => {} }',
         line: 1,
@@ -3176,4 +3204,658 @@ describe('Declarations - Generator', () => {
         }
     });
 
+    pass(`(function*(...x) {})`, {
+        source: '(function*(...x) {})',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 20,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 20
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 20,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 20
+                  }
+                },
+                expression: {
+                  type: 'FunctionExpression',
+                  start: 1,
+                  end: 19,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 1
+                    },
+                    end: {
+                      line: 1,
+                      column: 19
+                    }
+                  },
+                  id: null,
+                  generator: true,
+                  expression: false,
+                  async: false,
+                  params: [
+                    {
+                      type: 'RestElement',
+                      start: 11,
+                      end: 15,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 11
+                        },
+                        end: {
+                          line: 1,
+                          column: 15
+                        }
+                      },
+                      argument: {
+                        type: 'Identifier',
+                        start: 14,
+                        end: 15,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 14
+                          },
+                          end: {
+                            line: 1,
+                            column: 15
+                          }
+                        },
+                        name: 'x'
+                      }
+                    }
+                  ],
+                  body: {
+                    type: 'BlockStatement',
+                    start: 17,
+                    end: 19,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 17
+                      },
+                      end: {
+                        line: 1,
+                        column: 19
+                      }
+                    },
+                    body: []
+                  }
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`(function*() {})`, {
+        source: '(function*() {})',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 16,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 16
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 16,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 16
+                  }
+                },
+                expression: {
+                  type: 'FunctionExpression',
+                  start: 1,
+                  end: 15,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 1
+                    },
+                    end: {
+                      line: 1,
+                      column: 15
+                    }
+                  },
+                  id: null,
+                  generator: true,
+                  expression: false,
+                  async: false,
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    start: 13,
+                    end: 15,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 13
+                      },
+                      end: {
+                        line: 1,
+                        column: 15
+                      }
+                    },
+                    body: []
+                  }
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`({ *foo() {} })`, {
+        source: '({ *foo() {} })',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 15,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 15
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 15,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 15
+                  }
+                },
+                expression: {
+                  type: 'ObjectExpression',
+                  start: 1,
+                  end: 14,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 1
+                    },
+                    end: {
+                      line: 1,
+                      column: 14
+                    }
+                  },
+                  properties: [
+                    {
+                      type: 'Property',
+                      start: 3,
+                      end: 12,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 3
+                        },
+                        end: {
+                          line: 1,
+                          column: 12
+                        }
+                      },
+                      method: true,
+                      shorthand: false,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 4,
+                        end: 7,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 4
+                          },
+                          end: {
+                            line: 1,
+                            column: 7
+                          }
+                        },
+                        name: 'foo'
+                      },
+                      kind: 'init',
+                      value: {
+                        type: 'FunctionExpression',
+                        start: 7,
+                        end: 12,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 7
+                          },
+                          end: {
+                            line: 1,
+                            column: 12
+                          }
+                        },
+                        id: null,
+                        generator: true,
+                        expression: false,
+                        async: false,
+                        params: [],
+                        body: {
+                          type: 'BlockStatement',
+                          start: 10,
+                          end: 12,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 10
+                            },
+                            end: {
+                              line: 1,
+                              column: 12
+                            }
+                          },
+                          body: []
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`class Foo { static *[foo]() {} }`, {
+        source: `class Foo { static *[foo]() {} }`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 32,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 32
+              }
+            },
+            body: [
+              {
+                type: 'ClassDeclaration',
+                start: 0,
+                end: 32,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 32
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  start: 6,
+                  end: 9,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 6
+                    },
+                    end: {
+                      line: 1,
+                      column: 9
+                    }
+                  },
+                  name: 'Foo'
+                },
+                superClass: null,
+                body: {
+                  type: 'ClassBody',
+                  start: 10,
+                  end: 32,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 10
+                    },
+                    end: {
+                      line: 1,
+                      column: 32
+                    }
+                  },
+                  body: [
+                    {
+                      type: 'MethodDefinition',
+                      start: 12,
+                      end: 30,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 12
+                        },
+                        end: {
+                          line: 1,
+                          column: 30
+                        }
+                      },
+                      computed: true,
+                      key: {
+                        type: 'Identifier',
+                        start: 21,
+                        end: 24,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 21
+                          },
+                          end: {
+                            line: 1,
+                            column: 24
+                          }
+                        },
+                        name: 'foo'
+                      },
+                      static: true,
+                      kind: 'method',
+                      value: {
+                        type: 'FunctionExpression',
+                        start: 25,
+                        end: 30,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 25
+                          },
+                          end: {
+                            line: 1,
+                            column: 30
+                          }
+                        },
+                        id: null,
+                        generator: true,
+                        expression: false,
+                        async: false,
+                        params: [],
+                        body: {
+                          type: 'BlockStatement',
+                          start: 28,
+                          end: 30,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 28
+                            },
+                            end: {
+                              line: 1,
+                              column: 30
+                            }
+                          },
+                          body: []
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`({ *foo() {
+        yield
+        3
+      } })`, {
+        source: `({ *foo() {
+            yield
+            3
+          } })`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 58,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 4,
+                column: 14
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 58,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 4,
+                    column: 14
+                  }
+                },
+                expression: {
+                  type: 'ObjectExpression',
+                  start: 1,
+                  end: 57,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 1
+                    },
+                    end: {
+                      line: 4,
+                      column: 13
+                    }
+                  },
+                  properties: [
+                    {
+                      type: 'Property',
+                      start: 3,
+                      end: 55,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 3
+                        },
+                        end: {
+                          line: 4,
+                          column: 11
+                        }
+                      },
+                      method: true,
+                      shorthand: false,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 4,
+                        end: 7,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 4
+                          },
+                          end: {
+                            line: 1,
+                            column: 7
+                          }
+                        },
+                        name: 'foo'
+                      },
+                      kind: 'init',
+                      value: {
+                        type: 'FunctionExpression',
+                        start: 7,
+                        end: 55,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 7
+                          },
+                          end: {
+                            line: 4,
+                            column: 11
+                          }
+                        },
+                        id: null,
+                        generator: true,
+                        expression: false,
+                        async: false,
+                        params: [],
+                        body: {
+                          type: 'BlockStatement',
+                          start: 10,
+                          end: 55,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 10
+                            },
+                            end: {
+                              line: 4,
+                              column: 11
+                            }
+                          },
+                          body: [
+                            {
+                              type: 'ExpressionStatement',
+                              start: 24,
+                              end: 29,
+                              loc: {
+                                start: {
+                                  line: 2,
+                                  column: 12
+                                },
+                                end: {
+                                  line: 2,
+                                  column: 17
+                                }
+                              },
+                              expression: {
+                                type: 'YieldExpression',
+                                start: 24,
+                                end: 29,
+                                loc: {
+                                  start: {
+                                    line: 2,
+                                    column: 12
+                                  },
+                                  end: {
+                                    line: 2,
+                                    column: 17
+                                  }
+                                },
+                                delegate: false,
+                                argument: null
+                              }
+                            },
+                            {
+                              type: 'ExpressionStatement',
+                              start: 42,
+                              end: 43,
+                              loc: {
+                                start: {
+                                  line: 3,
+                                  column: 12
+                                },
+                                end: {
+                                  line: 3,
+                                  column: 13
+                                }
+                              },
+                              expression: {
+                                type: 'Literal',
+                                start: 42,
+                                end: 43,
+                                loc: {
+                                  start: {
+                                    line: 3,
+                                    column: 12
+                                  },
+                                  end: {
+                                    line: 3,
+                                    column: 13
+                                  }
+                                },
+                                value: 3,
+                                raw: '3'
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
 });

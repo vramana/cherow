@@ -225,6 +225,7 @@ describe('Cherow', () => {
 
       fail('`$', {
     source: '`$',
+    line: 1
 });
 
       fail('`left${0}\\xg${1}right`', {
@@ -248,90 +249,112 @@ describe('Cherow', () => {
 
       fail('`\\x0`', {
     source: '`\\x0`',
+    line: 1
 });
 
       fail('`\\xZ`', {
     source: '`\\xZ`',
+    line: 1
 });
 
       fail('`\\341`', {
     source: '`\\341`',
+    line: 1
 });
 
       fail('`\\341`', {
     source: '`\\341`',
+    line: 1
 });
 
       fail('`\\341`', {
     source: '`\\341`',
+    line: 1
 });
 
       fail('`\\341`', {
     source: '`\\341`',
+    line: 1
 });
 
       fail('`\\376`', {
     source: '`\\376`',
+    line: 1
 });
 
       fail('`\\77`', {
     source: '`\\77`',
+    line: 1
 });
 
       fail('`\\341`', {
     source: '`\\341`',
+    line: 1
 });
 
       fail('`\\56`', {
     source: '`\\56`',
+    line: 1
 });
 
       fail('`\\41`', {
     source: '`\\41`',
+    line: 1
 });
 
       fail('`\\32`', {
     source: '`\\32`',
+    line: 1
 });
 
       fail('`\\006`', {
     source: '`\\006`',
+    line: 1
 });
 
       fail('`\\003`', {
     source: '`\\003`',
+    line: 1
 });
 
       fail('`\\004`', {
     source: '`\\004`',
+    line: 1
 });
 
       fail('`\\005`', {
     source: '`\\005`',
+    line: 1
 });
 
       fail('`\\002`', {
     source: '`\\002`',
+    line: 1
 });
 
       fail('`\\001`', {
     source: '`\\001`',
+    line: 1
 });
 
       fail('`\\000`', {
     source: '`\\000`',
+    line: 1
 });
 
       fail('`\\006`', {
     source: '`\\006`',
+    line: 1
 });
 
       fail('`\\03`', {
     source: '`\\03`',
+    line: 1
 });
 
       fail('`\\04`', {
     source: '`\\04`',
+    line: 1
 });
 
       fail('`\\05`', {
@@ -340,59 +363,73 @@ describe('Cherow', () => {
 
       fail('`\\02`', {
     source: '`\\02`',
+    line: 1
 });
 
       fail('`\\01`', {
     source: '`\\01`',
+    line: 1
 });
 
       fail('`\\00`', {
     source: '`\\00`',
+    line: 1
 });
 
       fail('`\\6`', {
     source: '`\\6`',
+    line: 1
 });
 
       fail('`\\3`', {
     source: '`\\3`',
+    line: 1
 });
 
       fail('`\\4`', {
     source: '`\\4`',
+    line: 1
 });
 
       fail('`\\5`', {
     source: '`\\5`',
+    line: 1
 });
 
       fail('`\\2`', {
     source: '`\\2`',
+    line: 1
 });
 
       fail('`\\1`', {
     source: '`\\1`',
+    line: 1
 });
 
       fail('`\\u{abcdx`', {
     source: '`\\u{abcdx`',
+    line: 1
 });
 
       fail('`\\xylophone`', {
     source: '`\\xylophone`',
+    line: 1
 });
 
       fail('a++``', {
     source: 'a++``',
+    line: 1
 });
 
       fail('a++``', {
     source: 'a++``',
+    line: 1
 });
 
       fail('`${a', {
     source: '`${a',
-    module: true
+    module: true,
+    line: 1
 });
 
       fail('`${a}a${b}', {
@@ -401,124 +438,154 @@ describe('Cherow', () => {
 
       fail('switch `test`', {
     source: 'switch `test`',
+    line: 1
 });
 
       fail('switch `test`', {
     source: 'switch `test`',
+    line: 1
 });
 
       fail('`\\x{1}`;', {
     source: '`\\x{1}`;',
-    module: true
+    module: true,
+    line: 1
 });
 
       fail('"use strict"; `\\00`;', {
     source: '"use strict"; `\\00`;',
+    line: 1
 });
 
       fail('switch `test`', {
     source: 'switch `test`',
+    line: 1
 });
 
       fail('`\\1`', {
     source: '`\\1`',
+    line: 1
 });
 
       fail('`\\8`', {
     source: '`\\8`',
+    line: 1
 });
 
       fail('`\\9`', {
     source: '`\\9`',
+    line: 1
 });
 
       fail('`\\4`', {
     source: '`\\4`',
+    line: 1
 });
 
       fail('`\\11`', {
     source: '`\\11`',
+    line: 1
 });
 
       fail('`\\41`', {
     source: '`\\41`',
-    module: true
+    module: true,
+    line: 1
 });
 
       fail('`\\00`', {
     source: '`\\00`',
+    line: 1
 });
 
       fail('`\\123`', {
     source: '`\\123`',
+    line: 1
 });
 
       fail('`${a}a${b}', {
     source: '`${a}a${b}',
+    line: 1
 });
 
       fail('`\\u`', {
     source: '`\\u`',
+    line: 1
 });
 
       fail('`${a', {
     source: '`${a',
+    line: 1
 });
 
       fail('`\\u000g`;', {
     source: '`\\u000g`;',
+    line: 1
 });
 
       fail('let bad = `bad escape sequence: \\unicode`;', {
     source: 'let bad = `bad escape sequence: \\unicode`;',
+    line: 1
 });
 
       fail('let bracingOurselves = `\\u{shouldntDoThis}`;', {
     source: 'let bracingOurselves = `\\u{shouldntDoThis}`;',
+    line: 1
 });
 
       fail('`\\u{10FFFFF}${"inner"}right`', {
     source: '`\\u{10FFFFF}${"inner"}right`',
+    line: 1
 });
 
       fail('`\\u{\\${0}right`', {
     source: '`\\u{\\${0}right`',
+    line: 1
 });
 
       fail('`\\u{abcdx}`', {
     source: '`\\u{abcdx}`',
+    line: 1
 });
 
       fail('`left${0}\\u0`', {
     source: '`left${0}\\u0`',
+    line: 1
 });
 
       fail('`\\u0g`;', {
     source: '`\\u0g`;',
+    line: 1
 });
 
       fail('`\\u000g`;', {
     source: '`\\u000g`;',
+    line: 1
 });
 
       fail('`\\u{10FFFFF}${"inner"}right`;', {
     source: '`\\u{10FFFFF}${"inner"}right`;',
+    line: 1
 });
 
       fail('`\\u{0`;', {
     source: '`\\u{0`;',
+    line: 1
 });
 
       fail('`\\u{10FFFFF}`;;', {
     source: '`\\u{10FFFFF}`;',
+    line: 1
 });
 
       fail('`\\x0G`;', {
     source: '`\\x0G`;',
+    line: 1
 });
 
       fail('`\\u{10FFFFF}`;;', {
     source: '`\\u{10FFFFF}`;',
+    line: 1
 });
 
       pass('sampleTag`\\01`', {
@@ -533,7 +600,7 @@ describe('Cherow', () => {
                         tail: true,
                         type: 'TemplateElement',
                         value: {
-                            cooked: '\u0001',
+                            cooked: null,
                             raw: '\\01',
                         }
                     }],

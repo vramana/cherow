@@ -118,6 +118,16 @@ describe('Expressions - Object expression', () => {
         line: 1
     });
 
+    fail(`({ __proto__: null, "__proto__": null })`, {
+        source: '({ __proto__: null, "__proto__": null })',
+        line: 1
+    });
+
+    fail(`var x = function() { y = new..target; }`, {
+        source: 'var x = function() { y = new..target; }',
+        line: 1
+    });
+
     fail(`({ __proto__: null, __proto__: null })`, {
         source: '({ __proto__: null, __proto__: null })',
         line: 1

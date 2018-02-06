@@ -868,10 +868,12 @@ describe('Miscellaneous - Failure', () => {
 
     fail('"use strict"; +package;', {
         source: `"use strict"; +package;`,
+        line: 1
     });
 
     fail('"use strict"; +static;', {
         source: `"use strict"; +static;`,
+        line: 1
     });
 
     fail('"use strict"; yield:0;', {
@@ -882,34 +884,37 @@ describe('Miscellaneous - Failure', () => {
 
     fail('"use strict"; function a([yield]){}', {
         source: `"use strict"; function a([yield]){}`,
+        line: 1
     });
 
     fail('"use strict"; function a({yield}){}', {
         source: `"use strict"; function a({yield}){}`,
+        line: 1
     });
 
     fail('(package) => { "use strict"; }', {
         source: `(package) => { "use strict"; }`,
+        line: 1
     });
 
     fail('async (package) => { "use strict"; }', {
         source: `async (package) => { "use strict"; }`,
+        line: 1
+    });
+
+    fail('"use strict"; async (package) => {}', {
+        source: `"use strict"; async (package) => {}`,
+        line: 1
     });
 
     fail('!{ get a() { "use strict"; +let; } }', {
         source: `!{ get a() { "use strict"; +let; } }`,
+        line: 1
     });
 
     fail('({ a(){ super(); } });', {
         source: `({ a(){ super(); } });`,
-    });
-
-    fail('{ const a = 0; let a; }', {
-        source: `{ const a = 0; let a; }`,
-    });
-
-    fail('{ function a(){} function a(){} }', {
-        source: `{ function a(){} function a(){} }`,
+        line: 1
     });
 
     fail('/?/', {
@@ -920,37 +925,25 @@ describe('Miscellaneous - Failure', () => {
     fail('let a, b, a;', {
         source: `let a, b, a;`,
     });
-
-    fail('const a = 0, a = 1;', {
-        source: `const a = 0, a = 1;`,
-    });
-
-    fail('const a = 0, b = 1, a = 2;', {
-        source: `const a = 0, b = 1, a = 2;`,
-    });
-
-    fail('let \\u0061, \\u{0061};', {
-        source: `let \\u0061, \\u{0061};`,
-    });
-
-    fail('let x\\u{E01D5}, x\uDB40\uDDD5;', {
-        source: `let x\\u{E01D5}, x\uDB40\uDDD5;`,
-    });
-
+ 
     fail('{ const a; }', {
         source: `{ const a; }`,
+        line: 1
     });
 
     fail('const a;', {
         source: `const a;`,
+        line: 1
     });
 
     fail('for(const a = 0, b;;);', {
         source: `for(const a = 0, b;;);`,
+        line: 1
     });
 
     fail('if(0) label: function f(){}', {
         source: `if(0) label: function f(){}`,
+        line: 1
     });
 
     fail('do label: function f(){} while (0)', {
@@ -960,18 +953,22 @@ describe('Miscellaneous - Failure', () => {
 
     fail('for(a in b) label: function f(){}', {
         source: `for(a in b) label: function f(){}`,
+        line: 1
     });
 
     fail('for(let a in b) label: function f(){}', {
         source: `for(let a in b) label: function f(){}`,
+        line: 1
     });
 
     fail('for(a of b) label: function f(){}', {
         source: `for(a of b) label: function f(){}`,
+        line: 1
     });
 
     fail('for(;;) labelA: labelB: labelC: function f(){}', {
         source: `for(;;) labelA: labelB: labelC: function f(){}`,
+        line: 1
     });
 
     fail('continue;', {
@@ -996,18 +993,22 @@ describe('Miscellaneous - Failure', () => {
 
     fail('label: while(0) { function f(){ continue label; } }', {
         source: `label: while(0) { function f(){ continue label; } }`,
+        line: 1
     });
 
     fail('break;', {
         source: `break;`,
+        line: 1
     });
 
     fail('while(0) !function(){ break; };', {
         source: `while(0) !function(){ break; };`,
+        line: 1
     });
 
     fail('switch(0) { case 0: function f(){ break; } }', {
         source: `switch(0) { case 0: function f(){ break; } }`,
+        line: 1
     });
 
     fail('switch(0) { default: function f(){ break; } }', {
@@ -1016,22 +1017,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('with(0) label: function f(){}', {
         source: `with(0) label: function f(){}`,
-    });
-
-    fail('switch(0) { case 0: let a; case 1: let a; }', {
-        source: `switch(0) { case 0: let a; case 1: let a; }`,
-    });
-
-    fail('switch(0) { default: let a; case 0: let a; }', {
-        source: `switch(0) { default: let a; case 0: let a; }`,
-    });
-
-    fail('switch(0) { default: var a; case 0: let a; }', {
-        source: `switch(0) { default: var a; case 0: let a; }`
-    });
-
-    fail('switch(0) { default: var a; case 0: const a = 0; }', {
-        source: `switch(0) { default: var a; case 0: const a = 0; }`,
+        line: 1
     });
 
     fail('"use strict"; !function eval(){}', {
@@ -1041,6 +1027,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('"use strict"; !function arguments(){}', {
         source: `"use strict"; !function arguments(){}`,
+        line: 1
     });
 
     fail('"use strict"; function arguments(){}', {
@@ -1049,34 +1036,15 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
     });
 
-    fail('function f(a){ const a = 0; }', {
-        source: `function f(a){ const a = 0; }`,
-    });
-
-    fail('!function(a){ const a = 0; }', {
-        source: `!function(a){ const a = 0; }`,
-    });
-
-    fail('!function f(a = super[0]){}', {
-        source: `!function f(a = super[0]){}`,
-    });
-
-    fail('!function f(a){ super[0] }', {
-        source: `!function f(a){ super[0] }`,
-    });
-
     fail('function f(a){ super() }', {
         source: `function f(a){ super() }`,
         message: 'super() is only valid in derived class constructors',
         line: 1,
     });
 
-    fail('!{ get f(){ let a; let a; } };', {
-        source: `!{ get f(){ let a; let a; } };`,
-    });
-
     fail('function f(){ break label; }', {
         source: `function f(){ break label; }`,
+        line: 1
     });
 
     fail('function f(){ labelA: while(0) continue labelB; }', {
@@ -1193,10 +1161,9 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
     });
 
-    fail('super.a', {
-        source: `super.a`,
-        message: '\'super\' keyword unexpected here',
+    fail('}', {
+        source: `}`,
+        message: 'Unexpected token',
         line: 1,
     });
-
 });

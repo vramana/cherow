@@ -1352,6 +1352,7 @@ describe('Declarations - Lexical', () => {
 
     fail(`const let`, {
         source: 'const let',
+        line: 1
     });
 
     fail(`let []`, {
@@ -1364,5 +1365,51 @@ describe('Declarations - Lexical', () => {
 
     fail(`const const;`, {
         source: 'const const;',
+        line: 1
+    });
+
+    fail(`for (let let;;;) {}`, {
+        source: 'for (let let;;;) {}',
+        line: 1
+    });
+
+    fail(`for (let [let];;;) {}`, {
+        source: 'for (let [let];;;) {}',
+        line: 1
+    });
+
+    fail(`let x, y, z, let;`, {
+        source: 'let x, y, z, let;',
+        line: 1
+    });
+
+    fail(`let x, y, z, let = 1;`, {
+        source: 'let x, y, z, let = 1;',
+        line: 1
+    });
+
+    fail(`for (let x = 0 in y){}`, {
+        source: 'for (let x = 0 in y){}',
+        line: 1
+    });
+
+    fail(`"use strict"; const const = 1;`, {
+        source: '"use strict"; const const = 1;',
+        line: 1
+    });
+
+    fail(`let x,`, {
+        source: 'let x,',
+        line: 1
+    });
+
+    fail(`let x, y, ;`, {
+        source: 'let x, y, ;',
+        line: 1
+    });
+
+    fail(`const x = 0, y = 1,;`, {
+        source: 'const x = 0, y = 1,;',
+        line: 1
     });
 });

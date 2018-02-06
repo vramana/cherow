@@ -20,7 +20,7 @@ describe('Declarations - Function', () => {
 
     fail('(function eval() {"use strict";});', {
         source: '(function eval() {"use strict";});',
-        message:'Unexpected strict mode reserved word',
+        message: 'Unexpected strict mode reserved word',
         line: 1,
         column: 10,
         index: 10

@@ -7,6 +7,27 @@ describe('Miscellaneous - Identifiers', () => {
         source: 'var a\ = 5;'
     });
 
+    fail('"\\x{0}"', {
+        source: '"\\x{0}"',
+        line: 1,
+    });
+
+    fail('var 🀒', {
+        source: 'var 🀒',
+        line: 1,
+    });
+
+    fail('export var await;', {
+        source: 'export var await;',
+        module: true,
+        line: 1,
+    });
+
+    fail('var \\uD83B\\uDE00', {
+        source: 'var \\uD83B\\uDE00',
+        line: 1,
+    });
+
     fail('"use strict"; yield', {
         source: '"use strict"; yield',
         message: 'Unexpected strict mode reserved word',
@@ -2492,6 +2513,187 @@ describe('Miscellaneous - Identifiers', () => {
                   kind: 'var'
               }],
               sourceType: 'script'
+          }
+      });
+
+    pass(`var 𞸆_$`, {
+        source: 'var 𞸆_$',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 8,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 8
+              }
+            },
+            body: [
+              {
+                type: 'VariableDeclaration',
+                start: 0,
+                end: 8,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 8
+                  }
+                },
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    start: 4,
+                    end: 8,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 4
+                      },
+                      end: {
+                        line: 1,
+                        column: 8
+                      }
+                    },
+                    id: {
+                      type: 'Identifier',
+                      start: 4,
+                      end: 8,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 4
+                        },
+                        end: {
+                          line: 1,
+                          column: 8
+                        }
+                      },
+                      name: '𞸆_$'
+                    },
+                    init: null
+                  }
+                ],
+                kind: 'var'
+              }
+            ],
+            sourceType: 'script'
+          }
+      });
+
+    pass(`var await; (await);`, {
+        source: 'var await; (await);',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 19,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 19
+              }
+            },
+            body: [
+              {
+                type: 'VariableDeclaration',
+                start: 0,
+                end: 10,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 10
+                  }
+                },
+                declarations: [
+                  {
+                    type: 'VariableDeclarator',
+                    start: 4,
+                    end: 9,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 4
+                      },
+                      end: {
+                        line: 1,
+                        column: 9
+                      }
+                    },
+                    id: {
+                      type: 'Identifier',
+                      start: 4,
+                      end: 9,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 4
+                        },
+                        end: {
+                          line: 1,
+                          column: 9
+                        }
+                      },
+                      name: 'await'
+                    },
+                    init: null
+                  }
+                ],
+                kind: 'var'
+              },
+              {
+                type: 'ExpressionStatement',
+                start: 11,
+                end: 19,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 11
+                  },
+                  end: {
+                    line: 1,
+                    column: 19
+                  }
+                },
+                expression: {
+                  type: 'Identifier',
+                  start: 12,
+                  end: 17,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 12
+                    },
+                    end: {
+                      line: 1,
+                      column: 17
+                    }
+                  },
+                  name: 'await'
+                }
+              }
+            ],
+            sourceType: 'script'
           }
       });
   });

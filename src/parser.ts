@@ -1610,7 +1610,7 @@ export class Parser {
                             ret += fromCodePoint(ch);
                         } else {
                             this.lastChar = ch;
-                            const code = this.scanEscapeSequence(context, ch);
+                            const code = this.scanEscapeSequence(context | Context.Strict, ch);
 
                             if (code >= 0) {
                                 ret += fromCodePoint(code);
@@ -3521,7 +3521,7 @@ export class Parser {
             case Token.BigInt:
                 return this.parseBigIntLiteral(context, pos);
             case Token.LeftParen:
-                return this.CoverParenthesizedExpressionAndArrowParameterList(context | Context.AllowIn | Context.InParenthesis);
+                return this.parseCoverParenthesizedExpressionAndArrowParameterList(context | Context.AllowIn | Context.InParenthesis);
             case Token.LeftBracket:
                 return this.parseArrayLiteral(context);
             case Token.LeftBrace:
@@ -3574,9 +3574,9 @@ export class Parser {
                 }
             default:
                 if (this.isIdentifier(context, this.token)) return this.parseIdentifier(context);
-                    this.report(this.token & (Token.Reserved | Token.FutureReserved)
-                    ? Errors.UnexpectedStrictReserved
-                    : Errors.Unexpected);
+                this.report(this.token & (Token.Reserved | Token.FutureReserved) ?
+                    Errors.UnexpectedStrictReserved :
+                    Errors.Unexpected);
         }
     }
 
@@ -3668,6 +3668,13 @@ export class Parser {
                 state |= ParenthesizedState.NestedParenthesis;
             }
 
+            // The parenthesis contain a future reserved word. Flag it and throw
+            // later on if it turns out that we are in a strict mode context
+            if (hasBit(this.token, Token.FutureReserved)) {
+                this.errorLocation = this.getLocation();
+                state |= ParenthesizedState.FutureReserved;
+            }
+
             if (hasBit(this.token, Token.IsAwait)) {
                 this.errorLocation = this.getLocation();
                 state |= ParenthesizedState.Await;
@@ -3694,24 +3701,35 @@ export class Parser {
             if (flags & Flags.LineTerminator) {
                 this.early(context, Errors.LineBreakAfterAsync);
             }
+
             if (state & ParenthesizedState.Yield) {
                 this.early(context, Errors.InvalidAwaitInArrowParam);
             }
+
             if (this.flags & Flags.HasAwait) {
                 this.early(context, Errors.InvalidAwaitInArrowParam);
             }
+
             if (state & ParenthesizedState.EvalOrArguments) {
                 // Invalid: '"use strict"; (eval = 10) => 42;'
                 if (context & Context.Strict) this.early(context, Errors.UnexpectedStrictEvalOrArguments);
-                // Invalid: '(eval = 10) => { "use strict"; }'
+                // Invalid: 'async (eval = 10) => { "use strict"; }'
                 // this.errorLocation = this.getLocation();
                 this.flags |= Flags.ReservedWords;
             }
+
             if (state & ParenthesizedState.NestedParenthesis) {
                 this.early(context, Errors.InvalidParenthesizedPattern);
             }
+
             if (state & ParenthesizedState.Trailing) {
                 this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
+            }
+
+            // Invalid: 'async (package) => { "use strict"; }'
+            if (state & ParenthesizedState.FutureReserved) {
+                this.errorLocation = this.getLocation();
+                this.flags |= Flags.ReservedWords;
             }
 
             return this.parseArrowFunctionExpression(context | Context.AsyncContext, pos, args, params);
@@ -4008,7 +4026,7 @@ export class Parser {
             // We got a comma separator and we have a initializer. Time to throw an error!
             if (this.token === Token.Assign) this.early(context, Errors.ElementAfterRest);
             // Note! This also affects arrow expressions because we are parsing out the
-            // arrow param list either in 'CoverParenthesizedExpressionAndArrowParameterList' or
+            // arrow param list either in 'parseCoverParenthesizedExpressionAndArrowParameterList' or
             // 'parseAsyncFunctionExpression'. So in that case we 'flag' that
             // we found something we don't like, and throw later on.
             //
@@ -4301,7 +4319,7 @@ export class Parser {
 
     // https://tc39.github.io/ecma262/#prod-CoverParenthesizedExpressionAndArrowParameterList
 
-    private CoverParenthesizedExpressionAndArrowParameterList(context: Context): ESTree.Node {
+    private parseCoverParenthesizedExpressionAndArrowParameterList(context: Context): ESTree.Node {
         const pos = this.getLocation();
 
         this.expect(context, Token.LeftParen);
@@ -4407,12 +4425,11 @@ export class Parser {
 
         if (this.token === Token.Arrow) {
             if (state & ParenthesizedState.BindingPattern) {
-                // this.errorLocation = this.getLocation();
                 this.flags |= Flags.SimpleParameterList;
             }
 
             if (state & ParenthesizedState.FutureReserved) {
-                // this.errorLocation = this.getLocation();
+                this.errorLocation = this.getLocation();
                 this.flags |= Flags.ReservedWords;
             }
 
@@ -4426,7 +4443,7 @@ export class Parser {
                 // Invalid: '"use strict"; (eval = 10) => 42;'
                 if (context & Context.Strict) this.early(context, Errors.UnexpectedStrictEvalOrArguments);
                 // Invalid: '(eval = 10) => { "use strict"; }'
-                // this.errorLocation = this.getLocation();
+                this.errorLocation = this.getLocation();
                 this.flags |= Flags.ReservedWords;
             }
             return this.parseArrowFunctionExpression(context & ~(Context.AsyncContext | Context.YieldContext), pos, isSequence ? (expr as any).expressions : [expr], params);
