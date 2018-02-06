@@ -115,53 +115,6 @@ HTML comments is not a part of the ECMAScript specifications, and the way Cherow
 parsers. In Cherow `HTMLOpen` are used for a HTML open comments (`<!--`) and `HTMLClose` for a HTML close comment (`-->`).
 In other  ECMAScripts parsers both are seen as a [`single-line comment `](https://tc39.github.io/ecma262/#prod-SingleLineComment).
 
-## Plugins
-
-Cherow can be extended through plugins. See [this repo](https://github.com/cherow/cherow-do-expressions) as an example on how to build your own plugins. 
-
-By default Cherow pass around context masks everywhere as a simple immutable bit set, and also let you use mutable parser flags, in 
-case any flags need passed by reference. You can either create your own masks or adopt the build in one as you find in the `do-expressions-repo`
-or in the source folder on this repo.
-
-**To create and add a plugin:**
-
-```js
-
- // Create the do-expression plugin
-export default function(Parser) {
-
-    return class extends Parser {
-
-        parsePrimaryExpression(context, pos) {
-            return this.token === Token.DoKeyword 
-            ? this.parseDoExpression(context)
-            : super.parsePrimaryExpression(context, pos);
-
-        }
-
-        parseDoExpression(context) {
-            const pos = this.getLocation();
-            this.expect(context, Token.DoKeyword);
-            const body = this.parseBlockStatement(context);
-            return this.finishNode(context, pos, {
-                type: 'DoExpression',
-                body
-            });
-        }
-     }
-}
-
-//  Use the plugin
-Cherow.parseScript("let x = do {}", { plugins: [do-expressions] }
-```
-
-### Existing plugins
-
-
-| Name        | Description |
-| ----------- | ------------------------------------------------------------ |
-| [`cherow-do-expression`](https://github.com/cherow/cherow-do-expressions)  | Stage 1 proposal |
-
 ## Early error tolerant parsing
 
 The tolerant algorithm used by `Cherow` deviates slightly from both `Esprima` and `Acorn` due to the 
@@ -211,6 +164,54 @@ A top-level errors array containing all "*skipped*" early errors will be attache
               type: 'Program'
             }
 ```
+
+## Plugins
+
+Cherow can be extended through plugins. See [this repo](https://github.com/cherow/cherow-do-expressions) as an example on how to build your own plugins. 
+
+By default Cherow pass around context masks everywhere as a simple immutable bit set, and also let you use mutable parser flags, in 
+case any flags need passed by reference. You can either create your own masks or adopt the build in one as you find in the `do-expressions-repo`
+or in the source folder on this repo.
+
+**To create and add a plugin:**
+
+```js
+
+ // Create the do-expression plugin
+export default function(Parser) {
+
+    return class extends Parser {
+
+        parsePrimaryExpression(context, pos) {
+            return this.token === Token.DoKeyword 
+            ? this.parseDoExpression(context)
+            : super.parsePrimaryExpression(context, pos);
+
+        }
+
+        parseDoExpression(context) {
+            const pos = this.getLocation();
+            this.expect(context, Token.DoKeyword);
+            const body = this.parseBlockStatement(context);
+            return this.finishNode(context, pos, {
+                type: 'DoExpression',
+                body
+            });
+        }
+     }
+}
+
+//  Use the plugin
+Cherow.parseScript("let x = do {}", { plugins: [do-expressions] }
+```
+
+### Existing plugins
+
+
+| Name        | Description |
+| ----------- | ------------------------------------------------------------ |
+| [`cherow-do-expression`](https://github.com/cherow/cherow-do-expressions)  | Stage 1 proposal |
+
 
 ## Bug reporting
 
