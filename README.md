@@ -14,7 +14,7 @@ It strictly follows the [ECMAScript® 2018 Language Specification](https://tc39.
 
 ## Features
 
-* Full support for ECMAScript® 2017 [(ECMA-262 8th Edition)](http://www.ecma-international.org/publications/standards/Ecma-262.htm)
+* Full support for ECMAScript® 2018 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/)
 * Full support for all stage 3 proposals via option
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
 * Optimized for handheld devices 
