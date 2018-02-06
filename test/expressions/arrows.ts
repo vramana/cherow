@@ -98,13 +98,13 @@ describe('Expressions - Arrows', () => {
 
     fail(`arguments => { 'use strict'; 0 }`, {
         source: 'arguments => { "use strict"; 0 }',
-        message: 'Unexpected eval or arguments in strict mode',
+        message: 'Unexpected strict mode reserved word',
         line: 1,
     });
 
     fail(`(interface) => { 'use strict'; 0 }`, {
         source: '(interface) => { "use strict"; 0 }',
-        message: 'Unexpected eval or arguments in strict mode',
+        message: 'Unexpected strict mode reserved word',
         line: 1,
     });
 
@@ -230,7 +230,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`"use strict"; var af = package => 1;`, {
         source: '"use strict"; var af = package => 1;',
-        message: 'Unexpected token',
+        message: 'Unexpected strict mode reserved word',
         line: 1,
     });
 

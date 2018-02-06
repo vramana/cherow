@@ -4,7 +4,7 @@ describe('Declarations - Function', () => {
 
     fail('function eval() { "use strict"; }', {
         source: 'function eval() { "use strict"; }',
-        message: 'Unexpected eval or arguments in strict mode',
+        message: 'Unexpected strict mode reserved word',
         line: 1,
         column: 9,
         index: 9
@@ -12,7 +12,7 @@ describe('Declarations - Function', () => {
 
     fail('function arguments() { "use strict"; }', {
         source: 'function arguments() { "use strict"; }',
-        message: 'Unexpected eval or arguments in strict mode',
+        message: 'Unexpected strict mode reserved word',
         line: 1,
         column: 9,
         index: 9
@@ -20,7 +20,7 @@ describe('Declarations - Function', () => {
 
     fail('(function eval() {"use strict";});', {
         source: '(function eval() {"use strict";});',
-        message: 'Unexpected eval or arguments in strict mode',
+        message:'Unexpected strict mode reserved word',
         line: 1,
         column: 10,
         index: 10
@@ -28,7 +28,7 @@ describe('Declarations - Function', () => {
 
     fail('(function arguments() {"use strict";});', {
         source: '(function arguments() {"use strict";});',
-        message: 'Unexpected eval or arguments in strict mode',
+        message: 'Unexpected strict mode reserved word',
         line: 1,
         column: 10,
         index: 10

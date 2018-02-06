@@ -4336,7 +4336,7 @@ describe('Statements - For in', () => {
 
     fail(`"use strict"; for ([[x[yield]]] in [[[]]]) ;`, {
         source: '"use strict"; for ([[x[yield]]] in [[[]]]) ;',
-        message: 'Unexpected token',
+        message: 'Unexpected strict mode reserved word',
         line: 1,
         column: 23,
         index: 23

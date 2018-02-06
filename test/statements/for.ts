@@ -36,7 +36,7 @@ describe('Statements - For', () => {
 
     fail('"use strict";  for ({ x: x = yield } of [{}]) ;', {
         source: '"use strict";  for ({ x: x = yield } of [{}]) ;',
-        message: 'Unexpected token',
+        message:  'Unexpected strict mode reserved word',
         line: 1,
         column: 28,
         index: 28
@@ -44,7 +44,7 @@ describe('Statements - For', () => {
 
     fail('"use strict"; for ([...{ x = yield }] of [[{}]]) ;', {
         source: '"use strict";  for ([...{ x = yield }] of [[{}]]) ;',
-        message: 'Unexpected token',
+        message: 'Unexpected strict mode reserved word',
         line: 1,
         column: 29,
         index: 29

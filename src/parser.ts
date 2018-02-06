@@ -1916,18 +1916,18 @@ export class Parser {
 
             // export default HoistableDeclaration[Default]
             case Token.FunctionKeyword:
-                declaration = this.parseFunction(context, true);
+                declaration = this.parseFunction(context | Context.OptionalIdentifier);
                 break;
 
                 // export default ClassDeclaration[Default]
             case Token.ClassKeyword:
-                declaration = this.parseClass(context, true);
+                declaration = this.parseClass(context & ~Context.AllowIn | Context.OptionalIdentifier);
                 break;
 
                 // export default HoistableDeclaration[Default]
             case Token.AsyncKeyword:
                 if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                    declaration = this.parseFunction(context, true);
+                    declaration = this.parseFunction(context | Context.OptionalIdentifier);
                     break;
                 }
                 // falls through
@@ -1986,7 +1986,7 @@ export class Parser {
 
                 // export ClassDeclaration
             case Token.ClassKeyword:
-                declaration = (this.parseClass(context) as any);
+                declaration = (this.parseClass(context & ~Context.AllowIn) as any);
                 break;
 
                 // export LexicalDeclaration
@@ -2073,7 +2073,7 @@ export class Parser {
 
         // Invalid: 'import { arguments } from './foo';'
         if (t & Token.IsEvalArguments && this.token === Token.RightBrace) {
-            this.early(context, Errors.UnexpectedStrictReserved);
+            this.early(context, Errors.UnexpectedStrictEvalOrArguments);
         }
 
         if (this.token & Token.Contextual) {
@@ -2088,7 +2088,7 @@ export class Parser {
         if (!hasAs) {
             if (t & Token.Reserved) this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
             if (this.token & Token.IsEvalArguments) {
-                this.early(context, Errors.UnexpectedStrictReserved);
+                this.early(context, Errors.UnexpectedStrictEvalOrArguments);
             }
             local = imported;
         } else local = this.parseBindingIdentifier(context);
@@ -2239,7 +2239,7 @@ export class Parser {
             case Token.FunctionKeyword:
                 return this.parseFunction(context);
             case Token.ClassKeyword:
-                return this.parseClass(context & ~Context.YieldContext);
+                return this.parseClass(context & ~Context.AllowIn);
             case Token.LetKeyword:
                 if (!this.isLexical(context)) return this.parseStatement(context);
                 return this.parseVariableStatement(context | Context.Let | Context.AllowIn);
@@ -3035,7 +3035,7 @@ export class Parser {
         const consequent = this.parseAssignmentExpression(context | Context.AllowIn);
         this.expect(context, Token.Colon);
         if (context & Context.InClass && this.token & Token.IsEvalArguments) {
-            this.early(context, Errors.UnexpectedStrictReserved);
+            this.early(context, Errors.UnexpectedStrictEvalOrArguments);
         }
         const alternate = this.parseAssignmentExpression(context);
         return this.finishNode(context, pos, {
@@ -3465,7 +3465,7 @@ export class Parser {
 
         while (this.token !== Token.RightParen) {
             if (this.token === Token.Ellipsis) {
-                expressions.push(this.parseSpreadExpression(context, ));
+                expressions.push(this.SpreadElement(context));
             } else {
                 if (this.token & Token.IsYield) {
                     this.flags |= Flags.HasYield;
@@ -3483,21 +3483,19 @@ export class Parser {
         return expressions;
     }
 
-    // https://tc39.github.io/ecma262/#sec-array-initializer
+    // https://tc39.github.io/ecma262/#prod-SpreadElement
 
-    private parseSpreadExpression(context: Context, pos = this.getLocation()): ESTree.SpreadElement {
-
+    private SpreadElement(context: Context): ESTree.SpreadElement {
+        const pos = this.getLocation();
         const t = this.token;
-
         this.expect(context, Token.Ellipsis);
-
-        const arg = this.parseAssignmentExpression(context);
+        const arg = this.parseAssignmentExpression(context | Context.AllowIn);
         // Object rest element needs to be the last AssignmenProperty in
         // ObjectAssignmentPattern. (For..in / of statement)
-        if (context & Context.ForStatement &&
-            this.token === Token.Comma) {
+        if (context & Context.ForStatement && this.token === Token.Comma) {
             this.early(context, Errors.UnexpectedToken, tokenDesc(t));
         }
+
         return this.finishNode(context, pos, {
             type: 'SpreadElement',
             argument: arg
@@ -3527,11 +3525,11 @@ export class Parser {
             case Token.LeftBracket:
                 return this.parseArrayInitializer(context);
             case Token.LeftBrace:
-                return this.parseObjectExpression(context & ~Context.AllowSuperProperty);
+                return this.parseObjectExpression(context & ~(Context.AllowSuperProperty | Context.InClass));
             case Token.SuperKeyword:
                 return this.parseSuperProperty(context);
             case Token.ClassKeyword:
-                return this.parseClass(context | Context.Expression);
+                return this.parseClass(context & ~Context.AllowIn | Context.Expression);
             case Token.FunctionKeyword:
                 return this.parseFunction(context & ~(Context.YieldContext | Context.IfBody) | Context.Expression);
             case Token.NewKeyword:
@@ -3575,8 +3573,10 @@ export class Parser {
                     this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
                 }
             default:
-                if (!this.isIdentifier(context, this.token)) this.early(context, Errors.Unexpected);
-                return this.parseIdentifier(context);
+                if (this.isIdentifier(context, this.token)) return this.parseIdentifier(context);
+                    this.report(this.token & (Token.Reserved | Token.FutureReserved)
+                    ? Errors.UnexpectedStrictReserved
+                    : Errors.Unexpected);
         }
     }
 
@@ -3599,8 +3599,7 @@ export class Parser {
         if (this.token === Token.FunctionKeyword) {
             if (hasEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
             return this.parseFunction(
-                context & ~Context.IfBody | Context.Expression | Context.AsyncContext | Context.AsyncFunction,
-                false,
+                context & ~Context.IfBody | (Context.Expression | Context.AsyncContext | Context.AsyncFunction),
                 ObjectState.None,
                 pos);
         }
@@ -3643,7 +3642,7 @@ export class Parser {
         while (this.token !== Token.RightParen) {
 
             if (this.token === Token.Ellipsis) {
-                const elem = this.parseSpreadExpression(context);
+                const elem = this.SpreadElement(context);
                 // Trailing comma in async arrow param list
                 if (this.token === Token.Comma) state |= ParenthesizedState.Trailing;
                 args.push(elem);
@@ -3703,7 +3702,7 @@ export class Parser {
             }
             if (state & ParenthesizedState.EvalOrArguments) {
                 // Invalid: '"use strict"; (eval = 10) => 42;'
-                if (context & Context.Strict) this.early(context, Errors.UnexpectedStrictReserved);
+                if (context & Context.Strict) this.early(context, Errors.UnexpectedStrictEvalOrArguments);
                 // Invalid: '(eval = 10) => { "use strict"; }'
                 // this.errorLocation = this.getLocation();
                 this.flags |= Flags.ReservedWords;
@@ -3739,8 +3738,8 @@ export class Parser {
 
             while (this.token !== Token.RightBrace) {
                 properties.push(this.token === Token.Ellipsis ?
-                    this.parseSpreadExpression(context) :
-                    this.parsePropertyDefinition(context & ~Context.InClass));
+                    this.SpreadElement(context) :
+                    this.parsePropertyDefinition(context));
                 if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
             }
 
@@ -3818,7 +3817,7 @@ export class Parser {
             else state |= ObjectState.Set;
 
             key = this.parsePropertyName(context);
-            value = this.parseMethodDeclaration(context, state | ObjectState.Method, pos);
+            value = this.parseMethodDeclaration(context & ~Context.AllowIn, state | ObjectState.Method, pos);
         } else {
 
             switch (this.token) {
@@ -3830,7 +3829,7 @@ export class Parser {
                             state |= ObjectState.Method;
                         }
 
-                        value = this.parseMethodDeclaration(context, state, pos);
+                        value = this.parseMethodDeclaration(context & ~Context.AllowIn, state, pos);
                         break;
                     }
 
@@ -3839,7 +3838,7 @@ export class Parser {
                         this.expect(context, Token.Colon);
 
                         if (context & Context.Strict && this.token & Token.IsEvalArguments) {
-                            this.early(context, Errors.UnexpectedStrictReserved);
+                            this.early(context, Errors.UnexpectedStrictEvalOrArguments);
                         }
 
                         if (!(state & ObjectState.Computed) && __proto__) {
@@ -3879,7 +3878,7 @@ export class Parser {
                     }
 
                     if (context & Context.Strict && t & Token.IsEvalArguments) {
-                        this.early(context, Errors.UnexpectedStrictReserved);
+                        this.early(context, Errors.UnexpectedStrictEvalOrArguments);
                     }
 
                     state |= ObjectState.Shorthand;
@@ -3934,13 +3933,12 @@ export class Parser {
             context &= ~Context.AsyncContext;
         }
 
-        return this.parseFunction(context | Context.Method, false, state);
+        return this.parseFunction(context | Context.Method, state);
     }
 
-    private parseComputedPropertyName(context: Context): ESTree.Expression {
+    private parseComputedPropertyName(context: Context): ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression {
         const pos = this.getLocation();
-        this.nextToken(context);
-
+        this.expect(context, Token.LeftBracket);
         const expression = this.parseAssignmentExpression(context | Context.AllowIn);
         this.expect(context, Token.RightBracket);
         return expression;
@@ -3975,7 +3973,7 @@ export class Parser {
             if (this.parseOptional(context, Token.Comma)) {
                 elements.push(null);
             } else if (this.token === Token.Ellipsis) {
-                const element = this.parseSpreadExpression(context);
+                const element = this.SpreadElement(context);
                 // Note! An AssignmentElement may not follow an
                 // AssignmentRestElement - e.g. '[...x, y] = [];' - but we don't know
                 // yet if this array are followed by an initalizer or not.
@@ -4032,11 +4030,12 @@ export class Parser {
         });
     }
 
-    private parseClass(context: Context, identifierIsOptional ? : boolean): ESTree.ClassExpression | ESTree.ClassDeclaration {
+    // https://tc39.github.io/ecma262/#prod-ClassDeclaration
+    // https://tc39.github.io/ecma262/#prod-ClassExpression
 
-        if (this.flags & Flags.ExtendedUnicodeEscape) {
-            this.early(context, Errors.UnexpectedEscapedKeyword);
-        }
+    private parseClass(context: Context): ESTree.ClassExpression | ESTree.ClassDeclaration {
+
+        if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
 
         const pos = this.getLocation();
 
@@ -4048,7 +4047,7 @@ export class Parser {
 
         if (this.token !== Token.ExtendsKeyword && this.isIdentifier(context, this.token)) {
             id = this.parseBindingIdentifier(context);
-        } else if (!(context & Context.Expression) && !identifierIsOptional) {
+        } else if (!(context & Context.Expression) && !(context & Context.OptionalIdentifier)) {
             this.early(context, Errors.UnNamedClassDecl);
         }
 
@@ -4172,7 +4171,7 @@ export class Parser {
                 // static public class fields forbidden
                 if (state & ObjectState.Static) this.early(context, Errors.Unexpected);
                 if (this.parseOptional(context, Token.Assign)) {
-                    if (this.token & Token.IsEvalArguments) this.early(context, Errors.UnexpectedStrictReserved);
+                    if (this.token & Token.IsEvalArguments) this.early(context, Errors.UnexpectedStrictEvalOrArguments);
                     value = this.parseAssignmentExpression(context);
                 }
 
@@ -4213,7 +4212,7 @@ export class Parser {
             static: !!(state & ObjectState.Static),
             computed: !!(state & ObjectState.Computed),
             key,
-            value: this.parseMethodDeclaration(context | Context.Method, state | ObjectState.Method, pos)
+            value: this.parseMethodDeclaration(context & ~Context.AllowIn | Context.Method, state | ObjectState.Method, pos)
         });
     }
 
@@ -4257,7 +4256,7 @@ export class Parser {
         this.expect(context, Token.Arrow);
 
         if (context & Context.InClass && this.token & Token.IsEvalArguments) {
-            this.early(context, Errors.UnexpectedStrictReserved);
+            this.early(context, Errors.UnexpectedStrictEvalOrArguments);
         }
 
         for (const i in params) this.reinterpret(context | Context.InArrowParameterList, params[i]);
@@ -4423,7 +4422,7 @@ export class Parser {
             }
             if (state & ParenthesizedState.EvalOrArguments) {
                 // Invalid: '"use strict"; (eval = 10) => 42;'
-                if (context & Context.Strict) this.early(context, Errors.UnexpectedStrictReserved);
+                if (context & Context.Strict) this.early(context, Errors.UnexpectedStrictEvalOrArguments);
                 // Invalid: '(eval = 10) => { "use strict"; }'
                 // this.errorLocation = this.getLocation();
                 this.flags |= Flags.ReservedWords;
@@ -4730,7 +4729,6 @@ export class Parser {
 
     private parseFunction(
         context: Context,
-        identifierIsOptional ? : boolean,
         state: ObjectState = ObjectState.None,
         pos = this.getLocation()) {
 
@@ -4790,7 +4788,7 @@ export class Parser {
                     this.parseIdentifierName(context, t) :
                     this.parseBindingIdentifier(context);
 
-            } else if (!identifierIsOptional && !(context & Context.Expression)) {
+            } else if (!(context & Context.OptionalIdentifier) && !(context & Context.Expression)) {
                 this.early(context, Errors.UnNamedFunctionStmt);
             }
         }
@@ -4799,7 +4797,7 @@ export class Parser {
 
         const args = formalParameters.args;
         const params = formalParameters.params;
-        const body = this.parseFunctionBody(context & ~(Context.IfBody | Context.Expression | Context.TopLevel), args);
+        const body = this.parseFunctionBody(context & ~(Context.IfBody | Context.OptionalIdentifier | Context.Expression | Context.TopLevel), args);
 
         return this.finishNode(context, pos, {
             type: context & (Context.Expression | Context.Method) ? 'FunctionExpression' : 'FunctionDeclaration',

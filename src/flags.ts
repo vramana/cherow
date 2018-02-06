@@ -2,7 +2,7 @@ export const enum Context {
     None = 0,
 
     /* options */
-    OptionsNext             = 1 << 0,
+    OptionsNext             = 1 << 0,   // Enable stage 3 support
     OptionsRanges           = 1 << 1,
     OptionsLoc              = 1 << 2,
     OptionsRaw              = 1 << 3,
@@ -12,28 +12,29 @@ export const enum Context {
     /* miscellaneous */
     AllowIn                 = 1 << 6,  // Node was parsed in a context where 'in-expressions' are allowed
     Strict                  = 1 << 7,  // Node was parsed in a strict mode context
-    Module                  = 1 << 8, // Node was parsed in a module code context
-    TaggedTemplate          = 1 << 9, // Node was parsed as the body of an IFStatement - 'consequent' or 'alternate'
-    IfBody                  = 1 << 10,
-    Expression              = 1 << 11,
-    InParameter             = 1 << 12,
-    YieldContext            = 1 << 13,  // Node was parsed in the 'yield' context created when parsing an async function
-    AsyncContext            = 1 << 14,  // Node was parsed in the 'async' context created when parsing an async function
+    Module                  = 1 << 8,  // Node was parsed in a module code context
+    TaggedTemplate          = 1 << 9,  
+    IfBody                  = 1 << 10, // Node was parsed as the body of an IFStatement - 'consequent' or 'alternate'
+    Expression              = 1 << 11, // Node was parsed within an expression context
+    InParameter             = 1 << 12, //
+    YieldContext            = 1 << 13, // Node was parsed in the 'yield' context created when parsing an generator function
+    AsyncContext            = 1 << 14, // Node was parsed in the 'async' context created when parsing an async function
     InArrowParameterList    = 1 << 15,
     ArrowFunction           = 1 << 16,
-    TopLevel                = 1 << 17,
+    TopLevel                = 1 << 17, // Allow super property
     AllowSuperProperty      = 1 << 18,
     ValidateEscape          = 1 << 19,
     Let                     = 1 << 20,  // Variable declaration
     Const                   = 1 << 21,  // Variable declaration
-    Statement               = 1 << 22,
-    Method                  = 1 << 23,
+    Statement               = 1 << 22,  // Used when parsing an MethodDeclaration
+    Method                  = 1 << 23,  // Used when parsing an async function
     AsyncFunction           = 1 << 24,
     ProhibitWhitespace      = 1 << 25, // Scanner related.
     ForStatement            = 1 << 26,
     InParenthesis           = 1 << 27,
-    InClass                 = 1 << 28,
-    InTypeAnnotation        = 1 << 29,
+    InClass                 = 1 << 28, 
+    OptionalIdentifier      = 1 << 29, 
+    InTypeAnnotation        = 1 << 30, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
     BlockScoped  = Let | Const
 
 }
@@ -76,12 +77,14 @@ export const enum ObjectState {
     Constructor     = 1 << 6,
     Method          = 1 << 7,
     Shorthand       = 1 << 8,
-    PrivateField    = 1 << 9,
-    Prototype       = 1 << 10,
-    Heritage        = 1 << 11,
-    HasRest         = 1 << 12,
+    Prototype       = 1 << 9,
+    Heritage        = 1 << 10,
+    HasRest         = 1 << 11,
+    // Unused = 1 << 12,
     HasConstructor  = 1 << 13,
+
     Accessors = Get | Set,
+
     Special = Accessors | Generator | Async
 }
 
@@ -103,7 +106,6 @@ export const enum ScannerState {
     HTMLOpen    = 1 << 6,
     HTMLClose   = 1 << 7,
     SheBang     = 1 << 8,
-    FlowComment = 1 << 9,
 }
 
 /* Shared between string literal and templates */

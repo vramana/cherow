@@ -4,7 +4,7 @@ describe('Declarations - Const', () => {
 
     fail('for (;false;) const x = 1;', {
         source: 'for (;false;) const x = 1;',
-        message: 'Unexpected token',
+        message:  'Unexpected strict mode reserved word',
         line: 1,
         column: 13,
         index: 13
@@ -12,7 +12,7 @@ describe('Declarations - Const', () => {
 
     fail('if (true) {} else const x = 1;', {
         source: 'if (true) {} else const x = 1;',
-        message: 'Unexpected token',
+        message: 'Unexpected strict mode reserved word',
         line: 1,
         column: 17,
         index: 17
@@ -20,7 +20,7 @@ describe('Declarations - Const', () => {
 
     fail('label: const x = 1;', {
         source: 'label: const x = 1;',
-        message: 'Unexpected token',
+        message: 'Unexpected strict mode reserved word',
         line: 1,
         column: 6,
         index: 6
@@ -36,7 +36,7 @@ describe('Declarations - Const', () => {
 
     fail('while (false) const x;', {
         source: 'while (false) const x;',
-        message:  'Unexpected token',
+        message: 'Unexpected strict mode reserved word',
         line: 1,
         column: 13,
         index: 13

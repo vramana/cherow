@@ -876,7 +876,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('"use strict"; yield:0;', {
         source: `"use strict"; yield:0;`,
-        message: 'Unexpected token',
+        message:  'Unexpected strict mode reserved word',
         line: 1,
     });
 
@@ -1183,7 +1183,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('var a; export class a {};', {
         source: `var a; export class a {};`,
-        message: 'Unexpected token',
+        message: 'Unexpected strict mode reserved word',
         line: 1,
     });
 

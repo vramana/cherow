@@ -91,7 +91,8 @@ export const enum Errors {
     InvalidDestructuringTarget,
     VariableExists,
     DuplicateParameter,
-    MissingConstInitializer
+    MissingConstInitializer,
+    UnexpectedStrictEvalOrArguments
 }
 
 export const ErrorMessages: {
@@ -112,7 +113,6 @@ export const ErrorMessages: {
     [Errors.PropertyAfterRestProperty]: 'Parameter after rest parameter',
     [Errors.LineBreakAfterAsync]: 'No line break is allowed after async',
     [Errors.InvalidParenthesizedPattern]: 'Invalid parenthesized pattern',
-    [Errors.UnexpectedStrictReserved]: 'Unexpected eval or arguments in strict mode',
     [Errors.StrictFunction]: 'In strict mode code, functions can only be declared at top level or inside a block',
     [Errors.SloppyFunction]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
     [Errors.InvalidNestedStatement]: '%0  statement must be nested within an iteration statement',
@@ -189,6 +189,10 @@ export const ErrorMessages: {
     [Errors.VariableExists]: 'Identifier \'%0\' has already been declared!',
     [Errors.DuplicateParameter]: 'Duplicate parameter \'%0\'',
     [Errors.MissingConstInitializer]: 'Missing initializer in const declaration',
+    [Errors.UnexpectedStrictReserved]: 'Unexpected strict mode reserved word',
+    [Errors.UnexpectedStrictEvalOrArguments]: 'Unexpected eval or arguments in strict mode',
+    
+    
 };
 
 function constructError(msg: string, column: number): Error {

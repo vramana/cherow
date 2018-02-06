@@ -68,7 +68,7 @@ describe('Expressions - Function', () => {
 
     fail(`var _13_1_18_fun = function (eval) { "use strict"; }`, {
     source: 'var _13_1_18_fun = function (eval) { "use strict"; }',
-    message: 'Unexpected eval or arguments in strict mode',
+    message: 'Unexpected strict mode reserved word',
     line: 1,
     column: 50,
     index: 50

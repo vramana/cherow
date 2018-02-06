@@ -7,6 +7,214 @@ describe('Miscellaneous - Identifiers', () => {
         source: 'var a\ = 5;'
     });
 
+    fail('"use strict"; yield', {
+        source: '"use strict"; yield',
+        message: 'Unexpected strict mode reserved word',
+        line: 1,
+        column: 13,
+        index: 13
+    });
+
+    fail('var func\\u0074ion = 123;', {
+        source: 'var func\\u0074ion = 123;',
+        message:  'Unexpected token function',
+        line: 1,
+        column: 3,
+        index: 3
+    });
+
+    fail('var in = 123;', {
+        source: 'var in = 123;',
+        message: 'Unexpected token in',
+        line: 1,
+        column: 3,
+        index: 3
+    });
+
+    fail('var aⸯ; // U+2E2F', {
+        source: 'var aⸯ; // U+2E2F',
+        message: 'Unexpected token ⸯ',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    pass(`\\u{0069}`, {
+        source: '\\u{0069}',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 8,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 8
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 8,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 8
+                  }
+                },
+                expression: {
+                  type: 'Identifier',
+                  start: 0,
+                  end: 8,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 8
+                    }
+                  },
+                  name: 'i'
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`\\u{00069} = i + \\u{00069};`, {
+        source: '\\u{00069} = i + \\u{00069};',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 26,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 26
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 26,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 26
+                  }
+                },
+                expression: {
+                  type: 'AssignmentExpression',
+                  start: 0,
+                  end: 25,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 25
+                    }
+                  },
+                  operator: '=',
+                  left: {
+                    type: 'Identifier',
+                    start: 0,
+                    end: 9,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 9
+                      }
+                    },
+                    name: 'i'
+                  },
+                  right: {
+                    type: 'BinaryExpression',
+                    start: 12,
+                    end: 25,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 12
+                      },
+                      end: {
+                        line: 1,
+                        column: 25
+                      }
+                    },
+                    left: {
+                      type: 'Identifier',
+                      start: 12,
+                      end: 13,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 12
+                        },
+                        end: {
+                          line: 1,
+                          column: 13
+                        }
+                      },
+                      name: 'i'
+                    },
+                    operator: '+',
+                    right: {
+                      type: 'Identifier',
+                      start: 16,
+                      end: 25,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 16
+                        },
+                        end: {
+                          line: 1,
+                          column: 25
+                        }
+                      },
+                      name: 'i'
+                    }
+                  }
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
     pass(`T‍ = ([]);`, {
       source: 'T‍ = ([]);',
       loc: true,

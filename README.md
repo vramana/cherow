@@ -31,9 +31,10 @@ It strictly follows the [ECMAScript® 2018 Language Specification](https://tc39.
 `Stage 3` features support. These need to be enabled with the `next` option. 
 
 * [Import()](https://github.com/tc39/proposal-dynamic-import)
-* [Class Fields](https://github.com/tc39/proposal-class-fields)
+* [Class field declarations for JavaScript](https://github.com/tc39/proposal-class-fields)
 * [Numeric Separators](https://github.com/tc39/proposal-numeric-separator)
 * [Private methods and fields](https://github.com/tc39/proposal-private-methods)
+* [Private methods and getter/setters for JavaScript classes](https://github.com/tc39/proposal-private-methods)
 * [Optional catch binding](https://github.com/tc39/proposal-optional-catch-binding)
 * [JSON Superset](https://github.com/tc39/proposal-json-superset)
 * [BigInt](https://github.com/tc39/proposal-bigint)

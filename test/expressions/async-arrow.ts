@@ -10,7 +10,7 @@ describe('Expressions - Async arrow', () => {
     fail(`async (eval) => { "use strict"; }`, {
         source: 'async (eval) => { "use strict"; }',
         line: 1,
-        message: 'Unexpected eval or arguments in strict mode'
+        message: 'Unexpected strict mode reserved word'
     });
 
     fail(`async (this) => { "use strict"; }`, {
