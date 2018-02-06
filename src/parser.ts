@@ -2585,7 +2585,7 @@ export class Parser {
         let param = null;
         if (this.parseOptional(context, Token.LeftParen)) {
             const params: any[] = [];
-            param = this.parseBindingIdentifierOrPattern(context, params);
+            param = this.parseBindingIdentifierOrBindingPattern(context, params);
             this.validateBindings(context, params);
             this.expect(context, Token.RightParen);
         }
@@ -2777,7 +2777,7 @@ export class Parser {
     private parseVariableDeclaration(context: Context): any {
         const pos = this.getLocation();
         const t = this.token;
-        const id = this.parseBindingIdentifierOrPattern(context);
+        const id = this.parseBindingIdentifierOrBindingPattern(context);
         let init: ESTree.Expression | null = null;
 
         if (t & Token.IsBindingPattern) {
@@ -3521,11 +3521,11 @@ export class Parser {
             case Token.BigInt:
                 return this.parseBigIntLiteral(context, pos);
             case Token.LeftParen:
-                return this.parseParenthesizedExpression(context | Context.InParenthesis);
+                return this.CoverParenthesizedExpressionAndArrowParameterList(context | Context.AllowIn | Context.InParenthesis);
             case Token.LeftBracket:
-                return this.parseArrayInitializer(context);
+                return this.parseArrayLiteral(context);
             case Token.LeftBrace:
-                return this.parseObjectExpression(context & ~(Context.AllowSuperProperty | Context.InClass));
+                return this.parseObjectLiteral(context & ~(Context.AllowSuperProperty | Context.InClass));
             case Token.SuperKeyword:
                 return this.parseSuperProperty(context);
             case Token.ClassKeyword:
@@ -3540,7 +3540,7 @@ export class Parser {
                 return this.parseTemplate(context);
             case Token.Divide:
             case Token.DivideAssign:
-                return this.parseRegularExpression(context);
+                return this.parseRegularExpressionLiteral(context);
             case Token.AsyncKeyword:
                 return this.parseAsyncFunctionExpression(context, pos);
             case Token.LetKeyword:
@@ -3724,7 +3724,7 @@ export class Parser {
         });
     }
 
-    private parseObjectExpression(context: Context): ESTree.ObjectExpression {
+    private parseObjectLiteral(context: Context): ESTree.ObjectExpression {
 
         const pos = this.getLocation();
 
@@ -3959,7 +3959,7 @@ export class Parser {
         }
     }
 
-    private parseArrayInitializer(context: Context): ESTree.ArrayExpression {
+    private parseArrayLiteral(context: Context): ESTree.ArrayExpression {
 
         const pos = this.getLocation();
 
@@ -4008,7 +4008,7 @@ export class Parser {
             // We got a comma separator and we have a initializer. Time to throw an error!
             if (this.token === Token.Assign) this.early(context, Errors.ElementAfterRest);
             // Note! This also affects arrow expressions because we are parsing out the
-            // arrow param list either in 'parseParenthesizedExpression' or
+            // arrow param list either in 'CoverParenthesizedExpressionAndArrowParameterList' or
             // 'parseAsyncFunctionExpression'. So in that case we 'flag' that
             // we found something we don't like, and throw later on.
             //
@@ -4292,14 +4292,16 @@ export class Parser {
     private parseRestElement(context: Context, params: any[] = []) {
         const pos = this.getLocation();
         this.expect(context, Token.Ellipsis);
-        const argument = this.parseBindingIdentifierOrPattern(context, params);
+        const argument = this.parseBindingIdentifierOrBindingPattern(context, params);
         return this.finishNode(context, pos, {
             type: 'RestElement',
             argument
         });
     }
 
-    private parseParenthesizedExpression(context: Context): ESTree.Node {
+    // https://tc39.github.io/ecma262/#prod-CoverParenthesizedExpressionAndArrowParameterList
+
+    private CoverParenthesizedExpressionAndArrowParameterList(context: Context): ESTree.Node {
         const pos = this.getLocation();
 
         this.expect(context, Token.LeftParen);
@@ -4433,7 +4435,7 @@ export class Parser {
         return expr;
     }
 
-    private parseRegularExpression(context: Context): ESTree.RegExpLiteral {
+    private parseRegularExpressionLiteral(context: Context): ESTree.RegExpLiteral {
         this.scanRegularExpression(context);
         const pos = this.getLocation();
         const regex = this.tokenRegExp;
@@ -4522,7 +4524,7 @@ export class Parser {
         });
     }
 
-    private parseBindingIdentifierOrPattern(context: Context, params: any[] = []) {
+    private parseBindingIdentifierOrBindingPattern(context: Context, params: any[] = []) {
         const t = this.token;
         if (t & (Token.IsAwait | Token.IsYield)) {
             if (t & Token.IsAwait && (context & (Context.AsyncContext | Context.Module))) {
@@ -4546,7 +4548,7 @@ export class Parser {
     private parseAssignmentRestElement(context: Context, params: any[] = []): ESTree.RestElement {
         const pos = this.getLocation();
         this.expect(context, Token.Ellipsis);
-        const argument = this.parseBindingIdentifierOrPattern(context, params);
+        const argument = this.parseBindingIdentifierOrBindingPattern(context, params);
         return this.finishNode(context, pos, {
             type: 'RestElement',
             argument
@@ -4557,7 +4559,7 @@ export class Parser {
         context: Context,
         params: any[],
         pos: Location = this.getLocation(),
-        pattern: any = this.parseBindingIdentifierOrPattern(context, params)
+        pattern: any = this.parseBindingIdentifierOrBindingPattern(context, params)
     ): ESTree.AssignmentPattern {
 
         if (!this.parseOptional(context, Token.Assign)) return pattern;
@@ -4602,7 +4604,7 @@ export class Parser {
         this.expect(context, Token.Ellipsis);
         // Object rest spread must be followed by an identifier in declaration contexts
         if (!(this.token & Token.IsIdentifier)) this.early(context, Errors.InvalidRestBindingPattern);
-        const arg = this.parseBindingIdentifierOrPattern(context, params);
+        const arg = this.parseBindingIdentifierOrBindingPattern(context, params);
 
         if (this.token === Token.Assign) this.early(context, Errors.InvalidRestBindingPattern);
         // Rest element must be last element
@@ -4906,7 +4908,7 @@ export class Parser {
 
                 if (this.token & Token.FutureReserved) this.flags |= Flags.ReservedWords;
 
-                const left = this.parseBindingIdentifierOrPattern(context, args);
+                const left = this.parseBindingIdentifierOrBindingPattern(context, args);
 
                 if (this.parseOptional(context, Token.Assign)) {
 
