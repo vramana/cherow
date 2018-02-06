@@ -1840,7 +1840,7 @@ export class Parser {
                 (t & Token.Contextual) === Token.Contextual);
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: Location,
         node: any,
@@ -3178,7 +3178,9 @@ export class Parser {
         });
     }
 
-    private parseSuperExpression(context: Context): ESTree.Expression {
+    // https://tc39.github.io/ecma262/#prod-SuperProperty
+
+    private parseSuperProperty(context: Context): ESTree.Expression {
         const pos = this.getLocation();
         if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
         this.expect(context, Token.SuperKeyword);
@@ -3274,7 +3276,7 @@ export class Parser {
         return this.finishNode(context, pos, {
             type: 'NewExpression',
             callee,
-            arguments: this.token === Token.LeftParen ? this.parseCallArguments(context) : []
+            arguments: this.token === Token.LeftParen ? this.parseArgumentList(context) : []
         });
     }
 
@@ -3282,14 +3284,22 @@ export class Parser {
 
         let expr;
 
-        if (this.token === Token.SuperKeyword) {
-            expr = this.parseSuperExpression(context);
-        } else if (this.token === Token.ImportKeyword) {
-            if (!(context & Context.OptionsNext)) this.early(context, Errors.Unexpected);
-            expr = this.parseImportCall(context | Context.AllowIn, pos);
-        } else {
-            expr = this.parseMemberExpression(context | Context.AllowIn, pos);
+        switch (this.token) {
+            case Token.SuperKeyword:
+                {
+                    expr = this.parseSuperProperty(context);
+                    break;
+                }
+            case Token.ImportKeyword:
+                {
+                    if (!(context & Context.OptionsNext)) this.early(context, Errors.Unexpected);
+                    expr = this.parseImportCall(context | Context.AllowIn, pos);
+                    break;
+                }
+            default:
+                expr = this.parseMemberExpression(context | Context.AllowIn, pos);
         }
+
 
         return expr.type === 'ArrowFunctionExpression' && this.token !== Token.LeftParen ?
             expr :
@@ -3364,24 +3374,7 @@ export class Parser {
         return this.finishNode(context, pos, {
             type: 'TemplateLiteral',
             expressions: [],
-            quasis: [this.parseTemplateElement(context)]
-        });
-    }
-
-    private parseTemplateElement(context: Context): ESTree.TemplateElement {
-        const pos = this.getLocation();
-        const cooked = this.tokenValue;
-        const raw = this.tokenRaw;
-
-        this.expect(context, Token.TemplateTail);
-
-        return this.finishNode(context, pos, {
-            type: 'TemplateElement',
-            value: {
-                cooked,
-                raw
-            },
-            tail: true
+            quasis: [this.parseTemplateSpans(context)]
         });
     }
 
@@ -3414,7 +3407,7 @@ export class Parser {
         quasis.push(this.parseTemplateHead(context, cooked, raw, pos));
 
         if (this.token === Token.TemplateTail) {
-            quasis.push(this.parseTemplateElement1(context, t));
+            quasis.push(this.parseTemplateSpans(context, t));
         } else {
             this.parseTemplate(context, expressions, quasis);
         }
@@ -3426,7 +3419,7 @@ export class Parser {
         });
     }
 
-    private parseTemplateElement1(context: Context, pos: Location): ESTree.TemplateElement {
+    private parseTemplateSpans(context: Context, pos: Location = this.getLocation()): ESTree.TemplateElement {
         const cooked = this.tokenValue;
         const raw = this.tokenRaw;
 
@@ -3441,6 +3434,8 @@ export class Parser {
             tail: true
         });
     }
+
+    // https://tc39.github.io/ecma262/#prod-CallExpression
 
     private parseCallExpression(
         context: Context,
@@ -3457,14 +3452,14 @@ export class Parser {
             expr = this.finishNode(context, pos, {
                 type: 'CallExpression',
                 callee: expr,
-                arguments: this.parseCallArguments(context)
+                arguments: this.parseArgumentList(context)
             });
         }
     }
 
     // https://tc39.github.io/ecma262/#sec-left-hand-side-expressions
 
-    private parseCallArguments(context: Context): ESTree.Expression[] {
+    private parseArgumentList(context: Context): ESTree.Expression[] {
         this.expect(context, Token.LeftParen);
 
         const expressions: any[] = [];
@@ -3535,7 +3530,7 @@ export class Parser {
             case Token.LeftBrace:
                 return this.parseObjectExpression(context & ~Context.AllowSuperProperty);
             case Token.SuperKeyword:
-                return this.parseSuperExpression(context);
+                return this.parseSuperProperty(context);
             case Token.ClassKeyword:
                 return this.parseClass(context | Context.Expression);
             case Token.FunctionKeyword:
@@ -3926,7 +3921,7 @@ export class Parser {
         });
     }
 
-    private parseMethodDeclaration(context: Context, state: ObjectState, pos: Location) {
+    private parseMethodDeclaration(context: Context, state: ObjectState, pos: Location): ESTree.FunctionExpression {
 
         if (state & ObjectState.Generator) {
             context |= Context.YieldContext;
@@ -3952,7 +3947,7 @@ export class Parser {
         return expression;
     }
 
-    private parsePropertyName(context: Context, state = ObjectState.None) {
+    private parsePropertyName(context: Context, state = ObjectState.None): ESTree.Expression {
         const pos = this.getLocation();
         switch (this.token) {
             case Token.NumericLiteral:
@@ -4038,7 +4033,7 @@ export class Parser {
         });
     }
 
-    private parseClass(context: Context, identifierIsOptional ?: boolean): ESTree.ClassExpression | ESTree.ClassDeclaration {
+    private parseClass(context: Context, identifierIsOptional ? : boolean): ESTree.ClassExpression | ESTree.ClassDeclaration {
 
         if (this.flags & Flags.ExtendedUnicodeEscape) {
             this.early(context, Errors.UnexpectedEscapedKeyword);
@@ -4306,7 +4301,7 @@ export class Parser {
         });
     }
 
-    private parseParenthesizedExpression(context: Context): any {
+    private parseParenthesizedExpression(context: Context): ESTree.Node {
         const pos = this.getLocation();
 
         this.expect(context, Token.LeftParen);
@@ -4498,7 +4493,7 @@ export class Parser {
         return node;
     }
 
-    private parseLiteral(context: Context) {
+    private parseLiteral(context: Context): ESTree.Literal {
         const pos = this.getLocation();
         const raw = this.tokenRaw;
         const value = this.tokenValue;
@@ -4518,7 +4513,7 @@ export class Parser {
         return node;
     }
 
-    private parseIdentifier(context: Context) {
+    private parseIdentifier(context: Context): ESTree.Identifier {
         const pos = this.getLocation();
         const name = this.tokenValue;
         this.nextToken(context | Context.TaggedTemplate);
@@ -4736,11 +4731,11 @@ export class Parser {
 
     private parseFunction(
         context: Context,
-        identifierIsOptional ?: boolean,
+        identifierIsOptional ? : boolean,
         state: ObjectState = ObjectState.None,
         pos = this.getLocation()) {
 
-        let id: ESTree.Identifier | null = null;
+        let id: ESTree.Identifier | undefined | null = null;
 
         if (!(state & ObjectState.Method)) {
 
@@ -4801,7 +4796,7 @@ export class Parser {
             }
         }
 
-        const formalParameters = this.parseParameterList(context | Context.Expression | Context.InParameter, state);
+        const formalParameters = this.parseFormalParameterList(context | Context.Expression | Context.InParameter, state);
 
         const args = formalParameters.args;
         const params = formalParameters.params;
@@ -4820,7 +4815,7 @@ export class Parser {
 
     // https://tc39.github.io/ecma262/#sec-function-definitions
 
-    private parseFunctionBody(context: Context, params: any[] = []): any {
+    private parseFunctionBody(context: Context, params: any[] = []): ESTree.BlockStatement {
 
         const pos = this.getLocation();
 
@@ -4872,7 +4867,7 @@ export class Parser {
         });
     }
 
-    private parseParameterList(context: Context, state: ObjectState): any {
+    private parseFormalParameterList(context: Context, state: ObjectState): any {
 
         this.flags &= ~Flags.SimpleParameterList;
 
