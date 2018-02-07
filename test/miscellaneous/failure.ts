@@ -1166,4 +1166,107 @@ describe('Miscellaneous - Failure', () => {
         message: 'Unexpected token',
         line: 1,
     });
+
+    fail('var obj = { *test** }', {
+        source: `var obj = { *test** }`,
+        message: 'Unexpected token *',
+        line: 1,
+    });
+
+    fail('class A extends yield B { }', {
+        source: `class A extends yield B { }`,
+        message: 'Unexpected strict mode reserved word',
+        line: 1,
+    });
+
+    fail('`test', {
+        source: '`test',
+        message: 'Unexpected token',
+        line: 1,
+    });
+
+    fail('switch `test`', {
+        source: 'switch `test`',
+        message: 'Unexpected token',
+        line: 1,
+    });
+
+    fail('function f(a, ...b, c)', {
+        source: `function f(a, ...b, c)`,
+        message: 'Rest parameter must be last formal parameter',
+        line: 1,
+    });
+
+    fail('[a, ...b = 0] = []', {
+        source: `[a, ...b = 0] = []`,
+        message: 'Rest elements cannot have a default value',
+        line: 1,
+    });
+
+    fail('"(...a, b) => {}', {
+        source: `"(...a, b) => {}`,
+        message: 'Unexpected token',
+        line: 1,
+    });
+
+    fail('([ 5 ]) => {}', {
+        source: `([ 5 ]) => {}`,
+        message: 'Unexpected token',
+        line: 1,
+    });
+
+    fail('({ 5 }) => {}', {
+        source: `({ 5 }) => {}`,
+        message: 'Unexpected token number',
+        line: 1,
+    });
+
+    fail('(...[ 5 ]) => {}', {
+        source: `(...[ 5 ]) => {}`,
+        message: 'Unexpected token number',
+        line: 1,
+    });
+
+    fail('if (1) let x = 10;', {
+        source: `if (1) let x = 10;`,
+        message: 'Unexpected token',
+        line: 1,
+    });
+
+    fail('for (;;) const x = 10;', {
+        source: `for (;;) const x = 10;`,
+        message: 'Unexpected strict mode reserved word',
+        line: 1,
+    });
+
+    fail('function* y({yield}) {}', {
+        source: `function* y({yield}) {}`,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 1,
+    });
+
+    fail('x = { get method() 42 }', {
+        source: `x = { get method() 42 }`,
+        message: 'Unexpected token',
+        line: 1,
+    });
+
+    fail('class A { get prop(x) {} }', {
+        source: `class A { get prop(x) {} }`,
+        message: 'Getter functions must have no arguments',
+        line: 1,
+    });
+
+    fail('class A { set prop() {} }', {
+        source: `class A { set prop() {} }`,
+        message: 'Setter function must have exactly one argument',
+        line: 1,
+    });
+
+    fail('class A { set prop(x, y) {} }', {
+        source: `class A { set prop(x, y) {} }`,
+        message: 'Setter function must have exactly one argument',
+        line: 1,
+    });
+
 });

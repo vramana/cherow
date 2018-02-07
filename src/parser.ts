@@ -1361,9 +1361,7 @@ export class Parser {
                     this.report(Errors.UnterminatedString);
                 case Chars.Backslash:
                     ch = this.readNext(ch);
-
                     state |= ScannerState.Escape;
-
                     if (ch >= 128) {
                         ret += fromCodePoint(ch);
                     } else {
@@ -1434,8 +1432,6 @@ export class Parser {
                 return Chars.Tab;
             case Chars.LowerV:
                 return Chars.VerticalTab;
-
-                // Line continuations
             case Chars.CarriageReturn:
             case Chars.LineFeed:
             case Chars.LineSeparator:
@@ -1443,8 +1439,6 @@ export class Parser {
                 this.column = -1;
                 this.line++;
                 return Escape.Empty;
-
-                // Null character, octals
             case Chars.Zero:
             case Chars.One:
             case Chars.Two:
@@ -1611,33 +1605,42 @@ export class Parser {
                         }
 
                     case Chars.Backslash:
-                        ch = this.readNext(ch);
+                        {
+                            ch = this.readNext(ch);
 
-                        if (ch >= 128) {
-                            ret += fromCodePoint(ch);
-                        } else {
-                            this.lastChar = ch;
-                            const code = this.scanEscapeSequence(context | Context.Strict, ch);
-
-                            if (code >= 0) {
-                                ret += fromCodePoint(code);
-                            } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
-                                ret = undefined;
-                                ch = this.scanLooserTemplateSegment(this.lastChar);
-                                if (ch < 0) {
-                                    ch = -ch;
-                                    tail = false;
-                                }
-                                break loop;
+                            if (ch >= 128) {
+                                ret += fromCodePoint(ch);
                             } else {
-                                this.throwStringError(context, code as Escape);
+                                this.lastChar = ch;
+                                const code = this.scanEscapeSequence(context | Context.Strict, ch);
+
+                                if (code >= 0) {
+                                    ret += fromCodePoint(code);
+                                } else if (code !== Escape.Empty && context & Context.TaggedTemplate) {
+                                    ret = undefined;
+                                    ch = this.scanLooserTemplateSegment(this.lastChar);
+                                    if (ch < 0) {
+                                        ch = -ch;
+                                        tail = false;
+                                    }
+                                    break loop;
+                                } else {
+                                    this.throwStringError(context, code as Escape);
+                                }
+                                ch = this.lastChar;
                             }
-                            ch = this.lastChar;
+
+                            break;
                         }
-
-                        break;
-
                     case Chars.CarriageReturn:
+                        {
+                            if (this.hasNext() && this.nextChar() === Chars.LineFeed) {
+                                if (ret != null) ret += fromCodePoint(ch);
+                                ch = this.nextChar();
+                                this.index++;
+                            }
+                        }
+                        // falls through
                     case Chars.LineFeed:
                     case Chars.LineSeparator:
                     case Chars.ParagraphSeparator:
@@ -1666,7 +1669,6 @@ export class Parser {
         }
     }
 
-    // The loose parser accepts invalid unicode escapes even in untagged templates
     private scanLooserTemplateSegment(ch: number): number {
         while (ch !== Chars.Backtick) {
 
@@ -1680,6 +1682,8 @@ export class Parser {
                 }
             }
 
+            // Skip '\' and continue to scan the template token to search
+            // for the end, without validating any escape sequences
             ch = this.readNext(ch);
         }
 
@@ -3384,6 +3388,8 @@ export class Parser {
             quasis
         });
     }
+
+    // Parse template spans
 
     private parseTemplateSpans(context: Context, pos: Location = this.getLocation()): ESTree.TemplateElement {
         const cooked = this.tokenValue;

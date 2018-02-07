@@ -405,6 +405,674 @@ describe('Declarations - Function', () => {
             }
         }
     });
+    pass(`function f([x] = [1]) {}`, {
+        source: `function f([x] = [1]) {}`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 24,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 24
+              }
+            },
+            body: [
+              {
+                type: 'FunctionDeclaration',
+                start: 0,
+                end: 24,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 24
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  start: 9,
+                  end: 10,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 9
+                    },
+                    end: {
+                      line: 1,
+                      column: 10
+                    }
+                  },
+                  name: 'f'
+                },
+                generator: false,
+                expression: false,
+                async: false,
+                params: [
+                  {
+                    type: 'AssignmentPattern',
+                    start: 11,
+                    end: 20,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 11
+                      },
+                      end: {
+                        line: 1,
+                        column: 20
+                      }
+                    },
+                    left: {
+                      type: 'ArrayPattern',
+                      start: 11,
+                      end: 14,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 11
+                        },
+                        end: {
+                          line: 1,
+                          column: 14
+                        }
+                      },
+                      elements: [
+                        {
+                          type: 'Identifier',
+                          start: 12,
+                          end: 13,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 12
+                            },
+                            end: {
+                              line: 1,
+                              column: 13
+                            }
+                          },
+                          name: 'x'
+                        }
+                      ]
+                    },
+                    right: {
+                      type: 'ArrayExpression',
+                      start: 17,
+                      end: 20,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 17
+                        },
+                        end: {
+                          line: 1,
+                          column: 20
+                        }
+                      },
+                      elements: [
+                        {
+                          type: 'Literal',
+                          start: 18,
+                          end: 19,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 18
+                            },
+                            end: {
+                              line: 1,
+                              column: 19
+                            }
+                          },
+                          value: 1,
+                          raw: '1'
+                        }
+                      ]
+                    }
+                  }
+                ],
+                body: {
+                  type: 'BlockStatement',
+                  start: 22,
+                  end: 24,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 22
+                    },
+                    end: {
+                      line: 1,
+                      column: 24
+                    }
+                  },
+                  body: []
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`function f({x} = {x: 10}) {}`, {
+        source: `function f({x} = {x: 10}) {}`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 28,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 28
+              }
+            },
+            body: [
+              {
+                type: 'FunctionDeclaration',
+                start: 0,
+                end: 28,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 28
+                  }
+                },
+                id: {
+                  type: 'Identifier',
+                  start: 9,
+                  end: 10,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 9
+                    },
+                    end: {
+                      line: 1,
+                      column: 10
+                    }
+                  },
+                  name: 'f'
+                },
+                generator: false,
+                expression: false,
+                async: false,
+                params: [
+                  {
+                    type: 'AssignmentPattern',
+                    start: 11,
+                    end: 24,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 11
+                      },
+                      end: {
+                        line: 1,
+                        column: 24
+                      }
+                    },
+                    left: {
+                      type: 'ObjectPattern',
+                      start: 11,
+                      end: 14,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 11
+                        },
+                        end: {
+                          line: 1,
+                          column: 14
+                        }
+                      },
+                      properties: [
+                        {
+                          type: 'Property',
+                          start: 12,
+                          end: 13,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 12
+                            },
+                            end: {
+                              line: 1,
+                              column: 13
+                            }
+                          },
+                          method: false,
+                          shorthand: true,
+                          computed: false,
+                          key: {
+                            type: 'Identifier',
+                            start: 12,
+                            end: 13,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 12
+                              },
+                              end: {
+                                line: 1,
+                                column: 13
+                              }
+                            },
+                            name: 'x'
+                          },
+                          kind: 'init',
+                          value: {
+                            type: 'Identifier',
+                            start: 12,
+                            end: 13,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 12
+                              },
+                              end: {
+                                line: 1,
+                                column: 13
+                              }
+                            },
+                            name: 'x'
+                          }
+                        }
+                      ]
+                    },
+                    right: {
+                      type: 'ObjectExpression',
+                      start: 17,
+                      end: 24,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 17
+                        },
+                        end: {
+                          line: 1,
+                          column: 24
+                        }
+                      },
+                      properties: [
+                        {
+                          type: 'Property',
+                          start: 18,
+                          end: 23,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 18
+                            },
+                            end: {
+                              line: 1,
+                              column: 23
+                            }
+                          },
+                          method: false,
+                          shorthand: false,
+                          computed: false,
+                          key: {
+                            type: 'Identifier',
+                            start: 18,
+                            end: 19,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 18
+                              },
+                              end: {
+                                line: 1,
+                                column: 19
+                              }
+                            },
+                            name: 'x'
+                          },
+                          value: {
+                            type: 'Literal',
+                            start: 21,
+                            end: 23,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 21
+                              },
+                              end: {
+                                line: 1,
+                                column: 23
+                              }
+                            },
+                            value: 10,
+                            raw: '10'
+                          },
+                          kind: 'init'
+                        }
+                      ]
+                    }
+                  }
+                ],
+                body: {
+                  type: 'BlockStatement',
+                  start: 26,
+                  end: 28,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 26
+                    },
+                    end: {
+                      line: 1,
+                      column: 28
+                    }
+                  },
+                  body: []
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`({f: function({x} = {x: 10}) {}})`, {
+        source: `({f: function({x} = {x: 10}) {}})`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 33,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 33
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 33,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 33
+                  }
+                },
+                expression: {
+                  type: 'ObjectExpression',
+                  start: 1,
+                  end: 32,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 1
+                    },
+                    end: {
+                      line: 1,
+                      column: 32
+                    }
+                  },
+                  properties: [
+                    {
+                      type: 'Property',
+                      start: 2,
+                      end: 31,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 2
+                        },
+                        end: {
+                          line: 1,
+                          column: 31
+                        }
+                      },
+                      method: false,
+                      shorthand: false,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 2,
+                        end: 3,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 2
+                          },
+                          end: {
+                            line: 1,
+                            column: 3
+                          }
+                        },
+                        name: 'f'
+                      },
+                      value: {
+                        type: 'FunctionExpression',
+                        start: 5,
+                        end: 31,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 5
+                          },
+                          end: {
+                            line: 1,
+                            column: 31
+                          }
+                        },
+                        id: null,
+                        generator: false,
+                        expression: false,
+                        async: false,
+                        params: [
+                          {
+                            type: 'AssignmentPattern',
+                            start: 14,
+                            end: 27,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 14
+                              },
+                              end: {
+                                line: 1,
+                                column: 27
+                              }
+                            },
+                            left: {
+                              type: 'ObjectPattern',
+                              start: 14,
+                              end: 17,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 14
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 17
+                                }
+                              },
+                              properties: [
+                                {
+                                  type: 'Property',
+                                  start: 15,
+                                  end: 16,
+                                  loc: {
+                                    start: {
+                                      line: 1,
+                                      column: 15
+                                    },
+                                    end: {
+                                      line: 1,
+                                      column: 16
+                                    }
+                                  },
+                                  method: false,
+                                  shorthand: true,
+                                  computed: false,
+                                  key: {
+                                    type: 'Identifier',
+                                    start: 15,
+                                    end: 16,
+                                    loc: {
+                                      start: {
+                                        line: 1,
+                                        column: 15
+                                      },
+                                      end: {
+                                        line: 1,
+                                        column: 16
+                                      }
+                                    },
+                                    name: 'x'
+                                  },
+                                  kind: 'init',
+                                  value: {
+                                    type: 'Identifier',
+                                    start: 15,
+                                    end: 16,
+                                    loc: {
+                                      start: {
+                                        line: 1,
+                                        column: 15
+                                      },
+                                      end: {
+                                        line: 1,
+                                        column: 16
+                                      }
+                                    },
+                                    name: 'x'
+                                  }
+                                }
+                              ]
+                            },
+                            right: {
+                              type: 'ObjectExpression',
+                              start: 20,
+                              end: 27,
+                              loc: {
+                                start: {
+                                  line: 1,
+                                  column: 20
+                                },
+                                end: {
+                                  line: 1,
+                                  column: 27
+                                }
+                              },
+                              properties: [
+                                {
+                                  type: 'Property',
+                                  start: 21,
+                                  end: 26,
+                                  loc: {
+                                    start: {
+                                      line: 1,
+                                      column: 21
+                                    },
+                                    end: {
+                                      line: 1,
+                                      column: 26
+                                    }
+                                  },
+                                  method: false,
+                                  shorthand: false,
+                                  computed: false,
+                                  key: {
+                                    type: 'Identifier',
+                                    start: 21,
+                                    end: 22,
+                                    loc: {
+                                      start: {
+                                        line: 1,
+                                        column: 21
+                                      },
+                                      end: {
+                                        line: 1,
+                                        column: 22
+                                      }
+                                    },
+                                    name: 'x'
+                                  },
+                                  value: {
+                                    type: 'Literal',
+                                    start: 24,
+                                    end: 26,
+                                    loc: {
+                                      start: {
+                                        line: 1,
+                                        column: 24
+                                      },
+                                      end: {
+                                        line: 1,
+                                        column: 26
+                                      }
+                                    },
+                                    value: 10,
+                                    raw: '10'
+                                  },
+                                  kind: 'init'
+                                }
+                              ]
+                            }
+                          }
+                        ],
+                        body: {
+                          type: 'BlockStatement',
+                          start: 29,
+                          end: 31,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 29
+                            },
+                            end: {
+                              line: 1,
+                              column: 31
+                            }
+                          },
+                          body: []
+                        }
+                      },
+                      kind: 'init'
+                    }
+                  ]
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
 
     pass(`(function() { if (false) {} else function f() { }; })()`, {
         source: `(function() { if (false) {} else function f() { }; })()`,

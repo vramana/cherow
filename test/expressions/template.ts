@@ -2025,457 +2025,738 @@ describe('Cherow', () => {
             type: 'Program'
         }
     });
+      pass('`a\\r\\nb`', {
+        source: '`a\\r\\nb`',
+        raw: true,
+        expected: {
+              body: [
+                {
+                  expression: {
+                    expressions: [],
+                    quasis: [
+                      {
+                        tail: true,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: 'a\r\nb',
+                          raw: 'a\\r\\nb',
+                        }
+                      }
+                    ],
+                    type: 'TemplateLiteral',
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
 
-    pass('`${ {class: 1} }`', {
+      pass('`a\r\nb`', {
+        source: '`a\r\nb`',
+        raw: true,
+        expected: {
+              body: [
+                {
+                 expression: {
+                    expressions: [],
+                    quasis: [
+                      {
+                        tail: true,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: 'a\r\nb',
+                         raw: 'a\r\nb',
+                        }
+                      }
+                    ],
+                    type: 'TemplateLiteral'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
+      pass('`${ {class: 1} }`', {
         source: '`${ {class: 1} }`',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "expressions": [
+                  expression: {
+                    expressions: [
                       {
-                        "properties": [
+                        properties: [
                           {
-                            "computed": false,
-                            "key": {
-                              "name": "class",
-                              "type": "Identifier"
+                            computed: false,
+                            key: {
+                              name: 'class',
+                              type: 'Identifier'
                            },
-                           "kind": "init",
-                            "method": false,
-                            "shorthand": false,
-                            "type": "Property",
-                            "value": {
-                              "raw": "1",
-                              "type": "Literal",
-                              "value": 1,
+                           kind: 'init',
+                            method: false,
+                            shorthand: false,
+                            type: 'Property',
+                            value: {
+                              raw: '1',
+                              type: 'Literal',
+                              value: 1,
                             }
                           }
                         ],
-                       "type": "ObjectExpression"
+                       type: 'ObjectExpression'
                       }
                     ],
-                    "quasis": [
+                    quasis: [
                       {
-                        "tail": false,
-                        "type": "TemplateElement",
-                        "value": {
-                          "cooked": "",
-                          "raw": "",
+                        tail: false,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: '',
+                          raw: '',
                         }
                       },
                       {
-                        "tail": true,
-                        "type": "TemplateElement",
-                        "value": {
-                          "cooked": "",
-                          "raw": "",
+                        tail: true,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: '',
+                          raw: '',
                         }
                       }
                     ],
-                   "type": "TemplateLiteral"
+                   type: 'TemplateLiteral'
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program"
+              sourceType: 'script',
+              type: 'Program'
             }
     });
 
-    pass('`${ {enum: 1} }`', {
+      pass('`${ {enum: 1} }`', {
         source: '`${ {enum: 1} }`',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "expressions": [
+                  expression: {
+                    expressions: [
                       {
-                        "properties": [
+                        properties: [
                           {
-                           "computed": false,
-                            "key": {
-                              "name": "enum",
-                              "type": "Identifier"
+                           computed: false,
+                            key: {
+                              name: 'enum',
+                              type: 'Identifier'
                             },
-                            "kind": "init",
-                            "method": false,
-                            "shorthand": false,
-                            "type": "Property",
-                            "value": {
-                              "raw": "1",
-                              "type": "Literal",
-                              "value": 1
+                            kind: 'init',
+                            method: false,
+                            shorthand: false,
+                            type: 'Property',
+                            value: {
+                              raw: '1',
+                              type: 'Literal',
+                              value: 1
                             }
                           }
                         ],
-                        "type": "ObjectExpression"
+                        type: 'ObjectExpression'
                       }
                     ],
-                    "quasis": [
+                    quasis: [
                       {
-                        "tail": false,
-                        "type": "TemplateElement",
-                        "value": {
-                          "cooked": "",
-                          "raw": "",
+                        tail: false,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: '',
+                          raw: '',
                         }
                       },
                       {
-                        "tail": true,
-                        "type": "TemplateElement",
-                        "value": {
-                          "cooked": "",
-                          "raw": ""
+                        tail: true,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: '',
+                          raw: ''
                         }
                       }
                     ],
-                    "type": "TemplateLiteral"
+                    type: 'TemplateLiteral'
                  },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program"
+              sourceType: 'script',
+              type: 'Program'
             }
     });
 
-    pass('`${ {function: 1} }`', {
+      pass('`${ {function: 1} }`', {
         source: '`${ {function: 1} }`',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "expressions": [
+                  expression: {
+                    expressions: [
                       {
-                       "properties": [
+                       properties: [
                           {
-                            "computed": false,
-                            "key": {
-                              "name": "function",
-                              "type": "Identifier",
+                            computed: false,
+                            key: {
+                              name: 'function',
+                              type: 'Identifier',
                             },
-                            "kind": "init",
-                            "method": false,
-                            "shorthand": false,
-                            "type": "Property",
-                            "value": {
-                              "raw": "1",
-                              "type": "Literal",
-                              "value": 1,
+                            kind: 'init',
+                            method: false,
+                            shorthand: false,
+                            type: 'Property',
+                            value: {
+                              raw: '1',
+                              type: 'Literal',
+                              value: 1,
                           }
                           },
                         ],
-                        "type": "ObjectExpression"
+                        type: 'ObjectExpression'
                       }
                     ],
-                    "quasis": [
+                    quasis: [
                       {
-                        "tail": false,
-                        "type": "TemplateElement",
-                        "value": {
-                          "cooked": "",
-                          "raw": "",
+                        tail: false,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: '',
+                          raw: '',
                         }
                       },
                      {
-                        "tail": true,
-                        "type": "TemplateElement",
-                        "value": {
-                          "cooked": "",
-                          "raw": "",
+                        tail: true,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: '',
+                          raw: '',
                         }
                       }
                     ],
-                    "type": "TemplateLiteral",
+                    type: 'TemplateLiteral',
                   },
-                 "type": "ExpressionStatement"
+                 type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program",
+              sourceType: 'script',
+              type: 'Program',
             }
     });
-   
-    pass('`foo`', {
+
+      pass('`foo`', {
         source: '`foo`',
         raw: true,
         loc: true,
         ranges: true,
         expected: {
-            "type": "Program",
-            "sourceType": "script",
-            "body": [
+            type: 'Program',
+            sourceType: 'script',
+            body: [
                 {
-                    "type": "ExpressionStatement",
-                    "expression": {
-                        "type": "TemplateLiteral",
-                        "expressions": [],
-                        "quasis": [
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'TemplateLiteral',
+                        expressions: [],
+                        quasis: [
                             {
-                                "type": "TemplateElement",
-                                "value": {
-                                    "cooked": "foo",
-                                    "raw": "foo"
+                                type: 'TemplateElement',
+                                value: {
+                                    cooked: 'foo',
+                                    raw: 'foo'
                                 },
-                                "tail": true,
-                                "start": 0,
-                                "end": 5,
-                                "loc": {
-                                    "start": {
-                                        "line": 1,
-                                        "column": 0
+                                tail: true,
+                                start: 0,
+                                end: 5,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 0
                                     },
-                                    "end": {
-                                        "line": 1,
-                                        "column": 5
+                                    end: {
+                                        line: 1,
+                                        column: 5
                                     }
                                 }
                             }
                         ],
-                        "start": 0,
-                        "end": 5,
-                        "loc": {
-                            "start": {
-                                "line": 1,
-                                "column": 0
+                        start: 0,
+                        end: 5,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
                             },
-                            "end": {
-                                "line": 1,
-                                "column": 5
+                            end: {
+                                line: 1,
+                                column: 5
                             }
                         }
                     },
-                    "start": 0,
-                    "end": 5,
-                    "loc": {
-                        "start": {
-                            "line": 1,
-                            "column": 0
+                    start: 0,
+                    end: 5,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
                         },
-                        "end": {
-                            "line": 1,
-                            "column": 5
+                        end: {
+                            line: 1,
+                            column: 5
                         }
                     }
                 }
             ],
-            "start": 0,
-            "end": 5,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 0
+            start: 0,
+            end: 5,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
                 },
-                "end": {
-                    "line": 1,
-                    "column": 5
+                end: {
+                    line: 1,
+                    column: 5
                 }
             }
         }
     });
 
-    pass('`foo\\u25a0`', {
+      pass('`foo\\u25a0`', {
         source: '`foo\\u25a0`',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "expressions": [],
-                   "quasis": [
+                  expression: {
+                    expressions: [],
+                   quasis: [
                       {
-                        "tail": true,
-                        "type": "TemplateElement",
-                        "value": {
-                          "cooked": "foo■",
-                          "raw": "foo\\u25a0",
+                        tail: true,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: 'foo■',
+                          raw: 'foo\\u25a0',
                         }
                       }
                     ],
-                    "type": "TemplateLiteral",
+                    type: 'TemplateLiteral',
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                }
               ],
-              "sourceType": "script",
-              "type": "Program"
+              sourceType: 'script',
+              type: 'Program'
             }
     });
 
-    pass('foo`\\unicode`', {
+      pass('foo`\\unicode`', {
         source: 'foo`\\unicode`',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "quasi": {
-                      "expressions": [],
-                      "quasis": [
+                  expression: {
+                    quasi: {
+                      expressions: [],
+                      quasis: [
                         {
-                          "tail": true,
-                          "type": "TemplateElement",
-                          "value": {
-                            "cooked": null,
-                            "raw": "\\unicode"
+                          tail: true,
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: null,
+                            raw: '\\unicode'
                           }
                         }
                       ],
-                     "type": "TemplateLiteral",
+                     type: 'TemplateLiteral',
                     },
-                    "tag": {
-                      "name": "foo",
-                      "type": "Identifier",
+                    tag: {
+                      name: 'foo',
+                      type: 'Identifier',
                     },
-                    "type": "TaggedTemplateExpression"
+                    type: 'TaggedTemplateExpression'
                   },
-                 "type": "ExpressionStatement"
+                 type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program"
+              sourceType: 'script',
+              type: 'Program'
             }
     });
 
-
-    pass('foo`\\u`', {
+      pass('foo`\\u`', {
         source: 'foo`\\u`',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "expression": {
-                    "quasi": {
-                      "expressions": [],
-                      "quasis": [
+                  expression: {
+                    quasi: {
+                      expressions: [],
+                      quasis: [
                         {
-                          "tail": true,
-                          "type": "TemplateElement",
-                          "value": {
-                            "cooked": null,
-                            "raw": "\\u"
+                          tail: true,
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: null,
+                            raw: '\\u'
                           }
                        }
                       ],
-                      "type": "TemplateLiteral"
+                      type: 'TemplateLiteral'
                     },
-                    "tag": {
-                      "name": "foo",
-                      "type": "Identifier",
+                    tag: {
+                      name: 'foo',
+                      type: 'Identifier',
                     },
-                    "type": "TaggedTemplateExpression"
+                    type: 'TaggedTemplateExpression'
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 },
               ],
-              "sourceType": "script",
-              "type": "Program"
+              sourceType: 'script',
+              type: 'Program'
             }
     });
 
-    pass('foo`\\u\\n\\r`', {
+      pass('foo`\\u\\n\\r`', {
         source: 'foo`\\u\\n\\r`',
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                 "expression": {
-                    "quasi": {
-                      "expressions": [],
-                      "quasis": [
+                 expression: {
+                    quasi: {
+                      expressions: [],
+                      quasis: [
                         {
-                          "tail": true,
-                          "type": "TemplateElement",
-                          "value": {
-                            "cooked": null,
-                            "raw": "\\u\\n\\r",
+                          tail: true,
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: null,
+                            raw: '\\u\\n\\r',
                          }
                         }
                       ],
-                      "type": "TemplateLiteral",
+                      type: 'TemplateLiteral',
                     },
-                    "tag": {
-                      "name": "foo",
-                      "type": "Identifier",
+                    tag: {
+                      name: 'foo',
+                      type: 'Identifier',
                     },
-                    "type": "TaggedTemplateExpression",
+                    type: 'TaggedTemplateExpression',
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 },
               ],
-             "sourceType": "script",
-              "type": "Program",
+             sourceType: 'script',
+              type: 'Program',
             }
     });
 
-    pass('foo`\\naa\\n\\r`', {
+      pass('foo`\\naa\\n\\r`', {
         source: 'foo`\\uaa\\n\\r`',
         raw: true,
-        expected: 
+        expected:
         {
-         "body": [
+         body: [
             {
-              "expression": {
-                "quasi": {
-                  "expressions": [],
-                  "quasis": [
+              expression: {
+                quasi: {
+                  expressions: [],
+                  quasis: [
                     {
-                      "tail": true,
-                      "type": "TemplateElement",
-                      "value": {
-                        "cooked": null,
-                        "raw": "\\uaa\\n\\r"
+                      tail: true,
+                      type: 'TemplateElement',
+                      value: {
+                        cooked: null,
+                        raw: '\\uaa\\n\\r'
                       }
                    }
                   ],
-                 "type": "TemplateLiteral",
+                 type: 'TemplateLiteral',
                 },
-                "tag": {
-                  "name": "foo",
-                 "type": "Identifier",
+                tag: {
+                  name: 'foo',
+                 type: 'Identifier',
                 },
-                "type": "TaggedTemplateExpression",
+                type: 'TaggedTemplateExpression',
               },
-              "type": "ExpressionStatement"
+              type: 'ExpressionStatement'
             }
           ],
-          "sourceType": "script",
-          "type": "Program"
+          sourceType: 'script',
+          type: 'Program'
         }
     });
 
-/*
-    pass('`${ {function: 1} }`', {
-        source: '`${ {function: 1} }`',
+      pass('raw`hello ${name}`', {
+        source: 'raw`hello ${name}`',
         raw: true,
-        expected: {}
+        expected: {
+              body: [
+                {
+                  expression: {
+                   quasi: {
+                      expressions: [
+                        {
+                          name: 'name',
+                          type: 'Identifier'
+                        }
+                     ],
+                      quasis: [
+                        {
+                          tail: false,
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: 'hello ',
+                            raw: 'hello ',
+                          }
+                        },
+                        {
+                          tail: true,
+                          type: 'TemplateElement',
+                          value: {
+                            cooked: '',
+                           raw: '',
+                          }
+                        }
+                      ],
+                      type: 'TemplateLiteral',
+                    },
+                    tag: {
+                      name: 'raw',
+                      type: 'Identifier',
+                    },
+                    type: 'TaggedTemplateExpression'
+                  },
+                  type: 'ExpressionStatement',
+               },
+              ],
+              sourceType: 'script',
+              type: 'Program',
+            }
     });
 
-    pass('`${ {function: 1} }`', {
-        source: '`${ {function: 1} }`',
+      pass('`$`', {
+        source: '`$`',
         raw: true,
-        expected: {}
+        expected: {
+              body: [
+                {
+                  expression: {
+                    expressions: [],
+                   quasis: [
+                      {
+                       tail: true,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: '$',
+                          raw: '$',
+                        }
+                      }
+                    ],
+                    type: 'TemplateLiteral'
+                  },
+                  type: 'ExpressionStatement'
+               }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
     });
 
-    pass('`${ {function: 1} }`', {
-        source: '`${ {function: 1} }`',
+      pass('`\\n\\r\\b\\v\\t\\f\\\n\\\r\n`', {
+        source: '`\\n\\r\\b\\v\\t\\f\\\n\\\r\n`',
         raw: true,
-        expected: {}
+        expected: {
+              body: [
+               {
+                  expression: {
+                    expressions: [],
+                    quasis: [
+                      {
+                        tail: true,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: '\n\r\b\u000b\t\f\n',
+                         raw: '\\n\\r\\b\\v\\t\\f\\\n\\\r\n',
+                        }
+                      }
+                    ],
+                    type: 'TemplateLiteral'
+                  },
+                  type: 'ExpressionStatement'
+               }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
     });
 
-    pass('`${ {function: 1} }`', {
-        source: '`${ {function: 1} }`',
+      pass('`\n\r\n\r`', {
+        source: '`\n\r\n\r`',
         raw: true,
-        expected: {}
+        expected: {
+              body: [
+                {
+                  expression: {
+                    expressions: [],
+                    quasis: [
+                     {
+                        tail: true,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: '\n\r\n\r',
+                          raw: '\n\r\n\r',
+                        }
+                      }
+                    ],
+                    type: 'TemplateLiteral',
+                  },
+                  type: 'ExpressionStatement'
+                },
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
     });
 
-    pass('`${ {function: 1} }`', {
-        source: '`${ {function: 1} }`',
+      pass('`outer${{x: {y: 10}}}bar${`nested${function(){return 1;}}endnest`}end`', {
+        source: '`outer${{x: {y: 10}}}bar${`nested${function(){return 1;}}endnest`}end`',
         raw: true,
-        expected: {}
-    });*/
+        expected: {
+              body: [
+                {
+                  expression: {
+                    expressions: [
+                      {
+                        properties: [
+                          {
+                            computed: false,
+                            key: {
+                              name: 'x',
+                              type: 'Identifier'
+                            },
+                            kind: 'init',
+                            method: false,
+                            shorthand: false,
+                            type: 'Property',
+                            value: {
+                              properties: [
+                                {
+                                  computed: false,
+                                  key: {
+                                    name: 'y',
+                                    type: 'Identifier',
+                                  },
+                                  kind: 'init',
+                                  method: false,
+                                  shorthand: false,
+                                  type: 'Property',
+                                  value: {
+                                    raw: '10',
+                                    type: 'Literal',
+                                    value: 10
+                                  }
+                                }
+                              ],
+                              type: 'ObjectExpression'
+                            }
+                          }
+                        ],
+                        type: 'ObjectExpression'
+                      },
+                      {
+                        expressions: [
+                          {
+                            async: false,
+                            body: {
+                              body: [
+                                {
+                                  argument: {
+                                    raw: '1',
+                                    type: 'Literal',
+                                    value: 1
+                                  },
+                                  type: 'ReturnStatement'
+                                }
+                              ],
+                              type: 'BlockStatement',
+                            },
+                            expression: false,
+                            generator: false,
+                            id: null,
+                            params: [],
+                            type: 'FunctionExpression'
+                          }
+                       ],
+                        quasis: [
+                          {
+                            tail: false,
+                            type: 'TemplateElement',
+                            value: {
+                              cooked: 'nested',
+                              raw: 'nested',
+                            }
+                          },
+                         {
+                            tail: true,
+                            type: 'TemplateElement',
+                            value: {
+                              cooked: 'endnest',
+                              raw: 'endnest',
+                            }
+                         }
+                        ],
+                        type: 'TemplateLiteral',
+                      }
+                    ],
+                    quasis: [
+                      {
+                        tail: false,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: 'outer',
+                          raw: 'outer',
+                        }
+                      },
+                      {
+                        tail: false,
+                        type: 'TemplateElement',
+                       value: {
+                          cooked: 'bar',
+                          raw: 'bar',
+                        }
+                      },
+                      {
+                        tail: true,
+                        type: 'TemplateElement',
+                        value: {
+                          cooked: 'end',
+                          raw: 'end',
+                       }
+                      }
+                    ],
+                    type: 'TemplateLiteral',
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              sourceType: 'script',
+             type: 'Program'
+            }
+    });
 });

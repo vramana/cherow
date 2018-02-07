@@ -278,6 +278,48 @@ describe('Expressions - Generators', () => {
         }
     });
 
+    pass(`(function* () { yield\nv })`, {
+        source: `(function* () { yield\nv })`,
+        raw: true,
+        expected: {
+              body: [
+                {
+                  expression: {
+                    async: false,
+                    body: {
+                      body: [
+                        {
+                          expression: {
+                            argument: null,
+                            delegate: false,
+                            type: 'YieldExpression'
+                          },
+                          type: 'ExpressionStatement'
+                        },
+                        {
+                          expression: {
+                            name: 'v',
+                            type: 'Identifier',
+                          },
+                          type: 'ExpressionStatement'
+                        }
+                      ],
+                     type: 'BlockStatement'
+                    },
+                    expression: false,
+                    generator: true,
+                    id: null,
+                    params: [],
+                   type: 'FunctionExpression'
+                  },
+                 type: 'ExpressionStatement'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
     pass(`yield spread single`, {
         source: `var gen = function *() {
             yield [...yield];
