@@ -3851,6 +3851,12 @@ export class Parser {
                                 Flags.DuplicateProtoField :
                                 Flags.ProtoField;
                         }
+
+                        if (this.token & Token.IsAwait) {
+                            this.errorLocation = this.getLocation();
+                            this.flags |= Flags.HasAwait;
+                        }
+                        
                         if (state & (ObjectState.Generator | ObjectState.Async)) {
                             this.early(context, Errors.DisallowedInContext, tokenDesc(t));
                         }
@@ -4271,10 +4277,12 @@ export class Parser {
 
             // Invalid: '() => {} a || true'
             // Invalid: '() => {} ? a : b'
-            if ((context & Context.InParenthesis) && (hasBit(this.token, Token.IsBinaryOperator) || this.token === Token.QuestionMark)) {
+            if ((context & Context.InParenthesis) && 
+                (hasBit(this.token, Token.IsBinaryOperator) || 
+                this.token === Token.LeftParen ||
+                this.token === Token.QuestionMark)) {
                 this.report(Errors.UnexpectedToken, tokenDesc(this.token));
             }
-
         } else {
             body = this.parseAssignmentExpression(context | Context.AllowIn | Context.ArrowFunction);
             expression = true;

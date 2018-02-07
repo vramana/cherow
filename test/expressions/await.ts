@@ -149,8 +149,8 @@ describe('Expressions - Await', () => {
         source: 'async function f() { return {g: await} }',
         message: 'Unexpected token',
         line: 1,
-        column: 37,
-        index: 37
+        column: 32,
+        index: 32
     });
 
     fail(`async function f(await) {}`, {
