@@ -15,14 +15,14 @@ It strictly follows the [ECMAScript® 2018 Language Specification](https://tc39.
 
 ## Features
 
-* Full support for ECMAScript® 2018 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/)
-* Full support for all stage 3 proposals via option
-* Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
+* Full support for ECMAScript® 2018 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) (*latest draft*)
 * Optimized for handheld devices 
 * Early error tolerant parsing
+* Stage 3 (*ESNext*) proposals via option
 * Skips hashbang comment nodes by default
 * Skips BOM (*U+FEFF*) by default
 * Optional tracking of syntax node location (index-based and line-column)
+* Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
 * Very well tested (~54 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
 * 95% Test262 Test coverage
 
@@ -91,19 +91,19 @@ This will return when serialized in json:
 
 ## Options
 
-Both methods accept the following options, none required:
+There is a second argument to both methods that allows you to specify various options:
 
 | Option        | Description |
 | ----------- | ------------------------------------------------------------ |
 | `comments`        | Create a top-level comments array containing all comments |
 | `early`           | Create a top-level error array containing all "*skipped*" early errors |
-| `loc      `       | Set to true to append line/column offsets to each node |
-| `ranges`          | Set to true to append start and end offsets to each node |
-| `impliedStrict`   | Set to true to allow implied strict mode |
-| `next`            | Set to true to enable stage 3 support |
+| `loc      `       | Attach line/column location information to each node |
+| `ranges`          | Append start and end offsets to each node |
+| `impliedStrict`   | Enable implied strict mode |
+| `next`            | Enable stage 3 support (*ESNext*)  |
 | `plugins`         | Array containing the plugins that you want to enable   |
 | `source`          | Set to true to record the source file in every node's `loc` object when the `loc option` is set.  |
-| `raw`             | Set to true to attach raw property to each literal node    |
+| `raw`             | Attach raw property to each literal node    |
 
 ## Comments
 

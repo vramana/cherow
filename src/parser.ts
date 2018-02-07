@@ -8,6 +8,24 @@ import { createError, Errors, ErrorMessages } from './errors';
 import { Context, Flags, ScannerState, ObjectState, Escape, RegExpState, RegexFlags, NumericState, ParenthesizedState, ArrayState } from './flags';
 import { isValidIdentifierStart, isIdentifierStart } from './unicode';
 
+export interface Lookahead {
+    index: number;
+    column: number;
+    line: number;
+    startLine: number;
+    lastLine: number;
+    startColumn: number;
+    lastColumn: number;
+    token: Token;
+    tokenValue: string;
+    tokenRaw: any;
+    startIndex: number;
+    lastIndex: number;
+    tokenRegExp: number;
+    flags: Flags;
+
+}
+
 export interface Location {
     line: number;
     column: number;
@@ -266,7 +284,7 @@ export class Parser {
                         }
                     }
 
-                     // `<`, `<=`, `<<`, `<<=`, `</`,  <!--
+                    // `<`, `<=`, `<<`, `<<=`, `</`,  <!--
                 case Chars.LessThan:
                     {
                         this.advance(); // skip `<`
@@ -1568,7 +1586,7 @@ export class Parser {
         return this.scanTemplate(context, Chars.RightBrace);
     }
 
-    private scanTemplate(context: Context, first: number): any {
+    private scanTemplate(context: Context, first: number): Token {
         const start = this.index;
         const lastChar = this.lastChar;
         let tail = true;
@@ -1649,40 +1667,18 @@ export class Parser {
         }
     }
 
-    // The loose scanner accepts invalid unicode escapes
+    // The loose parser accepts invalid unicode escapes even in untagged templates
     private scanLooserTemplateSegment(ch: number): number {
         while (ch !== Chars.Backtick) {
 
-            switch (ch) {
-                case Chars.Dollar:
-                    {
-                        const index = this.index + 1;
-                        if (index < this.source.length &&
-                            this.source.charCodeAt(index) === Chars.LeftBrace) {
-                            this.index = index;
-                            this.column++;
-                            return -ch;
-                        }
-                        break;
-                    }
-
-                case Chars.Backslash:
-                    ch = this.readNext(ch);
-                    break;
-
-                case Chars.CarriageReturn:
-                    if (this.hasNext() && this.nextChar() === Chars.LineFeed) {
-                        ch = this.nextChar();
-                        this.index++;
-                    }
-
-                case Chars.LineFeed:
-                case Chars.LineSeparator:
-                case Chars.ParagraphSeparator:
-                    this.column = -1;
-                    this.line++;
-                default:
-                    // do nothing
+            if (ch === Chars.Dollar) {
+                const index = this.index + 1;
+                if (index < this.source.length &&
+                    this.source.charCodeAt(index) === Chars.LeftBrace) {
+                    this.index = index;
+                    this.column++;
+                    return -ch;
+                }
             }
 
             ch = this.readNext(ch);
@@ -1691,7 +1687,7 @@ export class Parser {
         return ch;
     }
 
-    private lookahead(): any {
+    private lookahead(): Lookahead {
         return {
             index: this.index,
             column: this.column,
@@ -1710,7 +1706,7 @@ export class Parser {
         };
     }
 
-    private rewindState(state: any) {
+    private rewindState(state: Lookahead) {
         this.index = state.index;
         this.column = state.column;
         this.line = state.line;
@@ -1823,7 +1819,7 @@ export class Parser {
                 (t & Token.Contextual) === Token.Contextual);
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: Location,
         node: any,
@@ -3349,7 +3345,7 @@ export class Parser {
         });
     }
 
-    private parseTemplateHead(context: Context, cooked: string, raw: string, pos: Location): ESTree.TemplateElement {
+    private parseTemplateHead(context: Context, cooked: string | null = null, raw: string, pos: Location): ESTree.TemplateElement {
         this.token = this.consumeTemplateBrace(context);
 
         return this.finishNode(context, pos, {

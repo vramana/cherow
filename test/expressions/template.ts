@@ -2026,4 +2026,456 @@ describe('Cherow', () => {
         }
     });
 
+    pass('`${ {class: 1} }`', {
+        source: '`${ {class: 1} }`',
+        raw: true,
+        expected: {
+              "body": [
+                {
+                  "expression": {
+                    "expressions": [
+                      {
+                        "properties": [
+                          {
+                            "computed": false,
+                            "key": {
+                              "name": "class",
+                              "type": "Identifier"
+                           },
+                           "kind": "init",
+                            "method": false,
+                            "shorthand": false,
+                            "type": "Property",
+                            "value": {
+                              "raw": "1",
+                              "type": "Literal",
+                              "value": 1,
+                            }
+                          }
+                        ],
+                       "type": "ObjectExpression"
+                      }
+                    ],
+                    "quasis": [
+                      {
+                        "tail": false,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "",
+                          "raw": "",
+                        }
+                      },
+                      {
+                        "tail": true,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "",
+                          "raw": "",
+                        }
+                      }
+                    ],
+                   "type": "TemplateLiteral"
+                  },
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
+    });
+
+    pass('`${ {enum: 1} }`', {
+        source: '`${ {enum: 1} }`',
+        raw: true,
+        expected: {
+              "body": [
+                {
+                  "expression": {
+                    "expressions": [
+                      {
+                        "properties": [
+                          {
+                           "computed": false,
+                            "key": {
+                              "name": "enum",
+                              "type": "Identifier"
+                            },
+                            "kind": "init",
+                            "method": false,
+                            "shorthand": false,
+                            "type": "Property",
+                            "value": {
+                              "raw": "1",
+                              "type": "Literal",
+                              "value": 1
+                            }
+                          }
+                        ],
+                        "type": "ObjectExpression"
+                      }
+                    ],
+                    "quasis": [
+                      {
+                        "tail": false,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "",
+                          "raw": "",
+                        }
+                      },
+                      {
+                        "tail": true,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "",
+                          "raw": ""
+                        }
+                      }
+                    ],
+                    "type": "TemplateLiteral"
+                 },
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
+    });
+
+    pass('`${ {function: 1} }`', {
+        source: '`${ {function: 1} }`',
+        raw: true,
+        expected: {
+              "body": [
+                {
+                  "expression": {
+                    "expressions": [
+                      {
+                       "properties": [
+                          {
+                            "computed": false,
+                            "key": {
+                              "name": "function",
+                              "type": "Identifier",
+                            },
+                            "kind": "init",
+                            "method": false,
+                            "shorthand": false,
+                            "type": "Property",
+                            "value": {
+                              "raw": "1",
+                              "type": "Literal",
+                              "value": 1,
+                          }
+                          },
+                        ],
+                        "type": "ObjectExpression"
+                      }
+                    ],
+                    "quasis": [
+                      {
+                        "tail": false,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "",
+                          "raw": "",
+                        }
+                      },
+                     {
+                        "tail": true,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "",
+                          "raw": "",
+                        }
+                      }
+                    ],
+                    "type": "TemplateLiteral",
+                  },
+                 "type": "ExpressionStatement"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program",
+            }
+    });
+   
+    pass('`foo`', {
+        source: '`foo`',
+        raw: true,
+        loc: true,
+        ranges: true,
+        expected: {
+            "type": "Program",
+            "sourceType": "script",
+            "body": [
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "TemplateLiteral",
+                        "expressions": [],
+                        "quasis": [
+                            {
+                                "type": "TemplateElement",
+                                "value": {
+                                    "cooked": "foo",
+                                    "raw": "foo"
+                                },
+                                "tail": true,
+                                "start": 0,
+                                "end": 5,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 0
+                                    },
+                                    "end": {
+                                        "line": 1,
+                                        "column": 5
+                                    }
+                                }
+                            }
+                        ],
+                        "start": 0,
+                        "end": 5,
+                        "loc": {
+                            "start": {
+                                "line": 1,
+                                "column": 0
+                            },
+                            "end": {
+                                "line": 1,
+                                "column": 5
+                            }
+                        }
+                    },
+                    "start": 0,
+                    "end": 5,
+                    "loc": {
+                        "start": {
+                            "line": 1,
+                            "column": 0
+                        },
+                        "end": {
+                            "line": 1,
+                            "column": 5
+                        }
+                    }
+                }
+            ],
+            "start": 0,
+            "end": 5,
+            "loc": {
+                "start": {
+                    "line": 1,
+                    "column": 0
+                },
+                "end": {
+                    "line": 1,
+                    "column": 5
+                }
+            }
+        }
+    });
+
+    pass('`foo\\u25a0`', {
+        source: '`foo\\u25a0`',
+        raw: true,
+        expected: {
+              "body": [
+                {
+                  "expression": {
+                    "expressions": [],
+                   "quasis": [
+                      {
+                        "tail": true,
+                        "type": "TemplateElement",
+                        "value": {
+                          "cooked": "foo■",
+                          "raw": "foo\\u25a0",
+                        }
+                      }
+                    ],
+                    "type": "TemplateLiteral",
+                  },
+                  "type": "ExpressionStatement"
+               }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
+    });
+
+    pass('foo`\\unicode`', {
+        source: 'foo`\\unicode`',
+        raw: true,
+        expected: {
+              "body": [
+                {
+                  "expression": {
+                    "quasi": {
+                      "expressions": [],
+                      "quasis": [
+                        {
+                          "tail": true,
+                          "type": "TemplateElement",
+                          "value": {
+                            "cooked": null,
+                            "raw": "\\unicode"
+                          }
+                        }
+                      ],
+                     "type": "TemplateLiteral",
+                    },
+                    "tag": {
+                      "name": "foo",
+                      "type": "Identifier",
+                    },
+                    "type": "TaggedTemplateExpression"
+                  },
+                 "type": "ExpressionStatement"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
+    });
+
+
+    pass('foo`\\u`', {
+        source: 'foo`\\u`',
+        raw: true,
+        expected: {
+              "body": [
+                {
+                  "expression": {
+                    "quasi": {
+                      "expressions": [],
+                      "quasis": [
+                        {
+                          "tail": true,
+                          "type": "TemplateElement",
+                          "value": {
+                            "cooked": null,
+                            "raw": "\\u"
+                          }
+                       }
+                      ],
+                      "type": "TemplateLiteral"
+                    },
+                    "tag": {
+                      "name": "foo",
+                      "type": "Identifier",
+                    },
+                    "type": "TaggedTemplateExpression"
+                  },
+                  "type": "ExpressionStatement"
+                },
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
+    });
+
+    pass('foo`\\u\\n\\r`', {
+        source: 'foo`\\u\\n\\r`',
+        raw: true,
+        expected: {
+              "body": [
+                {
+                 "expression": {
+                    "quasi": {
+                      "expressions": [],
+                      "quasis": [
+                        {
+                          "tail": true,
+                          "type": "TemplateElement",
+                          "value": {
+                            "cooked": null,
+                            "raw": "\\u\\n\\r",
+                         }
+                        }
+                      ],
+                      "type": "TemplateLiteral",
+                    },
+                    "tag": {
+                      "name": "foo",
+                      "type": "Identifier",
+                    },
+                    "type": "TaggedTemplateExpression",
+                  },
+                  "type": "ExpressionStatement"
+                },
+              ],
+             "sourceType": "script",
+              "type": "Program",
+            }
+    });
+
+    pass('foo`\\naa\\n\\r`', {
+        source: 'foo`\\uaa\\n\\r`',
+        raw: true,
+        expected: 
+        {
+         "body": [
+            {
+              "expression": {
+                "quasi": {
+                  "expressions": [],
+                  "quasis": [
+                    {
+                      "tail": true,
+                      "type": "TemplateElement",
+                      "value": {
+                        "cooked": null,
+                        "raw": "\\uaa\\n\\r"
+                      }
+                   }
+                  ],
+                 "type": "TemplateLiteral",
+                },
+                "tag": {
+                  "name": "foo",
+                 "type": "Identifier",
+                },
+                "type": "TaggedTemplateExpression",
+              },
+              "type": "ExpressionStatement"
+            }
+          ],
+          "sourceType": "script",
+          "type": "Program"
+        }
+    });
+
+/*
+    pass('`${ {function: 1} }`', {
+        source: '`${ {function: 1} }`',
+        raw: true,
+        expected: {}
+    });
+
+    pass('`${ {function: 1} }`', {
+        source: '`${ {function: 1} }`',
+        raw: true,
+        expected: {}
+    });
+
+    pass('`${ {function: 1} }`', {
+        source: '`${ {function: 1} }`',
+        raw: true,
+        expected: {}
+    });
+
+    pass('`${ {function: 1} }`', {
+        source: '`${ {function: 1} }`',
+        raw: true,
+        expected: {}
+    });
+
+    pass('`${ {function: 1} }`', {
+        source: '`${ {function: 1} }`',
+        raw: true,
+        expected: {}
+    });*/
 });
