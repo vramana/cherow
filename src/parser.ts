@@ -23,7 +23,6 @@ export interface Lookahead {
     lastIndex: number;
     tokenRegExp: number;
     flags: Flags;
-
 }
 
 export interface Location {

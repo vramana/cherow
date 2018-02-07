@@ -228,3 +228,8 @@ I know how irritating it can be if you are writing code and encounter bugs in yo
 If you feel something could've been done better, please do feel free to file a pull request with the changes.
 
 Read our guidelines [here](CONTRIBUTING.md)
+
+
+## Credits
+
+- Isiah Meadows (*Inspiration source through chat*). 
