@@ -12,6 +12,16 @@ describe('Expressions - Postfix', () => {
         line: 1
     });
 
+    fail(`[x]--`, {
+        source: '[x]--',
+        line: 1
+    });
+
+    fail(`this--`, {
+        source: 'this--',
+        line: 1
+    });
+
     pass(`x--`, {
         source: 'x--',
         loc: true,

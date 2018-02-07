@@ -59,7 +59,8 @@ export const enum Flags {
     WhiteSpace              = 1 << 13,
     ReservedWords           = 1 << 14,
     HasCommaSeparator       = 1 << 15,
-    DisallowArrowFunction   = 1 << 16 // Disallow arrows in 'new expression' context
+    DisallowArrowFunction   = 1 << 16, // Disallow arrows in 'new expression' context
+    InBlock                 = 1 << 17
 }
 
 /** Shared between class and objects */

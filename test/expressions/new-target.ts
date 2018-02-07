@@ -42,6 +42,11 @@ describe('Expressions - New target', () => {
         line: 1
     });
 
+    fail(`function f() { new..target; }`, {
+        source: 'function f() { new..target; }',
+        line: 1
+    });
+
     pass('class C {get x() { do { { new.target }}}', {
         source: 'class C {get x() { { new.target } }}',
         loc: true,

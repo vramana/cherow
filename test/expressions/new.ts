@@ -2,7 +2,12 @@ import { pass, fail } from '../test-utils';
 
 describe('Expressions - New', () => {
 
-        pass(`new a(b,c)`, {
+    fail(`new Type[]`, {
+        source: 'new Type[]',
+        line: 1
+    });
+
+    pass(`new a(b,c)`, {
             source: 'new a(b,c)',
             loc: true,
             ranges: true,
@@ -107,7 +112,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new Button`, {
+    pass(`new Button`, {
             source: 'new Button',
             loc: true,
             ranges: true,
@@ -179,7 +184,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new Button(a)`, {
+    pass(`new Button(a)`, {
             source: 'new Button(a)',
             loc: true,
             ranges: true,
@@ -268,7 +273,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new new foo()`, {
+    pass(`new new foo()`, {
             source: 'new new foo()',
             loc: true,
             ranges: true,
@@ -356,7 +361,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new f(...a)`, {
+    pass(`new f(...a)`, {
             source: 'new f(...a)',
             loc: true,
             ranges: true,
@@ -460,7 +465,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new f(...a, ...b)`, {
+    pass(`new f(...a, ...b)`, {
             source: 'new f(...a, ...b)',
             loc: true,
             ranges: true,
@@ -595,7 +600,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new(a in b)`, {
+    pass(`new(a in b)`, {
             source: 'new(a in b)',
             loc: true,
             ranges: true,
@@ -699,7 +704,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new f(...a, b, ...c)`, {
+    pass(`new f(...a, b, ...c)`, {
             source: 'new f(...a, b, ...c)',
             loc: true,
             ranges: true,
@@ -850,7 +855,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`function f(a = new.target){}`, {
+    pass(`function f(a = new.target){}`, {
             source: 'function f(a = new.target){}',
             loc: true,
             ranges: true,
@@ -1005,7 +1010,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`(function f(a = new.target){})`, {
+    pass(`(function f(a = new.target){})`, {
             source: '(function f(a = new.target){})',
             loc: true,
             ranges: true,
@@ -1175,7 +1180,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`function f() { new new.target; }`, {
+    pass(`function f() { new new.target; }`, {
             source: 'function f() { new new.target; }',
             loc: true,
             ranges: true,
@@ -1330,7 +1335,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`function f() { new.target(); }`, {
+    pass(`function f() { new.target(); }`, {
             source: 'function f() { new.target(); }',
             loc: true,
             ranges: true,
@@ -1485,7 +1490,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`function f() { new["target"]; }`, {
+    pass(`function f() { new["target"]; }`, {
             source: 'function f() { new["target"]; }',
             loc: true,
             ranges: true,
@@ -1627,7 +1632,7 @@ describe('Expressions - New', () => {
               }
         });
 
-        pass(`new a(b,c)`, {
+    pass(`new a(b,c)`, {
             source: 'new a(b,c)',
             loc: true,
             ranges: true,
@@ -1732,7 +1737,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new Button`, {
+    pass(`new Button`, {
             source: 'new Button',
             loc: true,
             ranges: true,
@@ -1804,7 +1809,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new Button(a)`, {
+    pass(`new Button(a)`, {
             source: 'new Button(a)',
             loc: true,
             ranges: true,
@@ -1893,7 +1898,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new new foo()`, {
+    pass(`new new foo()`, {
             source: 'new new foo()',
             loc: true,
             ranges: true,
@@ -1981,7 +1986,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new f(...a)`, {
+    pass(`new f(...a)`, {
             source: 'new f(...a)',
             loc: true,
             ranges: true,
@@ -2085,7 +2090,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new f(...a, ...b)`, {
+    pass(`new f(...a, ...b)`, {
             source: 'new f(...a, ...b)',
             loc: true,
             ranges: true,
@@ -2220,7 +2225,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new(a in b)`, {
+    pass(`new(a in b)`, {
             source: 'new(a in b)',
             loc: true,
             ranges: true,
@@ -2324,7 +2329,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`new f(...a, b, ...c)`, {
+    pass(`new f(...a, b, ...c)`, {
             source: 'new f(...a, b, ...c)',
             loc: true,
             ranges: true,
@@ -2475,7 +2480,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`function f(a = new.target){}`, {
+    pass(`function f(a = new.target){}`, {
             source: 'function f(a = new.target){}',
             loc: true,
             ranges: true,
@@ -2630,7 +2635,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`(function f(a = new.target){})`, {
+    pass(`(function f(a = new.target){})`, {
             source: '(function f(a = new.target){})',
             loc: true,
             ranges: true,
@@ -2800,7 +2805,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`function f() { new new.target; }`, {
+    pass(`function f() { new new.target; }`, {
             source: 'function f() { new new.target; }',
             loc: true,
             ranges: true,
@@ -2955,7 +2960,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`function f() { new.target(); }`, {
+    pass(`function f() { new.target(); }`, {
             source: 'function f() { new.target(); }',
             loc: true,
             ranges: true,
@@ -3110,7 +3115,7 @@ describe('Expressions - New', () => {
             }
         });
 
-        pass(`function f() { new["target"]; }`, {
+    pass(`function f() { new["target"]; }`, {
             source: 'function f() { new["target"]; }',
             loc: true,
             ranges: true,
@@ -3252,15 +3257,4 @@ describe('Expressions - New', () => {
               }
         });
 
-        fail(`function f() { new.anythingElse; }`, {
-            source: 'function f() { new.anythingElse; }',
-        });
-
-        fail(`function f() { new..target; }`, {
-            source: 'function f() { new..target; }',
-        });
-
-        fail(`new Type[]`, {
-            source: 'new Type[]',
-        });
     });

@@ -1818,7 +1818,6 @@ export class Parser {
         return !(savedFlag & Flags.ExtendedUnicodeEscape && flags & Flags.LineTerminator) &&
             !!(t & (Token.IsBindingPattern | Token.IsIdentifier | Token.IsYield) ||
                 t === Token.LetKeyword ||
-                t === Token.LeftBracket ||
                 (t & Token.Contextual) === Token.Contextual);
     }
 
@@ -2339,7 +2338,10 @@ export class Parser {
                             this.early(context, Errors.StrictFunction);
                         }
 
-                        if (!(context & (Context.TopLevel))) this.early(context, Errors.SloppyFunction);
+                        if (!(context & (Context.TopLevel))) {
+                            this.early(context, Errors.SloppyFunction);
+                        }
+
                         if (context & (Context.Strict | Context.IfBody)) {
                             this.early(context, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
                         }
@@ -2722,7 +2724,7 @@ export class Parser {
         const t = this.token;
         if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
         this.nextToken(context);
-        const declarations = this.parseVariableDeclarationList(context);
+        const declarations = this.parseVariableDeclarationList(context & ~Context.Statement);
         this.consumeSemicolon(context);
         return this.finishNode(context, pos, {
             type: 'VariableDeclaration',
@@ -4052,11 +4054,13 @@ export class Parser {
         let superClass: ESTree.Expression | null = null;
         let state = ObjectState.None;
 
-        if (this.token !== Token.ExtendsKeyword && this.isIdentifier(context, this.token)) {
-            id = this.parseBindingIdentifier(context);
+        const t = this.token;
+        
+        if (this.token & (Token.IsIdentifier | Token.IsKeyword)) {
+           id = this.parseBindingIdentifier(context);
         } else if (!(context & Context.Expression) && !(context & Context.OptionalIdentifier)) {
-            this.early(context, Errors.UnNamedClassDecl);
-        }
+            this.early(context, Errors.UnexpectedToken, tokenDesc(t))
+       }
 
         if (this.parseOptional(context, Token.ExtendsKeyword)) {
             superClass = this.parseLeftHandSideExpression(context | Context.Strict, pos);

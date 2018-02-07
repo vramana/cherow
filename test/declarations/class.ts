@@ -97,6 +97,24 @@ describe('Declarations - Class', () => {
         });
     }
 
+    fail(`class extends A{}`, {
+        source: 'class extends A{}',
+        message: 'Unexpected token extends',
+        line: 1
+    });
+
+    fail(`class extends {}`, {
+        source: 'class extends {}',
+        message: 'Unexpected token extends',
+        line: 1
+    });
+
+    fail(`class extends a {}`, {
+        source: 'class extends a {}',
+        message: 'Unexpected token extends',
+        line: 1
+    });
+
     fail(`class C { *() {} }`, {
         source: 'class C { *() {} }',
         message: 'Unexpected token )',
@@ -246,6 +264,110 @@ describe('Declarations - Class', () => {
     fail(`class a{ static prototype() {}}`, {
         source: `class a{ static prototype() {} }`,
         line: 1
+    });
+
+    fail(`class {}`, {
+        source: `class {}`,
+        message: 'Unexpected token {',
+        line: 1
+    });
+
+    fail(`(class extends {})`, {
+        source: `(class extends {})`,
+        line: 1
+    });
+
+    fail(`(class a extends {})`, {
+        source: `(class a extends {})`,
+        line: 1
+    });
+
+    pass(`class a extends a {}`, {
+        source: `class a extends a {}`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'a',
+                        start: 6,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        }
+                    },
+                    superClass: {
+                        type: 'Identifier',
+                        name: 'a',
+                        start: 16,
+                        end: 17,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 16
+                            },
+                            end: {
+                                line: 1,
+                                column: 17
+                            }
+                        }
+                    },
+                    body: {
+                        type: 'ClassBody',
+                        body: [],
+                        start: 18,
+                        end: 20,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 18
+                            },
+                            end: {
+                                line: 1,
+                                column: 20
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 20,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 20
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 20,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 20
+                }
+            }
+        }
     });
 
     pass(`(class { static set constructor(_) {} })`, {

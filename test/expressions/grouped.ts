@@ -2,7 +2,22 @@ import { pass, fail } from '../test-utils';
 
 describe('Expressions - Grouped', () => {
 
-        pass(`(0, a)`, {
+    fail(`(0, {a = 0}) = 0`, {
+        source: '(0, {a = 0}) = 0',
+        line: 1
+    });
+
+    fail(`(0, {a = 0}) => 0`, {
+        source: '(0, {a = 0}) => 0',
+        line: 1
+    });
+
+    fail(`({a = 0}, {a = 0}, 0) => 0`, {
+        source: '({a = 0}, {a = 0}, 0) => 0',
+        line: 1
+    });
+
+    pass(`(0, a)`, {
             source: '(0, a)',
             loc: true,
             ranges: true,
@@ -92,7 +107,7 @@ describe('Expressions - Grouped', () => {
             }
         });
 
-        pass(`(a, 0)`, {
+    pass(`(a, 0)`, {
             source: '(a, 0)',
             loc: true,
             ranges: true,
@@ -182,7 +197,7 @@ describe('Expressions - Grouped', () => {
             }
         });
 
-        pass(`(a,a)`, {
+    pass(`(a,a)`, {
             source: '(a,a)',
             loc: true,
             ranges: true,
@@ -271,7 +286,7 @@ describe('Expressions - Grouped', () => {
             }
         });
 
-        pass(`((a,a),(a,a))`, {
+    pass(`((a,a),(a,a))`, {
             source: '((a,a),(a,a))',
             loc: true,
             ranges: true,
@@ -421,6 +436,62 @@ describe('Expressions - Grouped', () => {
                     end: {
                         line: 1,
                         column: 13
+                    }
+                }
+            }
+        });
+
+    pass(`((((((((((((((((((((((((((((((((((((((((a))))))))))))))))))))))))))))))))))))))))`, {
+            source: '((((((((((((((((((((((((((((((((((((((((a))))))))))))))))))))))))))))))))))))))))',
+            loc: true,
+            ranges: true,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'Identifier',
+                            name: 'a',
+                            start: 40,
+                            end: 41,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 40
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 41
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 81,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 81
+                            }
+                        }
+                    }
+                ],
+                start: 0,
+                end: 81,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 81
                     }
                 }
             }

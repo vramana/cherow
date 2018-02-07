@@ -2,6 +2,36 @@ import { pass, fail } from '../test-utils';
 
 describe('Module - Import', () => {
 
+    fail(`import { class } from 'foo'`, {
+        source: `import { class } from 'foo'`,
+        module: true,
+        line: 1
+    });
+
+    fail(`import { class, var } from 'foo'`, {
+        source: `import { class, var } from 'foo'`,
+        module: true,
+        line: 1
+    });
+
+    fail(`import { a as class } from 'foo'`, {
+        source: `import { a as class } from 'foo'`,
+        module: true,
+        line: 1
+    });
+
+    fail(`import * as class from 'foo'`, {
+        source: `import * as class from 'foo'`,
+        module: true,
+        line: 1
+    });
+
+    fail(`import { enum } from 'foo'`, {
+        source: `import { enum } from 'foo'`,
+        module: true,
+        line: 1
+    });
+
     fail(`import { for } from "iteration"`, {
         source: `import { for } from "iteration"`,
         module: true,

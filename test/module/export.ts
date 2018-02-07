@@ -2,6 +2,36 @@ import { pass, fail } from '../test-utils';
 
 describe('Module - Export', () => {
 
+    fail(`export { default }`, {
+        source: `export { default }`,
+        module: true,
+        line: 1
+    });
+
+    fail(`export { if }`, {
+        source: `export { if }`,
+        module: true,
+        line: 1
+    });
+
+    fail(`export { default as foo }`, {
+        source: `export { default as foo }`,
+        module: true,
+        line: 1
+    });
+
+    fail(`export { if as foo }`, {
+        source: `export { if as foo }`,
+        module: true,
+        line: 1
+    });
+
+    fail(`import default from "foo"`, {
+        source: `import default from "foo"`,
+        module: true,
+        line: 1
+    });
+
     fail(`export default from`, {
         source: `export default from`,
         module: true,
@@ -222,6 +252,39 @@ with (house) {
 
     fail(`export default default`, {
             source: `export default default`,
+        });
+
+    pass('export let document = { }', {
+            source: 'export let document = { }',
+            module: true,
+            expected: {
+                  body: [
+                    {
+                      declaration: {
+                        declarations: [
+                          {
+                            id: {
+                              name: 'document',
+                              type: 'Identifier',
+                            },
+                            init: {
+                              properties: [],
+                              type: 'ObjectExpression'
+                            },
+                            type: 'VariableDeclarator'
+                         }
+                        ],
+                        kind: 'let',
+                        type: 'VariableDeclaration'
+                     },
+                      source: null,
+                      specifiers: [],
+                      type: 'ExportNamedDeclaration'
+                    }
+                  ],
+                 sourceType: 'module',
+                  type: 'Program'
+                }
         });
 
     pass('export default class Foo {}++x', {

@@ -588,6 +588,34 @@ describe('Cherow', () => {
     line: 1
 });
 
+      pass('`\r\n\t\n`', {
+    source: '`\r\n\t\n`',
+    raw: true,
+    expected: {
+          body: [
+            {
+              expression: {
+                expressions: [],
+               quasis: [
+                  {
+                    tail: true,
+                    type: 'TemplateElement',
+                    value: {
+                      cooked: '\r\n\t\n',
+                      raw: '\r\n\t\n',
+                    }
+                  }
+                ],
+                type: 'TemplateLiteral',
+              },
+             type: 'ExpressionStatement'
+            },
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+});
+
       pass('sampleTag`\\01`', {
     source: 'sampleTag`\\01`',
     raw: true,

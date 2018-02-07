@@ -7,6 +7,91 @@ describe('Expressions - Async', () => {
         line: 1,
     });
 
+    fail(`class A {static async get foo() { }}`, {
+        source: 'class A {static async get foo() { }}',
+        line: 1,
+    });
+
+    fail(`class A {static async set foo(value) { }}`, {
+        source: 'class A {static async set foo(value) { }}',
+        line: 1,
+    });
+
+    fail(`class A {async set foo(value) { }}`, {
+        source: 'class A {async set foo(value) { }}',
+        line: 1,
+    });
+
+    fail(`class A {async set foo(value) { }}`, {
+        source: 'class A {async set foo(value) { }}',
+        line: 1,
+    });
+
+    fail(`class A {async constructor() { }}`, {
+        source: 'class A {async constructor() { }}',
+        line: 1,
+    });
+
+    fail(`class A {async foo() { var await }}`, {
+        source: 'class A {async foo() { var await }}',
+        line: 1,
+    });
+
+    fail(`class A {async foo(await) { }}`, {
+        source: 'class A {async foo(await) { }}',
+        line: 1,
+    });
+
+    fail(`async await => 1`, {
+        source: 'async await => 1',
+        line: 1,
+    });
+
+    fail(`async (await) => 1`, {
+        source: 'async (await) => 1',
+        line: 1,
+    });
+
+    fail(`async ({await}) => 1`, {
+        source: 'async ({await}) => 1',
+        line: 1,
+    });
+
+    fail(`({async get foo() { }})`, {
+        source: '({async get foo() { }})',
+        line: 1,
+    });
+
+    fail(`({async set foo(value) { }}`, {
+        source: '({async set foo(value) { }}',
+        line: 1,
+    });
+
+    fail(`({async get foo() { }})`, {
+        source: '({async get foo() { }})',
+        line: 1,
+    });
+
+    fail(`({async foo() { var await }})`, {
+        source: '({async foo() { var await }})',
+        line: 1,
+    });
+
+    fail(`({async foo(await) { }})`, {
+        source: '({async foo(await) { }})',
+        line: 1,
+    });
+
+    fail(`({async foo() { return {await} }})`, {
+        source: '({async foo() { return {await} }})',
+        line: 1,
+    });
+
+    fail(`({async foo: 1})`, {
+        source: '({async foo: 1})',
+        line: 1,
+    });
+
     pass(`class UserRepo{ async notget(id) { return id; } }`, {
         source: 'class UserRepo{ async notget(id) { return id; } }',
         ranges: true,

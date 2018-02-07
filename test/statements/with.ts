@@ -31,6 +31,11 @@ with ({}) let
       line: 1,
   });
 
+  fail(`with(true) class a {}`, {
+    source: 'with(true) class a {}',
+    line: 1,
+});
+
   fail(`with ({}) class C {}`, {
       source: `with ({}) class C {}`,
       module: true,

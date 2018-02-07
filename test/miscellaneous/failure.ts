@@ -1539,7 +1539,6 @@ describe('Miscellaneous - Failure', () => {
         message: 'Unexpected regular expression',
     });
 
-
     fail('{ const a; }', {
         source: `{ const a; }`,
         line: 1,

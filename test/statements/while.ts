@@ -17,6 +17,21 @@ describe('Statements - While', () => {
           line: 1,
       });
 
+      fail(`while(true) const a`, {
+        source: 'while(true) const a',
+        line: 1,
+    });
+
+      fail(`while(true) let a`, {
+        source: 'while(true) let a',
+        line: 1,
+    });
+
+      fail(`with(true) let a`, {
+        source: 'with(true) let a',
+        line: 1,
+    });
+
       fail(`while '' break;`, {
           source: 'while "" break;',
           line: 1,

@@ -15,6 +15,36 @@ describe('Expressions - Async function', () => {
         line: 1,
     });
 
+    fail(`async function foo(await) { }`, {
+        source: 'async function foo(await) { }',
+        line: 1,
+    });
+
+    fail(`async function foo() { return {await} }`, {
+        source: 'async function foo() { return {await} }',
+        line: 1,
+    });
+
+    fail(`(async\nfunction foo() { })`, {
+        source: '(async\nfunction foo() { })',
+        line: 1,
+    });
+
+    fail(`async a\n=> a`, {
+        source: 'async a\n=> a',
+        line: 1,
+    });
+
+    fail(`async ()\n=> a`, {
+        source: 'async ()\n=> a',
+        line: 1,
+    });
+
+    fail(`(async\nfunction foo() { })`, {
+        source: '(async\nfunction foo() { })',
+        line: 1,
+    });
+
     fail(`async function foo() { (await 1) = 1; }`, {
         source: 'async function foo() { (await 1) = 1; }',
         line: 1,
