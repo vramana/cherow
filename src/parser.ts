@@ -266,6 +266,7 @@ export class Parser {
                         }
                     }
 
+                     // `<`, `<=`, `<<`, `<<=`, `</`,  <!--
                 case Chars.LessThan:
                     {
                         this.advance(); // skip `<`
@@ -286,7 +287,9 @@ export class Parser {
                                 case Chars.EqualSign:
                                     this.advance();
                                     return Token.LessThanOrEqual;
-
+                                case Chars.Slash:
+                                    this.advance();
+                                    return Token.JSXClose;
                                 default: // ignore
                                     return Token.LessThan;
                             }
