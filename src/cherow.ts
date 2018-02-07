@@ -17,7 +17,6 @@ export interface Options {
     source?: string;
     loc?: boolean;
     raw?: boolean;
-    jsx?: boolean;
     early?: boolean;
     impliedStrict?: boolean;
 }
@@ -33,7 +32,6 @@ function parse(source: string, context: Context, options: Options | void) {
         if (options.ranges) context |= Context.OptionsRanges;
         if (options.raw) context |= Context.OptionsRaw;
         if (options.loc) context |= Context.OptionsLoc;
-        if (options.jsx) context |= Context.OptionsJSX;
         if (options.ranges) context |= Context.OptionsRanges;
         if (options.early) context |= Context.OptionsEarly;
         if (options.impliedStrict) context |= Context.Strict;
@@ -94,13 +92,13 @@ function parse(source: string, context: Context, options: Options | void) {
 }
  // https://tc39.github.io/ecma262/#sec-scripts
 
-export const parseScript = (source: string, options?: Options) => {
+export const parseScript = (source: string, options ?: Options) => {
     return parse(source, Context.TopLevel, options);
 };
 
 // https://tc39.github.io/ecma262/#sec-modules
 
-export const parseModule = (source: string, options?: Options) => {
+export const parseModule = (source: string, options ?: Options) => {
     return parse(source, Context.Strict | Context.Module | Context.TopLevel, options);
 };
 
