@@ -28,7 +28,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`() => {}a`, {
         source: '() => {}a',
-        message: 'Unexpected token',
+        message: 'Unexpected token identifier',
         line: 1,
     });
 
@@ -39,19 +39,19 @@ describe('Expressions - Arrows', () => {
 
     fail(`() => {} 1`, {
         source: '() => {} 1',
-        message:  'Unexpected token',
+        message:  'Unexpected token number',
         line: 1,
     });
 
     fail(`() => {} a()`, {
         source: '() => {} a()',
-        message: 'Unexpected token',
+        message: 'Unexpected token identifier',
         line: 1,
     });
 
     fail(`() => {} a`, {
         source: '() => {} a',
-        message:  'Unexpected token',
+        message:  'Unexpected token identifier',
         line: 1,
     });
 
@@ -110,7 +110,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`32 => {}`, {
         source: '32 => {}',
-        message: 'Unexpected token',
+        message: 'Unexpected token =>',
         line: 1,
     });
 
@@ -122,7 +122,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`if => {}`, {
         source: 'if => {}',
-        message: 'Unexpected token',
+        message: 'Unexpected token =>',
         line: 1,
     });
 
@@ -188,7 +188,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`({}=>0)`, {
         source: '({}=>0)',
-        message: 'Unexpected token',
+        message:  'Unexpected token =>',
         line: 1,
     });
 
@@ -200,7 +200,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`(...a = b) => b`, {
         source: '(...a = b) => b',
-        message: 'Unexpected token',
+        message: 'Unexpected token =',
         line: 1,
     });
 
@@ -212,13 +212,13 @@ describe('Expressions - Arrows', () => {
 
     fail(`(...rest - a) => b`, {
         source: '(...rest - a) => b',
-        message: 'Unexpected token',
+        message: 'Unexpected token -',
         line: 1,
     });
 
     fail(`(a, ...b - 10) => b`, {
         source: '(a, ...b - 10) => b',
-        message: 'Unexpected token',
+        message: 'Unexpected token -',
         line: 1,
     });
 
@@ -330,7 +330,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`[]=>0`, {
         source: '[]=>0',
-        message: 'Unexpected token',
+        message: 'Unexpected token =>',
         line: 1,
         column: 2,
         index: 2

@@ -132,7 +132,7 @@ with (house) {
     fail(`export {a}; export class a(){};`, {
             source: `export {a}; export class a(){};`,
             module: true,
-            message: 'Unexpected token',
+            message: 'Unexpected token (',
             line: 1,
             column: 26,
             index: 26
@@ -165,7 +165,7 @@ with (house) {
     fail(`export {} null;`, {
             source: `export {} null;`,
             module: true,
-            message: 'Unexpected token',
+            message: 'Unexpected token null',
             line: 1,
             column: 9,
             index: 9

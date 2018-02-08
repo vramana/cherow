@@ -4,7 +4,7 @@ describe('Declarations - Let', () => {
 
     fail('let {a: o.a} = obj;', {
         source: 'let {a: o.a} = obj;',
-        message:  'Unexpected token',
+        message:  'Unexpected token identifier',
         line: 1,
         column: 10,
         index: 10
@@ -73,7 +73,7 @@ describe('Declarations - Let', () => {
 
     fail('for (;false;) let x;', {
         source: 'for (;false;) let x;',
-        message:  'Unexpected token',
+        message: 'Unexpected token identifier',
         line: 1,
         column: 17,
         index: 17
@@ -81,7 +81,7 @@ describe('Declarations - Let', () => {
 
     fail('if (true) {} else let x;', {
         source: 'if (true) {} else let x;',
-        message:  'Unexpected token',
+        message: 'Unexpected token identifier',
         line: 1,
         column: 21,
         index: 21
@@ -89,7 +89,7 @@ describe('Declarations - Let', () => {
 
     fail('a: let a', {
         source: 'a: let a',
-        message:  'Unexpected token',
+        message:  'Unexpected token identifier',
         line: 1,
         column: 6,
         index: 6
@@ -97,7 +97,7 @@ describe('Declarations - Let', () => {
 
     fail('if (true) let x = 1;', {
         source: 'if (true) let x = 1;',
-        message:  'Unexpected token',
+        message: 'Unexpected token identifier',
         line: 1,
         column: 13,
         index: 13
@@ -105,7 +105,7 @@ describe('Declarations - Let', () => {
 
     fail('while (false) let x;', {
         source: 'while (false) let x;',
-        message:  'Unexpected token',
+        message:  'Unexpected token identifier',
         line: 1,
         column: 17,
         index: 17
@@ -119,7 +119,7 @@ describe('Declarations - Let', () => {
             let
             await 0;
         }`,
-        message: 'Unexpected token',
+        message: 'Unexpected token number',
         line: 3,
         column: 17,
         index: 48

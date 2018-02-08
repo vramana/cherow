@@ -2,6 +2,14 @@ import { pass, fail } from '../test-utils';
 
 describe('Declarations - Function', () => {
 
+      fail('function f() { (new.target)--; }', {
+        source: 'function f() { (new.target)--; }',
+        message: 'Invalid left-hand side expression in Postfix operation',
+        line: 1,
+        column: 27,
+        index: 27
+    });
+
     fail('function eval() { "use strict"; }', {
         source: 'function eval() { "use strict"; }',
         message: 'Unexpected strict mode reserved word',

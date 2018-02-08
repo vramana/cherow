@@ -17,24 +17,23 @@ export const enum Context {
     IfBody                  = 1 << 10, // Node was parsed as the body of an IFStatement - 'consequent' or 'alternate'
     Expression              = 1 << 11, // Node was parsed within an expression context
     InParameter             = 1 << 12, //
-    YieldContext            = 1 << 13, // Node was parsed in the 'yield' context created when parsing an generator function
-    AsyncContext            = 1 << 14, // Node was parsed in the 'async' context created when parsing an async function
-    InArrowParameterList    = 1 << 15,
-    ArrowFunction           = 1 << 16,
-    TopLevel                = 1 << 17, // Allow super property
-    AllowSuperProperty      = 1 << 18,
-    ValidateEscape          = 1 << 19,
-    Let                     = 1 << 20,  // Variable declaration
-    Const                   = 1 << 21,  // Variable declaration
-    Statement               = 1 << 22,  // Used when parsing an MethodDeclaration
-    Method                  = 1 << 23,  // Used when parsing an async function
-    AsyncFunction           = 1 << 24,
-    ProhibitWhitespace      = 1 << 25, // Scanner related.
-    ForStatement            = 1 << 26,
-    InParenthesis           = 1 << 27,
-    InClass                 = 1 << 28,
-    OptionalIdentifier      = 1 << 29,
-    InTypeAnnotation        = 1 << 30, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
+    AllowYield              = 1 << 13, // Node was parsed in the 'yield' context created when parsing an generator function
+    AllowAsync              = 1 << 14, // Node was parsed in the 'async' context created when parsing an async function
+    ArrowFunction           = 1 << 15,
+    TopLevel                = 1 << 16, // Allow super property
+    AllowSuperProperty      = 1 << 17,
+    ValidateEscape          = 1 << 18,
+    Let                     = 1 << 29,  // Variable declaration
+    Const                   = 1 << 20,  // Variable declaration
+    Statement               = 1 << 21,  // Used when parsing an MethodDeclaration
+    Method                  = 1 << 22,  // Used when parsing an async function
+    ProhibitWhitespace      = 1 << 23, // Scanner related.
+    ForStatement            = 1 << 24,
+    InParenthesis           = 1 << 25,
+    InClass                 = 1 << 26,
+    OptionalIdentifier      = 1 << 27,
+    DisallowArrow           = 1 << 28,
+    InTypeAnnotation        = 1 << 29, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
     BlockScoped  = Let | Const
 }
 
@@ -57,8 +56,7 @@ export const enum Flags {
     HasYield                = 1 << 12,
     WhiteSpace              = 1 << 13,
     ReservedWords           = 1 << 14,
-    HasCommaSeparator       = 1 << 15,
-    DisallowArrowFunction   = 1 << 16 // Disallow arrows in 'new expression' context
+    HasCommaSeparator       = 1 << 15
 }
 
 /** Shared between class and objects */

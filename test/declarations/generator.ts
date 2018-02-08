@@ -205,7 +205,7 @@ describe('Declarations - Generator', () => {
 
     fail(`function* a({e: a.b}) {}`, {
         source: 'function* a({e: a.b}) {}',
-        message: 'Unexpected token',
+        message: 'Unexpected token identifier',
         line: 1,
         column: 18,
         index: 18

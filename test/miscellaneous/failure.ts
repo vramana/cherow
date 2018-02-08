@@ -243,7 +243,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail(`(((...a)))`, {
         source: `(((...a)))`,
-        message: 'Unexpected token',
+        message: 'Unexpected token )',
         line: 1,
         column: 0,
         index: 0
@@ -327,7 +327,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('1 + { t:t ', {
         source: `1 + { t:t `,
-        message: 'Unexpected token',
+        message: 'Unexpected token end of source',
         line: 1,
         column: 9,
         index: 9
@@ -346,7 +346,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 1,
         index: 1,
-        message: 'Unexpected token',
+        message:  'Unexpected token #',
     });
 
     fail('\n\n\n{', {
@@ -369,7 +369,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 5,
         index: 5,
-        message: 'Unexpected token',
+        message: 'Unexpected token number',
     });
 
     fail(', { set 1 }', {
@@ -377,7 +377,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 5,
         index: 5,
-        message: 'Unexpected token',
+        message:  'Unexpected token number',
     });
 
     fail('function t(if) { }', {
@@ -389,11 +389,11 @@ describe('Miscellaneous - Failure', () => {
     });
 
     fail('({ get: g(d) { } })', {
-        source: `({ get: g(d) { } })`,
+        source: '({ get: g(d) { } })',
         line: 1,
         column: 1,
         index: 1,
-        message: 'Unexpected token',
+        message: 'Unexpected token {',
     });
 
     fail('\u200C = []', {
@@ -489,7 +489,7 @@ describe('Miscellaneous - Failure', () => {
     fail('({get +:3})', {
         source: `({get +:3})`,
         line: 1,
-        message: 'Unexpected token',
+        message: 'Unexpected token :',
     });
 
     fail(', { ;  ;  ', {
@@ -505,7 +505,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 1,
         index: 1,
-        message: 'Unexpected token',
+        message:  'Unexpected token identifier',
     });
 
     fail('try { } catch() {}', {
@@ -592,7 +592,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 2,
         index: 2,
-        message: 'Unexpected token',
+        message:  'Unexpected token .',
     });
 
     fail('a if', {
@@ -600,7 +600,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 1,
         index: 1,
-        message: 'Unexpected token',
+        message:  'Unexpected token if',
     });
 
     fail('function true() { }', {
@@ -931,7 +931,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('invalid', {
         source: `await a`,
-        message: 'Unexpected token',
+        message:  'Unexpected token identifier',
         line: 1,
     });
 
@@ -1807,7 +1807,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('switch `test`', {
         source: 'switch `test`',
-        message: 'Unexpected token',
+        message: 'Unexpected token template end',
         line: 1,
     });
 
@@ -1849,7 +1849,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('if (1) let x = 10;', {
         source: `if (1) let x = 10;`,
-        message: 'Unexpected token',
+        message:  'Unexpected token identifier',
         line: 1,
     });
 
@@ -1867,7 +1867,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('x = { get method() 42 }', {
         source: `x = { get method() 42 }`,
-        message: 'Unexpected token',
+        message: 'Unexpected token number',
         line: 1,
     });
 
@@ -1945,7 +1945,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('for (let x of y, z) {}', {
         source: `for (let x of y, z) {}`,
-        message: 'Unexpected token',
+        message: 'Unexpected token ,',
         line: 1,
     });
 
@@ -1957,7 +1957,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('for (let [...foo, bar] in qux);', {
         source: `for (let [...foo, bar] in qux);`,
-        message: 'Unexpected token',
+        message:  'Unexpected token ,',
         line: 1,
     });
 
@@ -1981,7 +1981,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('a => {}()', {
         source: `a => {}()`,
-        message: 'Unexpected token',
+        message: 'Unexpected token (',
         line: 1,
     });
 });

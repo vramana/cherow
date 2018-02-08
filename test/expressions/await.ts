@@ -4,7 +4,7 @@ describe('Expressions - Await', () => {
 
     fail(`await a`, {
         source: 'await a',
-        message: 'Unexpected token',
+        message: 'Unexpected token identifier',
         line: 1,
         column: 5,
         index: 5
@@ -67,7 +67,7 @@ describe('Expressions - Await', () => {
 
     fail(`async await => 1;`, {
         source: 'async await => 1;',
-        message: 'Unexpected token',
+        message: 'Unexpected token await',
         line: 1,
         column: 5,
         index: 5
@@ -234,7 +234,7 @@ describe('Expressions - Await', () => {
 
     fail(`await a;`, {
         source: 'await a;',
-        message: 'Unexpected token',
+        message:  'Unexpected token identifier',
         line: 1,
         column: 5,
         index: 5

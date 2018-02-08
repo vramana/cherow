@@ -15,7 +15,7 @@ describe('Miscellaneous - ASI', () => {
 
   fail(`invalid Do-While Statement ASI`, {
     source: `do {}; \n while(false)`,
-    message: 'Unexpected token',
+    message: 'Unexpected token ;',
     line: 1,
   });
 
@@ -25,7 +25,7 @@ describe('Miscellaneous - ASI', () => {
   ) {
     break;
   }`,
-  message: 'Unexpected token',
+  message:  'Unexpected token false',
   line: 1,
   });
 
@@ -35,7 +35,7 @@ describe('Miscellaneous - ASI', () => {
   ) {
     break;
   }`,
-  message: 'Unexpected token',
+  message: 'Unexpected token )',
   });
 
   fail(`for header is (\n semicolon false)`, {

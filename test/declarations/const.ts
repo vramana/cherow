@@ -61,14 +61,14 @@ describe('Declarations - Const', () => {
 
     fail('const [...[x], y] = [1, 2, 3];', {
         source: 'const [...[x], y] = [1, 2, 3];',
-        message: 'Unexpected token',
+        message: 'Unexpected token ,',
         line: 1,
         column: 13,
         index: 13
     });
     fail('const [...x = []] = [];', {
         source: 'const [...x = []] = [];',
-        message: 'Unexpected token',
+        message: 'Unexpected token =',
         line: 1,
         column: 11,
         index: 11

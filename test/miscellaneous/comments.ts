@@ -53,7 +53,7 @@ describe('Miscellaneous - Comments', () => {
     fail(`arbitrary character sequence before HTMLCloseComment token`, {
         source: `/*
         */ the comment should not include these characters, regardless of AnnexB extensions -->`,
-        message:  'Unexpected token',
+        message: 'Unexpected token identifier',
         line: 2,
         column: 14,
         index: 17

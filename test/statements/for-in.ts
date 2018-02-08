@@ -4527,7 +4527,7 @@ describe('Statements - For in', () => {
     // Declarations in for-in loop heads must not contain "in"-expression initializers
     fail(`for (var x = 3 in {}; ; ) break;`, {
         source: 'for (var x = 3 in {}; ; ) break;',
-        message: 'Unexpected token',
+        message: 'Unexpected token ;',
         line: 1,
         column: 20,
         index: 20
@@ -4551,7 +4551,7 @@ describe('Statements - For in', () => {
 
     fail(`for(let of 0);`, {
         source: 'for(let of 0);',
-        message: 'Unexpected token',
+        message: 'Unexpected token number',
         line: 1,
         column: 10,
         index: 10
@@ -4559,7 +4559,7 @@ describe('Statements - For in', () => {
 
     fail(`for (a=12 in e) break;`, {
         source: 'for (a=12 in e) break;',
-        message: 'Unexpected token',
+        message:  'Unexpected token )',
         line: 1,
         column: 14,
         index: 14
@@ -4575,7 +4575,7 @@ describe('Statements - For in', () => {
 
     fail(`for (a in b 5`, {
         source: 'for (a in b 5',
-        message: 'Unexpected token',
+        message: 'Unexpected token number',
         line: 1,
         column: 11,
         index: 11
@@ -4583,7 +4583,7 @@ describe('Statements - For in', () => {
 
     fail(`for (a to e) break;`, {
         source: 'for (a to e) break;',
-        message: 'Unexpected token',
+        message: 'Unexpected token identifier',
         line: 1,
         column: 6,
         index: 6
@@ -4591,7 +4591,7 @@ describe('Statements - For in', () => {
 
     fail(`for (a 12 b; 12) break;`, {
         source: 'for (a 12 b; 12) break;',
-        message: 'Unexpected token',
+        message: 'Unexpected token number',
         line: 1,
         column: 6,
         index: 6
