@@ -193,7 +193,7 @@ export const ErrorMessages: {
     [Errors.UnexpectedStrictEvalOrArguments]: 'Unexpected eval or arguments in strict mode',
     [Errors.BadImportCallArity]: 'Dynamic import must have one specifier as an argument',
     [Errors.ArgumentsDisallowedInInitializer]: '\'%0\' is not allowed in class field initializer',
-    
+
 };
 
 function constructError(msg: string, column: number): Error {

@@ -54,7 +54,7 @@ export type Node =
     | SpreadElement
     | TemplateElement
     | ClassBody
-    | FieldDefinition 
+    | FieldDefinition
     | PrivateName
     | MethodDefinition
     | ModuleDeclaration
@@ -140,7 +140,7 @@ interface T_Expression {
     'Identifier': Identifier;
     'Literal': Literal | RegExpLiteral | BigIntLiteral;
     'BigIntLiteral': Literal;
-    'PrivateMemberExpression': PrivateMemberExpression
+    'PrivateMemberExpression': PrivateMemberExpression;
     'ThisExpression': ThisExpression;
     'ArrayExpression': ArrayExpression;
     'ObjectExpression': ObjectExpression;

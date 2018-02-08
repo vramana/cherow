@@ -1823,7 +1823,7 @@ export class Parser {
                 (t & Token.Contextual) === Token.Contextual);
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: Location,
         node: any,
@@ -2107,7 +2107,7 @@ export class Parser {
     ) {
         const pos = this.getLocation();
         this.expect(context | Context.ValidateEscape, Token.Multiply);
-        if (this.token !== Token.AsKeyword) this.report(Errors.NoAsAfterImportNamespace)
+        if (this.token !== Token.AsKeyword) this.report(Errors.NoAsAfterImportNamespace);
         this.expect(context, Token.AsKeyword);
         const local = this.parseBindingIdentifier(context);
         specifiers.push(this.finishNode(context, pos, {
@@ -2202,7 +2202,7 @@ export class Parser {
             case Token.ExportKeyword:
                 return this.parseExportDeclaration(context);
 
-                // ImportDeclaration 
+                // ImportDeclaration
             case Token.ImportKeyword:
                 if (!(context & Context.OptionsNext && this.nextTokenIsLeftParenOrPeriod(context))) {
                     return this.parseImportDeclaration(context);
@@ -2221,11 +2221,11 @@ export class Parser {
             //   HoistableDeclaration[?Yield, ~Default]
             case Token.FunctionKeyword:
                 return this.parseFunction(context);
-                //  ClassDeclaration[?Yield, ~Default]
+                // ClassDeclaration[?Yield, ~Default]
             case Token.ClassKeyword:
                 return this.parseClass(context & ~Context.AllowIn);
-                //   LexicalDeclaration[In, ?Yield]
-                //   LetOrConst BindingList[?In, ?Yield]
+                // LexicalDeclaration[In, ?Yield]
+                // LetOrConst BindingList[?In, ?Yield]
             case Token.LetKeyword:
                 if (!this.isLexical(context)) return this.parseStatement(context);
                 return this.parseVariableStatement(context | Context.Let | Context.AllowIn);
@@ -2259,7 +2259,7 @@ export class Parser {
             case Token.LeftBrace:
                 return this.parseBlockStatement(context);
             case Token.LeftParen:
-                return this.parseExpressionStatement(context);
+                return this.parseExpressionStatement(context | Context.AllowIn);
             case Token.Semicolon:
                 return this.parseEmptyStatement(context);
                 // [+Return] ReturnStatement[?Yield]
@@ -2277,7 +2277,7 @@ export class Parser {
                 return this.parseDoWhileStatement(context);
             case Token.WhileKeyword:
                 return this.parseWhileStatement(context);
-                // WithStatement[?Yield, ?Return]                
+                // WithStatement[?Yield, ?Return]
             case Token.WithKeyword:
                 return this.parseWithStatement(context);
             case Token.SwitchKeyword:
@@ -3650,7 +3650,7 @@ export class Parser {
                 args.push(elem);
                 break;
             }
-            
+
             // Start of a binding pattern inside parenthesis - '({foo: bar})', '{[()]}'
             if (hasBit(this.token, Token.IsBindingPattern)) {
                 this.errorLocation = this.getLocation();
@@ -4406,9 +4406,9 @@ export class Parser {
 
             while (this.parseOptional(context, Token.Comma)) {
 
-                // If found a 'RightParen' token here, then this is a trailing comma, which 
+                // If found a 'RightParen' token here, then this is a trailing comma, which
                 // is allowed before the closing parenthesis in an arrow
-                // function parameters list. E.g. `(a, b, ) => body`. 
+                // function parameters list. E.g. `(a, b, ) => body`.
                 if (this.parseOptional(context, Token.RightParen)) {
                     if (this.token === Token.Arrow) {
                         return this.parseArrowFunctionExpression(
@@ -4806,8 +4806,8 @@ export class Parser {
 
             if (this.parseOptional(context, Token.Multiply)) {
                 // The 'Statement context' check is only true if this is parsed through
-                // a label set - e.g. 'a: function *a() {}' - and then forbidden because a 
-                // generator declaration is only matched by HoistableDeclaration 
+                // a label set - e.g. 'a: function *a() {}' - and then forbidden because a
+                // generator declaration is only matched by HoistableDeclaration
                 // in StatementListItem.
                 if (context & Context.Statement) {
                     this.early(context, Errors.GeneratorLabel);
