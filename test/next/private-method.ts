@@ -14,6 +14,11 @@ describe('Next - Private Methods', () => {
     index: 11
   });
 
+  fail(`var C = class { x = true ? {} : arguments; }`, {
+    source: 'var C = class { x = true ? {} : arguments; }',
+    line: 1,
+  });
+  
   fail('class A { #[ab]() {} }', {
     source: 'class A { #[ab]() {} }',
     next: true,

@@ -3899,7 +3899,9 @@ export class Parser {
                             this.errorLocation = this.getLocation();
                             this.flags |= Flags.HasAwait;
                         }
-                            
+                        
+                        this.flags |= Flags.CoverInitializedName;
+
                         const right = this.parseAssignmentExpression(context);
 
                         value = this.finishNode(context, pos, {
@@ -4288,6 +4290,7 @@ export class Parser {
                 this.report(Errors.UnexpectedToken, tokenDesc(this.token));
             }
         } else {
+            if (context & Context.InClass && this.token & Token.IsEvalArguments) this.report(Errors.UnexpectedStrictEvalOrArguments);
             body = this.parseAssignmentExpression(context | Context.AllowIn | Context.ArrowFunction);
             expression = true;
         }
@@ -4786,7 +4789,7 @@ export class Parser {
                 const name = this.tokenValue;
 
                 if (t & Token.IsEvalArguments) {
-                    if (context & Context.Strict) this.early(context, Errors.StrictLHSAssignment);
+                    if (context & (Context.Strict | Context.AllowAsync)) this.early(context, Errors.StrictLHSAssignment);
                     this.errorLocation = this.getLocation();
                     this.flags |= Flags.ReservedWords;
                 }

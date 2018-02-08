@@ -21,6 +21,11 @@ describe('Expressions - Rest params', () => {
         line: 1
     });
 
+    fail(`0, function(...a,) { };`, {
+        source: '0, function(...a,) { };',
+        line: 1
+    });
+
     pass(`function f(...b) {};`, {
         source: 'function f(...b) {};',
         loc: true,

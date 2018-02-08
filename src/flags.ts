@@ -56,7 +56,8 @@ export const enum Flags {
     HasYield                = 1 << 12,
     WhiteSpace              = 1 << 13,
     ReservedWords           = 1 << 14,
-    HasCommaSeparator       = 1 << 15
+    HasCommaSeparator       = 1 << 15,
+    CoverInitializedName     = 1 << 16
 }
 
 /** Shared between class and objects */

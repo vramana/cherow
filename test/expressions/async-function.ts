@@ -10,11 +10,26 @@ describe('Expressions - Async function', () => {
         index: 29
     });
 
+    fail(`async function foo (foo) { super.prop };`, {
+        source: 'async function foo (foo) { super.prop };',
+        line: 1,
+    });
+
     fail(`(async function foo() { } = 1)`, {
         source: '(async function foo() { } = 1)',
         line: 1,
     });
 
+    fail(`(async function eval () { })`, {
+        source: '(async function eval () { })',
+        line: 1,
+    });
+
+    fail(`(async function foo() { } = 1)`, {
+        source: '(async function foo() { } = 1)',
+        line: 1,
+    });
+    
     fail(`async function foo(await) { }`, {
         source: 'async function foo(await) { }',
         line: 1,

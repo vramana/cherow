@@ -294,6 +294,123 @@ describe('Expressions - Yield', () => {
     }
 });
 
+pass(`function* g() {
+    yield arguments[0];
+    yield arguments[1];
+    yield arguments[2];
+    yield arguments[3];
+  }`, {
+    source: `function* g() {
+        yield arguments[0];
+        yield arguments[1];
+        yield arguments[2];
+        yield arguments[3];
+      }`,
+    raw: true,
+    expected: {
+          "body": [
+            {
+              "async": false,
+              "body": {
+                "body": [
+                  {
+                    "expression": {
+                     "argument": {
+                        "computed": true,
+                        "object": {
+                          "name": "arguments",
+                          "type": "Identifier",
+                        },
+                        "property": {
+                          "raw": "0",
+                          "type": "Literal",
+                          "value": 0,
+                        },
+                        "type": "MemberExpression"
+                      },
+                      "delegate": false,
+                      "type": "YieldExpression"
+                   },
+                    "type": "ExpressionStatement"
+                  },
+                  {
+                    "expression": {
+                      "argument": {
+                        "computed": true,
+                        "object": {
+                          "name": "arguments",
+                          "type": "Identifier",
+                        },
+                        "property": {
+                          "raw": "1",
+                          "type": "Literal",
+                          "value": 1,
+                        },
+                        "type": "MemberExpression"
+                      },
+                      "delegate": false,
+                      "type": "YieldExpression"
+                    },
+                    "type": "ExpressionStatement"
+                  },
+                  {
+                   "expression": {
+                      "argument": {
+                        "computed": true,
+                        "object": {
+                          "name": "arguments",
+                         "type": "Identifier",
+                        },
+                        "property": {
+                          "raw": "2",
+                          "type": "Literal",
+                          "value": 2,
+                        },
+                       "type": "MemberExpression"
+                      },
+                      "delegate": false,
+                      "type": "YieldExpression"
+                    },
+                    "type": "ExpressionStatement"
+                  },
+                  {
+                    "expression": {
+                      "argument": {
+                        "computed": true,
+                        "object": {
+                          "name": "arguments",
+                          "type": "Identifier",
+                        },
+                       "property": {
+                          "raw": "3",
+                          "type": "Literal",
+                          "value": 3,
+                        },
+                        "type": "MemberExpression"
+                      },
+                      "delegate": false,
+                      "type": "YieldExpression"
+                    },
+                    "type": "ExpressionStatement"
+                  }
+                ],
+                "type": "BlockStatement"
+             },
+              "expression": false,
+              "generator": true,
+              "id": {
+                "name": "g",
+                "type": "Identifier",
+              },
+              "params": [],
+             "type": "FunctionDeclaration"
+            }
+          ],
+          "sourceType": "script",
+          "type": "Program"
+        }
+    });
+
     pass(`function * foo() {
     var v = { [yield]: foo }
   }`, {

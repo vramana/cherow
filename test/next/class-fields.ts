@@ -1,7 +1,19 @@
 import { pass, fail } from '../test-utils';
 
 describe('Next - Class fields', () => {
+    
+      fail('var C = class extends A { x = true; super().x; }', {
+        source: 'var C = class extends A { x = true; super().x; }',
+        next: true,
+        index: 43
+      });
 
+      fail('var C = class extends A { x = true; super().x; }', {
+        source: 'var C = class extends A { x = super().x; }',
+        next: true,
+        index: 35
+      });
+      
   fail('class C { static "x" = /*{ initializer }*/; }  ', {
     source: 'class C { static "x" = /*{ initializer }*/; }  ',
     next: true,
@@ -13,7 +25,13 @@ describe('Next - Class fields', () => {
     next: true,
     index: 26
   });
-
+  
+  fail('var C = class { x = () => arguments; }', {
+    source: 'var C = class { x = () => arguments; }',
+    next: true,
+    index: 25
+  });
+  
   fail('class C { x = typeof /*{ initializer }*/; }  ', {
     source: 'class C { x = typeof /*{ initializer }*/; }  ',
     next: true,

@@ -168,8 +168,8 @@ export const enum Token {
     OfKeyword          = 115 | Contextual,
 
     /** V8 */
-    Arguments          = 116 | IsEvalArguments | IsIdentifier,
-    Eval               = 117 | IsEvalArguments | IsIdentifier,
+    Arguments          = 116 | IsEvalArguments | IsIdentifier | IsExpressionStart,
+    Eval               = 117 | IsEvalArguments | IsIdentifier | IsExpressionStart,
 
     /** State 3 proposals */
 
