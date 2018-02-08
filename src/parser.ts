@@ -83,7 +83,7 @@ export class Parser {
         this.earlyErors = [];
     }
 
-    public parseStatementList(context: Context): any {
+    public parseStatementList(context: Context): ESTree.Statement[] {
 
         this.nextToken(context);
         const hasStrictDirective = (this.flags & Flags.StrictDirective) !== 0;
@@ -1821,7 +1821,7 @@ export class Parser {
                 (t & Token.Contextual) === Token.Contextual);
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: Location,
         node: any,
@@ -1988,13 +1988,13 @@ export class Parser {
 
                 // export HoistableDeclaration
             case Token.FunctionKeyword:
-                declaration = this.parseFunction(context);
+                declaration = this.parseFunction(context) as ESTree.FunctionDeclaration;
                 break;
 
                 // export HoistableDeclaration
             case Token.AsyncKeyword:
                 if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                    declaration = this.parseFunction(context);
+                    declaration = this.parseFunction(context) as ESTree.FunctionDeclaration;
                     break;
                 }
                 // Falls through
@@ -2558,7 +2558,7 @@ export class Parser {
         this.expect(context, Token.CatchKeyword);
         let param = null;
         if (this.parseOptional(context, Token.LeftParen)) {
-            const params: any[] = [];
+            const params: string[] = [];
             param = this.parseBindingIdentifierOrBindingPattern(context, params);
             this.validateBindings(context, params);
             this.expect(context, Token.RightParen);
@@ -2692,7 +2692,7 @@ export class Parser {
         });
     }
 
-    private parseMaybeInvalidBlockStatement(context: Context) {
+    private parseMaybeInvalidBlockStatement(context: Context): ESTree.Statement {
         // Note! In non-strict mode code, functions can only be declared at
         // top level, inside a block, or as the body of an if statement
         // which means that programs like 'with(0) function() {}' are invalid
@@ -2700,7 +2700,7 @@ export class Parser {
         return this.parseStatement(context);
     }
 
-    private parseBlockStatement(context: Context): any {
+    private parseBlockStatement(context: Context): ESTree.BlockStatement {
         const pos = this.getLocation();
         const body: ESTree.Statement[] = [];
 
@@ -2719,7 +2719,7 @@ export class Parser {
     }
 
     // https://tc39.github.io/ecma262/#sec-let-and-const-declarations
-    private parseVariableStatement(context: Context) {
+    private parseVariableStatement(context: Context): ESTree.VariableDeclaration {
         const pos = this.getLocation();
         const t = this.token;
         if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
@@ -2748,10 +2748,12 @@ export class Parser {
         return list;
     }
 
-    private parseVariableDeclaration(context: Context): any {
+    private parseVariableDeclaration(context: Context): ESTree.VariableDeclarator {
+
         const pos = this.getLocation();
         const t = this.token;
         const id = this.parseBindingIdentifierOrBindingPattern(context);
+
         let init: ESTree.Expression | null = null;
 
         if (t & Token.IsBindingPattern) {
@@ -2759,33 +2761,30 @@ export class Parser {
             if (this.parseOptional(context, Token.Assign)) {
 
                 init = this.parseAssignmentExpression(context & ~(Context.BlockScoped | Context.ForStatement));
-                if (!(context & Context.BlockScoped) && context & Context.ForStatement) {
+
+                if (context & Context.ForStatement) {
                     if (this.token === Token.InKeyword) {
                         this.early(context, Errors.InvalidVarDeclInForLoop, tokenDesc(this.token));
-                    } else if (this.token === Token.OfKeyword) {
+                    }
+                    if (this.token === Token.OfKeyword) {
                         this.early(context, Errors.DeclarationMissingInitializer);
                     }
-                } else if (context & Context.ForStatement && isInOrOfKeyword(this.token)) {
-                    this.early(context, Errors.InvalidVarDeclInForLoop, tokenDesc(this.token));
                 }
+
             } else if (!isInOrOfKeyword(this.token)) {
                 this.early(context, Errors.DeclarationMissingInitializer);
             }
 
-        } else {
-            if (this.parseOptional(context, Token.Assign)) {
-                init = this.parseAssignmentExpression(context & ~Context.BlockScoped);
-                if (context & Context.ForStatement) {
-                    if (this.token === Token.OfKeyword) this.early(context, Errors.InvalidVarInitForOf);
-                    if (this.token === Token.InKeyword && (context & (Context.Strict | Context.BlockScoped))) {
-                        this.early(context, Errors.InvalidVarDeclInForLoop, tokenDesc(this.token));
-                    }
-                }
-
-            } else if (context & Context.Const && !isInOrOfKeyword(this.token)) {
-                this.report(Errors.MissingConstInitializer);
+        } else if (this.parseOptional(context, Token.Assign)) {
+            init = this.parseAssignmentExpression(context & ~Context.BlockScoped);
+            if (context & Context.ForStatement) {
+                if (context & (Context.Strict | Context.BlockScoped) && this.token === Token.InKeyword) {
+                    this.early(context, Errors.InvalidVarDeclInForLoop, tokenDesc(this.token));
+                } else if (this.token === Token.OfKeyword) this.early(context, Errors.InvalidVarInitForOf);
             }
 
+        } else if (context & Context.Const && !isInOrOfKeyword(this.token)) {
+            this.report(Errors.MissingConstInitializer);
         }
 
         return this.finishNode(context, pos, {
@@ -3567,7 +3566,7 @@ export class Parser {
 
     private parseAsyncFunctionExpression(
         context: Context,
-        pos: Location): ESTree.CallExpression | ESTree.ArrowFunctionExpression | ESTree.Identifier {
+        pos: Location): ESTree.FunctionExpression | ESTree.FunctionDeclaration | ESTree.CallExpression | ESTree.ArrowFunctionExpression | ESTree.Identifier {
 
         const hasEscape = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
 
@@ -3858,7 +3857,7 @@ export class Parser {
                             this.errorLocation = this.getLocation();
                             this.flags |= Flags.HasAwait;
                         }
-                        
+
                         if (state & (ObjectState.Generator | ObjectState.Async)) {
                             this.early(context, Errors.DisallowedInContext, tokenDesc(t));
                         }
@@ -3942,7 +3941,7 @@ export class Parser {
             context &= ~Context.AsyncContext;
         }
 
-        return this.parseFunction(context | Context.Method, state);
+        return this.parseFunction(context | Context.Method, state) as ESTree.FunctionExpression;
     }
 
     private parseComputedPropertyName(context: Context): ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression {
@@ -4055,12 +4054,12 @@ export class Parser {
         let state = ObjectState.None;
 
         const t = this.token;
-        
+
         if (this.token & (Token.IsIdentifier | Token.IsKeyword)) {
-           id = this.parseBindingIdentifier(context);
+            id = this.parseBindingIdentifier(context);
         } else if (!(context & Context.Expression) && !(context & Context.OptionalIdentifier)) {
-            this.early(context, Errors.UnexpectedToken, tokenDesc(t))
-       }
+            this.early(context, Errors.UnexpectedToken, tokenDesc(t));
+        }
 
         if (this.parseOptional(context, Token.ExtendsKeyword)) {
             superClass = this.parseLeftHandSideExpression(context | Context.Strict, pos);
@@ -4082,7 +4081,7 @@ export class Parser {
 
         this.expect(context | Context.ValidateEscape, Token.LeftBrace);
 
-        const body: ESTree.MethodDefinition[] = [];
+        const body: (ESTree.MethodDefinition | ESTree.FieldDefinition)[] = [];
 
         while (this.token !== Token.RightBrace) {
             if (!this.parseOptional(context, Token.Semicolon)) {
@@ -4102,7 +4101,7 @@ export class Parser {
 
     // http://www.ecma-international.org/ecma-262/8.0/#prod-ClassElement
 
-    private parseClassElement(context: Context, state: ObjectState): any {
+    private parseClassElement(context: Context, state: ObjectState) {
 
         let t = this.token;
 
@@ -4200,7 +4199,7 @@ export class Parser {
         this.report(Errors.UnexpectedToken, tokenDesc(this.token));
     }
 
-    private parseFieldOrMethodDeclaration(context: Context, state: ObjectState, key: any, pos: Location) {
+    private parseFieldOrMethodDeclaration(context: Context, state: ObjectState, key: ESTree.Expression, pos: Location): ESTree.MethodDefinition {
 
         if (state & ObjectState.Heritage && state & ObjectState.Constructor) {
             context |= Context.AllowSuperProperty;
@@ -4227,13 +4226,17 @@ export class Parser {
         });
     }
 
-    private parsePrivateName(context: Context, state: ObjectState = ObjectState.None) {
+    private parsePrivateName(context: Context, state: ObjectState = ObjectState.None): ESTree.PrivateName {
         const pos = this.getLocation();
-        if (state & ObjectState.Static) this.early(context, Errors.Unexpected);
+        if (state & ObjectState.Static) {
+            this.early(context, Errors.Unexpected);
+        }
         this.expect(context | Context.ProhibitWhitespace, Token.Hash);
 
         const t = this.token;
-        if (t === Token.ConstructorKeyword) this.early(context, Errors.Unexpected);
+        if (t === Token.ConstructorKeyword) {
+            this.early(context, Errors.Unexpected);
+        }
         const name = this.tokenValue;
         this.nextToken(context);
         return this.finishNode(context, pos, {
@@ -4281,10 +4284,10 @@ export class Parser {
 
             // Invalid: '() => {} a || true'
             // Invalid: '() => {} ? a : b'
-            if ((context & Context.InParenthesis) && 
-                (hasBit(this.token, Token.IsBinaryOperator) || 
-                this.token === Token.LeftParen ||
-                this.token === Token.QuestionMark)) {
+            if ((context & Context.InParenthesis) &&
+                (hasBit(this.token, Token.IsBinaryOperator) ||
+                    this.token === Token.LeftParen ||
+                    this.token === Token.QuestionMark)) {
                 this.report(Errors.UnexpectedToken, tokenDesc(this.token));
             }
         } else {
@@ -4302,7 +4305,7 @@ export class Parser {
         });
     }
 
-    private parseRestElement(context: Context, params: any[] = []) {
+    private parseRestElement(context: Context, params: string[] = []) {
         const pos = this.getLocation();
         this.expect(context, Token.Ellipsis);
         const argument = this.parseBindingIdentifierOrBindingPattern(context, params);
@@ -4375,7 +4378,7 @@ export class Parser {
 
         if (this.token === Token.Comma) {
 
-            const expressions: any[] = [expr];
+            const expressions: ESTree.Expression[] = [expr];
 
             while (this.parseOptional(context, Token.Comma)) {
 
@@ -4536,7 +4539,7 @@ export class Parser {
         });
     }
 
-    private parseBindingIdentifierOrBindingPattern(context: Context, params: any[] = []) {
+    private parseBindingIdentifierOrBindingPattern(context: Context, params: string[] = []) {
         const t = this.token;
         if (t & (Token.IsAwait | Token.IsYield)) {
             if (t & Token.IsAwait && (context & (Context.AsyncContext | Context.Module))) {
@@ -4557,7 +4560,7 @@ export class Parser {
 
     // https://tc39.github.io/ecma262/#sec-destructuring-binding-patterns
 
-    private parseAssignmentRestElement(context: Context, params: any[] = []): ESTree.RestElement {
+    private parseAssignmentRestElement(context: Context, params: string[] = []): ESTree.RestElement {
         const pos = this.getLocation();
         this.expect(context, Token.Ellipsis);
         const argument = this.parseBindingIdentifierOrBindingPattern(context, params);
@@ -4569,7 +4572,7 @@ export class Parser {
 
     private parseAssignmentPattern(
         context: Context,
-        params: any[],
+        params: string[],
         pos: Location = this.getLocation(),
         pattern: any = this.parseBindingIdentifierOrBindingPattern(context, params)
     ): ESTree.AssignmentPattern {
@@ -4583,7 +4586,7 @@ export class Parser {
         });
     }
 
-    private parseArrayElementsBindingPattern(context: Context, params: any[] = []) {
+    private parseArrayElementsBindingPattern(context: Context, params: string[] = []): ESTree.ArrayPattern {
         const pos = this.getLocation();
         this.expect(context, Token.LeftBracket);
         const elements: (ESTree.Pattern | null)[] = [];
@@ -4611,7 +4614,7 @@ export class Parser {
         });
     }
 
-    private parseRestProperty(context: Context, params: any[]): ESTree.RestElement {
+    private parseRestProperty(context: Context, params: string[]): ESTree.RestElement {
         const pos = this.getLocation();
         this.expect(context, Token.Ellipsis);
         // Object rest spread must be followed by an identifier in declaration contexts
@@ -4627,7 +4630,7 @@ export class Parser {
         });
     }
 
-    private ObjectAssignmentPattern(context: Context, params: any[]) {
+    private ObjectAssignmentPattern(context: Context, params: string[]) {
 
         const pos = this.getLocation();
         const properties: (ESTree.AssignmentProperty | ESTree.RestElement)[] = [];
@@ -4653,7 +4656,7 @@ export class Parser {
         });
     }
 
-    private parseAssignmentProperty(context: Context, params: any[] = []): ESTree.AssignmentProperty {
+    private parseAssignmentProperty(context: Context, params: string[] = []): ESTree.AssignmentProperty {
         const pos = this.getLocation();
         let state = ObjectState.None;
         let key;
@@ -4717,12 +4720,14 @@ export class Parser {
     private parseBindingIdentifier(context: Context): ESTree.Identifier {
 
         const t = this.token;
-
-        if (context & Context.Strict && hasBit(t, Token.IsEvalArguments)) {
-            this.early(context, Errors.InvalidBindingStrictMode, tokenDesc(t));
-        } else if (!this.isIdentifier(context, t)) {
+        if (!this.isIdentifier(context, t)) {
             this.early(context, Errors.UnexpectedToken, tokenDesc(t));
-        } else if (context & Context.BlockScoped && t === Token.LetKeyword) {
+        } 
+        if (context & Context.Strict && t & Token.IsEvalArguments) {
+            this.early(context, Errors.InvalidBindingStrictMode, tokenDesc(t));
+        } 
+      
+         if (context & Context.BlockScoped && t === Token.LetKeyword) {
             this.early(context, Errors.LetInLexicalBinding);
         }
 
@@ -4736,15 +4741,18 @@ export class Parser {
         });
     }
 
-    private parseIdentifierName(context: Context, t: Token) {
-        if (t & (Token.IsIdentifier | Token.Keyword)) return this.parseIdentifier(context);
-        this.early(context, Errors.UnexpectedToken, tokenDesc(t));
+    private parseIdentifierName(context: Context, t: Token): ESTree.Identifier {
+        if (!(t & (Token.IsIdentifier | Token.Keyword))) {
+            this.early(context, Errors.UnexpectedToken, tokenDesc(t));
+        }
+        return this.parseIdentifier(context);
+        
     }
 
     private parseFunction(
         context: Context,
         state: ObjectState = ObjectState.None,
-        pos = this.getLocation()) {
+        pos = this.getLocation()): ESTree.FunctionExpression | ESTree.FunctionDeclaration {
 
         let id: ESTree.Identifier | undefined | null = null;
 
@@ -4882,7 +4890,7 @@ export class Parser {
 
         this.flags &= ~Flags.SimpleParameterList;
 
-        const args: any[] = [];
+        const args: string[] = [];
 
         const params: ESTree.ArrayPattern | ESTree.RestElement | ESTree.ObjectPattern | ESTree.Identifier[] = [];
 

@@ -211,6 +211,154 @@ describe('Expressions - Yield', () => {
     });
 }
 
+    pass(`function* f() {
+        let result;
+        while (1) {
+            result = yield result;
+        }
+    }`, {
+    source: `function* f() {
+        let result;
+        while (1) {
+            result = yield result;
+        }
+    }`,
+    raw: true,
+    expected: {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+            {
+                type: 'FunctionDeclaration',
+                params: [],
+                body: {
+                    type: 'BlockStatement',
+                    body: [
+                        {
+                            type: 'VariableDeclaration',
+                            declarations: [
+                                {
+                                    type: 'VariableDeclarator',
+                                    init: null,
+                                    id: {
+                                        type: 'Identifier',
+                                        name: 'result'
+                                    }
+                                }
+                            ],
+                            kind: 'let'
+                        },
+                        {
+                            type: 'WhileStatement',
+                            test: {
+                                type: 'Literal',
+                                value: 1,
+                                raw: '1'
+                            },
+                            body: {
+                                type: 'BlockStatement',
+                                body: [
+                                    {
+                                        type: 'ExpressionStatement',
+                                        expression: {
+                                            type: 'AssignmentExpression',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'result'
+                                            },
+                                            operator: '=',
+                                            right: {
+                                                type: 'YieldExpression',
+                                                argument: {
+                                                    type: 'Identifier',
+                                                    name: 'result'
+                                                },
+                                                delegate: false
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                async: false,
+                generator: true,
+                expression: false,
+                id: {
+                    type: 'Identifier',
+                    name: 'f'
+                }
+            }
+        ]
+    }
+});
+
+    pass(`function * foo() {
+    var v = { [yield]: foo }
+  }`, {
+    source: `function * foo() {
+        var v = { [yield]: foo }
+      }`,
+    raw: true,
+    expected: {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+            {
+                type: 'FunctionDeclaration',
+                params: [],
+                body: {
+                    type: 'BlockStatement',
+                    body: [
+                        {
+                            type: 'VariableDeclaration',
+                            declarations: [
+                                {
+                                    type: 'VariableDeclarator',
+                                    init: {
+                                        type: 'ObjectExpression',
+                                        properties: [
+                                            {
+                                                type: 'Property',
+                                                key: {
+                                                    type: 'YieldExpression',
+                                                    argument: null,
+                                                    delegate: false
+                                                },
+                                                value: {
+                                                    type: 'Identifier',
+                                                    name: 'foo'
+                                                },
+                                                kind: 'init',
+                                                computed: true,
+                                                method: false,
+                                                shorthand: false
+                                            }
+                                        ]
+                                    },
+                                    id: {
+                                        type: 'Identifier',
+                                        name: 'v'
+                                    }
+                                }
+                            ],
+                            kind: 'var'
+                        }
+                    ]
+                },
+                async: false,
+                generator: true,
+                expression: false,
+                id: {
+                    type: 'Identifier',
+                    name: 'foo'
+                }
+            }
+        ]
+    }
+});
+
     pass(`(function not_gen() { ({ get yield() { 1 } }) })`, {
     source: '(function not_gen() { ({ get yield() { 1 } }) })',
     loc: true,

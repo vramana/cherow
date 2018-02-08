@@ -36,7 +36,6 @@ export const enum Context {
     OptionalIdentifier      = 1 << 29,
     InTypeAnnotation        = 1 << 30, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
     BlockScoped  = Let | Const
-
 }
 
 /* Mutable parser flags */
@@ -59,8 +58,7 @@ export const enum Flags {
     WhiteSpace              = 1 << 13,
     ReservedWords           = 1 << 14,
     HasCommaSeparator       = 1 << 15,
-    DisallowArrowFunction   = 1 << 16, // Disallow arrows in 'new expression' context
-    InBlock                 = 1 << 17
+    DisallowArrowFunction   = 1 << 16 // Disallow arrows in 'new expression' context
 }
 
 /** Shared between class and objects */

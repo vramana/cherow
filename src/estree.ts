@@ -25,6 +25,8 @@ export interface T_Node extends T_Statement, T_Expression, T_Pattern,
     'SpreadElement': SpreadElement;
     'TemplateElement': TemplateElement;
     'ClassBody': ClassBody;
+    'FieldDefinition ': FieldDefinition;
+    'PrivateName': PrivateName;
     'MethodDefinition': MethodDefinition;
     'VariableDeclarator': VariableDeclarator;
     'JSXIdentifier': JSXIdentifier;
@@ -52,6 +54,8 @@ export type Node =
     | SpreadElement
     | TemplateElement
     | ClassBody
+    | FieldDefinition 
+    | PrivateName
     | MethodDefinition
     | ModuleDeclaration
     | ModuleSpecifier
@@ -136,6 +140,7 @@ interface T_Expression {
     'Identifier': Identifier;
     'Literal': Literal | RegExpLiteral | BigIntLiteral;
     'BigIntLiteral': Literal;
+    'PrivateMemberExpression': PrivateMemberExpression
     'ThisExpression': ThisExpression;
     'ArrayExpression': ArrayExpression;
     'ObjectExpression': ObjectExpression;
@@ -176,6 +181,7 @@ export type Expression =
     | AssignmentExpression
     | LogicalExpression
     | MemberExpression
+    | PrivateName
     | ConditionalExpression
     | CallExpression
     | NewExpression
@@ -197,6 +203,7 @@ interface T_Pattern {
     'ObjectPattern': ObjectPattern;
     'ArrayPattern': ArrayPattern;
     'MemberExpression': MemberExpression;
+    'PrivateMemberExpression': PrivateMemberExpression;
     'AssignmentPattern': AssignmentPattern;
     'RestElement': RestElement;
 }
@@ -348,7 +355,18 @@ export interface CatchClause extends _Node<'CatchClause'> {
 }
 
 export interface ClassBody extends _Node<'ClassBody'> {
-    body: MethodDefinition[];
+    body: (MethodDefinition | FieldDefinition )[];
+}
+
+export interface PrivateMemberExpression  extends _Node<'PrivateMemberExpression '> {
+    object: Expression;
+    property: PrivateName;
+}
+
+export interface FieldDefinition  extends _Node<'FieldDefinition '> {
+    key: PrivateName | Expression;
+    value: Expression | null;
+    computed: boolean;
 }
 
 export interface ClassDeclaration extends _Declaration<'ClassDeclaration'> {
@@ -503,8 +521,12 @@ export interface MetaProperty extends _Expression<'MetaProperty'> {
     property: Identifier;
 }
 
+export interface PrivateName extends _Node<'PrivateName'> {
+    name: string;
+}
+
 export interface MethodDefinition extends _Node<'MethodDefinition'> {
-    key: Expression | null;
+    key: Expression | PrivateName;
     value: FunctionExpression | null;
     kind: 'constructor' | 'method' | 'get' | 'set';
     computed: boolean;

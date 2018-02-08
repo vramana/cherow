@@ -1952,6 +1952,66 @@ describe('Declarations - Function', () => {
         }
     });
 
+    pass(`function foo() {
+        "use strict";
+        var abstract = true;
+    }`, {
+        source: `function foo() {
+            "use strict";
+            var abstract = true;
+        }`,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'ExpressionStatement',
+                                expression: {
+                                    type: 'Literal',
+                                    value: 'use strict',
+                                    raw: '"use strict"'
+                                },
+                                directive: 'use strict'
+                            },
+                            {
+                                type: 'VariableDeclaration',
+                                declarations: [
+                                    {
+                                        type: 'VariableDeclarator',
+                                        init: {
+                                            type: 'Literal',
+                                            value: true,
+                                            raw: 'true'
+                                        },
+                                        id: {
+                                            type: 'Identifier',
+                                            name: 'abstract'
+                                        }
+                                    }
+                                ],
+                                kind: 'var'
+                            }
+                        ]
+                    },
+                    async: false,
+                    generator: false,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'foo'
+                    }
+                }
+            ]
+        }
+    });
+
     pass('function a({a} = {a: 1}) {}', {
         source: 'function a({a} = {a: 1}) {}',
         loc: true,
