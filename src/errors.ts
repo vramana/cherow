@@ -70,7 +70,7 @@ export const enum Errors {
     AsyncFunctionInSingleStatementContext,
     ExportDeclAtTopLevel,
     ImportDeclAtTopLevel,
-    GeneratorInLegacyContext,
+    GeneratorLabel,
     UnterminatedRegExp,
     UnexpectedTokenRegExp,
     DuplicateRegExpFlag,
@@ -92,7 +92,8 @@ export const enum Errors {
     DuplicateParameter,
     MissingConstInitializer,
     UnexpectedStrictEvalOrArguments,
-    BadImportCallArity
+    BadImportCallArity,
+    ArgumentsDisallowedInInitializer
 }
 
 export const ErrorMessages: {
@@ -167,7 +168,7 @@ export const ErrorMessages: {
     [Errors.ExportDeclAtTopLevel]: 'Export declarations may only appear at top level of a module',
     [Errors.ImportDeclAtTopLevel]: 'Import declarations may only appear at top level of a module',
     [Errors.UnknownLabel]: 'Undefined label \'%0\'',
-    [Errors.GeneratorInLegacyContext]: 'Generator declarations are not allowed in legacy contexts',
+    [Errors.GeneratorLabel]: 'Generator functions cannot be labelled',
     [Errors.DuplicateRegExpFlag]: 'Duplicate regular expression flag %0',
     [Errors.UnexpectedTokenRegExp]: 'Unexpected regular expression',
     [Errors.UnexpectedTokenRegExpFlag]: 'Unexpected regular expression flag',
@@ -190,7 +191,9 @@ export const ErrorMessages: {
     [Errors.MissingConstInitializer]: 'Missing initializer in const declaration',
     [Errors.UnexpectedStrictReserved]: 'Unexpected strict mode reserved word',
     [Errors.UnexpectedStrictEvalOrArguments]: 'Unexpected eval or arguments in strict mode',
-    [Errors.BadImportCallArity]: 'Dynamic import must have one specifier as an argument'
+    [Errors.BadImportCallArity]: 'Dynamic import must have one specifier as an argument',
+    [Errors.ArgumentsDisallowedInInitializer]: '\'%0\' is not allowed in class field initializer',
+    
 };
 
 function constructError(msg: string, column: number): Error {

@@ -14,7 +14,7 @@ export const enum Context {
     Strict                  = 1 << 7,  // Node was parsed in a strict mode context
     Module                  = 1 << 8,  // Node was parsed in a module code context
     TaggedTemplate          = 1 << 9,
-    IfBody                  = 1 << 10, // Node was parsed as the body of an IFStatement - 'consequent' or 'alternate'
+    IfStatement             = 1 << 10, // Node was parsed as the body of an IFStatement - 'consequent' or 'alternate'
     Expression              = 1 << 11, // Node was parsed within an expression context
     InParameter             = 1 << 12, //
     AllowYield              = 1 << 13, // Node was parsed in the 'yield' context created when parsing an generator function

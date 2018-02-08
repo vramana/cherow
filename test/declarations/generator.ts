@@ -173,7 +173,7 @@ describe('Declarations - Generator', () => {
 
     fail(`label: function* a(){}`, {
         source: 'label: function* a(){}',
-        message: 'Generator declarations are not allowed in legacy contexts',
+        message: 'Generator functions cannot be labelled',
         line: 1,
         column: 16,
         index: 16

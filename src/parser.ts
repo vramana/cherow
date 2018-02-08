@@ -1806,9 +1806,9 @@ export class Parser {
     private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
         const savedState = this.lookahead();
         const t = this.nextToken(context);
-        const line = this.line;
+        const flags = this.flags;
         this.rewindState(savedState);
-        return line === this.line && t === Token.FunctionKeyword;
+        return !(flags & Flags.LineTerminator) && t === Token.FunctionKeyword;
     }
 
     private isLexical(context: Context): boolean {
@@ -1818,7 +1818,7 @@ export class Parser {
         const flags = this.flags;
         this.rewindState(savedState);
         return !(savedFlag & Flags.ExtendedUnicodeEscape && flags & Flags.LineTerminator) &&
-            !!(t & (Token.IsBindingPattern | Token.IsIdentifier | Token.IsYield) ||
+            !!(t & (Token.IsBindingPattern | Token.IsIdentifier | Token.IsYield | Token.IsAwait) ||
                 t === Token.LetKeyword ||
                 (t & Token.Contextual) === Token.Contextual);
     }
@@ -2247,34 +2247,47 @@ export class Parser {
     private parseStatement(context: Context): any {
 
         switch (this.token) {
+            // VariableStatement[?Yield]
             case Token.VarKeyword:
                 return this.parseVariableStatement(context);
+                // BlockStatement[?Yield, ?Return]
             case Token.LeftBrace:
                 return this.parseBlockStatement(context);
             case Token.ReturnKeyword:
                 return this.parseReturnStatement(context);
+                // IfStatement[?Yield, ?Return]
             case Token.IfKeyword:
                 return this.parseIfStatement(context);
-            case Token.BreakKeyword:
-                return this.parseBreakStatement(context);
-            case Token.ForKeyword:
-                return this.parseForStatement(context);
-            case Token.ContinueKeyword:
-                return this.parseContinueStatement(context);
             case Token.DebuggerKeyword:
                 return this.parseDebuggerStatement(context);
+                // BreakableStatement[?Yield, ?Return]
+                //
+                // BreakableStatement[Yield, Return]:
+                //   IterationStatement[?Yield, ?Return]
+                //   SwitchStatement[?Yield, ?Return]
             case Token.DoKeyword:
                 return this.parseDoWhileStatement(context);
-            case Token.Semicolon:
-                return this.parseEmptyStatement(context);
             case Token.WhileKeyword:
                 return this.parseWhileStatement(context);
+                // WithStatement[?Yield, ?Return]                
             case Token.WithKeyword:
                 return this.parseWithStatement(context);
             case Token.SwitchKeyword:
                 return this.parseSwitchStatement(context);
+            case Token.ForKeyword:
+                return this.parseForStatement(context);
+            case Token.BreakKeyword:
+                return this.parseBreakStatement(context);
+                // ContinueStatement[?Yield]
+            case Token.ContinueKeyword:
+                return this.parseContinueStatement(context);
+                // EmptyStatement
+            case Token.Semicolon:
+                return this.parseEmptyStatement(context);
+                // ThrowStatement[?Yield]
             case Token.ThrowKeyword:
                 return this.parseThrowStatement(context);
+                // TryStatement[?Yield, ?Return]
             case Token.TryKeyword:
                 return this.parseTryStatement(context);
             case Token.AsyncKeyword:
@@ -2286,11 +2299,14 @@ export class Parser {
                 }
             case Token.AwaitKeyword:
             case Token.Identifier:
+                // ExpressionStatement[?Yield].
             case Token.YieldKeyword:
                 return this.parseExpressionOrLabeledStatement(context);
+                // Note! 'function' is forbidden by lookahead restriction (unless as child
+                // statement of "if" or "else").
             case Token.FunctionKeyword:
-                if (context & Context.IfBody) return this.parseFunction(context);
-                // falls through
+                if (context & Context.IfStatement) return this.parseFunction(context);
+                // "class" is also forbidden by lookahead restriction.
             case Token.ClassKeyword:
                 this.early(context, Errors.ForbiddenAsStatement, tokenDesc(this.token));
             default:
@@ -2345,7 +2361,7 @@ export class Parser {
                             this.early(context, Errors.SloppyFunction);
                         }
 
-                        if (context & (Context.Strict | Context.IfBody)) {
+                        if (context & (Context.Strict | Context.IfStatement)) {
                             this.early(context, context & Context.Strict ? Errors.StrictFunction : Errors.SloppyFunction);
                         }
 
@@ -2382,7 +2398,7 @@ export class Parser {
             this.early(context, Errors.ForbiddenAsIfDeclaration);
         }
 
-        return this.parseStatement(context | Context.IfBody | Context.Statement);
+        return this.parseStatement(context | Context.IfStatement | Context.Statement);
     }
 
     private parseIfStatement(context: Context) {
@@ -3011,7 +3027,7 @@ export class Parser {
         const consequent = this.parseAssignmentExpression(context | Context.AllowIn);
         this.expect(context, Token.Colon);
         if (context & Context.InClass && this.token & Token.IsEvalArguments) {
-            this.early(context, Errors.UnexpectedStrictEvalOrArguments);
+            this.early(context, Errors.ArgumentsDisallowedInInitializer, tokenDesc(this.token));
         }
         const alternate = this.parseAssignmentExpression(context);
         return this.finishNode(context, pos, {
@@ -3510,7 +3526,7 @@ export class Parser {
             case Token.ClassKeyword:
                 return this.parseClass(context & ~Context.AllowIn | Context.Expression);
             case Token.FunctionKeyword:
-                return this.parseFunction(context & ~(Context.AllowYield | Context.IfBody) | Context.Expression);
+                return this.parseFunction(context & ~(Context.AllowYield | Context.IfStatement) | Context.Expression);
             case Token.NewKeyword:
                 return this.parseNewExpression(context);
             case Token.TemplateTail:
@@ -3578,7 +3594,7 @@ export class Parser {
         if (this.token === Token.FunctionKeyword) {
             if (hasEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
             return this.parseFunction(
-                context & ~Context.IfBody | (Context.Expression | Context.AllowAsync),
+                context & ~Context.IfStatement | (Context.Expression | Context.AllowAsync),
                 ObjectState.None,
                 true,
                 pos);
@@ -3899,7 +3915,7 @@ export class Parser {
                             this.errorLocation = this.getLocation();
                             this.flags |= Flags.HasAwait;
                         }
-                        
+
                         this.flags |= Flags.CoverInitializedName;
 
                         const right = this.parseAssignmentExpression(context);
@@ -4290,7 +4306,9 @@ export class Parser {
                 this.report(Errors.UnexpectedToken, tokenDesc(this.token));
             }
         } else {
-            if (context & Context.InClass && this.token & Token.IsEvalArguments) this.report(Errors.UnexpectedStrictEvalOrArguments);
+            if (context & Context.InClass && this.token & Token.IsEvalArguments) {
+                this.early(context, Errors.ArgumentsDisallowedInInitializer, tokenDesc(this.token));
+            }
             body = this.parseAssignmentExpression(context | Context.AllowIn | Context.ArrowFunction);
             expression = true;
         }
@@ -4382,9 +4400,15 @@ export class Parser {
 
             while (this.parseOptional(context, Token.Comma)) {
 
+                // If found a 'RightParen' token here, then this is a trailing comma, which 
+                // is allowed before the closing parenthesis in an arrow
+                // function parameters list. E.g. `(a, b, ) => body`. 
                 if (this.parseOptional(context, Token.RightParen)) {
-                    if (this.token === Token.Arrow)
-                        return this.parseArrowFunctionExpression(context & ~(Context.AllowAsync | Context.AllowYield), pos, expressions, params);
+                    if (this.token === Token.Arrow) {
+                        return this.parseArrowFunctionExpression(
+                            context & ~(Context.AllowAsync | Context.AllowYield), pos, expressions, params
+                        );
+                    }    
                 } else if (this.token === Token.Ellipsis) {
                     expressions.push(this.parseRestElement(context, params));
                     this.expect(context, Token.RightParen);
@@ -4775,8 +4799,12 @@ export class Parser {
             this.expect(context, Token.FunctionKeyword);
 
             if (this.parseOptional(context, Token.Multiply)) {
+                // The 'Statement context' check is only true if this is parsed through
+                // a label set - e.g. 'a: function a() {}' - and then forbidden because a 
+                // generator declaration is only matched by HoistableDeclaration 
+                // in StatementListItem.
                 if (context & Context.Statement) {
-                    this.early(context, Errors.GeneratorInLegacyContext);
+                    this.early(context, Errors.GeneratorLabel);
                 }
                 context |= Context.AllowYield;
             } else {
@@ -4794,7 +4822,7 @@ export class Parser {
                     this.flags |= Flags.ReservedWords;
                 }
 
-                if (context & (Context.Expression | Context.IfBody)) {
+                if (context & (Context.Expression | Context.IfStatement)) {
 
                     if ((context & Context.AllowAsync && t & Token.IsAwait) ||
                         (context & Context.AllowYield && t & Token.IsYield)) {
@@ -4822,7 +4850,7 @@ export class Parser {
 
         const args = formalParameters.args;
         const params = formalParameters.params;
-        const body = this.parseFunctionBody(context & ~(Context.IfBody | Context.OptionalIdentifier | Context.Expression | Context.TopLevel), args);
+        const body = this.parseFunctionBody(context & ~(Context.IfStatement | Context.OptionalIdentifier | Context.Expression | Context.TopLevel), args);
 
         return this.finishNode(context, pos, {
             type: context & (Context.Expression | Context.Method) ? 'FunctionExpression' : 'FunctionDeclaration',

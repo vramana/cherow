@@ -1362,4 +1362,105 @@ describe('Miscellaneous - Comments', () => {
     }
 });
 
+pass('var x = 42;/*\n*/-->is eol-comment\nvar y = 37;\n', {
+  source: 'var x = 42;/*\n*/-->is eol-comment\nvar y = 37;\n',
+  comments: true,
+  expected: {
+      "body": [
+        {
+          "declarations": [
+            {
+              "id": {
+                "name": "x",
+                "type": "Identifier"
+              },
+              "init": {
+                "type": "Literal",
+                "value": 42,
+              },
+              "type": "VariableDeclarator"
+            }
+          ],
+          "kind": "var",
+          "type": "VariableDeclaration"
+        },
+        {
+          "declarations": [
+            {
+              "id": {
+               "name": "y",
+                "type": "Identifier",
+              },
+              "init": {
+                "type": "Literal",
+                "value": 37,
+              },
+              "type": "VariableDeclarator"
+            }
+          ],
+          "kind": "var",
+          "type": "VariableDeclaration"
+        }
+      ],
+      "comments": [
+        {
+          "end": 16,
+          "start": 11,
+          "type": "MultiLine",
+          "value": "\n",
+        },
+        {
+          "end": 34,
+          "start": 16,
+          "type": "HTMLClose",
+          "value": "is eol-comment\n",
+        }
+     ],
+      "sourceType": "script",
+      "type": "Program"
+    }
+});
+
+pass('/* MLC1 \n */ /* SLDC1 */ /* MLC2 \n */ /* SLDC2 */ --> is eol-comment\n', {
+  source: '/* MLC1 \n */ /* SLDC1 */ /* MLC2 \n */ /* SLDC2 */ --> is eol-comment\n',
+  comments: true,
+  expected: {
+      "body": [],
+      "comments": [
+        {
+          "end": 12,
+          "start": 0,
+          "type": "MultiLine",
+          "value": " MLC1 \n ",
+        },
+        {
+          "end": 24,
+          "start": 13,
+         "type": "MultiLine",
+          "value": " SLDC1 ",
+        },
+        {
+          "end": 37,
+          "start": 25,
+          "type": "MultiLine",
+          "value": " MLC2 \n ",
+        },
+        {
+          "end": 49,
+          "start": 38,
+          "type": "MultiLine",
+          "value": " SLDC2 ",
+        },
+       {
+          "end": 69,
+          "start": 50,
+          "type": "HTMLClose",
+          "value": " is eol-comment\n",
+        }
+      ],
+     "sourceType": "script",
+      "type": "Program",
+    }
+});
+
 });
