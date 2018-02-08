@@ -73,327 +73,374 @@ describe('Statements - Numeric separators', () => {
         }
     }
 
+    fail(`0x0_`, {
+        source: '0x0_',
+        next: true,
+        line: 1
+    });
+
     fail(`"\\u{12_34}"`, {
         source: '"\\u{12_34}"',
         next: true,
+        line: 1
     });
 
     fail(`"let a\\u{12_34} = 5"`, {
         source: '"let a\\u{12_34} = 5"',
         next: true,
+        line: 1
     });
 
     fail(`"\\u12_34"`, {
         source: '"\\u12_34"',
         next: true,
+        line: 1
     });
 
     fail(`5_______2;`, {
         source: '5_______2;',
         next: true,
+        line: 1
     });
 
     fail(`0x_52`, {
         source: '0x_52',
         next: true,
+        line: 1
     });
 
     fail(`1_`, {
         source: '1_',
         next: true,
+        line: 1
     });
 
     fail(`3_.1415F;`, {
         source: '3_.1415F;',
         next: true,
+        line: 1
     });
 
     fail(`.4_3_1`, {
         source: '.4_3_1',
+        line: 1
     });
 
     fail(`3._1415F;`, {
         source: '3._1415F;',
         next: true,
+        line: 1
     });
 
     fail(`0b_`, {
         source: '0b_',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0b0__0`, {
         source: '0b0__0',
         next: true,
+        line: 1
     });
 
     fail(`1__0123456789`, {
         source: '1__0123456789',
         next: true,
+        line: 1
     });
 
     fail(`(1_1_)`, {
         source: '(1_1_)',
         next: true,
+        line: 1
     });
 
     fail(`(1__1)`, {
         source: '(1__1)',
         next: true,
+        line: 1
     });
 
     fail(`(1_1_.1_1)`, {
         source: '(1_1_.1_1)',
         next: true,
+        line: 1
     });
 
     fail(`(1_1.1_E1)`, {
         source: '(1_1.1_E1)',
         next: true,
+        line: 1
     });
 
     fail(`\\u{10_ffff}`, {
         source: '\\u{10_ffff}',
         next: true,
+        line: 1
     });
 
     fail(`0xa_1_`, {
         source: '0xa_1_',
         next: true,
+        line: 1
     });
 
     fail(`(0x_a_1)`, {
         source: '(0x_a_1)',
         next: true,
+        line: 1
     });
 
     fail(`(0o_1_1)`, {
         source: '(0o_1_1)',
         next: true,
+        line: 1
     });
 
     fail(`0x_a_1`, {
         source: '0x_a_1',
         next: true,
+        line: 1
     });
 
     fail(`{1_}`, {
         source: '{1_}',
         next: true,
+        line: 1
     });
 
     fail(`{1__1}`, {
         source: '{1__1}',
         next: true,
+        line: 1
     });
 
     fail(`{0x_1_1_}`, {
         source: '{0x_1_1_}',
         next: true,
+        line: 1
     });
 
     fail(`0xZ_1`, {
         source: '0xZ_1',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`[1_1__]`, {
         source: '[1_1__]',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`[1_1.1_e1]`, {
         source: '[1_1.1_e1]',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`[0o_1_1]`, {
         source: '[0o_1_1]',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`1_`, {
         source: '1_',
         next: true,
+        line: 1
     });
 
     fail(`0x_1`, {
         source: '0x_1',
         next: true,
+        line: 1
     });
 
     fail(`0x0__0`, {
         source: '0x0__0',
         next: true,
+        line: 1
     });
 
     fail(`0x0_`, {
         source: '0x0_',
         next: true,
+        line: 1
     });
 
     fail(`10_`, {
         source: '10_',
         next: true,
+        line: 1
     });
 
     fail(`10__0123456789`, {
         source: '10__0123456789',
         next: true,
-    });
-
-    fail(`0b_1`, {
-        source: '0b_1',
-        next: true
+        line: 1
     });
 
     fail(`0b0__0`, {
         source: '0b0__0',
         next: true,
+        line: 1
     });
 
     fail(`0b0_`, {
         source: '0b0_',
         next: true,
+        line: 1
     });
     fail(`10.0_e1`, {
         source: '10.0_e1',
         next: true,
+        line: 1
     });
 
     fail(`0.00e0__0`, {
         source: '0.00e0__0',
         next: true,
+        line: 1
     });
 
     fail(`0o0_`, {
         source: '0o0_',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0o0__0`, {
         source: '0o0__0',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0o0_`, {
         source: '0o0_',
-        next: true
-    });
-
-    fail(`0o_1`, {
-        source: '0o_1',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`"use strict"; 07_1`, {
         source: '"use strict"; 07_1',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0x0_`, {
         source: '0x0_',
-        next: true
-    });
-
-    fail(`0o_1`, {
-        source: '0o_1',
-        next: true
-    });
-
-    fail(`0o_1`, {
-        source: '0o_1',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`._`, {
         source: '._',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0x_`, {
         source: '0x_',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0x0__0`, {
         source: '0x0__0',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0x0_`, {
         source: '0x0_',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0x_`, {
         source: '0x_',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0o0__0`, {
         source: '0o0__0',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0o0_`, {
         source: '0o0_',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0o_`, {
         source: '0o_',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0x___0111010_0101_1`, {
         source: '0x___0111010_0101_1',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0X0110_0110__`, {
         source: '0X0110_0110__',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`0\\u005F0123456789`, {
         source: '0\\u005F0123456789',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`\\uff__ff`, {
         source: '\\uff__ff',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`"\\uff__ff"`, {
         source: '"\\uff__ff"',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`2__4`, {
         source: '2__4',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`._4`, {
         source: '._4',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`_.4`, {
         source: '_.4',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`1._43`, {
         source: '1._43',
-        next: true
+        next: true,
+        line: 1
     });
 
     fail(`1.4_e2`, {
         source: '1.4_e2',
-        next: true
+        next: true,
+        line: 1
     });
 
     pass(`0_1_2`, {
