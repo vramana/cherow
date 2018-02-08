@@ -2198,11 +2198,11 @@ export class Parser {
 
         switch (this.token) {
 
-            // 'export'
+            // ExportDeclaration
             case Token.ExportKeyword:
                 return this.parseExportDeclaration(context);
 
-                // 'import'
+                // ImportDeclaration 
             case Token.ImportKeyword:
                 if (!(context & Context.OptionsNext && this.nextTokenIsLeftParenOrPeriod(context))) {
                     return this.parseImportDeclaration(context);
@@ -2218,16 +2218,21 @@ export class Parser {
 
     private parseStatementListItem(context: Context): any {
         switch (this.token) {
+            //   HoistableDeclaration[?Yield, ~Default]
             case Token.FunctionKeyword:
                 return this.parseFunction(context);
+                //  ClassDeclaration[?Yield, ~Default]
             case Token.ClassKeyword:
                 return this.parseClass(context & ~Context.AllowIn);
+                //   LexicalDeclaration[In, ?Yield]
+                //   LetOrConst BindingList[?In, ?Yield]
             case Token.LetKeyword:
                 if (!this.isLexical(context)) return this.parseStatement(context);
                 return this.parseVariableStatement(context | Context.Let | Context.AllowIn);
             case Token.ConstKeyword:
                 return this.parseVariableStatement(context | Context.AllowIn | Context.Const);
-                // VariableStatement[?Yield]
+                // ExportDeclaration and ImportDeclaration are only allowd inside modules and
+                // forbidden here
             case Token.ExportKeyword:
                 if (context & Context.Module) this.early(context, Errors.ExportDeclAtTopLevel);
             case Token.ImportKeyword:
@@ -2244,7 +2249,7 @@ export class Parser {
 
     // https://tc39.github.io/ecma262/#sec-ecmascript-language-statements-and-declarations
 
-    private parseStatement(context: Context): any {
+    private parseStatement(context: Context): ESTree.Statement {
 
         switch (this.token) {
             // VariableStatement[?Yield]
@@ -2253,13 +2258,16 @@ export class Parser {
                 // BlockStatement[?Yield, ?Return]
             case Token.LeftBrace:
                 return this.parseBlockStatement(context);
+            case Token.LeftParen:
+                return this.parseExpressionStatement(context);
+            case Token.Semicolon:
+                return this.parseEmptyStatement(context);
+                // [+Return] ReturnStatement[?Yield]
             case Token.ReturnKeyword:
                 return this.parseReturnStatement(context);
                 // IfStatement[?Yield, ?Return]
             case Token.IfKeyword:
                 return this.parseIfStatement(context);
-            case Token.DebuggerKeyword:
-                return this.parseDebuggerStatement(context);
                 // BreakableStatement[?Yield, ?Return]
                 //
                 // BreakableStatement[Yield, Return]:
@@ -2282,8 +2290,8 @@ export class Parser {
             case Token.ContinueKeyword:
                 return this.parseContinueStatement(context);
                 // EmptyStatement
-            case Token.Semicolon:
-                return this.parseEmptyStatement(context);
+            case Token.DebuggerKeyword:
+                return this.parseDebuggerStatement(context);
                 // ThrowStatement[?Yield]
             case Token.ThrowKeyword:
                 return this.parseThrowStatement(context);
@@ -2291,21 +2299,19 @@ export class Parser {
             case Token.TryKeyword:
                 return this.parseTryStatement(context);
             case Token.AsyncKeyword:
-                if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                    if (context & Context.Statement) this.early(context, Errors.AsyncFunctionInSingleStatementContext);
-                    // Async and async generator declaration is not allowed in statement position,
-                    if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
-                    return this.parseFunction(context);
+                {
+                    if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
+                        if (context & Context.Statement) this.early(context, Errors.AsyncFunctionInSingleStatementContext);
+                        // Async and async generator declaration is not allowed in statement position,
+                        if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
+                        return this.parseFunction(context) as ESTree.FunctionDeclaration;
+                    }
+                    return this.parseExpressionOrLabeledStatement(context);
                 }
-            case Token.AwaitKeyword:
-            case Token.Identifier:
-                // ExpressionStatement[?Yield].
-            case Token.YieldKeyword:
-                return this.parseExpressionOrLabeledStatement(context);
                 // Note! 'function' is forbidden by lookahead restriction (unless as child
                 // statement of "if" or "else").
             case Token.FunctionKeyword:
-                if (context & Context.IfStatement) return this.parseFunction(context);
+                if (context & Context.IfStatement) return this.parseFunction(context) as ESTree.FunctionDeclaration;
                 // "class" is also forbidden by lookahead restriction.
             case Token.ClassKeyword:
                 this.early(context, Errors.ForbiddenAsStatement, tokenDesc(this.token));
@@ -3622,8 +3628,7 @@ export class Parser {
             return this.parseArrowFunctionExpression(context | Context.AllowAsync, pos, [expr]);
         }
 
-        // A simple async identifier - E.g 'async' or 'async: await' where the latter is the
-        // identifier node in this case.
+        // A plain async identifier - 'async'. Nothing more we can do, so return.
         if (this.token !== Token.LeftParen) return id;
 
         const params: string[] = [];
@@ -3635,6 +3640,7 @@ export class Parser {
 
         this.expect(context, Token.LeftParen);
 
+         // 'async (' can be the start of an async arrow function or a call expression...
         while (this.token !== Token.RightParen) {
 
             if (this.token === Token.Ellipsis) {
@@ -3644,6 +3650,7 @@ export class Parser {
                 args.push(elem);
                 break;
             }
+            
             // Start of a binding pattern inside parenthesis - '({foo: bar})', '{[()]}'
             if (hasBit(this.token, Token.IsBindingPattern)) {
                 this.errorLocation = this.getLocation();
@@ -3691,7 +3698,6 @@ export class Parser {
             if (hasEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
 
             if (state & ParenthesizedState.BindingPattern) {
-                // this.errorLocation = this.getLocation();
                 this.flags |= Flags.SimpleParameterList;
             }
 
@@ -4408,7 +4414,7 @@ export class Parser {
                         return this.parseArrowFunctionExpression(
                             context & ~(Context.AllowAsync | Context.AllowYield), pos, expressions, params
                         );
-                    }    
+                    }
                 } else if (this.token === Token.Ellipsis) {
                     expressions.push(this.parseRestElement(context, params));
                     this.expect(context, Token.RightParen);
@@ -4800,7 +4806,7 @@ export class Parser {
 
             if (this.parseOptional(context, Token.Multiply)) {
                 // The 'Statement context' check is only true if this is parsed through
-                // a label set - e.g. 'a: function a() {}' - and then forbidden because a 
+                // a label set - e.g. 'a: function *a() {}' - and then forbidden because a 
                 // generator declaration is only matched by HoistableDeclaration 
                 // in StatementListItem.
                 if (context & Context.Statement) {

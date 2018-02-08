@@ -294,7 +294,7 @@ describe('Expressions - Yield', () => {
     }
 });
 
-pass(`function* g() {
+    pass(`function* g() {
     yield arguments[0];
     yield arguments[1];
     yield arguments[2];
@@ -308,106 +308,106 @@ pass(`function* g() {
       }`,
     raw: true,
     expected: {
-          "body": [
+          body: [
             {
-              "async": false,
-              "body": {
-                "body": [
+              async: false,
+              body: {
+                body: [
                   {
-                    "expression": {
-                     "argument": {
-                        "computed": true,
-                        "object": {
-                          "name": "arguments",
-                          "type": "Identifier",
+                    expression: {
+                     argument: {
+                        computed: true,
+                        object: {
+                          name: 'arguments',
+                          type: 'Identifier',
                         },
-                        "property": {
-                          "raw": "0",
-                          "type": "Literal",
-                          "value": 0,
+                        property: {
+                          raw: '0',
+                          type: 'Literal',
+                          value: 0,
                         },
-                        "type": "MemberExpression"
+                        type: 'MemberExpression'
                       },
-                      "delegate": false,
-                      "type": "YieldExpression"
+                      delegate: false,
+                      type: 'YieldExpression'
                    },
-                    "type": "ExpressionStatement"
+                    type: 'ExpressionStatement'
                   },
                   {
-                    "expression": {
-                      "argument": {
-                        "computed": true,
-                        "object": {
-                          "name": "arguments",
-                          "type": "Identifier",
+                    expression: {
+                      argument: {
+                        computed: true,
+                        object: {
+                          name: 'arguments',
+                          type: 'Identifier',
                         },
-                        "property": {
-                          "raw": "1",
-                          "type": "Literal",
-                          "value": 1,
+                        property: {
+                          raw: '1',
+                          type: 'Literal',
+                          value: 1,
                         },
-                        "type": "MemberExpression"
+                        type: 'MemberExpression'
                       },
-                      "delegate": false,
-                      "type": "YieldExpression"
+                      delegate: false,
+                      type: 'YieldExpression'
                     },
-                    "type": "ExpressionStatement"
+                    type: 'ExpressionStatement'
                   },
                   {
-                   "expression": {
-                      "argument": {
-                        "computed": true,
-                        "object": {
-                          "name": "arguments",
-                         "type": "Identifier",
+                   expression: {
+                      argument: {
+                        computed: true,
+                        object: {
+                          name: 'arguments',
+                         type: 'Identifier',
                         },
-                        "property": {
-                          "raw": "2",
-                          "type": "Literal",
-                          "value": 2,
+                        property: {
+                          raw: '2',
+                          type: 'Literal',
+                          value: 2,
                         },
-                       "type": "MemberExpression"
+                       type: 'MemberExpression'
                       },
-                      "delegate": false,
-                      "type": "YieldExpression"
+                      delegate: false,
+                      type: 'YieldExpression'
                     },
-                    "type": "ExpressionStatement"
+                    type: 'ExpressionStatement'
                   },
                   {
-                    "expression": {
-                      "argument": {
-                        "computed": true,
-                        "object": {
-                          "name": "arguments",
-                          "type": "Identifier",
+                    expression: {
+                      argument: {
+                        computed: true,
+                        object: {
+                          name: 'arguments',
+                          type: 'Identifier',
                         },
-                       "property": {
-                          "raw": "3",
-                          "type": "Literal",
-                          "value": 3,
+                       property: {
+                          raw: '3',
+                          type: 'Literal',
+                          value: 3,
                         },
-                        "type": "MemberExpression"
+                        type: 'MemberExpression'
                       },
-                      "delegate": false,
-                      "type": "YieldExpression"
+                      delegate: false,
+                      type: 'YieldExpression'
                     },
-                    "type": "ExpressionStatement"
+                    type: 'ExpressionStatement'
                   }
                 ],
-                "type": "BlockStatement"
+                type: 'BlockStatement'
              },
-              "expression": false,
-              "generator": true,
-              "id": {
-                "name": "g",
-                "type": "Identifier",
+              expression: false,
+              generator: true,
+              id: {
+                name: 'g',
+                type: 'Identifier',
               },
-              "params": [],
-             "type": "FunctionDeclaration"
+              params: [],
+             type: 'FunctionDeclaration'
             }
           ],
-          "sourceType": "script",
-          "type": "Program"
+          sourceType: 'script',
+          type: 'Program'
         }
     });
 

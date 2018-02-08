@@ -10,7 +10,7 @@ describe('Declarations - Function', () => {
         index: 27
     });
 
-    fail('function eval() { "use strict"; }', {
+      fail('function eval() { "use strict"; }', {
         source: 'function eval() { "use strict"; }',
         message: 'Unexpected strict mode reserved word',
         line: 1,
@@ -18,7 +18,7 @@ describe('Declarations - Function', () => {
         index: 9
     });
 
-    fail('function arguments() { "use strict"; }', {
+      fail('function arguments() { "use strict"; }', {
         source: 'function arguments() { "use strict"; }',
         message: 'Unexpected strict mode reserved word',
         line: 1,
@@ -26,7 +26,7 @@ describe('Declarations - Function', () => {
         index: 9
     });
 
-    fail('(function eval() {"use strict";});', {
+      fail('(function eval() {"use strict";});', {
         source: '(function eval() {"use strict";});',
         message: 'Unexpected strict mode reserved word',
         line: 1,
@@ -34,7 +34,7 @@ describe('Declarations - Function', () => {
         index: 10
     });
 
-    fail('(function arguments() {"use strict";});', {
+      fail('(function arguments() {"use strict";});', {
         source: '(function arguments() {"use strict";});',
         message: 'Unexpected strict mode reserved word',
         line: 1,
@@ -42,7 +42,7 @@ describe('Declarations - Function', () => {
         index: 10
     });
 
-    fail(`"use strict"; function _13_1_5_fun(param, param) { }`, {
+      fail(`"use strict"; function _13_1_5_fun(param, param) { }`, {
         source: '"use strict"; function _13_1_5_fun(param, param) { }',
         message: 'Duplicate binding param',
         line: 1,
@@ -50,7 +50,7 @@ describe('Declarations - Function', () => {
         index: 52
     });
 
-    fail(`(function((a)){})`, {
+      fail(`(function((a)){})`, {
         source: '(function((a)){})',
         message:  'Unexpected token (',
         line: 1,
@@ -58,7 +58,7 @@ describe('Declarations - Function', () => {
         index: 10
     });
 
-    fail(`"use strict"; function f_10_5_1_gs(){
+      fail(`"use strict"; function f_10_5_1_gs(){
         arguments = 7;
     }`, {
         source: `"use strict"; function f_10_5_1_gs(){
@@ -68,52 +68,52 @@ describe('Declarations - Function', () => {
         line: 2,
     });
 
-    fail('function f(x,x){}', {
+      fail('function f(x,x){}', {
         source: '"use strict"; function f(x,x){}',
         index: 31
     });
 
-    fail('(function ({ a(){} }) {})', {
+      fail('(function ({ a(){} }) {})', {
         source: '(function ({ a(){} }) {})',
        line: 1
     });
 
-    fail('function f(x,x){}', {
+      fail('function f(x,x){}', {
         source: '"use strict"; function f(x,x){ "use strict"; }',
         index: 46
     });
 
-    fail('(function() { "use strict"; })()', {
+      fail('(function() { "use strict"; })()', {
         source: '(function() { "use strict"; for (var i = 0; i < 1; i++) function f() { }; })()',
         line: 1
     });
 
-    fail('(function() { "use strict"; with ({}) function f() { }; })()', {
+      fail('(function() { "use strict"; with ({}) function f() { }; })()', {
         source: '(function() { "use strict"; with ({}) function f() { }; })()',
         line: 1
     });
 
-    fail('(function() { "use strict"; do label: function foo() {} while (0) })()', {
+      fail('(function() { "use strict"; do label: function foo() {} while (0) })()', {
         source: '(function() { "use strict"; do label: function foo() {} while (0) })()',
         line: 1
     });
 
-    fail('(function() { "use strict"; with ({}) label: function f() { }; })()', {
+      fail('(function() { "use strict"; with ({}) label: function f() { }; })()', {
         source: '(function() { "use strict"; with ({}) label: function f() { }; })()',
         line: 1
     });
 
-    fail('(function() { "use strict"; label: async function f() { } })()', {
+      fail('(function() { "use strict"; label: async function f() { } })()', {
         source: '(function() { "use strict"; label: async function f() { } })()',
         line: 1
     });
 
-    fail('(function() { "use strict"; if (true) async function* f() { } })()', {
+      fail('(function() { "use strict"; if (true) async function* f() { } })()', {
         source: '(function() { "use strict"; if (true) async function* f() { } })()',
         line: 1
     });
 
-    pass(`function x(...{ a }){}`, {
+      pass(`function x(...{ a }){}`, {
         source: `function x(...{ a }){}`,
         loc: true,
         ranges: true,
@@ -273,7 +273,7 @@ describe('Declarations - Function', () => {
         }
     });
 
-    pass(`(function package() {'use strict'; })()`, {
+      pass(`(function package() {'use strict'; })()`, {
         source: `(function package() {'use strict'; })()`,
         loc: true,
         ranges: true,
@@ -413,7 +413,7 @@ describe('Declarations - Function', () => {
             }
         }
     });
-    pass(`function f([x] = [1]) {}`, {
+      pass(`function f([x] = [1]) {}`, {
         source: `function f([x] = [1]) {}`,
         loc: true,
         ranges: true,
@@ -572,7 +572,7 @@ describe('Declarations - Function', () => {
           }
     });
 
-    pass(`function f({x} = {x: 10}) {}`, {
+      pass(`function f({x} = {x: 10}) {}`, {
         source: `function f({x} = {x: 10}) {}`,
         loc: true,
         ranges: true,
@@ -801,7 +801,7 @@ describe('Declarations - Function', () => {
           }
     });
 
-    pass(`({f: function({x} = {x: 10}) {}})`, {
+      pass(`({f: function({x} = {x: 10}) {}})`, {
         source: `({f: function({x} = {x: 10}) {}})`,
         loc: true,
         ranges: true,
@@ -1082,7 +1082,7 @@ describe('Declarations - Function', () => {
           }
     });
 
-    pass(`(function() { if (false) {} else function f() { }; })()`, {
+      pass(`(function() { if (false) {} else function f() { }; })()`, {
         source: `(function() { if (false) {} else function f() { }; })()`,
         loc: true,
         ranges: true,
@@ -1287,7 +1287,7 @@ describe('Declarations - Function', () => {
         }
     });
 
-    pass(`(function yield(){ "use strict"; })\n`, {
+      pass(`(function yield(){ "use strict"; })\n`, {
         source: `(function yield(){ "use strict"; })\n`,
         raw: true,
         expected: {
@@ -1326,7 +1326,7 @@ describe('Declarations - Function', () => {
             }
     });
 
-    pass(`function a(exports) {}`, {
+      pass(`function a(exports) {}`, {
         source: `function a(exports) {}`,
         loc: true,
         ranges: true,
@@ -1419,7 +1419,7 @@ describe('Declarations - Function', () => {
         }
     });
 
-    pass(`"use strict";  function a(type) {};`, {
+      pass(`"use strict";  function a(type) {};`, {
         source: `"use strict";  function a(type) {};`,
         loc: true,
         ranges: true,
@@ -1558,7 +1558,7 @@ describe('Declarations - Function', () => {
         }
     });
 
-    pass(`function f() { [ a [ function () { }, b ] ] = [2] ; }`, {
+      pass(`function f() { [ a [ function () { }, b ] ] = [2] ; }`, {
         source: `function f() { [ a [ function () { }, b ] ] = [2] ; }`,
         loc: true,
         ranges: true,
@@ -1818,7 +1818,7 @@ describe('Declarations - Function', () => {
         }
       });
 
-    pass(`function a() {"use strict"; 0O0; }`, {
+      pass(`function a() {"use strict"; 0O0; }`, {
         source: `function a() {"use strict"; 0O0; }`,
         loc: true,
         ranges: true,
@@ -1960,7 +1960,7 @@ describe('Declarations - Function', () => {
         }
     });
 
-    pass(`function foo() {
+      pass(`function foo() {
         "use strict";
         var abstract = true;
     }`, {
@@ -2020,7 +2020,7 @@ describe('Declarations - Function', () => {
         }
     });
 
-    pass('function a({a} = {a: 1}) {}', {
+      pass('function a({a} = {a: 1}) {}', {
         source: 'function a({a} = {a: 1}) {}',
         loc: true,
         ranges: true,
@@ -2247,7 +2247,7 @@ describe('Declarations - Function', () => {
         }
     });
 
-    pass('function f(x,x){}', {
+      pass('function f(x,x){}', {
         source: 'function f(x,x){}',
         loc: true,
         ranges: true,
@@ -2355,7 +2355,7 @@ describe('Declarations - Function', () => {
         }
     });
 
-    pass(`function a(...[]) { }`, {
+      pass(`function a(...[]) { }`, {
         source: `function a(...[]) { }`,
         loc: true,
         ranges: true,
@@ -2463,7 +2463,7 @@ describe('Declarations - Function', () => {
         }
     });
 
-    pass(`function hello(a) { sayHi(); }`, {
+      pass(`function hello(a) { sayHi(); }`, {
         source: `function hello(a) { sayHi(); }`,
         loc: true,
         ranges: true,
@@ -2604,7 +2604,7 @@ describe('Declarations - Function', () => {
         }
     });
 
-    pass(`var hi = function arguments() { };`, {
+      pass(`var hi = function arguments() { };`, {
         source: `var hi = function arguments() { };`,
         loc: true,
         ranges: true,
@@ -2729,7 +2729,7 @@ describe('Declarations - Function', () => {
         }
     });
 
-    pass(`function universe(__proto__) { }`, {
+      pass(`function universe(__proto__) { }`, {
         source: `function universe(__proto__) { }`,
         loc: true,
         ranges: true,
@@ -2822,7 +2822,7 @@ describe('Declarations - Function', () => {
         }
     });
 
-    pass(`(function(){})`, {
+      pass(`(function(){})`, {
         source: `a = function () {  };
         b`,
         loc: true,
@@ -2962,7 +2962,7 @@ describe('Declarations - Function', () => {
         }
     });
 
-    pass(`(function(){})`, {
+      pass(`(function(){})`, {
             source: '(function(){})',
             loc: true,
             ranges: true,
@@ -3038,7 +3038,7 @@ describe('Declarations - Function', () => {
             }
         });
 
-    pass(`(function x() { y; z() });`, {
+      pass(`(function x() { y; z() });`, {
             source: '(function x() { y; z() });',
             loc: true,
             ranges: true,
@@ -3208,7 +3208,7 @@ describe('Declarations - Function', () => {
             }
         });
 
-    pass(`(function eval() { });`, {
+      pass(`(function eval() { });`, {
             source: '(function eval() { });',
             loc: true,
             ranges: true,
@@ -3299,7 +3299,7 @@ describe('Declarations - Function', () => {
             }
         });
 
-    pass(`(function arguments() { });`, {
+      pass(`(function arguments() { });`, {
             source: '(function arguments() { });',
             loc: true,
             ranges: true,
@@ -3390,7 +3390,7 @@ describe('Declarations - Function', () => {
             }
         });
 
-    pass(`(function x(y, z) { })`, {
+      pass(`(function x(y, z) { })`, {
             source: '(function x(y, z) { })',
             loc: true,
             ranges: true,
@@ -3514,7 +3514,7 @@ describe('Declarations - Function', () => {
             }
         });
 
-    pass(`(function(a = b){})`, {
+      pass(`(function(a = b){})`, {
             source: '(function(a = b){})',
             loc: true,
             ranges: true,
@@ -3638,7 +3638,7 @@ describe('Declarations - Function', () => {
             }
         });
 
-    pass(`(function(...a){})`, {
+      pass(`(function(...a){})`, {
             source: '(function(...a){})',
             loc: true,
             ranges: true,
@@ -3746,7 +3746,7 @@ describe('Declarations - Function', () => {
             }
         });
 
-    pass(`(function(a, ...b){})`, {
+      pass(`(function(a, ...b){})`, {
             source: '(function(a, ...b){})',
             loc: true,
             ranges: true,
@@ -3888,7 +3888,7 @@ describe('Declarations - Function', () => {
          }
         });*/
 
-    pass(`(function([a]){})`, {
+      pass(`(function([a]){})`, {
             source: '(function([a]){})',
             loc: true,
             ranges: true,
@@ -3998,7 +3998,7 @@ describe('Declarations - Function', () => {
             }
         });
 
-    pass(`(function([]){})`, {
+      pass(`(function([]){})`, {
             source: '(function([]){})',
             loc: true,
             ranges: true,
@@ -4091,7 +4091,7 @@ describe('Declarations - Function', () => {
             }
         });
 
-    pass(`function foo() {} /42/i`, {
+      pass(`function foo() {} /42/i`, {
             source: `function foo() {} /42/i`,
             loc: true,
             ranges: true,
@@ -4203,7 +4203,7 @@ describe('Declarations - Function', () => {
             }
         });
 
-    pass(`function* a(){yield}`, {
+      pass(`function* a(){yield}`, {
             source: `function* a(){yield}`,
             loc: true,
             ranges: true,
@@ -4312,7 +4312,7 @@ describe('Declarations - Function', () => {
             }
         });
 
-    pass(`function *a(){yield/=3/}`, {
+      pass(`function *a(){yield/=3/}`, {
             source: `function *a(){yield/=3/}`,
             loc: true,
             ranges: true,
@@ -4441,7 +4441,7 @@ describe('Declarations - Function', () => {
             }
         });
 
-    pass(`(function*() { [...{ a = yield }] = 1; })        `, {
+      pass(`(function*() { [...{ a = yield }] = 1; })        `, {
             source: `(function*() { [...{ a = yield }] = 1; })`,
             loc: true,
             ranges: true,

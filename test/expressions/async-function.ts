@@ -29,7 +29,7 @@ describe('Expressions - Async function', () => {
         source: '(async function foo() { } = 1)',
         line: 1,
     });
-    
+
     fail(`async function foo(await) { }`, {
         source: 'async function foo(await) { }',
         line: 1,

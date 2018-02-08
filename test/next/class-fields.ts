@@ -1,7 +1,7 @@
 import { pass, fail } from '../test-utils';
 
 describe('Next - Class fields', () => {
-    
+
       fail('var C = class extends A { x = true; super().x; }', {
         source: 'var C = class extends A { x = true; super().x; }',
         next: true,
@@ -13,50 +13,50 @@ describe('Next - Class fields', () => {
         next: true,
         index: 35
       });
-      
-  fail('class C { static "x" = /*{ initializer }*/; }  ', {
+
+      fail('class C { static "x" = /*{ initializer }*/; }  ', {
     source: 'class C { static "x" = /*{ initializer }*/; }  ',
     next: true,
     index: 20
   });
 
-  fail('class C { x = false ? {} : /*{ initializer }*/; }  ', {
+      fail('class C { x = false ? {} : /*{ initializer }*/; }  ', {
     source: 'class C { x = false ? {} : /*{ initializer }*/;}  ',
     next: true,
     index: 26
   });
-  
-  fail('var C = class { x = () => arguments; }', {
+
+      fail('var C = class { x = () => arguments; }', {
     source: 'var C = class { x = () => arguments; }',
     next: true,
     index: 25
   });
-  
-  fail('class C { x = typeof /*{ initializer }*/; }  ', {
+
+      fail('class C { x = typeof /*{ initializer }*/; }  ', {
     source: 'class C { x = typeof /*{ initializer }*/; }  ',
     next: true,
     index: 20
   });
 
-  fail('class C {static #field;}  ', {
+      fail('class C {static #field;}  ', {
     source: 'class C { static #field; }  ',
     next: true,
     index: 16
   });
 
-  fail('class C { x = {} == /*{ initializer }*/; }  ', {
+      fail('class C { x = {} == /*{ initializer }*/; }  ', {
     source: 'class C { x = {} == /*{ initializer }*/; }  ',
     next: true,
     index: 19
   });
 
-  fail('class C { static [x] = /*{ initializer }*/; }  ', {
+      fail('class C { static [x] = /*{ initializer }*/; }  ', {
     source: 'class C { static [x] = /*{ initializer }*/; }  ',
     next: true,
     index: 20
   });
 
-  fail('class A { #a; a() { this.# a } }', {
+      fail('class A { #a; a() { this.# a } }', {
     source: 'class A { #a; a() { this.# a } }',
     next: true,
     line: 1
@@ -68,25 +68,25 @@ describe('Next - Class fields', () => {
     index: 20
   });*/
 
-  fail('class C { x = () => super(); }', {
+      fail('class C { x = () => super(); }', {
     source: 'class C { x = () => super(); }',
     next: true,
     index: 25
   });
 
-  fail('class C { [x] = arguments; }', {
+      fail('class C { [x] = arguments; }', {
     source: 'class C { [x] = arguments; }',
     next: true,
     index: 15
   });
 
-  fail('class C {  #x = false ? {} : arguments; }', {
+      fail('class C {  #x = false ? {} : arguments; }', {
     source: 'class C {  #x = false ? {} : arguments; }',
     next: true,
     index: 28
   });
 
-  fail('class C {  #x = () => arguments; }', {
+      fail('class C {  #x = () => arguments; }', {
     source: 'class C {  #x = () => arguments; }',
     next: true,
     index: 21
@@ -104,31 +104,31 @@ describe('Next - Class fields', () => {
     index: 28
   });*/
 
-  fail('class C { x = {} == super(); }', {
+      fail('class C { x = {} == super(); }', {
     source: 'class C { x = {} == super(); }',
     next: true,
     index: 25
   });
 
-  fail('class C {  static "x" = super(); }', {
+      fail('class C {  static "x" = super(); }', {
     source: 'class C {  static "x" = super(); }',
     next: true,
     index: 21
   });
 
-  fail('class A { a = this.#a }', {
+      fail('class A { a = this.#a }', {
     source: 'class A { # a }',
     next: true,
     index: 11
   });
 
-  fail('class A { #constructor = 4 }', {
+      fail('class A { #constructor = 4 }', {
     source: 'class A { #constructor = 4 }',
     next: true,
     index: 11
   });
 
-  pass('class a {  #a = 0; ["b"](){} }', {
+      pass('class a {  #a = 0; ["b"](){} }', {
     source: 'class a {  #a = 0; ["b"](){} }',
     next: true,
     loc: true,
@@ -320,7 +320,7 @@ describe('Next - Class fields', () => {
   }
   });
 
-  pass('class a {  #a; b(){} }', {
+      pass('class a {  #a; b(){} }', {
     source: 'class a {  #a; b(){} }',
     next: true,
     loc: true,
@@ -497,7 +497,7 @@ describe('Next - Class fields', () => {
   }
   });
 
-  pass('class C { #a = function t() { arguments; } }', {
+      pass('class C { #a = function t() { arguments; } }', {
     source: 'class C { #a = function t() { arguments; } }',
     next: true,
     loc: true,
@@ -686,7 +686,7 @@ describe('Next - Class fields', () => {
   }
   });
 
-  pass('class C { #await = 0; }', {
+      pass('class C { #await = 0; }', {
     source: 'class C { #await = 0; }',
     next: true,
     loc: true,
@@ -808,7 +808,7 @@ describe('Next - Class fields', () => {
   }
   });
 
-  pass('class C { a, #, b; }', {
+      pass('class C { a, #, b; }', {
     source: 'class C { a, #, b; }',
     next: true,
     loc: true,
@@ -981,7 +981,7 @@ describe('Next - Class fields', () => {
   }
   });
 
-  pass('class C { super.#a; }', {
+      pass('class C { super.#a; }', {
     source: 'class C { super.#a; }',
     next: true,
     loc: true,
@@ -1154,7 +1154,7 @@ describe('Next - Class fields', () => {
   }
   });
 
-  pass('class C { foo.#888; }', {
+      pass('class C { foo.#888; }', {
     source: 'class C { foo.#888; }',
     next: true,
     loc: true,
@@ -1327,7 +1327,7 @@ describe('Next - Class fields', () => {
   }
   });
 
-  pass('class C { foo.#--; }', {
+      pass('class C { foo.#--; }', {
     source: 'class C { foo.#--; }',
     next: true,
     loc: true,
@@ -1500,7 +1500,7 @@ describe('Next - Class fields', () => {
   }
   });
 
-  pass('class C { [x] = 0 }', {
+      pass('class C { [x] = 0 }', {
     source: 'class C { [x] = 0 }',
     next: true,
     expected: {
@@ -1536,7 +1536,7 @@ describe('Next - Class fields', () => {
       }
   });
 
-  pass('class C { x = 0 }', {
+      pass('class C { x = 0 }', {
     source: 'class C { x = 0 }',
     next: true,
     expected: {
@@ -1572,7 +1572,7 @@ describe('Next - Class fields', () => {
       }
   });
 
-  pass('class C { x }', {
+      pass('class C { x }', {
     source: 'class C { x  }',
     next: true,
     expected: {
@@ -1605,7 +1605,7 @@ describe('Next - Class fields', () => {
       }
   });
 
-  pass('class C { async }', {
+      pass('class C { async }', {
     source: 'class C { async  }',
     next: true,
     expected: {
@@ -1638,7 +1638,7 @@ describe('Next - Class fields', () => {
       }
   });
 
-  pass('class C { async = 5 }', {
+      pass('class C { async = 5 }', {
     source: 'class C { async = 5  }',
     next: true,
     expected: {
@@ -1674,7 +1674,7 @@ describe('Next - Class fields', () => {
       }
   });
 
-  pass('class C { #x }', {
+      pass('class C { #x }', {
     source: 'class C { #x }',
     next: true,
     expected: {
@@ -1707,7 +1707,7 @@ describe('Next - Class fields', () => {
       }
   });
 
-  pass('class C { #x = 0 }', {
+      pass('class C { #x = 0 }', {
     source: 'class C { #x = 0 }',
     next: true,
     expected: {
@@ -1743,7 +1743,7 @@ describe('Next - Class fields', () => {
       }
   });
 
-  pass('class C { p1 = 1, p2 = 2; }', {
+      pass('class C { p1 = 1, p2 = 2; }', {
       source: 'class C { p1 = 1, p2 = 2; }',
       next: true,
       expected: {
@@ -1791,7 +1791,7 @@ describe('Next - Class fields', () => {
         }
     });
 
-  pass('class C { p1, p2; }', {
+      pass('class C { p1, p2; }', {
       source: 'class C { p1, p2; }',
       next: true,
       expected: {
@@ -1833,7 +1833,7 @@ describe('Next - Class fields', () => {
         }
     });
 
-  pass('class foo{  static async *m() { return 42; } #x; #y; }', {
+      pass('class foo{  static async *m() { return 42; } #x; #y; }', {
       source: 'class foo{  static async *m() { return 42; } #x; #y; }',
       next: true,
       expected: {
@@ -1905,7 +1905,7 @@ describe('Next - Class fields', () => {
         }
     });
 
-  pass('class foo { get #bar() { return m1(); } set #zoo(x) { return m2(x); } }', {
+      pass('class foo { get #bar() { return m1(); } set #zoo(x) { return m2(x); } }', {
       source: 'class foo { get #bar() { return m1(); } set #zoo(x) { return m2(x); } }',
       next: true,
       expected: {
@@ -2007,7 +2007,7 @@ describe('Next - Class fields', () => {
         }
     });
 
-  pass('class Foo { async #evil() { await notReally(); }}', {
+      pass('class Foo { async #evil() { await notReally(); }}', {
       source: 'class Foo { async #evil() { await notReally(); }}',
       next: true,
       expected: {
@@ -2068,7 +2068,7 @@ describe('Next - Class fields', () => {
         }
     });
 
-  pass('class foo { #a, a }', {
+      pass('class foo { #a, a }', {
       source: 'class foo { #a, a }',
       next: true,
       expected: {
@@ -2110,7 +2110,7 @@ describe('Next - Class fields', () => {
         }
     });
 
-  pass(` class A {
+      pass(` class A {
     #foo
     constructor () {
         foo;
@@ -2233,7 +2233,7 @@ describe('Next - Class fields', () => {
       }
   });
 
-  pass('class C { p1 = 1, p2 = 2; }', {
+      pass('class C { p1 = 1, p2 = 2; }', {
     source: 'class C { p1 = 1, p2 = 2; }',
     next: true,
     expected: {
@@ -2281,7 +2281,7 @@ describe('Next - Class fields', () => {
       }
   });
 
-  pass('class C { async *m() { return 42; } /*{ fields }*/; }', {
+      pass('class C { async *m() { return 42; } /*{ fields }*/; }', {
     source: 'class C { async *m() { return 42; } /*{ fields }*/; }',
     next: true,
     expected: {
@@ -2335,7 +2335,7 @@ describe('Next - Class fields', () => {
       }
   });
 
-  pass(`class C {
+      pass(`class C {
     foo = "foobar";
     m() { return 42 }
     /*{ fields }*/
@@ -2455,7 +2455,7 @@ describe('Next - Class fields', () => {
     }
 });
 
-  pass('class C { async *m() { return 42; } "a"; "b"; "c" = 39;  "d" = 42; }', {
+      pass('class C { async *m() { return 42; } "a"; "b"; "c" = 39;  "d" = 42; }', {
   source: 'class C { async *m() { return 42; } "a"; "b"; "c" = 39;  "d" = 42; }',
   next: true,
   expected: {
@@ -2551,7 +2551,7 @@ describe('Next - Class fields', () => {
     }
 });
 
-  pass(`class C {
+      pass(`class C {
   ;;;;
   ;;;;;;'a'; "b"; 'c' = 39;
   "d" = 42;;;;;;;
@@ -2629,7 +2629,7 @@ describe('Next - Class fields', () => {
     }
 });
 
-  pass('class C { x, y; d(){} f(){} }', {
+      pass('class C { x, y; d(){} f(){} }', {
   source: 'class C { x, y; d(){} f(){} }',
   next: true,
   expected: {
