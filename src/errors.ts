@@ -93,7 +93,10 @@ export const enum Errors {
     MissingConstInitializer,
     UnexpectedStrictEvalOrArguments,
     BadImportCallArity,
-    ArgumentsDisallowedInInitializer
+    ArgumentsDisallowedInInitializer,
+    InvalidCharacter,
+    InvalidDecimalWithLeadingZero,
+    NonNumberAfterExponentIndicator
 }
 
 export const ErrorMessages: {
@@ -173,7 +176,7 @@ export const ErrorMessages: {
     [Errors.UnexpectedTokenRegExp]: 'Unexpected regular expression',
     [Errors.UnexpectedTokenRegExpFlag]: 'Unexpected regular expression flag',
     [Errors.UnterminatedRegExp]: 'Unterminated regular expression literal',
-    [Errors.UnterminatedComment]: 'Unterminated comment',
+    [Errors.UnterminatedComment]: 'Unterminated MultiLineComment',
     [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter',
     [Errors.InvalidNumericSeparators]: 'Numeric separators are not allowed here',
     [Errors.InvalidBigIntLiteral]: 'Invalid BigIntLiteral',
@@ -193,7 +196,9 @@ export const ErrorMessages: {
     [Errors.UnexpectedStrictEvalOrArguments]: 'Unexpected eval or arguments in strict mode',
     [Errors.BadImportCallArity]: 'Dynamic import must have one specifier as an argument',
     [Errors.ArgumentsDisallowedInInitializer]: '\'%0\' is not allowed in class field initializer',
-
+    [Errors.InvalidCharacter]: 'Invalid character \'%0\'',
+    [Errors.InvalidDecimalWithLeadingZero]: 'Decimal integer literals with a leading zero are forbidden in strict mode',
+    [Errors.NonNumberAfterExponentIndicator]: 'Invalid non-number after exponent indicator',
 };
 
 function constructError(msg: string, column: number): Error {

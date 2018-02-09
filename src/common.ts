@@ -1,6 +1,7 @@
 import { Chars } from './chars';
 import { Statement, ExpressionStatement, Literal, Expression, Pattern } from './estree';
 import { Token } from './token';
+import { mustEscape } from './unicode';
 
 export const isInOrOfKeyword = (t: Token) => t === Token.InKeyword || t === Token.OfKeyword;
 
@@ -72,3 +73,29 @@ export function isValidDestructuringAssignmentTarget(expr: Expression | Pattern)
             return false;
     }
 }
+
+export function invalidCharacterMessage(cp: number): string {
+        switch (cp) {
+            case Chars.Null:
+                return '\\0';
+            case Chars.Backspace:
+                return '\\b';
+            case Chars.Tab:
+                return '\\t';
+            case Chars.LineFeed:
+                return '\\n';
+            case Chars.VerticalTab:
+                return '\\v';
+            case Chars.FormFeed:
+                return '\\f';
+            case Chars.CarriageReturn:
+                return '\\r';
+            default:
+                if (!mustEscape(cp)) return fromCodePoint(cp);
+                if (cp < 0x10) return `\\x0${cp.toString(16)}`;
+                if (cp < 0x100) return `\\x${cp.toString(16)}`;
+                if (cp < 0x1000) return `\\u0${cp.toString(16)}`;
+                if (cp < 0x10000) return `\\u${cp.toString(16)}`;
+                return `\\u{${cp.toString(16)}}`;
+        }
+    }

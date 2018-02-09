@@ -47,7 +47,7 @@ export const enum Flags {
     InFunctionBody          = 1 << 3, // If node was parsed inside a functions body
     SimpleParameterList     = 1 << 4,
     Octal                   = 1 << 5, // If node contains and legacy octal numbers
-    ContainsSeparator       = 1 << 6, // Stage 3 related;
+    HasNumericSeparator     = 1 << 6, // Stage 3 related;
     ProtoField              = 1 << 7, // If node contains any '__proto__' fields
     DuplicateProtoField     = 1 << 8, // If node contains any duplicate '__proto__' fields
     ExtendedUnicodeEscape   = 1 << 9,
@@ -102,6 +102,21 @@ export const enum ScannerState {
     HTMLOpen    = 1 << 6,
     HTMLClose   = 1 << 7,
     SheBang     = 1 << 8,
+
+    /* numeric */
+
+    Decimal                 = 1 << 9,
+    DecimalWithLeadingZero  = 1 << 10,
+    Hexadecimal             = 1 << 11,
+    Octal                   = 1 << 12,
+    ImplicitOctal           = 1 << 13,
+    Binary                  = 1 << 14,
+    Float                   = 1 << 15,
+    AllowNumericSeparator   = 1 << 16, //
+    HasNumericSeparator     = 1 << 17,
+    BigInt                  = 1 << 18,
+
+    Hibo = Hexadecimal | ImplicitOctal | Binary | Octal
 }
 
 /* Shared between string literal and templates */
@@ -129,24 +144,6 @@ export const enum RegexFlags {
     Unicode    = 1 << 3,
     Sticky     = 1 << 4,
     DotAll     = 1 << 5,
-}
-
-/* Numeric literal state flags */
-
-export const enum NumericState {
-    None                    = 0,
-    Decimal                 = 1 << 0,
-    DecimalWithLeadingZero  = 1 << 1,
-    Hexadecimal             = 1 << 2,
-    Octal                   = 1 << 3,
-    ImplicitOctal           = 1 << 4,
-    Binary                  = 1 << 5,
-    Float                   = 1 << 6,
-    AllowSeparator          = 1 << 7,
-    ContainsSeparator       = 1 << 8,
-    BigInt                  = 1 << 9,
-
-    Hibo = Hexadecimal | ImplicitOctal | Binary | Octal
 }
 
 export const enum ParenthesizedState {

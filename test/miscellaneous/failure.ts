@@ -4,19 +4,19 @@ describe('Miscellaneous - Failure', () => {
 
     fail(`/*`, {
         source: `/*`,
-        message: 'Unterminated comment',
+        message: 'Unterminated MultiLineComment',
         line: 1,
     });
 
     fail(`/*\r\n`, {
         source: `/*\r\n`,
-        message: 'Unterminated comment',
+        message: 'Unterminated MultiLineComment',
         line: 1,
     });
 
     fail(`/*\r`, {
         source: `/*\r`,
-        message: 'Unterminated comment',
+        message: 'Unterminated MultiLineComment',
         line: 1,
         column: 0,
         index: 0
@@ -24,7 +24,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail(`/*\r\n`, {
         source: `/*\r\n`,
-        message: 'Unterminated comment',
+        message: 'Unterminated MultiLineComment',
         line: 1,
         column: 0,
         index: 0
@@ -32,7 +32,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail(`/*\u2028`, {
         source: `/*\u2028`,
-        message: 'Unterminated comment',
+        message: 'Unterminated MultiLineComment',
         line: 1,
         column: 0,
         index: 0
@@ -40,7 +40,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail(`/*\u2029`, {
         source: `/*\u2029`,
-        message: 'Unterminated comment',
+        message: 'Unterminated MultiLineComment',
         line: 1,
         column: 0,
         index: 0
@@ -142,13 +142,13 @@ describe('Miscellaneous - Failure', () => {
     fail('1.e', {
         source: `1.e`,
         line: 1,
-        message: 'Unexpected token',
+        message: 'Invalid non-number after exponent indicator',
     });
 
     fail('1.e+', {
         source: `1.e+`,
         line: 1,
-        message: 'Unexpected token',
+        message: 'Invalid non-number after exponent indicator',
     });
 
     fail('0xz', {
@@ -186,7 +186,7 @@ describe('Miscellaneous - Failure', () => {
     fail('3ea', {
         source: `3ea`,
         line: 1,
-        message: 'Unexpected token',
+        message: 'Invalid non-number after exponent indicator',
         column: 0,
         index: 0
     });
@@ -199,7 +199,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('3e', {
         source: `3e`,
-        message: 'Unexpected token',
+        message: 'Invalid non-number after exponent indicator',
         line: 1,
         column: 0,
         index: 0
@@ -545,7 +545,7 @@ describe('Miscellaneous - Failure', () => {
     fail('/*hello', {
         source: `/*hello`,
         line: 1,
-        message: 'Unterminated comment',
+        message: 'Unterminated MultiLineComment',
     });
 
     fail('try {} catch (answer()) {} ', {

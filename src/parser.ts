@@ -1,12 +1,12 @@
 import * as ESTree from './estree';
-import { fromCodePoint, toHex, isPrologueDirective, hasBit, map, isValidSimpleAssignmentTarget, isValidDestructuringAssignmentTarget, isInOrOfKeyword } from './common';
+import { fromCodePoint, invalidCharacterMessage, toHex, isPrologueDirective, hasBit, map, isValidSimpleAssignmentTarget, isValidDestructuringAssignmentTarget, isInOrOfKeyword } from './common';
 import { Options, OnComment } from './cherow';
 import { Chars } from './chars';
 import { Token, tokenDesc, descKeyword } from './token';
 import { isIdentifierPart } from './unicode';
 import { createError, Errors, ErrorMessages } from './errors';
-import { Context, Flags, ScannerState, ObjectState, Escape, RegExpState, RegexFlags, NumericState, ParenthesizedState, ArrayState } from './flags';
-import { isValidIdentifierStart, isIdentifierStart } from './unicode';
+import { Context, Flags, ScannerState, ObjectState, Escape, RegExpState, RegexFlags, ParenthesizedState, ArrayState } from './flags';
+import { isValidIdentifierStart, isIdentifierStart, mustEscape } from './unicode';
 
 export interface Lookahead {
     index: number;
@@ -289,12 +289,15 @@ export class Parser {
                         this.advance(); // skip `<`
 
                         if (!(context & Context.Module) &&
-                            this.consume(Chars.Exclamation) &&
-                            this.consume(Chars.Hyphen) &&
-                            this.consume(Chars.Hyphen)) {
-                            // Treat HTML begin-comment as comment-till-end-of-line.
+                            this.nextChar() === Chars.Exclamation &&
+                            this.source.charCodeAt(this.index + 1) === Chars.Hyphen &&
+                            this.source.charCodeAt(this.index + 2) === Chars.Hyphen) {
+                            this.index += 3;
+                            this.column += 3;
                             state = this.skipSingleLineComment(context, state | ScannerState.HTMLOpen);
+                            continue;
                         } else {
+
                             switch (this.nextChar()) {
                                 case Chars.LessThan:
                                     this.advance();
@@ -308,11 +311,10 @@ export class Parser {
                                     this.advance();
                                     return Token.JSXClose;
                                 default: // ignore
-                                    return Token.LessThan;
                             }
                         }
 
-                        continue;
+                        return Token.LessThan;
                     }
 
                 case Chars.Hyphen:
@@ -321,14 +323,14 @@ export class Parser {
                         const next = this.nextChar();
                         if (next === Chars.Hyphen) {
                             this.advance();
-                            if (this.nextChar() === Chars.GreaterThan &&
-                                !(context & Context.Module ||
-                                    !(state & (ScannerState.LineStart | ScannerState.NewLine)))) {
-                                this.advance();
-                                state = this.skipSingleLineComment(context, state | ScannerState.HTMLClose);
+                            if (state & (ScannerState.LineStart | ScannerState.NewLine) &&
+                                this.nextChar() === Chars.GreaterThan) {
+                                if (!(context & Context.Module)) {
+                                    this.advance();
+                                    state = this.skipSingleLineComment(context, state | ScannerState.HTMLClose);
+                                }
                                 continue;
                             }
-
                             return Token.Decrement;
                         } else if (next === Chars.EqualSign) {
                             this.advance();
@@ -436,7 +438,7 @@ export class Parser {
 
                         const next = this.source.charCodeAt(index);
                         if (next >= Chars.Zero && next <= Chars.Nine) {
-                            this.scanNumeric(context, NumericState.Decimal | NumericState.Float);
+                            this.scanNumeric(context, ScannerState.Float);
                             return Token.NumericLiteral;
                         }
                         if (next === Chars.Period) {
@@ -464,7 +466,7 @@ export class Parser {
                 case Chars.Seven:
                 case Chars.Eight:
                 case Chars.Nine:
-                    return this.scanNumeric(context, NumericState.Decimal);
+                    return this.scanNumeric(context, ScannerState.Decimal);
 
                     // `=`, `==`, `===`, `=>`
                 case Chars.EqualSign:
@@ -665,7 +667,7 @@ export class Parser {
 
                 default:
                     if (isValidIdentifierStart(first)) return this.scanIdentifier(context);
-                    this.report(Errors.UnexpectedToken, fromCodePoint(first));
+                    this.report(Errors.InvalidCharacter, invalidCharacterMessage(first));
             }
         }
 
@@ -790,7 +792,7 @@ export class Parser {
                     case Chars.Backslash:
 
                         const index = this.index;
-                        const code = this.peekUnicodeEscape(context);
+                        const code = this.scanUnicodeEscapeValue(context);
                         if (!(code >= 0)) this.early(context, Errors.Unexpected);
                         ret += this.source.slice(start, index);
                         ret += fromCodePoint(code);
@@ -829,7 +831,7 @@ export class Parser {
     /**
      * Peek unicode escape
      */
-    private peekUnicodeEscape(context: Context): number {
+    private scanUnicodeEscapeValue(context: Context): number {
 
         let code = -1;
         const index = this.index;
@@ -838,7 +840,7 @@ export class Parser {
             this.index += 2;
             this.column += 2;
 
-            code = this.peekExtendedUnicodeEscape();
+            code = this.scanExtendedUnicodeEscapeValue();
             if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMin) {
                 this.report(Errors.UnexpectedSurrogate);
             }
@@ -852,47 +854,51 @@ export class Parser {
         return code;
     }
 
-    private peekExtendedUnicodeEscape(): Chars {
+    private scanExtendedUnicodeEscapeValue(): Chars {
 
         let ch = this.nextChar();
-        let code = 0;
+        let codePoint = 0;
 
         // '\u{DDDDDDDD}'
         if (ch === Chars.LeftBrace) { // {
+
             ch = this.readNext(ch, Errors.InvalidHexEscapeSequence);
+
             while (ch !== Chars.RightBrace) {
                 const digit = toHex(ch);
                 if (digit < 0) this.report(Errors.InvalidHexEscapeSequence);
-                code = code * 16 + digit;
-                // Code point out of bounds
-                if (code > Chars.LastUnicodeChar) break;
+                codePoint = (codePoint << 4) | digit;
+                // Code point out of bounds if MV of HexDigits > 0x10FFFF
+                if (codePoint > Chars.LastUnicodeChar) break;
                 ch = this.readNext(ch, Errors.InvalidHexEscapeSequence);
             }
 
-            return code;
+            // '\uDDDD'
+        } else {
+
+            codePoint = toHex(ch);
+
+            if (codePoint < 0) this.report(Errors.InvalidHexEscapeSequence);
+
+            for (let i = 0; i < 3; i++) {
+                ch = this.readNext(ch, Errors.InvalidHexEscapeSequence);
+                const digit = toHex(ch);
+                if (codePoint < 0) this.report(Errors.InvalidHexEscapeSequence);
+                codePoint = codePoint << 4 | digit;
+            }
+
         }
 
-        // '\uDDDD'
-        code = toHex(ch);
-
-        if (code < 0) this.report(Errors.InvalidHexEscapeSequence);
-
-        for (let i = 0; i < 3; i++) {
-            ch = this.readNext(ch, Errors.InvalidHexEscapeSequence);
-            const digit = toHex(ch);
-            if (code < 0) this.report(Errors.InvalidHexEscapeSequence);
-            code = code << 4 | digit;
-        }
-
-        return code;
+        return codePoint;
     }
 
-    private scanNumericFragment(context: Context, state: NumericState): NumericState {
-        this.flags |= Flags.ContainsSeparator;
-        if (!(state & NumericState.AllowSeparator)) {
+    private scanNumericFragment(context: Context, state: ScannerState): ScannerState {
+        if (!(context & Context.OptionsNext)) this.report(Errors.Unexpected);
+        this.flags |= Flags.HasNumericSeparator;
+        if (!(state & ScannerState.AllowNumericSeparator)) {
             this.early(context, Errors.InvalidNumericSeparators);
         }
-        state &= ~NumericState.AllowSeparator;
+        state &= ~ScannerState.AllowNumericSeparator;
         this.advance();
         return state;
     }
@@ -900,7 +906,7 @@ export class Parser {
     private scanDecimalDigitsOrFragment(context: Context): any {
 
         let start = this.index;
-        let state = NumericState.None;
+        let state = ScannerState.None;
         let ret = '';
 
         const next = context & Context.OptionsNext;
@@ -911,11 +917,12 @@ export class Parser {
                 switch (this.nextChar()) {
                     case Chars.Underscore:
                         if (!next) break loop;
-                        if (!(state & NumericState.AllowSeparator)) {
+                        if (!(state & ScannerState.AllowNumericSeparator)) {
                             this.early(context, Errors.InvalidNumericSeparators);
                         }
-                        this.flags |= Flags.ContainsSeparator;
-                        state &= ~NumericState.AllowSeparator;
+                        this.flags |= Flags.HasNumericSeparator;
+                        state &= ~ScannerState.AllowNumericSeparator;
+
                         ret += this.source.substring(start, this.index);
                         this.advance();
                         start = this.index;
@@ -930,7 +937,7 @@ export class Parser {
                     case Chars.Seven:
                     case Chars.Eight:
                     case Chars.Nine:
-                        state |= NumericState.AllowSeparator;
+                        state |= ScannerState.AllowNumericSeparator;
                         this.advance();
                         break;
                     default:
@@ -947,12 +954,13 @@ export class Parser {
 
     private scanBinaryOrOctalDigits(
         context: Context,
-        state: NumericState,
+        state: ScannerState,
         radix: number,
-        secondRadix: number,
+        fastPath: number,
         msg: Errors) {
 
         this.advance(); // skip 'b' or 'o'
+
         let value = 0;
         let digits = 0;
 
@@ -969,7 +977,7 @@ export class Parser {
 
             if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= radix) break;
 
-            value = digits < 10 ? (value << secondRadix) | converted : value * radix + converted;
+            value = digits < 10 ? (value << fastPath) | converted : value * radix + converted;
 
             this.advance();
             digits++;
@@ -980,18 +988,18 @@ export class Parser {
         return value;
     }
 
-    private scanNumeric(context: Context, state: NumericState): Token {
+    private scanNumeric(context: Context, state: ScannerState): Token {
 
         const start = this.index;
 
         let value = 0;
-        let isOctal = (state & NumericState.Float) === 0;
+        let isOctal = (state & ScannerState.Float) === 0;
         let mainFragment: string = '';
         let decimalFragment: string = '';
         let scientificFragment: string = '';
         let ch: number | null = 0;
 
-        if (state & NumericState.Float) {
+        if (state & ScannerState.Float) {
             this.advance();
             decimalFragment = this.scanDecimalDigitsOrFragment(context);
         } else {
@@ -1010,7 +1018,7 @@ export class Parser {
 
                             if (value < 0) this.early(context, Errors.MissingHexDigits);
 
-                            state = NumericState.Hexadecimal | NumericState.AllowSeparator;
+                            state = ScannerState.Hexadecimal | ScannerState.AllowNumericSeparator;
 
                             this.advance();
 
@@ -1018,33 +1026,33 @@ export class Parser {
                                 ch = this.nextChar();
                                 if (ch === Chars.Underscore) {
                                     state = this.scanNumericFragment(context, state);
-                                    continue;
+                                } else {
+                                    state |= ScannerState.AllowNumericSeparator;
+                                    const digit = toHex(ch);
+                                    if (digit < 0) break;
+
+                                    value = value * 16 + digit;
+
+                                    this.advance();
                                 }
-
-                                state |= NumericState.AllowSeparator;
-                                const digit = toHex(ch);
-                                if (digit < 0) break;
-
-                                value = value * 16 + digit;
-
-                                this.advance();
                             }
+
                             break;
                         }
 
                     case Chars.LowerO:
                     case Chars.UpperO:
                         {
-                            state = NumericState.Octal | NumericState.AllowSeparator;
-                            value = this.scanBinaryOrOctalDigits(context, state, 8, 3, Errors.MissingOctalDigits);
+                            state = ScannerState.Octal | ScannerState.AllowNumericSeparator;
+                            value = this.scanBinaryOrOctalDigits(context, state, /* radix */ 8, /* fastPath */ 3, Errors.MissingOctalDigits);
                             break;
                         }
 
                     case Chars.LowerB:
                     case Chars.UpperB:
                         {
-                            state = NumericState.Binary | NumericState.AllowSeparator;
-                            value = this.scanBinaryOrOctalDigits(context, state, 2, 1, Errors.MissingBinaryDigits);
+                            state = ScannerState.Binary | ScannerState.AllowNumericSeparator;
+                            value = this.scanBinaryOrOctalDigits(context, state, /* radix */ 2, /* fastPath */ 1, Errors.MissingBinaryDigits);
                             break;
                         }
 
@@ -1057,24 +1065,32 @@ export class Parser {
                     case Chars.Six:
                     case Chars.Seven:
                         {
-                            // (possible) octal number
-                            state = NumericState.ImplicitOctal | NumericState.AllowSeparator;
-                            // Octal integer literals are not permitted in strict mode.
-                            // Flag it here, and throw later on if we are parsing in
-                            // strict mode
-                            this.flags |= Flags.Octal;
+                            state = ScannerState.ImplicitOctal | ScannerState.AllowNumericSeparator;
 
-                            while (this.hasNext()) {
+                            context & Context.Strict ?
+                            this.report(Errors.InvalidDecimalWithLeadingZero) :
+                                this.flags |= Flags.Octal;
+
+                            loop: while (this.hasNext()) {
+
                                 ch = this.nextChar();
-                                if (ch === Chars.Underscore) {
-                                    state = this.scanNumericFragment(context, state);
-                                    continue;
-                                } else if (ch === Chars.Eight || ch === Chars.Nine) {
-                                    isOctal = false;
-                                    state = NumericState.DecimalWithLeadingZero;
-                                    break;
-                                }
 
+                                switch (ch) {
+                                    case Chars.Underscore:
+                                        {
+                                            state = this.scanNumericFragment(context, state);
+                                            continue;
+                                        }
+                                    case Chars.Eight:
+                                    case Chars.Nine:
+                                        {
+                                            isOctal = false;
+                                            state = ScannerState.DecimalWithLeadingZero;
+                                            break loop;
+                                        }
+                                    default:
+
+                                }
                                 if (ch < Chars.Zero || ch > Chars.Seven) break;
 
                                 value = value * 8 + (ch - Chars.Zero);
@@ -1088,13 +1104,15 @@ export class Parser {
                     case Chars.Eight:
                     case Chars.Nine:
                         {
-                            this.flags |= Flags.Octal;
-                            state = NumericState.DecimalWithLeadingZero;
+                            context & Context.Strict ?
+                            this.report(Errors.InvalidDecimalWithLeadingZero) :
+                                this.flags |= Flags.Octal;
+                            state = ScannerState.DecimalWithLeadingZero;
                         }
                     default: // Ignore
                 }
 
-                if (this.flags & Flags.ContainsSeparator) {
+                if (this.flags & Flags.HasNumericSeparator) {
                     if (this.source.charCodeAt(this.index - 1) === Chars.Underscore) {
                         this.early(context, Errors.InvalidNumericSeparators);
                     }
@@ -1102,7 +1120,7 @@ export class Parser {
             }
 
             // Parse decimal digits and allow trailing fractional part.
-            if (state & (NumericState.Decimal | NumericState.DecimalWithLeadingZero)) {
+            if (state & (ScannerState.Decimal | ScannerState.DecimalWithLeadingZero)) {
 
                 if (isOctal) {
 
@@ -1136,14 +1154,14 @@ export class Parser {
                     if (context & Context.OptionsNext && this.nextChar() === Chars.Underscore) {
                         this.advance();
                         if (!this.hasNext()) this.early(context, Errors.InvalidNumericSeparators);
-                        this.flags |= Flags.ContainsSeparator;
+                        this.flags |= Flags.HasNumericSeparator;
                         mainFragment = value += this.scanDecimalDigitsOrFragment(context);
                     }
 
                     if (this.consume(Chars.Period)) {
                         // There is no 'mainFragment' in cases like '1.2_3'
-                        if (!(this.flags & Flags.ContainsSeparator)) mainFragment = value as any;
-                        state |= NumericState.Float;
+                        if (!(this.flags & Flags.HasNumericSeparator)) mainFragment = value as any;
+                        state |= ScannerState.Float;
                         decimalFragment = this.scanDecimalDigitsOrFragment(context);
                     }
                 }
@@ -1162,11 +1180,11 @@ export class Parser {
                     if (!(context & Context.OptionsNext)) break;
 
                     // It is a Syntax Error if the MV is not an integer.
-                    if (state & (NumericState.ImplicitOctal | NumericState.Float)) {
+                    if (state & (ScannerState.ImplicitOctal | ScannerState.Float)) {
                         this.early(context, Errors.InvalidBigIntLiteral);
                     }
 
-                    state |= NumericState.BigInt;
+                    state |= ScannerState.BigInt;
 
                     this.advance();
                     break;
@@ -1180,7 +1198,7 @@ export class Parser {
 
                     this.advance();
 
-                    state |= NumericState.Float;
+                    state |= ScannerState.Float;
 
                     switch (this.nextChar()) {
                         case Chars.Plus:
@@ -1192,7 +1210,7 @@ export class Parser {
                     ch = this.nextChar();
 
                     // Invalid: 'const t = 2.34e-;const b = 4.3e--3;'
-                    if (!(ch >= Chars.Zero && ch <= Chars.Nine)) this.early(context, Errors.Unexpected);
+                    if (!(ch >= Chars.Zero && ch <= Chars.Nine)) this.early(context, Errors.NonNumberAfterExponentIndicator);
 
                     const preNumericPart = this.index;
 
@@ -1208,13 +1226,13 @@ export class Parser {
         // For example : 3in is an error and not the two input elements 3 and in
         if (isIdentifierStart(this.nextChar())) {
             this.early(context, Errors.Unexpected);
-        } else if (!(state & NumericState.Hibo)) {
-            if (state & NumericState.ContainsSeparator || this.flags & Flags.ContainsSeparator) {
+        } else if (!(state & ScannerState.Hibo)) {
+            if (state & ScannerState.HasNumericSeparator || this.flags & Flags.HasNumericSeparator) {
                 if (decimalFragment) mainFragment += '.' + decimalFragment;
                 if (scientificFragment) mainFragment += scientificFragment;
-                value = (state & NumericState.Float ? parseFloat : parseInt)(mainFragment);
+                value = (state & ScannerState.Float ? parseFloat : parseInt)(mainFragment);
             } else {
-                value = (state & NumericState.Float ? parseFloat : parseInt)(this.source.slice(start, this.index));
+                value = (state & ScannerState.Float ? parseFloat : parseInt)(this.source.slice(start, this.index));
             }
         }
 
@@ -1222,7 +1240,7 @@ export class Parser {
 
         this.tokenValue = value;
 
-        return state & NumericState.BigInt ? Token.BigInt : Token.NumericLiteral;
+        return state & ScannerState.BigInt ? Token.BigInt : Token.NumericLiteral;
     }
 
     private scanRegularExpression(context: Context): Token {
@@ -2375,8 +2393,6 @@ export class Parser {
                         break;
                     }
                 default:
-
-                    t = this.token;
 
                     body = this.parseStatement(context | Context.Statement);
             }
@@ -3640,7 +3656,7 @@ export class Parser {
 
         this.expect(context, Token.LeftParen);
 
-         // 'async (' can be the start of an async arrow function or a call expression...
+        // 'async (' can be the start of an async arrow function or a call expression...
         while (this.token !== Token.RightParen) {
 
             if (this.token === Token.Ellipsis) {

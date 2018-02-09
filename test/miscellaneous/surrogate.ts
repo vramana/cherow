@@ -12,7 +12,7 @@ describe('Miscellaneous - Surrogate pair', () => {
 
   fail(`var 🀒`, {
     source: 'var 🀒',
-    message: 'Unexpected token 🀒',
+    message: 'Invalid character \'🀒\'',
     line: 1,
     column: 0,
     index: 0

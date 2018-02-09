@@ -54,10 +54,18 @@ describe('Miscellaneous - Identifiers', () => {
 
     fail('var aⸯ; // U+2E2F', {
         source: 'var aⸯ; // U+2E2F',
-        message: 'Unexpected token ⸯ',
+        message: 'Invalid character \'ⸯ\'',
         line: 1,
         column: 5,
         index: 5
+    });
+
+    fail('var @', {
+        source: 'var @',
+        message: 'Invalid character \'@\'',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     pass(`async

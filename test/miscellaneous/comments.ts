@@ -61,7 +61,7 @@ describe('Miscellaneous - Comments', () => {
 
     fail(`/*FOO/`, {
         source: `/*FOO/`,
-        message: 'Unterminated comment',
+        message: 'Unterminated MultiLineComment',
         line: 1,
         column: 0,
         index: 0
