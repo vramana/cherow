@@ -2,6 +2,12 @@ import { pass, fail } from '../test-utils';
 
 describe('Next - Import meta', () => {
 
+    fail(`import.meta`, {
+        source: 'import.meta',
+        next: true,
+        line: 1
+    });
+
     fail(`var import.meta`, {
         source: 'var import.meta',
         module: true,
@@ -1536,6 +1542,201 @@ describe('Next - Import meta', () => {
             end: {
                 line: 1,
                 column: 34
+            }
+        }
+    }
+});
+
+    pass(`let meta = import.meta;
+export {
+    meta as cocoa
+}`, {
+    source: `let meta = import.meta;
+    export {
+        meta as cocoa
+    }`,
+    loc: true,
+    ranges: true,
+    next: true,
+    raw: true,
+    module: true,
+    expected: {
+        type: 'Program',
+        sourceType: 'module',
+        body: [
+            {
+                type: 'VariableDeclaration',
+                declarations: [
+                    {
+                        type: 'VariableDeclarator',
+                        init: {
+                            meta: {
+                                type: 'Identifier',
+                                name: 'import',
+                                start: 11,
+                                end: 17,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 11
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 17
+                                    }
+                                }
+                            },
+                            type: 'MetaProperty',
+                            property: {
+                                type: 'Identifier',
+                                name: 'meta',
+                                start: 18,
+                                end: 22,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 18
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 22
+                                    }
+                                }
+                            },
+                            start: 11,
+                            end: 22,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 11
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 22
+                                }
+                            }
+                        },
+                        id: {
+                            type: 'Identifier',
+                            name: 'meta',
+                            start: 4,
+                            end: 8,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 8
+                                }
+                            }
+                        },
+                        start: 4,
+                        end: 22,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 4
+                            },
+                            end: {
+                                line: 1,
+                                column: 22
+                            }
+                        }
+                    }
+                ],
+                kind: 'let',
+                start: 0,
+                end: 23,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 23
+                    }
+                }
+            },
+            {
+                type: 'ExportNamedDeclaration',
+                source: null,
+                specifiers: [
+                    {
+                        type: 'ExportSpecifier',
+                        local: {
+                            type: 'Identifier',
+                            name: 'meta',
+                            start: 45,
+                            end: 49,
+                            loc: {
+                                start: {
+                                    line: 3,
+                                    column: 8
+                                },
+                                end: {
+                                    line: 3,
+                                    column: 12
+                                }
+                            }
+                        },
+                        exported: {
+                            type: 'Identifier',
+                            name: 'cocoa',
+                            start: 53,
+                            end: 58,
+                            loc: {
+                                start: {
+                                    line: 3,
+                                    column: 16
+                                },
+                                end: {
+                                    line: 3,
+                                    column: 21
+                                }
+                            }
+                        },
+                        start: 45,
+                        end: 58,
+                        loc: {
+                            start: {
+                                line: 3,
+                                column: 8
+                            },
+                            end: {
+                                line: 3,
+                                column: 21
+                            }
+                        }
+                    }
+                ],
+                declaration: null,
+                start: 28,
+                end: 64,
+                loc: {
+                    start: {
+                        line: 2,
+                        column: 4
+                    },
+                    end: {
+                        line: 4,
+                        column: 5
+                    }
+                }
+            }
+        ],
+        start: 0,
+        end: 64,
+        loc: {
+            start: {
+                line: 1,
+                column: 0
+            },
+            end: {
+                line: 4,
+                column: 5
             }
         }
     }

@@ -4155,6 +4155,162 @@ describe('Statements - For in', () => {
         }
     });
 
+    pass('for(()=>{a in b};;);', {
+        source: 'for(()=>{a in b};;);',
+        loc: true,
+        ranges: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 20,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 20
+              }
+            },
+            body: [
+              {
+                type: 'ForStatement',
+                start: 0,
+                end: 20,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 20
+                  }
+                },
+                init: {
+                  type: 'ArrowFunctionExpression',
+                  start: 4,
+                  end: 16,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 4
+                    },
+                    end: {
+                      line: 1,
+                      column: 16
+                    }
+                  },
+                  id: null,
+                  generator: false,
+                  expression: false,
+                  async: false,
+                  params: [],
+                  body: {
+                    type: 'BlockStatement',
+                    start: 8,
+                    end: 16,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 8
+                      },
+                      end: {
+                        line: 1,
+                        column: 16
+                      }
+                    },
+                    body: [
+                      {
+                        type: 'ExpressionStatement',
+                        start: 9,
+                        end: 15,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 9
+                          },
+                          end: {
+                            line: 1,
+                            column: 15
+                          }
+                        },
+                        expression: {
+                          type: 'BinaryExpression',
+                          start: 9,
+                          end: 15,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 9
+                            },
+                            end: {
+                              line: 1,
+                              column: 15
+                            }
+                          },
+                          left: {
+                            type: 'Identifier',
+                            start: 9,
+                            end: 10,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 9
+                              },
+                              end: {
+                                line: 1,
+                                column: 10
+                              }
+                            },
+                            name: 'a'
+                          },
+                          operator: 'in',
+                          right: {
+                            type: 'Identifier',
+                            start: 14,
+                            end: 15,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 14
+                              },
+                              end: {
+                                line: 1,
+                                column: 15
+                              }
+                            },
+                            name: 'b'
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                test: null,
+                update: null,
+                body: {
+                  type: 'EmptyStatement',
+                  start: 19,
+                  end: 20,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 19
+                    },
+                    end: {
+                      line: 1,
+                      column: 20
+                    }
+                  }
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
     pass('for (x in {a: b}) {}', {
         source: 'for (x in {a: b}) {}',
         loc: true,

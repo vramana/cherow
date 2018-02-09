@@ -8,6 +8,12 @@ describe('Next - Class fields', () => {
         index: 43
       });
 
+      fail('var C = class { #x = typeof arguments; }', {
+        source: 'var C = class { #x = typeof arguments; }',
+        next: true,
+        index: 27
+      });
+
       fail('var C = class extends A { x = true; super().x; }', {
         source: 'var C = class extends A { x = super().x; }',
         next: true,

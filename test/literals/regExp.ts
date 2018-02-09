@@ -912,4 +912,67 @@ describe('Literals - RegExp', () => {
             }
         }
     });
+
+    pass(`/q(a|b)*q/`, {
+        source: '/q(a|b)*q/',
+        expected: {
+              body: [
+                {
+                  expression: {
+                    regex: {
+                      flags: '',
+                      pattern: 'q(a|b)*q',
+                    },
+                    type: 'Literal',
+                    value: /q(a|b)*q/
+                  },
+                 type: 'ExpressionStatement'
+                },
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
+    pass(`/[^abc]def[abc]+/`, {
+        source: '/[^abc]def[abc]+/',
+        expected: {
+              body: [
+                {
+                  expression: {
+                    regex: {
+                      flags: '',
+                      pattern: '[^abc]def[abc]+',
+                    },
+                    type: 'Literal',
+                    value: /[^abc]def[abc]+/,
+                  },
+                 type: 'ExpressionStatement',
+                },
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
+    pass(`/([\\d]{5})([-\\ ]?[\\d]{4})?$/`, {
+        source: '/([\\d]{5})([-\\ ]?[\\d]{4})?$/',
+        expected: {
+              body: [
+                {
+                  expression: {
+                    regex: {
+                      flags: '',
+                      pattern: '([\\d]{5})([-\\ ]?[\\d]{4})?$',
+                    },
+                    type: 'Literal',
+                    value: /([\d]{5})([-\ ]?[\d]{4})?$/,
+                  },
+                  type: 'ExpressionStatement'
+               },
+              ],
+             sourceType: 'script',
+              type: 'Program',
+            }
+    });
 });

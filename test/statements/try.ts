@@ -1564,4 +1564,541 @@ describe('Statements - Try', () => {
         }
     });
 
+    pass(`try {
+        throw [1,2];
+      } catch([i,j]) {
+        try {
+          throw { k: 3, l: 4 };
+        } catch({k, l}) {
+        }
+      }`, {
+        source: `try {
+            throw [1,2];
+          } catch([i,j]) {
+            try {
+              throw { k: 3, l: 4 };
+            } catch({k, l}) {
+            }
+          }`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'TryStatement',
+                    block: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'ThrowStatement',
+                                argument: {
+                                    type: 'ArrayExpression',
+                                    elements: [
+                                        {
+                                            type: 'Literal',
+                                            value: 1,
+                                            start: 25,
+                                            end: 26,
+                                            loc: {
+                                                start: {
+                                                    line: 2,
+                                                    column: 19
+                                                },
+                                                end: {
+                                                    line: 2,
+                                                    column: 20
+                                                }
+                                            },
+                                            raw: '1'
+                                        },
+                                        {
+                                            type: 'Literal',
+                                            value: 2,
+                                            start: 27,
+                                            end: 28,
+                                            loc: {
+                                                start: {
+                                                    line: 2,
+                                                    column: 21
+                                                },
+                                                end: {
+                                                    line: 2,
+                                                    column: 22
+                                                }
+                                            },
+                                            raw: '2'
+                                        }
+                                    ],
+                                    start: 24,
+                                    end: 29,
+                                    loc: {
+                                        start: {
+                                            line: 2,
+                                            column: 18
+                                        },
+                                        end: {
+                                            line: 2,
+                                            column: 23
+                                        }
+                                    }
+                                },
+                                start: 18,
+                                end: 30,
+                                loc: {
+                                    start: {
+                                        line: 2,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 2,
+                                        column: 24
+                                    }
+                                }
+                            }
+                        ],
+                        start: 4,
+                        end: 42,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 4
+                            },
+                            end: {
+                                line: 3,
+                                column: 11
+                            }
+                        }
+                    },
+                    handler: {
+                        type: 'CatchClause',
+                        param: {
+                            type: 'ArrayPattern',
+                            elements: [
+                                {
+                                    type: 'Identifier',
+                                    name: 'i',
+                                    start: 50,
+                                    end: 51,
+                                    loc: {
+                                        start: {
+                                            line: 3,
+                                            column: 19
+                                        },
+                                        end: {
+                                            line: 3,
+                                            column: 20
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'Identifier',
+                                    name: 'j',
+                                    start: 52,
+                                    end: 53,
+                                    loc: {
+                                        start: {
+                                            line: 3,
+                                            column: 21
+                                        },
+                                        end: {
+                                            line: 3,
+                                            column: 22
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 49,
+                            end: 54,
+                            loc: {
+                                start: {
+                                    line: 3,
+                                    column: 18
+                                },
+                                end: {
+                                    line: 3,
+                                    column: 23
+                                }
+                            }
+                        },
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'TryStatement',
+                                    block: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'ThrowStatement',
+                                                argument: {
+                                                    type: 'ObjectExpression',
+                                                    properties: [
+                                                        {
+                                                            type: 'Property',
+                                                            key: {
+                                                                type: 'Identifier',
+                                                                name: 'k',
+                                                                start: 98,
+                                                                end: 99,
+                                                                loc: {
+                                                                    start: {
+                                                                        line: 5,
+                                                                        column: 22
+                                                                    },
+                                                                    end: {
+                                                                        line: 5,
+                                                                        column: 23
+                                                                    }
+                                                                }
+                                                            },
+                                                            value: {
+                                                                type: 'Literal',
+                                                                value: 3,
+                                                                start: 101,
+                                                                end: 102,
+                                                                loc: {
+                                                                    start: {
+                                                                        line: 5,
+                                                                        column: 25
+                                                                    },
+                                                                    end: {
+                                                                        line: 5,
+                                                                        column: 26
+                                                                    }
+                                                                },
+                                                                raw: '3'
+                                                            },
+                                                            kind: 'init',
+                                                            computed: false,
+                                                            method: false,
+                                                            shorthand: false,
+                                                            start: 98,
+                                                            end: 102,
+                                                            loc: {
+                                                                start: {
+                                                                    line: 5,
+                                                                    column: 22
+                                                                },
+                                                                end: {
+                                                                    line: 5,
+                                                                    column: 26
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            type: 'Property',
+                                                            key: {
+                                                                type: 'Identifier',
+                                                                name: 'l',
+                                                                start: 104,
+                                                                end: 105,
+                                                                loc: {
+                                                                    start: {
+                                                                        line: 5,
+                                                                        column: 28
+                                                                    },
+                                                                    end: {
+                                                                        line: 5,
+                                                                        column: 29
+                                                                    }
+                                                                }
+                                                            },
+                                                            value: {
+                                                                type: 'Literal',
+                                                                value: 4,
+                                                                start: 107,
+                                                                end: 108,
+                                                                loc: {
+                                                                    start: {
+                                                                        line: 5,
+                                                                        column: 31
+                                                                    },
+                                                                    end: {
+                                                                        line: 5,
+                                                                        column: 32
+                                                                    }
+                                                                },
+                                                                raw: '4'
+                                                            },
+                                                            kind: 'init',
+                                                            computed: false,
+                                                            method: false,
+                                                            shorthand: false,
+                                                            start: 104,
+                                                            end: 108,
+                                                            loc: {
+                                                                start: {
+                                                                    line: 5,
+                                                                    column: 28
+                                                                },
+                                                                end: {
+                                                                    line: 5,
+                                                                    column: 32
+                                                                }
+                                                            }
+                                                        }
+                                                    ],
+                                                    start: 96,
+                                                    end: 110,
+                                                    loc: {
+                                                        start: {
+                                                            line: 5,
+                                                            column: 20
+                                                        },
+                                                        end: {
+                                                            line: 5,
+                                                            column: 34
+                                                        }
+                                                    }
+                                                },
+                                                start: 90,
+                                                end: 111,
+                                                loc: {
+                                                    start: {
+                                                        line: 5,
+                                                        column: 14
+                                                    },
+                                                    end: {
+                                                        line: 5,
+                                                        column: 35
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        start: 74,
+                                        end: 125,
+                                        loc: {
+                                            start: {
+                                                line: 4,
+                                                column: 16
+                                            },
+                                            end: {
+                                                line: 6,
+                                                column: 13
+                                            }
+                                        }
+                                    },
+                                    handler: {
+                                        type: 'CatchClause',
+                                        param: {
+                                            type: 'ObjectPattern',
+                                            properties: [
+                                                {
+                                                    type: 'Property',
+                                                    kind: 'init',
+                                                    key: {
+                                                        type: 'Identifier',
+                                                        name: 'k',
+                                                        start: 133,
+                                                        end: 134,
+                                                        loc: {
+                                                            start: {
+                                                                line: 6,
+                                                                column: 21
+                                                            },
+                                                            end: {
+                                                                line: 6,
+                                                                column: 22
+                                                            }
+                                                        }
+                                                    },
+                                                    computed: false,
+                                                    value: {
+                                                        type: 'Identifier',
+                                                        name: 'k',
+                                                        start: 133,
+                                                        end: 134,
+                                                        loc: {
+                                                            start: {
+                                                                line: 6,
+                                                                column: 21
+                                                            },
+                                                            end: {
+                                                                line: 6,
+                                                                column: 22
+                                                            }
+                                                        }
+                                                    },
+                                                    method: false,
+                                                    shorthand: true,
+                                                    start: 133,
+                                                    end: 134,
+                                                    loc: {
+                                                        start: {
+                                                            line: 6,
+                                                            column: 21
+                                                        },
+                                                        end: {
+                                                            line: 6,
+                                                            column: 22
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    type: 'Property',
+                                                    kind: 'init',
+                                                    key: {
+                                                        type: 'Identifier',
+                                                        name: 'l',
+                                                        start: 136,
+                                                        end: 137,
+                                                        loc: {
+                                                            start: {
+                                                                line: 6,
+                                                                column: 24
+                                                            },
+                                                            end: {
+                                                                line: 6,
+                                                                column: 25
+                                                            }
+                                                        }
+                                                    },
+                                                    computed: false,
+                                                    value: {
+                                                        type: 'Identifier',
+                                                        name: 'l',
+                                                        start: 136,
+                                                        end: 137,
+                                                        loc: {
+                                                            start: {
+                                                                line: 6,
+                                                                column: 24
+                                                            },
+                                                            end: {
+                                                                line: 6,
+                                                                column: 25
+                                                            }
+                                                        }
+                                                    },
+                                                    method: false,
+                                                    shorthand: true,
+                                                    start: 136,
+                                                    end: 137,
+                                                    loc: {
+                                                        start: {
+                                                            line: 6,
+                                                            column: 24
+                                                        },
+                                                        end: {
+                                                            line: 6,
+                                                            column: 25
+                                                        }
+                                                    }
+                                                }
+                                            ],
+                                            start: 132,
+                                            end: 138,
+                                            loc: {
+                                                start: {
+                                                    line: 6,
+                                                    column: 20
+                                                },
+                                                end: {
+                                                    line: 6,
+                                                    column: 26
+                                                }
+                                            }
+                                        },
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [],
+                                            start: 140,
+                                            end: 155,
+                                            loc: {
+                                                start: {
+                                                    line: 6,
+                                                    column: 28
+                                                },
+                                                end: {
+                                                    line: 7,
+                                                    column: 13
+                                                }
+                                            }
+                                        },
+                                        start: 126,
+                                        end: 155,
+                                        loc: {
+                                            start: {
+                                                line: 6,
+                                                column: 14
+                                            },
+                                            end: {
+                                                line: 7,
+                                                column: 13
+                                            }
+                                        }
+                                    },
+                                    finalizer: null,
+                                    start: 70,
+                                    end: 155,
+                                    loc: {
+                                        start: {
+                                            line: 4,
+                                            column: 12
+                                        },
+                                        end: {
+                                            line: 7,
+                                            column: 13
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 56,
+                            end: 167,
+                            loc: {
+                                start: {
+                                    line: 3,
+                                    column: 25
+                                },
+                                end: {
+                                    line: 8,
+                                    column: 11
+                                }
+                            }
+                        },
+                        start: 43,
+                        end: 167,
+                        loc: {
+                            start: {
+                                line: 3,
+                                column: 12
+                            },
+                            end: {
+                                line: 8,
+                                column: 11
+                            }
+                        }
+                    },
+                    finalizer: null,
+                    start: 0,
+                    end: 167,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 8,
+                            column: 11
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 167,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 8,
+                    column: 11
+                }
+            }
+        }
+    });
 });

@@ -177,6 +177,129 @@ describe('Next - Dynamic Import', () => {
             }
         });
 
+    pass(`import foo, * as namespace from "./namespace/drink.js"`, {
+            source: 'import foo, * as namespace from "./namespace/drink.js"',
+            ranges: true,
+            loc: true,
+            next: true,
+            raw: true,
+            module: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'module',
+                body: [
+                    {
+                        type: 'ImportDeclaration',
+                        specifiers: [
+                            {
+                                type: 'ImportDefaultSpecifier',
+                                local: {
+                                    type: 'Identifier',
+                                    name: 'foo',
+                                    start: 7,
+                                    end: 10,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 7
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 10
+                                        }
+                                    }
+                                },
+                                start: 7,
+                                end: 10,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 7
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 10
+                                    }
+                                }
+                            },
+                            {
+                                type: 'ImportNamespaceSpecifier',
+                                local: {
+                                    type: 'Identifier',
+                                    name: 'namespace',
+                                    start: 17,
+                                    end: 26,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 17
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 26
+                                        }
+                                    }
+                                },
+                                start: 12,
+                                end: 26,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 12
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 26
+                                    }
+                                }
+                            }
+                        ],
+                        source: {
+                            type: 'Literal',
+                            value: './namespace/drink.js',
+                            start: 32,
+                            end: 54,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 32
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 54
+                                }
+                            },
+                            raw: '"./namespace/drink.js"'
+                        },
+                        start: 0,
+                        end: 54,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 54
+                            }
+                        }
+                    }
+                ],
+                start: 0,
+                end: 54,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 54
+                    }
+                }
+            }
+        });
+
     pass(`return value`, {
             source: 'const importResult = import("test.js");',
             ranges: true,

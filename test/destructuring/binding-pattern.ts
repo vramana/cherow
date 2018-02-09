@@ -4612,6 +4612,299 @@ describe('Destructuring - Binding pattern', () => {
                 }
             });
 
+            pass(`[] = [1,2];
+            ({} = {a:1,b:2});`, {
+                source: `[] = [1,2];
+                ({} = {a:1,b:2});`,
+                loc: true,
+                ranges: true,
+                raw: true,
+                expected: {
+                    type: 'Program',
+                    start: 0,
+                    end: 45,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 2,
+                        column: 33
+                      }
+                    },
+                    body: [
+                      {
+                        type: 'ExpressionStatement',
+                        start: 0,
+                        end: 11,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 0
+                          },
+                          end: {
+                            line: 1,
+                            column: 11
+                          }
+                        },
+                        expression: {
+                          type: 'AssignmentExpression',
+                          start: 0,
+                          end: 10,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 0
+                            },
+                            end: {
+                              line: 1,
+                              column: 10
+                            }
+                          },
+                          operator: '=',
+                          left: {
+                            type: 'ArrayPattern',
+                            start: 0,
+                            end: 2,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 0
+                              },
+                              end: {
+                                line: 1,
+                                column: 2
+                              }
+                            },
+                            elements: []
+                          },
+                          right: {
+                            type: 'ArrayExpression',
+                            start: 5,
+                            end: 10,
+                            loc: {
+                              start: {
+                                line: 1,
+                                column: 5
+                              },
+                              end: {
+                                line: 1,
+                                column: 10
+                              }
+                            },
+                            elements: [
+                              {
+                                type: 'Literal',
+                                start: 6,
+                                end: 7,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 6
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 7
+                                  }
+                                },
+                                value: 1,
+                                raw: '1'
+                              },
+                              {
+                                type: 'Literal',
+                                start: 8,
+                                end: 9,
+                                loc: {
+                                  start: {
+                                    line: 1,
+                                    column: 8
+                                  },
+                                  end: {
+                                    line: 1,
+                                    column: 9
+                                  }
+                                },
+                                value: 2,
+                                raw: '2'
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        type: 'ExpressionStatement',
+                        start: 28,
+                        end: 45,
+                        loc: {
+                          start: {
+                            line: 2,
+                            column: 16
+                          },
+                          end: {
+                            line: 2,
+                            column: 33
+                          }
+                        },
+                        expression: {
+                          type: 'AssignmentExpression',
+                          start: 29,
+                          end: 43,
+                          loc: {
+                            start: {
+                              line: 2,
+                              column: 17
+                            },
+                            end: {
+                              line: 2,
+                              column: 31
+                            }
+                          },
+                          operator: '=',
+                          left: {
+                            type: 'ObjectPattern',
+                            start: 29,
+                            end: 31,
+                            loc: {
+                              start: {
+                                line: 2,
+                                column: 17
+                              },
+                              end: {
+                                line: 2,
+                                column: 19
+                              }
+                            },
+                            properties: []
+                          },
+                          right: {
+                            type: 'ObjectExpression',
+                            start: 34,
+                            end: 43,
+                            loc: {
+                              start: {
+                                line: 2,
+                                column: 22
+                              },
+                              end: {
+                                line: 2,
+                                column: 31
+                              }
+                            },
+                            properties: [
+                              {
+                                type: 'Property',
+                                start: 35,
+                                end: 38,
+                                loc: {
+                                  start: {
+                                    line: 2,
+                                    column: 23
+                                  },
+                                  end: {
+                                    line: 2,
+                                    column: 26
+                                  }
+                                },
+                                method: false,
+                                shorthand: false,
+                                computed: false,
+                                key: {
+                                  type: 'Identifier',
+                                  start: 35,
+                                  end: 36,
+                                  loc: {
+                                    start: {
+                                      line: 2,
+                                      column: 23
+                                    },
+                                    end: {
+                                      line: 2,
+                                      column: 24
+                                    }
+                                  },
+                                  name: 'a'
+                                },
+                                value: {
+                                  type: 'Literal',
+                                  start: 37,
+                                  end: 38,
+                                  loc: {
+                                    start: {
+                                      line: 2,
+                                      column: 25
+                                    },
+                                    end: {
+                                      line: 2,
+                                      column: 26
+                                    }
+                                  },
+                                  value: 1,
+                                  raw: '1'
+                                },
+                                kind: 'init'
+                              },
+                              {
+                                type: 'Property',
+                                start: 39,
+                                end: 42,
+                                loc: {
+                                  start: {
+                                    line: 2,
+                                    column: 27
+                                  },
+                                  end: {
+                                    line: 2,
+                                    column: 30
+                                  }
+                                },
+                                method: false,
+                                shorthand: false,
+                                computed: false,
+                                key: {
+                                  type: 'Identifier',
+                                  start: 39,
+                                  end: 40,
+                                  loc: {
+                                    start: {
+                                      line: 2,
+                                      column: 27
+                                    },
+                                    end: {
+                                      line: 2,
+                                      column: 28
+                                    }
+                                  },
+                                  name: 'b'
+                                },
+                                value: {
+                                  type: 'Literal',
+                                  start: 41,
+                                  end: 42,
+                                  loc: {
+                                    start: {
+                                      line: 2,
+                                      column: 29
+                                    },
+                                    end: {
+                                      line: 2,
+                                      column: 30
+                                    }
+                                  },
+                                  value: 2,
+                                  raw: '2'
+                                },
+                                kind: 'init'
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ],
+                    sourceType: 'script'
+                  }
+            });
+
             pass(`(a, b, [c]) => 0`, {
                 source: '(a, b, [c]) => 0',
                 loc: true,
