@@ -172,10 +172,10 @@ export class Parser {
         return true;
     }
 
-    private consumeLineFeed(lastIsCR: boolean) {
+    private consumeLineFeed(state: ScannerState) {
         this.flags |= Flags.LineTerminator;
         this.index++;
-        if (!lastIsCR) {
+        if ((state & ScannerState.LastIsCR) === 0) {
             this.column = 0;
             this.line++;
         }
@@ -214,7 +214,7 @@ export class Parser {
                     continue;
 
                 case Chars.LineFeed:
-                    this.consumeLineFeed((state & ScannerState.LastIsCR) !== 0);
+                    this.consumeLineFeed(state);
                     state = state & ~ScannerState.LastIsCR | ScannerState.NewLine;
                     continue;
 
@@ -248,7 +248,11 @@ export class Parser {
                 case Chars.ZeroWidthNoBreakSpace:
                 case Chars.ZeroWidthJoiner:
                 case Chars.ZeroWidthNonJoiner:
-                    if (context & Context.ProhibitWhitespace) this.report(Errors.Unexpected);
+
+                    if (context & Context.ProhibitWhitespace) {
+                        this.flags |= Flags.WhiteSpaceBeforeNext;
+                    }
+
                     state |= ScannerState.SameLine;
                     this.advance();
                     continue;
@@ -701,7 +705,7 @@ export class Parser {
                     break;
 
                 case Chars.LineFeed:
-                    this.consumeLineFeed((state & ScannerState.LastIsCR) !== 0);
+                    this.consumeLineFeed(state);
                     state = state & ~ScannerState.LastIsCR | ScannerState.NewLine;
                     break;
 
@@ -2633,30 +2637,21 @@ export class Parser {
         this.expect(context, Token.SwitchKeyword);
         this.expect(context, Token.LeftParen);
 
-        const discriminant = this.parseExpression(context, pos);
+        const discriminant = this.parseExpression(context | Context.AllowIn, pos);
 
         this.expect(context, Token.RightParen);
         this.expect(context, Token.LeftBrace);
 
         const cases: ESTree.SwitchCase[] = [];
 
-        let seenDefault = false;
+        const seenDefault = false;
 
         const SavedFlag = this.flags;
 
         this.flags |= Flags.AllowBreak;
 
         while (this.token !== Token.RightBrace) {
-
-            const clause = this.parseSwitchCases(context);
-
-            if (clause.test === null) {
-                // Error on duplicate 'default' clauses
-                if (seenDefault) this.early(context, Errors.MultipleDefaultsInSwitch);
-                seenDefault = true;
-            }
-
-            cases.push(clause);
+            cases.push(this.parseCaseOrDefaultClause(context));
         }
 
         this.flags = SavedFlag;
@@ -2672,31 +2667,28 @@ export class Parser {
 
     // https://tc39.github.io/ecma262/#sec-switch-statement
 
-    private parseSwitchCases(context: Context): ESTree.SwitchCase {
+    private parseCaseOrDefaultClause(context: Context): ESTree.SwitchCase {
         const pos = this.getLocation();
-        let test: ESTree.Expression | null = null;
-
-        if (!this.parseOptional(context, Token.DefaultKeyword)) {
-            this.expect(context, Token.CaseKeyword);
-            test = this.parseExpression(context, pos);
-        }
-
+        const test = this.parseOptional(context, Token.CaseKeyword) ?
+            this.parseExpression(context | Context.AllowIn, pos) :
+            null;
+        let hasDefault = false;
+        if (this.parseOptional(context, Token.DefaultKeyword)) hasDefault = true;
         this.expect(context, Token.Colon);
-
         const consequent: ESTree.Statement[] = [];
-
         loop:
             while (true) {
+
                 switch (this.token) {
-                    case Token.RightBrace:
                     case Token.DefaultKeyword:
+                        if (hasDefault) this.early(context, Errors.MultipleDefaultsInSwitch);
+                    case Token.RightBrace:
                     case Token.CaseKeyword:
                         break loop;
                     default:
                         consequent.push(this.parseStatementListItem(context));
                 }
             }
-
         return this.finishNode(context, pos, {
             type: 'SwitchCase',
             test,
@@ -2713,9 +2705,7 @@ export class Parser {
 
         let argument: ESTree.Expression | null = null;
 
-        if (!this.canConsumeSemicolon()) {
-            argument = this.parseExpression(context | Context.AllowIn, pos);
-        }
+        if (!this.canConsumeSemicolon()) argument = this.parseExpression(context | Context.AllowIn, pos);
 
         this.consumeSemicolon(context);
 
@@ -2729,7 +2719,9 @@ export class Parser {
 
     private parseDebuggerStatement(context: Context): ESTree.DebuggerStatement {
         const pos = this.getLocation();
-        if (this.flags & Flags.ExtendedUnicodeEscape) this.early(context, Errors.UnexpectedEscapedKeyword);
+        if (this.flags & Flags.ExtendedUnicodeEscape) {
+            this.early(context, Errors.UnexpectedEscapedKeyword);
+        }
         this.expect(context, Token.DebuggerKeyword);
         this.consumeSemicolon(context);
         return this.finishNode(context, pos, {
@@ -4031,6 +4023,7 @@ export class Parser {
                 return this.parseComputedPropertyName(context);
             case Token.Hash:
                 if (context & Context.InClass) return this.parsePrivateName(context, state);
+
             default:
                 return this.parseIdentifier(context);
         }
@@ -4297,16 +4290,23 @@ export class Parser {
     }
 
     private parsePrivateName(context: Context, state: ObjectState = ObjectState.None): ESTree.PrivateName {
+
         const pos = this.getLocation();
+
         if (state & ObjectState.Static) {
             this.early(context, Errors.Unexpected);
         }
+
         this.expect(context | Context.ProhibitWhitespace, Token.Hash);
 
-        const t = this.token;
-        if (t === Token.ConstructorKeyword) {
+        if (this.flags & Flags.WhiteSpaceBeforeNext) {
+            this.early(context, Errors.InvalidWhitespacePrivateName);
+        }
+
+        if (this.token === Token.ConstructorKeyword) {
             this.early(context, Errors.Unexpected);
         }
+
         const name = this.tokenValue;
         this.nextToken(context);
         return this.finishNode(context, pos, {

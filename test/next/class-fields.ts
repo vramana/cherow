@@ -122,7 +122,7 @@ describe('Next - Class fields', () => {
     index: 21
   });
 
-      fail('class A { a = this.#a }', {
+      fail('class A { # a }', {
     source: 'class A { # a }',
     next: true,
     index: 11

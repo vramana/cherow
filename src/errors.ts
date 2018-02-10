@@ -96,7 +96,9 @@ export const enum Errors {
     ArgumentsDisallowedInInitializer,
     InvalidCharacter,
     InvalidDecimalWithLeadingZero,
-    NonNumberAfterExponentIndicator
+    NonNumberAfterExponentIndicator,
+    DuplicatePrivateName,
+    InvalidWhitespacePrivateName
 }
 
 export const ErrorMessages: {
@@ -199,6 +201,9 @@ export const ErrorMessages: {
     [Errors.InvalidCharacter]: 'Invalid character \'%0\'',
     [Errors.InvalidDecimalWithLeadingZero]: 'Decimal integer literals with a leading zero are forbidden in strict mode',
     [Errors.NonNumberAfterExponentIndicator]: 'Invalid non-number after exponent indicator',
+    [Errors.DuplicatePrivateName]: 'Duplicate private name',
+    [Errors.InvalidWhitespacePrivateName]: 'Invalid whitespace after  \'#\'',
+
 };
 
 function constructError(msg: string, column: number): Error {

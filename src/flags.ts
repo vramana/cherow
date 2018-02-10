@@ -42,22 +42,24 @@ export const enum Context {
 export const enum Flags {
     None                    = 0,
     LineTerminator          = 1 << 0,
-    AllowContinue           = 1 << 1, // If node was parsed in a context where 'continue' are allowed
-    AllowBreak              = 1 << 2, // If node was parsed in a context where 'breal' are allowed
-    InFunctionBody          = 1 << 3, // If node was parsed inside a functions body
-    SimpleParameterList     = 1 << 4,
-    Octal                   = 1 << 5, // If node contains and legacy octal numbers
-    HasNumericSeparator     = 1 << 6, // Stage 3 related;
-    ProtoField              = 1 << 7, // If node contains any '__proto__' fields
-    DuplicateProtoField     = 1 << 8, // If node contains any duplicate '__proto__' fields
-    ExtendedUnicodeEscape   = 1 << 9,
-    StrictDirective         = 1 << 10, // If node was parsed in a strict directive context
-    HasAwait                = 1 << 11,
-    HasYield                = 1 << 12,
-    WhiteSpace              = 1 << 13,
-    ReservedWords           = 1 << 14,
-    HasCommaSeparator       = 1 << 15,
-    CoverInitializedName     = 1 << 16
+    WhiteSpaceBeforeNext    = 1 << 1,
+    AllowContinue           = 1 << 2, // If node was parsed in a context where 'continue' are allowed
+    AllowBreak              = 1 << 3, // If node was parsed in a context where 'breal' are allowed
+    InFunctionBody          = 1 << 4, // If node was parsed inside a functions body
+    SimpleParameterList     = 1 << 5,
+    Octal                   = 1 << 6, // If node contains and legacy octal numbers
+    HasNumericSeparator     = 1 << 7, // Stage 3 related;
+    ProtoField              = 1 << 8, // If node contains any '__proto__' fields
+    DuplicateProtoField     = 1 << 9, // If node contains any duplicate '__proto__' fields
+    ExtendedUnicodeEscape   = 1 << 10,
+    StrictDirective         = 1 << 11, // If node was parsed in a strict directive context
+    HasAwait                = 1 << 12,
+    HasYield                = 1 << 13,
+    WhiteSpace              = 1 << 14,
+    ReservedWords           = 1 << 15,
+    HasCommaSeparator       = 1 << 16,
+    CoverInitializedName     = 1 << 17,
+
 }
 
 /** Shared between class and objects */

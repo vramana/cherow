@@ -1984,4 +1984,124 @@ describe('Miscellaneous - Failure', () => {
         message: 'Unexpected token (',
         line: 1,
     });
+
+    fail('class A {set a(yield){}}', {
+        source: 'class A {set a(yield){}}' ,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 1,
+    });
+
+    fail('();', {
+        source: `();`,
+        message: 'Unexpected token',
+        line: 1,
+    });
+/*
+    fail('[([a])] = 12;', {
+        source: `[([a])] = 12;`,
+        message: 'Unexpected token (',
+        line: 1,
+    });
+
+    fail('(a, ...b);', {
+        source: `(a, ...b);`,
+        message: 'Unexpected token (',
+        line: 1,
+    });*/
+
+    fail('var e = [a -= 12] = 5', {
+        source: `var e = [a -= 12] = 5`,
+        message: 'Unexpected token =',
+        line: 1,
+    });
+
+  /*  fail(`function l() { '\\12'; 'use strict' }`, {
+        source: `function l() { '\\12'; 'use strict' }`,
+        message: 'Unexpected token (',
+        line: 1,
+    });*/
+
+    fail('[ a -= 12 ] = 12;', {
+        source: `[ a -= 12 ] = 12;`,
+        message: 'Unexpected token =',
+        line: 1,
+    });
+
+    fail('(((a, ...b)))', {
+        source: `(((a, ...b)))`,
+        message:  'Unexpected token )',
+        line: 1,
+    });
+
+    fail('class A extends B { constructor() { !{constructor() { super(); }}; } }', {
+        source: `class A extends B { constructor() { !{constructor() { super(); }}; } }`,
+        message:  '\'super\' keyword unexpected here',
+        line: 1,
+    });
+
+    fail(`'use strict'; ({eval} = 0);`, {
+        source: `'use strict'; ({eval} = 0);`,
+        message: 'Unexpected eval or arguments in strict mode',
+        line: 1,
+    });
+
+    fail('(a, ...b)', {
+        source: `(a, ...b)`,
+        message:  'Unexpected token end of source',
+        line: 1,
+    });
+
+    fail('(((...a)))', {
+        source: `(((...a)))`,
+        message: 'Unexpected token )',
+        line: 1,
+    });
+
+    fail('let let;', {
+        source: `let let;`,
+        message:  'let is disallowed as a lexically bound name',
+        line: 1,
+    });
+
+    fail('for(({a: 0}) in 0);', {
+        source: `for(({a: 0}) in 0);`,
+        message: 'Unexpected token',
+        line: 1,
+    });
+
+    fail('for(([0]) in 0);', {
+        source: `for(([0]) in 0);`,
+        message: 'Unexpected token',
+        line: 1,
+    });
+
+    fail('for(const let = 0;;);', {
+        source: `for(const let = 0;;);`,
+        message: 'let is disallowed as a lexically bound name',
+        line: 1,
+    });
+
+    fail('function f(){ const a; }', {
+        source: `function f(){ const a; }`,
+        message: 'Missing initializer in const declaration',
+        line: 1,
+    });
+
+    fail('for(;;) labelA: labelB: labelC: function f(){}', {
+        source: `for(;;) labelA: labelB: labelC: function f(){}`,
+        message:  'In strict mode code, functions can only be declared at top level or inside a block',
+        line: 1,
+    });
+
+    fail('label: continue label;', {
+        source: `label: continue label;`,
+        message: 'continue  statement must be nested within an iteration statement' ,
+        line: 1,
+    });
+
+    fail('x = { set f(...y) {} }', {
+        source: `x = { set f(...y) {} }`,
+        message: 'Setter function argument must not be a rest parameter',
+        line: 1,
+    });
 });

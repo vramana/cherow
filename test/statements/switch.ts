@@ -19,7 +19,9 @@ describe('Statements - Switch', () => {
 
                 return result;
               }`,
-              line: 12
+              line: 9,
+              column: 26,
+              index: 239
           });
 
           fail(`switch(value) {
