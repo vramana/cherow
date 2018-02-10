@@ -172,7 +172,7 @@ describe('Declarations - Class', () => {
 
     fail('class A { get constructor() {} }', {
         source: `class A { get constructor() {} }`,
-        message: 'Class constructor may not be an accessor',
+        message: 'Class member named constructor (or \'constructor\') may not be an accessor',
         line: 1,
         column: 14,
         index: 14
@@ -192,7 +192,7 @@ describe('Declarations - Class', () => {
 
     fail('class A { set constructor(_) {} }', {
         source: `class A { set constructor(_) {} }`,
-        message: 'Class constructor may not be an accessor',
+        message: 'Class member named constructor (or \'constructor\') may not be an accessor',
         line: 1,
         column: 14,
         index: 14

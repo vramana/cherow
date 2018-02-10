@@ -2,11 +2,20 @@ import { pass, fail } from '../test-utils';
 
 describe('Module - Import', () => {
 
+    fail(`import a`, {
+        source: `import a`,
+        module: true,
+        message: 'Unexpected token end of source',
+        line: 1,
+        column: 8,
+        index: 8
+    });
+
     fail(`import { class } from 'foo'`, {
         source: `import { class } from 'foo'`,
         module: true,
         line: 1,
-        message: 'Unexpcted keyword \'class\'',
+        message: 'Unexpected keyword \'class\'',
         column: 14,
         index: 14
     });
@@ -15,7 +24,7 @@ describe('Module - Import', () => {
         source: `import { class, var } from 'foo'`,
         module: true,
         line: 1,
-        message: 'Unexpcted keyword \'class\'',
+        message: 'Unexpected keyword \'class\'',
         column: 14,
         index: 14
     });
@@ -42,7 +51,7 @@ describe('Module - Import', () => {
         source: `import { enum } from 'foo'`,
         module: true,
         line: 1,
-        message: 'Unexpcted keyword \'enum\'',
+        message: 'Unexpected keyword \'enum\'',
         column: 13,
         index: 13
     });
@@ -51,7 +60,7 @@ describe('Module - Import', () => {
         source: `import { for } from "iteration"`,
         module: true,
         line: 1,
-        message: 'Unexpcted keyword \'for\'',
+        message: 'Unexpected keyword \'for\'',
         column: 12,
         index: 12
     });
@@ -78,7 +87,7 @@ describe('Module - Import', () => {
         source: `import { class } from "foo"`,
         module: true,
         line: 1,
-        message: 'Unexpcted keyword \'class\'',
+        message: 'Unexpected keyword \'class\'',
         column: 14,
         index: 14
     });
@@ -260,7 +269,7 @@ describe('Module - Import', () => {
     fail(`export *`, {
         source: `export *`,
         line: 1,
-        message: 'Unexpcted keyword \'export\'',
+        message: 'Unexpected keyword \'export\'',
         column: 0,
         index: 0
     });
@@ -268,7 +277,7 @@ describe('Module - Import', () => {
     fail(`export var await;`, {
         source: `export var await;`,
         line: 1,
-        message: 'Unexpcted keyword \'export\'',
+        message: 'Unexpected keyword \'export\'',
         column: 0,
         index: 0
     });

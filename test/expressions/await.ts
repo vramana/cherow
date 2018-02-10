@@ -4,7 +4,7 @@ describe('Expressions - Await', () => {
 
     fail(`await a`, {
         source: 'await a',
-        message: 'Unexpected token identifier',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
         line: 1,
         column: 5,
         index: 5
@@ -12,7 +12,7 @@ describe('Expressions - Await', () => {
 
     fail(`async function foo() { (await 1) = 1; }`, {
         source: 'async function foo() { (await 1) = 1; }',
-        message: 'Unexpected token',
+        message: '\'AwaitExpression\' is not a valid assignment left hand side',
         line: 1,
     });
 
@@ -42,7 +42,7 @@ describe('Expressions - Await', () => {
 
     fail(`async function foo() { (await 1) = 1; }`, {
         source: 'async function foo() { (await 1) = 1; }',
-        message: 'Unexpected token',
+        message: '\'AwaitExpression\' is not a valid assignment left hand side',
         line: 1,
         column: 32,
         index: 32
@@ -67,7 +67,7 @@ describe('Expressions - Await', () => {
 
     fail(`async await => 1;`, {
         source: 'async await => 1;',
-        message: 'Unexpected token await',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'await\'',
         line: 1,
         column: 5,
         index: 5
@@ -234,7 +234,7 @@ describe('Expressions - Await', () => {
 
     fail(`await a;`, {
         source: 'await a;',
-        message:  'Unexpected token identifier',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
         line: 1,
         column: 5,
         index: 5

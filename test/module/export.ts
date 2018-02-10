@@ -2,28 +2,10 @@ import { pass, fail } from '../test-utils';
 
 describe('Module - Export', () => {
 
-    fail(`import a`, {
-        source: `import a`,
-        module: true,
-        message: 'Unexpected token end of source',
-        line: 1,
-        column: 8,
-        index: 8
-    });
-
     fail(`export { default }`, {
         source: `export { default }`,
-        message:  'Unexpcted keyword',
+        message: 'Unexpected keyword \'default\'',
         module: true,
-        line: 1,
-        column: 9,
-        index: 9
-    });
-
-    fail(`export { if }`, {
-        source: `export { if }`,
-        module: true,
-        message:  'Unexpcted keyword',
         line: 1,
         column: 9,
         index: 9
@@ -33,7 +15,7 @@ describe('Module - Export', () => {
         source: `export { default as foo }`,
         module: true,
         line: 1,
-        message:  'Unexpcted keyword',
+        message: 'Unexpected keyword \'default\'',
         column: 9,
         index: 9
     });
@@ -42,7 +24,7 @@ describe('Module - Export', () => {
         source: `export { if as foo }`,
         module: true,
         line: 1,
-        message:  'Unexpcted keyword',
+        message: 'Unexpected keyword \'if\'',
         column: 9,
         index: 9
     });
@@ -74,7 +56,7 @@ describe('Module - Export', () => {
         source: `export function () { }`,
         module: true,
         line: 1,
-        message: 'Function statement requires a name',
+        message: 'Function declaration must have a name in this context',
         column: 15,
         index: 15
     });
@@ -109,7 +91,7 @@ describe('Module - Export', () => {
     fail(`export {default} +`, {
         source: `export {default} +`,
         module: true,
-        message:  'Unexpcted keyword',
+        message: 'Unexpected keyword \'default\'',
         line: 1,
         column: 8,
         index: 8
@@ -207,7 +189,7 @@ with (house) {
     fail(`export {} null;`, {
             source: `export {} null;`,
             module: true,
-            message: 'Unexpected token null',
+            message:  'A semicolon was expected (or a \'}\' if appropriate), but got \'null\'',
             line: 1,
             column: 9,
             index: 9
@@ -232,7 +214,7 @@ with (house) {
             source: `export { if as foo }`,
             module: true,
             line: 1,
-            message: 'Unexpcted keyword',
+            message: 'Unexpected keyword \'if\'',
             column: 9,
             index: 9
         });
@@ -258,7 +240,7 @@ with (house) {
     fail(`export default async\nfunction() {}`, {
             source: `export default async\nfunction() {}`,
             line: 1,
-            message: 'Unexpcted keyword \'export\'',
+            message: 'Unexpected keyword \'export\'',
             column: 0,
             index: 0
         });
@@ -276,7 +258,7 @@ with (house) {
             source: `export \nasync function() {}`,
             module: true,
             line: 2,
-            message: 'Function statement requires a name',
+            message: 'Function declaration must have a name in this context',
             column: 14,
             index: 22
         });
@@ -310,7 +292,7 @@ with (house) {
 
     fail(`export default default`, {
             source: `export default default`,
-            message: 'Unexpcted keyword \'export\'',
+            message: 'Unexpected keyword \'export\'',
             column: 0,
             index: 0
         });

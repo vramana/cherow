@@ -4,7 +4,7 @@ describe('Statements - Variable', () => {
 
     fail(`var x && 1;`, {
         source: 'var x && 1;',
-        message:  'Unexpected token &&',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'&&\'',
         line: 1,
         column: 5,
         index: 5,
@@ -12,7 +12,7 @@ describe('Statements - Variable', () => {
 
     fail(`var x | true;`, {
         source: 'var x | true;',
-        message:  'Unexpected token |',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'|\'',
         line: 1,
         column: 5,
         index: 5,

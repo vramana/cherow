@@ -13,6 +13,7 @@ export const enum Errors {
     DefaultRestProperty,
     PropertyAfterRestProperty,
     LineBreakAfterAsync,
+    LineBreakAfterArrow,
     InvalidParenthesizedPattern,
     UnexpectedStrictReserved,
     StrictFunction,
@@ -100,7 +101,11 @@ export const enum Errors {
     DuplicatePrivateName,
     InvalidWhitespacePrivateName,
     UnexpectedKeyword,
-    UnexpecatedReserved
+    NoSemicolon,
+    NotAssignable,
+    NotBindable,
+    ComplexAssignment,
+    MissingUAfterSlash
 }
 
 export const ErrorMessages: {
@@ -120,13 +125,14 @@ export const ErrorMessages: {
     [Errors.DefaultRestProperty]: 'Parameter after rest parameter',
     [Errors.PropertyAfterRestProperty]: 'Parameter after rest parameter',
     [Errors.LineBreakAfterAsync]: 'No line break is allowed after async',
+    [Errors.LineBreakAfterArrow]: 'No line break is allowed after \'=>\'',
     [Errors.InvalidParenthesizedPattern]: 'Invalid parenthesized pattern',
     [Errors.StrictFunction]: 'In strict mode code, functions can only be declared at top level or inside a block',
     [Errors.SloppyFunction]: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
     [Errors.InvalidNestedStatement]: '%0  statement must be nested within an iteration statement',
     [Errors.DisallowedInContext]: '\'%0\' may not be used as an identifier in this context',
     [Errors.DuplicateProtoProperty]: 'Property name __proto__ appears more than once in object literal',
-    [Errors.ConstructorSpecialMethod]: 'Class constructor may not be an accessor',
+    [Errors.ConstructorSpecialMethod]: 'Class member named constructor (or \'constructor\') may not be an accessor',
     [Errors.StaticPrototype]: 'Classes may not have static property named prototype',
     [Errors.DuplicateConstructor]: 'A class may only have one constructor',
     [Errors.ForbiddenAsStatement]: '%0 can\'t appear in single-statement context',
@@ -143,6 +149,7 @@ export const ErrorMessages: {
     [Errors.UnterminatedString]: 'Unterminated string literal',
     [Errors.UnexpectedEscapedKeyword]: 'Unexpected escaped keyword',
     [Errors.InvalidUnicodeEscapeSequence]: 'Invalid Unicode escape sequence',
+    [Errors.MissingUAfterSlash]: '\'u\' was expected after \\',
     [Errors.UnexpectedSurrogate]: 'Unexpected surrogate pair',
     [Errors.StrictOctalLiteral]: 'Octal literals are not allowed in strict mode',
     [Errors.InvalidRestBindingPattern]: '`...` must be followed by an identifier in declaration contexts',
@@ -165,7 +172,7 @@ export const ErrorMessages: {
     [Errors.IllegalReturn]: 'Illegal return statement',
     [Errors.InvalidBindingStrictMode]: 'The identifier \'%0\' must not be in binding position in strict mode',
     [Errors.InvalidAwaitInArrowParam]: '\'await\' is not a valid identifier name in an async function',
-    [Errors.UnNamedFunctionStmt]: 'Function statement requires a name',
+    [Errors.UnNamedFunctionStmt]: 'Function declaration must have a name in this context',
     [Errors.InvalidLHSInForLoop]: 'Invalid left-hand side in for-loop',
     [Errors.ForInOfLoopMultiBindings]: 'Invalid left-hand side in for-%0 loop: Must have a single binding.',
     [Errors.InvalidArrowYieldParam]: 'Arrow parameters must not contain yield expressions',
@@ -205,9 +212,11 @@ export const ErrorMessages: {
     [Errors.NonNumberAfterExponentIndicator]: 'Invalid non-number after exponent indicator',
     [Errors.DuplicatePrivateName]: 'Duplicate private name',
     [Errors.InvalidWhitespacePrivateName]: 'Invalid whitespace after  \'#\'',
-    [Errors.UnexpectedKeyword]: 'Unexpcted keyword',
-    [Errors.UnexpecatedReserved]: 'Unexpcted keyword \'%0\'',
-
+    [Errors.UnexpectedKeyword]: 'Unexpected keyword \'%0\'',
+    [Errors.NoSemicolon]: 'A semicolon was expected (or a \'}\' if appropriate), but got \'%0\'',
+    [Errors.NotAssignable]: '\'%0\' is not a valid assignment left hand side',
+    [Errors.NotBindable]: '\'%0\' can not be treated as an actual binding pattern',
+    [Errors.ComplexAssignment]: 'A \'=\' was expected',
 };
 
 function constructError(msg: string, column: number): Error {

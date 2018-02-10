@@ -1556,7 +1556,7 @@ export class Parser {
                 // Unicode character specification.
             case Chars.LowerU:
                 {
-                    let ch = this.lastChar = this.readNext(first);
+                    let ch = this.lastChar = this.readNext(first, Errors.MissingUAfterSlash);
                     if (ch === Chars.LeftBrace) {
                         ch = this.lastChar = this.readNext(ch);
                         let code = toHex(ch);
@@ -1792,7 +1792,10 @@ export class Parser {
             }
             return true;
         }
-        this.expect(context, Token.Semicolon);
+        if (this.token !== Token.Semicolon) {
+            this.report(Errors.NoSemicolon, tokenDesc(this.token));
+        }
+        this.nextToken(context);
     }
 
     private expect(context: Context, t: Token): void {
@@ -1971,14 +1974,18 @@ export class Parser {
                 return this.parseExportDefault(context, pos);
 
             case Token.LeftBrace:
-
-                let isReserved = false;
+                // export ExportClause FromClause ;
+                // export ExportClause ;
                 this.expect(context, Token.LeftBrace);
+
+                let t = this.token;
+                let hasKeywordForLocalBindings  = false;
 
                 while (this.token !== Token.RightBrace) {
                     if (this.token & Token.Reserved) {
                         this.errorLocation = this.getLocation();
-                        isReserved = true;
+                        t = this.token;
+                        hasKeywordForLocalBindings  = true;
                     }
                     specifiers.push(this.parseNamedExportDeclaration(context));
                     if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
@@ -1988,7 +1995,9 @@ export class Parser {
 
                 if (this.token === Token.FromKeyword) {
                     source = this.parseFromClause(context);
-                } else if (isReserved) this.early(context, Errors.UnexpectedKeyword);
+                } else if (hasKeywordForLocalBindings) {
+                    this.early(context, Errors.UnexpectedKeyword, tokenDesc(t));
+                }
 
                 this.consumeSemicolon(context);
 
@@ -1996,7 +2005,7 @@ export class Parser {
 
                 // export ClassDeclaration
             case Token.ClassKeyword:
-                declaration = (this.parseClass(context & ~Context.AllowIn) as any);
+                declaration = (this.parseClass(context & ~Context.AllowIn) as ESTree.ClassDeclaration);
                 break;
 
                 // export LexicalDeclaration
@@ -2096,7 +2105,7 @@ export class Parser {
         let local;
 
         if (!hasAs) {
-            if (t & Token.Reserved) this.early(context, Errors.UnexpecatedReserved, tokenDesc(t));
+            if (t & Token.Reserved) this.early(context, Errors.UnexpectedKeyword, tokenDesc(t));
             local = imported;
         } else local = this.parseBindingIdentifier(context);
 
@@ -2929,7 +2938,7 @@ export class Parser {
 
             case 'AssignmentExpression':
                 if (node.operator !== '=') {
-                    this.report(Errors.UnexpectedToken, tokenDesc(this.token));
+                    this.report(Errors.ComplexAssignment);
                 } else delete node.operator;
                 node.type = 'AssignmentPattern';
 
@@ -2940,7 +2949,7 @@ export class Parser {
                 if (!(context & Context.InParameter)) return;
                 // Fall through
             default:
-                this.report(Errors.Unexpected);
+                this.report(context & Context.InParameter ? Errors.NotBindable : Errors.NotAssignable, node.type);
         }
     }
 
@@ -3608,7 +3617,7 @@ export class Parser {
             default:
                 if (this.isIdentifier(context, this.token)) return this.parseIdentifier(context);
                 this.report(this.token & (Token.Reserved | Token.FutureReserved) ?
-                    Errors.UnexpecatedReserved :
+                    Errors.UnexpectedKeyword :
                     Errors.Unexpected, tokenDesc(this.token));
         }
     }
@@ -4324,7 +4333,7 @@ export class Parser {
     ): ESTree.ArrowFunctionExpression {
 
         if (this.flags & Flags.LineTerminator) {
-            this.early(context, Errors.LineBreakAfterAsync);
+            this.early(context, Errors.LineBreakAfterArrow);
         }
 
         if (this.flags & Flags.HasCommaSeparator) {

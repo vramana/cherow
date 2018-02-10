@@ -4,7 +4,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`([[[[[[[[[[[[[[[[[[[[{a:b[0]}]]]]]]]]]]]]]]]]]]]])=>0;`, {
         source: '([[[[[[[[[[[[[[[[[[[[{a:b[0]}]]]]]]]]]]]]]]]]]]]])=>0;',
-        message:  'Unexpected token',
+        message: '\'MemberExpression\' can not be treated as an actual binding pattern',
         line: 1,
     });
 
@@ -28,7 +28,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`() => {}a`, {
         source: '() => {}a',
-        message: 'Unexpected token identifier',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
         line: 1,
     });
 
@@ -39,19 +39,19 @@ describe('Expressions - Arrows', () => {
 
     fail(`() => {} 1`, {
         source: '() => {} 1',
-        message:  'Unexpected token number',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'number\'',
         line: 1,
     });
 
     fail(`() => {} a()`, {
         source: '() => {} a()',
-        message: 'Unexpected token identifier',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
         line: 1,
     });
 
     fail(`() => {} a`, {
         source: '() => {} a',
-        message:  'Unexpected token identifier',
+        message:  'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
         line: 1,
     });
 
@@ -110,13 +110,13 @@ describe('Expressions - Arrows', () => {
 
     fail(`32 => {}`, {
         source: '32 => {}',
-        message: 'Unexpected token =>',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'=>\'',
         line: 1,
     });
 
     fail(`(32) => {}`, {
         source: '(32) => {}',
-        message: 'Unexpected token',
+        message: '\'Literal\' can not be treated as an actual binding pattern',
         line: 1,
     });
 
@@ -128,31 +128,31 @@ describe('Expressions - Arrows', () => {
 
     fail(`a++ => {}`, {
         source: 'a++ => {}',
-        message: 'Unexpected token',
+        message: '\'UpdateExpression\' can not be treated as an actual binding pattern',
         line: 1,
     });
 
     fail(`(a, b++) => {}`, {
         source: '(a, b++) => {}',
-        message: 'Unexpected token',
+        message: '\'UpdateExpression\' can not be treated as an actual binding pattern',
         line: 1,
     });
 
     fail(`(a, foo ? bar : baz) => {}`, {
         source: '(a, foo ? bar : baz) => {}',
-        message: 'Unexpected token',
+        message: '\'ConditionalExpression\' can not be treated as an actual binding pattern',
         line: 1,
     });
 
     fail(`(a.b, c) => {}`, {
         source: '(a.b, c) => {}',
-        message: 'Unexpected token',
+        message: '\'MemberExpression\' can not be treated as an actual binding pattern',
         line: 1,
     });
 
     fail(`(a['b'], c) => {}`, {
         source: '(a["b"], c) => {}',
-        message: 'Unexpected token',
+        message: '\'MemberExpression\' can not be treated as an actual binding pattern',
         line: 1,
     });
 
@@ -182,7 +182,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`({a:b[0]})=>0`, {
         source: '({a:b[0]})=>0',
-        message:  'Unexpected token',
+        message: '\'MemberExpression\' can not be treated as an actual binding pattern',
         line: 1,
     });
 
@@ -194,7 +194,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`(a['b'], c) => {}`, {
         source: '(a["b"], c) => {}',
-        message: 'Unexpected token',
+        message: '\'MemberExpression\' can not be treated as an actual binding pattern',
         line: 1,
     });
 
@@ -206,7 +206,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`(-a) => {}`, {
         source: '(-a) => {}',
-        message: 'Unexpected token',
+        message: '\'UnaryExpression\' can not be treated as an actual binding pattern',
         line: 1,
     });
 
@@ -230,7 +230,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`"use strict"; var af = package => 1;`, {
         source: '"use strict"; var af = package => 1;',
-        message: 'Unexpcted keyword \'package\'',
+        message: 'Unexpected keyword \'package\'',
         line: 1,
     });
 
@@ -330,7 +330,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`[]=>0`, {
         source: '[]=>0',
-        message: 'Unexpected token =>',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'=>\'',
         line: 1,
         column: 2,
         index: 2
@@ -346,7 +346,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`(a)\n=> 0`, {
         source: '(a)\n=> 0',
-        message: 'No line break is allowed after async',
+        message: 'No line break is allowed after \'=>\'',
         line: 1,
         column: 3,
         index: 3
@@ -362,7 +362,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`a\n=> 0`, {
         source: 'a\n=> 0',
-        message: 'No line break is allowed after async',
+        message: 'No line break is allowed after \'=>\'',
         line: 1,
         column: 1,
         index: 1

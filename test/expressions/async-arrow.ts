@@ -16,7 +16,7 @@ describe('Expressions - Async arrow', () => {
     fail(`async (this) => { "use strict"; }`, {
         source: 'async (this) => { "use strict"; }',
         line: 1,
-        message: 'Unexpected token'
+        message: '\'ThisExpression\' can not be treated as an actual binding pattern'
     });
 
     fail(`async (eval) => { "use strict"; }`, {

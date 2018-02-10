@@ -30,7 +30,7 @@ describe('Miscellaneous - Identifiers', () => {
 
     fail('"use strict"; yield', {
         source: '"use strict"; yield',
-        message: 'Unexpcted keyword \'yield\'',
+        message: 'Unexpected keyword \'yield\'',
         line: 1,
         column: 13,
         index: 13

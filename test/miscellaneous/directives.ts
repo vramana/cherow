@@ -964,7 +964,7 @@ describe('Miscellaneous - Directives', () => {
 
     fail('strict directive after legacy octal ', {
             source: '"\\1;" "use strict";',
-            message: 'Unexpected token string',
+            message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'string\'',
             line: 1,
             column: 5,
             index: 5
@@ -978,7 +978,7 @@ describe('Miscellaneous - Directives', () => {
         });
     fail('strict directive after legacy octal followed by null', {
             source: '"\\1;" "use strict"; null',
-            message:  'Unexpected token string',
+            message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'string\'',
             line: 1,
             column: 5,
             index: 5

@@ -74,7 +74,7 @@ describe('Expressions - Async function', () => {
     fail(`function () { a = async await => { } }`, {
         source: 'function () { a = async await => { } }',
         next: true,
-        message: 'Function statement requires a name',
+        message: 'Function declaration must have a name in this context',
         line: 1,
         column: 8,
         index: 8

@@ -4468,7 +4468,7 @@ describe('Statements - For in', () => {
 
     fail(`for ([[(x, y)]] in [[[]]]) ;`, {
         source: 'for ([[(x, y)]] in [[[]]]) ;',
-        message: 'Unexpected token',
+        message:  '\'SequenceExpression\' is not a valid assignment left hand side',
         line: 1,
         column: 25,
         index: 25
@@ -4492,7 +4492,7 @@ describe('Statements - For in', () => {
 
     fail(`"use strict"; for ([[x[yield]]] in [[[]]]) ;`, {
         source: '"use strict"; for ([[x[yield]]] in [[[]]]) ;',
-        message: 'Unexpcted keyword \'yield\'',
+        message: 'Unexpected keyword \'yield\'',
         line: 1,
         column: 23,
         index: 23
@@ -4613,7 +4613,7 @@ describe('Statements - For in', () => {
 
     fail(`for (new F() = 0 in {});`, {
         source: 'for (new F() = 0 in {});',
-        message: 'Unexpected token',
+        message: '\'NewExpression\' is not a valid assignment left hand side',
         line: 1,
         column: 12,
         index: 12
@@ -4621,7 +4621,7 @@ describe('Statements - For in', () => {
 
     fail(`for (i++ = 0 in {});`, {
         source: 'for (i++ = 0 in {});',
-        message:  'Unexpected token',
+        message: '\'UpdateExpression\' is not a valid assignment left hand side',
         line: 1,
         column: 8,
         index: 8
@@ -4629,7 +4629,7 @@ describe('Statements - For in', () => {
 
     fail(`for (0 = 0 in {});`, {
         source: 'for (0 = 0 in {});',
-        message:  'Unexpected token',
+        message:  '\'Literal\' is not a valid assignment left hand side',
         line: 1,
         column: 6,
         index: 6
@@ -4637,7 +4637,7 @@ describe('Statements - For in', () => {
 
     fail(`class C extends D { constructor() { for (super() = 0 in {}); } }`, {
         source: 'class C extends D { constructor() { for (super() = 0 in {}); } }',
-        message:  'Unexpected token',
+        message: '\'CallExpression\' is not a valid assignment left hand side',
         line: 1,
         column: 48,
         index: 48

@@ -73,7 +73,7 @@ describe('Declarations - Let', () => {
 
     fail('for (;false;) let x;', {
         source: 'for (;false;) let x;',
-        message: 'Unexpected token identifier',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
         line: 1,
         column: 17,
         index: 17
@@ -81,7 +81,7 @@ describe('Declarations - Let', () => {
 
     fail('if (true) {} else let x;', {
         source: 'if (true) {} else let x;',
-        message: 'Unexpected token identifier',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
         line: 1,
         column: 21,
         index: 21
@@ -89,7 +89,7 @@ describe('Declarations - Let', () => {
 
     fail('a: let a', {
         source: 'a: let a',
-        message:  'Unexpected token identifier',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
         line: 1,
         column: 6,
         index: 6
@@ -97,7 +97,7 @@ describe('Declarations - Let', () => {
 
     fail('if (true) let x = 1;', {
         source: 'if (true) let x = 1;',
-        message: 'Unexpected token identifier',
+        message:  'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
         line: 1,
         column: 13,
         index: 13
@@ -105,7 +105,7 @@ describe('Declarations - Let', () => {
 
     fail('while (false) let x;', {
         source: 'while (false) let x;',
-        message:  'Unexpected token identifier',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
         line: 1,
         column: 17,
         index: 17
@@ -119,7 +119,7 @@ describe('Declarations - Let', () => {
             let
             await 0;
         }`,
-        message: 'Unexpected token number',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'number\'',
         line: 3,
         column: 17,
         index: 48

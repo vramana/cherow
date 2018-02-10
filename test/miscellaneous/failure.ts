@@ -256,7 +256,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail(`[...new a] = 0;`, {
         source: `[...new a] = 0;`,
-        message: 'Unexpected token',
+        message: '\'NewExpression\' is not a valid assignment left hand side',
         line: 1,
         column: 0,
         index: 0
@@ -264,7 +264,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail(`[...0] = 0;`, {
         source: `[...0] = 0;`,
-        message: 'Unexpected token',
+        message: '\'Literal\' is not a valid assignment left hand side',
         line: 1,
         column: 0,
         index: 0
@@ -272,7 +272,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail(`[...[0]] = 0;`, {
         source: `[...[0]] = 0;`,
-        message: 'Unexpected token',
+        message: '\'Literal\' is not a valid assignment left hand side',
         line: 1,
         column: 8,
         index: 8
@@ -346,7 +346,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 1,
         index: 1,
-        message:  'Unexpected token #',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'#\'',
     });
 
     fail('\n\n\n{', {
@@ -369,7 +369,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 5,
         index: 5,
-        message: 'Unexpected token number',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'number\'',
     });
 
     fail(', { set 1 }', {
@@ -377,7 +377,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 5,
         index: 5,
-        message:  'Unexpected token number',
+        message:  'A semicolon was expected (or a \'}\' if appropriate), but got \'number\'',
     });
 
     fail('function t(if) { }', {
@@ -483,7 +483,7 @@ describe('Miscellaneous - Failure', () => {
     fail('enum : 0', {
         source: `enum : 0`,
         line: 1,
-        message: 'Unexpcted keyword \'enum\'',
+        message: 'Unexpected keyword \'enum\'',
     });
 
     fail('({get +:3})', {
@@ -505,7 +505,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 1,
         index: 1,
-        message:  'Unexpected token identifier',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
     });
 
     fail('try { } catch() {}', {
@@ -600,7 +600,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 1,
         index: 1,
-        message:  'Unexpected token if',
+        message:  'A semicolon was expected (or a \'}\' if appropriate), but got \'if\'',
     });
 
     fail('function true() { }', {
@@ -762,7 +762,7 @@ describe('Miscellaneous - Failure', () => {
     });
 
     fail('a => {}()', {
-        source: `a => {}()`,
+        source: 'A semicolon was expected (or a \'}\' if appropriate), but got \'(\'',
         line: 1
     });
 
@@ -849,7 +849,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('[a += b] = []', {
         source: `[a += b] = []`,
-        message: 'Unexpected token =',
+        message: 'A \'=\' was expected',
         line: 1,
     });
 
@@ -931,7 +931,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('invalid', {
         source: `await a`,
-        message:  'Unexpected token identifier',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
         line: 1,
     });
 
@@ -1113,11 +1113,6 @@ describe('Miscellaneous - Failure', () => {
 
     fail('"use strict"; let + 1', {
         source: `"use strict"; let + 1`,
-        line: 1
-    });
-
-    fail('if (1) let x = 10;', {
-        source: `if (1) let x = 10;`,
         line: 1
     });
 
@@ -1369,7 +1364,7 @@ describe('Miscellaneous - Failure', () => {
     fail('0 = 0;', {
         source: `0 = 0;`,
         line: 1,
-        message: 'Unexpected token',
+        message: '\'Literal\' is not a valid assignment left hand side',
         column: 1,
         index: 1
     });
@@ -1418,7 +1413,7 @@ describe('Miscellaneous - Failure', () => {
     fail('for([0] in 0);', {
         source: `for([0] in 0);`,
         line: 1,
-        message: 'Unexpected token',
+        message: '\'Literal\' is not a valid assignment left hand side',
         column: 12,
         index: 12
     });
@@ -1426,7 +1421,7 @@ describe('Miscellaneous - Failure', () => {
     fail('for([0] of 0);', {
         source: `for([0] of 0);`,
         line: 1,
-        message: 'Unexpected token',
+        message: '\'Literal\' is not a valid assignment left hand side',
         column: 12,
         index: 12
     });
@@ -1467,19 +1462,19 @@ describe('Miscellaneous - Failure', () => {
     fail('"use strict"; implements:0;', {
         source: `"use strict"; implements:0;`,
         line: 1,
-        message: 'Unexpcted keyword \'implements\'',
+        message: 'Unexpected keyword \'implements\'',
     });
 
     fail('"use strict"; +package;', {
         source: `"use strict"; +package;`,
         line: 1,
-        message: 'Unexpcted keyword \'package\'',
+        message: 'Unexpected keyword \'package\'',
     });
 
     fail('"use strict"; +static;', {
         source: `"use strict"; +static;`,
         line: 1,
-        message: 'Unexpcted keyword \'static\'',
+        message: 'Unexpected keyword \'static\'',
         column: 15,
         index: 15
     });
@@ -1487,7 +1482,7 @@ describe('Miscellaneous - Failure', () => {
     fail('"use strict"; yield:0;', {
         source: `"use strict"; yield:0;`,
         line: 1,
-        message: 'Unexpcted keyword \'yield\'',
+        message: 'Unexpected keyword \'yield\'',
         column: 13,
         index: 13
     });
@@ -1518,7 +1513,7 @@ describe('Miscellaneous - Failure', () => {
     fail('"use strict"; async (package) => {}', {
         source: `"use strict"; async (package) => {}`,
         line: 1,
-        message: 'Unexpcted keyword \'package\'',
+        message: 'Unexpected keyword \'package\'',
     });
 
     fail('!{ get a() { "use strict"; +let; } }', {
@@ -1771,7 +1766,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('var a; export class a {};', {
         source: `var a; export class a {};`,
-        message: 'Unexpcted keyword \'export\'',
+        message: 'Unexpected keyword \'export\'',
         line: 1,
     });
 
@@ -1795,7 +1790,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('class A extends yield B { }', {
         source: `class A extends yield B { }`,
-        message: 'Unexpcted keyword \'yield\'',
+        message: 'Unexpected keyword \'yield\'',
         line: 1,
     });
 
@@ -1831,7 +1826,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('([ 5 ]) => {}', {
         source: `([ 5 ]) => {}`,
-        message: 'Unexpected token',
+        message:  '\'Literal\' can not be treated as an actual binding pattern',
         line: 1,
     });
 
@@ -1849,13 +1844,13 @@ describe('Miscellaneous - Failure', () => {
 
     fail('if (1) let x = 10;', {
         source: `if (1) let x = 10;`,
-        message:  'Unexpected token identifier',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
         line: 1,
     });
 
     fail('for (;;) const x = 10;', {
         source: `for (;;) const x = 10;`,
-        message: 'Unexpcted keyword \'const\'',
+        message: 'Unexpected keyword \'const\'',
         line: 1,
     });
 
@@ -1891,7 +1886,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('[...x in y] = []', {
         source: `[...x in y] = []`,
-        message: 'Unexpected token',
+        message: '\'BinaryExpression\' is not a valid assignment left hand side',
         line: 1,
     });
     /*
@@ -1963,7 +1958,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('([a.a]) => 42', {
         source: `([a.a]) => 42`,
-        message: 'Unexpected token',
+        message: '\'MemberExpression\' can not be treated as an actual binding pattern',
         line: 1,
     });
 
@@ -1981,7 +1976,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('a => {}()', {
         source: `a => {}()`,
-        message: 'Unexpected token (',
+        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'(\'',
         line: 1,
     });
 
@@ -2011,7 +2006,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('var e = [a -= 12] = 5', {
         source: `var e = [a -= 12] = 5`,
-        message: 'Unexpected token =',
+        message:  'A \'=\' was expected',
         line: 1,
     });
 
@@ -2023,7 +2018,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('[ a -= 12 ] = 12;', {
         source: `[ a -= 12 ] = 12;`,
-        message: 'Unexpected token =',
+        message: 'A \'=\' was expected',
         line: 1,
     });
 
@@ -2065,13 +2060,13 @@ describe('Miscellaneous - Failure', () => {
 
     fail('for(({a: 0}) in 0);', {
         source: `for(({a: 0}) in 0);`,
-        message: 'Unexpected token',
+        message:  '\'Literal\' is not a valid assignment left hand side',
         line: 1,
     });
 
     fail('for(([0]) in 0);', {
         source: `for(([0]) in 0);`,
-        message: 'Unexpected token',
+        message:  '\'Literal\' is not a valid assignment left hand side',
         line: 1,
     });
 
