@@ -98,7 +98,9 @@ export const enum Errors {
     InvalidDecimalWithLeadingZero,
     NonNumberAfterExponentIndicator,
     DuplicatePrivateName,
-    InvalidWhitespacePrivateName
+    InvalidWhitespacePrivateName,
+    UnexpectedKeyword,
+    UnexpecatedReserved
 }
 
 export const ErrorMessages: {
@@ -203,6 +205,8 @@ export const ErrorMessages: {
     [Errors.NonNumberAfterExponentIndicator]: 'Invalid non-number after exponent indicator',
     [Errors.DuplicatePrivateName]: 'Duplicate private name',
     [Errors.InvalidWhitespacePrivateName]: 'Invalid whitespace after  \'#\'',
+    [Errors.UnexpectedKeyword]: 'Unexpcted keyword',
+    [Errors.UnexpecatedReserved]: 'Unexpcted keyword \'%0\'',
 
 };
 

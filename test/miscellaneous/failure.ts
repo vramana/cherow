@@ -483,7 +483,7 @@ describe('Miscellaneous - Failure', () => {
     fail('enum : 0', {
         source: `enum : 0`,
         line: 1,
-        message: 'Unexpected strict mode reserved word',
+        message: 'Unexpcted keyword \'enum\'',
     });
 
     fail('({get +:3})', {
@@ -1467,19 +1467,19 @@ describe('Miscellaneous - Failure', () => {
     fail('"use strict"; implements:0;', {
         source: `"use strict"; implements:0;`,
         line: 1,
-        message: 'Unexpected strict mode reserved word',
+        message: 'Unexpcted keyword \'implements\'',
     });
 
     fail('"use strict"; +package;', {
         source: `"use strict"; +package;`,
         line: 1,
-        message: 'Unexpected strict mode reserved word',
+        message: 'Unexpcted keyword \'package\'',
     });
 
     fail('"use strict"; +static;', {
         source: `"use strict"; +static;`,
         line: 1,
-        message: 'Unexpected strict mode reserved word',
+        message: 'Unexpcted keyword \'static\'',
         column: 15,
         index: 15
     });
@@ -1487,7 +1487,7 @@ describe('Miscellaneous - Failure', () => {
     fail('"use strict"; yield:0;', {
         source: `"use strict"; yield:0;`,
         line: 1,
-        message: 'Unexpected strict mode reserved word',
+        message: 'Unexpcted keyword \'yield\'',
         column: 13,
         index: 13
     });
@@ -1518,7 +1518,7 @@ describe('Miscellaneous - Failure', () => {
     fail('"use strict"; async (package) => {}', {
         source: `"use strict"; async (package) => {}`,
         line: 1,
-        message: 'Unexpected strict mode reserved word',
+        message: 'Unexpcted keyword \'package\'',
     });
 
     fail('!{ get a() { "use strict"; +let; } }', {
@@ -1771,7 +1771,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('var a; export class a {};', {
         source: `var a; export class a {};`,
-        message: 'Unexpected strict mode reserved word',
+        message: 'Unexpcted keyword \'export\'',
         line: 1,
     });
 
@@ -1795,7 +1795,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('class A extends yield B { }', {
         source: `class A extends yield B { }`,
-        message: 'Unexpected strict mode reserved word',
+        message: 'Unexpcted keyword \'yield\'',
         line: 1,
     });
 
@@ -1855,7 +1855,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('for (;;) const x = 10;', {
         source: `for (;;) const x = 10;`,
-        message: 'Unexpected strict mode reserved word',
+        message: 'Unexpcted keyword \'const\'',
         line: 1,
     });
 

@@ -1976,7 +1976,10 @@ export class Parser {
                 this.expect(context, Token.LeftBrace);
 
                 while (this.token !== Token.RightBrace) {
-                    if (this.token & Token.Reserved) isReserved = true;
+                    if (this.token & Token.Reserved) {
+                        this.errorLocation = this.getLocation();
+                        isReserved = true;
+                    }
                     specifiers.push(this.parseNamedExportDeclaration(context));
                     if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
                 }
@@ -1985,7 +1988,7 @@ export class Parser {
 
                 if (this.token === Token.FromKeyword) {
                     source = this.parseFromClause(context);
-                } else if (isReserved) this.early(context, Errors.Unexpected);
+                } else if (isReserved) this.early(context, Errors.UnexpectedKeyword);
 
                 this.consumeSemicolon(context);
 
@@ -2093,7 +2096,7 @@ export class Parser {
         let local;
 
         if (!hasAs) {
-            if (t & Token.Reserved) this.early(context, Errors.UnexpectedToken, tokenDesc(this.token));
+            if (t & Token.Reserved) this.early(context, Errors.UnexpecatedReserved, tokenDesc(t));
             local = imported;
         } else local = this.parseBindingIdentifier(context);
 
@@ -2105,9 +2108,7 @@ export class Parser {
     }
 
     // {foo, bar as bas}
-    private parseNamedImport(
-        context: Context,
-        specifiers: ESTree.Specifiers[]
+    private parseNamedImport(context: Context, specifiers: ESTree.Specifiers[]
     ) {
 
         this.expect(context, Token.LeftBrace);
@@ -3607,8 +3608,8 @@ export class Parser {
             default:
                 if (this.isIdentifier(context, this.token)) return this.parseIdentifier(context);
                 this.report(this.token & (Token.Reserved | Token.FutureReserved) ?
-                    Errors.UnexpectedStrictReserved :
-                    Errors.Unexpected);
+                    Errors.UnexpecatedReserved :
+                    Errors.Unexpected, tokenDesc(this.token));
         }
     }
 

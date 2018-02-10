@@ -5,132 +5,201 @@ describe('Module - Import', () => {
     fail(`import { class } from 'foo'`, {
         source: `import { class } from 'foo'`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpcted keyword \'class\'',
+        column: 14,
+        index: 14
     });
 
     fail(`import { class, var } from 'foo'`, {
         source: `import { class, var } from 'foo'`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpcted keyword \'class\'',
+        column: 14,
+        index: 14
     });
 
     fail(`import { a as class } from 'foo'`, {
         source: `import { a as class } from 'foo'`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token class',
+        column: 13,
+        index: 13
     });
 
     fail(`import * as class from 'foo'`, {
         source: `import * as class from 'foo'`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token class',
+        column: 11,
+        index: 11
     });
 
     fail(`import { enum } from 'foo'`, {
         source: `import { enum } from 'foo'`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpcted keyword \'enum\'',
+        column: 13,
+        index: 13
     });
 
     fail(`import { for } from "iteration"`, {
         source: `import { for } from "iteration"`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpcted keyword \'for\'',
+        column: 12,
+        index: 12
     });
 
     fail(`import {b,,} from "a"`, {
         source: `import {b,,} from "a"`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token ,',
+        column: 10,
+        index: 10
     });
 
     fail(`import {b,,} from "a"`, {
         source: `import {b,,} from "a"`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token ,',
+        column: 10,
+        index: 10
     });
 
     fail(`import { class } from "foo"`, {
         source: `import { class } from "foo"`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpcted keyword \'class\'',
+        column: 14,
+        index: 14
     });
 
     fail(`import * as class from "foo"`, {
         source: `import * as class from "foo"`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token class',
+        column: 11,
+        index: 11
     });
 
     fail(`if (1) import "foo";`, {
         source: `if (1) import "foo";`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token',
+        column: 6,
+        index: 6
     });
 
     fail(`import {b as,} from "a"`, {
         source: `import {b as,} from "a"`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token ,',
+        column: 12,
+        index: 12
     });
 
     fail(`import / as a from  "a"`, {
         source: `import / as a from  "a"`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token /',
+        column: 6,
+        index: 6
     });
 
     fail(`import a, b from "a"`, {
         source: `import a, b from "a"`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token identifier',
+        column: 9,
+        index: 9
     });
 
     fail(`import * as foo, {bar} from "foo";`, {
         source: `import * as foo, {bar} from "foo";`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token ,',
+        column: 15,
+        index: 15
     });
 
     fail(`import * from "foo"`, {
         source: `import * from "foo"`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Missing \'as\' keyword after import namespace',
+        column: 8,
+        index: 8
     });
 
     fail(`import {a \\u0061s b} from "./foo.js";`, {
         source: `import {a \\u0061s b} from "./foo.js";`,
-        line: 1
+        line: 1,
+        message: 'Unexpected token',
+        column: 0,
+        index: 0
     });
 
     fail(`import foo`, {
         source: `import foo`,
-        line: 1
+        line: 1,
+        message: 'Unexpected token',
+        column: 0,
+        index: 0
     });
 
     fail(`import { x as eval } from "./foo.js";`, {
         source: `import { x as eval } from "./foo.js";`,
-        line: 1
+        line: 1,
+        message: 'Unexpected token',
+        column: 0,
+        index: 0
     });
 
     fail(`import {bar}, {foo} from "foo";`, {
         source: `import {bar}, {foo} from "foo";`,
-        line: 1
+        line: 1,
+        message: 'Unexpected token',
+        column: 0,
+        index: 0
     });
 
     fail(`import {foo,baz,,} from 'toast';`, {
         source: `import {foo,baz,,} from 'toast';`,
-        line: 1
+        line: 1,
+        message: 'Unexpected token',
+        column: 0,
+        index: 0
     });
 
     fail(`import {var} from "foo"`, {
         source: `import {var} from "foo"`,
-        line: 1
+        line: 1,
+        message: 'Unexpected token',
+        column: 0,
+        index: 0
     });
 
     fail(`import {default as foo}`, {
         source: `import {default as foo}`,
-        line: 1
+        line: 1,
+        message: 'Unexpected token',
+        column: 0,
+        index: 0
     });
 
     fail(`import {foo,baz,,} from 'toast';`, {
@@ -150,17 +219,28 @@ describe('Module - Import', () => {
 
     fail(`import {bar}, foo from "foo"`, {
         source: `import {bar}, foo from "foo"`,
-        line: 1
+        line: 1,
+        message: 'Unexpected token',
+        column: 0,
+        index: 0
     });
 
     fail(`import foo`, {
         source: `import foo`,
-        line: 1
+        line: 1,
+        module: true,
+        message:  'Unexpected token end of source',
+        column: 10,
+        index: 10
     });
 
     fail(`import default from "foo"`, {
         source: `import default from "foo"`,
-        line: 1
+        line: 1,
+        module: true,
+        message:   'Unexpected token default',
+        column: 6,
+        index: 6
     });
 
     fail(`import { foo, bar }`, {
@@ -179,42 +259,63 @@ describe('Module - Import', () => {
     });
     fail(`export *`, {
         source: `export *`,
-        line: 1
+        line: 1,
+        message: 'Unexpcted keyword \'export\'',
+        column: 0,
+        index: 0
     });
 
     fail(`export var await;`, {
         source: `export var await;`,
-        line: 1
+        line: 1,
+        message: 'Unexpcted keyword \'export\'',
+        column: 0,
+        index: 0
     });
 
     fail(`import {`, {
         source: `import {`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token end of source',
+        column: 8,
+        index: 8
     });
 
     fail(`import { foo as bar `, {
         source: `import { foo as bar `,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token end of source',
+        column: 19,
+        index: 19
     });
 
     fail(`import { foo bar } from "module"`, {
         source: `import { foo bar } from "module"`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token identifier',
+        column: 12,
+        index: 12
     });
 
     fail(`import { eval } from './foo.js';`, {
         source: `import { eval } from './foo.js';`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected eval or arguments in strict mode',
+        column: 13,
+        index: 13
     });
 
     fail(`import { foo, , } from "module";`, {
         source: `import { foo, , } from "module";`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token ,',
+        column: 13,
+        index: 13
     });
 
     fail(`import {a \\u0061s b} from "./escaped-as-import-specifier.js`, {

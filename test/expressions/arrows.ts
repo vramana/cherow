@@ -230,7 +230,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`"use strict"; var af = package => 1;`, {
         source: '"use strict"; var af = package => 1;',
-        message: 'Unexpected strict mode reserved word',
+        message: 'Unexpcted keyword \'package\'',
         line: 1,
     });
 

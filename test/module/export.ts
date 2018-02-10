@@ -2,28 +2,49 @@ import { pass, fail } from '../test-utils';
 
 describe('Module - Export', () => {
 
+    fail(`import a`, {
+        source: `import a`,
+        module: true,
+        message: 'Unexpected token end of source',
+        line: 1,
+        column: 8,
+        index: 8
+    });
+
     fail(`export { default }`, {
         source: `export { default }`,
+        message:  'Unexpcted keyword',
         module: true,
-        line: 1
+        line: 1,
+        column: 9,
+        index: 9
     });
 
     fail(`export { if }`, {
         source: `export { if }`,
         module: true,
-        line: 1
+        message:  'Unexpcted keyword',
+        line: 1,
+        column: 9,
+        index: 9
     });
 
     fail(`export { default as foo }`, {
         source: `export { default as foo }`,
         module: true,
-        line: 1
+        line: 1,
+        message:  'Unexpcted keyword',
+        column: 9,
+        index: 9
     });
 
     fail(`export { if as foo }`, {
         source: `export { if as foo }`,
         module: true,
-        line: 1
+        line: 1,
+        message:  'Unexpcted keyword',
+        column: 9,
+        index: 9
     });
 
     fail(`import default from "foo"`, {
@@ -35,45 +56,63 @@ describe('Module - Export', () => {
     fail(`export default from`, {
         source: `export default from`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token from',
+        column: 14,
+        index: 14
     });
 
     fail(`export "string_constant";`, {
         source: `export "string_constant";`,
-        module: true
+        module: true,
+        message: 'Unexpected token',
+        column: 6,
+        index: 6
     });
 
     fail(`export function () { }`, {
         source: `export function () { }`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Function statement requires a name',
+        column: 15,
+        index: 15
     });
 
     fail(`export class { }`, {
         source: `export class { }`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token {',
+        column: 12,
+        index: 12
     });
 
     fail(`export * from foo`, {
         source: `export * from foo`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Invalid module specifier',
+        column: 13,
+        index: 13
     });
 
     fail(`export { bar } from foo`, {
         source: `export { bar } from foo`,
         module: true,
-        line: 1
+        line: 1,
+        message: 'Invalid module specifier',
+        column: 19,
+        index: 19
     });
 
     fail(`export {default} +`, {
         source: `export {default} +`,
         module: true,
-        message: 'Unexpected token',
+        message:  'Unexpcted keyword',
         line: 1,
-        column: 16,
-        index: 16
+        column: 8,
+        index: 8
     });
 
     fail(`import x from "x";
@@ -81,7 +120,10 @@ delete x;`, {
             source: `import x from "x";
 delete x;`,
             module: true,
-            line: 2
+            line: 2,
+            message: 'Identifier expressions must not be deleted in strict mode',
+            column: 8,
+            index: 27
         });
 
     fail(`import house from "house";
@@ -93,13 +135,10 @@ with (house) {
 	console.log(roof);
 }`,
             module: true,
-            line: 1
-        });
-
-    fail(`export {default} +`, {
-            source: `export {default} +`,
-            module: true,
-            line: 1
+            line: 1,
+            message: 'Strict mode code may not include a with statement',
+            column: 26,
+            index: 26
         });
 
     fail(`export default from "foo"`, {
@@ -111,22 +150,22 @@ with (house) {
             index: 14
         });
 
-    fail(`export {default}`, {
-            source: `export {default}`,
-            module: true,
-            line: 1
-        });
-
     fail(`export *`, {
             source: `export *`,
             module: true,
-            line: 1
+            line: 1,
+            message:  'Unexpected token end of source',
+            column: 8,
+            index: 8
         });
 
     fail(`export {} \\u0066rom "./escaped-from.js";`, {
             source: `export {} \\u0066rom "./escaped-from.js";`,
             module: true,
-            line: 1
+            line: 1,
+            message:  'Unexpected escaped keyword',
+            column: 9,
+            index: 9
         });
 
     fail(`export {a}; export class a(){};`, {
@@ -141,7 +180,10 @@ with (house) {
     fail(`export d\\u0065fault 0;`, {
             source: `export d\\u0065fault 0;`,
             module: true,
-            line: 1
+            line: 1,
+            message:  'Unexpected escaped keyword',
+            column: 6,
+            index: 6
         });
 
     fail(`with ({}) async function f() {}`, {
@@ -189,69 +231,88 @@ with (house) {
     fail(`export { if as foo }`, {
             source: `export { if as foo }`,
             module: true,
-            line: 1
-        });
-
-    fail(`export class {}`, {
-            source: `export class {}`,
-            module: true,
-            line: 1
+            line: 1,
+            message: 'Unexpcted keyword',
+            column: 9,
+            index: 9
         });
 
     fail(`import * as enum from "bar"`, {
             source: `import * as enum from "bar"`,
             module: true,
-            line: 1
+            line: 1,
+            message:  'Unexpected token enum',
+            column: 11,
+            index: 11
         });
 
     fail(`export default async func`, {
             source: `export default async func`,
             module: true,
-            line: 1
+            line: 1,
+            message: 'Unexpected token',
+            column: 25,
+            index: 25
         });
 
     fail(`export default async\nfunction() {}`, {
             source: `export default async\nfunction() {}`,
-            line: 1
-        });
-
-    fail(`export default\nasync function() {}`, {
-            source: `export default\nasync function() {}`,
-            line: 1
+            line: 1,
+            message: 'Unexpcted keyword \'export\'',
+            column: 0,
+            index: 0
         });
 
     fail(`export async\nfunction() {}`, {
             source: `export async\nfunction() {}`,
             module: true,
-            line: 1
+            line: 1,
+            message: 'Unexpected token',
+            column: 6,
+            index: 6
         });
 
     fail(`export \nasync function() {}`, {
             source: `export \nasync function() {}`,
             module: true,
-            line: 2
+            line: 2,
+            message: 'Function statement requires a name',
+            column: 14,
+            index: 22
         });
 
     fail(`export typeof foo;`, {
             source: `export typeof foo;`,
             module: true,
-            line: 1
+            line: 1,
+            message: 'Unexpected token',
+            column: 6,
+            index: 6
         });
 
     fail(`export {a,b} from a`, {
             source: `export {a,b} from a`,
             module: true,
-            line: 1
+            line: 1,
+            message: 'Invalid module specifier',
+            column: 17,
+            index: 17
         });
 
     fail(`export 3`, {
             source: `export 3`,
             module: true,
-            line: 1
+            line: 1,
+            message: 'Unexpected token',
+            column: 6,
+            index: 6
         });
 
     fail(`export default default`, {
             source: `export default default`,
+            message: 'Unexpcted keyword \'export\'',
+            column: 0,
+            index: 0
         });
 
     pass('export let document = { }', {
