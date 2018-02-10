@@ -1525,7 +1525,7 @@ describe('Miscellaneous - Failure', () => {
     fail('({ a(){ super(); } });', {
         source: `({ a(){ super(); } });`,
         line: 1,
-        message: '\'super\' keyword unexpected here',
+        message: 'super() is not allowed in this context',
     });
 
     fail('/?/', {
@@ -1653,7 +1653,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('function f(a){ super() }', {
         source: `function f(a){ super() }`,
-        message: 'super() is only valid in derived class constructors',
+        message: 'super() is not allowed in this context',
         line: 1,
     });
 
@@ -1692,7 +1692,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('!function* f(a = super()){}', {
         source: `!function* f(a = super()){}`,
-        message: 'super() is only valid in derived class constructors',
+        message: 'super() is not allowed in this context',
         line: 1,
     });
 
@@ -1710,20 +1710,20 @@ describe('Miscellaneous - Failure', () => {
 
     fail('function* f(a = super.b){}', {
         source: `function* f(a = super.b){}`,
-        message: '\'super\' keyword unexpected here',
+        message: 'Member access from super not allowed in this context',
         line: 1,
     });
 
     fail('class A extends B { a() { !function* (){ super.b(); } } }', {
         source: `class A extends B { a() { !function* (){ super.b(); } } }`,
-        message: '\'super\' keyword unexpected here',
+        message: 'Member access from super not allowed in this context',
         line: 1,
 
     });
 
     fail('class A { constructor() { (class {[super()](){}}); } }', {
         source: `class A { constructor() { (class {[super()](){}}); } }`,
-        message: '\'super\' keyword unexpected here',
+        message: 'super() is not allowed in this context',
         line: 1,
     });
 
@@ -1743,7 +1743,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('super()', {
         source: `super()`,
-        message: 'super() is only valid in derived class constructors',
+        message: 'super() is not allowed in this context',
         line: 1,
     });
 
@@ -1934,7 +1934,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('class A extends B { constructor() { super } }', {
         source: `class A extends B { constructor() { super } }`,
-        message: 'Unexpected token }',
+        message: 'Only "(" or "." or "[" are allowed after \'super\'',
         line: 1,
     });
 
@@ -2030,7 +2030,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('class A extends B { constructor() { !{constructor() { super(); }}; } }', {
         source: `class A extends B { constructor() { !{constructor() { super(); }}; } }`,
-        message:  '\'super\' keyword unexpected here',
+        message:  'super() is not allowed in this context',
         line: 1,
     });
 

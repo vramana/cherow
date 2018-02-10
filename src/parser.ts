@@ -900,7 +900,6 @@ export class Parser {
     }
 
     private scanNumericFragment(context: Context, state: ScannerState): ScannerState {
-        if (!(context & Context.OptionsNext)) this.report(Errors.Unexpected);
         this.flags |= Flags.HasNumericSeparator;
         if (!(state & ScannerState.AllowNumericSeparator)) {
             this.early(context, Errors.InvalidNumericSeparators);
@@ -1278,7 +1277,7 @@ export class Parser {
                         case Chars.LineFeed:
                         case Chars.LineSeparator:
                         case Chars.ParagraphSeparator:
-                            this.report(Errors.UnexpectedTokenRegExp);
+                            this.report(Errors.UnexpectedNewlineRegExp);
                         default: // ignore
                     }
                 }
@@ -3232,7 +3231,7 @@ export class Parser {
                 {
                     // The super property has to be within a class constructor
                     if (!(context & Context.AllowSuperProperty)) {
-                        this.early(context, context & Context.Method ? Errors.UnexpectedSuper : Errors.BadSuperCall);
+                        this.early(context, Errors.BadSuperCall);
                     }
                     break;
                 }
@@ -3247,7 +3246,7 @@ export class Parser {
                 }
 
             default:
-                this.early(context, Errors.UnexpectedToken, tokenDesc(t));
+                this.early(context, Errors.LoneSuper);
         }
 
         return this.finishNode(context, pos, {

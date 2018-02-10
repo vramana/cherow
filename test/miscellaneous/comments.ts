@@ -13,7 +13,7 @@ describe('Miscellaneous - Comments', () => {
     fail(`single and multi line comments used together`, {
         source: `// var /*
         x*/`,
-        message: 'Unterminated regular expression literal',
+        message: 'Unterminated regular expression literal -- a / was expected',
         line: 2,
         column: 10,
         index: 20,
@@ -70,7 +70,7 @@ describe('Miscellaneous - Comments', () => {
     fail(`multiline comment at the end of single line comment`, {
         source: `// var /*
         x*/`,
-        message: 'Unterminated regular expression literal',
+        message: 'Unterminated regular expression literal -- a / was expected',
         line: 2,
         column: 10,
         index: 20

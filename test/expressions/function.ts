@@ -12,7 +12,7 @@ describe('Expressions - Function', () => {
 
     fail(`0, function() { super(); };`, {
         source: '0, function() { super(); };',
-        message: 'super() is only valid in derived class constructors',
+        message:'super() is not allowed in this context',
         line: 1,
         column: 21,
         index: 21
@@ -20,7 +20,7 @@ describe('Expressions - Function', () => {
 
     fail(`0, function(x = super()) {};`, {
         source: '0, function(x = super()) {};',
-        message: 'super() is only valid in derived class constructors',
+        message: 'super() is not allowed in this context',
         line: 1,
         column: 21,
         index: 21
