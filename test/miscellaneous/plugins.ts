@@ -3,6 +3,8 @@ import { Token } from '../../src/token';
 
 describe('Miscellaneous - Plugins', () => {
 
+    // Creating 6 different plugins
+
     const plugin1 = function(Parser: any) {
         return class extends Parser {
             parseLiteral(context: any) {
@@ -138,7 +140,7 @@ describe('Miscellaneous - Plugins', () => {
         }
     });
 
-    pass('123', {
+    pass('Single plugin - the numeric value will be overwritten', {
         source: '123',
         loc: true,
         ranges: true,
@@ -361,7 +363,7 @@ describe('Miscellaneous - Plugins', () => {
         }
     });
 
-    // Here 'plugin1' will create a new 'parseLiteral' and 'plugin4' will
+    // Here 'plugin1' will create a new 'pareIdentifier' and 'plugin5' will
     // use that one
     pass('Forth plugin extending "parsePrimaryExpression"', {
         source: 'a = 123',
@@ -387,8 +389,7 @@ describe('Miscellaneous - Plugins', () => {
         }
     });
 
-    // Here 'plugin1' will create a new 'parseLiteral' and 'plugin4' will
-    // use that one
+    // Mixing plugin1 and plugin6
     pass('Forth plugin extending "parsePrimaryExpression"', {
         source: 'a = 123',
         plugins: [plugin2, plugin6],
@@ -413,7 +414,7 @@ describe('Miscellaneous - Plugins', () => {
         }
     });
 
-    pass('Forth plugin extending "parsePrimaryExpression"', {
+    pass('All 6 plugins together - making a hell of a mess!!', {
         source: 'cherow_plugin_system_works = 999',
         plugins: [plugin1, plugin2, plugin3, plugin4, plugin5, plugin6],
         expected: {
