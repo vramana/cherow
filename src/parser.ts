@@ -82,8 +82,62 @@ export class Parser {
         this.comments = [];
         this.earlyErors = [];
     }
+    
+    public parseProgram(context: Context, options: Options | void) {
 
-    public parseStatementList(context: Context): ESTree.Statement[] {
+        if (options != null) {
+            if (options.next) context |= Context.OptionsNext;
+            if (options.ranges) context |= Context.OptionsRanges;
+            if (options.raw) context |= Context.OptionsRaw;
+            if (options.loc) context |= Context.OptionsLoc;
+            if (options.ranges) context |= Context.OptionsRanges;
+            if (options.early) context |= Context.OptionsEarly;
+            if (options.impliedStrict) context |= Context.Strict;
+            if (options.comments) context |= Context.OptionsComments;
+        }
+        const node: ESTree.Program = {
+        type: 'Program',
+        sourceType: context & Context.Module ? 'module' : 'script',
+        body: context & Context.Module
+        ? this.parseModuleItemList(context)
+        : this.parseStatementList(context)
+    };
+
+        if (context & Context.OptionsRanges) {
+            node.start = 0;
+            node.end = this.source.length;
+        }
+    
+        if (context & Context.OptionsLoc) {
+    
+            node.loc = {
+                start: {
+                    line: 1,
+                    column: 0,
+                },
+                end: {
+                    line: this.line,
+                    column: this.column
+                }
+            };
+    
+            if (this.sourceFile) {
+                (node.loc as any).source = this.sourceFile;
+            }
+        }
+    
+        if (context & Context.OptionsEarly) {
+            node.earlyErrors = this.earlyErors;
+        }
+    
+        if (context & Context.OptionsComments) {
+            node.comments = this.comments;
+        }
+    
+        return node;
+    }
+
+    private parseStatementList(context: Context): ESTree.Statement[] {
 
         this.nextToken(context);
 
