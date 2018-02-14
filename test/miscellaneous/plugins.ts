@@ -7,7 +7,7 @@ describe('Miscellaneous - Plugins', () => {
 
     const plugin1 = function(Parser: any) {
         return class extends Parser {
-            public parseLiteral(context: any) {
+            parseLiteral(context: any) {
                 const pos = this.getLocation();
                 this.nextToken(context);
                 return this.finishNode(context, pos, {
@@ -15,12 +15,12 @@ describe('Miscellaneous - Plugins', () => {
                     value: 456
                 });
             }
-        };
-    };
+        }
+    }
 
     const plugin2 = function(Parser: any) {
         return class extends Parser {
-            public parseIdentifier(context: any) {
+            parseIdentifier(context: any) {
                 const pos = this.getLocation();
                 this.nextToken(context);
                 return this.finishNode(context, pos, {
@@ -28,12 +28,12 @@ describe('Miscellaneous - Plugins', () => {
                     name: 'foo'
                 });
             }
-        };
-    };
+        }
+    }
 
     const plugin3 = function(Parser: any) {
         return class extends Parser {
-            public parseLiteral(context: any) {
+            parseLiteral(context: any) {
                 const pos = this.getLocation();
                 this.nextToken(context);
                 return this.finishNode(context, pos, {
@@ -41,12 +41,12 @@ describe('Miscellaneous - Plugins', () => {
                     value: 789
                 });
             }
-        };
-    };
+        }
+    }
 
     const plugin4 = function(Parser: any) {
         return class extends Parser {
-            public parsePrimaryExpression(context: any, pos: any) {
+            parsePrimaryExpression(context: any, pos: any) {
                 if (this.token === Token.NumericLiteral) {
                     return this.parseLiteral(context);
                 } else {
@@ -54,7 +54,7 @@ describe('Miscellaneous - Plugins', () => {
                 }
 
             }
-            public parseLiteral(context: any) {
+            parseLiteral(context: any) {
 
                 const pos = this.getLocation();
                 this.nextToken(context);
@@ -63,12 +63,12 @@ describe('Miscellaneous - Plugins', () => {
                     value: 789
                 });
             }
-        };
-    };
+        }
+    }
 
     const plugin5 = function(Parser: any) {
         return class extends Parser {
-            public parsePrimaryExpression(context: any, pos: any) {
+            parsePrimaryExpression(context: any, pos: any) {
                 if (this.token === Token.NumericLiteral) {
                     return this.parseLiteral(context);
                 } else {
@@ -76,12 +76,12 @@ describe('Miscellaneous - Plugins', () => {
                 }
 
             }
-        };
-    };
+        }
+    }
 
     const plugin6 = function(Parser: any) {
         return class extends Parser {
-            public parsePrimaryExpression(context: any, pos: any) {
+            parsePrimaryExpression(context: any, pos: any) {
                 if (this.token === Token.Identifier) {
                     return this.parseIdentifier(context);
                 } else {
@@ -89,30 +89,30 @@ describe('Miscellaneous - Plugins', () => {
                 }
 
             }
-        };
-    };
+        }
+    }
 
     pass('Two plugins', {
         source: 'a = 123',
         plugins: [plugin1, plugin2],
         expected: {
-            body: [{
-                expression: {
-                    left: {
-                        name: 'foo',
-                        type: 'Identifier'
+            "body": [{
+                "expression": {
+                    "left": {
+                        "name": "foo",
+                        "type": "Identifier"
                     },
-                    operator: '=',
-                    right: {
-                        type: 'Literal',
-                        value: 456,
+                    "operator": "=",
+                    "right": {
+                        "type": "Literal",
+                        "value": 456,
                     },
-                    type: 'AssignmentExpression'
+                    "type": "AssignmentExpression"
                 },
-                type: 'ExpressionStatement'
+                "type": "ExpressionStatement"
             }],
-            sourceType: 'script',
-            type: 'Program'
+            "sourceType": "script",
+            "type": "Program"
         }
     });
 
@@ -120,23 +120,23 @@ describe('Miscellaneous - Plugins', () => {
         source: 'a = 123',
         plugins: [plugin2, plugin1],
         expected: {
-            body: [{
-                expression: {
-                    left: {
-                        name: 'foo',
-                        type: 'Identifier'
+            "body": [{
+                "expression": {
+                    "left": {
+                        "name": "foo",
+                        "type": "Identifier"
                     },
-                    operator: '=',
-                    right: {
-                        type: 'Literal',
-                        value: 456,
+                    "operator": "=",
+                    "right": {
+                        "type": "Literal",
+                        "value": 456,
                     },
-                    type: 'AssignmentExpression'
+                    "type": "AssignmentExpression"
                 },
-                type: 'ExpressionStatement'
+                "type": "ExpressionStatement"
             }],
-            sourceType: 'script',
-            type: 'Program'
+            "sourceType": "script",
+            "type": "Program"
         }
     });
 
@@ -146,51 +146,51 @@ describe('Miscellaneous - Plugins', () => {
         ranges: true,
         plugins: [plugin1],
         expected: {
-            body: [{
-                end: 3,
-                expression: {
-                    end: 3,
-                    loc: {
-                        end: {
-                            column: 3,
-                            line: 1,
+            "body": [{
+                "end": 3,
+                "expression": {
+                    "end": 3,
+                    "loc": {
+                        "end": {
+                            "column": 3,
+                            "line": 1,
                         },
-                        start: {
-                            column: 0,
-                            line: 1,
+                        "start": {
+                            "column": 0,
+                            "line": 1,
                         }
                     },
-                    start: 0,
-                    type: 'Literal',
-                    value: 456
+                    "start": 0,
+                    "type": "Literal",
+                    "value": 456
                 },
-                loc: {
-                    end: {
-                        column: 3,
-                        line: 1,
+                "loc": {
+                    "end": {
+                        "column": 3,
+                        "line": 1,
                     },
-                    start: {
-                        column: 0,
-                        line: 1,
+                    "start": {
+                        "column": 0,
+                        "line": 1,
                     }
                 },
-                start: 0,
-                type: 'ExpressionStatement'
+                "start": 0,
+                "type": "ExpressionStatement"
             }],
-            end: 3,
-            loc: {
-                end: {
-                    column: 3,
-                    line: 1,
+            "end": 3,
+            "loc": {
+                "end": {
+                    "column": 3,
+                    "line": 1,
                 },
-                start: {
-                    column: 0,
-                    line: 1,
+                "start": {
+                    "column": 0,
+                    "line": 1,
                 },
             },
-            sourceType: 'script',
-            start: 0,
-            type: 'Program'
+            "sourceType": "script",
+            "start": 0,
+            "type": "Program"
         }
     });
 
@@ -198,23 +198,23 @@ describe('Miscellaneous - Plugins', () => {
         source: 'a = 123',
         plugins: [plugin1, plugin2, plugin3],
         expected: {
-            body: [{
-                expression: {
-                    left: {
-                        name: 'foo',
-                        type: 'Identifier'
+            "body": [{
+                "expression": {
+                    "left": {
+                        "name": "foo",
+                        "type": "Identifier"
                     },
-                    operator: '=',
-                    right: {
-                        type: 'Literal',
-                        value: 789,
+                    "operator": "=",
+                    "right": {
+                        "type": "Literal",
+                        "value": 789,
                     },
-                    type: 'AssignmentExpression'
+                    "type": "AssignmentExpression"
                 },
-                type: 'ExpressionStatement'
+                "type": "ExpressionStatement"
             }],
-            sourceType: 'script',
-            type: 'Program'
+            "sourceType": "script",
+            "type": "Program"
         }
     });
 
@@ -222,23 +222,23 @@ describe('Miscellaneous - Plugins', () => {
         source: 'a = 123',
         plugins: [plugin3, plugin2, plugin1],
         expected: {
-            body: [{
-                expression: {
-                    left: {
-                        name: 'foo',
-                        type: 'Identifier'
+            "body": [{
+                "expression": {
+                    "left": {
+                        "name": "foo",
+                        "type": "Identifier"
                     },
-                    operator: '=',
-                    right: {
-                        type: 'Literal',
-                        value: 456,
+                    "operator": "=",
+                    "right": {
+                        "type": "Literal",
+                        "value": 456,
                     },
-                    type: 'AssignmentExpression'
+                    "type": "AssignmentExpression"
                 },
-                type: 'ExpressionStatement'
+                "type": "ExpressionStatement"
             }],
-            sourceType: 'script',
-            type: 'Program'
+            "sourceType": "script",
+            "type": "Program"
         }
     });
 
@@ -246,23 +246,23 @@ describe('Miscellaneous - Plugins', () => {
         source: 'a = 123',
         plugins: [plugin3, plugin1, plugin2],
         expected: {
-            body: [{
-                expression: {
-                    left: {
-                        name: 'foo',
-                        type: 'Identifier'
+            "body": [{
+                "expression": {
+                    "left": {
+                        "name": "foo",
+                        "type": "Identifier"
                     },
-                    operator: '=',
-                    right: {
-                        type: 'Literal',
-                        value: 456,
+                    "operator": "=",
+                    "right": {
+                        "type": "Literal",
+                        "value": 456,
                     },
-                    type: 'AssignmentExpression'
+                    "type": "AssignmentExpression"
                 },
-                type: 'ExpressionStatement'
+                "type": "ExpressionStatement"
             }],
-            sourceType: 'script',
-            type: 'Program'
+            "sourceType": "script",
+            "type": "Program"
         }
     });
 
@@ -270,23 +270,23 @@ describe('Miscellaneous - Plugins', () => {
         source: 'a = 123',
         plugins: [plugin2, plugin3, plugin1],
         expected: {
-            body: [{
-                expression: {
-                    left: {
-                        name: 'foo',
-                        type: 'Identifier'
+            "body": [{
+                "expression": {
+                    "left": {
+                        "name": "foo",
+                        "type": "Identifier"
                     },
-                    operator: '=',
-                    right: {
-                        type: 'Literal',
-                        value: 456,
+                    "operator": "=",
+                    "right": {
+                        "type": "Literal",
+                        "value": 456,
                     },
-                    type: 'AssignmentExpression'
+                    "type": "AssignmentExpression"
                 },
-                type: 'ExpressionStatement'
+                "type": "ExpressionStatement"
             }],
-            sourceType: 'script',
-            type: 'Program'
+            "sourceType": "script",
+            "type": "Program"
         }
     });
 
@@ -295,23 +295,23 @@ describe('Miscellaneous - Plugins', () => {
         source: 'a = 123',
         plugins: [plugin2, plugin2],
         expected: {
-            body: [{
-                expression: {
-                    left: {
-                        name: 'foo',
-                        type: 'Identifier'
+            "body": [{
+                "expression": {
+                    "left": {
+                        "name": "foo",
+                        "type": "Identifier"
                     },
-                    operator: '=',
-                    right: {
-                        type: 'Literal',
-                        value: 123,
+                    "operator": "=",
+                    "right": {
+                        "type": "Literal",
+                        "value": 123,
                     },
-                    type: 'AssignmentExpression'
+                    "type": "AssignmentExpression"
                 },
-                type: 'ExpressionStatement'
+                "type": "ExpressionStatement"
             }],
-            sourceType: 'script',
-            type: 'Program'
+            "sourceType": "script",
+            "type": "Program"
         }
     });
 
@@ -319,23 +319,23 @@ describe('Miscellaneous - Plugins', () => {
         source: 'a = 123',
         plugins: [plugin2, plugin3],
         expected: {
-            body: [{
-                expression: {
-                    left: {
-                        name: 'foo',
-                        type: 'Identifier'
+            "body": [{
+                "expression": {
+                    "left": {
+                        "name": "foo",
+                        "type": "Identifier"
                     },
-                    operator: '=',
-                    right: {
-                        type: 'Literal',
-                        value: 789,
+                    "operator": "=",
+                    "right": {
+                        "type": "Literal",
+                        "value": 789,
                     },
-                    type: 'AssignmentExpression'
+                    "type": "AssignmentExpression"
                 },
-                type: 'ExpressionStatement'
+                "type": "ExpressionStatement"
             }],
-            sourceType: 'script',
-            type: 'Program'
+            "sourceType": "script",
+            "type": "Program"
         }
     });
 
@@ -343,23 +343,23 @@ describe('Miscellaneous - Plugins', () => {
         source: 'a = 123',
         plugins: [plugin2, plugin4],
         expected: {
-            body: [{
-                expression: {
-                    left: {
-                        name: 'foo',
-                        type: 'Identifier'
+            "body": [{
+                "expression": {
+                    "left": {
+                        "name": "foo",
+                        "type": "Identifier"
                     },
-                    operator: '=',
-                    right: {
-                        type: 'Literal',
-                        value: 789,
+                    "operator": "=",
+                    "right": {
+                        "type": "Literal",
+                        "value": 789,
                     },
-                    type: 'AssignmentExpression'
+                    "type": "AssignmentExpression"
                 },
-                type: 'ExpressionStatement'
+                "type": "ExpressionStatement"
             }],
-            sourceType: 'script',
-            type: 'Program'
+            "sourceType": "script",
+            "type": "Program"
         }
     });
 
@@ -369,23 +369,23 @@ describe('Miscellaneous - Plugins', () => {
         source: 'a = 123',
         plugins: [plugin1, plugin5],
         expected: {
-            body: [{
-                expression: {
-                    left: {
-                        name: 'a',
-                        type: 'Identifier'
+            "body": [{
+                "expression": {
+                    "left": {
+                        "name": "a",
+                        "type": "Identifier"
                     },
-                    operator: '=',
-                    right: {
-                        type: 'Literal',
-                        value: 456,
+                    "operator": "=",
+                    "right": {
+                        "type": "Literal",
+                        "value": 456,
                     },
-                    type: 'AssignmentExpression'
+                    "type": "AssignmentExpression"
                 },
-                type: 'ExpressionStatement'
+                "type": "ExpressionStatement"
             }],
-            sourceType: 'script',
-            type: 'Program'
+            "sourceType": "script",
+            "type": "Program"
         }
     });
 
@@ -394,23 +394,23 @@ describe('Miscellaneous - Plugins', () => {
         source: 'a = 123',
         plugins: [plugin2, plugin6],
         expected: {
-            body: [{
-                expression: {
-                    left: {
-                        name: 'foo',
-                        type: 'Identifier'
+            "body": [{
+                "expression": {
+                    "left": {
+                        "name": "foo",
+                        "type": "Identifier"
                     },
-                    operator: '=',
-                    right: {
-                        type: 'Literal',
-                        value: 123,
+                    "operator": "=",
+                    "right": {
+                        "type": "Literal",
+                        "value": 123,
                     },
-                    type: 'AssignmentExpression'
+                    "type": "AssignmentExpression"
                 },
-                type: 'ExpressionStatement'
+                "type": "ExpressionStatement"
             }],
-            sourceType: 'script',
-            type: 'Program'
+            "sourceType": "script",
+            "type": "Program"
         }
     });
 
@@ -418,23 +418,23 @@ describe('Miscellaneous - Plugins', () => {
         source: 'cherow_plugin_system_works = 999',
         plugins: [plugin1, plugin2, plugin3, plugin4, plugin5, plugin6],
         expected: {
-            body: [{
-                expression: {
-                    left: {
-                        name: 'foo',
-                        type: 'Identifier'
+            "body": [{
+                "expression": {
+                    "left": {
+                        "name": "foo",
+                        "type": "Identifier"
                     },
-                    operator: '=',
-                    right: {
-                        type: 'Literal',
-                        value: 789,
+                    "operator": "=",
+                    "right": {
+                        "type": "Literal",
+                        "value": 789,
                     },
-                    type: 'AssignmentExpression'
+                    "type": "AssignmentExpression"
                 },
-                type: 'ExpressionStatement'
+                "type": "ExpressionStatement"
             }],
-            sourceType: 'script',
-            type: 'Program'
+            "sourceType": "script",
+            "type": "Program"
         }
     });
 });
