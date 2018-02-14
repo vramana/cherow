@@ -105,6 +105,7 @@ export const enum Errors {
     NotAssignable,
     NotBindable,
     ComplexAssignment,
+    UnexpectedWSRegExp,
     MissingUAfterSlash
 }
 
@@ -216,6 +217,7 @@ export const ErrorMessages: {
     [Errors.NotAssignable]: '\'%0\' is not a valid assignment left hand side',
     [Errors.NotBindable]: '\'%0\' can not be treated as an actual binding pattern',
     [Errors.ComplexAssignment]: 'A \'=\' was expected',
+    [Errors.UnexpectedWSRegExp]: 'Regular expressions can not contain whitespace',
     [Errors.LoneSuper]: 'Only "(" or "." or "[" are allowed after \'super\'',
     
 };
