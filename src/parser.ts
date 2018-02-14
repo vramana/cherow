@@ -1304,7 +1304,6 @@ export class Parser {
     private scanRegularExpression(context: Context): Token {
         const bodyStart = this.startIndex + 1;
         let preparseState = RegExpState.Empty;
-        let regExpWSCount = 0;
         
         loop:
             while (true) {
@@ -1333,25 +1332,14 @@ export class Parser {
                         case Chars.LineSeparator:
                         case Chars.ParagraphSeparator:
                             this.report(Errors.UnexpectedNewlineRegExp);
-                        case Chars.Tab:
-                        case Chars.VerticalTab:
-                        case Chars.FormFeed:
-                        case Chars.Space:
-                        case Chars.NonBreakingSpace:
-                        case Chars.Ogham:
-                        case Chars.EnQuad:
-                        case Chars.EmQuad:
-                            regExpWSCount++;
                         default: // ignore
                     }
                 }
 
                 if (!this.hasNext()) this.report(Errors.UnterminatedRegExp);
             }
-        
-        if (regExpWSCount) this.report(Errors.UnexpectedWSRegExp);
 
-        const bodyEnd = this.index - 1;
+            const bodyEnd = this.index - 1;
         const flagsStart = this.index;
 
         let mask = RegexFlags.None;

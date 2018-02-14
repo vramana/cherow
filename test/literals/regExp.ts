@@ -534,65 +534,6 @@ describe('Literals - RegExp', () => {
         }
     });
 
-    pass(`/[P QR]/i`, {
-        source: '/[P QR]/i',
-        ranges: true,
-        loc: true,
-        raw: true,
-        expected: {
-            type: 'Program',
-            body: [{
-                type: 'ExpressionStatement',
-                expression: {
-                    type: 'Literal',
-                    value: {},
-                    regex: {
-                        pattern: '[P QR]',
-                        flags: 'i'
-                    },
-                    start: 0,
-                    end: 9,
-                    loc: {
-                        start: {
-                            line: 1,
-                            column: 0
-                        },
-                        end: {
-                            line: 1,
-                            column: 9
-                        }
-                    },
-                    raw: '/[P QR]/i'
-                },
-                start: 0,
-                end: 9,
-                loc: {
-                    start: {
-                        line: 1,
-                        column: 0
-                    },
-                    end: {
-                        line: 1,
-                        column: 9
-                    }
-                }
-            }],
-            sourceType: 'script',
-            start: 0,
-            end: 9,
-            loc: {
-                start: {
-                    line: 1,
-                    column: 0
-                },
-                end: {
-                    line: 1,
-                    column: 9
-                }
-            }
-        }
-    });
-
     pass(`/((((((((((((.))))))))))))\\12/;`, {
         source: '/((((((((((((.))))))))))))\\12/;',
         raw: true,
