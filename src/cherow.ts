@@ -8,22 +8,22 @@ export type OnComment = void | ESTree.Comment[] | (
     (type: string, value: string, start: number, end: number) => any
 );
 
+export interface Options {
+    comments ?: OnComment;
+    plugins ?: PluginHandler[];
+    next ?: boolean;
+    ranges ?: boolean;
+    offset ?: boolean;
+    source ?: string;
+    loc ?: boolean;
+    raw ?: boolean;
+    tolerate ?: boolean;
+    impliedStrict ?: boolean;
+}
+
 export const pluginClassCache: {
     [key: string]: any
 } = {};
-
-export interface Options {
-    comments ? : OnComment;
-    plugins ? : PluginHandler[];
-    next ? : boolean;
-    ranges ? : boolean;
-    offset ? : boolean;
-    source ? : string;
-    loc ? : boolean;
-    raw ? : boolean;
-    early ? : boolean;
-    impliedStrict ? : boolean;
-}
 
 function parse(source: string, context: Context, options: Options | void) {
 
@@ -57,13 +57,13 @@ function parse(source: string, context: Context, options: Options | void) {
 
 // https://tc39.github.io/ecma262/#sec-scripts
 
-export const parseScript = (source: string, options ? : Options) => {
+export const parseScript = (source: string, options ?: Options) => {
     return parse(source, Context.TopLevel, options);
 };
 
 // https://tc39.github.io/ecma262/#sec-modules
 
-export const parseModule = (source: string, options ? : Options) => {
+export const parseModule = (source: string, options ?: Options) => {
     return parse(source, Context.Strict | Context.Module | Context.TopLevel, options);
 };
 

@@ -219,7 +219,7 @@ export const ErrorMessages: {
     [Errors.ComplexAssignment]: 'A \'=\' was expected',
     [Errors.UnexpectedWSRegExp]: 'Regular expressions can not contain whitespace',
     [Errors.LoneSuper]: 'Only "(" or "." or "[" are allowed after \'super\'',
-    
+
 };
 
 function constructError(msg: string, column: number): Error {

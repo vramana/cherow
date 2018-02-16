@@ -24,16 +24,17 @@ const convert = ((compressed, dict) => {
 );
 
 export const isValidIdentifierStart = (cp: Chars) => (convert[(cp >>> 5) + 34816] >>> cp & 31 & 1) !== 0;
+export const isValidIdentifierPart = (cp: Chars) => (convert[(cp >>> 5) + 0] >>> cp & 31 & 1) !== 0;
 
 export const isIdentifierStart = (cp: Chars) => (cp === Chars.Dollar) || (cp === Chars.Underscore) || // $ (dollar) and _ (underscore)
     (cp >= Chars.UpperA && cp <= Chars.UpperZ) || // A..Z
     (cp >= Chars.LowerA && cp <= Chars.LowerZ) || // a..z
-    (convert[(cp >>> 5) + 34816] >>> cp & 31 & 1) !== 0;
+    isValidIdentifierStart(cp);
 
 export const isIdentifierPart = (cp: Chars) => (cp >= Chars.UpperA && cp <= Chars.UpperZ) || // A..Z
     (cp >= Chars.LowerA && cp <= Chars.LowerZ) || // a..z
     (cp >= Chars.Zero && cp <= Chars.Nine) || // 0..9
     (cp === Chars.Dollar) || (cp === Chars.Underscore || cp === Chars.Backslash) || // $ (dollar) and _ (underscore)
-    (convert[(cp >>> 5) + 0] >>> cp & 31 & 1) !== 0;
+    isValidIdentifierPart(cp);
 
 export const mustEscape = (code: number) =>  (convert[(code >>> 5) + 69632] >>> code & 31 & 1) !== 0;

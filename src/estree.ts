@@ -3,7 +3,7 @@ interface _Node<T extends string> {
     loc?: SourceLocation | null;
     start?: number;
     end?: number;
-    earlyErrors?: any;
+    errors?: any;
     comments?: any;
     tokens?: any;
     leadingComments?: Comment[];

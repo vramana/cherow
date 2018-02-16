@@ -13,7 +13,7 @@ interface Opts {
     ranges ?: boolean;
     offset ?: boolean;
     loc ?: boolean;
-    early ?: boolean;
+    tolerate ?: boolean;
     plugins ?: any;
     directives ?: any;
     jsx ?: boolean;
@@ -36,7 +36,6 @@ export const pass = (name: string, opts: Opts) => {
         raw: opts.raw,
         loc: opts.loc,
         plugins: opts.plugins,
-        toleran: opts.early,
         directives: opts.directives,
         ranges: opts.ranges,
         globalReturn: opts.globalReturn,
@@ -44,7 +43,7 @@ export const pass = (name: string, opts: Opts) => {
         impliedStrict: opts.impliedStrict,
         comments: opts.comments,
         attachComment: opts.attachComment,
-        early: opts.early,
+        tolerate: opts.tolerate,
         offset: opts.offset,
     };
 
@@ -69,7 +68,6 @@ export const fail = (name: string, opts: Opts) => {
         jsx: opts.jsx,
         impliedStrict: opts.impliedStrict,
         comments: opts.comments,
-        early: opts.early,
         attachComment: opts.attachComment
     };
     it('Should fail on ' + name, () => {

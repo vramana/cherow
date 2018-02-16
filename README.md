@@ -17,10 +17,10 @@ It strictly follows the [ECMAScript® 2018 Language Specification](https://tc39.
 
 * Full support for ECMAScript® 2018 [(ECMA-262 9th Edition)](https://tc39.github.io/ecma262/) (*latest draft*)
 * Optimized for handheld devices 
-* Early error tolerant parsing
 * Stage 3 (*ESNext*) proposals via option
 * Skips hashbang comment nodes by default
 * Skips BOM (*U+FEFF*) by default
+* Tolerant parsing
 * Optional tracking of syntax node location (index-based and line-column)
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
 * Very well tested (~55 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
@@ -96,7 +96,7 @@ There is a second argument to both methods that allows you to specify various op
 | Option        | Description |
 | ----------- | ------------------------------------------------------------ |
 | `comments`        | Create a top-level comments array containing all comments |
-| `early`           | Create a top-level error array containing all "*skipped*" early errors |
+| `tolerant`        | Create a top-level error array containing all "skipped" errors |
 | `loc      `       | Attach line/column location information to each node |
 | `ranges`          | Append start and end offsets to each node |
 | `impliedStrict`   | Enable implied strict mode |
@@ -116,55 +116,11 @@ HTML comments is not a part of the ECMAScript specifications, and the way Cherow
 parsers. In Cherow `HTMLOpen` are used for a HTML open comments (`<!--`) and `HTMLClose` for a HTML close comment (`-->`).
 In other  ECMAScripts parsers both are seen as a [`single-line comment `](https://tc39.github.io/ecma262/#prod-SingleLineComment).
 
-## Early error tolerant parsing
+# Tolerant parsing
 
-The tolerant algorithm used by `Cherow` deviates slightly from both `Esprima` and `Acorn` due to the 
-parsers complexity, and it's primarily for early errors, and other errors that are basically valid syntax but just not allowed. 
+The tolerant algorithm used by Cherow deviates slightly from both `Esprima` and Acorn due to the parsers complexity, and it's primarily for early errors, and other errors that are basically valid syntax but just not allowed.
 
-A top-level errors array containing all "*skipped*" early errors will be attached to the root node (*Program*),
-
-```js
-
-// function a(){ break b; }
-
-{
-              body: [
-                {
-                  async: false,
-                  body: {
-                    body: [
-                      {
-                        label: {
-                          name: 'b',
-                          type: 'Identifier'
-                        },
-                        type: 'BreakStatement'
-                      },
-                    ],
-                    type: 'BlockStatement'
-                 },
-                  expression: false,
-                  generator: false,
-                  id: {
-                    name: 'a',
-                    type: 'Identifier',
-                  },
-                  params: [],
-                  type: 'FunctionDeclaration',
-                },
-              ],
-              earlyErrors: [
-                {
-                  column: 21,
-                  description: 'Undefined label "b"',
-                  index: 21,
-                  lineNumber: 1,
-                },
-              ],
-              sourceType: 'script',
-              type: 'Program'
-            }
-```
+A top-level errors array containing all "skipped" errors will be attached to the root node (Program),
 
 ## Plugins
 

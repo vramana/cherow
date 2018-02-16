@@ -7,7 +7,7 @@ export const enum Context {
     OptionsLoc              = 1 << 2,
     OptionsRaw              = 1 << 3,
     OptionsComments         = 1 << 4,
-    OptionsEarly            = 1 << 5,
+    OptionsTolerate         = 1 << 5,
 
     /* miscellaneous */
     AllowIn                 = 1 << 6,  // Node was parsed in a context where 'in-expressions' are allowed
@@ -88,7 +88,7 @@ export const enum ObjectState {
 
 /* Scanner */
 
-export const enum ScannerState {
+export const enum ScanState {
     None        = 0,
     NewLine     = 1 << 0,
     SameLine    = 1 << 1,
