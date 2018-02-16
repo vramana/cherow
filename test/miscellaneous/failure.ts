@@ -1450,7 +1450,7 @@ describe('Miscellaneous - Failure', () => {
     fail('\\u{FFFFFFF}")', {
         source: `\\u{FFFFFFF}")`,
         line: 1,
-        message: 'Invalid Unicode escape sequence',
+        message: 'Undefined Unicode code-point',
     });
 
     fail('/./\\u0069', {

@@ -106,7 +106,8 @@ export const enum Errors {
     NotBindable,
     ComplexAssignment,
     UnexpectedWSRegExp,
-    MissingUAfterSlash
+    MissingUAfterSlash,
+    UndefinedUnicodeCodePoint
 }
 
 export const ErrorMessages: {
@@ -219,7 +220,7 @@ export const ErrorMessages: {
     [Errors.ComplexAssignment]: 'A \'=\' was expected',
     [Errors.UnexpectedWSRegExp]: 'Regular expressions can not contain whitespace',
     [Errors.LoneSuper]: 'Only "(" or "." or "[" are allowed after \'super\'',
-
+    [Errors.UndefinedUnicodeCodePoint]: 'Undefined Unicode code-point',
 };
 
 function constructError(msg: string, column: number): Error {

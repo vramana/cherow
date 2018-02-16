@@ -3,10 +3,9 @@ import { fromCodePoint, invalidCharacterMessage, toHex, isPrologueDirective, has
 import { Options, OnComment } from './cherow';
 import { Chars } from './chars';
 import { Token, tokenDesc, descKeyword } from './token';
-import { isIdentifierPart } from './unicode';
 import { createError, Errors, ErrorMessages } from './errors';
 import { Context, Flags, ScanState, ObjectState, Escape, RegExpState, RegexFlags, ParenthesizedState, ArrayState } from './flags';
-import { isValidIdentifierStart, isIdentifierStart, mustEscape } from './unicode';
+import { isValidIdentifierStart, isIdentifierStart, mustEscape, isIdentifierPart } from './unicode';
 
 export interface Lookahead {
     index: number;
@@ -674,7 +673,6 @@ export class Parser {
                 case Chars.Tilde:
                     this.advance();
                     return Token.Complement;
-                    //
 
                     // `\\u{N}var`, `a`...`z`, `A`...`Z`, `_var`, `$var`
                 case Chars.Backslash:
@@ -861,12 +859,9 @@ export class Parser {
                 switch (ch) {
 
                     case Chars.Backslash:
-
                         const index = this.index;
-                        const code = this.scanUnicodeEscapeValue(context);
-                        if (!(code >= 0)) this.tolerate(context, Errors.Unexpected);
                         ret += this.source.slice(start, index);
-                        ret += fromCodePoint(code);
+                        ret += this.scanUnicodeEscapeValue(context);
                         hasEscape = true;
                         start = this.index;
                         break;
@@ -902,16 +897,21 @@ export class Parser {
     /**
      * Peek unicode escape
      */
-    private scanUnicodeEscapeValue(context: Context): number {
+    private scanUnicodeEscapeValue(context: Context): any {
 
-        let code = -1;
         const index = this.index;
+
         if (index + 5 < this.source.length) {
-            if (this.source.charCodeAt(index + 1) !== Chars.LowerU) return -1;
+
+            if (this.source.charCodeAt(index + 1) !== Chars.LowerU) {
+                this.tolerate(context, Errors.Unexpected);
+            }
+
             this.index += 2;
             this.column += 2;
 
-            code = this.scanExtendedUnicodeEscapeValue();
+            const code = this.scanIdentifierUnicodeEscape();
+
             if (code >= Chars.LeadSurrogateMin && code <= Chars.TrailSurrogateMin) {
                 this.report(Errors.UnexpectedSurrogate);
             }
@@ -920,12 +920,16 @@ export class Parser {
                 this.tolerate(context, Errors.InvalidUnicodeEscapeSequence);
             }
 
-            this.advance();
+            return fromCodePoint(code);
         }
-        return code;
+
+        this.tolerate(context, Errors.Unexpected);
     }
 
-    private scanExtendedUnicodeEscapeValue(): Chars {
+    private scanIdentifierUnicodeEscape(): Chars {
+
+        // Accept both \uxxxx and \u{xxxxxx}. In the latter case, the number of
+        // hex digits between { } is arbitrary. \ and u have already been read.
 
         let ch = this.nextChar();
         let codePoint = 0;
@@ -935,29 +939,33 @@ export class Parser {
 
             ch = this.readNext(ch, Errors.InvalidHexEscapeSequence);
 
-            while (ch !== Chars.RightBrace) {
-                const digit = toHex(ch);
-                if (digit < 0) this.report(Errors.InvalidHexEscapeSequence);
-                codePoint = (codePoint << 4) | digit;
-                // Code point out of bounds if MV of HexDigits > 0x10FFFF
-                if (codePoint > Chars.LastUnicodeChar) break;
-                ch = this.readNext(ch, Errors.InvalidHexEscapeSequence);
+            let digit = toHex(ch);
+
+            while (digit >= 0) {
+                codePoint = codePoint * 16 + digit;
+                if (codePoint > Chars.LastUnicodeChar) {
+                    this.report(Errors.UndefinedUnicodeCodePoint);
+                }
+                this.advance();
+                digit = toHex(this.nextChar());
             }
+
+            if (this.nextChar() !== Chars.RightBrace) this.report(Errors.InvalidHexEscapeSequence);
+
+            this.consume(Chars.RightBrace);
 
             // '\uDDDD'
         } else {
 
-            codePoint = toHex(ch);
-
-            if (codePoint < 0) this.report(Errors.InvalidHexEscapeSequence);
-
-            for (let i = 0; i < 3; i++) {
-                ch = this.readNext(ch, Errors.InvalidHexEscapeSequence);
+            for (let i = 0; i < 4; i++) {
+                ch = this.nextChar();
                 const digit = toHex(ch);
-                if (codePoint < 0) this.report(Errors.InvalidHexEscapeSequence);
-                codePoint = codePoint << 4 | digit;
+                if (digit < 0) this.report(Errors.InvalidHexEscapeSequence);
+                codePoint = codePoint * 16 + digit;
+                this.advance();
             }
 
+            return codePoint;
         }
 
         return codePoint;

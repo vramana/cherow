@@ -12,7 +12,7 @@ describe('Miscellaneous - Unicode', () => {
 
       fail('out of range', {
           source: '\\u{125400}',
-            message: 'Invalid Unicode escape sequence',
+            message:  'Undefined Unicode code-point',
             line: 1,
             column: 0,
             index: 0
