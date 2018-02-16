@@ -7,46 +7,28 @@ describe('Miscellaneous - Line terminators', () => {
       str
       ing
       ";`,
-      loc: true,
-      ranges: true,
-      raw: true,
+      line: 1
   });
 
   fail(`ingle line comment contains line feed`, {
       source: `//single
       line comment`,
-      loc: true,
-      ranges: true,
-      raw: true,
-  });
-
-  fail(`single line comment contains line feed`, {
-      source: `//single
-    line comment`,
-      loc: true,
-      ranges: true,
-      raw: true,
+      line: 2
   });
 
   fail(`line terminator expressed as a Unicode escape sequence - \\u000Ax;`, {
       source: `var\\u000Ax;`,
-      loc: true,
-      ranges: true,
-      raw: true,
+      line: 1
   });
 
   fail(`invalid paragraph separator`, {
       source: `\\u2028var\\u2028x\\u2028=\\u2028y\\u2028/\\u2028z\\u2028; result = x;`,
-      loc: true,
-      ranges: true,
-      raw: true,
+      line: 1
   });
 
   fail(`line terminator expressed as a Unicode escape sequence - \\u000Ax;`, {
       source: `var\\u000Ax;`,
-      loc: true,
-      ranges: true,
-      raw: true,
+      line: 1
   });
 
   pass(`line terminators between operators`, {

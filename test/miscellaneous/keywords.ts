@@ -3,26 +3,32 @@ describe('Miscellaneous - Keywords', () => {
 
     fail(`do = 1;`, {
         source: `do = 1;`,
+        line: 1
     });
 
     fail(`\\u0074rue`, {
         source: `\\u0074rue`,
+        line: 1
     });
 
     fail(`else = 1;`, {
         source: `else = 1;`,
+        line: 1
     });
 
     fail(`\\u0069\\u{66} (1) {}`, {
         source: `\\u0069\\u{66} (1) {}`,
+        line: 1
     });
 
     fail(`var i\\u0066`, {
         source: `var i\\u0066`,
+        line: 1
     });
 
     fail(`"use strict"; var le\\u0074`, {
         source: `"use strict"; var le\\u0074`,
+        line: 1
     });
 
     pass(`function *a(){({yi\\u0065ld: 0})}`, {
