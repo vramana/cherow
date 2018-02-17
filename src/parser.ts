@@ -1,11 +1,22 @@
 import * as ESTree from './estree';
-import { isQualifiedJSXName, fromCodePoint, invalidCharacterMessage, toHex, isPrologueDirective, hasBit, map, isValidSimpleAssignmentTarget, isValidDestructuringAssignmentTarget, isInOrOfKeyword } from './common';
 import { Options, OnComment } from './cherow';
 import { Chars } from './chars';
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors, ErrorMessages } from './errors';
-import { Context, Flags, ScanState, ObjectState, Escape, RegExpState, RegexFlags, ParenthesizedState, ArrayState, JSXState } from './flags';
+import { Context, Flags, ScanState, ObjectState, Escape, RegExpState, RegexFlags, ParenthesizedState, ArrayState, JSXState} from './flags';
 import { isValidIdentifierStart, isIdentifierStart, mustEscape, isIdentifierPart } from './unicode';
+import {
+    isQualifiedJSXName,
+    fromCodePoint,
+    invalidCharacterMessage,
+    toHex,
+    isPrologueDirective,
+    hasBit,
+    map,
+    isValidSimpleAssignmentTarget,
+    isValidDestructuringAssignmentTarget,
+    isInOrOfKeyword
+} from './common';
 
 export interface Lookahead {
     index: number;
@@ -1930,7 +1941,7 @@ export class Parser {
                 (t & Token.Contextual) === Token.Contextual);
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: Location,
         node: any,
@@ -5468,7 +5479,9 @@ export class Parser {
     private parseJSXAttributeName(context: Context): ESTree.JSXIdentifier | ESTree.JSXNamespacedName {
         const pos = this.getLocation();
         const identifier: ESTree.JSXIdentifier = this.parseJSXIdentifier(context);
-        if (this.token === Token.Colon) return this.parseJSXNamespacedName(context, identifier, pos);
+        if (this.token === Token.Colon) {
+            return this.parseJSXNamespacedName(context, identifier, pos);
+        }
         return identifier;
     }
 
@@ -5479,13 +5492,9 @@ export class Parser {
         const attrName = this.parseJSXAttributeName(context);
 
         if (this.token === Token.Assign) {
-            switch (this.scanJSXAttributeValue(context)) {
-                case Token.StringLiteral:
-                    value = this.parseLiteral(context);
-                    break;
-                default:
-                    value = this.parseJSXExpressionAttribute(context);
-            }
+            value = this.scanJSXAttributeValue(context) === Token.StringLiteral
+            ? this.parseLiteral(context)
+            : this.parseJSXExpressionAttribute(context)
         }
 
         return this.finishNode(context, pos, {
@@ -5495,7 +5504,9 @@ export class Parser {
         });
     }
 
-    private parseJSXExpressionAttribute(context: Context): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
+    private parseJSXExpressionAttribute(
+        context: Context
+    ): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
 
         const pos = this.getLocation();
 
@@ -5514,40 +5525,53 @@ export class Parser {
     private parseJSXAttributes(context: Context): ESTree.JSXAttribute[] {
         const attributes: ESTree.JSXAttribute[] = [];
         while (!(this.token === Token.GreaterThan || this.token === Token.Divide)) {
-            if (this.token === Token.LeftBrace) {
-                attributes.push(this.parseJSXSpreadAttribute(context &= ~Context.Expression));
-            } else {
-                attributes.push(this.parseJSXAttribute(context));
-            }
+                attributes.push(this.token === Token.LeftBrace 
+                    ? this.parseJSXSpreadAttribute(context &= ~Context.Expression)
+                    : this.parseJSXAttribute(context)
+                    );
         }
 
         return attributes;
     }
 
-    private nextJSXToken() {
+    private scanJSX(): Token {
 
         this.lastIndex = this.startIndex = this.index;
 
-        const next = this.nextChar();
+        switch (this.nextChar()) {
 
-        if (next === Chars.LessThan) {
-            this.advance();
-            if (this.consume(Chars.Slash)) {
-                this.token = Token.JSXClose;
-            } else {
-                this.token = Token.LessThan;
-            }
-        } else if (next === Chars.LeftBrace) {
-            this.advance();
-            this.token = Token.LeftBrace;
-        } else {
+            case Chars.LessThan:
+                {
+                    this.advance();
+                    if (!this.consume(Chars.Slash)) return Token.LessThan
+                    return Token.JSXClose;
+                }
 
-            while (!(this.nextChar() === Chars.LeftBrace || this.nextChar() === Chars.LessThan)) {
-                this.advance();
-            }
+            case Chars.LeftBrace:
+                {
+                    this.advance();
+                    return Token.LeftBrace;
+                }
 
-            this.token = Token.JSXText;
+            default:
+
+                loop:
+                    while (true) {
+                        switch (this.nextChar()) {
+                            case Chars.LeftBrace:
+                            case Chars.LessThan:
+                                break loop;
+                            default:
+                                this.advance();
+                        }
+                    }
+
+                return Token.JSXText;
         }
+    }
+
+    private nextJSXToken() {
+        this.token = this.scanJSX();
     }
 
     private parseJSXIdentifier(context: Context): ESTree.JSXIdentifier {
@@ -5574,7 +5598,10 @@ export class Parser {
         });
     }
 
-    private parseJSXMemberExpression(context: Context, expr: any, pos: Location): ESTree.JSXMemberExpression {
+    private parseJSXMemberExpression(
+        context: Context,
+        expr: ESTree.JSXIdentifier | ESTree.JSXMemberExpression,
+        pos: Location): ESTree.JSXMemberExpression {
         return this.finishNode(context, pos, {
             type: 'JSXMemberExpression',
             object: expr,
@@ -5588,7 +5615,9 @@ export class Parser {
         let expression: ESTree.JSXIdentifier | ESTree.JSXMemberExpression = this.parseJSXIdentifier(context | Context.Expression);
 
         // Namespace
-        if (this.token === Token.Colon) return this.parseJSXNamespacedName(context, expression, pos);
+        if (this.token === Token.Colon) {
+            return this.parseJSXNamespacedName(context, expression, pos);
+        }
 
         // Member expression
         while (this.parseOptional(context, Token.Period)) {
@@ -5612,12 +5641,8 @@ export class Parser {
             state |= JSXState.Fragment;
             openingElement = this.parseJSXOpeningFragment(context, pos);
         } else {
-
             openingElement = this.parseJSXOpeningElement(context, state, pos);
-
-            if (openingElement.selfClosing) {
-                state |= JSXState.SelfClosing;
-            }
+            if (openingElement.selfClosing) state |= JSXState.SelfClosing;
         }
 
         let children: ESTree.JSXElement[] = [];
