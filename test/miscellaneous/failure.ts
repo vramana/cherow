@@ -136,7 +136,7 @@ describe('Miscellaneous - Failure', () => {
     fail('1.a', {
         source: `1.a`,
         line: 1,
-        message: 'Unexpected token',
+        message: 'Invalid or unexpected token',
     });
 
     fail('1.e', {
@@ -162,7 +162,7 @@ describe('Miscellaneous - Failure', () => {
     fail('08a', {
         source: `08a`,
         line: 1,
-        message: 'Unexpected token',
+        message: 'Invalid or unexpected token',
         column: 0,
         index: 0
     });
@@ -177,7 +177,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('0a', {
         source: `0a`,
-        message: 'Unexpected token',
+        message: 'Invalid or unexpected token',
         line: 1,
         column: 0,
         index: 0
@@ -193,7 +193,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('3in []', {
         source: `3in []`,
-        message: 'Unexpected token',
+        message: 'Invalid or unexpected token',
         line: 1,
     });
 
@@ -207,14 +207,14 @@ describe('Miscellaneous - Failure', () => {
 
     fail('3x0', {
         source: `3x0`,
-        message: 'Unexpected token',
+        message: 'Invalid or unexpected token',
         line: 1,
         column: 0,
         index: 0
     });
     fail('3in[]', {
         source: `3in[]`,
-        message: 'Unexpected token',
+        message: 'Invalid or unexpected token',
         line: 1,
     });
 

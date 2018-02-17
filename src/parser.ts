@@ -1,5 +1,5 @@
 import * as ESTree from './estree';
-import { fromCodePoint, invalidCharacterMessage, toHex, isPrologueDirective, hasBit, map, isValidSimpleAssignmentTarget, isValidDestructuringAssignmentTarget, isInOrOfKeyword } from './common';
+import { isQualifiedJSXName, fromCodePoint, invalidCharacterMessage, toHex, isPrologueDirective, hasBit, map, isValidSimpleAssignmentTarget, isValidDestructuringAssignmentTarget, isInOrOfKeyword } from './common';
 import { Options, OnComment } from './cherow';
 import { Chars } from './chars';
 import { Token, tokenDesc, descKeyword } from './token';
@@ -91,6 +91,7 @@ export class Parser {
             if (options.ranges) context |= Context.OptionsRanges;
             if (options.raw) context |= Context.OptionsRaw;
             if (options.loc) context |= Context.OptionsLoc;
+            if (options.jsx) context |= Context.OptionsJSX;
             if (options.ranges) context |= Context.OptionsRanges;
             if (options.tolerate) context |= Context.OptionsTolerate;
             if (options.impliedStrict) context |= Context.Strict;
@@ -366,10 +367,13 @@ export class Parser {
                                     return this.consume(Chars.EqualSign) ?
                                         Token.ShiftLeftAssign :
                                         Token.ShiftLeft;
+
                                 case Chars.EqualSign:
                                     this.advance();
                                     return Token.LessThanOrEqual;
+
                                 case Chars.Slash:
+                                    if (!(context & Context.OptionsJSX)) break;
                                     this.advance();
                                     return Token.JSXClose;
                                 default: // ignore
@@ -505,10 +509,7 @@ export class Parser {
                         let index = this.index + 1;
 
                         const next = this.source.charCodeAt(index);
-                        if (next >= Chars.Zero && next <= Chars.Nine) {
-                            this.scanNumeric(context, ScanState.Float);
-                            return Token.NumericLiteral;
-                        }
+                        
                         if (next === Chars.Period) {
                             index++;
                             if (index < this.source.length &&
@@ -519,6 +520,11 @@ export class Parser {
                             }
                         }
 
+                        if (next >= Chars.Zero && next <= Chars.Nine) {
+                            this.scanNumeric(context, ScanState.Float);
+                            return Token.NumericLiteral;
+                        }
+                        
                         this.advance();
                         return Token.Period;
                     }
@@ -940,7 +946,7 @@ export class Parser {
             ch = this.readNext(ch, Errors.InvalidHexEscapeSequence);
 
             let digit = toHex(ch);
-
+            
             while (digit >= 0) {
                 codePoint = codePoint * 16 + digit;
                 if (codePoint > Chars.LastUnicodeChar) {
@@ -1278,11 +1284,10 @@ export class Parser {
 
                     state |= ScanState.Float;
 
-                    switch (this.nextChar()) {
-                        case Chars.Plus:
-                        case Chars.Hyphen:
-                            this.advance();
-                        default: // ignore;
+                    ch = this.nextChar();
+
+                    if (ch === Chars.Plus || ch === Chars.Hyphen) {
+                        this.advance();
                     }
 
                     ch = this.nextChar();
@@ -1303,8 +1308,10 @@ export class Parser {
         // The SourceCharacter immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
         // For example : 3in is an error and not the two input elements 3 and in
         if (isIdentifierStart(this.nextChar())) {
-            this.tolerate(context, Errors.Unexpected);
-        } else if (!(state & ScanState.Hibo)) {
+            this.tolerate(context, Errors.InvalidOrUnexpectedToken);
+        } 
+        
+        if (!(state & ScanState.Hibo)) {
             if (state & ScanState.HasNumericSeparator || this.flags & Flags.HasNumericSeparator) {
                 if (decimalFragment) mainFragment += '.' + decimalFragment;
                 if (scientificFragment) mainFragment += scientificFragment;
@@ -1629,6 +1636,8 @@ export class Parser {
                 // Unicode character specification.
             case Chars.LowerU:
                 {
+
+                    
                     let ch = this.lastChar = this.readNext(first, Errors.MissingUAfterSlash);
                     if (ch === Chars.LeftBrace) {
                         ch = this.lastChar = this.readNext(ch);
@@ -1648,17 +1657,17 @@ export class Parser {
                         return code;
                     } else {
                         // \uNNNN
-                        let code = toHex(ch);
-                        if (code < 0) return Escape.InvalidHex;
+                        let codePoint = toHex(ch);
+                        if (codePoint < 0) return Escape.InvalidHex;
 
                         for (let i = 0; i < 3; i++) {
                             ch = this.lastChar = this.readNext(ch);
                             const digit = toHex(ch);
                             if (digit < 0) return Escape.InvalidHex;
-                            code = code * 16 + digit;
+                            codePoint = codePoint * 16 + digit;
                         }
 
-                        return code;
+                        return codePoint;
                     }
                 }
 
@@ -3687,6 +3696,8 @@ export class Parser {
                 if (context & Context.InClass) {
                     return this.parsePrivateName(context);
                 }
+            case Token.LessThan:
+                if (context & Context.OptionsJSX) return this.parseJSXElement(context | Context.Expression);
             case Token.YieldKeyword:
                 if (context & Context.AllowYield) {
                     this.tolerate(context, Errors.DisallowedInContext, tokenDesc(this.token));
@@ -5294,6 +5305,365 @@ export class Parser {
             init,
             test,
             update
+        });
+    }
+
+    /** JSX */
+
+    private parseJSXChildren(context: Context) {
+        const children: any = [];
+
+        while (this.token !== Token.JSXClose) {
+            children.push(this.parseJSXChild(context | Context.Expression, this.getLocation()));
+        }
+
+        return children;
+    }
+
+    private parseJSXChild(
+        context: Context,
+        pos: Location,
+    ): ESTree.JSXText | ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild | ESTree.JSXElement | undefined {
+
+        switch (this.token) {
+            case Token.JSXText:
+            case Token.Identifier:
+                return this.parseJSXText(context);
+            case Token.LeftBrace:
+                return this.parseJSXExpressionContainer(context);
+            case Token.LessThan:
+                return this.parseJSXElement(context & ~Context.Expression);
+            default: // ignore
+        }
+    }
+
+    private parseJSXSpreadChild(context: Context): ESTree.JSXSpreadChild {
+        const pos = this.getLocation();
+        this.expect(context, Token.Ellipsis);
+        const expression = this.parseExpression(context, pos);
+        this.expect(context, Token.RightBrace);
+        return this.finishNode(context, pos, {
+            type: 'JSXSpreadChild',
+            expression
+        });
+    }
+
+    private parseJSXText(context: Context): ESTree.JSXText {
+
+        const pos = this.getLocation();
+        const value = this.source.slice(this.startIndex, this.index);
+
+        this.nextJSXToken();
+
+        const node = this.finishNode(context, pos, {
+            type: 'JSXText',
+            value
+        });
+
+        if (context & Context.OptionsRaw) node.raw = value;
+
+        return node;
+    }
+
+    private parseJSXEmptyExpression(context: Context, pos: Location): ESTree.JSXEmptyExpression {
+        return this.finishNode(context, pos, {
+            type: 'JSXEmptyExpression'
+        });
+    }
+
+    private parseJSXExpressionContainer(
+        context: Context
+    ): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
+        const pos = this.getLocation();
+        this.expect(context, Token.LeftBrace);
+
+        if (this.token === Token.Ellipsis) {
+            return this.parseJSXSpreadChild(context);
+        }
+
+        const expression = this.token === Token.RightBrace ?
+            this.parseJSXEmptyExpression(context, pos) :
+            this.parseAssignmentExpression(context);
+
+        this.nextJSXToken();
+
+        return this.finishNode(context, pos, {
+            type: 'JSXExpressionContainer',
+            expression
+        });
+    }
+
+    private parseJSXClosingElement(context: Context, isFragment: boolean) {
+        const pos = this.getLocation();
+        this.expect(context, Token.JSXClose);
+
+        if (isFragment) {
+            this.expect(context, Token.GreaterThan);
+            return this.finishNode(context, pos, {
+                type: 'JSXClosingFragment'
+            });
+        }
+
+        const name = this.parseJSXElementName(context);
+
+        if (context & Context.Expression) {
+            this.expect(context, Token.GreaterThan);
+        } else {
+            this.nextJSXToken();
+        }
+
+        return this.finishNode(context, pos, {
+            type: 'JSXClosingElement',
+            name
+        });
+    }
+
+    private scanJSXString(context: Context, quote: number): Token {
+
+        let ret: string | null = '';
+        this.advance();
+        let ch = this.nextChar();
+
+        while (ch !== quote) {
+            ret += fromCodePoint(ch);
+            ch = this.readNext(ch);
+        }
+
+        this.advance(); // Consume the quote
+        if (context & Context.OptionsRaw) {
+            this.storeRaw(this.startIndex);
+        }
+
+        this.tokenValue = ret;
+
+        return Token.StringLiteral;
+    }
+    private scanJSXAttributeValue(context: Context): Token | undefined {
+
+        this.startIndex = this.index;
+        this.startColumn = this.column;
+        this.startLine = this.line;
+        const ch = this.nextChar();
+        switch (ch) {
+            case Chars.DoubleQuote:
+            case Chars.SingleQuote:
+                return this.scanJSXString(context, ch);
+            default:
+                this.nextToken(context);
+        }
+    }
+
+    private parseJSXSpreadAttribute(context: Context) {
+        const pos = this.getLocation();
+        this.expect(context, Token.LeftBrace);
+        this.expect(context, Token.Ellipsis);
+        const expression = this.parseExpression(context, pos);
+        this.expect(context, Token.RightBrace);
+
+        return this.finishNode(context, pos, {
+            type: 'JSXSpreadAttribute',
+            argument: expression
+        });
+    }
+
+    private parseJSXAttributeName(context: Context): ESTree.JSXIdentifier | ESTree.JSXNamespacedName {
+        const pos = this.getLocation();
+        const identifier: ESTree.JSXIdentifier = this.parseJSXIdentifier(context);
+        if (this.token === Token.Colon) return this.parseJSXNamespacedName(context, identifier, pos);
+        return identifier;
+    }
+
+    private parseJSXAttribute(context: Context): ESTree.JSXAttribute {
+
+        const pos = this.getLocation();
+        let value = null;
+        const attrName = this.parseJSXAttributeName(context);
+
+        if (this.token === Token.Assign) {
+            switch (this.scanJSXAttributeValue(context)) {
+                case Token.StringLiteral:
+                    value = this.parseLiteral(context);
+                    break;
+                default:
+                    value = this.parseJSXExpressionAttribute(context);
+            }
+        }
+
+        return this.finishNode(context, pos, {
+            type: 'JSXAttribute',
+            value,
+            name: attrName
+        });
+    }
+
+    private parseJSXExpressionAttribute(context: Context): ESTree.JSXExpressionContainer | ESTree.JSXSpreadChild {
+
+        const pos = this.getLocation();
+
+        this.expect(context, Token.LeftBrace);
+
+        const expression = this.parseAssignmentExpression(context);
+
+        this.expect(context, Token.RightBrace);
+
+        return this.finishNode(context, pos, {
+            type: 'JSXExpressionContainer',
+            expression
+        });
+    }
+
+    private parseJSXAttributes(context: Context): ESTree.JSXAttribute[] {
+        const attributes: ESTree.JSXAttribute[] = [];
+        while (!(this.token === Token.GreaterThan || this.token === Token.Divide)) {
+            if (this.token === Token.LeftBrace) {
+                attributes.push(this.parseJSXSpreadAttribute(context &= ~Context.Expression));
+            } else {
+                attributes.push(this.parseJSXAttribute(context));
+            }
+        }
+
+        return attributes;
+    }
+
+    private nextJSXToken() {
+
+        this.lastIndex = this.startIndex = this.index;
+
+        const next = this.nextChar();
+
+        if (next === Chars.LessThan) {
+            this.advance();
+            if (this.consume(Chars.Slash)) {
+                this.token = Token.JSXClose;
+            } else {
+                this.token = Token.LessThan;
+            }
+        } else if (next === Chars.LeftBrace) {
+            this.advance();
+            this.token = Token.LeftBrace;
+        } else {
+
+            while (!(this.nextChar() === Chars.LeftBrace || this.nextChar() === Chars.LessThan)) {
+                this.advance();
+            }
+
+            this.token = Token.JSXText;
+        }
+    }
+
+    private parseJSXIdentifier(context: Context): ESTree.JSXIdentifier {
+        const name = this.tokenValue;
+        const pos = this.getLocation();
+        this.nextToken(context);
+        return this.finishNode(context, pos, {
+            type: 'JSXIdentifier',
+            name
+        });
+    }
+
+    private parseJSXNamespacedName(
+        context: Context,
+        namespace: ESTree.JSXIdentifier | ESTree.JSXMemberExpression,
+        pos: Location
+    ): ESTree.JSXNamespacedName {
+        this.expect(context, Token.Colon);
+        const name = this.parseJSXIdentifier(context);
+        return this.finishNode(context, pos, {
+            type: 'JSXNamespacedName',
+            namespace,
+            name
+        });
+    }
+
+    private parseJSXMemberExpression(context: Context, expr: any, pos: Location): ESTree.JSXMemberExpression {
+        return this.finishNode(context, pos, {
+            type: 'JSXMemberExpression',
+            object: expr,
+            property: this.parseJSXIdentifier(context)
+        });
+    }
+
+    private parseJSXElementName(context: Context): ESTree.Node {
+        const pos = this.getLocation();
+
+        let expression: ESTree.JSXIdentifier | ESTree.JSXMemberExpression = this.parseJSXIdentifier(context | Context.Expression);
+
+        // Namespace
+        if (this.token === Token.Colon) return this.parseJSXNamespacedName(context, expression, pos);
+
+        // Member expression
+        while (this.parseOptional(context, Token.Period)) {
+            expression = this.parseJSXMemberExpression(context, expression, pos);
+        }
+
+        return expression;
+    }
+
+    private parseJSXElement(context: Context) {
+        const pos = this.getLocation();
+        let openingElement = null;
+        let selfClosing = false;
+        let isFragment = false;
+
+        this.expect(context, Token.LessThan);
+
+        if (this.token === Token.GreaterThan) {
+            isFragment = true;
+            this.nextJSXToken();
+            openingElement = this.finishNode(context, pos, {
+                type: 'JSXOpeningFragment'
+            });
+        } else {
+
+            const tagName = this.parseJSXElementName(context);
+
+            const attributes = this.parseJSXAttributes(context);
+
+            if (this.token === Token.GreaterThan) {
+                this.nextJSXToken();
+            } else {
+                this.expect(context, Token.Divide);
+                this.expect(context, Token.GreaterThan);
+                selfClosing = true;
+            }
+
+            openingElement = this.finishNode(context, pos, {
+                type: 'JSXOpeningElement',
+                name: tagName,
+                attributes,
+                selfClosing
+            });
+        }
+
+        let children: ESTree.JSXElement[] = [];
+        let closingElement = null;
+
+        if (isFragment || !selfClosing) {
+
+            children = this.parseJSXChildren(context);
+            closingElement = this.parseJSXClosingElement(context, isFragment);
+
+            if (isFragment) {
+
+                return this.finishNode(context, pos, {
+                    type: 'JSXFragment',
+                    children,
+                    openingElement,
+                    closingElement,
+                });
+            } else {
+
+                const open = isQualifiedJSXName(openingElement.name);
+                const close = isQualifiedJSXName(closingElement.name);
+                if (open !== close) this.tolerate(context, Errors.UnexpectedToken, close);
+            }
+        }
+
+        return this.finishNode(context, pos, {
+            type: 'JSXElement',
+            children,
+            openingElement,
+            closingElement,
         });
     }
 }

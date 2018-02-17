@@ -9,14 +9,15 @@ export type OnComment = void | ESTree.Comment[] | (
 );
 
 export interface Options {
-    comments ?: OnComment;
-    plugins ?: PluginHandler[];
-    next ?: boolean;
-    ranges ?: boolean;
-    offset ?: boolean;
-    source ?: string;
-    loc ?: boolean;
-    raw ?: boolean;
+    comments?: OnComment;
+    plugins?: PluginHandler[];
+    next?: boolean;
+    ranges?: boolean;
+    offset?: boolean;
+    source?: string;
+    loc?: boolean;
+    raw?: boolean;
+    jsx?: boolean;
     tolerate ?: boolean;
     impliedStrict ?: boolean;
 }

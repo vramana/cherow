@@ -4,7 +4,7 @@ describe('Next - BigInt', () => {
 
     fail('invalid number', {
         source: `112313n`,
-        message: 'Unexpected token',
+        message: 'Invalid or unexpected token',
         line: 1,
     });
 
@@ -18,7 +18,7 @@ describe('Next - BigInt', () => {
     fail('invalid exponent', {
         source: `2e9n`,
         next: true,
-        message: 'Unexpected token',
+        message: 'Invalid or unexpected token',
         line: 1,
     });
 
@@ -53,7 +53,7 @@ describe('Next - BigInt', () => {
     fail('exponent part', {
         source: `0e0n`,
         next: true,
-        message: 'Unexpected token',
+        message: 'Invalid or unexpected token',
         line: 1,
     });
 

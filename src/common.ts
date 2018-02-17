@@ -99,3 +99,21 @@ export function invalidCharacterMessage(cp: number): string {
                 return `\\u{${cp.toString(16)}}`;
         }
     }
+
+// Fully qualified element name, e.g. <svg:path> returns "svg:path"
+export function isQualifiedJSXName(elementName: any): any {
+    switch (elementName.type) {
+        case 'JSXIdentifier':
+            return elementName.name;
+        case 'JSXNamespacedName':
+            return elementName.namespace + ':' + elementName.name;
+        case 'JSXMemberExpression':
+            return (
+                isQualifiedJSXName(elementName.object) + '.' +
+                isQualifiedJSXName(elementName.property)
+            );
+            /* istanbul ignore next */
+        default:
+            // ignore
+    }
+}    

@@ -8,32 +8,33 @@ export const enum Context {
     OptionsRaw              = 1 << 3,
     OptionsComments         = 1 << 4,
     OptionsTolerate         = 1 << 5,
+    OptionsJSX              = 1 << 6,
 
     /* miscellaneous */
-    AllowIn                 = 1 << 6,  // Node was parsed in a context where 'in-expressions' are allowed
-    Strict                  = 1 << 7,  // Node was parsed in a strict mode context
-    Module                  = 1 << 8,  // Node was parsed in a module code context
-    TaggedTemplate          = 1 << 9,
-    IfStatement             = 1 << 10, // Node was parsed as the body of an IFStatement - 'consequent' or 'alternate'
-    Expression              = 1 << 11, // Node was parsed within an expression context
-    InParameter             = 1 << 12, //
-    AllowYield              = 1 << 13, // Node was parsed in the 'yield' context created when parsing an generator function
-    AllowAsync              = 1 << 14, // Node was parsed in the 'async' context created when parsing an async function
-    ArrowFunction           = 1 << 15,
-    TopLevel                = 1 << 16, // Allow super property
-    AllowSuperProperty      = 1 << 17,
-    ValidateEscape          = 1 << 18,
-    Let                     = 1 << 29,  // Variable declaration
-    Const                   = 1 << 20,  // Variable declaration
-    Statement               = 1 << 21,  // Used when parsing an MethodDeclaration
-    Method                  = 1 << 22,  // Used when parsing an async function
-    ProhibitWhitespace      = 1 << 23, // Scanner related.
-    ForStatement            = 1 << 24,
-    InParenthesis           = 1 << 25,
-    InClass                 = 1 << 26,
-    OptionalIdentifier      = 1 << 27,
-    DisallowArrow           = 1 << 28,
-    InTypeAnnotation        = 1 << 29, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
+    AllowIn                 = 1 << 7,  // Node was parsed in a context where 'in-expressions' are allowed
+    Strict                  = 1 << 8,  // Node was parsed in a strict mode context
+    Module                  = 1 << 9,  // Node was parsed in a module code context
+    TaggedTemplate          = 1 << 10,
+    IfStatement             = 1 << 11, // Node was parsed as the body of an IFStatement - 'consequent' or 'alternate'
+    Expression              = 1 << 12, // Node was parsed within an expression context
+    InParameter             = 1 << 13, //
+    AllowYield              = 1 << 14, // Node was parsed in the 'yield' context created when parsing an generator function
+    AllowAsync              = 1 << 15, // Node was parsed in the 'async' context created when parsing an async function
+    ArrowFunction           = 1 << 16,
+    TopLevel                = 1 << 17, // Allow super property
+    AllowSuperProperty      = 1 << 18,
+    ValidateEscape          = 1 << 19,
+    Let                     = 1 << 20,  // Variable declaration
+    Const                   = 1 << 21,  // Variable declaration
+    Statement               = 1 << 22,  // Used when parsing an MethodDeclaration
+    Method                  = 1 << 23,  // Used when parsing an async function
+    ProhibitWhitespace      = 1 << 24, // Scanner related.
+    ForStatement            = 1 << 25,
+    InParenthesis           = 1 << 26,
+    InClass                 = 1 << 27,
+    OptionalIdentifier      = 1 << 28,
+    DisallowArrow           = 1 << 29,
+    InTypeAnnotation        = 1 << 30, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
     BlockScoped  = Let | Const
 }
 

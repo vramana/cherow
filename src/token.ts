@@ -167,17 +167,17 @@ export const enum Token {
     FromKeyword        = 114 | Contextual,
     OfKeyword          = 115 | Contextual,
 
-    /** V8 */
+    /* V8 */
     Arguments          = 116 | IsEvalArguments | IsIdentifier | IsExpressionStart,
     Eval               = 117 | IsEvalArguments | IsIdentifier | IsExpressionStart,
 
-    /** State 3 proposals */
+    /* State 3 proposals */
 
     Hash               = 118,
     At                 = 119,
     BigInt             = 120,
 
-    /** Flow / TypeScript */
+    /* Flow / TypeScript */
 
     DeclareKeyword     = 121 | IsIdentifier,
     TypeKeyword        = 122 | IsIdentifier,
@@ -189,10 +189,13 @@ export const enum Token {
     ModuleKeyword      = 128 | IsIdentifier,
     ExportsKeyword     = 129 | IsIdentifier,
 
-    /** TypeScript */
+    /* TypeScript */
     KeyOfKeyword       = 129 | IsIdentifier,
     IsKeyword          = 130 | IsIdentifier,
     ReadOnlyKeyword    = 131 | IsIdentifier,
+
+    /* JSX */
+    JSXText            = 132,
 }
 
 // Note: this *must* be kept in sync with the enum's order.

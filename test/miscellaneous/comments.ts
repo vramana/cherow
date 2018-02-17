@@ -79,7 +79,7 @@ describe('Miscellaneous - Comments', () => {
     fail(`<!-- HTML comment`, {
         source: `<!-- HTML comment`,
         module: true,
-        message: 'Unexpected token',
+        message: 'Unexpected token <',
         line: 1,
         column: 0,
         index: 0
