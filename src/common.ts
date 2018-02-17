@@ -116,4 +116,4 @@ export function isQualifiedJSXName(elementName: any): any {
         default:
             // ignore
     }
-}    
+}

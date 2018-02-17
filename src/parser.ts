@@ -4,7 +4,7 @@ import { Options, OnComment } from './cherow';
 import { Chars } from './chars';
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors, ErrorMessages } from './errors';
-import { Context, Flags, ScanState, ObjectState, Escape, RegExpState, RegexFlags, ParenthesizedState, ArrayState } from './flags';
+import { Context, Flags, ScanState, ObjectState, Escape, RegExpState, RegexFlags, ParenthesizedState, ArrayState, JSXState } from './flags';
 import { isValidIdentifierStart, isIdentifierStart, mustEscape, isIdentifierPart } from './unicode';
 
 export interface Lookahead {
@@ -509,7 +509,7 @@ export class Parser {
                         let index = this.index + 1;
 
                         const next = this.source.charCodeAt(index);
-                        
+
                         if (next === Chars.Period) {
                             index++;
                             if (index < this.source.length &&
@@ -524,7 +524,7 @@ export class Parser {
                             this.scanNumeric(context, ScanState.Float);
                             return Token.NumericLiteral;
                         }
-                        
+
                         this.advance();
                         return Token.Period;
                     }
@@ -946,7 +946,7 @@ export class Parser {
             ch = this.readNext(ch, Errors.InvalidHexEscapeSequence);
 
             let digit = toHex(ch);
-            
+
             while (digit >= 0) {
                 codePoint = codePoint * 16 + digit;
                 if (codePoint > Chars.LastUnicodeChar) {
@@ -1309,8 +1309,8 @@ export class Parser {
         // For example : 3in is an error and not the two input elements 3 and in
         if (isIdentifierStart(this.nextChar())) {
             this.tolerate(context, Errors.InvalidOrUnexpectedToken);
-        } 
-        
+        }
+
         if (!(state & ScanState.Hibo)) {
             if (state & ScanState.HasNumericSeparator || this.flags & Flags.HasNumericSeparator) {
                 if (decimalFragment) mainFragment += '.' + decimalFragment;
@@ -1637,7 +1637,6 @@ export class Parser {
             case Chars.LowerU:
                 {
 
-                    
                     let ch = this.lastChar = this.readNext(first, Errors.MissingUAfterSlash);
                     if (ch === Chars.LeftBrace) {
                         ch = this.lastChar = this.readNext(ch);
@@ -3697,7 +3696,7 @@ export class Parser {
                     return this.parsePrivateName(context);
                 }
             case Token.LessThan:
-                if (context & Context.OptionsJSX) return this.parseJSXElement(context | Context.Expression);
+                if (context & Context.OptionsJSX) return this.parseJSXElementOrFragment(context | Context.Expression);
             case Token.YieldKeyword:
                 if (context & Context.AllowYield) {
                     this.tolerate(context, Errors.DisallowedInContext, tokenDesc(this.token));
@@ -5332,7 +5331,7 @@ export class Parser {
             case Token.LeftBrace:
                 return this.parseJSXExpressionContainer(context);
             case Token.LessThan:
-                return this.parseJSXElement(context & ~Context.Expression);
+                return this.parseJSXElementOrFragment(context & ~Context.Expression);
             default: // ignore
         }
     }
@@ -5393,11 +5392,11 @@ export class Parser {
         });
     }
 
-    private parseJSXClosingElement(context: Context, isFragment: boolean) {
+    private parseJSXClosingElement(context: Context, state: JSXState) {
         const pos = this.getLocation();
         this.expect(context, Token.JSXClose);
 
-        if (isFragment) {
+        if (state & JSXState.Fragment) {
             this.expect(context, Token.GreaterThan);
             return this.finishNode(context, pos, {
                 type: 'JSXClosingFragment'
@@ -5599,68 +5598,103 @@ export class Parser {
         return expression;
     }
 
-    private parseJSXElement(context: Context) {
+    private parseJSXElementOrFragment(context: Context): ESTree.JSXElement {
+
         const pos = this.getLocation();
-        let openingElement = null;
-        let selfClosing = false;
-        let isFragment = false;
 
         this.expect(context, Token.LessThan);
 
+        let openingElement = null;
+
+        let state = JSXState.None;
+
         if (this.token === Token.GreaterThan) {
-            isFragment = true;
-            this.nextJSXToken();
-            openingElement = this.finishNode(context, pos, {
-                type: 'JSXOpeningFragment'
-            });
+            state |= JSXState.Fragment;
+            openingElement = this.parseJSXOpeningFragment(context, pos);
         } else {
 
-            const tagName = this.parseJSXElementName(context);
+            openingElement = this.parseJSXOpeningElement(context, state, pos);
 
-            const attributes = this.parseJSXAttributes(context);
-
-            if (this.token === Token.GreaterThan) {
-                this.nextJSXToken();
-            } else {
-                this.expect(context, Token.Divide);
-                this.expect(context, Token.GreaterThan);
-                selfClosing = true;
+            if (openingElement.selfClosing) {
+                state |= JSXState.SelfClosing;
             }
-
-            openingElement = this.finishNode(context, pos, {
-                type: 'JSXOpeningElement',
-                name: tagName,
-                attributes,
-                selfClosing
-            });
         }
 
         let children: ESTree.JSXElement[] = [];
         let closingElement = null;
 
-        if (isFragment || !selfClosing) {
+        if (state & JSXState.SelfClosing) {
+            return this.parseJSXElement(context, children, openingElement, null, pos);
+        }
 
-            children = this.parseJSXChildren(context);
-            closingElement = this.parseJSXClosingElement(context, isFragment);
+        children = this.parseJSXChildren(context);
+        closingElement = this.parseJSXClosingElement(context, state);
 
-            if (isFragment) {
+        if (state & JSXState.Fragment) {
+            return this.parseFragment(context, children, openingElement, closingElement, pos);
+        }
 
-                return this.finishNode(context, pos, {
-                    type: 'JSXFragment',
-                    children,
-                    openingElement,
-                    closingElement,
-                });
-            } else {
+        const open = isQualifiedJSXName(openingElement.name);
+        const close = isQualifiedJSXName(closingElement.name);
+        if (open !== close) {
+            this.tolerate(context, Errors.UnexpectedToken, close);
+        }
 
-                const open = isQualifiedJSXName(openingElement.name);
-                const close = isQualifiedJSXName(closingElement.name);
-                if (open !== close) this.tolerate(context, Errors.UnexpectedToken, close);
-            }
+        return this.parseJSXElement(context, children, openingElement, closingElement, pos);
+    }
+
+    private parseJSXOpeningFragment(context: Context, pos: Location) {
+        this.nextJSXToken();
+        return this.finishNode(context, pos, {
+            type: 'JSXOpeningFragment'
+        });
+    }
+
+    private parseJSXOpeningElement(context: Context, state: JSXState, pos: Location) {
+        const tagName = this.parseJSXElementName(context);
+
+        const attributes = this.parseJSXAttributes(context);
+
+        if (this.token === Token.GreaterThan) {
+            this.nextJSXToken();
+        } else {
+            this.expect(context, Token.Divide);
+            this.expect(context, Token.GreaterThan);
+            state |= JSXState.SelfClosing;
         }
 
         return this.finishNode(context, pos, {
+            type: 'JSXOpeningElement',
+            name: tagName,
+            attributes,
+            selfClosing: !!(state & JSXState.SelfClosing)
+        });
+    }
+
+    private parseJSXElement(
+        context: Context,
+        children: ESTree.JSXElement[] = [],
+        openingElement: ESTree.JSXOpeningElement,
+        closingElement: ESTree.JSXClosingElement | null,
+        pos: Location) {
+
+        return this.finishNode(context, pos, {
             type: 'JSXElement',
+            children,
+            openingElement,
+            closingElement,
+        });
+    }
+
+    private parseFragment(
+        context: Context,
+        children: ESTree.JSXElement[],
+        openingElement: ESTree.JSXOpeningElement,
+        closingElement: ESTree.JSXClosingElement,
+        pos: Location) {
+
+        return this.finishNode(context, pos, {
+            type: 'JSXFragment',
             children,
             openingElement,
             closingElement,

@@ -165,3 +165,9 @@ export const enum ArrayState {
     CommaSeparator      = 1 << 0,
     EvalOrArguments     = 1 << 1,
 }
+
+const enum JSXState {
+    None        = 0,
+    SelfClosing = 1 << 0,
+    Fragment    = 1 << 1,
+}
