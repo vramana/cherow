@@ -3314,34 +3314,22 @@ export class Parser {
 
     private parseSuperProperty(context: Context): ESTree.Expression {
         const pos = this.getLocation();
-        if (this.flags & Flags.ExtendedUnicodeEscape) this.tolerate(context, Errors.UnexpectedEscapedKeyword);
+
         this.expect(context, Token.SuperKeyword);
 
-        // If we have seen "super" it must be followed by '(', '[' or '.'.
         const t = this.token;
+        if (t === Token.LeftParen) {
+            // The super property has to be within a class constructor
+            if (!(context & Context.AllowSuperProperty)) {
+                this.tolerate(context, Errors.BadSuperCall);
+            }
+        } else if (t === Token.LeftBracket || t === Token.Period) {
+            if (!(context & Context.Method)) {
+                this.tolerate(context, Errors.UnexpectedSuper);
+            }
 
-        switch (t) {
-
-            case Token.LeftParen:
-                {
-                    // The super property has to be within a class constructor
-                    if (!(context & Context.AllowSuperProperty)) {
-                        this.tolerate(context, Errors.BadSuperCall);
-                    }
-                    break;
-                }
-
-            case Token.LeftBracket:
-            case Token.Period:
-                {
-                    if (!(context & Context.Method)) {
-                        this.tolerate(context, Errors.UnexpectedSuper);
-                    }
-                    break;
-                }
-
-            default:
-                this.tolerate(context, Errors.LoneSuper);
+        } else {
+            this.tolerate(context, Errors.LoneSuper);
         }
 
         return this.finishNode(context, pos, {
@@ -3380,6 +3368,7 @@ export class Parser {
         }
 
         const pos = this.getLocation();
+
         const id = this.parseIdentifierName(context, this.token);
 
         if (this.parseOptional(context | Context.ValidateEscape, Token.Period)) {
@@ -3407,25 +3396,7 @@ export class Parser {
     }
 
     private parseLeftHandSideExpression(context: Context, pos: Location): ESTree.Expression {
-
-        let expr;
-
-        switch (this.token) {
-            case Token.SuperKeyword:
-                {
-                    expr = this.parseSuperProperty(context);
-                    break;
-                }
-            case Token.ImportKeyword:
-                {
-                    if (!(context & Context.OptionsNext)) this.tolerate(context, Errors.Unexpected);
-                    expr = this.parseImportCall(context | Context.AllowIn, pos);
-                    break;
-                }
-            default:
-                expr = this.parseMemberExpression(context | Context.AllowIn, pos);
-        }
-
+        const expr = this.parseMemberExpression(context | Context.AllowIn, pos);
         return expr.type === 'ArrowFunctionExpression' && this.token !== Token.LeftParen ?
             expr :
             this.parseCallExpression(context | Context.AllowIn, pos, expr);
@@ -3683,6 +3654,9 @@ export class Parser {
                 return this.parseTemplateLiteral(context);
             case Token.TemplateCont:
                 return this.parseTemplate(context);
+            case Token.ImportKeyword:
+                if (!(context & Context.OptionsNext)) this.tolerate(context, Errors.Unexpected);
+                return this.parseImportCall(context | Context.AllowIn, pos);
             case Token.Divide:
             case Token.DivideAssign:
                 return this.parseRegularExpressionLiteral(context);
@@ -4224,7 +4198,7 @@ export class Parser {
             state |= ObjectState.Heritage;
         }
 
-        const body = this.parseClassElementList(context | Context.Strict, state);
+        const body = this.parseClassElementList(context | Context.Strict | Context.ValidateEscape, state);
 
         return this.finishNode(context, pos, {
             type: context & Context.Expression ? 'ClassExpression' : 'ClassDeclaration',
