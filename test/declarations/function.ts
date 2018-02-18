@@ -73,7 +73,12 @@ describe('Declarations - Function', () => {
         index: 31
     });
 
-      fail('(function ({ a(){} }) {})', {
+    fail('function f(...a, ...b){}', {
+        source: '"use strict"; function f(...a, ...b){}',
+        index: 29
+    });
+
+    fail('(function ({ a(){} }) {})', {
         source: '(function ({ a(){} }) {})',
        line: 1
     });

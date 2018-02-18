@@ -70,8 +70,8 @@ describe('Expressions - Function', () => {
     source: 'var _13_1_18_fun = function (eval) { "use strict"; }',
     message: 'Unexpected strict mode reserved word',
     line: 1,
-    column: 50,
-    index: 50
+    column: 29,
+    index: 29
 });
 
     pass(`(function foo() {} /42/i)`, {

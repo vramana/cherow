@@ -14,6 +14,7 @@ describe('Module - Import', () => {
     fail(`import { class } from 'foo'`, {
         source: `import { class } from 'foo'`,
         module: true,
+        impliedStrict: true,
         line: 1,
         message: 'Unexpected keyword \'class\'',
         column: 14,

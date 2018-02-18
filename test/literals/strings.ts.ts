@@ -2,6 +2,14 @@ import { fail, pass } from '../test-utils';
 
 describe('Literals - Strings', () => {
 
+    fail('"foo\\"', {
+        source: '"foo\\"',
+        message: 'Unexpected token',
+        line: 1,
+        column: 0,
+        index: 0
+    });
+
   fail('"\\u{g0g}"', {
       source: '"\\u{g0g}"',
       message: 'Invalid hexadecimal escape sequence',

@@ -67,12 +67,24 @@ describe('Next - Class fields', () => {
     next: true,
     line: 1
   });
-/*
+
+  fail('#foo = 123;', {
+    source: '#foo = 123;',
+    next: true,
+    index: 0
+  });
+
+  fail('#foo.bar = 123;', {
+    source: '#foo.bar = 123;',
+    next: true,
+    index: 0
+  });
+
   fail('class C { x = () => arguments; }  ', {
     source: 'class C { x = () => arguments; }  ',
     next: true,
-    index: 20
-  });*/
+    index: 19
+  });
 
       fail('class C { x = () => super(); }', {
     source: 'class C { x = () => super(); }',

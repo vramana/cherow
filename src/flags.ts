@@ -78,9 +78,7 @@ export const enum ObjectState {
     Shorthand       = 1 << 8,
     Prototype       = 1 << 9,
     Heritage        = 1 << 10,
-    HasRest         = 1 << 11,
-    // Unused = 1 << 12,
-    HasConstructor  = 1 << 13,
+    HasConstructor  = 1 << 11,
 
     Accessors = Get | Set,
 
