@@ -2,6 +2,7 @@
 
 [![NPM version](https://img.shields.io/npm/v/cherow.svg)](https://www.npmjs.com/package/cherow)
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/cherow/cherow)
+[![Build Status](https://travis-ci.org/cherow/cherow.svg?branch=master)](https://travis-ci.org/cherow/cherow)
 [![Build status](https://ci.appveyor.com/api/projects/status/pkydnkv0deckns5l/branch/master?svg=true)](https://ci.appveyor.com/project/Kflash/cherow/branch/master)
 [![CircleCI](https://circleci.com/gh/cherow/cherow.svg?style=svg)](https://circleci.com/gh/cherow/cherow)
 [![Coverage Status](https://coveralls.io/repos/github/cherow/cherow/badge.svg?branch=master)](https://coveralls.io/github/cherow/cherow?branch=master)
@@ -185,8 +186,3 @@ I know how irritating it can be if you are writing code and encounter bugs in yo
 If you feel something could've been done better, please do feel free to file a pull request with the changes.
 
 Read our guidelines [here](CONTRIBUTING.md)
-
-
-## Credits
-
-- Isiah Meadows (*Inspiration source through chat*). 
