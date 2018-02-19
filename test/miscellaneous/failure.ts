@@ -1812,12 +1812,6 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
     });
 
-    fail('[a, ...b = 0] = []', {
-        source: `[a, ...b = 0] = []`,
-        message: 'Rest elements cannot have a default value',
-        line: 1,
-    });
-
     fail('"(...a, b) => {}', {
         source: `"(...a, b) => {}`,
         message: 'Unexpected token',

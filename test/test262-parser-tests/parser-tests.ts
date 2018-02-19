@@ -61,6 +61,7 @@ const expectations = {
         '68766c3f46c4851a.js',
         '479332b63ff26de1.js',
         '3bc2b27a7430f818.js',
+        '8bf8438d0a686b4e.js',
         '3d3e6ce2b81a224d.js',
         '15a6123f6b825c38.js',
         '1a5b0dfa9fde985d.js',

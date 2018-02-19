@@ -1058,4 +1058,101 @@ describe('Miscellaneous - Early errors', () => {
         module: true,
         line: 1,
     });
+   
+    fail(`function* a(){ ({b = yield}) => 1; }`, {
+        source: `function* a(){ ({b = yield}) => 1; }`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`a: while (true) { (function () { break; }); }`, {
+        source: `a: while (true) { (function () { break; }); }`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`function* a(){ (b = yield* c) => 1; }`, {
+        source: `function* a(){ (b = yield* c) => 1; }`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`__proto__: __proto__: 1;`, {
+        source: `__proto__: __proto__: 1;`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`!function(a = super.b){}`, {
+        source: `!function(a = super.b){}`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`'use strict'; ({a: arguments = 1} = 2)`, {
+        source: `'use strict'; ({a: arguments = 1} = 2)`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`while(1) !function(){ break; };`, {
+        source: `while(1) !function(){ break; };`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`({ get __proto(){}, "__proto__": null, __proto__: null, })`, {
+        source: `({ get __proto(){}, "__proto__": null, __proto__: null, })`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`function* a(){ (b = yield) => 1; }`, {
+        source: `function* a(){ (b = yield) => 1; }`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`'use strict'; arguments=>1`, {
+        source: `'use strict'; arguments=>1`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`function a() { "use strict"; var interface; }`, {
+        source: `function a() { "use strict"; var interface; }`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`'use strict'; [,,,eval,] = 1`, {
+        source: `'use strict'; [,,,eval,] = 1`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`function a() { "use strict"; (function b(c, c) { }); }`, {
+        source: `function a() { "use strict"; (function b(c, c) { }); }`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`function a() { "use strict"; private = 1; }`, {
+        source: `function a() { "use strict"; private = 1; }`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`(function([a, a]){})`, {
+        source: `(function([a, a]){})`,
+        module: true,
+        line: 1,
+    });
+
+    fail(`function* a(){ function* b(c = yield d){} }`, {
+        source: `function* a(){ function* b(c = yield d){} }`,
+        module: true,
+        line: 1,
+    });
+
 });

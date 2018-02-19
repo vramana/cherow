@@ -3026,7 +3026,7 @@ export class Parser {
                 node.type = 'RestElement';
                 this.reinterpret(context, node.argument);
                 if (node.argument.type === 'AssignmentPattern') {
-                    this.tolerate(context, Errors.InvalidRestDefaultValue);
+                    //this.tolerate(context, Errors.InvalidRestDefaultValue);
                 }
                 return;
 
@@ -3396,7 +3396,10 @@ export class Parser {
     }
 
     private parseLeftHandSideExpression(context: Context, pos: Location): ESTree.Expression {
-        const expr = this.parseMemberExpression(context | Context.AllowIn, pos);
+            const expr = this.token === Token.SuperKeyword  
+            ? this.parseSuperProperty(context) 
+            : this.parseMemberExpression(context | Context.AllowIn, pos);
+         
         return expr.type === 'ArrowFunctionExpression' && this.token !== Token.LeftParen ?
             expr :
             this.parseCallExpression(context | Context.AllowIn, pos, expr);
@@ -4396,10 +4399,6 @@ export class Parser {
             this.tolerate(context, Errors.LineBreakAfterArrow);
         }
 
-        if (this.flags & Flags.HasCommaSeparator) {
-            this.tolerate(context, Errors.ElementAfterRest);
-        }
-
         // Invalid: 'new () => {};'
         // Valid: 'new (() => {});'
         if (!(context & Context.InParenthesis) &&
@@ -4420,7 +4419,7 @@ export class Parser {
 
         if (this.token === Token.LeftBrace) {
 
-            body = this.parseFunctionBody(context | Context.AllowIn | Context.ArrowFunction, params);
+            body = this.parseFunctionBody(context | Context.AllowIn | Context.ArrowFunction, args);
 
             // Invalid: '() => {} a || true'
             // Invalid: '() => {} ? a : b'

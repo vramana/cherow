@@ -780,6 +780,152 @@ describe('Expressions - Arrows', () => {
         }
     });
 
+    pass(`"use strict";
+
+    ((one, two) => {});`, {
+        source: `"use strict";
+
+        ((one, two) => {});`,
+        raw: true,
+        expected: {
+              "body": [
+                {
+                  "directive": "use strict",
+                 "expression": {
+                    "raw": "\"use strict\"",
+                    "type": "Literal",
+                    "value": "use strict"
+                 },
+                  "type": "ExpressionStatement",
+                },
+                {
+                  "expression": {
+                    "async": false,
+                    "body": {
+                      "body": [],
+                      "type": "BlockStatement"
+                    },
+                    "expression": false,
+                    "generator": false,
+                    "id": null,
+                    "params": [
+                      {
+                        "name": "one",
+                        "type": "Identifier"
+                      },
+                      {
+                        "name": "two",
+                        "type": "Identifier",
+                      },
+                    ],
+                    "type": "ArrowFunctionExpression"
+                  },
+                  "type": "ExpressionStatement"
+                }
+              ],
+              "sourceType": "script",
+              "type": "Program"
+            }
+    });
+
+    pass(`function fn1() {
+    }
+    
+    function fn2() {
+      [...one, ...two];
+    
+      (p => p);
+    }`, {
+        source: `function fn1() {
+        }
+        
+        function fn2() {
+          [...one, ...two];
+        
+          (p => p);
+        }`,
+        raw: true,
+        expected: {
+              "body": [
+                {
+                  "async": false,
+                  "body": {
+                    "body": [],
+                    "type": "BlockStatement"
+                  },
+                  "expression": false,
+                  "generator": false,
+                  "id": {
+                    "name": "fn1",
+                    "type": "Identifier",
+                  },
+                  "params": [],
+                  "type": "FunctionDeclaration"
+                },
+                {
+                  "async": false,
+                  "body": {
+                    "body": [
+                      {
+                       "expression": {
+                          "elements": [
+                            {
+                              "argument": {
+                                "name": "one",
+                                "type": "Identifier"
+                              },
+                             "type": "SpreadElement"
+                            },
+                            {
+                              "argument": {
+                                "name": "two",
+                                "type": "Identifier"
+                              },
+                              "type": "SpreadElement"
+                            }
+                          ],
+                          "type": "ArrayExpression"
+                        },
+                        "type": "ExpressionStatement"
+                      },
+                      {
+                        "expression": {
+                          "async": false,
+                          "body": {
+                            "name": "p",
+                            "type": "Identifier"
+                          },
+                          "expression": true,
+                          "generator": false,
+                          "id": null,
+                          "params": [
+                            {
+                              "name": "p",
+                              "type": "Identifier"
+                            }
+                          ],
+                          "type": "ArrowFunctionExpression"
+                        },
+                        "type": "ExpressionStatement"
+                      },
+                    ],
+                    "type": "BlockStatement"
+                  },
+                  "expression": false,
+                  "generator": false,
+                  "id": {
+                    "name": "fn2",
+                    "type": "Identifier",
+                  },
+                  "params": [],
+                  "type": "FunctionDeclaration",
+                },
+              ],
+              "sourceType": "script",
+              "type": "Program",
+            }
+    });
+
     pass(`([])=>0;`, {
         source: `([])=>0;`,
         loc: true,

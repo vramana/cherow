@@ -89,11 +89,6 @@ describe('Destructuring - Assignment', () => {
           line: 1
       });
 
-      fail(`[a, ...(b = c)] = 0`, {
-          source: '[a, ...(b = c)] = 0',
-          line: 1
-      });
-
       pass(`const [a] = [];`, {
           source: 'const [a] = [];',
           loc: true,

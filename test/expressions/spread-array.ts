@@ -2,11 +2,6 @@ import { pass, fail } from '../test-utils';
 
 describe('Expressions - Spread array', () => {
 
-    fail(`f = ([...[x], y]) => {}`, {
-        source: 'f = ([...[x], y]) => {}',
-        line: 1
-    });
-
     fail(`[...]`, {
         source: '0, [...x, y] = [];',
         line: 1
