@@ -1770,7 +1770,6 @@ export class Parser {
                 }
 
                 ch = this.readNext(ch);
-
             }
 
         this.consumeUnicode(ch);
@@ -1887,10 +1886,7 @@ export class Parser {
             }
             return true;
         }
-
-        if (this.token !== Token.Semicolon) {
-            this.report(Errors.NoSemicolon, tokenDesc(this.token));
-        }
+            this.report(Errors.UnexpectedToken, tokenDesc(this.token));
     }
 
     private expect(context: Context, t: Token): void {
@@ -3025,9 +3021,7 @@ export class Parser {
             case 'SpreadElement':
                 node.type = 'RestElement';
                 this.reinterpret(context, node.argument);
-                if (node.argument.type === 'AssignmentPattern') {
-                    this.tolerate(context, Errors.InvalidRestDefaultValue);
-                }
+                if (node.argument.type === 'AssignmentPattern') this.tolerate(context, Errors.InvalidRestDefaultValue);
                 return;
 
             case 'AssignmentExpression':

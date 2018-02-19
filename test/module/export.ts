@@ -189,7 +189,7 @@ with (house) {
     fail(`export {} null;`, {
             source: `export {} null;`,
             module: true,
-            message:  'A semicolon was expected (or a \'}\' if appropriate), but got \'null\'',
+            message: 'Unexpected token null',
             line: 1,
             column: 9,
             index: 9

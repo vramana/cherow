@@ -28,7 +28,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`() => {}a`, {
         source: '() => {}a',
-        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
+        message: 'Unexpected token identifier',
         line: 1,
     });
 
@@ -39,19 +39,19 @@ describe('Expressions - Arrows', () => {
 
     fail(`() => {} 1`, {
         source: '() => {} 1',
-        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'number\'',
+        message: 'Unexpected token number',
         line: 1,
     });
 
     fail(`() => {} a()`, {
         source: '() => {} a()',
-        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
+        message: 'Unexpected token identifier',
         line: 1,
     });
 
     fail(`() => {} a`, {
         source: '() => {} a',
-        message:  'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
+        message: 'Unexpected token identifier',
         line: 1,
     });
 
@@ -110,7 +110,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`32 => {}`, {
         source: '32 => {}',
-        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'=>\'',
+        message: 'Unexpected token =>',
         line: 1,
     });
 
@@ -330,7 +330,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`[]=>0`, {
         source: '[]=>0',
-        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'=>\'',
+        message: 'Unexpected token =>',
         line: 1,
         column: 2,
         index: 2

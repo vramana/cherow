@@ -5967,7 +5967,7 @@ describe('Miscellaneous - AnnexB', () => {
 
             fail(`"use strict"; if (0); else function f(){}`, {
                 source: `"use strict"; label foo: function f(){}`,
-                message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
+                message: 'Unexpected token identifier',
                 line: 1,
                 column: 19,
                 index: 19

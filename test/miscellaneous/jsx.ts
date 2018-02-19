@@ -5,7 +5,7 @@ describe('Miscellaneous - JSX', () => {
     fail(`adjacent JSX elements not wrapped in an enclosing tag`, {
         source: `<div>one</div><div>two</div>`,
         jsx: true,
-        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'</\'',
+        message: 'Unexpected token </',
         line: 1,
         column: 22,
         index: 22

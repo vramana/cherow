@@ -346,7 +346,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 1,
         index: 1,
-        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'#\'',
+        message: 'Unexpected token #',
     });
 
     fail('\n\n\n{', {
@@ -369,7 +369,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 5,
         index: 5,
-        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'number\'',
+        message: 'Unexpected token number',
     });
 
     fail(', { set 1 }', {
@@ -377,7 +377,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 5,
         index: 5,
-        message:  'A semicolon was expected (or a \'}\' if appropriate), but got \'number\'',
+        message: 'Unexpected token number',
     });
 
     fail('function t(if) { }', {
@@ -505,7 +505,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 1,
         index: 1,
-        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
+        message: 'Unexpected token identifier',
     });
 
     fail('try { } catch() {}', {
@@ -600,7 +600,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 1,
         index: 1,
-        message:  'A semicolon was expected (or a \'}\' if appropriate), but got \'if\'',
+        message: 'Unexpected token if',
     });
 
     fail('function true() { }', {
@@ -931,7 +931,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('invalid', {
         source: `await a`,
-        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
+        message: 'Unexpected token identifier',
         line: 1,
     });
 
@@ -1812,6 +1812,12 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
     });
 
+    fail('[a, ...b = 0] = []', {
+        source: `[a, ...b = 0] = []`,
+        message: 'Rest elements cannot have a default value',
+        line: 1,
+    });
+
     fail('"(...a, b) => {}', {
         source: `"(...a, b) => {}`,
         message: 'Unexpected token',
@@ -1838,7 +1844,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('if (1) let x = 10;', {
         source: `if (1) let x = 10;`,
-        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
+        message: 'Unexpected token identifier',
         line: 1,
     });
 
@@ -1970,7 +1976,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('a => {}()', {
         source: `a => {}()`,
-        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'(\'',
+        message: 'Unexpected token (',
         line: 1,
     });
 

@@ -53,7 +53,7 @@ describe('Miscellaneous - Comments', () => {
     fail(`arbitrary character sequence before HTMLCloseComment token`, {
         source: `/*
         */ the comment should not include these characters, regardless of AnnexB extensions -->`,
-        message: 'A semicolon was expected (or a \'}\' if appropriate), but got \'identifier\'',
+        message: 'Unexpected token identifier',
         line: 2,
         column: 14,
         index: 17

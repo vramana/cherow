@@ -45,6 +45,21 @@ describe('Expressions - Spread property', () => {
         column: 8
     });
 
+    fail(`(([a, ...b = 0]) => {})`, {
+        source: '(([a, ...b = 0]) => {})',
+        line: 1,
+        index: 11,
+        column: 11
+    });
+
+    fail(`(({a, ...b = 0}) => {})`, {
+        source: '(({a, ...b = 0}) => {})',
+        message: 'Rest elements cannot have a default value',
+        line: 1,
+        index: 11,
+        column: 11
+    });
+
     fail(`let {...{a,b}} = foo`, {
         source: 'let {...{a,b}} = foo',
         message: '`...` must be followed by an identifier in declaration contexts',
