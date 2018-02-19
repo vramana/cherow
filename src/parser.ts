@@ -3026,7 +3026,7 @@ export class Parser {
                 node.type = 'RestElement';
                 this.reinterpret(context, node.argument);
                 if (node.argument.type === 'AssignmentPattern') {
-                    //this.tolerate(context, Errors.InvalidRestDefaultValue);
+                    this.tolerate(context, Errors.InvalidRestDefaultValue);
                 }
                 return;
 
