@@ -36,7 +36,7 @@ describe('Miscellaneous - Comments', () => {
       index: 0,
   });
 
-  fail(`MultiLineComment inside jsx opening tag`, {
+    fail(`MultiLineComment inside jsx opening tag`, {
     source: `</*`,
     message: 'Unterminated MultiLineComment',
     jsx: true,
@@ -45,7 +45,7 @@ describe('Miscellaneous - Comments', () => {
     index: 0,
 });
 
-fail(`single line comment inside jsx opening tag`, {
+    fail(`single line comment inside jsx opening tag`, {
   source: `<// single`,
   message: 'Unexpected token <',
   jsx: true,
@@ -54,7 +54,7 @@ fail(`single line comment inside jsx opening tag`, {
   index: 0,
 });
 
-  fail(`jsx + html comment`, {
+    fail(`jsx + html comment`, {
     source: `</`,
     message: 'Unexpected token <',
     line: 1,
@@ -62,7 +62,7 @@ fail(`single line comment inside jsx opening tag`, {
     index: 0,
 });
 
-  fail(`single and multi line comments used together`, {
+    fail(`single and multi line comments used together`, {
     source: `<*`,
     message: 'Unexpected token <',
     jsx: true,
@@ -187,6 +187,255 @@ fail(`single line comment inside jsx opening tag`, {
         line: 1,
         index: 13,
         column: 13,
+    });
+
+    pass(`(/* comment */{
+      /* comment 2 */
+      p1: null
+  })`, {
+  source: `(/* comment */{
+    /* comment 2 */
+    p1: null
+})`,
+  raw: true,
+  expected: {
+     body: [
+        {
+          expression: {
+            properties: [
+              {
+                computed: false,
+                key: {
+                  name: 'p1',
+                  type: 'Identifier'
+                },
+               kind: 'init',
+                method: false,
+                shorthand: false,
+                type: 'Property',
+                value: {
+                  raw: 'null',
+                  type: 'Literal',
+                  value: null,
+                },
+              }
+            ],
+            type: 'ObjectExpression'
+          },
+         type: 'ExpressionStatement'
+        }
+      ],
+      sourceType: 'script',
+      type: 'Program'
+    }
+});
+
+    pass('/* not comment*/; i-->0', {
+      source: '/* not comment*/; i-->0',
+      loc: true,
+      ranges: true,
+      expected: {
+          body: [
+            {
+              end: 17,
+              loc: {
+                end: {
+                  column: 17,
+                  line: 1,
+                },
+                start: {
+                  column: 16,
+                  line: 1,
+                }
+              },
+              start: 16,
+              type: 'EmptyStatement'
+            },
+            {
+              end: 23,
+              expression: {
+                end: 23,
+                left: {
+                  argument: {
+                    end: 19,
+                    loc: {
+                      end: {
+                        column: 19,
+                        line: 1,
+                      },
+                      start: {
+                        column: 18,
+                        line: 1,
+                      }
+                    },
+                    name: 'i',
+                    start: 18,
+                    type: 'Identifier'
+                 },
+                  end: 21,
+                  loc: {
+                    end: {
+                      column: 21,
+                      line: 1,
+                    },
+                    start: {
+                      column: 18,
+                      line: 1,
+                    }
+                  },
+                  operator: '--',
+                  prefix: false,
+                  start: 18,
+                  type: 'UpdateExpression'
+                },
+                loc: {
+                  end: {
+                   column: 23,
+                    line: 1,
+                  },
+                  start: {
+                    column: 18,
+                    line: 1,
+                  }
+                },
+                operator: '>',
+                right: {
+                  end: 23,
+                  loc: {
+                   end: {
+                      column: 23,
+                      line: 1,
+                    },
+                    start: {
+                      column: 22,
+                      line: 1,
+                    },
+                  },
+                  start: 22,
+                  type: 'Literal',
+                 value: 0,
+                },
+                start: 18,
+                type: 'BinaryExpression'
+              },
+              loc: {
+                end: {
+                  column: 23,
+                  line: 1,
+                },
+                start: {
+                  column: 18,
+                  line: 1,
+                }
+              },
+              start: 18,
+              type: 'ExpressionStatement'
+            }
+          ],
+          end: 23,
+         loc: {
+            end: {
+              column: 23,
+              line: 1,
+            },
+            start: {
+              column: 0,
+              line: 1,
+            }
+          },
+          sourceType: 'script',
+          start: 0,
+          type: 'Program'
+        }
+    });
+
+    pass('var x = 1<!--foo', {
+      source: 'var x = 1<!--foo',
+      loc: true,
+      ranges: true,
+      expected: {
+          body: [
+            {
+              declarations: [
+                {
+                  end: 9,
+                 id: {
+                    end: 5,
+                    loc: {
+                      end: {
+                        column: 5,
+                        line: 1,
+                      },
+                      start: {
+                       column: 4,
+                      line: 1,
+                      }
+                   },
+                    name: 'x',
+                    start: 4,
+                    type: 'Identifier',
+                 },
+                  init: {
+                    end: 9,
+                   loc: {
+                      end: {
+                        column: 9,
+                        line: 1,
+                     },
+                     start: {
+                        column: 8,
+                      line: 1,
+                      }
+                    },
+                    start: 8,
+                    type: 'Literal',
+                    value: 1,
+                  },
+                  loc: {
+                    end: {
+                      column: 9,
+                      line: 1
+                    },
+                    start: {
+                      column: 4,
+                      line: 1,
+                    }
+                  },
+                  start: 4,
+                  type: 'VariableDeclarator'
+                }
+              ],
+              end: 9,
+              kind: 'var',
+              loc: {
+                end: {
+                  column: 9,
+                  line: 1,
+                },
+                start: {
+                 column: 0,
+                  line: 1,
+                }
+              },
+              start: 0,
+              type: 'VariableDeclaration'
+            }
+          ],
+          end: 16,
+          loc: {
+            end: {
+              column: 16,
+              line: 1,
+            },
+           start: {
+              column: 0,
+              line: 1,
+            }
+          },
+          sourceType: 'script',
+          start: 0,
+          type: 'Program',
+        }
     });
 
     pass(' \t /* block comment */  --> comment', {
@@ -849,6 +1098,63 @@ fail(`single line comment inside jsx opening tag`, {
         start: 0,
         type: 'Program'
       }
+});
+
+    pass(`function x(){ /*Jupiter*/ return; /*Saturn*/}`, {
+  source: `function x(){ /*Jupiter*/ return; /*Saturn*/}`,
+  ranges: true,
+  comments: true,
+  raw: true,
+  expected: {
+      body: [
+        {
+          async: false,
+          body: {
+            body: [
+              {
+                argument: null,
+                end: 33,
+                start: 26,
+                type: 'ReturnStatement'
+              }
+            ],
+           end: 45,
+            start: 12,
+            type: 'BlockStatement',
+          },
+          end: 45,
+          expression: false,
+          generator: false,
+          id: {
+            end: 10,
+            name: 'x',
+            start: 9,
+            type: 'Identifier'
+          },
+          params: [],
+          start: 0,
+          type: 'FunctionDeclaration'
+        },
+      ],
+      comments: [
+        {
+          end: 25,
+          start: 14,
+          type: 'MultiLine',
+          value: 'Jupiter',
+        },
+        {
+          end: 44,
+          start: 34,
+          type: 'MultiLine',
+          value: 'Saturn',
+        },
+     ],
+      end: 45,
+      sourceType: 'script',
+      start: 0,
+      type: 'Program'
+    }
 });
 
     pass(`/* block comment */--> comment`, {

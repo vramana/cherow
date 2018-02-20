@@ -269,6 +269,62 @@ describe('Miscellaneous - Whitespace', () => {
             }
     });
 
+  pass(`var source = '{0\x0A1\x0D2\u20283\u20294}';`, {
+      source: `{0\x0A1\x0D2\u20283\u20294}`,
+      raw: true,
+      expected: {
+          body: [
+            {
+              body: [
+                {
+                 expression: {
+                    raw: '0',
+                    type: 'Literal',
+                    value: 0
+                  },
+                  type: 'ExpressionStatement'
+                },
+                {
+                  expression: {
+                    raw: '1',
+                    type: 'Literal',
+                    value: 1
+                  },
+                  type: 'ExpressionStatement',
+                },
+                {
+                  expression: {
+                   raw: '2',
+                    type: 'Literal',
+                    value: 2,
+                  },
+                  type: 'ExpressionStatement',
+                },
+                {
+                  expression: {
+                    raw: '3',
+                    type: 'Literal',
+                    value: 3,
+                  },
+                  type: 'ExpressionStatement',
+                },
+                {
+                  expression: {
+                    raw: '4',
+                    type: 'Literal',
+                    value: 4,
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              type: 'BlockStatement'
+            }
+          ],
+          sourceType: 'script',
+          type: 'Program',
+        }
+    });
+
   pass(`line separators`, {
         source: '\u2028\u2028\u2028\u2028\u2028\u2028\u2028\u2028',
         loc: true,

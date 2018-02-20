@@ -3122,7 +3122,9 @@ export class Parser {
             if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
                 this.tolerate(context, Errors.StrictLHSAssignment);
                 // Note: A functions parameter list is already parsed as pattern, so no need to reinterpret
-            } else if (!(context & Context.InParameter) && this.token === Token.Assign) {
+            }
+
+            if (!(context & Context.InParameter) && this.token === Token.Assign) {
                 // Note: We don't know in cases like '((a = 0) => { "use strict"; })' if this is
                 // an "normal" parenthese or an arrow function param list, so we set the "SimpleParameterList" flag
                 // now. There is no danger in this because this will not throw unless we are parsing out an
@@ -3166,6 +3168,9 @@ export class Parser {
     // https://tc39.github.io/ecma262/#sec-conditional-operator
 
     private parseConditionalExpression(context: Context, pos: Location) {
+        // ConditionalExpression ::
+        // LogicalOrExpression
+        // LogicalOrExpression '?' AssignmentExpression ':' AssignmentExpression
         const expr = this.parseBinaryExpression(context, 0, pos);
         if (!this.parseOptional(context, Token.QuestionMark)) return expr;
         const consequent = this.parseAssignmentExpression(context | Context.AllowIn);
@@ -3238,6 +3243,18 @@ export class Parser {
     }
 
     private parseUnaryExpression(context: Context): ESTree.UnaryExpression | ESTree.Expression {
+        // UnaryExpression ::
+        //   PostfixExpression
+        //   'delete' UnaryExpression
+        //   'void' UnaryExpression
+        //   'typeof' UnaryExpression
+        //   '++' UnaryExpression
+        //   '--' UnaryExpression
+        //   '+' UnaryExpression
+        //   '-' UnaryExpression
+        //   '~' UnaryExpression
+        //   '!' UnaryExpression
+        //   [+Await] AwaitExpression[?Yield]
         const pos = this.getLocation();
         let t = this.token;
 
@@ -4192,30 +4209,29 @@ export class Parser {
 
         this.expect(context, Token.ClassKeyword);
 
-        let id: ESTree.Identifier | null = null;
-        let superClass: ESTree.Expression | null = null;
         let state = ObjectState.None;
 
         const t = this.token;
 
-        if (this.token & (Token.IsIdentifier | Token.IsKeyword)) {
-            id = this.parseBindingIdentifier(context);
-        } else if (!(context & Context.Expression) && !(context & Context.OptionalIdentifier)) {
+        const id = this.token & (Token.IsIdentifier | Token.IsKeyword) ?
+            this.parseBindingIdentifier(context) :
+            null;
+
+        if (!id && !(context & Context.Expression) && !(context & Context.OptionalIdentifier)) {
             this.tolerate(context, Errors.UnexpectedToken, tokenDesc(t));
         }
 
-        if (this.parseOptional(context, Token.ExtendsKeyword)) {
-            superClass = this.parseLeftHandSideExpression(context | Context.Strict, pos);
-            state |= ObjectState.Heritage;
-        }
+        const superClass = this.parseOptional(context, Token.ExtendsKeyword) ?
+            this.parseLeftHandSideExpression(context | Context.Strict, pos) :
+            null;
 
-        const body = this.parseClassElementList(context | Context.Strict | Context.ValidateEscape, state);
+        if (superClass) state |= ObjectState.Heritage;
 
         return this.finishNode(context, pos, {
             type: context & Context.Expression ? 'ClassExpression' : 'ClassDeclaration',
             id,
             superClass,
-            body
+            body: this.parseClassElementList(context | Context.Strict | Context.ValidateEscape, state)
         });
     }
 
@@ -4262,24 +4278,26 @@ export class Parser {
 
         key = this.parsePropertyName(context, state);
 
-        if (t === Token.StaticKeyword && this.token !== Token.LeftParen) {
+        if (t === Token.StaticKeyword) {
+            if (this.token !== Token.LeftParen) {
+                state |= ObjectState.Static;
 
-            state |= ObjectState.Static;
+                t = this.token;
 
-            t = this.token;
+                if (this.parseOptional(context, Token.Multiply)) state |= ObjectState.Generator;
 
-            if (this.parseOptional(context, Token.Multiply)) state |= ObjectState.Generator;
+                if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
 
-            if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
+                if (this.tokenValue === 'prototype') this.tolerate(context, Errors.StaticPrototype);
 
-            if (this.tokenValue === 'prototype') this.tolerate(context, Errors.StaticPrototype);
-
-            key = this.parsePropertyName(context, state);
+                key = this.parsePropertyName(context, state);
+            }
         }
 
-        if (!(this.token & Token.IsShorthand)) {
+        if (!(this.token & Token.IsShorthand) && !(state & ObjectState.Computed)) {
 
-            if (t & Token.IsAsync && !(state & ObjectState.Computed) && !(state & ObjectState.Generator)) {
+
+            if (t & Token.IsAsync && !(state & ObjectState.Generator)) {
 
                 // No linebreak after async
                 if (this.flags & Flags.LineTerminator) this.tolerate(context, Errors.LineBreakAfterAsync);
@@ -4293,19 +4311,16 @@ export class Parser {
                 key = this.parsePropertyName(context, state);
             }
 
-            if (!(state & ObjectState.Computed)) {
+            if (!(state & (ObjectState.Async | ObjectState.Generator)) && (t === Token.GetKeyword || t === Token.SetKeyword)) {
 
-                if (!(state & (ObjectState.Async | ObjectState.Generator)) && (t === Token.GetKeyword || t === Token.SetKeyword)) {
+                state |= t === Token.GetKeyword ? ObjectState.Get : ObjectState.Set;
 
-                    state |= t === Token.GetKeyword ? ObjectState.Get : ObjectState.Set;
+                if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
 
-                    if (this.token === Token.LeftBracket) state |= ObjectState.Computed;
+                this.errorLocation = this.getLocation();
+                key = this.parsePropertyName(context, state);
 
-                    this.errorLocation = this.getLocation();
-                    key = this.parsePropertyName(context, state);
-
-                    if (this.tokenValue === 'prototype') this.tolerate(context, Errors.StaticPrototype);
-                }
+                if (this.tokenValue === 'prototype') this.tolerate(context, Errors.StaticPrototype);
             }
         }
 
@@ -4314,7 +4329,13 @@ export class Parser {
         }
 
         if (this.token === Token.LeftParen) {
-
+            // MethodDefinition
+            //    PropertyName '(' StrictFormalParameters ')' '{' FunctionBody '}'
+            //    '*' PropertyName '(' StrictFormalParameters ')' '{' FunctionBody '}'
+            //    async PropertyName '(' StrictFormalParameters ')'
+            //        '{' FunctionBody '}'
+            //    async '*' PropertyName '(' StrictFormalParameters ')'
+            //        '{' FunctionBody '}'
             return this.parseFieldOrMethodDeclaration(context, state, key, pos);
         }
 

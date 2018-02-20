@@ -38,6 +38,142 @@ describe('Miscellaneous - Directives', () => {
             }
     });
 
+    pass(`"use strict"; + 1`, {
+        source: `"use strict"; + 1`,
+        expected: {
+              body: [
+                {
+                  directive: 'use strict',
+                  expression: {
+                    type: 'Literal',
+                    value: 'use strict',
+                  },
+                  type: 'ExpressionStatement'
+               },
+                {
+                  expression: {
+                    argument: {
+                      type: 'Literal',
+                      value: 1
+                    },
+                    operator: '+',
+                    prefix: true,
+                    type: 'UnaryExpression'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
+    pass(`function wrap() { "use strict"\n foo }`, {
+        source: `function wrap() { "use strict"\n foo }`,
+        expected: {
+              body: [
+                {
+                  async: false,
+                  body: {
+                    body: [
+                      {
+                        directive: 'use strict',
+                        expression: {
+                          type: 'Literal',
+                          value: 'use strict',
+                        },
+                        type: 'ExpressionStatement'
+                      },
+                      {
+                        expression: {
+                          name: 'foo',
+                          type: 'Identifier',
+                        },
+                        type: 'ExpressionStatement'
+                      },
+                    ],
+                    type: 'BlockStatement'
+                  },
+                  expression: false,
+                  generator: false,
+                  id: {
+                    name: 'wrap',
+                    type: 'Identifier',
+                 },
+                  params: [],
+                  type: 'FunctionDeclaration',
+                },
+              ],
+              sourceType: 'script',
+              type: 'Program',
+            }
+    });
+
+    pass(`"\\u0075se strict"`, {
+        source: `"\\u0075se strict"`,
+        raw: true,
+        expected: {
+              body: [
+                {
+                 directive: '\\u0075se strict',
+                  expression: {
+                    raw: '"\\u0075se strict"',
+                    type: 'Literal',
+                    value: 'use strict'
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
+    pass('function wrap() { { "use strict" } foo }', {
+        source: 'function wrap() { { "use strict" } foo }',
+        expected: {
+              body: [
+                {
+                  async: false,
+                  body: {
+                    body: [
+                      {
+                        body: [
+                          {
+                            expression: {
+                              type: 'Literal',
+                              value: 'use strict',
+                            },
+                            type: 'ExpressionStatement'
+                          }
+                       ],
+                        type: 'BlockStatement'
+                      },
+                      {
+                        expression: {
+                          name: 'foo',
+                          type: 'Identifier',
+                        },
+                       type: 'ExpressionStatement'
+                      },
+                   ],
+                    type: 'BlockStatement'
+                  },
+                  expression: false,
+                  generator: false,
+                  id: {
+                    name: 'wrap',
+                    type: 'Identifier'
+                  },
+                  params: [],
+                  type: 'FunctionDeclaration'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
     pass('"Hello\\0World"', {
         source: '"Hello\\0World"',
         expected: {
@@ -1043,282 +1179,365 @@ describe('Miscellaneous - Directives', () => {
         });
     fail('invalid paragraph separators after Unicode \\ua', {
             source: '"random\\ua\u2029newline"',
-            module: true
+            module: true,
+            line: 1
         });
     fail('invalid carriage returns after Unicode \\ua', {
-            source: '"random\\ua\rnewline"'
+            source: '"random\\ua\rnewline"',
+            line: 1
         });
     fail('invalid newlines after Unicode \\u00', {
-            source: '"random\\u00\nnewline"'
+            source: '"random\\u00\nnewline"',
+            line: 1
         });
     fail('invalid newlines after Unicode \\u0a', {
-            source: '"random\\u0a\nnewline"'
+            source: '"random\\u0a\nnewline"',
+            line: 1
         });
     fail('invalid newlines after Unicode \\u000', {
-            source: '"random\\u000\nnewline"'
+            source: '"random\\u000\nnewline"',
+            line: 1
         });
     fail('invalid newlines after Unicode \\u00a', {
-            source: '"random\\u00a\nnewline"'
+            source: '"random\\u00a\nnewline"',
+            line: 1
         });
     fail('invalid newlines after Unicode \\u{', {
-            source: '"rrandom\\u{\nnewline"'
+            source: '"rrandom\\u{\nnewline"',
+            line: 1
         });
     fail('invalid newlines after Unicode \\u{0', {
-            source: '"random\\u{0\nnewline"'
+            source: '"random\\u{0\nnewline"',
+            line: 1
         });
     fail('invalid newlines after Unicode \\u{a', {
-            source: '"random\\u{a\nnewline"'
+            source: '"random\\u{a\nnewline"',
+            line: 1
         });
     fail('invalid carriage returns after Unicode \\u{a', {
-            source: '"random\\u{a\rnewline"'
+            source: '"random\\u{a\rnewline"',
+            line: 1
         });
     fail('catches invalid space after ASCII \\x', {
-            source: '\'random\\x foo\''
+            source: '\'random\\x foo\'',
+            line: 1
         });
     fail('catches invalid space after ASCII \\x0', {
-            source: '\'random\\x0 foo\''
+            source: '\'random\\x0 foo\'',
+            line: 1
         });
     fail('catches invalid space after Unicode \\u', {
-            source: '\'random\\u foo\''
+            source: '\'random\\u foo\'',
+            line: 1
         });
     fail('catches invalid space after Unicode \\u0', {
             source: '\'random\\u0 foo\'',
-            directives: true
+            line: 1
+
         });
     fail('catches invalid space after Unicode \\ua', {
             source: '\'random\\ua foo\'',
-            directives: true
+            line: 1
         });
     fail('catches invalid space after Unicode \\u00', {
-            source: '\'random\\u00 foo\''
+            source: '\'random\\u00 foo\'',
+            line: 1
         });
     fail('catches invalid space after Unicode \\u0a', {
-            source: '\'random\\u0a foo\''
+            source: '\'random\\u0a foo\'',
+            line: 1
         });
     fail('catches invalid space after Unicode \\u000', {
             source: '\'random\\u000 foo\'',
-            directives: true
+            line: 1
+
         });
     fail('catches invalid space after Unicode \\u00a', {
             source: '\'random\\u00a foo\'',
-            directives: true
+            line: 1
+
         });
     fail('catches invalid space after Unicode \\u{', {
-            source: '\'random\\u{ foo\''
+            source: '\'random\\u{ foo\'',
+            line: 1
         });
     fail('catches invalid space after Unicode \\u{0', {
-            source: '\'random\\u{0 foo\''
+            source: '\'random\\u{0 foo\'',
+            line: 1
         });
     fail('catches invalid space after Unicode \\u{a', {
-            source: '\'random\\u{a foo\''
+            source: '\'random\\u{a foo\'',
+            line: 1
         });
     fail('catches invalid \\ after ASCII \\x', {
-            source: '\'random\\x\\ foo\''
+            source: '\'random\\x\\ foo\'',
+            line: 1
         });
     fail('catches invalid \\ after ASCII \\x0', {
-            source: '\'random\\x0\\ foo\''
+            source: '\'random\\x0\\ foo\'',
+            line: 1
         });
     fail('catches invalid \\ after Unicode \\u', {
-            source: '\'random\\u\\ foo\''
+            source: '\'random\\u\\ foo\'',
+            line: 1
         });
     fail('catches invalid \\ after Unicode \\u0', {
-            source: '\'random\\u0\\ foo\''
+            source: '\'random\\u0\\ foo\'',
+            line: 1
         });
     fail('catches invalid \\ after Unicode \\ua', {
-            source: '\'random\\ua\\ foo\''
+            source: '\'random\\ua\\ foo\'',
+            line: 1
         });
     fail('catches invalid \\ after Unicode \\u00', {
-            source: '\'random\\u00\\ foo\''
+            source: '\'random\\u00\\ foo\'',
+            line: 1
         });
     fail('catches invalid \\ after Unicode \\u0a', {
-            source: '\'random\\u0a\\ foo\''
+            source: '\'random\\u0a\\ foo\'',
+            line: 1
         });
     fail('catches invalid \\ after Unicode \\u000', {
-            source: '\'random\\u000\\ foo\''
+            source: '\'random\\u000\\ foo\'',
+            line: 1
         });
     fail('catches invalid \\ after Unicode \\u00a', {
-            source: '\'random\\u00a\\ foo\''
+            source: '\'random\\u00a\\ foo\'',
+            line: 1
         });
     fail('catches invalid \\ after Unicode \\u{', {
-            source: '\'random\\u{\\ foo\''
+            source: '\'random\\u{\\ foo\'',
+            line: 1
         });
     fail('catches invalid \\ after Unicode \\u{0', {
-            source: '\'random\\u{0\\ foo\''
+            source: '\'random\\u{0\\ foo\'',
+            line: 1
         });
     fail('catches invalid \\ after Unicode \\u{a', {
-            source: '\'random\\u{a\\ foo\''
+            source: '\'random\\u{a\\ foo\'',
+            line: 1
         });
     fail('catches invalid x after ASCII \\x', {
-            source: '\'random\\xx foo\''
+            source: '\'random\\xx foo\'',
+            line: 1
         });
     fail('catches invalid x after ASCII \\x0', {
-            source: '\'random\\x0x foo\''
+            source: '\'random\\x0x foo\'',
+            line: 1
         });
     fail('catches invalid x after Unicode \\u', {
             source: '\'random\\ux foo\'',
-            directives: true
+            line: 1
+
         });
     fail('catches invalid x after Unicode \\u0', {
-            source: '\'random\\u0x foo\''
+            source: '\'random\\u0x foo\'',
+            line: 1
         });
     fail('catches invalid x after Unicode \\ua', {
-            source: '\'random\\uax foo\''
+            source: '\'random\\uax foo\'',
+            line: 1
         });
     fail('catches invalid x after Unicode \\u00', {
-            source: '\'random\\u00x foo\''
+            source: '\'random\\u00x foo\'',
+            line: 1
         });
     fail('catches invalid x after Unicode \\u0a', {
-            source: '\'random\\u0ax foo\''
+            source: '\'random\\u0ax foo\'',
+            line: 1
         });
     fail('catches invalid x after Unicode \\u000', {
             source: '\'random\\u000x foo\'',
-            directives: true
+            line: 1
+
         });
     fail('catches invalid x after Unicode \\u00a', {
             source: '\'random\\u00ax foo\'',
-            directives: true
+            line: 1
+
         });
     fail('catches invalid x after Unicode \\u{', {
-            source: '\'random\\u{x foo\''
+            source: '\'random\\u{x foo\'',
+            line: 1
         });
     fail('catches invalid x after Unicode \\u{0', {
-            source: '\'random\\u{0x foo\''
+            source: '\'random\\u{0x foo\'',
+            line: 1
         });
     fail('catches invalid x after Unicode \\u{a', {
-            source: '\'random\\u{ax foo\''
+            source: '\'random\\u{ax foo\'',
+            line: 1
         });
     fail('catches invalid X after ASCII \\x', {
-            source: '\'random\\xX foo\''
+            source: '\'random\\xX foo\'',
+            line: 1
         });
     fail('catches invalid X after ASCII \\x0', {
-            source: '\'random\\x0X foo\''
+            source: '\'random\\x0X foo\'',
+            line: 1
         });
     fail('catches invalid X after Unicode \\u', {
-            source: '\'random\\uX foo\''
+            source: '\'random\\uX foo\'',
+            line: 1
         });
     fail('catches invalid X after Unicode \\u0', {
-            source: '\'random\\u0X foo\''
+            source: '\'random\\u0X foo\'',
+            line: 1
         });
     fail('catches invalid X after Unicode \\ua', {
-            source: '\'random\\uaX foo\''
+            source: '\'random\\uaX foo\'',
+            line: 1
         });
     fail('catches invalid X after Unicode \\u00', {
             source: '\'random\\u00X foo\'',
-            directives: true
+            line: 1
+
         });
     fail('catches invalid X after Unicode \\u0a', {
             source: '\'random\\u0aX foo\'',
-            directives: true
+            line: 1
         });
     fail('catches invalid X after Unicode \\u000', {
             source: '\'random\\u000X foo\'',
-            directives: true
+            line: 1
+
         });
     fail('catches invalid X after Unicode \\u00a', {
-            source: '\'random\\u00aX foo\''
+            source: '\'random\\u00aX foo\'',
+            line: 1
         });
     fail('catches invalid X after Unicode \\u{', {
-            source: '\'random\\u{X foo\''
+            source: '\'random\\u{X foo\'',
+            line: 1
         });
     fail('catches invalid X after Unicode \\u{0', {
-            source: '\'random\\u{0X foo\''
+            source: '\'random\\u{0X foo\'',
+            line: 1
         });
     fail('catches invalid X after Unicode \\u{a', {
-            source: '\'random\\u{aX foo\''
+            source: '\'random\\u{aX foo\'',
+            line: 1
         });
     fail('catches invalid u after ASCII \\x', {
-            source: '\'random\\xu foo\''
+            source: '\'random\\xu foo\'',
+            line: 1
         });
     fail('catches invalid u after ASCII \\x0', {
-            source: '\'random\\x0u foo\''
+            source: '\'random\\x0u foo\'',
+            line: 1
         });
     fail('catches invalid u after Unicode \\u', {
-            source: '\'random\\uu foo\''
+            source: '\'random\\uu foo\'',
+            line: 1
         });
     fail('catches invalid u after Unicode \\u0', {
             source: '\'random\\u0u foo\'',
-            directives: true
+            line: 1
+
         });
     fail('catches invalid u after Unicode \\ua', {
             source: '\'random\\uau foo\'',
-            directives: true
+            line: 1
         });
     fail('catches invalid u after Unicode \\u00', {
-            source: '\'random\\u00u foo\''
+            source: '\'random\\u00u foo\'',
+            line: 1
         });
     fail('catches invalid u after Unicode \\u0a', {
             source: '\'random\\u0au foo\'',
-            directives: true
+            line: 1
+
         });
     fail('catches invalid u after Unicode \\u000', {
             source: '\'random\\u000u foo\''
         });
     fail('catches invalid u after Unicode \\u00a', {
-            source: '\'random\\u00au foo\''
+            source: '\'random\\u00au foo\'',
+            line: 1
         });
     fail('catches invalid u after Unicode \\u{', {
             source: '\'random\\u{u foo\'',
-            directives: true
+            line: 1
+
         });
     fail('catches invalid u after Unicode \\u{0', {
-            source: '\'random\\u{0u foo\''
+            source: '\'random\\u{0u foo\'',
+            line: 1
         });
     fail('catches invalid u after Unicode \\u{a', {
-            source: '\'random\\u{au foo\''
+            source: '\'random\\u{au foo\'',
+            line: 1
         });
     fail('catches invalid U after ASCII \\x', {
-            source: '\'random\\xU foo\''
+            source: '\'random\\xU foo\'',
+            line: 1
         });
     fail('catches invalid U after ASCII \\x0', {
-            source: '\'random\\x0U foo\''
+            source: '\'random\\x0U foo\'',
+            line: 1
         });
     fail('catches invalid U after Unicode \\u', {
-            source: '\'random\\uU foo\''
+            source: '\'random\\uU foo\'',
+            line: 1
         });
     fail('catches invalid U after Unicode \\u0', {
-            source: '\'random\\u0U foo\''
+            source: '\'random\\u0U foo\'',
+            line: 1
         });
     fail('catches invalid U after Unicode \\ua', {
-            source: '\'random\\uaU foo\''
+            source: '\'random\\uaU foo\'',
+            line: 1
         });
     fail('catches invalid U after Unicode \\u00', {
-            source: '\'random\\u00U foo\''
+            source: '\'random\\u00U foo\'',
+            line: 1
         });
     fail('catches invalid U after Unicode \\u0a', {
-            source: '\'random\\u0aU foo\''
+            source: '\'random\\u0aU foo\'',
+            line: 1
         });
     fail('catches invalid U after Unicode \\u000', {
-            source: '\'random\\u000U foo\''
+            source: '\'random\\u000U foo\'',
+            line: 1
         });
     fail('catches invalid U after Unicode \\u00a', {
-            source: '\'random\\u00aU foo\''
+            source: '\'random\\u00aU foo\'',
+            line: 1
         });
     fail('catches invalid U after Unicode \\u{', {
-            source: '\'random\\u{U foo\''
+            source: '\'random\\u{U foo\'',
+            line: 1
         });
     fail('catches invalid U after Unicode \\u{0', {
-            source: '\'random\\u{0U foo\''
+            source: '\'random\\u{0U foo\'',
+            line: 1
         });
     fail('catches invalid U after Unicode \\u{a', {
             source: '\'random\\u{aU foo\''
         });
     fail('catches invalid { after ASCII \\x', {
-            source: '\'random\\x{ foo\''
+            source: '\'random\\x{ foo\'',
+            line: 1
         });
     fail('catches invalid { after ASCII \\x0', {
-            source: '\'random\\x0{ foo\''
+            source: '\'random\\x0{ foo\'',
+            line: 1
         });
     fail('catches invalid { after Unicode \\u', {
-            source: '\'random\\u{ foo\''
+            source: '\'random\\u{ foo\'',
+            line: 1
         });
     fail('catches invalid { after Unicode \\u0', {
-            source: '\'random\\u0{ foo\''
+            source: '\'random\\u0{ foo\'',
+            line: 1
         });
     fail('catches invalid { after Unicode \\ua', {
-            source: '\'random\\ua{ foo\''
+            source: '\'random\\ua{ foo\'',
+            line: 1
         });
     fail('catches invalid { after Unicode \\u00', {
-            source: '\'random\\u00{ foo\''
+            source: '\'random\\u00{ foo\'',
+            line: 1
         });
     fail('catches invalid { after Unicode \\u0a', {
             source: '\'random\\u0a{ foo\''
@@ -1329,65 +1548,74 @@ describe('Miscellaneous - Directives', () => {
     fail('catches invalid { after Unicode \\u000', {
             source: '\'random\\u000{ foo\'',
             module: true,
-            directives: true
+            line: 1
+
         });
     fail('catches invalid { after Unicode \\u00a', {
             source: '\'random\\u00a{ foo\'',
-            directives: true
+            line: 1
+
         });
     fail('catches invalid { after Unicode \\u{', {
             source: '\'random\\u{{ foo\'',
-            directives: true
+            line: 1
+
         });
     fail('catches invalid { after Unicode \\u{0', {
             source: '\'random\\u{0{ foo\''
         });
     fail('catches invalid { after Unicode \\u{a', {
-            source: '\'random\\u{a{ foo\''
+            source: '\'random\\u{a{ foo\'',
+            line: 1
         });
     fail('catches invalid } after ASCII \\x', {
-            source: '\'random\\x} foo\''
+            source: '\'random\\x} foo\'',
+            line: 1
         });
     fail('catches invalid } after ASCII \\x0', {
-            source: '\'random\\x0} foo\''
+            source: '\'random\\x0} foo\'',
+            line: 1
         });
     fail('catches invalid } after Unicode \\u', {
-            source: '\'random\\u} foo\''
+            source: '\'random\\u} foo\'',
+            line: 1
         });
     fail('catches invalid } after Unicode \\u0', {
             source: '\'random\\u0} foo\'',
-            directives: true
+            line: 1
         });
     fail('catches invalid } after Unicode \\ua', {
             source: '\'random\\ua} foo\'',
-            directives: true
+            line: 1
         });
     fail('catches invalid } after Unicode \\u00', {
             source: '\'random\\u00} foo\'',
-            directives: true
+            line: 1
         });
     fail('catches invalid } after Unicode \\u0a', {
             source: '\'random\\u0a} foo\'',
-            directives: true
+            line: 1
         });
     fail('catches invalid } after Unicode \\u000', {
             source: '\'random\\u000} foo\'',
-            directives: true
+            line: 1
         });
     fail('catches invalid } after Unicode \\u00a', {
             source: '\'random\\u00a} foo\'',
-            directives: true
+            line: 1
         });
     fail('catches invalid } after Unicode \\u00a', {
             source: '\'random\\u00a} foo\'',
-            module: true
+            module: true,
+            line: 1
         });
     fail('catches invalid } after Unicode \\u{', {
             source: '\'random\\u{} foo\'',
-            directives: true
+            line: 1
         });
     fail('catches invalid } after Unicode \\u{', {
             source: '\'random\\u{} foo\'',
-            module: true
+            module: true,
+            line: 1
         });
     });
