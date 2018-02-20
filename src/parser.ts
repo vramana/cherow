@@ -384,7 +384,6 @@ export class Parser {
                                         if (!(context & Context.OptionsJSX)) break;
                                         const index = this.index + 1;
 
-                                        // Check that it's not a comment start.
                                         if (index < this.source.length) {
                                             const next = this.source.charCodeAt(index);
                                             if (next === Chars.Asterisk || next === Chars.Slash) break;

@@ -36,6 +36,32 @@ describe('Miscellaneous - Comments', () => {
       index: 0,
   });
 
+  fail(`MultiLineComment inside jsx opening tag`, {
+    source: `</*`,
+    message: 'Unterminated MultiLineComment',
+    jsx: true,
+    line: 1,
+    column: 0,
+    index: 0,
+});
+
+fail(`single line comment inside jsx opening tag`, {
+  source: `<// single`,
+  message: 'Unexpected token <',
+  jsx: true,
+  line: 1,
+  column: 0,
+  index: 0,
+});
+
+  fail(`jsx + html comment`, {
+    source: `</`,
+    message: 'Unexpected token <',
+    line: 1,
+    column: 0,
+    index: 0,
+});
+
   fail(`single and multi line comments used together`, {
     source: `<*`,
     message: 'Unexpected token <',
