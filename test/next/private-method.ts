@@ -40,19 +40,19 @@ describe('Next - Private Methods', () => {
   fail('class A { #[ab]() {} }', {
     source: 'class A { #[ab]() {} }',
     next: true,
-    index: 14
+    index: 9
   });
 
   fail('a = { #ab() {} }', {
     source: 'a = { #ab() {} }',
     next: true,
-    index: 7
+    index: 5
   });
 
   fail('class A { [{#ab() {}}]() {} }', {
     source: 'class A { [{#ab() {}}]() {} }',
     next: true,
-    index: 13
+    index: 12
   });
 
   pass('class A { foo; #y() {} }', {

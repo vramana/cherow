@@ -28,13 +28,12 @@ export const enum Context {
     Const                   = 1 << 21,  // Variable declaration
     Statement               = 1 << 22,  // Used when parsing an MethodDeclaration
     Method                  = 1 << 23,  // Used when parsing an async function
-    ProhibitWhitespace      = 1 << 24, // Scanner related.
-    ForStatement            = 1 << 25,
-    InParenthesis           = 1 << 26,
-    InClass                 = 1 << 27,
-    OptionalIdentifier      = 1 << 28,
-    DisallowArrow           = 1 << 29,
-    InTypeAnnotation        = 1 << 30, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
+    ForStatement            = 1 << 24,
+    InParenthesis           = 1 << 25,
+    InClass                 = 1 << 26,
+    OptionalIdentifier      = 1 << 27,
+    DisallowArrow           = 1 << 28,
+    InTypeAnnotation        = 1 << 29, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
     BlockScoped  = Let | Const
 }
 
@@ -56,11 +55,9 @@ export const enum Flags {
     StrictDirective         = 1 << 11, // If node was parsed in a strict directive context
     HasAwait                = 1 << 12,
     HasYield                = 1 << 13,
-    WhiteSpace              = 1 << 14,
-    ReservedWords           = 1 << 15,
-    HasCommaSeparator       = 1 << 16,
-    CoverInitializedName     = 1 << 17,
-
+    ReservedWords           = 1 << 14,
+    HasCommaSeparator       = 1 << 15,
+    CoverInitializedName    = 1 << 16,
 }
 
 /** Shared between class and objects */

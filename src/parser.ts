@@ -316,10 +316,6 @@ export class Parser {
                 case Chars.ZeroWidthJoiner:
                 case Chars.ZeroWidthNonJoiner:
 
-                    if (context & Context.ProhibitWhitespace) {
-                        this.flags |= Flags.WhiteSpaceBeforeNext;
-                    }
-
                     state |= ScanState.SameLine;
                     this.advance();
                     continue;
@@ -512,7 +508,7 @@ export class Parser {
                             this.skipSingleLineComment(context, state);
                             continue;
                         }
-                        return Token.Hash;
+                        return this.scanPrivateName(context, first);
                     }
 
                     // `.`, `...`, `.123` (numeric literal)
@@ -524,11 +520,13 @@ export class Parser {
 
                         if (next === Chars.Period) {
                             index++;
-                            if (index < this.source.length &&
-                                this.source.charCodeAt(index) === Chars.Period) {
+                            if (index < this.source.length) {
+                                const nextChar = this.source.charCodeAt(index);
+                                if (this.source.charCodeAt(index) === Chars.Period) {
                                 this.index = index + 1;
                                 this.column += 3;
                                 return Token.Ellipsis;
+                                }
                             }
                         }
 
@@ -863,6 +861,16 @@ export class Parser {
         }
 
         this.comments.push(comment);
+    }
+
+    private scanPrivateName(context: Context, ch: number): Token {
+
+        let index = this.index;
+        if (!(context & Context.InClass) || !isIdentifierStart(this.source.charCodeAt(index))) {
+            this.index--;
+            this.report(Errors.InvalidOrUnexpectedToken);
+        }
+        return Token.Hash;
     }
 
     private scanIdentifier(context: Context): Token {
@@ -1474,7 +1482,7 @@ export class Parser {
                     this.report(Errors.UnterminatedString);
                 case Chars.LineSeparator:
                 case Chars.ParagraphSeparator:
-                    if (context & Context.OptionsNext) break;
+                    if (context & Context.OptionsNext) this.advance();
                     this.report(Errors.UnterminatedString);
                 case Chars.Backslash:
                     ch = this.readNext(ch);
@@ -4171,13 +4179,13 @@ export class Parser {
     // https://tc39.github.io/ecma262/#prod-ClassExpression
 
     private parseClass(context: Context): ESTree.ClassExpression | ESTree.ClassDeclaration {
-
+        
         if (this.flags & Flags.ExtendedUnicodeEscape) this.tolerate(context, Errors.UnexpectedEscapedKeyword);
 
         const pos = this.getLocation();
 
         this.expect(context, Token.ClassKeyword);
-
+        
         let id: ESTree.Identifier | null = null;
         let superClass: ESTree.Expression | null = null;
         let state = ObjectState.None;
@@ -4189,12 +4197,12 @@ export class Parser {
         } else if (!(context & Context.Expression) && !(context & Context.OptionalIdentifier)) {
             this.tolerate(context, Errors.UnexpectedToken, tokenDesc(t));
         }
-
+        
         if (this.parseOptional(context, Token.ExtendsKeyword)) {
             superClass = this.parseLeftHandSideExpression(context | Context.Strict, pos);
             state |= ObjectState.Heritage;
         }
-
+        
         const body = this.parseClassElementList(context | Context.Strict | Context.ValidateEscape, state);
 
         return this.finishNode(context, pos, {
@@ -4207,16 +4215,17 @@ export class Parser {
 
     private parseClassElementList(context: Context, state: ObjectState): ESTree.ClassBody {
         const pos = this.getLocation();
-
-        this.expect(context | Context.ValidateEscape, Token.LeftBrace);
-
+        
+        this.expect(context | Context.ValidateEscape | Context.InClass, Token.LeftBrace);
+        
         const body: (ESTree.MethodDefinition | ESTree.FieldDefinition)[] = [];
 
-        if (context & Context.OptionsNext) context |= Context.InClass;
-
+        //if (context & Context.OptionsNext) 
+        context |= Context.InClass;
+        
         while (this.token !== Token.RightBrace) {
             if (!this.parseOptional(context, Token.Semicolon)) {
-                const node: any = this.parseClassElement(context, state);
+                const node: any = this.parseClassElement(context | Context.InClass, state);
                 body.push(node);
                 if (node.kind === 'constructor') state |= ObjectState.HasConstructor;
             }
@@ -4364,11 +4373,7 @@ export class Parser {
             this.tolerate(context, Errors.Unexpected);
         }
 
-        this.expect(context | Context.ProhibitWhitespace, Token.Hash);
-
-        if (this.flags & Flags.WhiteSpaceBeforeNext) {
-            this.tolerate(context, Errors.InvalidWhitespacePrivateName);
-        }
+        this.expect(context, Token.Hash);
 
         if (this.token === Token.ConstructorKeyword) {
             this.tolerate(context, Errors.Unexpected);

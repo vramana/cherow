@@ -346,7 +346,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 1,
         index: 1,
-        message: 'Unexpected token #',
+        message: 'Invalid or unexpected token',
     });
 
     fail('\n\n\n{', {
@@ -439,7 +439,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 0,
         index: 0,
-        message: 'Unexpected token',
+        message: 'Invalid or unexpected token',
     });
 
     fail('\\u{}', {
