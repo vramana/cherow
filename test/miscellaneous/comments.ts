@@ -19,17 +19,44 @@ describe('Miscellaneous - Comments', () => {
         index: 20,
     });
 
-    fail(`single and multi line comments used together`, {
+    fail(`html comment`, {
         source: `<!-`,
-        message:  'Unexpected token',
+        message: 'Unexpected token <',
         line: 1,
         column: 0,
         index: 0,
     });
 
+    fail(`html comment + jsx`, {
+      source: `</`,
+      message: 'Unexpected token',
+      jsx: true,
+      line: 1,
+      column: 0,
+      index: 0,
+  });
+
+  fail(`single and multi line comments used together`, {
+    source: `<*`,
+    message: 'Unexpected token <',
+    jsx: true,
+    line: 1,
+    column: 0,
+    index: 0,
+});
+
+    fail(`single and multi line comments used together`, {
+      source: `<!-`,
+      message: 'Unexpected token <',
+      jsx: true,
+      line: 1,
+      column: 0,
+      index: 0,
+  });
+
     fail(`single and multi line comments used together`, {
         source: `<!`,
-        message: 'Unexpected token',
+        message: 'Unexpected token <',
         line: 1,
         column: 0,
         index: 0,

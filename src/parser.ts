@@ -380,7 +380,16 @@ export class Parser {
                                     return Token.LessThanOrEqual;
 
                                 case Chars.Slash:
-                                    if (context & Context.OptionsJSX) {
+                                    {
+                                        if (!(context & Context.OptionsJSX)) break;
+                                        const index = this.index + 1;
+
+                                        // Check that it's not a comment start.
+                                        if (index < this.source.length) {
+                                            const next = this.source.charCodeAt(index);
+                                            if (next === Chars.Asterisk || next === Chars.Slash) break;
+                                        }
+
                                         this.advance();
                                         return Token.JSXClose;
                                     }
@@ -390,6 +399,7 @@ export class Parser {
                         }
 
                         return Token.LessThan;
+
                     }
 
                 case Chars.Hyphen:
@@ -523,9 +533,9 @@ export class Parser {
                             if (index < this.source.length) {
                                 const nextChar = this.source.charCodeAt(index);
                                 if (this.source.charCodeAt(index) === Chars.Period) {
-                                this.index = index + 1;
-                                this.column += 3;
-                                return Token.Ellipsis;
+                                    this.index = index + 1;
+                                    this.column += 3;
+                                    return Token.Ellipsis;
                                 }
                             }
                         }
@@ -1392,7 +1402,7 @@ export class Parser {
         const flagsStart = this.index;
 
         let mask = RegexFlags.None;
-        
+
         // Scan regular expression flags
         loop:
             while (this.hasNext()) {
@@ -1895,7 +1905,7 @@ export class Parser {
             }
             return true;
         }
-            this.report(Errors.UnexpectedToken, tokenDesc(this.token));
+        this.report(Errors.UnexpectedToken, tokenDesc(this.token));
     }
 
     private expect(context: Context, t: Token): void {
@@ -3399,10 +3409,10 @@ export class Parser {
     }
 
     private parseLeftHandSideExpression(context: Context, pos: Location): ESTree.Expression {
-            const expr = this.token === Token.SuperKeyword  
-            ? this.parseSuperProperty(context) 
-            : this.parseMemberExpression(context | Context.AllowIn, pos);
-         
+        const expr = this.token === Token.SuperKeyword ?
+            this.parseSuperProperty(context) :
+            this.parseMemberExpression(context | Context.AllowIn, pos);
+
         return expr.type === 'ArrowFunctionExpression' && this.token !== Token.LeftParen ?
             expr :
             this.parseCallExpression(context | Context.AllowIn, pos, expr);
@@ -3673,21 +3683,21 @@ export class Parser {
                     if (context & Context.Strict) {
                         this.tolerate(context, Errors.InvalidStrictExpPostion, 'let');
                     }
-                    const letIdentifier = this.parseIdentifier(context);
+                    const id = this.parseIdentifier(context);
 
-                    // Note: ExpressionStatement has a lookahead restriction for `let [`.
+                    // ExpressionStatement has a lookahead restriction for `let [`.
                     if (this.token === Token.LeftBracket &&
                         this.flags & Flags.LineTerminator) {
                         this.tolerate(context, Errors.UnexpectedToken, 'let');
                     }
 
-                    return letIdentifier;
+                    return id;
                 }
 
             case Token.Hash:
                 return this.parsePrivateName(context);
             case Token.LessThan:
-                if (context & Context.OptionsJSX) return this.parseJSXElementOrFragment(context | Context.Expression);
+                return this.parseJSXElementOrFragment(context | Context.Expression);
             case Token.YieldKeyword:
                 if (context & Context.AllowYield) {
                     this.tolerate(context, Errors.DisallowedInContext, tokenDesc(this.token));
@@ -4176,13 +4186,13 @@ export class Parser {
     // https://tc39.github.io/ecma262/#prod-ClassExpression
 
     private parseClass(context: Context): ESTree.ClassExpression | ESTree.ClassDeclaration {
-        
+
         if (this.flags & Flags.ExtendedUnicodeEscape) this.tolerate(context, Errors.UnexpectedEscapedKeyword);
 
         const pos = this.getLocation();
 
         this.expect(context, Token.ClassKeyword);
-        
+
         let id: ESTree.Identifier | null = null;
         let superClass: ESTree.Expression | null = null;
         let state = ObjectState.None;
@@ -4194,12 +4204,12 @@ export class Parser {
         } else if (!(context & Context.Expression) && !(context & Context.OptionalIdentifier)) {
             this.tolerate(context, Errors.UnexpectedToken, tokenDesc(t));
         }
-        
+
         if (this.parseOptional(context, Token.ExtendsKeyword)) {
             superClass = this.parseLeftHandSideExpression(context | Context.Strict, pos);
             state |= ObjectState.Heritage;
         }
-        
+
         const body = this.parseClassElementList(context | Context.Strict | Context.ValidateEscape, state);
 
         return this.finishNode(context, pos, {
@@ -4219,7 +4229,7 @@ export class Parser {
         }
 
         this.expect(context | Context.ValidateEscape, Token.LeftBrace);
-        
+
         const body: (ESTree.MethodDefinition | ESTree.FieldDefinition)[] = [];
 
         while (this.token !== Token.RightBrace) {
@@ -5592,10 +5602,20 @@ export class Parser {
 
     private parseJSXElementOrFragment(context: Context): ESTree.JSXElement {
 
-        const pos = this.getLocation();
+        if (!(context & Context.OptionsJSX)) {
+            this.report(Errors.UnexpectedToken, tokenDesc(this.token))
+        }
 
+        const pos = this.getLocation();
+        const t = this.token;
         this.expect(context, Token.LessThan);
 
+        // Check that it's not a comment start or empty fragment
+        if (this.token !== Token.GreaterThan) {
+            if (!(this.token & (Token.IsIdentifier | Token.Keyword))) {
+                this.report(Errors.UnexpectedToken, tokenDesc(t))
+            }
+        }
         let openingElement = null;
 
         let state = JSXState.None;
