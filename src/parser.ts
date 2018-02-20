@@ -3421,8 +3421,7 @@ export class Parser {
                     {
                         this.expect(context, Token.Period);
 
-                        const property = context & Context.InClass &&
-                            this.token === Token.Hash ?
+                        const property = this.token === Token.Hash ?
                             this.parsePrivateName(context) : this.parseIdentifierName(context, this.token);
 
                         expr = this.finishNode(context, pos, {
@@ -3685,9 +3684,7 @@ export class Parser {
                 }
 
             case Token.Hash:
-                if (context & Context.InClass) {
-                    return this.parsePrivateName(context);
-                }
+                return this.parsePrivateName(context);
             case Token.LessThan:
                 if (context & Context.OptionsJSX) return this.parseJSXElementOrFragment(context | Context.Expression);
             case Token.YieldKeyword:
@@ -4097,8 +4094,7 @@ export class Parser {
             case Token.LeftBracket:
                 return this.parseComputedPropertyName(context);
             case Token.Hash:
-                if (context & Context.InClass) return this.parsePrivateName(context, state);
-
+                return this.parsePrivateName(context, state);
             default:
                 return this.parseIdentifier(context);
         }
@@ -4215,14 +4211,16 @@ export class Parser {
 
     private parseClassElementList(context: Context, state: ObjectState): ESTree.ClassBody {
         const pos = this.getLocation();
-        
-        this.expect(context | Context.ValidateEscape | Context.InClass, Token.LeftBrace);
+
+        // Stage 3 - Class fields
+        if (context & Context.OptionsNext) {
+            context |= Context.InClass;
+        }
+
+        this.expect(context | Context.ValidateEscape, Token.LeftBrace);
         
         const body: (ESTree.MethodDefinition | ESTree.FieldDefinition)[] = [];
 
-        //if (context & Context.OptionsNext) 
-        context |= Context.InClass;
-        
         while (this.token !== Token.RightBrace) {
             if (!this.parseOptional(context, Token.Semicolon)) {
                 const node: any = this.parseClassElement(context | Context.InClass, state);
