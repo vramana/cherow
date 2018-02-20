@@ -4474,7 +4474,7 @@ describe('Miscellaneous - JSX', () => {
                     children: [
                         {
                             type: 'JSXText',
-                            "value": "\n    One\n    Two\n    Three\n    ",
+                            value: '\n    One\n    Two\n    Three\n    ',
                         }
                     ],
                     openingElement: {
@@ -7388,8 +7388,8 @@ describe('Miscellaneous - JSX', () => {
                                 children: [
                                     {
                                         type: 'JSXText',
-                                        "value": "\n      Hello ",
-                                        "raw": "\n      Hello "
+                                        value: '\n      Hello ',
+                                        raw: '\n      Hello '
                                     },
                                     {
                                         type: 'JSXElement',
@@ -7419,8 +7419,8 @@ describe('Miscellaneous - JSX', () => {
                                     },
                                     {
                                         type: 'JSXText',
-                                        "value": "!\n    ",
-                                        "raw": "!\n    "
+                                        value: '!\n    ',
+                                        raw: '!\n    '
                                     }
                                 ],
                                 openingElement: {
@@ -7487,7 +7487,7 @@ describe('Miscellaneous - JSX', () => {
                                     {
                                         type: 'JSXText',
                                         value: '\n          Some text.\n          ',
-                                        "raw": "\n          Some text.\n          "
+                                        raw: '\n          Some text.\n          '
                                     },
                                     {
                                         type: 'JSXElement',
@@ -7517,8 +7517,8 @@ describe('Miscellaneous - JSX', () => {
                                     },
                                     {
                                         type: 'JSXText',
-                                        "value": "\n          More text.\n          ",
-                                        "raw": "\n          More text.\n          "
+                                        value: '\n          More text.\n          ',
+                                        raw: '\n          More text.\n          '
                                     },
                                     {
                                         type: 'JSXElement',
@@ -7548,8 +7548,8 @@ describe('Miscellaneous - JSX', () => {
                                     },
                                     {
                                         type: 'JSXText',
-                                        "value": "\n          Even more text.\n        ",
-                                        "raw": "\n          Even more text.\n        "
+                                        value: '\n          Even more text.\n        ',
+                                        raw: '\n          Even more text.\n        '
                                     }
                                 ],
                                 openingElement: {

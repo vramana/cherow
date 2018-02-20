@@ -683,6 +683,310 @@ describe('Expressions - Arrows', () => {
         }
     });
 
+    pass(`const b = () => {return;};`, {
+        source: `const b = () => {return;};`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'VariableDeclaration',
+                    declarations: [
+                        {
+                            type: 'VariableDeclarator',
+                            init: {
+                                type: 'ArrowFunctionExpression',
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                        {
+                                            type: 'ReturnStatement',
+                                            argument: null,
+                                            start: 17,
+                                            end: 24,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 17
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 24
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 16,
+                                    end: 25,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 16
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 25
+                                        }
+                                    }
+                                },
+                                params: [],
+                                id: null,
+                                async: false,
+                                generator: false,
+                                expression: false,
+                                start: 10,
+                                end: 25,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 10
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 25
+                                    }
+                                }
+                            },
+                            id: {
+                                type: 'Identifier',
+                                name: 'b',
+                                start: 6,
+                                end: 7,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 6
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 7
+                                    }
+                                }
+                            },
+                            start: 6,
+                            end: 25,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 6
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 25
+                                }
+                            }
+                        }
+                    ],
+                    kind: 'const',
+                    start: 0,
+                    end: 26,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 26
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 26,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 26
+                }
+            }
+        }
+    });
+
+    pass(`const a = () => {return (3, 4);};`, {
+        source: `const a = () => {return (3, 4);};`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'VariableDeclaration',
+                    declarations: [
+                        {
+                            type: 'VariableDeclarator',
+                            init: {
+                                type: 'ArrowFunctionExpression',
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                        {
+                                            type: 'ReturnStatement',
+                                            argument: {
+                                                type: 'SequenceExpression',
+                                                expressions: [
+                                                    {
+                                                        type: 'Literal',
+                                                        value: 3,
+                                                        start: 25,
+                                                        end: 26,
+                                                        loc: {
+                                                            start: {
+                                                                line: 1,
+                                                                column: 25
+                                                            },
+                                                            end: {
+                                                                line: 1,
+                                                                column: 26
+                                                            }
+                                                        },
+                                                        raw: '3'
+                                                    },
+                                                    {
+                                                        type: 'Literal',
+                                                        value: 4,
+                                                        start: 28,
+                                                        end: 29,
+                                                        loc: {
+                                                            start: {
+                                                                line: 1,
+                                                                column: 28
+                                                            },
+                                                            end: {
+                                                                line: 1,
+                                                                column: 29
+                                                            }
+                                                        },
+                                                        raw: '4'
+                                                    }
+                                                ],
+                                                start: 25,
+                                                end: 29,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 25
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 29
+                                                    }
+                                                }
+                                            },
+                                            start: 17,
+                                            end: 31,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 17
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 31
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    start: 16,
+                                    end: 32,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 16
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 32
+                                        }
+                                    }
+                                },
+                                params: [],
+                                id: null,
+                                async: false,
+                                generator: false,
+                                expression: false,
+                                start: 10,
+                                end: 32,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 10
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 32
+                                    }
+                                }
+                            },
+                            id: {
+                                type: 'Identifier',
+                                name: 'a',
+                                start: 6,
+                                end: 7,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 6
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 7
+                                    }
+                                }
+                            },
+                            start: 6,
+                            end: 32,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 6
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 32
+                                }
+                            }
+                        }
+                    ],
+                    kind: 'const',
+                    start: 0,
+                    end: 33,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 33
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 33,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 33
+                }
+            }
+        }
+    });
+
     pass(`([,,])=>0`, {
         source: `([,,])=>0`,
         loc: true,
@@ -788,141 +1092,141 @@ describe('Expressions - Arrows', () => {
         ((one, two) => {});`,
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "directive": "use strict",
-                 "expression": {
-                    "raw": "\"use strict\"",
-                    "type": "Literal",
-                    "value": "use strict"
+                  directive: 'use strict',
+                 expression: {
+                    raw: '"use strict"',
+                    type: 'Literal',
+                    value: 'use strict'
                  },
-                  "type": "ExpressionStatement",
+                  type: 'ExpressionStatement',
                 },
                 {
-                  "expression": {
-                    "async": false,
-                    "body": {
-                      "body": [],
-                      "type": "BlockStatement"
+                  expression: {
+                    async: false,
+                    body: {
+                      body: [],
+                      type: 'BlockStatement'
                     },
-                    "expression": false,
-                    "generator": false,
-                    "id": null,
-                    "params": [
+                    expression: false,
+                    generator: false,
+                    id: null,
+                    params: [
                       {
-                        "name": "one",
-                        "type": "Identifier"
+                        name: 'one',
+                        type: 'Identifier'
                       },
                       {
-                        "name": "two",
-                        "type": "Identifier",
+                        name: 'two',
+                        type: 'Identifier',
                       },
                     ],
-                    "type": "ArrowFunctionExpression"
+                    type: 'ArrowFunctionExpression'
                   },
-                  "type": "ExpressionStatement"
+                  type: 'ExpressionStatement'
                 }
               ],
-              "sourceType": "script",
-              "type": "Program"
+              sourceType: 'script',
+              type: 'Program'
             }
     });
 
     pass(`function fn1() {
     }
-    
+
     function fn2() {
       [...one, ...two];
-    
+
       (p => p);
     }`, {
         source: `function fn1() {
         }
-        
+
         function fn2() {
           [...one, ...two];
-        
+
           (p => p);
         }`,
         raw: true,
         expected: {
-              "body": [
+              body: [
                 {
-                  "async": false,
-                  "body": {
-                    "body": [],
-                    "type": "BlockStatement"
+                  async: false,
+                  body: {
+                    body: [],
+                    type: 'BlockStatement'
                   },
-                  "expression": false,
-                  "generator": false,
-                  "id": {
-                    "name": "fn1",
-                    "type": "Identifier",
+                  expression: false,
+                  generator: false,
+                  id: {
+                    name: 'fn1',
+                    type: 'Identifier',
                   },
-                  "params": [],
-                  "type": "FunctionDeclaration"
+                  params: [],
+                  type: 'FunctionDeclaration'
                 },
                 {
-                  "async": false,
-                  "body": {
-                    "body": [
+                  async: false,
+                  body: {
+                    body: [
                       {
-                       "expression": {
-                          "elements": [
+                       expression: {
+                          elements: [
                             {
-                              "argument": {
-                                "name": "one",
-                                "type": "Identifier"
+                              argument: {
+                                name: 'one',
+                                type: 'Identifier'
                               },
-                             "type": "SpreadElement"
+                             type: 'SpreadElement'
                             },
                             {
-                              "argument": {
-                                "name": "two",
-                                "type": "Identifier"
+                              argument: {
+                                name: 'two',
+                                type: 'Identifier'
                               },
-                              "type": "SpreadElement"
+                              type: 'SpreadElement'
                             }
                           ],
-                          "type": "ArrayExpression"
+                          type: 'ArrayExpression'
                         },
-                        "type": "ExpressionStatement"
+                        type: 'ExpressionStatement'
                       },
                       {
-                        "expression": {
-                          "async": false,
-                          "body": {
-                            "name": "p",
-                            "type": "Identifier"
+                        expression: {
+                          async: false,
+                          body: {
+                            name: 'p',
+                            type: 'Identifier'
                           },
-                          "expression": true,
-                          "generator": false,
-                          "id": null,
-                          "params": [
+                          expression: true,
+                          generator: false,
+                          id: null,
+                          params: [
                             {
-                              "name": "p",
-                              "type": "Identifier"
+                              name: 'p',
+                              type: 'Identifier'
                             }
                           ],
-                          "type": "ArrowFunctionExpression"
+                          type: 'ArrowFunctionExpression'
                         },
-                        "type": "ExpressionStatement"
+                        type: 'ExpressionStatement'
                       },
                     ],
-                    "type": "BlockStatement"
+                    type: 'BlockStatement'
                   },
-                  "expression": false,
-                  "generator": false,
-                  "id": {
-                    "name": "fn2",
-                    "type": "Identifier",
+                  expression: false,
+                  generator: false,
+                  id: {
+                    name: 'fn2',
+                    type: 'Identifier',
                   },
-                  "params": [],
-                  "type": "FunctionDeclaration",
+                  params: [],
+                  type: 'FunctionDeclaration',
                 },
               ],
-              "sourceType": "script",
-              "type": "Program",
+              sourceType: 'script',
+              type: 'Program',
             }
     });
 

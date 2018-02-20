@@ -73,12 +73,12 @@ describe('Declarations - Function', () => {
         index: 31
     });
 
-    fail('function f(...a, ...b){}', {
+      fail('function f(...a, ...b){}', {
         source: '"use strict"; function f(...a, ...b){}',
         index: 29
     });
 
-    fail('(function ({ a(){} }) {})', {
+      fail('(function ({ a(){} }) {})', {
         source: '(function ({ a(){} }) {})',
        line: 1
     });
@@ -4003,6 +4003,652 @@ describe('Declarations - Function', () => {
             }
         });
 
+      pass(`function foo() {
+            if (foo) {
+              bar(foo);
+              return foo;
+            } else if (baz) {
+              bar(baz);
+              return baz;
+            } else if (wat) {
+              bar(wat);
+              return wat;
+            }
+          }`, {
+            source: `function foo() {
+                  if (foo) {
+                    bar(foo);
+                    return foo;
+                  } else if (baz) {
+                    bar(baz);
+                    return baz;
+                  } else if (wat) {
+                    bar(wat);
+                    return wat;
+                  }
+                }`,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'IfStatement',
+                                    test: {
+                                        type: 'Identifier',
+                                        name: 'foo'
+                                    },
+                                    alternate: {
+                                        type: 'IfStatement',
+                                        test: {
+                                            type: 'Identifier',
+                                            name: 'baz'
+                                        },
+                                        alternate: {
+                                            type: 'IfStatement',
+                                            test: {
+                                                type: 'Identifier',
+                                                name: 'wat'
+                                            },
+                                            alternate: null,
+                                            consequent: {
+                                                type: 'BlockStatement',
+                                                body: [
+                                                    {
+                                                        type: 'ExpressionStatement',
+                                                        expression: {
+                                                            type: 'CallExpression',
+                                                            callee: {
+                                                                type: 'Identifier',
+                                                                name: 'bar'
+                                                            },
+                                                            arguments: [
+                                                                {
+                                                                    type: 'Identifier',
+                                                                    name: 'wat'
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    {
+                                                        type: 'ReturnStatement',
+                                                        argument: {
+                                                            type: 'Identifier',
+                                                            name: 'wat'
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        consequent: {
+                                            type: 'BlockStatement',
+                                            body: [
+                                                {
+                                                    type: 'ExpressionStatement',
+                                                    expression: {
+                                                        type: 'CallExpression',
+                                                        callee: {
+                                                            type: 'Identifier',
+                                                            name: 'bar'
+                                                        },
+                                                        arguments: [
+                                                            {
+                                                                type: 'Identifier',
+                                                                name: 'baz'
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    type: 'ReturnStatement',
+                                                    argument: {
+                                                        type: 'Identifier',
+                                                        name: 'baz'
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    consequent: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'ExpressionStatement',
+                                                expression: {
+                                                    type: 'CallExpression',
+                                                    callee: {
+                                                        type: 'Identifier',
+                                                        name: 'bar'
+                                                    },
+                                                    arguments: [
+                                                        {
+                                                            type: 'Identifier',
+                                                            name: 'foo'
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                type: 'ReturnStatement',
+                                                argument: {
+                                                    type: 'Identifier',
+                                                    name: 'foo'
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'foo'
+                        }
+                    }
+                ]
+            }
+        });
+
+      pass(`!function () {
+              x();
+            }(), y = function () {
+              x();
+            }();`, {
+            source: `!function () {
+                x();
+              }(), y = function () {
+                x();
+              }();`,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'SequenceExpression',
+                            expressions: [
+                                {
+                                    type: 'UnaryExpression',
+                                    operator: '!',
+                                    argument: {
+                                        type: 'CallExpression',
+                                        callee: {
+                                            type: 'FunctionExpression',
+                                            params: [],
+                                            body: {
+                                                type: 'BlockStatement',
+                                                body: [
+                                                    {
+                                                        type: 'ExpressionStatement',
+                                                        expression: {
+                                                            type: 'CallExpression',
+                                                            callee: {
+                                                                type: 'Identifier',
+                                                                name: 'x'
+                                                            },
+                                                            arguments: []
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            async: false,
+                                            generator: false,
+                                            expression: false,
+                                            id: null
+                                        },
+                                        arguments: []
+                                    },
+                                    prefix: true
+                                },
+                                {
+                                    type: 'AssignmentExpression',
+                                    left: {
+                                        type: 'Identifier',
+                                        name: 'y'
+                                    },
+                                    operator: '=',
+                                    right: {
+                                        type: 'CallExpression',
+                                        callee: {
+                                            type: 'FunctionExpression',
+                                            params: [],
+                                            body: {
+                                                type: 'BlockStatement',
+                                                body: [
+                                                    {
+                                                        type: 'ExpressionStatement',
+                                                        expression: {
+                                                            type: 'CallExpression',
+                                                            callee: {
+                                                                type: 'Identifier',
+                                                                name: 'x'
+                                                            },
+                                                            arguments: []
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            async: false,
+                                            generator: false,
+                                            expression: false,
+                                            id: null
+                                        },
+                                        arguments: []
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        });
+
+      pass(`function test(a) {
+              const clash = () => {};
+              if (a) {
+                return clash();
+              } else {
+                const clash = () => {};
+                return clash();
+              }
+            }`, {
+          source: `function test(a) {
+              const clash = () => {};
+              if (a) {
+                return clash();
+             } else {
+                const clash = () => {};
+               return clash();
+              }
+            }`,
+            raw: true,
+          expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [
+                        {
+                            type: 'Identifier',
+                            name: 'a'
+                        }
+                    ],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'VariableDeclaration',
+                                declarations: [
+                                    {
+                                        type: 'VariableDeclarator',
+                                        init: {
+                                            type: 'ArrowFunctionExpression',
+                                            body: {
+                                                type: 'BlockStatement',
+                                                body: []
+                                            },
+                                            params: [],
+                                            id: null,
+                                            async: false,
+                                            generator: false,
+                                            expression: false
+                                        },
+                                        id: {
+                                            type: 'Identifier',
+                                            name: 'clash'
+                                        }
+                                    }
+                                ],
+                                kind: 'const'
+                            },
+                            {
+                                type: 'IfStatement',
+                                test: {
+                                    type: 'Identifier',
+                                    name: 'a'
+                                },
+                                alternate: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                        {
+                                            type: 'VariableDeclaration',
+                                            declarations: [
+                                                {
+                                                    type: 'VariableDeclarator',
+                                                    init: {
+                                                        type: 'ArrowFunctionExpression',
+                                                        body: {
+                                                            type: 'BlockStatement',
+                                                            body: []
+                                                        },
+                                                        params: [],
+                                                        id: null,
+                                                        async: false,
+                                                        generator: false,
+                                                        expression: false
+                                                    },
+                                                    id: {
+                                                        type: 'Identifier',
+                                                        name: 'clash'
+                                                    }
+                                                }
+                                            ],
+                                            kind: 'const'
+                                        },
+                                        {
+                                            type: 'ReturnStatement',
+                                            argument: {
+                                                type: 'CallExpression',
+                                                callee: {
+                                                    type: 'Identifier',
+                                                    name: 'clash'
+                                                },
+                                                arguments: []
+                                            }
+                                        }
+                                    ]
+                                },
+                                consequent: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                        {
+                                            type: 'ReturnStatement',
+                                            argument: {
+                                                type: 'CallExpression',
+                                                callee: {
+                                                    type: 'Identifier',
+                                                    name: 'clash'
+                                                },
+                                                arguments: []
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    async: false,
+                    generator: false,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'test'
+                    }
+                }
+            ]
+        }
+        });
+
+      pass(`function foo(object, property, value) {
+              if (object && property) {
+                object[property] = value;
+                return true;
+              }
+              return false;
+            }`, {
+        raw: true,
+          source: `function foo(object, property, value) {
+            if (object && property) {
+              object[property] = value;
+              return true;
+            }
+            return false;
+          }`,
+                  expected: {
+                    type: 'Program',
+                    sourceType: 'script',
+                    body: [
+                        {
+                            type: 'FunctionDeclaration',
+                            params: [
+                                {
+                                    type: 'Identifier',
+                                    name: 'object'
+                                },
+                                {
+                                    type: 'Identifier',
+                                    name: 'property'
+                                },
+                                {
+                                    type: 'Identifier',
+                                    name: 'value'
+                                }
+                            ],
+                            body: {
+                                type: 'BlockStatement',
+                                body: [
+                                    {
+                                        type: 'IfStatement',
+                                        test: {
+                                            type: 'LogicalExpression',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'object'
+                                            },
+                                            right: {
+                                                type: 'Identifier',
+                                                name: 'property'
+                                            },
+                                            operator: '&&'
+                                        },
+                                        alternate: null,
+                                        consequent: {
+                                            type: 'BlockStatement',
+                                            body: [
+                                                {
+                                                    type: 'ExpressionStatement',
+                                                    expression: {
+                                                        type: 'AssignmentExpression',
+                                                        left: {
+                                                            type: 'MemberExpression',
+                                                            object: {
+                                                                type: 'Identifier',
+                                                                name: 'object'
+                                                            },
+                                                            computed: true,
+                                                            property: {
+                                                                type: 'Identifier',
+                                                                name: 'property'
+                                                            }
+                                                        },
+                                                        operator: '=',
+                                                        right: {
+                                                            type: 'Identifier',
+                                                            name: 'value'
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    type: 'ReturnStatement',
+                                                    argument: {
+                                                        type: 'Literal',
+                                                        value: true,
+                                                        raw: 'true'
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        type: 'ReturnStatement',
+                                        argument: {
+                                            type: 'Literal',
+                                            value: false,
+                                            raw: 'false'
+                                        }
+                                    }
+                                ]
+                            },
+                            async: false,
+                            generator: false,
+                            expression: false,
+                            id: {
+                                type: 'Identifier',
+                                name: 'foo'
+                            }
+                        }
+                    ]
+                }
+        });
+
+      pass(`(function () {
+              a = x ? true : false;
+              c = 1 ? (this.get(x), a = b, true) : (foo.bar, false);
+            })();`, {
+            raw: true,
+            source: `(function () {
+                a = x ? true : false;
+                c = 1 ? (this.get(x), a = b, true) : (foo.bar, false);
+              })();`,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'CallExpression',
+                            callee: {
+                                type: 'FunctionExpression',
+                                params: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                        {
+                                            type: 'ExpressionStatement',
+                                            expression: {
+                                                type: 'AssignmentExpression',
+                                                left: {
+                                                    type: 'Identifier',
+                                                    name: 'a'
+                                                },
+                                                operator: '=',
+                                                right: {
+                                                    type: 'ConditionalExpression',
+                                                    test: {
+                                                        type: 'Identifier',
+                                                        name: 'x'
+                                                    },
+                                                    consequent: {
+                                                        type: 'Literal',
+                                                        value: true,
+                                                        raw: 'true'
+                                                    },
+                                                    alternate: {
+                                                        type: 'Literal',
+                                                        value: false,
+                                                        raw: 'false'
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            type: 'ExpressionStatement',
+                                            expression: {
+                                                type: 'AssignmentExpression',
+                                                left: {
+                                                    type: 'Identifier',
+                                                    name: 'c'
+                                                },
+                                                operator: '=',
+                                                right: {
+                                                    type: 'ConditionalExpression',
+                                                    test: {
+                                                        type: 'Literal',
+                                                        value: 1,
+                                                        raw: '1'
+                                                    },
+                                                    consequent: {
+                                                        type: 'SequenceExpression',
+                                                        expressions: [
+                                                            {
+                                                                type: 'CallExpression',
+                                                                callee: {
+                                                                    type: 'MemberExpression',
+                                                                    object: {
+                                                                        type: 'ThisExpression'
+                                                                    },
+                                                                    computed: false,
+                                                                    property: {
+                                                                        type: 'Identifier',
+                                                                        name: 'get'
+                                                                    }
+                                                                },
+                                                                arguments: [
+                                                                    {
+                                                                        type: 'Identifier',
+                                                                        name: 'x'
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                type: 'AssignmentExpression',
+                                                                left: {
+                                                                    type: 'Identifier',
+                                                                    name: 'a'
+                                                                },
+                                                                operator: '=',
+                                                                right: {
+                                                                    type: 'Identifier',
+                                                                    name: 'b'
+                                                                }
+                                                            },
+                                                            {
+                                                                type: 'Literal',
+                                                                value: true,
+                                                                raw: 'true'
+                                                            }
+                                                        ]
+                                                    },
+                                                    alternate: {
+                                                        type: 'SequenceExpression',
+                                                        expressions: [
+                                                            {
+                                                                type: 'MemberExpression',
+                                                                object: {
+                                                                    type: 'Identifier',
+                                                                    name: 'foo'
+                                                                },
+                                                                computed: false,
+                                                                property: {
+                                                                    type: 'Identifier',
+                                                                    name: 'bar'
+                                                                }
+                                                            },
+                                                            {
+                                                                type: 'Literal',
+                                                                value: false,
+                                                                raw: 'false'
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                },
+                                async: false,
+                                generator: false,
+                                expression: false,
+                                id: null
+                            },
+                            arguments: []
+                        }
+                    }
+                ]
+            }
+        });
+
       pass(`(function([]){})`, {
             source: '(function([]){})',
             loc: true,
@@ -4446,6 +5092,1931 @@ describe('Declarations - Function', () => {
             }
         });
 
+      pass(`function foo() {
+              if(window.self != window.top) {
+                if(__DEV__) {
+                  console.log('lol', name);
+                }
+                return;
+              }
+              lol();
+              try { lol() } catch (e) {}
+            }`, {
+            source: `function foo() {
+                if(window.self != window.top) {
+                  if(__DEV__) {
+                    console.log('lol', name);
+                  }
+                  return;
+                }
+                lol();
+                try { lol() } catch (e) {}
+              }`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'IfStatement',
+                                    test: {
+                                        type: 'BinaryExpression',
+                                        left: {
+                                            type: 'MemberExpression',
+                                            object: {
+                                                type: 'Identifier',
+                                                name: 'window'
+                                            },
+                                            computed: false,
+                                            property: {
+                                                type: 'Identifier',
+                                                name: 'self'
+                                            }
+                                        },
+                                        right: {
+                                            type: 'MemberExpression',
+                                            object: {
+                                                type: 'Identifier',
+                                                name: 'window'
+                                            },
+                                            computed: false,
+                                            property: {
+                                                type: 'Identifier',
+                                                name: 'top'
+                                            }
+                                        },
+                                        operator: '!='
+                                    },
+                                    alternate: null,
+                                    consequent: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'IfStatement',
+                                                test: {
+                                                    type: 'Identifier',
+                                                    name: '__DEV__'
+                                                },
+                                                alternate: null,
+                                                consequent: {
+                                                    type: 'BlockStatement',
+                                                    body: [
+                                                        {
+                                                            type: 'ExpressionStatement',
+                                                            expression: {
+                                                                type: 'CallExpression',
+                                                                callee: {
+                                                                    type: 'MemberExpression',
+                                                                    object: {
+                                                                        type: 'Identifier',
+                                                                        name: 'console'
+                                                                    },
+                                                                    computed: false,
+                                                                    property: {
+                                                                        type: 'Identifier',
+                                                                        name: 'log'
+                                                                    }
+                                                                },
+                                                                arguments: [
+                                                                    {
+                                                                        type: 'Literal',
+                                                                        value: 'lol',
+                                                                        raw: '\'lol\''
+                                                                    },
+                                                                    {
+                                                                        type: 'Identifier',
+                                                                        name: 'name'
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                type: 'ReturnStatement',
+                                                argument: null
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'CallExpression',
+                                        callee: {
+                                            type: 'Identifier',
+                                            name: 'lol'
+                                        },
+                                        arguments: []
+                                    }
+                                },
+                                {
+                                    type: 'TryStatement',
+                                    block: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'ExpressionStatement',
+                                                expression: {
+                                                    type: 'CallExpression',
+                                                    callee: {
+                                                        type: 'Identifier',
+                                                        name: 'lol'
+                                                    },
+                                                    arguments: []
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    handler: {
+                                        type: 'CatchClause',
+                                        param: {
+                                            type: 'Identifier',
+                                            name: 'e'
+                                        },
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: []
+                                        }
+                                    },
+                                    finalizer: null
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'foo'
+                        }
+                    }
+                ]
+            }
+        });
+
+      pass(`function f1() { return a == b ? true : x; }
+        function f2() { return a == b ? false : x; }
+        function f3() { return a < b ? !0 : x; }
+        function f4() { return a < b ? !1 : x; }
+        function f5() { return c ? !0 : x; }
+        function f6() { return c ? false : x; }
+        function f7() { return !c ? true : x; }
+        unction f8() { return !c ? !1 : x; }
+        function g1() { return a == b ? x : true; }
+        function g2() { return a == b ? x : false; }
+        function g3() { return a < b ? x : !0; }
+        function g4() { return a < b ? x : !1; }
+        function g5() { return c ? x : true; }
+        function g6() { return c ? x : !1; }
+        function g7() { return !c ? x : !0; }
+        function g8() { return !c ? x : false; }`, {
+            source: `function f1() { return a == b ? true : x; }
+            function f2() { return a == b ? false : x; }
+            function f3() { return a < b ? !0 : x; }
+            function f4() { return a < b ? !1 : x; }
+            function f5() { return c ? !0 : x; }
+            function f6() { return c ? false : x; }
+            function f7() { return !c ? true : x; }
+            function f8() { return !c ? !1 : x; }
+            function g1() { return a == b ? x : true; }
+            function g2() { return a == b ? x : false; }
+            function g3() { return a < b ? x : !0; }
+            function g4() { return a < b ? x : !1; }
+            function g5() { return c ? x : true; }
+            function g6() { return c ? x : !1; }
+            function g7() { return !c ? x : !0; }
+            function g8() { return !c ? x : false; }`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'BinaryExpression',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            right: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            operator: '=='
+                                        },
+                                        consequent: {
+                                            type: 'Literal',
+                                            value: true,
+                                            raw: 'true'
+                                        },
+                                        alternate: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f1'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'BinaryExpression',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            right: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            operator: '=='
+                                        },
+                                        consequent: {
+                                            type: 'Literal',
+                                            value: false,
+                                            raw: 'false'
+                                        },
+                                        alternate: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f2'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'BinaryExpression',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            right: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            operator: '<'
+                                        },
+                                        consequent: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Literal',
+                                                value: 0,
+                                                raw: '0'
+                                            },
+                                            prefix: true
+                                        },
+                                        alternate: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f3'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'BinaryExpression',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            right: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            operator: '<'
+                                        },
+                                        consequent: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Literal',
+                                                value: 1,
+                                                raw: '1'
+                                            },
+                                            prefix: true
+                                        },
+                                        alternate: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f4'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'Identifier',
+                                            name: 'c'
+                                        },
+                                        consequent: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Literal',
+                                                value: 0,
+                                                raw: '0'
+                                            },
+                                            prefix: true
+                                        },
+                                        alternate: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f5'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'Identifier',
+                                            name: 'c'
+                                        },
+                                        consequent: {
+                                            type: 'Literal',
+                                            value: false,
+                                            raw: 'false'
+                                        },
+                                        alternate: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f6'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Identifier',
+                                                name: 'c'
+                                            },
+                                            prefix: true
+                                        },
+                                        consequent: {
+                                            type: 'Literal',
+                                            value: true,
+                                            raw: 'true'
+                                        },
+                                        alternate: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f7'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Identifier',
+                                                name: 'c'
+                                            },
+                                            prefix: true
+                                        },
+                                        consequent: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Literal',
+                                                value: 1,
+                                                raw: '1'
+                                            },
+                                            prefix: true
+                                        },
+                                        alternate: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f8'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'BinaryExpression',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            right: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            operator: '=='
+                                        },
+                                        consequent: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        alternate: {
+                                            type: 'Literal',
+                                            value: true,
+                                            raw: 'true'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g1'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'BinaryExpression',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            right: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            operator: '=='
+                                        },
+                                        consequent: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        alternate: {
+                                            type: 'Literal',
+                                            value: false,
+                                            raw: 'false'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g2'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'BinaryExpression',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            right: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            operator: '<'
+                                        },
+                                        consequent: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        alternate: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Literal',
+                                                value: 0,
+                                                raw: '0'
+                                            },
+                                            prefix: true
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g3'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'BinaryExpression',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            right: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            operator: '<'
+                                        },
+                                        consequent: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        alternate: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Literal',
+                                                value: 1,
+                                                raw: '1'
+                                            },
+                                            prefix: true
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g4'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'Identifier',
+                                            name: 'c'
+                                        },
+                                        consequent: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        alternate: {
+                                            type: 'Literal',
+                                            value: true,
+                                            raw: 'true'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g5'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'Identifier',
+                                            name: 'c'
+                                        },
+                                        consequent: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        alternate: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Literal',
+                                                value: 1,
+                                                raw: '1'
+                                            },
+                                            prefix: true
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g6'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Identifier',
+                                                name: 'c'
+                                            },
+                                            prefix: true
+                                        },
+                                        consequent: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        alternate: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Literal',
+                                                value: 0,
+                                                raw: '0'
+                                            },
+                                            prefix: true
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g7'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Identifier',
+                                                name: 'c'
+                                            },
+                                            prefix: true
+                                        },
+                                        consequent: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        alternate: {
+                                            type: 'Literal',
+                                            value: false,
+                                            raw: 'false'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g8'
+                        }
+                    }
+                ]
+            }
+        });
+
+      pass(`function f1() {
+              return !(a != b) || x;
+            }
+            function f2() {
+              return a != b && x;
+            }
+            function f3() {
+              return !!(a < b) || x;
+            }
+            function f4() {
+              return !(a < b) && x;
+            }
+            function f5() {
+              return !!c || x;
+            }
+            function f6() {
+              return !c && x;
+            }
+            +function f7() {
+              return !c || x;
+            }
+            +function f8() {
+              return !!c && x;
+            }
+            +function g1() {
+              return a != b || x;
+            }
+            function g2() {
+              return !(a != b) && x;
+            }
+            function g3() {
+              return !(a < b) || x;
+            }
+            function g4() {
+              return !!(a < b) && x;
+            }
+            function g5() {
+              return !c || x;
+            }
+            function g6() {
+              return !!c && x;
+            }
+            function g7() {
+              return !!c || x;
+            }
+            function g8() {
+              return !c && x;
+            }`, {
+            source: `function f1() {
+                return !(a != b) || x;
+              }
+              function f2() {
+                return a != b && x;
+              }
+              function f3() {
+                return !!(a < b) || x;
+              }
+              function f4() {
+                return !(a < b) && x;
+              }
+              function f5() {
+                return !!c || x;
+              }
+              function f6() {
+                return !c && x;
+              }
+              +function f7() {
+                return !c || x;
+              }
+              +function f8() {
+                return !!c && x;
+              }
+              +function g1() {
+                return a != b || x;
+              }
+              function g2() {
+                return !(a != b) && x;
+              }
+              function g3() {
+                return !(a < b) || x;
+              }
+              function g4() {
+                return !!(a < b) && x;
+              }
+              function g5() {
+                return !c || x;
+              }
+              function g6() {
+                return !!c && x;
+              }
+              function g7() {
+                return !!c || x;
+              }
+              function g8() {
+                return !c && x;
+              }`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'BinaryExpression',
+                                                left: {
+                                                    type: 'Identifier',
+                                                    name: 'a'
+                                                },
+                                                right: {
+                                                    type: 'Identifier',
+                                                    name: 'b'
+                                                },
+                                                operator: '!='
+                                            },
+                                            prefix: true
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        operator: '||'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f1'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'BinaryExpression',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            right: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            operator: '!='
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        operator: '&&'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f2'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'UnaryExpression',
+                                                operator: '!',
+                                                argument: {
+                                                    type: 'BinaryExpression',
+                                                    left: {
+                                                        type: 'Identifier',
+                                                        name: 'a'
+                                                    },
+                                                    right: {
+                                                        type: 'Identifier',
+                                                        name: 'b'
+                                                    },
+                                                    operator: '<'
+                                                },
+                                                prefix: true
+                                            },
+                                            prefix: true
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        operator: '||'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f3'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'BinaryExpression',
+                                                left: {
+                                                    type: 'Identifier',
+                                                    name: 'a'
+                                                },
+                                                right: {
+                                                    type: 'Identifier',
+                                                    name: 'b'
+                                                },
+                                                operator: '<'
+                                            },
+                                            prefix: true
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        operator: '&&'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f4'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'UnaryExpression',
+                                                operator: '!',
+                                                argument: {
+                                                    type: 'Identifier',
+                                                    name: 'c'
+                                                },
+                                                prefix: true
+                                            },
+                                            prefix: true
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        operator: '||'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f5'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Identifier',
+                                                name: 'c'
+                                            },
+                                            prefix: true
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        operator: '&&'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'f6'
+                        }
+                    },
+                    {
+                        type: 'ExpressionStatement',
+                        expression: {
+                            type: 'BinaryExpression',
+                            left: {
+                                type: 'BinaryExpression',
+                                left: {
+                                    type: 'UnaryExpression',
+                                    operator: '+',
+                                    argument: {
+                                        type: 'FunctionExpression',
+                                        params: [],
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: [
+                                                {
+                                                    type: 'ReturnStatement',
+                                                    argument: {
+                                                        type: 'LogicalExpression',
+                                                        left: {
+                                                            type: 'UnaryExpression',
+                                                            operator: '!',
+                                                            argument: {
+                                                                type: 'Identifier',
+                                                                name: 'c'
+                                                            },
+                                                            prefix: true
+                                                        },
+                                                        right: {
+                                                            type: 'Identifier',
+                                                            name: 'x'
+                                                        },
+                                                        operator: '||'
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        async: false,
+                                        generator: false,
+                                        expression: false,
+                                        id: {
+                                            type: 'Identifier',
+                                            name: 'f7'
+                                        }
+                                    },
+                                    prefix: true
+                                },
+                                right: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'ReturnStatement',
+                                                argument: {
+                                                    type: 'LogicalExpression',
+                                                    left: {
+                                                        type: 'UnaryExpression',
+                                                        operator: '!',
+                                                        argument: {
+                                                            type: 'UnaryExpression',
+                                                            operator: '!',
+                                                            argument: {
+                                                                type: 'Identifier',
+                                                                name: 'c'
+                                                            },
+                                                            prefix: true
+                                                        },
+                                                        prefix: true
+                                                    },
+                                                    right: {
+                                                        type: 'Identifier',
+                                                        name: 'x'
+                                                    },
+                                                    operator: '&&'
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: {
+                                        type: 'Identifier',
+                                        name: 'f8'
+                                    }
+                                },
+                                operator: '+'
+                            },
+                            right: {
+                                type: 'FunctionExpression',
+                                params: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                        {
+                                            type: 'ReturnStatement',
+                                            argument: {
+                                                type: 'LogicalExpression',
+                                                left: {
+                                                    type: 'BinaryExpression',
+                                                    left: {
+                                                        type: 'Identifier',
+                                                        name: 'a'
+                                                    },
+                                                    right: {
+                                                        type: 'Identifier',
+                                                        name: 'b'
+                                                    },
+                                                    operator: '!='
+                                                },
+                                                right: {
+                                                    type: 'Identifier',
+                                                    name: 'x'
+                                                },
+                                                operator: '||'
+                                            }
+                                        }
+                                    ]
+                                },
+                                async: false,
+                                generator: false,
+                                expression: false,
+                                id: {
+                                    type: 'Identifier',
+                                    name: 'g1'
+                                }
+                            },
+                            operator: '+'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'BinaryExpression',
+                                                left: {
+                                                    type: 'Identifier',
+                                                    name: 'a'
+                                                },
+                                                right: {
+                                                    type: 'Identifier',
+                                                    name: 'b'
+                                                },
+                                                operator: '!='
+                                            },
+                                            prefix: true
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        operator: '&&'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g2'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'BinaryExpression',
+                                                left: {
+                                                    type: 'Identifier',
+                                                    name: 'a'
+                                                },
+                                                right: {
+                                                    type: 'Identifier',
+                                                    name: 'b'
+                                                },
+                                                operator: '<'
+                                            },
+                                            prefix: true
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        operator: '||'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g3'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'UnaryExpression',
+                                                operator: '!',
+                                                argument: {
+                                                    type: 'BinaryExpression',
+                                                    left: {
+                                                        type: 'Identifier',
+                                                        name: 'a'
+                                                    },
+                                                    right: {
+                                                        type: 'Identifier',
+                                                        name: 'b'
+                                                    },
+                                                    operator: '<'
+                                                },
+                                                prefix: true
+                                            },
+                                            prefix: true
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        operator: '&&'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g4'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Identifier',
+                                                name: 'c'
+                                            },
+                                            prefix: true
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        operator: '||'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g5'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'UnaryExpression',
+                                                operator: '!',
+                                                argument: {
+                                                    type: 'Identifier',
+                                                    name: 'c'
+                                                },
+                                                prefix: true
+                                            },
+                                            prefix: true
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        operator: '&&'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g6'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'UnaryExpression',
+                                                operator: '!',
+                                                argument: {
+                                                    type: 'Identifier',
+                                                    name: 'c'
+                                                },
+                                                prefix: true
+                                            },
+                                            prefix: true
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        operator: '||'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g7'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Identifier',
+                                                name: 'c'
+                                            },
+                                            prefix: true
+                                        },
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        operator: '&&'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'g8'
+                        }
+                    }
+                ]
+            }
+        });
+
+      pass(`function x(a, b) {
+              a = a || b;
+              return b === a || !a;
+            }`, {
+            source: `function x(a, b) {
+                a = a || b;
+                return b === a || !a;
+              }`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [
+                            {
+                                type: 'Identifier',
+                                name: 'a'
+                            },
+                            {
+                                type: 'Identifier',
+                                name: 'b'
+                            }
+                        ],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'AssignmentExpression',
+                                        left: {
+                                            type: 'Identifier',
+                                            name: 'a'
+                                        },
+                                        operator: '=',
+                                        right: {
+                                            type: 'LogicalExpression',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            right: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            operator: '||'
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'BinaryExpression',
+                                            left: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            right: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            operator: '==='
+                                        },
+                                        right: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            },
+                                            prefix: true
+                                        },
+                                        operator: '||'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'x'
+                        }
+                    }
+                ]
+            }
+        });
+
+      pass(`function foo(a) {
+              if (a && a.b != null) {
+                if ((a.c--) === 1) {
+                  return;
+                }
+                return a.b;
+              }
+              return bar(a);
+            }`, {
+            source: `function foo(a) {
+                if (a && a.b != null) {
+                  if ((a.c--) === 1) {
+                    return;
+                  }
+                  return a.b;
+                }
+                return bar(a);
+              }`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [
+                            {
+                                type: 'Identifier',
+                                name: 'a'
+                            }
+                        ],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'IfStatement',
+                                    test: {
+                                        type: 'LogicalExpression',
+                                        left: {
+                                            type: 'Identifier',
+                                            name: 'a'
+                                        },
+                                        right: {
+                                            type: 'BinaryExpression',
+                                            left: {
+                                                type: 'MemberExpression',
+                                                object: {
+                                                    type: 'Identifier',
+                                                    name: 'a'
+                                                },
+                                                computed: false,
+                                                property: {
+                                                    type: 'Identifier',
+                                                    name: 'b'
+                                                }
+                                            },
+                                            right: {
+                                                type: 'Literal',
+                                                value: null,
+                                                raw: 'null'
+                                            },
+                                            operator: '!='
+                                        },
+                                        operator: '&&'
+                                    },
+                                    alternate: null,
+                                    consequent: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'IfStatement',
+                                                test: {
+                                                    type: 'BinaryExpression',
+                                                    left: {
+                                                        type: 'UpdateExpression',
+                                                        argument: {
+                                                            type: 'MemberExpression',
+                                                            object: {
+                                                                type: 'Identifier',
+                                                                name: 'a'
+                                                            },
+                                                            computed: false,
+                                                            property: {
+                                                                type: 'Identifier',
+                                                                name: 'c'
+                                                            }
+                                                        },
+                                                        operator: '--',
+                                                        prefix: false
+                                                    },
+                                                    right: {
+                                                        type: 'Literal',
+                                                        value: 1,
+                                                        raw: '1'
+                                                    },
+                                                    operator: '==='
+                                                },
+                                                alternate: null,
+                                                consequent: {
+                                                    type: 'BlockStatement',
+                                                    body: [
+                                                        {
+                                                            type: 'ReturnStatement',
+                                                            argument: null
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                type: 'ReturnStatement',
+                                                argument: {
+                                                    type: 'MemberExpression',
+                                                    object: {
+                                                        type: 'Identifier',
+                                                        name: 'a'
+                                                    },
+                                                    computed: false,
+                                                    property: {
+                                                        type: 'Identifier',
+                                                        name: 'b'
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'CallExpression',
+                                        callee: {
+                                            type: 'Identifier',
+                                            name: 'bar'
+                                        },
+                                        arguments: [
+                                            {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'foo'
+                        }
+                    }
+                ]
+            }
+        });
+
       pass(`(function*() { [...{ a = yield }] = 1; })        `, {
             source: `(function*() { [...{ a = yield }] = 1; })`,
             loc: true,
@@ -4700,6 +7271,1191 @@ describe('Declarations - Function', () => {
                         column: 41
                     }
                 }
+            }
+        });
+
+      pass(`function foo() {
+              return a ? b : c ? d : e;
+            }`, {
+            source: `function foo() {
+                  return a ? b : c ? d : e;
+                }`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'ConditionalExpression',
+                                        test: {
+                                            type: 'Identifier',
+                                            name: 'a'
+                                        },
+                                        consequent: {
+                                            type: 'Identifier',
+                                            name: 'b'
+                                        },
+                                        alternate: {
+                                            type: 'ConditionalExpression',
+                                            test: {
+                                                type: 'Identifier',
+                                                name: 'c'
+                                            },
+                                            consequent: {
+                                                type: 'Identifier',
+                                                name: 'd'
+                                            },
+                                            alternate: {
+                                                type: 'Identifier',
+                                                name: 'e'
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'foo'
+                        }
+                    }
+                ]
+            }
+        });
+
+      pass(`function foo() {
+              if (a) return b;
+              c = d;
+              return z;
+            }`, {
+            source: `function foo() {
+                if (a) return b;
+                c = d;
+                return z;
+              }`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'IfStatement',
+                                    test: {
+                                        type: 'Identifier',
+                                        name: 'a'
+                                    },
+                                    alternate: null,
+                                    consequent: {
+                                        type: 'ReturnStatement',
+                                        argument: {
+                                            type: 'Identifier',
+                                            name: 'b'
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'AssignmentExpression',
+                                        left: {
+                                            type: 'Identifier',
+                                            name: 'c'
+                                        },
+                                        operator: '=',
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'd'
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'Identifier',
+                                        name: 'z'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'foo'
+                        }
+                    }
+                ]
+            }
+        });
+
+      pass(`function foo() {
+              x();
+              y();
+              for (z(); i < 10; i++) z();
+            }`, {
+            source: `function foo() {
+                x();
+                y();
+                for (z(); i < 10; i++) z();
+              }`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'CallExpression',
+                                        callee: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        arguments: []
+                                    }
+                                },
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'CallExpression',
+                                        callee: {
+                                            type: 'Identifier',
+                                            name: 'y'
+                                        },
+                                        arguments: []
+                                    }
+                                },
+                                {
+                                    type: 'ForStatement',
+                                    body: {
+                                        type: 'ExpressionStatement',
+                                        expression: {
+                                            type: 'CallExpression',
+                                            callee: {
+                                                type: 'Identifier',
+                                                name: 'z'
+                                            },
+                                            arguments: []
+                                        }
+                                    },
+                                    init: {
+                                        type: 'CallExpression',
+                                        callee: {
+                                            type: 'Identifier',
+                                            name: 'z'
+                                        },
+                                        arguments: []
+                                    },
+                                    test: {
+                                        type: 'BinaryExpression',
+                                        left: {
+                                            type: 'Identifier',
+                                            name: 'i'
+                                        },
+                                        right: {
+                                            type: 'Literal',
+                                            value: 10,
+                                            raw: '10'
+                                        },
+                                        operator: '<'
+                                    },
+                                    update: {
+                                        type: 'UpdateExpression',
+                                        argument: {
+                                            type: 'Identifier',
+                                            name: 'i'
+                                        },
+                                        operator: '++',
+                                        prefix: false
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'foo'
+                        }
+                    }
+                ]
+            }
+        });
+
+      pass(`function foo(object, property, value) {
+            return !!(object && property) && (object[property] = value, true);
+          }`, {
+          source: `function foo(object, property, value) {
+            return !!(object && property) && (object[property] = value, true);
+          }`,
+          raw: true,
+          expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [
+                        {
+                            type: 'Identifier',
+                            name: 'object'
+                        },
+                        {
+                            type: 'Identifier',
+                            name: 'property'
+                        },
+                        {
+                            type: 'Identifier',
+                            name: 'value'
+                        }
+                    ],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'ReturnStatement',
+                                argument: {
+                                    type: 'LogicalExpression',
+                                    left: {
+                                        type: 'UnaryExpression',
+                                        operator: '!',
+                                        argument: {
+                                            type: 'UnaryExpression',
+                                            operator: '!',
+                                            argument: {
+                                                type: 'LogicalExpression',
+                                                left: {
+                                                    type: 'Identifier',
+                                                    name: 'object'
+                                                },
+                                                right: {
+                                                    type: 'Identifier',
+                                                    name: 'property'
+                                                },
+                                                operator: '&&'
+                                            },
+                                            prefix: true
+                                        },
+                                        prefix: true
+                                    },
+                                    right: {
+                                        type: 'SequenceExpression',
+                                        expressions: [
+                                            {
+                                                type: 'AssignmentExpression',
+                                                left: {
+                                                    type: 'MemberExpression',
+                                                    object: {
+                                                        type: 'Identifier',
+                                                        name: 'object'
+                                                    },
+                                                    computed: true,
+                                                    property: {
+                                                        type: 'Identifier',
+                                                        name: 'property'
+                                                    }
+                                                },
+                                                operator: '=',
+                                                right: {
+                                                    type: 'Identifier',
+                                                    name: 'value'
+                                                }
+                                            },
+                                            {
+                                                type: 'Literal',
+                                                value: true,
+                                                raw: 'true'
+                                            }
+                                        ]
+                                    },
+                                    operator: '&&'
+                                }
+                            }
+                        ]
+                    },
+                    async: false,
+                    generator: false,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'foo'
+                    }
+                }
+            ]
+        }
+        });
+
+      pass(`function x() {
+              if (a) {
+                if (b) {
+                  for(;;) {
+                    if (a) b();
+                  }
+                }
+              } else {
+                async();
+              }
+            }`, {
+            source: `function x() {
+                if (a) {
+                  if (b) {
+                    for(;;) {
+                      if (a) b();
+                    }
+                  }
+                } else {
+                  async();
+                }
+              }`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'IfStatement',
+                                    test: {
+                                        type: 'Identifier',
+                                        name: 'a'
+                                    },
+                                    alternate: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'ExpressionStatement',
+                                                expression: {
+                                                    type: 'CallExpression',
+                                                    callee: {
+                                                        type: 'Identifier',
+                                                        name: 'async'
+                                                    },
+                                                    arguments: []
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    consequent: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'IfStatement',
+                                                test: {
+                                                    type: 'Identifier',
+                                                    name: 'b'
+                                                },
+                                                alternate: null,
+                                                consequent: {
+                                                    type: 'BlockStatement',
+                                                    body: [
+                                                        {
+                                                            type: 'ForStatement',
+                                                            body: {
+                                                                type: 'BlockStatement',
+                                                                body: [
+                                                                    {
+                                                                        type: 'IfStatement',
+                                                                        test: {
+                                                                            type: 'Identifier',
+                                                                            name: 'a'
+                                                                        },
+                                                                        alternate: null,
+                                                                        consequent: {
+                                                                            type: 'ExpressionStatement',
+                                                                            expression: {
+                                                                                type: 'CallExpression',
+                                                                                callee: {
+                                                                                    type: 'Identifier',
+                                                                                    name: 'b'
+                                                                                },
+                                                                                arguments: []
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            },
+                                                            init: null,
+                                                            test: null,
+                                                            update: null
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'x'
+                        }
+                    }
+                ]
+            }
+        });
+
+      pass(`function foo() {
+              while(1) {
+                if (a === null) {
+                  b();
+                  return;
+                }
+                a();
+                b();
+              }
+            }`, {
+            source: `function foo() {
+                while(1) {
+                  if (a === null) {
+                    b();
+                    return;
+                  }
+                  a();
+                  b();
+                }
+              }`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'WhileStatement',
+                                    test: {
+                                        type: 'Literal',
+                                        value: 1,
+                                        raw: '1'
+                                    },
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'IfStatement',
+                                                test: {
+                                                    type: 'BinaryExpression',
+                                                    left: {
+                                                        type: 'Identifier',
+                                                        name: 'a'
+                                                    },
+                                                    right: {
+                                                        type: 'Literal',
+                                                        value: null,
+                                                        raw: 'null'
+                                                    },
+                                                    operator: '==='
+                                                },
+                                                alternate: null,
+                                                consequent: {
+                                                    type: 'BlockStatement',
+                                                    body: [
+                                                        {
+                                                            type: 'ExpressionStatement',
+                                                            expression: {
+                                                                type: 'CallExpression',
+                                                                callee: {
+                                                                    type: 'Identifier',
+                                                                    name: 'b'
+                                                                },
+                                                                arguments: []
+                                                            }
+                                                        },
+                                                        {
+                                                            type: 'ReturnStatement',
+                                                            argument: null
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                type: 'ExpressionStatement',
+                                                expression: {
+                                                    type: 'CallExpression',
+                                                    callee: {
+                                                        type: 'Identifier',
+                                                        name: 'a'
+                                                    },
+                                                    arguments: []
+                                                }
+                                            },
+                                            {
+                                                type: 'ExpressionStatement',
+                                                expression: {
+                                                    type: 'CallExpression',
+                                                    callee: {
+                                                        type: 'Identifier',
+                                                        name: 'b'
+                                                    },
+                                                    arguments: []
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'foo'
+                        }
+                    }
+                ]
+            }
+        });
+
+      pass(`function bar() {
+              switch (foo) {
+                case 'foo':
+                  return 1;
+                case foo.bar:
+                  return 2;
+                case wow:
+                  wow();
+                  return 3;
+              }
+              return 0;
+            }`, {
+            source: `function bar() {
+                switch (foo) {
+                  case 'foo':
+                    return 1;
+                  case foo.bar:
+                    return 2;
+                  case wow:
+                    wow();
+                    return 3;
+                }
+                return 0;
+              }`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'SwitchStatement',
+                                    discriminant: {
+                                        type: 'Identifier',
+                                        name: 'foo'
+                                    },
+                                    cases: [
+                                        {
+                                            type: 'SwitchCase',
+                                            test: {
+                                                type: 'Literal',
+                                                value: 'foo',
+                                                raw: '\'foo\''
+                                            },
+                                            consequent: [
+                                                {
+                                                    type: 'ReturnStatement',
+                                                    argument: {
+                                                        type: 'Literal',
+                                                        value: 1,
+                                                        raw: '1'
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            type: 'SwitchCase',
+                                            test: {
+                                                type: 'MemberExpression',
+                                                object: {
+                                                    type: 'Identifier',
+                                                    name: 'foo'
+                                                },
+                                                computed: false,
+                                                property: {
+                                                    type: 'Identifier',
+                                                    name: 'bar'
+                                                }
+                                            },
+                                            consequent: [
+                                                {
+                                                    type: 'ReturnStatement',
+                                                    argument: {
+                                                        type: 'Literal',
+                                                        value: 2,
+                                                        raw: '2'
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            type: 'SwitchCase',
+                                            test: {
+                                                type: 'Identifier',
+                                                name: 'wow'
+                                            },
+                                            consequent: [
+                                                {
+                                                    type: 'ExpressionStatement',
+                                                    expression: {
+                                                        type: 'CallExpression',
+                                                        callee: {
+                                                            type: 'Identifier',
+                                                            name: 'wow'
+                                                        },
+                                                        arguments: []
+                                                    }
+                                                },
+                                                {
+                                                    type: 'ReturnStatement',
+                                                    argument: {
+                                                        type: 'Literal',
+                                                        value: 3,
+                                                        raw: '3'
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    type: 'ReturnStatement',
+                                    argument: {
+                                        type: 'Literal',
+                                        value: 0,
+                                        raw: '0'
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'bar'
+                        }
+                    }
+                ]
+            }
+        });
+
+      pass(`function bar() {
+              switch (foo) {
+                case 'foo':
+                  foo();
+                  break;
+                case foo.bar:
+                  wow();
+                  wat();
+                  break;
+                case shh:
+                case wow:
+                  baa();
+                  break;
+                default:
+                  meh();
+              }
+            }`, {
+            source: `function bar() {
+                switch (foo) {
+                  case 'foo':
+                    foo();
+                    break;
+                  case foo.bar:
+                    wow();
+                    wat();
+                    break;
+                  case shh:
+                  case wow:
+                    baa();
+                    break;
+                  default:
+                    meh();
+                }
+              }`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'SwitchStatement',
+                                    discriminant: {
+                                        type: 'Identifier',
+                                        name: 'foo'
+                                    },
+                                    cases: [
+                                        {
+                                            type: 'SwitchCase',
+                                            test: {
+                                                type: 'Literal',
+                                                value: 'foo',
+                                                raw: '\'foo\''
+                                            },
+                                            consequent: [
+                                                {
+                                                    type: 'ExpressionStatement',
+                                                    expression: {
+                                                        type: 'CallExpression',
+                                                        callee: {
+                                                            type: 'Identifier',
+                                                            name: 'foo'
+                                                        },
+                                                        arguments: []
+                                                    }
+                                                },
+                                                {
+                                                    type: 'BreakStatement',
+                                                    label: null
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            type: 'SwitchCase',
+                                            test: {
+                                                type: 'MemberExpression',
+                                                object: {
+                                                    type: 'Identifier',
+                                                    name: 'foo'
+                                                },
+                                                computed: false,
+                                                property: {
+                                                    type: 'Identifier',
+                                                    name: 'bar'
+                                                }
+                                            },
+                                            consequent: [
+                                                {
+                                                    type: 'ExpressionStatement',
+                                                    expression: {
+                                                        type: 'CallExpression',
+                                                        callee: {
+                                                            type: 'Identifier',
+                                                            name: 'wow'
+                                                        },
+                                                        arguments: []
+                                                    }
+                                                },
+                                                {
+                                                    type: 'ExpressionStatement',
+                                                    expression: {
+                                                        type: 'CallExpression',
+                                                        callee: {
+                                                            type: 'Identifier',
+                                                            name: 'wat'
+                                                        },
+                                                        arguments: []
+                                                    }
+                                                },
+                                                {
+                                                    type: 'BreakStatement',
+                                                    label: null
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            type: 'SwitchCase',
+                                            test: {
+                                                type: 'Identifier',
+                                                name: 'shh'
+                                            },
+                                            consequent: []
+                                        },
+                                        {
+                                            type: 'SwitchCase',
+                                            test: {
+                                                type: 'Identifier',
+                                                name: 'wow'
+                                            },
+                                            consequent: [
+                                                {
+                                                    type: 'ExpressionStatement',
+                                                    expression: {
+                                                        type: 'CallExpression',
+                                                        callee: {
+                                                            type: 'Identifier',
+                                                            name: 'baa'
+                                                        },
+                                                        arguments: []
+                                                    }
+                                                },
+                                                {
+                                                    type: 'BreakStatement',
+                                                    label: null
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            type: 'SwitchCase',
+                                            test: null,
+                                            consequent: [
+                                                {
+                                                    type: 'ExpressionStatement',
+                                                    expression: {
+                                                        type: 'CallExpression',
+                                                        callee: {
+                                                            type: 'Identifier',
+                                                            name: 'meh'
+                                                        },
+                                                        arguments: []
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'bar'
+                        }
+                    }
+                ]
+            }
+        });
+
+      pass(`function foo() {
+              a();
+              var x = bar();
+              b(x);
+              this.d = x;
+            }
+            function bar() {
+              x();
+             while (x) {
+                if (x) x();
+              }
+              try { y(); } catch (e) {}
+              var z = x();
+              z();
+              while (a) b();
+              c();
+              z();
+            }`, {
+            source: `function foo() {
+                a();
+                var x = bar();
+                b(x);
+                this.d = x;
+              }
+              function bar() {
+                x();
+               while (x) {
+                  if (x) x();
+                }
+                try { y(); } catch (e) {}
+                var z = x();
+                z();
+                while (a) b();
+                c();
+                z();
+              }`,
+            raw: true,
+            expected: {
+                type: 'Program',
+                sourceType: 'script',
+                body: [
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'CallExpression',
+                                        callee: {
+                                            type: 'Identifier',
+                                            name: 'a'
+                                        },
+                                        arguments: []
+                                    }
+                                },
+                                {
+                                    type: 'VariableDeclaration',
+                                    declarations: [
+                                        {
+                                            type: 'VariableDeclarator',
+                                            init: {
+                                                type: 'CallExpression',
+                                                callee: {
+                                                    type: 'Identifier',
+                                                    name: 'bar'
+                                                },
+                                                arguments: []
+                                            },
+                                            id: {
+                                                type: 'Identifier',
+                                                name: 'x'
+                                            }
+                                        }
+                                    ],
+                                    kind: 'var'
+                                },
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'CallExpression',
+                                        callee: {
+                                            type: 'Identifier',
+                                            name: 'b'
+                                        },
+                                        arguments: [
+                                            {
+                                                type: 'Identifier',
+                                                name: 'x'
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'AssignmentExpression',
+                                        left: {
+                                            type: 'MemberExpression',
+                                            object: {
+                                                type: 'ThisExpression'
+                                            },
+                                            computed: false,
+                                            property: {
+                                                type: 'Identifier',
+                                                name: 'd'
+                                            }
+                                        },
+                                        operator: '=',
+                                        right: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'foo'
+                        }
+                    },
+                    {
+                        type: 'FunctionDeclaration',
+                        params: [],
+                        body: {
+                            type: 'BlockStatement',
+                            body: [
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'CallExpression',
+                                        callee: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        arguments: []
+                                    }
+                                },
+                                {
+                                    type: 'WhileStatement',
+                                    test: {
+                                        type: 'Identifier',
+                                        name: 'x'
+                                    },
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'IfStatement',
+                                                test: {
+                                                    type: 'Identifier',
+                                                    name: 'x'
+                                                },
+                                                alternate: null,
+                                                consequent: {
+                                                    type: 'ExpressionStatement',
+                                                    expression: {
+                                                        type: 'CallExpression',
+                                                        callee: {
+                                                            type: 'Identifier',
+                                                            name: 'x'
+                                                        },
+                                                        arguments: []
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    type: 'TryStatement',
+                                    block: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'ExpressionStatement',
+                                                expression: {
+                                                    type: 'CallExpression',
+                                                    callee: {
+                                                        type: 'Identifier',
+                                                        name: 'y'
+                                                    },
+                                                    arguments: []
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    handler: {
+                                        type: 'CatchClause',
+                                        param: {
+                                            type: 'Identifier',
+                                            name: 'e'
+                                        },
+                                        body: {
+                                            type: 'BlockStatement',
+                                            body: []
+                                        }
+                                    },
+                                    finalizer: null
+                                },
+                                {
+                                    type: 'VariableDeclaration',
+                                    declarations: [
+                                        {
+                                            type: 'VariableDeclarator',
+                                            init: {
+                                                type: 'CallExpression',
+                                                callee: {
+                                                    type: 'Identifier',
+                                                    name: 'x'
+                                                },
+                                                arguments: []
+                                            },
+                                            id: {
+                                                type: 'Identifier',
+                                                name: 'z'
+                                            }
+                                        }
+                                    ],
+                                    kind: 'var'
+                                },
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'CallExpression',
+                                        callee: {
+                                            type: 'Identifier',
+                                            name: 'z'
+                                        },
+                                        arguments: []
+                                    }
+                                },
+                                {
+                                    type: 'WhileStatement',
+                                    test: {
+                                        type: 'Identifier',
+                                        name: 'a'
+                                    },
+                                    body: {
+                                        type: 'ExpressionStatement',
+                                        expression: {
+                                            type: 'CallExpression',
+                                            callee: {
+                                                type: 'Identifier',
+                                                name: 'b'
+                                            },
+                                            arguments: []
+                                        }
+                                    }
+                                },
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'CallExpression',
+                                        callee: {
+                                            type: 'Identifier',
+                                            name: 'c'
+                                        },
+                                        arguments: []
+                                    }
+                                },
+                                {
+                                    type: 'ExpressionStatement',
+                                    expression: {
+                                        type: 'CallExpression',
+                                        callee: {
+                                            type: 'Identifier',
+                                            name: 'z'
+                                        },
+                                        arguments: []
+                                    }
+                                }
+                            ]
+                        },
+                        async: false,
+                        generator: false,
+                        expression: false,
+                        id: {
+                            type: 'Identifier',
+                            name: 'bar'
+                        }
+                    }
+                ]
             }
         });
 });

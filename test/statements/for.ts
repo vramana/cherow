@@ -99,7 +99,7 @@ describe('Statements - For', () => {
     });
 
     fail(`"use strict"; for (let [a = let];;) {}`, {
-        source: '"use strict"; for (let [a = let];;) {}', // Unexpected strict mode reserved word
+        source: '"use strict"; for (let [a = let];;) {}',
         message: 'The identifier \'let\' must not be in expression position in strict mode',
         line: 1,
         column: 27,
@@ -107,7 +107,7 @@ describe('Statements - For', () => {
     });
 
     fail(`"use strict"; for (let {a: b = let};;) {}`, {
-        source: '"use strict"; for (let {a: b = let};;) {}', // Unexpected strict mode reserved word
+        source: '"use strict"; for (let {a: b = let};;) {}',
         message: 'The identifier \'let\' must not be in expression position in strict mode',
         line: 1,
         column: 30,
@@ -7708,6 +7708,503 @@ describe('Statements - For', () => {
                 end: {
                     line: 1,
                     column: 13
+                }
+            }
+        }
+    });
+
+    pass(`function foo() {
+          for (i in p) {}
+          for (; ;) {}
+          switch(1) {}
+          try { a } catch(e) {}
+        }`, {
+        source: `function foo() {
+            for (i in p) {}
+            for (; ;) {}
+            switch(1) {}
+            try { a } catch(e) {}
+          }`,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'ForInStatement',
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: []
+                                },
+                                left: {
+                                    type: 'Identifier',
+                                    name: 'i'
+                                },
+                                right: {
+                                    type: 'Identifier',
+                                    name: 'p'
+                                }
+                            },
+                            {
+                                type: 'ForStatement',
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: []
+                                },
+                                init: null,
+                                test: null,
+                                update: null
+                            },
+                            {
+                                type: 'SwitchStatement',
+                                discriminant: {
+                                    type: 'Literal',
+                                    value: 1,
+                                    raw: '1'
+                                },
+                                cases: []
+                            },
+                            {
+                                type: 'TryStatement',
+                                block: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                        {
+                                            type: 'ExpressionStatement',
+                                            expression: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            }
+                                        }
+                                    ]
+                                },
+                                handler: {
+                                    type: 'CatchClause',
+                                    param: {
+                                        type: 'Identifier',
+                                        name: 'e'
+                                    },
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: []
+                                    }
+                                },
+                                finalizer: null
+                            }
+                        ]
+                    },
+                    async: false,
+                    generator: false,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'foo'
+                    }
+                }
+            ]
+        }
+    });
+
+    pass(`function foo() {
+          for (i in p);
+          for (;;);
+          switch (1) {}
+          try {
+            a;
+          } catch (e) {}
+        }`, {
+        source: `function foo() {
+            for (i in p);
+            for (;;);
+            switch (1) {}
+            try {
+              a;
+            } catch (e) {}
+          }`,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'ForInStatement',
+                                body: {
+                                    type: 'EmptyStatement'
+                                },
+                                left: {
+                                    type: 'Identifier',
+                                    name: 'i'
+                                },
+                                right: {
+                                    type: 'Identifier',
+                                    name: 'p'
+                                }
+                            },
+                            {
+                                type: 'ForStatement',
+                                body: {
+                                    type: 'EmptyStatement'
+                                },
+                                init: null,
+                                test: null,
+                                update: null
+                            },
+                            {
+                                type: 'SwitchStatement',
+                                discriminant: {
+                                    type: 'Literal',
+                                    value: 1,
+                                    raw: '1'
+                                },
+                                cases: []
+                            },
+                            {
+                                type: 'TryStatement',
+                                block: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                        {
+                                            type: 'ExpressionStatement',
+                                            expression: {
+                                                type: 'Identifier',
+                                                name: 'a'
+                                            }
+                                        }
+                                    ]
+                                },
+                                handler: {
+                                    type: 'CatchClause',
+                                    param: {
+                                        type: 'Identifier',
+                                        name: 'e'
+                                    },
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: []
+                                    }
+                                },
+                                finalizer: null
+                            }
+                        ]
+                    },
+                    async: false,
+                    generator: false,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'foo'
+                    }
+                }
+            ]
+        }
+    });
+
+    pass(`if (a || b != a || b || !(b < a)) for (;;) a(); `, {
+        source: `if (a || b != a || b || !(b < a)) for (;;) a();`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'IfStatement',
+                    test: {
+                        type: 'LogicalExpression',
+                        left: {
+                            type: 'LogicalExpression',
+                            left: {
+                                type: 'LogicalExpression',
+                                left: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    start: 4,
+                                    end: 5,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 4
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 5
+                                        }
+                                    }
+                                },
+                                right: {
+                                    type: 'BinaryExpression',
+                                    left: {
+                                        type: 'Identifier',
+                                        name: 'b',
+                                        start: 9,
+                                        end: 10,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 9
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 10
+                                            }
+                                        }
+                                    },
+                                    right: {
+                                        type: 'Identifier',
+                                        name: 'a',
+                                        start: 14,
+                                        end: 15,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 14
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 15
+                                            }
+                                        }
+                                    },
+                                    operator: '!=',
+                                    start: 9,
+                                    end: 15,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 9
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 15
+                                        }
+                                    }
+                                },
+                                operator: '||',
+                                start: 4,
+                                end: 15,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 4
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 15
+                                    }
+                                }
+                            },
+                            right: {
+                                type: 'Identifier',
+                                name: 'b',
+                                start: 19,
+                                end: 20,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 19
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 20
+                                    }
+                                }
+                            },
+                            operator: '||',
+                            start: 4,
+                            end: 20,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 4
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 20
+                                }
+                            }
+                        },
+                        right: {
+                            type: 'UnaryExpression',
+                            operator: '!',
+                            argument: {
+                                type: 'BinaryExpression',
+                                left: {
+                                    type: 'Identifier',
+                                    name: 'b',
+                                    start: 26,
+                                    end: 27,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 26
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 27
+                                        }
+                                    }
+                                },
+                                right: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    start: 30,
+                                    end: 31,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 30
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 31
+                                        }
+                                    }
+                                },
+                                operator: '<',
+                                start: 26,
+                                end: 31,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 26
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 31
+                                    }
+                                }
+                            },
+                            prefix: true,
+                            start: 24,
+                            end: 32,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 24
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 32
+                                }
+                            }
+                        },
+                        operator: '||',
+                        start: 4,
+                        end: 32,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 4
+                            },
+                            end: {
+                                line: 1,
+                                column: 32
+                            }
+                        }
+                    },
+                    alternate: null,
+                    consequent: {
+                        type: 'ForStatement',
+                        body: {
+                            type: 'ExpressionStatement',
+                            expression: {
+                                type: 'CallExpression',
+                                callee: {
+                                    type: 'Identifier',
+                                    name: 'a',
+                                    start: 43,
+                                    end: 44,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 43
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 44
+                                        }
+                                    }
+                                },
+                                arguments: [],
+                                start: 43,
+                                end: 46,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 43
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 46
+                                    }
+                                }
+                            },
+                            start: 43,
+                            end: 47,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 43
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 47
+                                }
+                            }
+                        },
+                        init: null,
+                        test: null,
+                        update: null,
+                        start: 34,
+                        end: 47,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 34
+                            },
+                            end: {
+                                line: 1,
+                                column: 47
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 47,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 47
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 47,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 47
                 }
             }
         }

@@ -1058,7 +1058,7 @@ describe('Miscellaneous - Early errors', () => {
         module: true,
         line: 1,
     });
-   
+
     fail(`function* a(){ ({b = yield}) => 1; }`, {
         source: `function* a(){ ({b = yield}) => 1; }`,
         module: true,

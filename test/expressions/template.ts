@@ -2662,6 +2662,77 @@ describe('Cherow', () => {
             }
     });
 
+      pass('foo[`x`] = foo[`x`] + 1;', {
+        source: 'foo[`x`] = foo[`x`] + 1;',
+        raw: true,
+        expected: {
+              body: [
+                {
+                  expression: {
+                    left: {
+                      computed: true,
+                      object: {
+                        name: 'foo',
+                        type: 'Identifier'
+                      },
+                      property: {
+                        expressions: [],
+                        quasis: [
+                          {
+                            tail: true,
+                            type: 'TemplateElement',
+                            value: {
+                              cooked: 'x',
+                              raw: 'x',
+                            }
+                          }
+                       ],
+                        type: 'TemplateLiteral'
+                      },
+                      type: 'MemberExpression'
+                    },
+                    operator: '=',
+                   right: {
+                      left: {
+                        computed: true,
+                        object: {
+                          name: 'foo',
+                          type: 'Identifier'
+                        },
+                        property: {
+                          expressions: [],
+                          quasis: [
+                            {
+                              tail: true,
+                              type: 'TemplateElement',
+                              value: {
+                                cooked: 'x',
+                                raw: 'x',
+                              }
+                            }
+                          ],
+                          type: 'TemplateLiteral'
+                        },
+                        type: 'MemberExpression'
+                      },
+                      operator: '+',
+                      right: {
+                        raw: '1',
+                        type: 'Literal',
+                        value: 1,
+                      },
+                      type: 'BinaryExpression'
+                   },
+                    type: 'AssignmentExpression'
+                  },
+                  type: 'ExpressionStatement'
+                },
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
       pass('`outer${{x: {y: 10}}}bar${`nested${function(){return 1;}}endnest`}end`', {
         source: '`outer${{x: {y: 10}}}bar${`nested${function(){return 1;}}endnest`}end`',
         raw: true,

@@ -1392,7 +1392,8 @@ export class Parser {
         const flagsStart = this.index;
 
         let mask = RegexFlags.None;
-
+        
+        // Scan regular expression flags
         loop:
             while (this.hasNext()) {
                 let code = this.nextChar();

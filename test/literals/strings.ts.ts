@@ -10,7 +10,7 @@ describe('Literals - Strings', () => {
         index: 0
     });
 
-  fail('"\\u{g0g}"', {
+    fail('"\\u{g0g}"', {
       source: '"\\u{g0g}"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
@@ -18,28 +18,28 @@ describe('Literals - Strings', () => {
       index: 0
   });
 
-  fail('"\\u{g0g}"', {
+    fail('"\\u{g0g}"', {
       source: '"\\u{g}"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('"\\u{g}"', {
+    fail('"\\u{g}"', {
       source: '"\\u{g}"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('"\\u{g0}"', {
+    fail('"\\u{g0}"', {
       source: '"\\u{g0}"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('"\\u{g0}"', {
+    fail('"\\u{g0}"', {
       source: '"\\u{g0}"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
@@ -47,35 +47,35 @@ describe('Literals - Strings', () => {
       index: 0
   });
 
-  fail('\\u{0g}', {
+    fail('\\u{0g}', {
       source: '\\u{0g}',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('\\u{0g0}\r\n', {
+    fail('\\u{0g0}\r\n', {
       source: '\\u{0g0}\r\n',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('"\\u{g0g}"', {
+    fail('"\\u{g0g}"', {
       source: '"\\u{g0g}"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('"\\u{110000}"', {
+    fail('"\\u{110000}"', {
       source: '"\\u{110000}"',
       message: 'Unicode escape code point out of range',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('"\\u{11ffff}"', {
+    fail('"\\u{11ffff}"', {
       source: '"\\u{11ffff}"',
       message: 'Unicode escape code point out of range',
       line: 1,
@@ -83,21 +83,21 @@ describe('Literals - Strings', () => {
       index: 0
   });
 
-  fail('"\\x0g"', {
+    fail('"\\x0g"', {
       source: '"\\x0g"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('"\\xg0\r\n"', {
+    fail('"\\xg0\r\n"', {
       source: '"\\xg0\r\n"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('"\\xgg"', {
+    fail('"\\xgg"', {
       source: '"\\xgg"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
@@ -105,7 +105,7 @@ describe('Literals - Strings', () => {
       index: 0
   });
 
-  fail('"\\xfg"', {
+    fail('"\\xfg"', {
       source: '"\\xfg"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
@@ -113,7 +113,7 @@ describe('Literals - Strings', () => {
       index: 0
   });
 
-  fail('"\\xFG"', {
+    fail('"\\xFG"', {
     source: '"\\xFG"',
     message: 'Invalid hexadecimal escape sequence',
     line: 1,
@@ -121,42 +121,42 @@ describe('Literals - Strings', () => {
     index: 0
   });
 
-  fail('"\\u0g00"', {
+    fail('"\\u0g00"', {
       source: '"\\u0g00"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('"\\u00g0"', {
+    fail('"\\u00g0"', {
       source: '"\\u00g0"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('"\\uAA"', {
+    fail('"\\uAA"', {
       source: '"\\uAA"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('"\\uAAA"', {
+    fail('"\\uAAA"', {
       source: '"\\uAAA"',
       message: 'Invalid hexadecimal escape sequence',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('"Hello\nworld"', {
+    fail('"Hello\nworld"', {
       source: '"Hello\nworld"',
       message: 'Unterminated string literal',
       line: 1,
       column: 0,
       index: 0
   });
-  fail('"\n\r\t\v\b\f\\\'\"\0"', {
+    fail('"\n\r\t\v\b\f\\\'\"\0"', {
       source: '"\n\r\t\v\b\f\\\'\"\0"',
       message: 'Unterminated string literal',
       line: 1,
@@ -164,7 +164,7 @@ describe('Literals - Strings', () => {
       index: 0
   });
 
-  fail('"use strict";  "\\08"', {
+    fail('"use strict";  "\\08"', {
       source: '"use strict"; "\\08"',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
@@ -172,14 +172,14 @@ describe('Literals - Strings', () => {
       index: 13
   });
 
-  fail('"use strict"; ("\\000")', {
+    fail('"use strict"; ("\\000")', {
       source: '"use strict"; ("\\000")',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
       column: 15,
       index: 15
   });
-  fail('"use strict"; ("\\000")', {
+    fail('"use strict"; ("\\000")', {
       source: '"use strict"; ("\\000")',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
@@ -187,21 +187,21 @@ describe('Literals - Strings', () => {
       index: 15
   });
 
-  fail('"use strict"; ("\\001")', {
+    fail('"use strict"; ("\\001")', {
       source: '"use strict"; ("\\001")',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
       column: 15,
       index: 15
   });
-  fail('"use strict"; ("\\123")', {
+    fail('"use strict"; ("\\123")', {
       source: '"use strict"; ("\\123")',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
       column: 15,
       index: 15
   });
-  fail('"use strict"; ("\\01")', {
+    fail('"use strict"; ("\\01")', {
       source: '"use strict"; ("\\01")',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
@@ -209,21 +209,21 @@ describe('Literals - Strings', () => {
       index: 15
   });
 
-  fail('"use strict"; ("\\41")', {
+    fail('"use strict"; ("\\41")', {
       source: '"use strict"; ("\\41")',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
       column: 15,
       index: 15
   });
-  fail('"use strict"; ("\\1")', {
+    fail('"use strict"; ("\\1")', {
       source: '"use strict"; ("\\1")',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
       column: 15,
       index: 15
   });
-  fail('"use strict"; ("\\4")', {
+    fail('"use strict"; ("\\4")', {
       source: '"use strict"; ("\\4")',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
@@ -231,21 +231,21 @@ describe('Literals - Strings', () => {
       index: 15
   });
 
-  fail('"use strict"; "\\10";', {
+    fail('"use strict"; "\\10";', {
       source: '"use strict"; "\\10";',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
       column: 13,
       index: 13
   });
-  fail('"use strict"; "\\16";', {
+    fail('"use strict"; "\\16";', {
       source: '"use strict"; "\\16";',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
       column: 13,
       index: 13
   });
-  fail('"use strict"; "\\31";', {
+    fail('"use strict"; "\\31";', {
       source: '"use strict"; "\\31";',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
@@ -253,21 +253,21 @@ describe('Literals - Strings', () => {
       index: 13
   });
 
-  fail('"use strict"; "\\106";', {
+    fail('"use strict"; "\\106";', {
       source: '"use strict"; "\\106";',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
       column: 13,
       index: 13
   });
-  fail('"use strict"; "\\207";', {
+    fail('"use strict"; "\\207";', {
       source: '"use strict"; "\\207";',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
       column: 13,
       index: 13
   });
-  fail('"use strict"; "\\10";', {
+    fail('"use strict"; "\\10";', {
       source: '"use strict"; "\\10";',
       message: 'Octal escapes are not allowed in strict mode',
       line: 1,
@@ -275,14 +275,14 @@ describe('Literals - Strings', () => {
       index: 13
   });
 
-  fail('"use strict"; "z\\7";', {
+    fail('"use strict"; "z\\7";', {
     source: '"use strict"; "z\\7";',
     message: 'Octal escapes are not allowed in strict mode',
     line: 1,
     column: 13,
     index: 13
 });
-  fail('"use strict"; "\\10";', {
+    fail('"use strict"; "\\10";', {
     source: '"use strict"; "\\10";',
     message: 'Octal escapes are not allowed in strict mode',
     line: 1,
@@ -290,7 +290,7 @@ describe('Literals - Strings', () => {
     index: 13
 });
 
-  pass(`"abc"`, {
+    pass(`"abc"`, {
   source: '"abc"',
   loc: true,
   ranges: true,
@@ -346,7 +346,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass(`"\\б"`, {
+    pass(`"\\б"`, {
   source: '"\\б"',
   loc: true,
   ranges: true,
@@ -402,7 +402,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass(`"\\u0435"`, {
+    pass(`"\\u0435"`, {
   source: '"\\n\\r\\t\\v\\b\\f"',
   expected: {
       body: [{
@@ -418,7 +418,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass(`"Hello\\nworld"`, {
+    pass(`"Hello\\nworld"`, {
   source: '"Hello\\nworld"',
   directives: true,
   ranges: true,
@@ -444,7 +444,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass(`"\\u0435"`, {
+    pass(`"\\u0435"`, {
   source: '"\\u0435"',
   loc: true,
   directives: true,
@@ -501,7 +501,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass(`"\\u0432"`, {
+    pass(`"\\u0432"`, {
   source: '"\\u0432"',
   loc: true,
   ranges: true,
@@ -558,7 +558,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass(`"\\u180E"`, {
+    pass(`"\\u180E"`, {
   source: '"\\u180E"',
   loc: true,
   ranges: true,
@@ -615,7 +615,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass(`"\\7"`, {
+    pass(`"\\7"`, {
   source: '"\\7"',
   loc: true,
   ranges: true,
@@ -672,7 +672,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass(`"Hello\\012World"`, {
+    pass(`"Hello\\012World"`, {
   source: '"Hello\\012World"',
   loc: true,
   ranges: true,
@@ -729,7 +729,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass(`"Hello\\412World"`, {
+    pass(`"Hello\\412World"`, {
   source: '"Hello\\412World"',
   loc: true,
   ranges: true,
@@ -786,7 +786,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass('"Hello\\712World"', {
+    pass('"Hello\\712World"', {
   source: '"Hello\\712World"',
   loc: true,
   ranges: true,
@@ -843,7 +843,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass('"Hello\\1World"', {
+    pass('"Hello\\1World"', {
   source: '"Hello\\1World"',
   loc: true,
   ranges: true,
@@ -900,7 +900,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass(`"\\xff"`, {
+    pass(`"\\xff"`, {
   source: `"\\xff"`,
   loc: true,
   ranges: true,
@@ -957,7 +957,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass('"\\u{11000}"', {
+    pass('"\\u{11000}"', {
   source: '"\\u{11000}"',
   loc: true,
   ranges: true,
@@ -1013,7 +1013,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass('"\\Щ"', {
+    pass('"\\Щ"', {
   source: '"\\Щ"',
   raw: true,
   expected: {
@@ -1031,7 +1031,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass('"\\З"', {
+    pass('"\\З"', {
   source: '"\\З"',
   raw: true,
   expected: {
@@ -1049,7 +1049,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass('"\\ю"', {
+    pass('"\\ю"', {
   source: '"\\ю"',
   raw: true,
   expected: {
@@ -1067,7 +1067,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass('"\\б"', {
+    pass('"\\б"', {
   source: '"\\б"',
   raw: true,
   expected: {
@@ -1085,7 +1085,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass('"a\\r\\nb"', {
+    pass('"a\\r\\nb"', {
   source: '"a\\r\\nb"',
   raw: true,
   expected: {
@@ -1103,7 +1103,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass('"\\u0451"', {
+    pass('"\\u0451"', {
   source: '"\\u0451"',
   loc: true,
   ranges: true,
@@ -1159,7 +1159,7 @@ describe('Literals - Strings', () => {
   }
 });
 
-  pass('"\\u0006A"', {
+    pass('"\\u0006A"', {
   source: '"\\u0006A"',
   loc: true,
   ranges: true,

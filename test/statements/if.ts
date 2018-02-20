@@ -1163,4 +1163,145 @@ describe('Statements - If', () => {
           sourceType: 'script'
       }
   });
+
+      pass(`for (i = 1; i <= j; i++) {
+    foo();
+    if (bar) {
+      break;
+    } else {
+      foo();
+      if (x) throw 1
+    }
+    hi();
+  }`, {
+    source: `for (i = 1; i <= j; i++) {
+        foo();
+        if (bar) {
+          break;
+        } else {
+            foo();
+          if (x) throw 1
+        }
+        hi();
+      }`,
+    raw: true,
+    expected: {
+        type: 'Program',
+        sourceType: 'script',
+        body: [
+            {
+                type: 'ForStatement',
+                body: {
+                    type: 'BlockStatement',
+                    body: [
+                        {
+                            type: 'ExpressionStatement',
+                            expression: {
+                                type: 'CallExpression',
+                                callee: {
+                                    type: 'Identifier',
+                                    name: 'foo'
+                                },
+                                arguments: []
+                            }
+                        },
+                        {
+                            type: 'IfStatement',
+                            test: {
+                                type: 'Identifier',
+                                name: 'bar'
+                            },
+                            alternate: {
+                                type: 'BlockStatement',
+                                body: [
+                                    {
+                                        type: 'ExpressionStatement',
+                                        expression: {
+                                            type: 'CallExpression',
+                                            callee: {
+                                                type: 'Identifier',
+                                                name: 'foo'
+                                            },
+                                            arguments: []
+                                        }
+                                    },
+                                    {
+                                        type: 'IfStatement',
+                                        test: {
+                                            type: 'Identifier',
+                                            name: 'x'
+                                        },
+                                        alternate: null,
+                                        consequent: {
+                                            type: 'ThrowStatement',
+                                            argument: {
+                                                type: 'Literal',
+                                                value: 1,
+                                                raw: '1'
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            consequent: {
+                                type: 'BlockStatement',
+                                body: [
+                                    {
+                                        type: 'BreakStatement',
+                                        label: null
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            type: 'ExpressionStatement',
+                            expression: {
+                                type: 'CallExpression',
+                                callee: {
+                                    type: 'Identifier',
+                                    name: 'hi'
+                                },
+                                arguments: []
+                            }
+                        }
+                    ]
+                },
+                init: {
+                    type: 'AssignmentExpression',
+                    left: {
+                        type: 'Identifier',
+                        name: 'i'
+                    },
+                    operator: '=',
+                    right: {
+                        type: 'Literal',
+                        value: 1,
+                        raw: '1'
+                    }
+                },
+                test: {
+                    type: 'BinaryExpression',
+                    left: {
+                        type: 'Identifier',
+                        name: 'i'
+                    },
+                    right: {
+                        type: 'Identifier',
+                        name: 'j'
+                    },
+                    operator: '<='
+                },
+                update: {
+                    type: 'UpdateExpression',
+                    argument: {
+                        type: 'Identifier',
+                        name: 'i'
+                    },
+                    operator: '++',
+                    prefix: false
+                }
+            }
+        ]
+    }
+  });
 });

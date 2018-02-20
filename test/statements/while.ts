@@ -422,4 +422,97 @@ describe('Statements - While', () => {
               sourceType: 'script'
           }
       });
+
+      pass(`function foo() {
+        var a = 1;
+        while (true) {
+          bar(a);
+        }
+        return a;
+      }`, {
+        source: `function foo() {
+            var a = 1;
+            while (true) {
+              bar(a);
+            }
+            return a;
+          }`,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'FunctionDeclaration',
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body: [
+                            {
+                                type: 'VariableDeclaration',
+                                declarations: [
+                                    {
+                                        type: 'VariableDeclarator',
+                                        init: {
+                                            type: 'Literal',
+                                            value: 1,
+                                            raw: '1'
+                                        },
+                                        id: {
+                                            type: 'Identifier',
+                                            name: 'a'
+                                        }
+                                    }
+                                ],
+                                kind: 'var'
+                            },
+                            {
+                                type: 'WhileStatement',
+                                test: {
+                                    type: 'Literal',
+                                    value: true,
+                                    raw: 'true'
+                                },
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [
+                                        {
+                                            type: 'ExpressionStatement',
+                                            expression: {
+                                                type: 'CallExpression',
+                                                callee: {
+                                                    type: 'Identifier',
+                                                    name: 'bar'
+                                                },
+                                                arguments: [
+                                                    {
+                                                        type: 'Identifier',
+                                                        name: 'a'
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                type: 'ReturnStatement',
+                                argument: {
+                                    type: 'Identifier',
+                                    name: 'a'
+                                }
+                            }
+                        ]
+                    },
+                    async: false,
+                    generator: false,
+                    expression: false,
+                    id: {
+                        type: 'Identifier',
+                        name: 'foo'
+                    }
+                }
+            ]
+        }
+      });
   });

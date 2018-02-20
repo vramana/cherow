@@ -105,6 +105,127 @@ describe('Miscellaneous - Pass', () => {
         }
     });
 
+    pass('a, b, !c; ', {
+        source: 'a, b, !c; ',
+        loc: true,
+        ranges: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'SequenceExpression',
+                        expressions: [
+                            {
+                                type: 'Identifier',
+                                name: 'a',
+                                start: 0,
+                                end: 1,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 0
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 1
+                                    }
+                                }
+                            },
+                            {
+                                type: 'Identifier',
+                                name: 'b',
+                                start: 3,
+                                end: 4,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 3
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 4
+                                    }
+                                }
+                            },
+                            {
+                                type: 'UnaryExpression',
+                                operator: '!',
+                                argument: {
+                                    type: 'Identifier',
+                                    name: 'c',
+                                    start: 7,
+                                    end: 8,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 7
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 8
+                                        }
+                                    }
+                                },
+                                prefix: true,
+                                start: 6,
+                                end: 8,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 6
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 8
+                                    }
+                                }
+                            }
+                        ],
+                        start: 0,
+                        end: 8,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 8
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 9,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 9
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 10,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 10
+                }
+            }
+        }
+    });
+
     pass('function foo(eval) { }', {
         source: 'function foo(eval) { }',
         loc: true,
