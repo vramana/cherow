@@ -175,9 +175,9 @@ Cherow.parseScript("let x = do {}", { plugins: [do-expressions] }
 
 ## Bug reporting
 
-If you caught a bug, don't hesitate to report it in the issue tracker. From the moment I respond to you, it will take maximum 30 minutes before the bug is fixed. 
+If you caught a bug, don't hesitate to report it in the issue tracker. From the moment I respond to you, it will take maximum 60 minutes before the bug is fixed. 
 Note that I will try to respond to you within one hour. Sometimes it can take a bit longer. I'm not allways online. And if I find out it 
-will take more then 30 minutes to solve your issue, you will be notified. 
+will take more then 60 minutes to solve your issue, you will be notified. 
 
 I know how irritating it can be if you are writing code and encounter bugs in your dependencies. And even more frustrating if you need to wait weeks or days.
 
