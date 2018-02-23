@@ -1923,17 +1923,7 @@ export class Parser {
         return false;
     }
 
-    private validateFormalParameters(context: Context, params: string[], allowDuplicates: boolean = false) {
-        const paramSet: any = map.create();
-        for (let i = 0; i < params.length; i++) {
-            const key = '@' + params[i];
-            if (map.get(paramSet, key)) {
-                this.tolerate(context, Errors.InvalidDuplicateArgs, params[i]);
-            } else map.set(paramSet, key, true);
-        }
-    }
-
-    private validateBindings(context: Context, params: string[]) {
+    private validateParams(context: Context, params: string[]) {
         const paramSet: any = map.create();
         for (let i = 0; i < params.length; i++) {
             const key = '@' + params[i];
@@ -2749,7 +2739,7 @@ export class Parser {
         if (hasBinding) {
             const params: string[] = [];
             param = this.parseBindingIdentifierOrBindingPattern(context, params);
-            this.validateBindings(context, params);
+            this.validateParams(context, params);
             this.expect(context, Token.RightParen);
         }
 
@@ -4485,7 +4475,7 @@ export class Parser {
             // 2) Eval & arguments for class fields.
             // 3) Strict octal literals.
             //
-            this.validateFormalParameters(context, args);
+            this.validateParams(context, args);
             // Validate eval & arguments for class fields ( stage 3 proposal)
             if (context & Context.InClass && this.token & Token.IsEvalArguments) {
                 this.tolerate(context, Errors.ArgumentsDisallowedInInitializer, tokenDesc(this.token));
@@ -5090,7 +5080,7 @@ export class Parser {
         }
         this.expect(context, Token.RightBrace);
 
-        if (context & (Context.Strict | Context.ArrowFunction)) this.validateFormalParameters(context, params);
+        if (context & (Context.Strict | Context.ArrowFunction)) this.validateParams(context, params);
 
         return this.finishNode(context, pos, {
             type: 'BlockStatement',
