@@ -55,6 +55,146 @@ while (false);`,
       line: 1,
   });
 
+  pass(`function a() { do;while(0)return }`, {
+    source: 'function a() { do;while(0)return }',
+    loc: true,
+    ranges: true,
+    raw: true,
+    expected: {
+          body: [
+            {
+              async: false,
+              body: {
+                body: [
+                  {
+                    body: {
+                      end: 18,
+                     loc: {
+                        end: {
+                          column: 18,
+                          line: 1,
+                       },
+                        start: {
+                          column: 17,
+                          line: 1,
+                        },
+                     },
+                      start: 17,
+                      type: 'EmptyStatement'
+                    },
+                    end: 26,
+                    loc: {
+                      end: {
+                        column: 26,
+                        line: 1
+                     },
+                      start: {
+                        column: 15,
+                        line: 1,
+                      },
+                    },
+                    start: 15,
+                    test: {
+                      end: 25,
+                      loc: {
+                        end: {
+                          column: 25,
+                          line: 1,
+                        },
+                        start: {
+                          column: 24,
+                          line: 1,
+                        },
+                      },
+                      raw: '0',
+                      start: 24,
+                     type: 'Literal',
+                      value: 0,
+                    },
+                    type: 'DoWhileStatement',
+                  },
+                  {
+                    argument: null,
+                    end: 32,
+                    loc: {
+                      end: {
+                        column: 32,
+                        line: 1,
+                      },
+                      start: {
+                        column: 26,
+                        line: 1,
+                      },
+                   },
+                    start: 26,
+                    type: 'ReturnStatement',
+                  },
+                ],
+                end: 34,
+                loc: {
+                  end: {
+                    column: 34,
+                    line: 1,
+                  },
+                  start: {
+                    column: 13,
+                    line: 1,
+                  }
+                },
+                start: 13,
+                type: 'BlockStatement',
+              },
+              end: 34,
+              expression: false,
+              generator: false,
+              id: {
+                end: 10,
+                loc: {
+                  end: {
+                   column: 10,
+                    line: 1,
+                },
+                  start: {
+                    column: 9,
+                    line: 1,
+                  }
+                },
+                name: 'a',
+                start: 9,
+                type: 'Identifier'
+              },
+              loc: {
+                end: {
+                  column: 34,
+                  line: 1,
+                },
+                start: {
+                  column: 0,
+                  line: 1,
+                }
+              },
+              params: [],
+              start: 0,
+              type: 'FunctionDeclaration'
+           }
+          ],
+         end: 34,
+          loc: {
+            end: {
+              column: 34,
+              line: 1
+            },
+            start: {
+              column: 0,
+              line: 1,
+            }
+          },
+          sourceType: 'script',
+          start: 0,
+          type: 'Program',
+        }
+  });
+
   pass(`do keep(); while (true);`, {
       source: 'do keep(); while (true);',
       loc: true,

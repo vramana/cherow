@@ -15,7 +15,7 @@ export const enum Context {
     Strict                  = 1 << 8,  // Node was parsed in a strict mode context
     Module                  = 1 << 9,  // Node was parsed in a module code context
     TaggedTemplate          = 1 << 10,
-    IfStatement             = 1 << 11, // Node was parsed as the body of an IFStatement - 'consequent' or 'alternate'
+    AnnexB                  = 1 << 11, // Node was parsed in a AnnexB context
     Expression              = 1 << 12, // Node was parsed within an expression context
     InParameter             = 1 << 13, //
     AllowYield              = 1 << 14, // Node was parsed in the 'yield' context created when parsing an generator function
@@ -26,14 +26,14 @@ export const enum Context {
     ValidateEscape          = 1 << 19,
     Let                     = 1 << 20,  // Variable declaration
     Const                   = 1 << 21,  // Variable declaration
-    Statement               = 1 << 22,  // Used when parsing an MethodDeclaration
-    Method                  = 1 << 23,  // Used when parsing an async function
-    ForStatement            = 1 << 24,
-    InParenthesis           = 1 << 25,
-    InClass                 = 1 << 26,
-    OptionalIdentifier      = 1 << 27,
-    DisallowArrow           = 1 << 28,
-    InTypeAnnotation        = 1 << 29, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
+    Method                  = 1 << 22,  // Used when parsing an async function
+    ForStatement            = 1 << 23,
+    InParenthesis           = 1 << 24,
+    InClass                 = 1 << 25,
+    OptionalIdentifier      = 1 << 26,
+    DisallowArrow           = 1 << 27,
+    InTypeAnnotation        = 1 << 28, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
+    AllowFunctionStatement  = 1 << 29,
     BlockScoped  = Let | Const
 }
 

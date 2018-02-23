@@ -466,4 +466,46 @@ describe('Statements - Labelled', () => {
               sourceType: 'script'
           }
       });
+      // ECMA allows "eval" or "arguments" as labels even in strict mode.
+    pass(`"use strict"; arguments: while (true) break arguments`, {
+        source: '"use strict"; arguments: while (true) break arguments',
+        raw: true,
+        expected: {
+              body: [
+                {
+                  directive: 'use strict',
+                  expression: {
+                    raw: '"use strict"',
+                    type: 'Literal',
+                    value: 'use strict'
+                  },
+                  type: 'ExpressionStatement'
+                },
+                {
+                  body: {
+                    body: {
+                      label: {
+                        name: 'arguments',
+                        type: 'Identifier',
+                      },
+                      type: 'BreakStatement'
+                    },
+                    test: {
+                      raw: 'true',
+                      type: 'Literal',
+                      value: true,
+                    },
+                    type: 'WhileStatement'
+                  },
+                  label: {
+                    name: 'arguments',
+                    type: 'Identifier',
+                  },
+                  type: 'LabeledStatement'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
   });

@@ -3257,4 +3257,109 @@ describe('Expressions - New', () => {
               }
         });
 
+    pass(`new new foo().bar().baz`, {
+            source: 'new new foo().bar().baz',
+            raw: true,
+            expected: {
+                  body: [
+                    {
+                      expression: {
+                        computed: false,
+                        object: {
+                          arguments: [],
+                          callee: {
+                            computed: false,
+                            object: {
+                              arguments: [],
+                              callee: {
+                                name: 'foo',
+                               type: 'Identifier'
+                              },
+                              type: 'NewExpression'
+                            },
+                            property: {
+                              name: 'bar',
+                              type: 'Identifier',
+                            },
+                            type: 'MemberExpression'
+                          },
+                          type: 'NewExpression'
+                        },
+                        property: {
+                          name: 'baz',
+                          type: 'Identifier',
+                        },
+                        type: 'MemberExpression'
+                      },
+                      type: 'ExpressionStatement'
+                    }
+                  ],
+                  sourceType: 'script',
+                  type: 'Program'
+                }
+        });
+
+    pass(`new (new foo())`, {
+            source: 'new (new foo())',
+            raw: true,
+            expected: {
+                  body: [
+                    {
+                     expression: {
+                        arguments: [],
+                        callee: {
+                          arguments: [],
+                          callee: {
+                            name: 'foo',
+                            type: 'Identifier'
+                          },
+                          type: 'NewExpression'
+                        },
+                        type: 'NewExpression'
+                      },
+                      type: 'ExpressionStatement'
+                    }
+                  ],
+                  sourceType: 'script',
+                  type: 'Program'
+                }
+        });
+
+    pass(`(new (foo.bar)()).baz`, {
+            source: '(new (foo.bar)()).baz',
+            raw: true,
+            expected: {
+                  body: [
+                    {
+                      expression: {
+                        computed: false,
+                        object: {
+                          arguments: [],
+                          callee: {
+                            computed: false,
+                            object: {
+                              name: 'foo',
+                              type: 'Identifier'
+                            },
+                            property: {
+                              name: 'bar',
+                             type: 'Identifier'
+                            },
+                            type: 'MemberExpression'
+                          },
+                          type: 'NewExpression'
+                        },
+                        property: {
+                          name: 'baz',
+                          type: 'Identifier'
+                        },
+                        type: 'MemberExpression'
+                      },
+                      type: 'ExpressionStatement'
+                    }
+                  ],
+                  sourceType: 'script',
+                  type: 'Program'
+                }
+        });
     });

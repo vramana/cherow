@@ -5943,7 +5943,7 @@ describe('Miscellaneous - AnnexB', () => {
 
             fail(`"use strict"; if (0) function f(){}`, {
                 source: `"use strict"; if (0) function f(){}`,
-                message: 'FunctionDeclarations in IfStatements are disallowed in strict mode',
+                message: 'In strict mode code, functions can only be declared at top level or inside a block',
                 line: 1,
                 column: 20,
                 index: 20
@@ -5951,7 +5951,7 @@ describe('Miscellaneous - AnnexB', () => {
 
             fail(`"use strict";  if (0) function f(){} else;`, {
                 source: `"use strict";  if (0) function f(){} else;`,
-                message: 'FunctionDeclarations in IfStatements are disallowed in strict mode',
+                message: 'In strict mode code, functions can only be declared at top level or inside a block',
                 line: 1,
                 column: 21,
                 index: 21
@@ -5959,7 +5959,7 @@ describe('Miscellaneous - AnnexB', () => {
 
             fail(`"use strict"; if (0); else function f(){}`, {
                 source: `"use strict"; if (0); else function f(){}`,
-                message: 'FunctionDeclarations in IfStatements are disallowed in strict mode',
+                message: 'In strict mode code, functions can only be declared at top level or inside a block',
                 line: 1,
                 column: 26,
                 index: 26

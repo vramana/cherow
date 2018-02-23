@@ -1561,19 +1561,19 @@ describe('Miscellaneous - Failure', () => {
     fail('do label: function f(){} while (0)', {
         source: `do label: function f(){} while (0)`,
         line: 1,
-        message: 'In strict mode code, functions can only be declared at top level or inside a block',
+        message: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement' ,
     });
 
     fail('for(a in b) label: function f(){}', {
         source: `for(a in b) label: function f(){}`,
         line: 1,
-        message: 'In strict mode code, functions can only be declared at top level or inside a block',
+        message: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement' ,
     });
 
     fail('for(let a in b) label: function f(){}', {
         source: `for(let a in b) label: function f(){}`,
         line: 1,
-        message: 'In strict mode code, functions can only be declared at top level or inside a block',
+        message: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
     });
 
     fail('for(a of b) label: function f(){}', {
@@ -1675,7 +1675,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('for(let a;;) label: function f(){}', {
         source: `for(let a;;) label: function f(){}`,
-        message: 'In strict mode code, functions can only be declared at top level or inside a block',
+        message: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
         line: 1,
     });
 
@@ -2084,7 +2084,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('for(;;) labelA: labelB: labelC: function f(){}', {
         source: `for(;;) labelA: labelB: labelC: function f(){}`,
-        message:  'In strict mode code, functions can only be declared at top level or inside a block',
+        message: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement' ,
         line: 1,
     });
 
