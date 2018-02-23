@@ -1961,7 +1961,7 @@ export class Parser {
                 (t & Token.Contextual) === Token.Contextual);
     }
 
-    private finishNode < T extends ESTree.Node >(
+    private finishNode < T extends ESTree.Node > (
         context: Context,
         pos: Location,
         node: any,
@@ -3440,9 +3440,7 @@ export class Parser {
     }
 
     private parseLeftHandSideExpression(context: Context, pos: Location): ESTree.Expression {
-        const expr = this.token === Token.SuperKeyword ?
-            this.parseSuperProperty(context) :
-            this.parseMemberExpression(context | Context.AllowIn, pos);
+        const expr = this.parseMemberExpression(context | Context.AllowIn, pos);
 
         return expr.type === 'ArrowFunctionExpression' && this.token !== Token.LeftParen ?
             expr :
@@ -3749,7 +3747,8 @@ export class Parser {
 
     private parseAsyncFunctionExpression(
         context: Context,
-        pos: Location): ESTree.FunctionExpression | ESTree.FunctionDeclaration | ESTree.CallExpression | ESTree.ArrowFunctionExpression | ESTree.Identifier {
+        pos: Location
+    ): ESTree.FunctionExpression | ESTree.FunctionDeclaration | ESTree.CallExpression | ESTree.ArrowFunctionExpression | ESTree.Identifier {
 
         const hasEscape = (this.flags & Flags.ExtendedUnicodeEscape) !== 0;
 
@@ -3860,45 +3859,48 @@ export class Parser {
 
             if (hasEscape) this.tolerate(context, Errors.UnexpectedEscapedKeyword);
 
-            if (state & ParenthesizedState.BindingPattern) {
-                this.flags |= Flags.SimpleParameterList;
-            }
+            // async ( Arguments ) => ...
+            if (args.length > 0) {
 
-            // A async arrows cannot have a line terminator between "async" and the formals
-            if (flags & Flags.LineTerminator) {
-                this.tolerate(context, Errors.LineBreakAfterAsync);
-            }
+                if (state & ParenthesizedState.BindingPattern) {
+                    this.flags |= Flags.SimpleParameterList;
+                }
 
-            if (state & ParenthesizedState.Yield) {
-                this.tolerate(context, Errors.InvalidAwaitInArrowParam);
-            }
+                // A async arrows cannot have a line terminator between "async" and the formals
+                if (flags & Flags.LineTerminator) {
+                    this.tolerate(context, Errors.LineBreakAfterAsync);
+                }
 
-            if (this.flags & Flags.HasAwait) {
-                this.tolerate(context, Errors.InvalidAwaitInArrowParam);
-            }
+                if (state & ParenthesizedState.Yield) {
+                    this.tolerate(context, Errors.InvalidAwaitInArrowParam);
+                }
 
-            if (state & ParenthesizedState.EvalOrArguments) {
-                // Invalid: '"use strict"; (eval = 10) => 42;'
-                if (context & Context.Strict) this.tolerate(context, Errors.UnexpectedStrictEvalOrArguments);
-                // Invalid: 'async (eval = 10) => { "use strict"; }'
-                // this.errorLocation = this.getLocation();
-                this.flags |= Flags.ReservedWords;
-            }
+                if (this.flags & Flags.HasAwait) {
+                    this.tolerate(context, Errors.InvalidAwaitInArrowParam);
+                }
 
-            if (state & ParenthesizedState.NestedParenthesis) {
-                this.tolerate(context, Errors.InvalidParenthesizedPattern);
-            }
+                if (state & ParenthesizedState.EvalOrArguments) {
+                    // Invalid: '"use strict"; (eval = 10) => 42;'
+                    if (context & Context.Strict) this.tolerate(context, Errors.UnexpectedStrictEvalOrArguments);
+                    // Invalid: 'async (eval = 10) => { "use strict"; }'
+                    // this.errorLocation = this.getLocation();
+                    this.flags |= Flags.ReservedWords;
+                }
 
-            if (state & ParenthesizedState.Trailing) {
-                this.tolerate(context, Errors.UnexpectedToken, tokenDesc(this.token));
-            }
+                if (state & ParenthesizedState.NestedParenthesis) {
+                    this.tolerate(context, Errors.InvalidParenthesizedPattern);
+                }
 
-            // Invalid: 'async (package) => { "use strict"; }'
-            if (state & ParenthesizedState.FutureReserved) {
-                this.errorLocation = this.getLocation();
-                this.flags |= Flags.ReservedWords;
-            }
+                if (state & ParenthesizedState.Trailing) {
+                    this.tolerate(context, Errors.UnexpectedToken, tokenDesc(this.token));
+                }
 
+                // Invalid: 'async (package) => { "use strict"; }'
+                if (state & ParenthesizedState.FutureReserved) {
+                    this.errorLocation = this.getLocation();
+                    this.flags |= Flags.ReservedWords;
+                }
+            }
             return this.parseArrowFunctionExpression(context | Context.AllowAsync, pos, args, params);
         }
 
@@ -4625,6 +4627,7 @@ export class Parser {
         this.expect(context, Token.RightParen);
 
         if (this.token === Token.Arrow) {
+
             if (state & ParenthesizedState.BindingPattern) {
                 this.flags |= Flags.SimpleParameterList;
             }
@@ -4647,6 +4650,7 @@ export class Parser {
                 this.errorLocation = this.getLocation();
                 this.flags |= Flags.ReservedWords;
             }
+
             return this.parseArrowFunctionExpression(context & ~(Context.AllowAsync | Context.AllowYield), pos, isSequence ? (expr as any).expressions : [expr], params);
         }
 
