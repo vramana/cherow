@@ -3616,7 +3616,7 @@ export class Parser {
 
         while (this.token !== Token.RightParen) {
             if (this.token === Token.Ellipsis) {
-                expressions.push(this.SpreadElement(context));
+                expressions.push(this.parseSpreadElement(context));
             } else {
                 if (this.token & Token.IsYield) {
                     this.flags |= Flags.HasYield;
@@ -3645,7 +3645,7 @@ export class Parser {
 
     // https://tc39.github.io/ecma262/#prod-SpreadElement
 
-    private SpreadElement(context: Context): ESTree.SpreadElement {
+    private parseSpreadElement(context: Context): ESTree.SpreadElement {
         const pos = this.getLocation();
         const t = this.token;
         this.expect(context, Token.Ellipsis);
@@ -3806,7 +3806,7 @@ export class Parser {
         while (this.token !== Token.RightParen) {
 
             if (this.token === Token.Ellipsis) {
-                const elem = this.SpreadElement(context);
+                const elem = this.parseSpreadElement(context);
                 // Trailing comma in async arrow param list
                 if (this.token === Token.Comma) state |= ParenthesizedState.Trailing;
                 args.push(elem);
@@ -3925,7 +3925,7 @@ export class Parser {
 
             while (this.token !== Token.RightBrace) {
                 properties.push(this.token === Token.Ellipsis ?
-                    this.SpreadElement(context) :
+                    this.parseSpreadElement(context) :
                     this.parsePropertyDefinition(context));
                 if (this.token !== Token.RightBrace) this.expect(context, Token.Comma);
             }
@@ -4158,7 +4158,7 @@ export class Parser {
             if (this.check(context, Token.Comma)) {
                 elements.push(null);
             } else if (this.token === Token.Ellipsis) {
-                const element = this.SpreadElement(context);
+                const element = this.parseSpreadElement(context);
                 // Note! An AssignmentElement may not follow an
                 // AssignmentRestElement - e.g. '[...x, y] = [];' - but we don't know
                 // yet if this array are followed by an initalizer or not.
@@ -4206,7 +4206,6 @@ export class Parser {
             } else if (this.token === Token.Assign) {
                 this.tolerate(context, Errors.UnexpectedReservedWord);
             }
-
         }
 
         return this.finishNode(context, pos, {
