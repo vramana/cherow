@@ -2048,17 +2048,21 @@ export class Parser {
 
                 // export default HoistableDeclaration[Default]
             case Token.AsyncKeyword:
-                if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                    declaration = this.parseFunctionDeclaration(context | Context.OptionalIdentifier);
-                    break;
+                {
+                    if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
+                        declaration = this.parseFunctionDeclaration(context | Context.OptionalIdentifier);
+                        break;
+                    }
                 }
                 // falls through
             default:
+                {
 
-                if (this.token === Token.FromKeyword) this.tolerate(context, Errors.UnexpectedToken, tokenDesc(this.token));
-                // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
-                declaration = this.parseAssignmentExpression(context | Context.AllowIn);
-                this.expectSemicolon(context);
+                    if (this.token === Token.FromKeyword) this.tolerate(context, Errors.UnexpectedToken, tokenDesc(this.token));
+                    // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
+                    declaration = this.parseAssignmentExpression(context | Context.AllowIn);
+                    this.expectSemicolon(context);
+                }
         }
 
         return this.finishNode(context, pos, {
@@ -4951,52 +4955,49 @@ export class Parser {
         return this.parseIdentifier(context);
     }
 
-    private parseFunctionDeclaration(context: Context) {
-        
+    private parseFunctionName(context: Context): ESTree.Identifier {
+
+        if (this.token & Token.IsEvalArguments) {
+            if (context & (Context.Strict | Context.AllowAsync)) this.tolerate(context, Errors.StrictLHSAssignment);
+            this.errorLocation = this.getLocation();
+            this.flags |= Flags.ReservedWords;
+        }
+
+        return !(context & (Context.Strict | Context.AllowYield)) && this.token === Token.YieldKeyword ?
+            this.parseIdentifierName(context, this.token) :
+            this.parseBindingIdentifier(context);
+    }
+
+    private parseFunctionDeclaration(context: Context): ESTree.FunctionDeclaration {
+
         const pos = this.getLocation();
-        
+
         let id: ESTree.Identifier | undefined | null = null;
 
-        // Unset masks Object / Class Method, and disallow derived class constructors in this context
-        context &= ~(Context.Method | Context.AllowSuperProperty);
-
         const prevContext = context;
-        if (this.check(context, Token.AsyncKeyword)) {
-            context |= Context.AllowAsync;
-        } else {
-            context &= ~Context.AllowAsync;
-        }
+
+        // Unset masks Object / Class Method, and disallow derived class constructors in this context
+        context &= ~(Context.Method | Context.AllowSuperProperty | Context.AllowAsync | Context.AllowYield);
+
+        if (this.check(context, Token.AsyncKeyword)) context |= Context.AllowAsync
 
         this.expect(context, Token.FunctionKeyword);
 
         if (this.check(context, Token.Multiply)) {
-            if (context & Context.AnnexB) {
-                this.tolerate(context, Errors.GeneratorLabel);
-            }
+            if (context & Context.AnnexB) this.tolerate(context, Errors.GeneratorLabel);
             context |= Context.AllowYield;
-        } else {
-            context &= ~Context.AllowYield;
         }
 
         if (this.token !== Token.LeftParen) {
 
             const t = this.token;
-            const name = this.tokenValue;
-
-            if (t & Token.IsEvalArguments) {
-                if (context & (Context.Strict | Context.AllowAsync)) this.tolerate(context, Errors.StrictLHSAssignment);
-                this.errorLocation = this.getLocation();
-                this.flags |= Flags.ReservedWords;
-            }
 
             if ((prevContext & (Context.AllowAsync | Context.Module) && t & Token.IsAwait) ||
                 (prevContext & Context.AllowYield && t & Token.IsYield)) {
                 this.tolerate(context, Errors.DisallowedInContext, tokenDesc(t));
             }
 
-            id = !(context & (Context.Strict | Context.AllowYield)) && this.token === Token.YieldKeyword ?
-                this.parseIdentifierName(context, t) :
-                this.parseBindingIdentifier(context);
+            id = this.parseFunctionName(context);
 
         } else if (!(context & Context.OptionalIdentifier)) {
             this.tolerate(context, Errors.UnNamedFunctionStmt);
@@ -5013,56 +5014,41 @@ export class Parser {
         let id: ESTree.Identifier | undefined | null = null;
 
         // Unset masks Object / Class Method, and disallow derived class constructors in this context
-        context &= ~(Context.Method | Context.AllowSuperProperty);
+        context &= ~(Context.Method | Context.AllowSuperProperty | Context.AllowYield);
 
         const prevContext = context;
 
         if (!isAsync) {
-            if (this.check(context, Token.AsyncKeyword)) {
-                context |= Context.AllowAsync;
-            } else {
-                context &= ~Context.AllowAsync;
-            }
+            if (this.check(context, Token.AsyncKeyword)) context |= Context.AllowAsync;
+            else context &= ~Context.AllowAsync;
         }
 
         this.expect(context, Token.FunctionKeyword);
 
         if (this.check(context, Token.Multiply)) {
-            if (context & Context.AnnexB) {
-                this.tolerate(context, Errors.GeneratorLabel);
-            }
+            if (context & Context.AnnexB) this.tolerate(context, Errors.GeneratorLabel);
             context |= Context.AllowYield;
-        } else {
-            context &= ~Context.AllowYield;
         }
 
         if (this.token !== Token.LeftParen) {
 
             const t = this.token;
-            const name = this.tokenValue;
-
-            if (t & Token.IsEvalArguments) {
-                if (context & (Context.Strict | Context.AllowAsync)) this.tolerate(context, Errors.StrictLHSAssignment);
-                this.errorLocation = this.getLocation();
-                this.flags |= Flags.ReservedWords;
-            }
 
             if ((context & Context.AllowAsync && t & Token.IsAwait) ||
                 (context & Context.AllowYield && t & Token.IsYield)) {
                 this.tolerate(context, Errors.DisallowedInContext, tokenDesc(t));
             }
 
-            id = !(context & (Context.Strict | Context.AllowYield)) && this.token === Token.YieldKeyword ?
-                this.parseIdentifierName(context, t) :
-                this.parseBindingIdentifier(context);
+            id = this.parseFunctionName(context);
         }
         return this.parseFunction(context, id, pos) as ESTree.FunctionExpression;
     }
 
     private parseFunction(
         context: Context,
-        id: ESTree.Identifier | null,
-        pos: Location): ESTree.FunctionExpression | ESTree.FunctionDeclaration {
+        id: ESTree.Identifier | null = null,
+        pos: Location
+    ): ESTree.FunctionExpression | ESTree.FunctionDeclaration {
 
         const formalParameters = this.parseFormalParameterList(context | Context.Expression | Context.InParameter);
 
