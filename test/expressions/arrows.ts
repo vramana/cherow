@@ -452,6 +452,30 @@ describe('Expressions - Arrows', () => {
         index: 15
     });
 
+    fail(`(a, a) => 42;`, {
+        source: '(a, a) => 42;',
+        message: 'Duplicate binding a',
+        line: 1,
+        column: 9,
+        index: 9
+    });
+
+    fail(`(a, a) => {};`, {
+        source: '(a, a) => {};',
+        message: 'Duplicate binding a',
+        line: 1,
+        column: 12,
+        index: 12
+    });
+
+    fail(`(a, a) => { "use strict"; };`, {
+        source: '(a, a) => { "use strict"; };',
+        message: 'Duplicate binding a',
+        line: 1,
+        column: 27,
+        index: 27
+    });
+
     pass(`(a) => b;  // 1 args
     (a, b) => c;  // n args
     () => b;  // 0 args

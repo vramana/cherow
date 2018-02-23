@@ -705,7 +705,7 @@ export class Parser {
                 case Chars.RightBrace:
                     this.advance();
                     return Token.RightBrace;
-                    
+
                     // `~`
                 case Chars.Tilde:
                     this.advance();
@@ -1923,6 +1923,16 @@ export class Parser {
         return false;
     }
 
+    private validateFormalParameters(context: Context, params: string[], allowDuplicates: boolean = false) {
+        const paramSet: any = map.create();
+        for (let i = 0; i < params.length; i++) {
+            const key = '@' + params[i];
+            if (map.get(paramSet, key)) {
+                this.tolerate(context, Errors.InvalidDuplicateArgs, params[i]);
+            } else map.set(paramSet, key, true);
+        }
+    }
+
     private validateBindings(context: Context, params: string[]) {
         const paramSet: any = map.create();
         for (let i = 0; i < params.length; i++) {
@@ -1961,7 +1971,7 @@ export class Parser {
                 (t & Token.Contextual) === Token.Contextual);
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: Location,
         node: any,
@@ -4450,17 +4460,16 @@ export class Parser {
             this.tolerate(context, Errors.UnexpectedStrictEvalOrArguments);
         }
 
-        for (const i in params) this.reinterpret(context | Context.InParameter, params[i]);
+        for (const i in params) {
+            this.reinterpret(context | Context.InParameter, params[i]);
+        }
 
         let body;
         let expression = false;
 
         if (this.token === Token.LeftBrace) {
-
+            // Multiple statement body
             body = this.parseFunctionBody(context | Context.AllowIn | Context.ArrowFunction, args);
-
-            // Invalid: '() => {} a || true'
-            // Invalid: '() => {} ? a : b'
             if ((context & Context.InParenthesis) &&
                 (hasBit(this.token, Token.IsBinaryOperator) ||
                     this.token === Token.LeftParen ||
@@ -4468,12 +4477,26 @@ export class Parser {
                 this.report(Errors.UnexpectedToken, tokenDesc(this.token));
             }
         } else {
+            // Single-expression body
+            expression = true;
+            // Here we do 3) validations
+            //
+            // 1) Arrow Function formal parameters parsed as StrictFormalParameterList.
+            // 2) Eval & arguments for class fields.
+            // 3) Strict octal literals.
+            //
+            this.validateFormalParameters(context, args);
+            // Validate eval & arguments for class fields ( stage 3 proposal)
             if (context & Context.InClass && this.token & Token.IsEvalArguments) {
                 this.tolerate(context, Errors.ArgumentsDisallowedInInitializer, tokenDesc(this.token));
+            // Validate strict mode.
+            } else if (context & Context.Strict && this.flags & Flags.Octal) {
+                this.tolerate(context, Errors.StrictOctalLiteral);
             }
-            body = this.parseAssignmentExpression(context | Context.AllowIn | Context.ArrowFunction);
-            expression = true;
+
+            body = this.parseAssignmentExpression(context | Context.AllowIn);
         }
+
         return this.finishNode(context, pos, {
             type: 'ArrowFunctionExpression',
             body,
@@ -4550,7 +4573,7 @@ export class Parser {
             state |= ParenthesizedState.EvalOrArguments;
         }
 
-        if (context & Context.Strict && this.token & Token.IsIdentifier) {
+        if (this.token & Token.IsIdentifier) {
             params.push(this.tokenValue);
         }
 
@@ -4590,7 +4613,7 @@ export class Parser {
                         state |= ParenthesizedState.EvalOrArguments;
 
                     }
-                    if (context & Context.Strict && this.token & Token.IsIdentifier) {
+                    if (this.token & Token.IsIdentifier) {
                         params.push(this.tokenValue);
                     }
                     expressions.push(this.parseAssignmentExpression(context));
@@ -5067,7 +5090,7 @@ export class Parser {
         }
         this.expect(context, Token.RightBrace);
 
-        if (context & Context.Strict) this.validateBindings(context, params);
+        if (context & (Context.Strict | Context.ArrowFunction)) this.validateFormalParameters(context, params);
 
         return this.finishNode(context, pos, {
             type: 'BlockStatement',
