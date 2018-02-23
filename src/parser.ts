@@ -1961,7 +1961,7 @@ export class Parser {
                 (t & Token.Contextual) === Token.Contextual);
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: Location,
         node: any,
@@ -4979,7 +4979,7 @@ export class Parser {
         // Unset masks Object / Class Method, and disallow derived class constructors in this context
         context &= ~(Context.Method | Context.AllowSuperProperty | Context.AllowAsync | Context.AllowYield);
 
-        if (this.check(context, Token.AsyncKeyword)) context |= Context.AllowAsync
+        if (this.check(context, Token.AsyncKeyword)) context |= Context.AllowAsync;
 
         this.expect(context, Token.FunctionKeyword);
 

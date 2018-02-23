@@ -34,102 +34,127 @@ describe('Literals - Numbers', () => {
 
     fail(`"\\1"; "use strict";`, {
         source: `"\\1"; "use strict";`,
+        line: 1
     });
 
     fail(`const t = 2.34e-;const b = 4.3e--3;`, {
         source: 'const t = 2.34e-;const b = 4.3e--3;',
+        line: 1
     });
 
     fail(`"use strict"; var foo = 000;`, {
         source: '"use strict"; var foo = 000;',
+        line: 1
     });
 
     fail(`"use strict"; var foo = 07;`, {
         source: '"use strict"; var foo = 07;',
+        line: 1
     });
 
     fail(`"use strict"; var foo = 05;`, {
         source: '"use strict"; var foo = 05;',
+        line: 1
     });
 
     fail(`0o`, {
         source: '0o',
+        line: 1
     });
 
     fail(`06.7`, {
         source: '06.7',
+        line: 1
     });
 
     fail(`0b;`, {
         source: '0b;',
+        line: 1
     });
 
     fail(`00b0;`, {
         source: '00b0;',
+        line: 1
     });
 
     fail(`"use strict"; 01;`, {
         source: '"use strict"; 01;',
+        line: 1
     });
 
     fail(`0\\u00620;`, {
         source: '0\\u00620;',
+        line: 1
     });
 
     fail(`0b8;`, {
         source: '0b8;',
+        line: 1
     });
 
     fail(`0o8;`, {
         source: '0o8;',
+        line: 1
     });
 
     fail(`0o;`, {
         source: '0o;',
+        line: 1
     });
 
     fail(`"use strict"; 08;`, {
         source: '"use strict"; 08;',
+        line: 1
     });
 
     fail(`0x¤%&/()`, {
         source: '0x¤%&/()',
+        line: 1
     });
 
     fail(`"use strict"; 018`, {
         source: '"use strict"; 018',
+        line: 1
     });
 
     fail(`0\\u00620`, {
         source: '0\\u00620',
+        line: 1
     });
 
     fail(`1.e`, {
         source: '1.e',
+        line: 1
     });
 
     fail(`0b2`, {
         source: '0b2',
+        line: 1
     });
 
     fail(`0b1a;`, {
         source: '0b1a',
+        line: 1
     });
 
     fail(`0B18`, {
         source: '0B18',
+        line: 1
     });
 
     fail(`0o1a;`, {
         source: '0o1a',
+        line: 1
     });
 
     fail(`09.x`, {
         source: '09.x',
+        line: 1
     });
 
     fail(`0b1a;`, {
         source: '0b1a',
+        line: 1
     });
 
     pass(`0o1 & 0o10;`, {

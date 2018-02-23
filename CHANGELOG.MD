@@ -9,4 +9,9 @@
  * Improved performance
  * Simplified label statement parsing
  * Re-factor arrow function parsing
+
+*2018-7-23: Version 1.2.1*
+
+ * Improved performance
+ * Fixed a couple of slip-ups
  

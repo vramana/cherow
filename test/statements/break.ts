@@ -3,7 +3,8 @@ import { pass, fail } from '../test-utils';
 describe('Statements - Break', () => {
 
   fail(`{ var x=1; break LABEL; var y=2; }`, {
-      source: '{ var x=1; break LABEL; var y=2; }'
+      source: '{ var x=1; break LABEL; var y=2; }',
+      line: 1
   });
 
   fail(`var x=1;

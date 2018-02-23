@@ -2,10 +2,6 @@ import { pass, fail } from '../test-utils';
 
 describe('Statements - Continue', () => {
 
-  fail(`do { test262: { continue test262; } } while (false)`, {
-    source: 'do { test262: { continue test262; } } while (false)'
-  });
-
   fail(`while ( false ) Label: continue Label;`, {
     source: 'while ( false ) Label: continue Label;',
     message: 'continue  statement must be nested within an iteration statement',
