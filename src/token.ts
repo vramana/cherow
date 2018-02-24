@@ -196,6 +196,7 @@ export const enum Token {
 
     /* JSX */
     JSXText            = 132,
+    JSXTextAllWhiteSpaces = 133,
 }
 
 // Note: this *must* be kept in sync with the enum's order.
@@ -255,7 +256,12 @@ const KeywordDescTable = [
 
     /* TypeScript */
 
-    'keyof', 'is', 'readonly'
+    'keyof', 'is', 'readonly',
+
+    /* JSX */
+
+    'JSXText',
+    'JSXTextAllWhiteSpaces'
 ];
 
 /**

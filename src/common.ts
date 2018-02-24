@@ -1,7 +1,7 @@
 import { Chars } from './chars';
 import { Statement, ExpressionStatement, Literal, Expression, Pattern } from './estree';
 import { Token } from './token';
-import { mustEscape } from './unicode';
+import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
 
 export const isInOrOfKeyword = (t: Token) => t === Token.InKeyword || t === Token.OfKeyword;
 
@@ -117,3 +117,15 @@ export function isQualifiedJSXName(elementName: any): any {
             // ignore
     }
 }
+
+export const isIdentifierStart = (cp: Chars) => (cp === Chars.Dollar) || (cp === Chars.Underscore) || // $ (dollar) and _ (underscore)
+    (cp >= Chars.UpperA && cp <= Chars.UpperZ) || // A..Z
+    (cp >= Chars.LowerA && cp <= Chars.LowerZ) || // a..z
+    isValidIdentifierStart(cp);
+
+export const isIdentifierPart = (cp: Chars) => (cp >= Chars.UpperA && cp <= Chars.UpperZ) || // A..Z
+    (cp >= Chars.LowerA && cp <= Chars.LowerZ) || // a..z
+    (cp >= Chars.Zero && cp <= Chars.Nine) || // 0..9
+    (cp === Chars.Dollar) || (cp === Chars.Underscore || cp === Chars.Backslash) || // $ (dollar) and _ (underscore)
+    isValidIdentifierPart(cp);
+

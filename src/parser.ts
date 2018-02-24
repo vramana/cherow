@@ -3,7 +3,7 @@ import { Options, OnComment } from './cherow';
 import { Chars } from './chars';
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors, ErrorMessages } from './errors';
-import { isValidIdentifierStart, isIdentifierStart, mustEscape, isIdentifierPart } from './unicode';
+import { isValidIdentifierStart } from './unicode';
 import {
     isQualifiedJSXName,
     fromCodePoint,
@@ -14,7 +14,9 @@ import {
     map,
     isValidSimpleAssignmentTarget,
     isValidDestructuringAssignmentTarget,
-    isInOrOfKeyword
+    isInOrOfKeyword,
+    isIdentifierStart,
+    isIdentifierPart
 } from './common';
 
 import {
@@ -410,7 +412,6 @@ export class Parser {
                         }
 
                         return Token.LessThan;
-
                     }
 
                 case Chars.Hyphen:
@@ -1940,6 +1941,13 @@ export class Parser {
         return t === Token.LeftParen || t === Token.Period;
     }
 
+    private nextTokenIsIdentifierOrKeywordOrGreaterThan(context: Context): boolean {
+        const savedState = this.lookahead();
+        const t = this.nextToken(context);
+        this.rewindState(savedState);
+        return !!(t & (Token.IsIdentifier | Token.Keyword)) || t === Token.GreaterThan;
+    }
+
     private nextTokenIsFuncKeywordOnSameLine(context: Context): boolean {
         const savedState = this.lookahead();
         const t = this.nextToken(context);
@@ -3286,6 +3294,10 @@ export class Parser {
             if (context & Context.AllowYield && this.token & Token.IsAwait) {
                 this.tolerate(context, Errors.UnexpectedToken, tokenDesc(this.token));
             }
+        } else if (context & Context.OptionsJSX 
+            && this.token === Token.LessThan 
+            && this.nextTokenIsIdentifierOrKeywordOrGreaterThan(context)) {
+            return this.parseJSXElementOrFragment(context | Context.Expression);
         }
 
         const argument = this.parseLeftHandSideExpression(context, pos);
@@ -3708,8 +3720,6 @@ export class Parser {
 
             case Token.Hash:
                 return this.parsePrivateName(context);
-            case Token.LessThan:
-                return this.parseJSXElementOrFragment(context | Context.Expression);
             case Token.YieldKeyword:
                 if (context & Context.AllowYield) {
                     this.tolerate(context, Errors.DisallowedInContext, tokenDesc(this.token));
@@ -5350,9 +5360,9 @@ export class Parser {
         });
     }
 
-    /** JSX */
+     /** JSX */
 
-    private parseJSXChildren(context: Context) {
+     private parseJSXChildren(context: Context) {
         const children: any = [];
 
         while (this.token !== Token.JSXClose) {
@@ -5661,20 +5671,10 @@ export class Parser {
 
     private parseJSXElementOrFragment(context: Context): ESTree.JSXElement {
 
-        if (!(context & Context.OptionsJSX)) {
-            this.report(Errors.UnexpectedToken, tokenDesc(this.token));
-        }
-
         const pos = this.getLocation();
         const t = this.token;
         this.expect(context, Token.LessThan);
 
-        // Check that it's not a comment start or empty fragment
-        if (this.token !== Token.GreaterThan) {
-            if (!(this.token & (Token.IsIdentifier | Token.Keyword))) {
-                this.report(Errors.UnexpectedToken, tokenDesc(t));
-            }
-        }
         let openingElement = null;
 
         let state = JSXState.None;

@@ -21,7 +21,7 @@ describe('Miscellaneous - Comments', () => {
 
     fail(`html comment`, {
         source: `<!-`,
-        message: 'Unexpected token <',
+        message: 'Unexpected token',
         line: 1,
         column: 0,
         index: 0,
@@ -47,7 +47,7 @@ describe('Miscellaneous - Comments', () => {
 
     fail(`single line comment inside jsx opening tag`, {
   source: `<// single`,
-  message: 'Unexpected token <',
+  message: 'Unexpected token',
   jsx: true,
   line: 1,
   column: 0,
@@ -56,7 +56,7 @@ describe('Miscellaneous - Comments', () => {
 
     fail(`jsx + html comment`, {
     source: `</`,
-    message: 'Unexpected token <',
+    message: 'Unexpected token',
     line: 1,
     column: 0,
     index: 0,
@@ -64,7 +64,7 @@ describe('Miscellaneous - Comments', () => {
 
     fail(`single and multi line comments used together`, {
     source: `<*`,
-    message: 'Unexpected token <',
+    message: 'Unexpected token',
     jsx: true,
     line: 1,
     column: 0,
@@ -73,7 +73,7 @@ describe('Miscellaneous - Comments', () => {
 
     fail(`single and multi line comments used together`, {
       source: `<!-`,
-      message: 'Unexpected token <',
+      message: 'Unexpected token',
       jsx: true,
       line: 1,
       column: 0,
@@ -82,7 +82,7 @@ describe('Miscellaneous - Comments', () => {
 
     fail(`single and multi line comments used together`, {
         source: `<!`,
-        message: 'Unexpected token <',
+        message: 'Unexpected token',
         line: 1,
         column: 0,
         index: 0,
@@ -132,7 +132,7 @@ describe('Miscellaneous - Comments', () => {
     fail(`<!-- HTML comment`, {
         source: `<!-- HTML comment`,
         module: true,
-        message: 'Unexpected token <',
+        message: 'Unexpected token',
         line: 1,
         column: 0,
         index: 0
