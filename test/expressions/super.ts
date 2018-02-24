@@ -2,72 +2,94 @@ import { fail, pass } from '../test-utils';
 
 describe('Statements - Super', () => {
 
+    fail(`new super()`, {
+        source: 'new super()',
+        line: 1,
+    });
+
     fail(`class a extends b { c() { function* d(c = super.e()){} } }`, {
         source: 'class a extends b { c() { function* d(c = super.e()){} } }',
+        line: 1,
     });
 
     fail(`function* a(b){ super.c }`, {
         source: 'function* a(b){ super.c }',
+        line: 1,
     });
 
     fail(`!function* (a){ super.b }`, {
         source: '!function* (a){ super.b }',
+        line: 1,
     });
 
     fail(`class A extends B { constructor() { super; } }`, {
         source: 'class A extends B { constructor() { super; } }',
+        line: 1,
     });
 
     fail(`class A extends B { constructor() { (super)() } }`, {
         source: 'class A extends B { constructor() { (super)() } }',
+        line: 1,
     });
 
     fail(`!{ a() { !function* (){ super.b(); } } };`, {
         source: '!{ a() { !function* (){ super.b(); } } };',
+        line: 1,
     });
 
     fail(`"class A extends B { *g1() { return super() } }}`, {
         source: 'class A extends B { *g1() { return super() } }}',
+        line: 1,
     });
 
     fail(`function wrap() { function* foo(a = super(), b = super.foo()) { } }`, {
         source: 'function wrap() { function* foo(a = super(), b = super.foo()) { } }',
+        line: 1,
     });
 
     fail(`function wrap() { function foo(a = super(), b = super.foo()) {}}`, {
         source: 'function wrap() { function foo(a = super(), b = super.foo()) {}}',
+        line: 1,
     });
 
     fail(`class A extends B { constructor() { super; } }`, {
         source: 'class A extends B { constructor() { super; } }',
+        line: 1,
     });
 
     fail(`({ a() { (super).b(); } });`, {
         source: '({ a() { (super).b(); } });',
+        line: 1,
     });
 
     fail(`({ a() { (super).b(); } });`, {
         source: '({ a() { (super).b(); } });',
+        line: 1,
     });
 
     fail(`({ a() { (super).b(); } });`, {
         source: '({ a() { (super).b(); } });',
+        line: 1,
     });
 
     fail(`class C { m() { new super(); }  }`, {
         source: 'class C { m() { new super(); }  }',
+        line: 1,
     });
 
     fail(`class X { x(){super();} }`, {
         source: 'class X { x(){super();} }',
+        line: 1,
     });
 
     fail(`() => {super();}`, {
         source: '() => {super();}',
+        line: 1,
     });
 
     fail(`class X { x(){class X { constructor(){super();} }} }`, {
         source: 'class X { x(){class X { constructor(){super();} }} }',
+        line: 1,
     });
 
     fail(`class X { x(){class X { x(){super();} }} }`, {
@@ -88,18 +110,22 @@ describe('Statements - Super', () => {
 
     fail(`function x(){function x(){super();}}`, {
         source: 'function x(){function x(){super();}}',
+        line: 1,
     });
 
     fail(`function x(){() => {super();}}`, {
         source: 'function x(){() => {super();}}',
+        line: 1,
     });
 
     fail(`() => {class X { x(){super();} }}`, {
         source: '() => {class X { x(){super();} }}',
+        line: 1,
     });
 
     fail(`() => {() => {super();}}`, {
         source: '() => {() => {super();}}',
+        line: 1,
     });
 
     pass(`value of reference returned by SuperProperty`, {

@@ -217,7 +217,7 @@ export const ErrorMessages: {
     [Errors.UndefinedUnicodeCodePoint]: 'Undefined Unicode code-point',
     [Errors.InvalidOrUnexpectedToken]: 'Invalid or unexpected token',
     [Errors.ForInOfLoopInitializer]: '\'for-%0\' loop variable declaration may not have an initializer',
-    
+
 };
 
 function constructError(msg: string, column: number): Error {

@@ -1960,7 +1960,7 @@ export class Parser {
                 (t & Token.Contextual) === Token.Contextual);
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: Location,
         node: any,
@@ -2924,12 +2924,12 @@ export class Parser {
         if (this.check(context, Token.Assign)) {
 
             init = this.parseAssignmentExpression(context & ~(Context.BlockScoped | Context.ForStatement));
-            
+
             if ((context & Context.ForStatement || t & Token.IsBindingPattern) && isInOrOfKeyword(this.token)) {
                 this.tolerate(context, Errors.ForInOfLoopInitializer, tokenDesc(this.token));
-            
+
             }
-        // Initializers are required for 'const' and binding patterns}
+            // Initializers are required for 'const' and binding patterns
         } else if ((context & Context.Const || t & Token.IsBindingPattern) && !isInOrOfKeyword(this.token)) {
             this.report(Errors.DeclarationMissingInitializer, context & Context.Const ? 'const' : 'destructuring');
         }
@@ -3341,15 +3341,17 @@ export class Parser {
         });
     }
 
-    private parseImportCall(context: Context, pos: Location) {
+    private parseImportExpressions(context: Context, pos: Location): ESTree.Expression {
+
         const id = this.parseIdentifier(context);
 
-        if (context & Context.OptionsNext && this.check(context, Token.Period)) {
-            // Import.meta - Stage 3 proposal
-            if (!(context & Context.Module) || this.tokenValue !== 'meta') {
-                this.tolerate(context, Errors.UnexpectedToken, tokenDesc(this.token));
+        // Import.meta - Stage 3 proposal
+        if (context & Context.OptionsNext && this.check(context | Context.ValidateEscape, Token.Period)) {
+            if (context & Context.Module && this.tokenValue === 'meta') {
+                return this.parseMetaProperty(context, id, pos);
             }
-            return this.parseMetaProperty(context, id, pos);
+
+            this.tolerate(context, Errors.UnexpectedToken, tokenDesc(this.token));
         }
 
         return this.finishNode(context, pos, {
@@ -3662,7 +3664,7 @@ export class Parser {
             case Token.BigInt:
                 return this.parseBigIntLiteral(context, pos);
             case Token.LeftParen:
-                return this.parseCoverParenthesizedExpressionAndArrowParameterList(context | Context.AllowIn | Context.InParenthesis);
+                return this.ParseExpressionCoverGrammar(context | Context.AllowIn | Context.InParenthesis);
             case Token.LeftBracket:
                 return this.parseArrayLiteral(context);
             case Token.LeftBrace:
@@ -3681,7 +3683,7 @@ export class Parser {
                 return this.parseTemplate(context);
             case Token.ImportKeyword:
                 if (!(context & Context.OptionsNext)) this.tolerate(context, Errors.Unexpected);
-                return this.parseImportCall(context | Context.AllowIn, pos);
+                return this.parseImportExpressions(context | Context.AllowIn, pos);
             case Token.Divide:
             case Token.DivideAssign:
                 return this.parseRegularExpressionLiteral(context);
@@ -4175,7 +4177,7 @@ export class Parser {
             // We got a comma separator and we have a initializer. Time to throw an error!
             if (this.token === Token.Assign) this.tolerate(context, Errors.ElementAfterRest);
             // Note! This also affects arrow expressions because we are parsing out the
-            // arrow param list either in 'parseCoverParenthesizedExpressionAndArrowParameterList' or
+            // arrow param list either in 'ParseExpressionCoverGrammar' or
             // 'parseAsyncFunctionExpression'. So in that case we 'flag' that
             // we found something we don't like, and throw later on.
             //
@@ -4211,19 +4213,19 @@ export class Parser {
 
         const t = this.token;
 
-        const id = this.token & (Token.IsIdentifier | Token.IsKeyword) ?
-            this.parseBindingIdentifier(context) :
-            null;
+        let id: ESTree.Identifier | null = null;
+        let superClass: ESTree.Expression | null = null;
 
-        if (!id && !(context & Context.Expression) && !(context & Context.OptionalIdentifier)) {
+        if (this.token !== Token.LeftBrace && this.token !== Token.ExtendsKeyword) {
+            id = this.parseBindingIdentifier(context);
+        } else if (!(context & Context.Expression) && !(context & Context.OptionalIdentifier)) {
             this.tolerate(context, Errors.UnexpectedToken, tokenDesc(t));
         }
 
-        const superClass = this.check(context, Token.ExtendsKeyword) ?
-            this.parseLeftHandSideExpression(context | Context.Strict, pos) :
-            null;
-
-        if (superClass) state |= ObjectState.Heritage;
+        if (this.check(context, Token.ExtendsKeyword)) {
+            superClass = this.parseLeftHandSideExpression(context | Context.Strict, pos);
+            state |= ObjectState.Heritage;
+        }
 
         return this.finishNode(context, pos, {
             type: context & Context.Expression ? 'ClassExpression' : 'ClassDeclaration',
@@ -4247,7 +4249,7 @@ export class Parser {
 
         while (this.token !== Token.RightBrace) {
             if (!this.check(context, Token.Semicolon)) {
-                const node: any = this.parseClassElement(context | Context.InClass, state);
+                const node: any = this.parseClassElement(context, state);
                 body.push(node);
                 if (node.kind === 'constructor') state |= ObjectState.HasConstructor;
             }
@@ -4497,7 +4499,7 @@ export class Parser {
 
     // https://tc39.github.io/ecma262/#prod-CoverParenthesizedExpressionAndArrowParameterList
 
-    private parseCoverParenthesizedExpressionAndArrowParameterList(context: Context): ESTree.Node {
+    private ParseExpressionCoverGrammar(context: Context): ESTree.Node {
         const pos = this.getLocation();
 
         this.expect(context, Token.LeftParen);
