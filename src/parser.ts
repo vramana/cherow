@@ -1531,7 +1531,6 @@ export class Parser {
 
         this.storeRaw(start);
 
-        // TODO! Improvate directive parsing
         if (!(state & ScanState.Escape) && ret === 'use strict') {
             this.flags |= Flags.StrictDirective;
         }
@@ -2918,39 +2917,21 @@ export class Parser {
 
         const pos = this.getLocation();
         const t = this.token;
+
+        // Parse binding pattern or identifier
         const id = this.parseBindingIdentifierOrBindingPattern(context);
 
         let init: ESTree.Expression | null = null;
 
-        if (t & Token.IsBindingPattern) {
+        if (this.check(context, Token.Assign)) {
 
-            if (this.check(context, Token.Assign)) {
-
-                init = this.parseAssignmentExpression(context & ~(Context.BlockScoped | Context.ForStatement));
-
-                if (context & Context.ForStatement) {
-                    if (this.token === Token.InKeyword) {
-                        this.tolerate(context, Errors.InvalidVarDeclInForLoop, tokenDesc(this.token));
-                    }
-                    if (this.token === Token.OfKeyword) {
-                        this.tolerate(context, Errors.DeclarationMissingInitializer);
-                    }
-                }
-
-            } else if (!isInOrOfKeyword(this.token)) {
-                this.tolerate(context, Errors.DeclarationMissingInitializer);
+            init = this.parseAssignmentExpression(context & ~(Context.BlockScoped | Context.ForStatement));
+            if (context & Context.ForStatement || t & Token.IsBindingPattern) {
+                if (isInOrOfKeyword(this.token))
+                    this.tolerate(context, Errors.ForInOfLoopInitializer, tokenDesc(this.token));
             }
-
-        } else if (this.check(context, Token.Assign)) {
-            init = this.parseAssignmentExpression(context & ~Context.BlockScoped);
-            if (context & Context.ForStatement) {
-                if (context & (Context.Strict | Context.BlockScoped) && this.token === Token.InKeyword) {
-                    this.tolerate(context, Errors.InvalidVarDeclInForLoop, tokenDesc(this.token));
-                } else if (this.token === Token.OfKeyword) this.tolerate(context, Errors.InvalidVarInitForOf);
-            }
-
-        } else if (context & Context.Const && !isInOrOfKeyword(this.token)) {
-            this.report(Errors.MissingConstInitializer);
+        } else if (!isInOrOfKeyword(this.token) && (context & Context.Const || t & Token.IsBindingPattern)) {
+            this.report(Errors.DeclarationMissingInitializer, context & Context.Const ? 'const' : 'destructuring');
         }
 
         return this.finishNode(context, pos, {
@@ -3735,6 +3716,7 @@ export class Parser {
                 if (context & Context.Module) {
                     this.tolerate(context, Errors.UnexpectedToken, tokenDesc(this.token));
                 }
+
             default:
                 if (this.isIdentifier(context, this.token)) return this.parseIdentifier(context);
                 this.report(this.token & (Token.Reserved | Token.FutureReserved) ?

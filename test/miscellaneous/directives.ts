@@ -831,7 +831,6 @@ describe('Miscellaneous - Directives', () => {
     pass(`innocuous string that evaluates to "use strict" is not promoted to Use Strict directive'`, {
             source: '"use\\x20strict"; with (x) foo = bar;',
             raw: true,
-
             expected: {
                 body: [{
                         directive: 'use\\x20strict',

@@ -4523,17 +4523,9 @@ describe('Statements - For in', () => {
         index: 34
     });
 
-    fail(`for (let x, y = 3 in {}; ; ) break;`, {
-        source: 'for (let x, y = 3 in {}; ; ) break;',
-        message: 'Invalid variable declaration in for-in statement',
-        line: 1,
-        column: 17,
-        index: 17
-    });
-
     fail(`for (let x = 2, y = 3 in {}; ; ) break;`, {
         source: 'for (let x = 2, y = 3 in {}; ; ) break;',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 21,
         index: 21
@@ -4541,7 +4533,7 @@ describe('Statements - For in', () => {
 
     fail(`for (var x = 5, y = 3 in {}; ; ) break;`, {
         source: 'for (var x = 5, y = 3 in {}; ; ) break;',
-        message: 'Invalid left-hand side in for-in loop: Must have a single binding.',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 21,
         index: 21
@@ -4549,34 +4541,18 @@ describe('Statements - For in', () => {
 
     fail(`for (const x = 3 in {}; ; ) break;`, {
         source: 'for (const x = 3 in {}; ; ) break;',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 16,
         index: 16
     });
 
-    fail(`for (const x = 5, y = 3 in {}; ; ) break;`, {
-        source: 'for (const x = 5, y = 3 in {}; ; ) break;',
-        message: 'Invalid variable declaration in for-in statement',
-        line: 1,
-        column: 23,
-        index: 23
-    });
-
     fail(`for (let x, y = 3 in {}; ; ) break;`, {
         source: 'for (let x, y = 3 in {}; ; ) break;',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 17,
         index: 17
-    });
-
-    fail(`for (let x = 2, y = 3 in {}; ; ) break;`, {
-        source: 'for (let x = 2, y = 3 in {}; ; ) break;',
-        message: 'Invalid variable declaration in for-in statement',
-        line: 1,
-        column: 21,
-        index: 21
     });
 
     fail(`for ({...rest, b} in [{} ]) ;`, {
@@ -4587,17 +4563,9 @@ describe('Statements - For in', () => {
         index: 13
     });
 
-    fail(`for(const [,] = 0 in {});`, {
-        source: 'for(const [,] = 0 in {});',
-        message: 'Invalid variable declaration in for-in statement',
-        line: 1,
-        column: 17,
-        index: 17
-    });
-
     fail(`for(let [,] = 0 in {});`, {
         source: 'for(let [,] = 0 in {});',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 15,
         index: 15
@@ -4605,7 +4573,7 @@ describe('Statements - For in', () => {
 
     fail(`for(var [] = 0 in {});`, {
         source: 'for(var [] = 0 in {});',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 14,
         index: 14
@@ -4645,7 +4613,7 @@ describe('Statements - For in', () => {
 
     fail(`for (var [x] = [] in null);`, {
         source: 'for (var [x] = [] in null);',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 17,
         index: 17
@@ -4653,7 +4621,7 @@ describe('Statements - For in', () => {
 
     fail(`for (var [x] = x in y) var x;`, {
         source: 'for (var [x] = x in y) var x;',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 16,
         index: 16
@@ -4661,7 +4629,7 @@ describe('Statements - For in', () => {
 
     fail(`for (var [arguments] = ({ get y(){} }) in y ) (x);`, {
         source: 'for (var [arguments] = ({ get y(){} }) in y ) (x);',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 24,
         index: 24
@@ -4683,26 +4651,18 @@ describe('Statements - For in', () => {
     // Declarations in for-in loop heads must not contain "in"-expression initializers
     fail(`for (var x = 3 in {}; ; ) break;`, {
         source: 'for (var x = 3 in {}; ; ) break;',
-        message: 'Unexpected token ;',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
-        column: 20,
-        index: 20
+        column: 14,
+        index: 14
     });
 
     fail(`for (var x, y = 3 in {}; ; ) break;`, {
         source: 'for (var x, y = 3 in {}; ; ) break;',
-        message: 'Invalid left-hand side in for-in loop: Must have a single binding.',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 17,
         index: 17
-    });
-
-    fail(`for (var x = 5, y = 3 in {}; ; ) break;`, {
-        source: 'for (var x = 5, y = 3 in {}; ; ) break;',
-        message: 'Invalid left-hand side in for-in loop: Must have a single binding.',
-        line: 1,
-        column: 21,
-        index: 21
     });
 
     fail(`for(let of 0);`, {
@@ -4755,7 +4715,7 @@ describe('Statements - For in', () => {
 
     fail(`for(let a = 0 in b);`, {
         source: 'for(let a = 0 in b);',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 13,
         index: 13
@@ -4763,7 +4723,7 @@ describe('Statements - For in', () => {
 
     fail(`for(const a = 0 in b);`, {
         source: 'for(const a = 0 in b);',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 15,
         index: 15
@@ -4779,7 +4739,7 @@ describe('Statements - For in', () => {
 
     fail(`for (var {x}=0 in y);`, {
         source: 'for (var {x}=0 in y);',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 14,
         index: 14
@@ -4787,7 +4747,7 @@ describe('Statements - For in', () => {
 
     fail(`for (var [p]=0 in q);`, {
         source: 'for (var [p]=0 in q);',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 14,
         index: 14
@@ -4795,7 +4755,7 @@ describe('Statements - For in', () => {
 
     fail(`"use strict"; for (var [p]=1 in q);`, {
         source: '"use strict"; for (var [p]=1 in q);',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 28,
         index: 28
@@ -4803,7 +4763,7 @@ describe('Statements - For in', () => {
 
     fail(`for(var [a = 0] = 0 in {});`, {
         source: 'for(var [a = 0] = 0 in {});',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 19,
         index: 19
@@ -4811,7 +4771,7 @@ describe('Statements - For in', () => {
 
     fail(`for(var {p: x} = 0 in {});`, {
         source: 'for(var {p: x} = 0 in {});',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 18,
         index: 18
@@ -4819,7 +4779,7 @@ describe('Statements - For in', () => {
 
     fail(`for(let {p: x} = 0 in {});`, {
         source: 'for(let {p: x} = 0 in {});',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 18,
         index: 18
@@ -4827,7 +4787,7 @@ describe('Statements - For in', () => {
 
     fail(`for(var [a] = 0 in {});`, {
         source: 'for(var [a] = 0 in {});',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 15,
         index: 15
@@ -4835,7 +4795,7 @@ describe('Statements - For in', () => {
 
     fail(`for(var [...[a]] = 0 in {});`, {
         source: 'for(var [...[a]] = 0 in {});',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 20,
         index: 20
@@ -4843,7 +4803,7 @@ describe('Statements - For in', () => {
 
     fail(`for(var [,] = 0 in {});`, {
         source: 'for(var [,] = 0 in {});',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 15,
         index: 15
@@ -4851,7 +4811,7 @@ describe('Statements - For in', () => {
 
     fail(`for(const [,] = 0 in {});`, {
         source: 'for(const [,] = 0 in {});',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
         column: 17,
         index: 17
@@ -4859,37 +4819,37 @@ describe('Statements - For in', () => {
 
     fail(`for(const [,] = 0 in {});`, {
         source: 'for(const [,] = 0 in {});',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
     });
 
     fail(`for (const i = void 0 in [1, 2, 3]) {}`, {
         source: 'for (const i = void 0 in [1, 2, 3]) {}',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
     });
 
     fail(`for (let i = void 0 in [1, 2, 3]) {}`, {
         source: 'for (let i = void 0 in [1, 2, 3]) {}',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
     });
 
     fail(`for (let i = 1 in {}) {}`, {
         source: 'for (let i = 1 in {}) {}',
-        message: 'Invalid variable declaration in for-in statement',
+        message: '\'for-in\' loop variable declaration may not have an initializer',
         line: 1,
     });
 
     fail(`for (let i = void 0 of [1, 2, 3]) {}`, {
         source: 'for (let i = void 0 of [1, 2, 3]) {}',
-        message: 'for-of loop variable declaration may not have an initializer',
+        message: '\'for-of\' loop variable declaration may not have an initializer',
         line: 1,
     });
 
     fail(`for (var i = 1 of {}) {}`, {
         source: 'for (var i = 1 of {}) {}',
-        message: 'for-of loop variable declaration may not have an initializer',
+        message: '\'for-of\' loop variable declaration may not have an initializer',
         line: 1,
     });
 

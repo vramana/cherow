@@ -46,7 +46,6 @@ export const enum Errors {
     Redeclaration,
     InvalidVarDeclInForLoop,
     DeclarationMissingInitializer,
-    InvalidVarInitForOf,
     MissingInitializer,
     LetInLexicalBinding,
     InvalidStrictExpPostion,
@@ -90,7 +89,6 @@ export const enum Errors {
     InvalidDestructuringTarget,
     VariableExists,
     DuplicateParameter,
-    MissingConstInitializer,
     UnexpectedStrictEvalOrArguments,
     BadImportCallArity,
     ArgumentsDisallowedInInitializer,
@@ -106,7 +104,8 @@ export const enum Errors {
     UnexpectedWSRegExp,
     MissingUAfterSlash,
     UndefinedUnicodeCodePoint,
-    InvalidOrUnexpectedToken
+    InvalidOrUnexpectedToken,
+    ForInOfLoopInitializer
 }
 
 export const ErrorMessages: {
@@ -157,8 +156,7 @@ export const ErrorMessages: {
     [Errors.StrictModeWith]: 'Strict mode code may not include a with statement',
     [Errors.Redeclaration]: 'Label \'%0\' has already been declared',
     [Errors.InvalidVarDeclInForLoop]: 'Invalid variable declaration in for-%0 statement',
-    [Errors.InvalidVarInitForOf]: 'for-of loop variable declaration may not have an initializer',
-    [Errors.DeclarationMissingInitializer]: 'Missing initializer in destructuring declaration',
+    [Errors.DeclarationMissingInitializer]: 'Missing initializer in %0 declaration',
     [Errors.LetInLexicalBinding]: 'let is disallowed as a lexically bound name',
     [Errors.InvalidStrictExpPostion]: 'The identifier \'%0\' must not be in expression position in strict mode',
     [Errors.UnexpectedReservedWord]: 'Unexpected reserved word',
@@ -201,7 +199,6 @@ export const ErrorMessages: {
     [Errors.InvalidDestructuringTarget]: 'Invalid destructuring assignment target',
     [Errors.VariableExists]: 'Identifier \'%0\' has already been declared!',
     [Errors.DuplicateParameter]: 'Duplicate parameter \'%0\'',
-    [Errors.MissingConstInitializer]: 'Missing initializer in const declaration',
     [Errors.UnexpectedStrictReserved]: 'Unexpected strict mode reserved word',
     [Errors.UnexpectedStrictEvalOrArguments]: 'Unexpected eval or arguments in strict mode',
     [Errors.BadImportCallArity]: 'Dynamic import must have one specifier as an argument',
@@ -219,6 +216,8 @@ export const ErrorMessages: {
     [Errors.LoneSuper]: 'Only "(" or "." or "[" are allowed after \'super\'',
     [Errors.UndefinedUnicodeCodePoint]: 'Undefined Unicode code-point',
     [Errors.InvalidOrUnexpectedToken]: 'Invalid or unexpected token',
+    [Errors.ForInOfLoopInitializer]: '\'for-%0\' loop variable declaration may not have an initializer',
+    
 };
 
 function constructError(msg: string, column: number): Error {
