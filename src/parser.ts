@@ -2917,8 +2917,6 @@ export class Parser {
 
         const pos = this.getLocation();
         const t = this.token;
-
-        // Parse binding pattern or identifier
         const id = this.parseBindingIdentifierOrBindingPattern(context);
 
         let init: ESTree.Expression | null = null;
@@ -2926,11 +2924,13 @@ export class Parser {
         if (this.check(context, Token.Assign)) {
 
             init = this.parseAssignmentExpression(context & ~(Context.BlockScoped | Context.ForStatement));
-            if (context & Context.ForStatement || t & Token.IsBindingPattern) {
-                if (isInOrOfKeyword(this.token))
-                    this.tolerate(context, Errors.ForInOfLoopInitializer, tokenDesc(this.token));
+            
+            if ((context & Context.ForStatement || t & Token.IsBindingPattern) && isInOrOfKeyword(this.token)) {
+                this.tolerate(context, Errors.ForInOfLoopInitializer, tokenDesc(this.token));
+            
             }
-        } else if (!isInOrOfKeyword(this.token) && (context & Context.Const || t & Token.IsBindingPattern)) {
+        // Initializers are required for 'const' and binding patterns}
+        } else if ((context & Context.Const || t & Token.IsBindingPattern) && !isInOrOfKeyword(this.token)) {
             this.report(Errors.DeclarationMissingInitializer, context & Context.Const ? 'const' : 'destructuring');
         }
 
