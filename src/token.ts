@@ -195,8 +195,7 @@ export const enum Token {
     ReadOnlyKeyword    = 131 | IsIdentifier,
 
     /* JSX */
-    JSXText            = 132,
-    JSXTextAllWhiteSpaces = 133,
+    JSXText            = 132
 }
 
 // Note: this *must* be kept in sync with the enum's order.
@@ -260,8 +259,7 @@ const KeywordDescTable = [
 
     /* JSX */
 
-    'JSXText',
-    'JSXTextAllWhiteSpaces'
+    'JSXText'
 ];
 
 /**
