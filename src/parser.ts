@@ -1079,7 +1079,7 @@ export class Parser {
         return ret + this.source.substring(start, this.index);
     }
 
-    private scanBinaryDigits(context: Context, state: ScanState): number {
+    private scanBinarOrOctalyDigits(context: Context, base: number, opt: number, state: ScanState): number {
 
         this.advance();
 
@@ -1097,48 +1097,18 @@ export class Parser {
 
             const converted = ch - Chars.Zero;
 
-            if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= 2) break;
-            // Optimization: most binary values fit into 4 bytes.
-            if (digits < 10) value = (value << 1) | converted
-            else value = value * 2 + converted
+            if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= base) break;
+            // Most octal and binary values fit into 4 bytes
+            if (digits < 10) value = (value << opt) | converted
+            else value = value * base + converted
 
             this.advance();
             digits++;
         }
 
-        if (digits === 0) this.report(Errors.MissingBinaryDigits);
-
-        return value;
-    }
-
-    private scanOctalDigits(context: Context, state: ScanState): number {
-
-        this.advance();
-
-        let digits = 0;
-        let value = 0;
-
-        while (this.hasNext()) {
-
-            const ch = this.nextChar();
-
-            if (ch === Chars.Underscore) {
-                state = this.scanNumericFragment(context, state);
-                continue;
-            }
-
-            const converted = ch - Chars.Zero;
-
-            if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= 8) break;
-            // Optimization: most octal values fit into 4 bytes.
-            if (digits < 10) value = (value << 3) | converted
-            else value = value * 8 + converted
-
-            this.advance();
-            digits++;
-        }
-
-        if (digits === 0) this.report(Errors.MissingOctalDigits);
+        if (digits === 0) this.report(base === 8 
+            ? Errors.MissingOctalDigits 
+            : Errors.MissingBinaryDigits);
 
         return value;
     }
@@ -1148,15 +1118,19 @@ export class Parser {
         let ch = this.readNext(this.nextChar());
 
         let value = toHex(ch);
+
         if (value < 0) this.tolerate(context, Errors.MissingHexDigits);
 
         this.advance();
 
         while (this.hasNext()) {
+            
             ch = this.nextChar();
+
             if (ch === Chars.Underscore) {
                 state = this.scanNumericFragment(context, state);
-            } else {
+                continue;
+            } 
 
                 state |= ScanState.AllowNumericSeparator;
 
@@ -1167,7 +1141,6 @@ export class Parser {
                 value = value * 16 + digit;
 
                 this.advance();
-            }
         }
 
         return value;
@@ -1239,7 +1212,7 @@ export class Parser {
                     case Chars.UpperO:
                         {
                             state = ScanState.Octal | ScanState.AllowNumericSeparator;
-                            value = this.scanOctalDigits(context, state);
+                            value = this.scanBinarOrOctalyDigits(context, /* base */ 8, /* opt */3, state);
                             break;
                         }
 
@@ -1247,7 +1220,7 @@ export class Parser {
                     case Chars.UpperB:
                         {
                             state = ScanState.Binary | ScanState.AllowNumericSeparator;
-                            value = this.scanBinaryDigits(context, state);
+                            value = this.scanBinarOrOctalyDigits(context, /* base */ 2, /* opt */ 1, state);
                             break;
                         }
 
