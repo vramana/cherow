@@ -62,7 +62,7 @@ export const enum Flags {
 
 /** Shared between class and objects */
 
-export const enum ObjectState {
+export const enum Clob {
     None            = 0,
     Static          = 1 << 0,
     Computed        = 1 << 1,
@@ -84,7 +84,7 @@ export const enum ObjectState {
 
 /* Scanner */
 
-export const enum ScanState {
+export const enum Scanner {
     None        = 0,
     NewLine     = 1 << 0,
     SameLine    = 1 << 1,
@@ -129,7 +129,7 @@ export const enum Escape {
 }
 
 /* Regular expression scanning */
-export const enum RegExpState {
+export const enum RegexState {
     Empty = 0,
     Escape = 0x1,
     Class = 0x2,
@@ -146,7 +146,7 @@ export const enum RegexFlags {
     DotAll     = 1 << 5,
 }
 
-export const enum ParenthesizedState {
+export const enum CoverGrammar {
     None               = 0,
     NestedParenthesis  = 1 << 0,  // E.g. '((a = function b() {}))'
     BindingPattern     = 1 << 1,  // E.g. '({foo: bar})', '{[()]}'
@@ -163,7 +163,7 @@ export const enum ArrayState {
     EvalOrArguments     = 1 << 1,
 }
 
-export const enum JSXState {
+export const enum JSXElement {
     None        = 0,
     SelfClosing = 1 << 0,
     Fragment    = 1 << 1,

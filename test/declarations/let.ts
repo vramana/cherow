@@ -10,8 +10,12 @@ describe('Declarations - Let', () => {
         index: 10
     });
 
-    fail('let Infinity', {
-        source: 'let Infinity'
+    fail('let default', {
+        source: 'let default',
+        message: 'Unexpected keyword \'default\'',
+        line: 1,
+        column: 3,
+        index: 3
     });
 
     fail('let let| split across two lines', {

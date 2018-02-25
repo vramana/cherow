@@ -237,7 +237,7 @@ describe('Declarations - Generator', () => {
 
     fail(`function* gf() { yield++; }`, {
         source: 'function* gf() { yield++; }',
-        message: 'Unexpected token',
+        message: 'Unexpected token ;',
         line: 1,
         column: 24,
         index: 24

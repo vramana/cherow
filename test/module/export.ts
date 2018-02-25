@@ -189,7 +189,7 @@ with (house) {
     fail(`export {} null;`, {
             source: `export {} null;`,
             module: true,
-            message: 'Unexpected token null',
+            message: 'Unexpected keyword \'null\'',
             line: 1,
             column: 9,
             index: 9

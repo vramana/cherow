@@ -1,21 +1,25 @@
 import { Chars } from './chars';
-import { Statement, ExpressionStatement, Literal, Expression, Pattern } from './estree';
 import { Token } from './token';
+import { Scanner } from './flags';
 import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
-import { ScanState } from './flags';
+import { Statement, CommentType, ExpressionStatement, Literal, Expression, Pattern, Comment } from './estree';
+import { Errors } from './errors';
 
 export const isInOrOfKeyword = (t: Token) => t === Token.InKeyword || t === Token.OfKeyword;
 
 export const isPrologueDirective = (node: Statement): node is ExpressionStatement & {
-    expression: Literal & { value: string }; } => node.type === 'ExpressionStatement' && node.expression.type === 'Literal';
+    expression: Literal & {
+        value: string
+    };
+} => node.type === 'ExpressionStatement' && node.expression.type === 'Literal';
 
 export const hasBit = (mask: number, flags: number) => (mask & flags) === flags;
 
 export const fromCodePoint = (code: Chars) => {
-    return code <= 0xFFFF
-    ? String.fromCharCode(code)
-    : String.fromCharCode(((code - Chars.NonBMPMin) >> 10) +
-        Chars.LeadSurrogateMin, ((code - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
+    return code <= 0xFFFF ?
+        String.fromCharCode(code) :
+        String.fromCharCode(((code - Chars.NonBMPMin) >> 10) +
+            Chars.LeadSurrogateMin, ((code - Chars.NonBMPMin) & (1024 - 1)) + Chars.TrailSurrogateMin);
 };
 
 export function toHex(code: number): number {
@@ -29,29 +33,20 @@ export function toHex(code: number): number {
 }
 
 export function isValidSimpleAssignmentTarget(expr: Expression | Pattern): boolean {
-    switch (expr.type) {
-        case 'Identifier':
-        case 'MemberExpression':
-            return true;
-        default:
-            return false;
-    }
+    if (expr.type === 'Identifier' || expr.type === 'MemberExpression') return true;
+    return false;
 }
 
 export const map = (() => {
-    if (typeof Map === 'function') {
-        return {
-            create: () => new Map(),
-            get: (m: any, k: any) => m.get(k),
-            set: (m: any, k: any, v: any) => m.set(k, v),
-        };
-    } else {
-        return {
-            create: () => Object.create(null),
-            get: (m: any, k: any) => m[k],
-            set: (m: any, k: any, v: any) => m[k] = v,
-        };
-    }
+    return typeof Map === 'function' ? {
+        create: () => new Map(),
+        get: (m: any, k: any) => m.get(k),
+        set: (m: any, k: any, v: any) => m.set(k, v),
+    } : {
+        create: () => Object.create(null),
+        get: (m: any, k: any) => m[k],
+        set: (m: any, k: any, v: any) => m[k] = v,
+    };
 })();
 
 export function isValidDestructuringAssignmentTarget(expr: Expression | Pattern): boolean {
@@ -69,37 +64,36 @@ export function isValidDestructuringAssignmentTarget(expr: Expression | Pattern)
         case 'AssignmentExpression':
         case 'NewExpression':
             return true;
-
         default:
             return false;
     }
 }
 
 export function invalidCharacterMessage(cp: number): string {
-        switch (cp) {
-            case Chars.Null:
-                return '\\0';
-            case Chars.Backspace:
-                return '\\b';
-            case Chars.Tab:
-                return '\\t';
-            case Chars.LineFeed:
-                return '\\n';
-            case Chars.VerticalTab:
-                return '\\v';
-            case Chars.FormFeed:
-                return '\\f';
-            case Chars.CarriageReturn:
-                return '\\r';
-            default:
-                if (!mustEscape(cp)) return fromCodePoint(cp);
-                if (cp < 0x10) return `\\x0${cp.toString(16)}`;
-                if (cp < 0x100) return `\\x${cp.toString(16)}`;
-                if (cp < 0x1000) return `\\u0${cp.toString(16)}`;
-                if (cp < 0x10000) return `\\u${cp.toString(16)}`;
-                return `\\u{${cp.toString(16)}}`;
-        }
+    switch (cp) {
+        case Chars.Null:
+            return '\\0';
+        case Chars.Backspace:
+            return '\\b';
+        case Chars.Tab:
+            return '\\t';
+        case Chars.LineFeed:
+            return '\\n';
+        case Chars.VerticalTab:
+            return '\\v';
+        case Chars.FormFeed:
+            return '\\f';
+        case Chars.CarriageReturn:
+            return '\\r';
+        default:
+            if (!mustEscape(cp)) return fromCodePoint(cp);
+            if (cp < 0x10) return `\\x0${cp.toString(16)}`;
+            if (cp < 0x100) return `\\x${cp.toString(16)}`;
+            if (cp < 0x1000) return `\\u0${cp.toString(16)}`;
+            if (cp < 0x10000) return `\\u${cp.toString(16)}`;
+            return `\\u{${cp.toString(16)}}`;
     }
+}
 
 // Fully qualified element name, e.g. <svg:path> returns "svg:path"
 export function isQualifiedJSXName(elementName: any): any {
@@ -130,11 +124,15 @@ export const isIdentifierPart = (cp: Chars) => (cp >= Chars.UpperA && cp <= Char
     (cp === Chars.Dollar) || (cp === Chars.Underscore || cp === Chars.Backslash) || // $ (dollar) and _ (underscore)
     isValidIdentifierPart(cp);
 
-    export function getCommentType(state: ScanState) {
-        if (state & ScanState.SingleLine) return 'SingleLine'
-        if (state & ScanState.HTMLOpen) return 'HTMLOpen'
-        if (state & ScanState.HTMLClose) return 'HTMLClose'
-        if (state & ScanState.SheBang) return 'SheBang'
-        return 'MultiLine';
-    }
-    
+export function getCommentType(state: Scanner): CommentType {
+    if (state & Scanner.SingleLine) return 'SingleLine'
+    if (state & Scanner.HTMLOpen) return 'HTMLOpen'
+    if (state & Scanner.HTMLClose) return 'HTMLClose'
+    if (state & Scanner.SheBang) return 'SheBang'
+    return 'MultiLine';
+}
+
+export function throwUnexpectedTokenOrKeyword(t: Token): Errors {
+    if (t & (Token.Reserved | Token.FutureReserved)) return Errors.UnexpectedKeyword;
+    return Errors.UnexpectedToken;
+}

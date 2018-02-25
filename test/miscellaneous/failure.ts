@@ -235,7 +235,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail(`(..a)`, {
         source: `(..a)`,
-        message: 'Unexpected token',
+        message: 'Unexpected token .',
         line: 1,
         column: 0,
         index: 0
@@ -314,15 +314,10 @@ describe('Miscellaneous - Failure', () => {
 
     fail('[', {
         source: `[`,
-        message: 'Unexpected token',
+        message: 'Unexpected token end of source',
         line: 1,
         column: 1,
         index: 1
-    });
-
-    fail('[,', {
-        source: `[,`,
-        line: 1
     });
 
     fail('1 + { t:t ', {
@@ -361,7 +356,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 0,
         index: 0,
-        message: 'Unexpected token',
+        message: 'Unexpected token )',
     });
 
     fail(', { get 2 }', {
@@ -401,7 +396,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 0,
         index: 0,
-        message: 'Unexpected token',
+        message: 'Unexpected token =',
     });
 
     fail('do { x } *', {
@@ -431,7 +426,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 0,
         index: 0,
-        message: 'Unexpected token',
+        message: 'Unexpected token **',
     });
 
     fail('#=', {
@@ -497,7 +492,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 6,
         index: 6,
-        message: 'Unexpected token',
+        message: 'Unexpected token end of source',
     });
 
     fail('a b', {
@@ -521,25 +516,25 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 0,
         index: 0,
-        message: 'Unexpected token',
+        message: 'Unexpected token ]',
     });
 
     fail('//\r\n]', {
         source: `//\r\n]`,
         line: 1,
-        message: 'Unexpected token',
+        message: 'Unexpected token ]',
     });
 
     fail('\r]', {
         source: `\r]`,
         line: 1,
-        message: 'Unexpected token',
+        message: 'Unexpected token ]',
     });
 
     fail('\n]', {
         source: `\n]`,
         line: 1,
-        message: 'Unexpected token',
+        message: 'Unexpected token ]',
     });
 
     fail('/*hello', {
@@ -560,7 +555,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 7,
         index: 7,
-        message: 'Unexpected token',
+        message: 'Unexpected token end of source',
     });
 
     fail('for (let [] = 0, {};;);', {
@@ -600,7 +595,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 1,
         index: 1,
-        message: 'Unexpected token if',
+        message: 'Unexpected keyword \'if\'',
     });
 
     fail('function true() { }', {
@@ -1778,7 +1773,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('}', {
         source: `}`,
-        message: 'Unexpected token',
+        message: 'Unexpected token }',
         line: 1,
     });
 
@@ -1988,7 +1983,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('();', {
         source: `();`,
-        message: 'Unexpected token',
+        message: 'Unexpected token ;',
         line: 1,
     });
 /*

@@ -10,7 +10,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`bar ? (=> 0) : baz;`, {
         source: 'bar ? (=> 0) : baz;',
-        message:  'Unexpected token',
+        message:  'Unexpected token =>',
         line: 1,
     });
 
@@ -57,7 +57,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`(()) => 0;`, {
         source: '(()) => 0',
-        message: 'Unexpected token',
+        message: 'Unexpected token )',
         line: 1,
     });
 
@@ -338,7 +338,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`() ? 0`, {
         source: '() ? 0',
-        message: 'Unexpected token',
+        message: 'Unexpected token ?',
         line: 1,
         column: 2,
         index: 2
@@ -354,7 +354,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`1 + ()`, {
         source: '1 + ()',
-        message: 'Unexpected token',
+        message: 'Unexpected token end of source',
         line: 1,
         column: 6,
         index: 6
@@ -430,7 +430,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`() <= 42;`, {
         source: '() <= 42;',
-        message: 'Unexpected token',
+        message: 'Unexpected token <=',
         line: 1,
         column: 2,
         index: 2

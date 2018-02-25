@@ -122,7 +122,7 @@ describe('Statements - Variable', () => {
         ++
         ++
         y`,
-        message:  'Unexpected token',
+        message: 'Unexpected token ++',
         line: 4,
         column: 10,
         index: 49,

@@ -9,7 +9,7 @@ describe('Miscellaneous - ASI', () => {
     ++
     ++
     y`,
-    message: 'Unexpected token',
+    message: 'Unexpected token ++',
     line: 4,
 });
 

@@ -2212,4 +2212,38 @@ describe('Next - Class fields', () => {
       type: 'Program'
     }
 });
+
+pass('class A { /*a*/a/*b*/ }', {
+  source: 'class A { /*a*/a/*b*/ }',
+  next: true,
+  expected: {
+      "body": [
+        {
+          "body": {
+            "body": [
+              {
+                "computed": false,
+                "key": {
+                  "name": "a",
+                  "type": "Identifier",
+                },
+                "type": "FieldDefinition",
+                "value": null,
+              }
+            ],
+            "type": "ClassBody"
+          },
+          "id": {
+            "name": "A",
+            "type": "Identifier",
+          },
+          "superClass": null,
+          "type": "ClassDeclaration"
+        }
+      ],
+      "sourceType": "script",
+      "type": "Program"
+    }
+});
+
 });
