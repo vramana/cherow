@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 "use strict"
 
 const UnicodeCodeCount = 0x110000 /* codes */
@@ -30,19 +31,20 @@ function compressorCreate() {
 }
 
 exports.compressorSend = compressorSend
+
 function compressorSend(state, code) {
     state.size++
 
-    if (state.count === 0) {
-        state.prev = code
-        state.count++
-        return
-    }
+        if (state.count === 0) {
+            state.prev = code
+            state.count++
+                return
+        }
 
     if (state.prev === code) {
         state.mask |= DataInst.Many
         state.count++
-        return
+            return
     }
 
     if (state.prev === 0) {
@@ -66,6 +68,7 @@ function compressorSend(state, code) {
     const loc = state.lookupLocs[code]
 
     if (loc == null) return
+
     state.mask |= DataInst.Link
 
     if (loc !== 0) {
@@ -96,6 +99,7 @@ function compressorEnd(state) {
 }
 
 exports.decompress = decompress
+
 function decompress(compressed) {
     return new Function(`return ${makeDecompress(compressed)}`)()
 }
@@ -104,7 +108,6 @@ const makeDecompress = compressed => `((compressed, lookup) => {
     const result = new Uint32Array(${compressed.size})
     let index = 0;
     let subIndex = 0
-
     while (index < ${compressed.result.length}) {
         const inst = compressed[index++]
         if (inst < 0) {
@@ -119,7 +122,6 @@ const makeDecompress = compressed => `((compressed, lookup) => {
             }
         }
     }
-
     return result
 })(
     [${compressed.result}],
@@ -127,9 +129,10 @@ const makeDecompress = compressed => `((compressed, lookup) => {
 )`
 
 exports.generate = generate
+
 async function generate(opts) {
     await opts.write(`// Unicode v. 10 support
-    `)
+`)
 
     const exportKeys = Object.keys(opts.exports)
     const compress = compressorCreate()
@@ -169,8 +172,6 @@ if (require.main === module) {
     const load = name => {
         const mod = require.resolve(`unicode-10.0.0/${name}/code-points`)
         const list = require(mod)
-
-        // Keep this out of persistent memory
         delete require.cache[mod]
         return list
     }
@@ -184,11 +185,11 @@ if (require.main === module) {
             stream.write(str, err => err != null ? reject(err) : resolve())
         }),
         exports: {
-            mustEscape: [load("General_Category/Other"), load("General_Category/Separator")],
             isValidIdentifierPart: [load("Binary_Property/ID_Continue")],
             isValidIdentifierStart: [load("Binary_Property/ID_Start")],
+            mustEscape: [load("General_Category/Other"), load("General_Category/Separator")],
         },
-    })
-    // Node only started exiting on collected rejections in v8
-    .catch(e => process.nextTick(() => { throw e }))
+    }).catch(e => process.nextTick(() => {
+        throw e
+    }))
 }

@@ -51,7 +51,7 @@ export const enum Flags {
     HasNumericSeparator     = 1 << 7, // Stage 3 related;
     ProtoField              = 1 << 8, // If node contains any '__proto__' fields
     DuplicateProtoField     = 1 << 9, // If node contains any duplicate '__proto__' fields
-    ExtendedUnicodeEscape   = 1 << 10,
+    HasEscapedKeyword       = 1 << 10,
     StrictDirective         = 1 << 11, // If node was parsed in a strict directive context
     HasAwait                = 1 << 12,
     HasYield                = 1 << 13,
@@ -113,6 +113,7 @@ export const enum ScanState {
     AllowNumericSeparator   = 1 << 16, //
     HasNumericSeparator     = 1 << 17,
     BigInt                  = 1 << 18,
+    EigthOrNine             = 1 << 19,
 
     Hibo = Hexadecimal | ImplicitOctal | Binary | Octal
 }
