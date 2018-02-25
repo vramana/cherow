@@ -1,5 +1,5 @@
 import * as ESTree from './estree';
-import { Options, OnComment } from './cherow';
+import { Options } from './cherow';
 import { Chars } from './chars';
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors, ErrorMessages } from './errors';
@@ -16,7 +16,8 @@ import {
     isValidDestructuringAssignmentTarget,
     isInOrOfKeyword,
     isIdentifierStart,
-    isIdentifierPart
+    isIdentifierPart,
+    getCommentType
 } from './common';
 
 import {
@@ -77,12 +78,12 @@ export class Parser {
     private tokenRegExp: any;
     private lastChar: number;
     private sourceFile: string;
-    private comments: any;
+    private comments: ESTree.Comment[];
     private errors: any;
     private labelSet: any;
-    private errorLocation: any;
+    private errorLocation: Location | void;
 
-    constructor(source: string, onComment: OnComment, sourceFile: string) {
+    constructor(source: string, sourceFile: string) {
         this.source = source;
         this.token = Token.EndOfSource;
         this.flags = Flags.None;
@@ -599,8 +600,6 @@ export class Parser {
                     {
                         this.advance();
 
-                        if (!this.hasNext() || context & Context.InTypeAnnotation) return Token.GreaterThan;
-
                         let next = this.nextChar();
 
                         if (next === Chars.EqualSign) {
@@ -778,7 +777,7 @@ export class Parser {
 
         return Token.EndOfSource;
     }
-
+    
     private skipMultiLineComment(context: Context, state: ScanState): ScanState | undefined {
 
         const start = this.index;
@@ -808,7 +807,7 @@ export class Parser {
                         state &= ~ScanState.LastIsCR;
                         if (this.consumeOpt(Chars.Slash)) {
                             if (context & Context.OptionsComments) {
-                                this.addComment(context, 'MultiLine', start);
+                                this.addComment(context, state | ScanState.Multiline, start);
                             }
 
                             return state;
@@ -847,21 +846,15 @@ export class Parser {
 
         if (context & Context.OptionsComments) {
             // TODO! Fix this!
-            this.addComment(context, state & ScanState.SingleLine ?
-                'SingleLine' :
-                state & ScanState.HTMLOpen ?
-                'HTMLOpen' :
-                state & ScanState.HTMLClose ?
-                'HTMLClose' :
-                'SheBang', start);
+            this.addComment(context, state, start);
 
         }
 
         return state;
     }
 
-    private addComment(context: Context, type: ESTree.CommentType, commentStart: number) {
-
+    private addComment(context: Context, state: ScanState, commentStart: number) {
+        const type: ESTree.CommentType = getCommentType(state);
         const comment: ESTree.Comment = {
             type,
             value: this.source.slice(commentStart, type === 'MultiLine' ? this.index - 2 : this.index),
@@ -1124,7 +1117,7 @@ export class Parser {
         this.advance();
 
         while (this.hasNext()) {
-            
+
             ch = this.nextChar();
 
             if (ch === Chars.Underscore) {

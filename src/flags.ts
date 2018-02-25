@@ -100,20 +100,21 @@ export const enum ScanState {
     HTMLOpen    = 1 << 6,
     HTMLClose   = 1 << 7,
     SheBang     = 1 << 8,
+    Multiline   = 1 << 9,
 
     /* numeric */
 
-    Decimal                 = 1 << 9,
-    DecimalWithLeadingZero  = 1 << 10,
-    Hexadecimal             = 1 << 11,
-    Octal                   = 1 << 12,
-    ImplicitOctal           = 1 << 13,
-    Binary                  = 1 << 14,
-    Float                   = 1 << 15,
-    AllowNumericSeparator   = 1 << 16, //
-    HasNumericSeparator     = 1 << 17,
-    BigInt                  = 1 << 18,
-    EigthOrNine             = 1 << 19,
+    Decimal                 = 1 << 10,
+    DecimalWithLeadingZero  = 1 << 11,
+    Hexadecimal             = 1 << 12,
+    Octal                   = 1 << 13,
+    ImplicitOctal           = 1 << 14,
+    Binary                  = 1 << 15,
+    Float                   = 1 << 16,
+    AllowNumericSeparator   = 1 << 17, //
+    HasNumericSeparator     = 1 << 18,
+    BigInt                  = 1 << 19,
+    EigthOrNine             = 1 << 20,
 
     Hibo = Hexadecimal | ImplicitOctal | Binary | Octal
 }

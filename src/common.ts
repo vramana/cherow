@@ -2,6 +2,7 @@ import { Chars } from './chars';
 import { Statement, ExpressionStatement, Literal, Expression, Pattern } from './estree';
 import { Token } from './token';
 import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
+import { ScanState } from './flags';
 
 export const isInOrOfKeyword = (t: Token) => t === Token.InKeyword || t === Token.OfKeyword;
 
@@ -129,3 +130,11 @@ export const isIdentifierPart = (cp: Chars) => (cp >= Chars.UpperA && cp <= Char
     (cp === Chars.Dollar) || (cp === Chars.Underscore || cp === Chars.Backslash) || // $ (dollar) and _ (underscore)
     isValidIdentifierPart(cp);
 
+    export function getCommentType(state: ScanState) {
+        if (state & ScanState.SingleLine) return 'SingleLine'
+        if (state & ScanState.HTMLOpen) return 'HTMLOpen'
+        if (state & ScanState.HTMLClose) return 'HTMLClose'
+        if (state & ScanState.SheBang) return 'SheBang'
+        return 'MultiLine';
+    }
+    

@@ -4,12 +4,8 @@ import { Context } from './flags';
 
 export type PluginHandler = (core: any) => void;
 
-export type OnComment = void | ESTree.Comment[] | (
-    (type: string, value: string, start: number, end: number) => any
-);
-
 export interface Options {
-    comments?: OnComment;
+    comments?: boolean;
     plugins?: PluginHandler[];
     next?: boolean;
     ranges?: boolean;
@@ -28,32 +24,29 @@ export const pluginClassCache: {
 
 function parse(source: string, context: Context, options: Options | void) {
 
-    const comments: OnComment = [];
     let sourceFile: string = '';
-    let cherow;
+    let Cherow;
 
     if (options != null) {
 
-        if (options.source) {
-            sourceFile = options.source;
-        }
+        if (options.source) sourceFile = options.source;
 
         if (options.plugins) {
             const key = options.plugins.join('/');
-            cherow = pluginClassCache[key];
-            if (!cherow) {
-                cherow = Parser;
+            Cherow = pluginClassCache[key];
+            if (!Cherow) {
+                Cherow = Parser;
                 for (const plugin of options.plugins) {
-                    cherow = plugin(cherow);
+                    Cherow = plugin(Cherow);
                 }
-                pluginClassCache[key] = cherow;
+                pluginClassCache[key] = Cherow;
             }
+
+            return new Cherow(source, sourceFile).parseProgram(context, options);
         }
     }
-
-    return new(cherow ?
-        cherow :
-        Parser)(source, comments, sourceFile).parseProgram(context, options);
+    
+    return new Parser(source, sourceFile).parseProgram(context, options);
 }
 
 // https://tc39.github.io/ecma262/#sec-scripts
