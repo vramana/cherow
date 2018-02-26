@@ -34,7 +34,7 @@ describe('Module - Import', () => {
         source: `import { a as class } from 'foo'`,
         module: true,
         line: 1,
-        message: 'Unexpected token class',
+        message: 'Unexpected keyword \'class\'',
         column: 13,
         index: 13
     });
@@ -43,7 +43,7 @@ describe('Module - Import', () => {
         source: `import * as class from 'foo'`,
         module: true,
         line: 1,
-        message: 'Unexpected token class',
+        message: 'Unexpected keyword \'class\'',
         column: 11,
         index: 11
     });
@@ -97,7 +97,7 @@ describe('Module - Import', () => {
         source: `import * as class from "foo"`,
         module: true,
         line: 1,
-        message: 'Unexpected token class',
+        message: 'Unexpected keyword \'class\'',
         column: 11,
         index: 11
     });

@@ -29,7 +29,7 @@ export const enum Chars {
     Period      = 0x2e,
     Slash       = 0x2f,
     At = 0x40,
-    
+
     /* Surrogate pair values */
 
     MinHigh     = 0xd800,

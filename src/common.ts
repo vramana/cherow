@@ -1,6 +1,6 @@
 import { Chars } from './chars';
 import { Token } from './token';
-import { Scanner } from './flags';
+import { Context, Scanner } from './flags';
 import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
 import { Statement, CommentType, ExpressionStatement, Literal, Expression, Pattern, Comment } from './estree';
 import { Errors } from './errors';
@@ -125,14 +125,14 @@ export const isIdentifierPart = (cp: Chars) => (cp >= Chars.UpperA && cp <= Char
     isValidIdentifierPart(cp);
 
 export function getCommentType(state: Scanner): CommentType {
-    if (state & Scanner.SingleLine) return 'SingleLine'
-    if (state & Scanner.HTMLOpen) return 'HTMLOpen'
-    if (state & Scanner.HTMLClose) return 'HTMLClose'
-    if (state & Scanner.SheBang) return 'SheBang'
+    if (state & Scanner.SingleLine) return 'SingleLine';
+    if (state & Scanner.HTMLOpen) return 'HTMLOpen';
+    if (state & Scanner.HTMLClose) return 'HTMLClose';
+    if (state & Scanner.SheBang) return 'SheBang';
     return 'MultiLine';
 }
 
-export function throwUnexpectedTokenOrKeyword(t: Token): Errors {
-    if (t & (Token.Reserved | Token.FutureReserved)) return Errors.UnexpectedKeyword;
-    return Errors.UnexpectedToken;
+export function isPropertyWithPrivateFieldKey(context: Context, expr: any): boolean {
+    if (!expr.property) return false;
+    return expr.property.type === 'PrivateName';
 }

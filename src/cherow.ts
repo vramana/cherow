@@ -45,7 +45,7 @@ function parse(source: string, context: Context, options: Options | void) {
             return new Cherow(source, sourceFile).parseProgram(context, options);
         }
     }
-    
+
     return new Parser(source, sourceFile).parseProgram(context, options);
 }
 

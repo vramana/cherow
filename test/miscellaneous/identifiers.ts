@@ -30,7 +30,7 @@ describe('Miscellaneous - Identifiers', () => {
 
     fail('"use strict"; yield', {
         source: '"use strict"; yield',
-        message: 'Unexpected keyword \'yield\'',
+        message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 13,
         index: 13
@@ -38,7 +38,7 @@ describe('Miscellaneous - Identifiers', () => {
 
     fail('var func\\u0074ion = 123;', {
         source: 'var func\\u0074ion = 123;',
-        message:  'Unexpected token function',
+        message: 'Unexpected keyword \'function\'',
         line: 1,
         column: 3,
         index: 3
@@ -46,7 +46,7 @@ describe('Miscellaneous - Identifiers', () => {
 
     fail('var in = 123;', {
         source: 'var in = 123;',
-        message: 'Unexpected token in',
+        message: 'Unexpected keyword \'in\'',
         line: 1,
         column: 3,
         index: 3

@@ -18,7 +18,7 @@ import {
     isIdentifierStart,
     isIdentifierPart,
     getCommentType,
-    throwUnexpectedTokenOrKeyword
+    isPropertyWithPrivateFieldKey
 } from './common';
 
 import {
@@ -56,7 +56,6 @@ export interface Location {
     column: number;
     index: number;
 }
-
 export class Parser {
 
     private readonly source: string;
@@ -1093,8 +1092,8 @@ export class Parser {
 
             if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= base) break;
             // Most octal and binary values fit into 4 bytes
-            if (digits < 10) value = (value << opt) | converted
-            else value = value * base + converted
+            if (digits < 10) value = (value << opt) | converted;
+            else value = value * base + converted;
 
             this.advance();
             digits++;
@@ -1900,7 +1899,7 @@ export class Parser {
             directive
         });
     }
-    
+
     private expectSemicolon(context: Context): boolean | void {
         switch (this.token) {
             case Token.Semicolon:
@@ -1910,13 +1909,13 @@ export class Parser {
                 return true;
             default:
                 if (this.flags & Flags.LineTerminator) return true;
-                this.report(throwUnexpectedTokenOrKeyword(this.token), tokenDesc(this.token));
+                this.reportUnexpectedTokenOrKeyword();
         }
     }
 
     private expect(context: Context, t: Token): void {
         if (this.token !== t) {
-            this.report(Errors.UnexpectedToken, tokenDesc(this.token));
+            this.reportUnexpectedTokenOrKeyword();
         }
         this.nextToken(context);
     }
@@ -1974,7 +1973,7 @@ export class Parser {
                 (t & Token.Contextual) === Token.Contextual);
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: Location,
         node: any,
@@ -2028,6 +2027,12 @@ export class Parser {
         }
         if (!(context & Context.OptionsTolerate)) throw error;
         this.errors.push(error);
+    }
+
+    private reportUnexpectedTokenOrKeyword(t: Token = this.token) {
+        this.report((t & (Token.Reserved | Token.FutureReserved)) ?
+            Errors.UnexpectedKeyword :
+            Errors.UnexpectedToken, tokenDesc(this.token));
     }
 
     private nextToken(context: Context) {
@@ -3108,7 +3113,7 @@ export class Parser {
             return this.parseArrowFunctionExpression(context & ~Context.AllowAsync, pos, [expr]);
         }
 
-        if (!hasBit(this.token, Token.IsAssignOperator)) return expr;
+        if (!hasBit(this.token, Token.IsAssignOp)) return expr;
 
         if (context & Context.Strict && this.isEvalOrArguments((expr as ESTree.Identifier).name)) {
             this.tolerate(context, Errors.StrictLHSAssignment);
@@ -3197,7 +3202,7 @@ export class Parser {
         // syntax.
         const bit = context & Context.AllowIn ^ Context.AllowIn;
 
-        while (hasBit(this.token, Token.IsBinaryOperator)) {
+        while (hasBit(this.token, Token.IsBinaryOp)) {
             const t = this.token;
             if (bit && t === Token.InKeyword) break;
             const prec = t & Token.Precedence;
@@ -3244,14 +3249,12 @@ export class Parser {
         //   '~' UnaryExpression
         //   '!' UnaryExpression
         //   [+Await] AwaitExpression[?Yield]
+
         const pos = this.getLocation();
+
         let t = this.token;
 
-        if (t & Token.IsAwait && context & Context.AllowAsync) {
-            return this.parseAwaitExpression(context, pos);
-        }
-
-        if (hasBit(t, Token.IsUnaryOperator)) {
+        if (hasBit(t, Token.IsUnaryOp)) {
             t = this.token;
             if (this.flags & Flags.HasEscapedKeyword) this.tolerate(context, Errors.UnexpectedEscapedKeyword);
             this.nextToken(context);
@@ -3261,13 +3264,12 @@ export class Parser {
             }
             const argument = this.parseUnaryExpression(context);
 
-            if (this.token === Token.Exponentiate) this.tolerate(context, Errors.UnexpectedToken, tokenDesc(this.token));
+            if (this.token === Token.Exponentiate) this.reportUnexpectedTokenOrKeyword();
             if (context & Context.Strict && t === Token.DeleteKeyword) {
-                if (argument.type === 'Identifier' || (context & Context.OptionsNext &&
-                        !(context & Context.Module) &&
-                        argument.type === 'MemberExpression' &&
-                        (argument.property.type as any) === 'PrivateName')) {
+                if (argument.type === 'Identifier') {
                     this.tolerate(context, Errors.StrictDelete);
+                } else if (isPropertyWithPrivateFieldKey(context, argument)) {
+                    this.tolerate(context, Errors.DeletePrivateField);
                 }
             }
             return this.finishNode(context, pos, {
@@ -3278,7 +3280,9 @@ export class Parser {
             });
         }
 
-        return this.parseUpdateExpression(context, pos);
+        return (context & Context.AllowAsync && t & Token.IsAwait) ?
+            this.parseAwaitExpression(context, pos) :
+            this.parseUpdateExpression(context, pos);
     }
 
     private isEvalOrArguments(value: string): boolean {
@@ -3292,7 +3296,7 @@ export class Parser {
         let prefix = false;
         let operator: Token | undefined;
 
-        if (hasBit(this.token, Token.IsUpdateOperator)) {
+        if (hasBit(this.token, Token.IsUpdateOp)) {
             operator = this.token;
             prefix = true;
             this.nextToken(context);
@@ -3307,7 +3311,7 @@ export class Parser {
 
         const argument = this.parseLeftHandSideExpression(context, pos);
 
-        const isPostfix = hasBit(this.token, Token.IsUpdateOperator) && !(this.flags & Flags.LineTerminator);
+        const isPostfix = hasBit(this.token, Token.IsUpdateOp) && !(this.flags & Flags.LineTerminator);
 
         if (!prefix && !isPostfix) return argument;
 
@@ -3447,6 +3451,17 @@ export class Parser {
             this.parseCallExpression(context | Context.AllowIn, pos, expr);
     }
 
+    private parseIdentifierNameOrPrivateName(context: Context): ESTree.PrivateName | ESTree.Identifier {
+        if (!this.consume(context, Token.Hash)) return this.parseIdentifierName(context, this.token);
+        const pos = this.getLocation();
+        const name = this.tokenValue;
+        this.nextToken(context);
+        return this.finishNode(context, pos, {
+            type: 'PrivateName',
+            name
+        });
+    }
+
     private parseMemberExpression(
         context: Context,
         pos: Location,
@@ -3461,8 +3476,7 @@ export class Parser {
                     {
                         this.expect(context, Token.Period);
 
-                        const property = this.token === Token.Hash ?
-                            this.parsePrivateName(context) : this.parseIdentifierName(context, this.token);
+                        const property = this.parseIdentifierNameOrPrivateName(context);
 
                         expr = this.finishNode(context, pos, {
                             type: 'MemberExpression',
@@ -3662,6 +3676,40 @@ export class Parser {
         });
     }
 
+    private parseAndClassifyIdentifier(context: Context): ESTree.Identifier | void {
+
+        const t = this.token;
+
+        if (context & Context.Strict) {
+
+            // Module code is also "strict mode code"
+            if (context & Context.Module && t & Token.IsAwait) {
+                this.tolerate(context, Errors.UnexpectedToken, tokenDesc(this.token));
+            }
+
+            if (t & Token.IsYield) this.report(Errors.DisallowedInContext, tokenDesc(t));
+
+            if ((t & Token.IsIdentifier) === Token.IsIdentifier ||
+                (t & Token.Contextual) === Token.Contextual) {
+                return this.parseIdentifier(context);
+            }
+
+            this.reportUnexpectedTokenOrKeyword();
+        }
+
+        if (context & Context.AllowYield && t & Token.IsYield) {
+            this.report(Errors.DisallowedInContext, tokenDesc(t));
+        }
+
+        if ((t & Token.IsIdentifier) === Token.IsIdentifier ||
+            (t & Token.Contextual) === Token.Contextual ||
+            (t & Token.FutureReserved) === Token.FutureReserved) {
+            return this.parseIdentifier(context);
+        }
+
+        this.reportUnexpectedTokenOrKeyword();
+    }
+
     // https://tc39.github.io/ecma262/#sec-primary-expression
 
     private parsePrimaryExpression(context: Context, pos: Location): any {
@@ -3703,7 +3751,13 @@ export class Parser {
                 return this.parseImportExpressions(context | Context.AllowIn, pos);
             case Token.Divide:
             case Token.DivideAssign:
-                return this.parseRegularExpressionLiteral(context);
+                {
+                    if (this.scanRegularExpression(context) === Token.RegularExpression) {
+                        return this.parseRegularExpressionLiteral(context);
+                    }
+                    this.report(Errors.UnterminatedRegExp);
+                }
+
             case Token.AsyncKeyword:
                 return this.parseAsyncFunctionExpression(context, pos);
             case Token.LetKeyword:
@@ -3725,18 +3779,8 @@ export class Parser {
 
             case Token.Hash:
                 return this.parsePrivateName(context);
-            case Token.YieldKeyword:
-                if (context & Context.AllowYield) {
-                    this.tolerate(context, Errors.DisallowedInContext, tokenDesc(this.token));
-                }
-            case Token.AwaitKeyword:
-                if (context & Context.Module) {
-                    this.tolerate(context, Errors.UnexpectedToken, tokenDesc(this.token));
-                }
-
             default:
-                if (this.isIdentifier(context, this.token)) return this.parseIdentifier(context);
-                this.report(throwUnexpectedTokenOrKeyword(this.token), tokenDesc(this.token));
+                return this.parseAndClassifyIdentifier(context);
         }
     }
 
@@ -4463,7 +4507,7 @@ export class Parser {
             // Multiple statement body
             body = this.parseFunctionBody(context | Context.AllowIn | Context.ArrowFunction, formalArgs);
             if ((context & Context.InParenthesis) &&
-                (hasBit(this.token, Token.IsBinaryOperator) ||
+                (hasBit(this.token, Token.IsBinaryOp) ||
                     this.token === Token.LeftParen ||
                     this.token === Token.QuestionMark)) {
                 this.report(Errors.UnexpectedToken, tokenDesc(this.token));
@@ -4654,7 +4698,7 @@ export class Parser {
     }
 
     private parseRegularExpressionLiteral(context: Context): ESTree.RegExpLiteral {
-        this.scanRegularExpression(context);
+
         const pos = this.getLocation();
         const regex = this.tokenRegExp;
         const value = this.tokenValue;
@@ -4751,6 +4795,7 @@ export class Parser {
                 this.tolerate(context, Errors.DisallowedInContext, tokenDesc(this.token));
             }
         }
+
         if (!(t & Token.IsBindingPattern)) {
             params.push(this.tokenValue);
             return this.parseBindingIdentifier(context);
@@ -4882,10 +4927,6 @@ export class Parser {
 
             key = this.parseIdentifier(context);
 
-            if (state & Clob.Shorthand && context & Context.AllowYield && t & Token.IsYield) {
-                this.tolerate(context, Errors.DisallowedInContext, tokenDesc(t));
-            }
-
             if (!this.consume(context, Token.Colon)) state |= Clob.Shorthand;
 
             if (state & Clob.Shorthand) {
@@ -4928,7 +4969,7 @@ export class Parser {
 
         const t = this.token;
         if (!this.isIdentifier(context, t)) {
-            this.tolerate(context, Errors.UnexpectedToken, tokenDesc(t));
+            this.reportUnexpectedTokenOrKeyword();
         }
         if (context & Context.Strict && t & Token.IsEvalArguments) {
             this.tolerate(context, Errors.InvalidBindingStrictMode, tokenDesc(t));

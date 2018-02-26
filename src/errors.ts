@@ -105,7 +105,8 @@ export const enum Errors {
     MissingUAfterSlash,
     UndefinedUnicodeCodePoint,
     InvalidOrUnexpectedToken,
-    ForInOfLoopInitializer
+    ForInOfLoopInitializer,
+    DeletePrivateField
 }
 
 export const ErrorMessages: {
@@ -217,6 +218,7 @@ export const ErrorMessages: {
     [Errors.UndefinedUnicodeCodePoint]: 'Undefined Unicode code-point',
     [Errors.InvalidOrUnexpectedToken]: 'Invalid or unexpected token',
     [Errors.ForInOfLoopInitializer]: '\'for-%0\' loop variable declaration may not have an initializer',
+    [Errors.DeletePrivateField]: 'Private fields can not be deleted',
 
 };
 

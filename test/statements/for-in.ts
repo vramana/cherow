@@ -4492,7 +4492,7 @@ describe('Statements - For in', () => {
 
     fail(`"use strict"; for ([[x[yield]]] in [[[]]]) ;`, {
         source: '"use strict"; for ([[x[yield]]] in [[[]]]) ;',
-        message: 'Unexpected keyword \'yield\'',
+        message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
         column: 23,
         index: 23

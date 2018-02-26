@@ -25,7 +25,7 @@ describe('Miscellaneous - ASI', () => {
   ) {
     break;
   }`,
-  message:  'Unexpected token false',
+  message: 'Unexpected keyword \'false\'',
   line: 1,
   });
 

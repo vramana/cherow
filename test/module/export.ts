@@ -223,7 +223,7 @@ with (house) {
             source: `import * as enum from "bar"`,
             module: true,
             line: 1,
-            message:  'Unexpected token enum',
+            message: 'Unexpected keyword \'enum\'',
             column: 11,
             index: 11
         });

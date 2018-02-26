@@ -380,7 +380,7 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
         column: 11,
         index: 11,
-        message: 'Unexpected token if',
+        message: 'Unexpected keyword \'if\'',
     });
 
     fail('({ get: g(d) { } })', {
@@ -600,7 +600,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('function true() { }', {
         source: `function true() { }`,
-        message: 'Unexpected token true',
+        message: 'Unexpected keyword \'true\'',
         line: 1,
         column: 8,
         index: 8
@@ -1477,7 +1477,7 @@ describe('Miscellaneous - Failure', () => {
     fail('"use strict"; yield:0;', {
         source: `"use strict"; yield:0;`,
         line: 1,
-        message: 'Unexpected keyword \'yield\'',
+        message: '\'yield\' may not be used as an identifier in this context',
         column: 13,
         index: 13
     });
@@ -1785,7 +1785,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('class A extends yield B { }', {
         source: `class A extends yield B { }`,
-        message: 'Unexpected keyword \'yield\'',
+        message: '\'yield\' may not be used as an identifier in this context',
         line: 1,
     });
 

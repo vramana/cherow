@@ -15,10 +15,10 @@ export const enum Token {
     FutureReserved    = 1 << 14 | Keyword,
     Contextual        = 1 << 16 | Keyword,
     IsExpressionStart = 1 << 17,
-    IsAssignOperator  = 1 << 18,
-    IsBinaryOperator  = 1 << 19 | IsExpressionStart,
-    IsUnaryOperator   = 1 << 20 | IsExpressionStart,
-    IsUpdateOperator  = 1 << 21 | IsExpressionStart,
+    IsAssignOp  = 1 << 18,
+    IsBinaryOp  = 1 << 19 | IsExpressionStart,
+    IsUnaryOp   = 1 << 20 | IsExpressionStart,
+    IsUpdateOp  = 1 << 21 | IsExpressionStart,
     IsLogical         = 1 << 22,
     IsEvalArguments   = 1 << 23,
     IsIdentifier      = 1 << 24,
@@ -65,54 +65,54 @@ export const enum Token {
     JSXAutoClose = 26, // />
 
     /* Update operators */
-    Increment = 27 | IsUpdateOperator, // ++
-    Decrement = 28 | IsUpdateOperator, // --
+    Increment = 27 | IsUpdateOp, // ++
+    Decrement = 28 | IsUpdateOp, // --
 
     /* Assign operators */
-    Assign                  = 29 | IsAssignOperator | IsShorthand, // =
-    ShiftLeftAssign         = 30 | IsAssignOperator, // <<=
-    ShiftRightAssign        = 31 | IsAssignOperator, // >>=
-    LogicalShiftRightAssign = 32 | IsAssignOperator, // >>>=
-    ExponentiateAssign      = 33 | IsAssignOperator, // **=
-    AddAssign               = 34 | IsAssignOperator, // +=
-    SubtractAssign          = 35 | IsAssignOperator, // -=
-    MultiplyAssign          = 36 | IsAssignOperator, // *=
-    DivideAssign            = 37 | IsAssignOperator | IsExpressionStart, // /=
-    ModuloAssign            = 38 | IsAssignOperator, // %=
-    BitwiseXorAssign        = 39 | IsAssignOperator, // ^=
-    BitwiseOrAssign         = 40 | IsAssignOperator, // |=
-    BitwiseAndAssign        = 41 | IsAssignOperator, // &=
+    Assign                  = 29 | IsAssignOp | IsShorthand, // =
+    ShiftLeftAssign         = 30 | IsAssignOp, // <<=
+    ShiftRightAssign        = 31 | IsAssignOp, // >>=
+    LogicalShiftRightAssign = 32 | IsAssignOp, // >>>=
+    ExponentiateAssign      = 33 | IsAssignOp, // **=
+    AddAssign               = 34 | IsAssignOp, // +=
+    SubtractAssign          = 35 | IsAssignOp, // -=
+    MultiplyAssign          = 36 | IsAssignOp, // *=
+    DivideAssign            = 37 | IsAssignOp | IsExpressionStart, // /=
+    ModuloAssign            = 38 | IsAssignOp, // %=
+    BitwiseXorAssign        = 39 | IsAssignOp, // ^=
+    BitwiseOrAssign         = 40 | IsAssignOp, // |=
+    BitwiseAndAssign        = 41 | IsAssignOp, // &=
 
     /* Unary/binary operators */
-    TypeofKeyword      = 42 | IsUnaryOperator   | Reserved,
-    DeleteKeyword      = 43 | IsUnaryOperator   | Reserved,
-    VoidKeyword        = 44 | IsUnaryOperator   | Reserved,
-    Negate             = 45 | IsUnaryOperator, // !
-    Complement         = 46 | IsUnaryOperator, // ~
-    Add                = 47 | IsUnaryOperator   | IsBinaryOperator | 9 << PrecStart, // +
-    Subtract           = 48 | IsUnaryOperator   | IsBinaryOperator | 9 << PrecStart, // -
-    InKeyword          = 49 | IsBinaryOperator  | 7 << PrecStart   | Reserved,
-    InstanceofKeyword  = 50 | IsBinaryOperator  | 7 << PrecStart   | Reserved,
-    Multiply           = 51 | IsBinaryOperator  | IsGenerator      | 10 << PrecStart, // *
-    Modulo             = 52 | IsBinaryOperator  | 10 << PrecStart, // %
-    Divide             = 53 | IsExpressionStart | IsBinaryOperator  | 10 << PrecStart, // /
-    Exponentiate       = 54 | IsBinaryOperator  | 11 << PrecStart, // **
-    LogicalAnd         = 55 | IsLogical         | IsBinaryOperator  | 2 << PrecStart, // &&
-    LogicalOr          = 56 | IsLogical         | IsBinaryOperator  | 1 << PrecStart, // ||
-    StrictEqual        = 57 | IsBinaryOperator  | 6 << PrecStart, // ===
-    StrictNotEqual     = 58 | IsBinaryOperator  | 6 << PrecStart, // !==
-    LooseEqual         = 59 | IsBinaryOperator  | 6 << PrecStart, // ==
-    LooseNotEqual      = 60 | IsBinaryOperator  | 6 << PrecStart, // !=
-    LessThanOrEqual    = 61 | IsBinaryOperator  | 7 << PrecStart, // <=
-    GreaterThanOrEqual = 62 | IsBinaryOperator  | 7 << PrecStart, // >=
-    LessThan           = 63 | IsExpressionStart | IsBinaryOperator  | 7 << PrecStart, // <
-    GreaterThan        = 64 | IsBinaryOperator  | 7 << PrecStart, // >
-    ShiftLeft          = 65 | IsBinaryOperator  | 8 << PrecStart, // <<
-    ShiftRight         = 66 | IsBinaryOperator  | 8 << PrecStart, // >>
-    LogicalShiftRight  = 67 | IsBinaryOperator  | 8 << PrecStart, // >>>
-    BitwiseAnd         = 68 | IsBinaryOperator  | 5 << PrecStart, // &
-    BitwiseOr          = 69 | IsBinaryOperator  | 3 << PrecStart, // |
-    BitwiseXor         = 70 | IsBinaryOperator  | 4 << PrecStart, // ^
+    TypeofKeyword      = 42 | IsUnaryOp   | Reserved,
+    DeleteKeyword      = 43 | IsUnaryOp   | Reserved,
+    VoidKeyword        = 44 | IsUnaryOp   | Reserved,
+    Negate             = 45 | IsUnaryOp, // !
+    Complement         = 46 | IsUnaryOp, // ~
+    Add                = 47 | IsUnaryOp   | IsBinaryOp | 9 << PrecStart, // +
+    Subtract           = 48 | IsUnaryOp   | IsBinaryOp | 9 << PrecStart, // -
+    InKeyword          = 49 | IsBinaryOp  | 7 << PrecStart   | Reserved,
+    InstanceofKeyword  = 50 | IsBinaryOp  | 7 << PrecStart   | Reserved,
+    Multiply           = 51 | IsBinaryOp  | IsGenerator      | 10 << PrecStart, // *
+    Modulo             = 52 | IsBinaryOp  | 10 << PrecStart, // %
+    Divide             = 53 | IsExpressionStart | IsBinaryOp  | 10 << PrecStart, // /
+    Exponentiate       = 54 | IsBinaryOp  | 11 << PrecStart, // **
+    LogicalAnd         = 55 | IsLogical         | IsBinaryOp  | 2 << PrecStart, // &&
+    LogicalOr          = 56 | IsLogical         | IsBinaryOp  | 1 << PrecStart, // ||
+    StrictEqual        = 57 | IsBinaryOp  | 6 << PrecStart, // ===
+    StrictNotEqual     = 58 | IsBinaryOp  | 6 << PrecStart, // !==
+    LooseEqual         = 59 | IsBinaryOp  | 6 << PrecStart, // ==
+    LooseNotEqual      = 60 | IsBinaryOp  | 6 << PrecStart, // !=
+    LessThanOrEqual    = 61 | IsBinaryOp  | 7 << PrecStart, // <=
+    GreaterThanOrEqual = 62 | IsBinaryOp  | 7 << PrecStart, // >=
+    LessThan           = 63 | IsExpressionStart | IsBinaryOp  | 7 << PrecStart, // <
+    GreaterThan        = 64 | IsBinaryOp  | 7 << PrecStart, // >
+    ShiftLeft          = 65 | IsBinaryOp  | 8 << PrecStart, // <<
+    ShiftRight         = 66 | IsBinaryOp  | 8 << PrecStart, // >>
+    LogicalShiftRight  = 67 | IsBinaryOp  | 8 << PrecStart, // >>>
+    BitwiseAnd         = 68 | IsBinaryOp  | 5 << PrecStart, // &
+    BitwiseOr          = 69 | IsBinaryOp  | 3 << PrecStart, // |
+    BitwiseXor         = 70 | IsBinaryOp  | 4 << PrecStart, // ^
 
     /* Variable declaration kinds */
     VarKeyword   = 71 | Reserved       | IsExpressionStart,
