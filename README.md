@@ -26,6 +26,7 @@ It strictly follows the [ECMAScript® 2018 Language Specification](https://tc39.
 * Emits an [ESTree-compatible](https://github.com/estree/estree) abstract syntax tree.
 * Very well tested (~55 000 [unit tests](https://github.com/cherow/cherow/tree/master/test) with [full code coverage)](https://coveralls.io/github/cherow/cherow))
 * 97% Test262 Test coverage
+* 30 - 45% faster than Acorn and Esprima
 
 ## ESNext features
 
