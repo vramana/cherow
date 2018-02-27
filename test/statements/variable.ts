@@ -74,12 +74,12 @@ describe('Statements - Variable', () => {
         index: 7,
     });
 
-    fail(`var new A = 0;`, {
-        source: 'var new A = 0;',
-        message: 'Unexpected keyword \'new\'',
+    fail(`"use strict"; var s = '\\37'`, {
+        source: `"use strict"; var s = '\\37'`,
+        message: 'Octal escapes are not allowed in strict mode',
         line: 1,
-        column: 3,
-        index: 3,
+        column: 21,
+        index: 21,
     });
 
     fail(`var (a)=0;`, {

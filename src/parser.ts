@@ -531,7 +531,7 @@ export class Parser {
                             next === Chars.Exclamation) {
                             index++;
                             if (index < this.source.length) {
-                                this.skipSingleLineComment(context, state);
+                                this.skipSingleLineComment(context, state | Scanner.SheBang);
                                 continue;
                             }
                         }

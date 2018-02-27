@@ -716,6 +716,24 @@ describe('Miscellaneous - Comments', () => {
             }
     });
 
+    pass(`#! janie`, {
+      source: `#! janie`,
+      comments: true,
+      expected: {
+          body: [],
+          comments: [
+            {
+              end: 8,
+              start: 0,
+              type: 'SheBang',
+              value: '#! janie',
+            },
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+    });
+
     pass(`/**/ --> comment\n`, {
       source: `/**/ --> comment\n`,
       comments: true,

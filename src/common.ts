@@ -23,7 +23,6 @@ export const fromCodePoint = (code: Chars) => {
 };
 
 export function toHex(code: number): number {
-    if (code < Chars.Zero) return -1;
     if (code <= Chars.Nine) return code - Chars.Zero;
     if (code < Chars.UpperA) return -1;
     if (code <= Chars.UpperF) return code - Chars.UpperA + 10;
@@ -70,29 +69,12 @@ export function isValidDestructuringAssignmentTarget(expr: Expression | Pattern)
 }
 
 export function invalidCharacterMessage(cp: number): string {
-    switch (cp) {
-        case Chars.Null:
-            return '\\0';
-        case Chars.Backspace:
-            return '\\b';
-        case Chars.Tab:
-            return '\\t';
-        case Chars.LineFeed:
-            return '\\n';
-        case Chars.VerticalTab:
-            return '\\v';
-        case Chars.FormFeed:
-            return '\\f';
-        case Chars.CarriageReturn:
-            return '\\r';
-        default:
             if (!mustEscape(cp)) return fromCodePoint(cp);
             if (cp < 0x10) return `\\x0${cp.toString(16)}`;
             if (cp < 0x100) return `\\x${cp.toString(16)}`;
             if (cp < 0x1000) return `\\u0${cp.toString(16)}`;
             if (cp < 0x10000) return `\\u${cp.toString(16)}`;
             return `\\u{${cp.toString(16)}}`;
-    }
 }
 
 // Fully qualified element name, e.g. <svg:path> returns "svg:path"

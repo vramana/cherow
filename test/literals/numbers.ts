@@ -37,6 +37,11 @@ describe('Literals - Numbers', () => {
         line: 1
     });
 
+    fail(`1=1`, {
+        source: `1=1`,
+        line: 1
+    });
+
     fail(`const t = 2.34e-;const b = 4.3e--3;`, {
         source: 'const t = 2.34e-;const b = 4.3e--3;',
         line: 1

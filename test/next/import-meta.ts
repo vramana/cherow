@@ -1274,6 +1274,598 @@ describe('Next - Import meta', () => {
       }
   });
 
+    pass(`const response = fetch(import.meta.url);`, {
+    source: 'const response = fetch(import.meta.url);',
+    loc: true,
+    ranges: true,
+    next: true,
+    module: true,
+    expected: {
+        type: 'Program',
+        sourceType: 'module',
+        body: [
+            {
+                type: 'VariableDeclaration',
+                declarations: [
+                    {
+                        type: 'VariableDeclarator',
+                        init: {
+                            type: 'CallExpression',
+                            callee: {
+                                type: 'Identifier',
+                                name: 'fetch',
+                                start: 17,
+                                end: 22,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 17
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 22
+                                    }
+                                }
+                            },
+                            arguments: [
+                                {
+                                    type: 'MemberExpression',
+                                    object: {
+                                        meta: {
+                                            type: 'Identifier',
+                                            name: 'import',
+                                            start: 23,
+                                            end: 29,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 23
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 29
+                                                }
+                                            }
+                                        },
+                                        type: 'MetaProperty',
+                                        property: {
+                                            type: 'Identifier',
+                                            name: 'meta',
+                                            start: 30,
+                                            end: 34,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 30
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 34
+                                                }
+                                            }
+                                        },
+                                        start: 23,
+                                        end: 34,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 23
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 34
+                                            }
+                                        }
+                                    },
+                                    computed: false,
+                                    property: {
+                                        type: 'Identifier',
+                                        name: 'url',
+                                        start: 35,
+                                        end: 38,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 35
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 38
+                                            }
+                                        }
+                                    },
+                                    start: 23,
+                                    end: 38,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 23
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 38
+                                        }
+                                    }
+                                }
+                            ],
+                            start: 17,
+                            end: 39,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 17
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 39
+                                }
+                            }
+                        },
+                        id: {
+                            type: 'Identifier',
+                            name: 'response',
+                            start: 6,
+                            end: 14,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 6
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 14
+                                }
+                            }
+                        },
+                        start: 6,
+                        end: 39,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 39
+                            }
+                        }
+                    }
+                ],
+                kind: 'const',
+                start: 0,
+                end: 40,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 40
+                    }
+                }
+            }
+        ],
+        start: 0,
+        end: 40,
+        loc: {
+            start: {
+                line: 1,
+                column: 0
+            },
+            end: {
+                line: 1,
+                column: 40
+            }
+        }
+    }
+  });
+
+    pass(`const size = import.meta.scriptElement.dataset.size || 300;`, {
+    source: 'const size = import.meta.scriptElement.dataset.size || 300;',
+    loc: true,
+    ranges: true,
+    next: true,
+    module: true,
+    expected: {
+        type: 'Program',
+        sourceType: 'module',
+        body: [
+            {
+                type: 'VariableDeclaration',
+                declarations: [
+                    {
+                        type: 'VariableDeclarator',
+                        init: {
+                            type: 'LogicalExpression',
+                            left: {
+                                type: 'MemberExpression',
+                                object: {
+                                    type: 'MemberExpression',
+                                    object: {
+                                        type: 'MemberExpression',
+                                        object: {
+                                            meta: {
+                                                type: 'Identifier',
+                                                name: 'import',
+                                                start: 13,
+                                                end: 19,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 13
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 19
+                                                    }
+                                                }
+                                            },
+                                            type: 'MetaProperty',
+                                            property: {
+                                                type: 'Identifier',
+                                                name: 'meta',
+                                                start: 20,
+                                                end: 24,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 20
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 24
+                                                    }
+                                                }
+                                            },
+                                            start: 13,
+                                            end: 24,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 13
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 24
+                                                }
+                                            }
+                                        },
+                                        computed: false,
+                                        property: {
+                                            type: 'Identifier',
+                                            name: 'scriptElement',
+                                            start: 25,
+                                            end: 38,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 25
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 38
+                                                }
+                                            }
+                                        },
+                                        start: 13,
+                                        end: 38,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 13
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 38
+                                            }
+                                        }
+                                    },
+                                    computed: false,
+                                    property: {
+                                        type: 'Identifier',
+                                        name: 'dataset',
+                                        start: 39,
+                                        end: 46,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 39
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 46
+                                            }
+                                        }
+                                    },
+                                    start: 13,
+                                    end: 46,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 13
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 46
+                                        }
+                                    }
+                                },
+                                computed: false,
+                                property: {
+                                    type: 'Identifier',
+                                    name: 'size',
+                                    start: 47,
+                                    end: 51,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 47
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 51
+                                        }
+                                    }
+                                },
+                                start: 13,
+                                end: 51,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 13
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 51
+                                    }
+                                }
+                            },
+                            right: {
+                                type: 'Literal',
+                                value: 300,
+                                start: 55,
+                                end: 58,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 55
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 58
+                                    }
+                                }
+                            },
+                            operator: '||',
+                            start: 13,
+                            end: 58,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 13
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 58
+                                }
+                            }
+                        },
+                        id: {
+                            type: 'Identifier',
+                            name: 'size',
+                            start: 6,
+                            end: 10,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 6
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 10
+                                }
+                            }
+                        },
+                        start: 6,
+                        end: 58,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 58
+                            }
+                        }
+                    }
+                ],
+                kind: 'const',
+                start: 0,
+                end: 59,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 59
+                    }
+                }
+            }
+        ],
+        start: 0,
+        end: 59,
+        loc: {
+            start: {
+                line: 1,
+                column: 0
+            },
+            end: {
+                line: 1,
+                column: 59
+            }
+        }
+    }
+  });
+
+    pass(`import.meta.resolve('something')`, {
+    source: 'import.meta.resolve("something")',
+    loc: true,
+    ranges: true,
+    next: true,
+    raw: true,
+    module: true,
+    expected: {
+        type: 'Program',
+        sourceType: 'module',
+        body: [
+            {
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'CallExpression',
+                    callee: {
+                        type: 'MemberExpression',
+                        object: {
+                            meta: {
+                                type: 'Identifier',
+                                name: 'import',
+                                start: 0,
+                                end: 6,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 0
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 6
+                                    }
+                                }
+                            },
+                            type: 'MetaProperty',
+                            property: {
+                                type: 'Identifier',
+                                name: 'meta',
+                                start: 7,
+                                end: 11,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 7
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 11
+                                    }
+                                }
+                            },
+                            start: 0,
+                            end: 11,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 0
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 11
+                                }
+                            }
+                        },
+                        computed: false,
+                        property: {
+                            type: 'Identifier',
+                            name: 'resolve',
+                            start: 12,
+                            end: 19,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 12
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 19
+                                }
+                            }
+                        },
+                        start: 0,
+                        end: 19,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 19
+                            }
+                        }
+                    },
+                    arguments: [
+                        {
+                            type: 'Literal',
+                            value: 'something',
+                            start: 20,
+                            end: 31,
+                            loc: {
+                                start: {
+                                    line: 1,
+                                    column: 20
+                                },
+                                end: {
+                                    line: 1,
+                                    column: 31
+                                }
+                            },
+                            raw: '"something"'
+                        }
+                    ],
+                    start: 0,
+                    end: 32,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 32
+                        }
+                    }
+                },
+                start: 0,
+                end: 32,
+                loc: {
+                    start: {
+                        line: 1,
+                        column: 0
+                    },
+                    end: {
+                        line: 1,
+                        column: 32
+                    }
+                }
+            }
+        ],
+        start: 0,
+        end: 32,
+        loc: {
+            start: {
+                line: 1,
+                column: 0
+            },
+            end: {
+                line: 1,
+                column: 32
+            }
+        }
+    }
+  });
+
     pass(`two dots and no assignments`, {
     source: 'import.meta.url;',
     loc: true,
