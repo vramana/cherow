@@ -241,7 +241,12 @@ function constructError(msg: string, column: number): Error {
     return error;
 }
 
-export function createError(type: Errors, index: number, line: number, column: number,  ...params: string[]): any {
+export function createError(type: Errors, index: number, line: number, column: number, loc: any, ...params: string[]): any {
+    if (loc) {
+        index = loc.index;
+        line = loc.line;
+        column = loc.column
+    }
     const description = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     const error: any = constructError(description + ' at ' + ':' + line + ':' + column, column);
     error.index = index;

@@ -170,7 +170,6 @@ Cherow.parseScript("let x = do {}", { plugins: [do-expressions] }
 
 | Name        | Description |
 | ----------- | ------------------------------------------------------------ |
-| [`cherow-jsx`](https://github.com/cherow/cherow-jsx-plugin)  | Allow parsing of [Facebook JSX syntax extension](https://github.com/facebook/jsx) |
 | [`cherow-do-expression`](https://github.com/cherow/cherow-do-expressions)  | Stage 1 proposal |
 
 

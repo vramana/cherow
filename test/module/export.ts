@@ -29,21 +29,6 @@ describe('Module - Export', () => {
         index: 9
     });
 
-    fail(`import default from "foo"`, {
-        source: `import default from "foo"`,
-        module: true,
-        line: 1
-    });
-
-    fail(`export default from`, {
-        source: `export default from`,
-        module: true,
-        line: 1,
-        message: 'Unexpected token from',
-        column: 14,
-        index: 14
-    });
-
     fail(`export "string_constant";`, {
         source: `export "string_constant";`,
         module: true,
@@ -126,10 +111,10 @@ with (house) {
     fail(`export default from "foo"`, {
             source: `export default from "foo"`,
             module: true,
-            message: 'Unexpected token from',
+            message: 'Unexpected token string',
             line: 1,
-            column: 14,
-            index: 14
+            column: 19,
+            index: 19
         });
 
     fail(`export *`, {
