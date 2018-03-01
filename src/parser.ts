@@ -4326,17 +4326,20 @@ export class Parser {
 
     private parseClassElement(context: Context, state: Clob): ESTree.FieldDefinition | ESTree.MethodDefinition | void {
 
+        const pos = this.getLocation();
+
         let t = this.token;
         let tokenValue = this.tokenValue;
-        const pos = this.getLocation();
 
         let key;
 
         if (context & Context.OptionsNext && this.token === Token.Hash) {
             this.expect(context, Token.Hash);
-            if (this.token === Token.ConstructorKeyword) this.report(Errors.Unexpected);
+            if (this.token === Token.ConstructorKeyword) {
+                this.report(Errors.ConstructorClassField);
+            }
             state |= Clob.PrivateName;
-            key = this.parsePrivateName1(context, pos);
+            key = this.parsePrivateName(context, pos);
         } else {
 
             if (t & Token.IsGenerator) {
@@ -4373,8 +4376,6 @@ export class Parser {
                 }
 
                 if (this.tokenValue === 'constructor') {
-                    // this.report(Errors.StaticPrototype);
-                    //state |= Clob.Constructor;
                     tokenValue = this.tokenValue;
                 }
 
@@ -4394,9 +4395,11 @@ export class Parser {
 
                     if (context & Context.OptionsNext && this.token === Token.Hash) {
                         this.expect(context, Token.Hash);
-                        if (this.token === Token.ConstructorKeyword) this.report(Errors.Unexpected);
+                        if (this.token === Token.ConstructorKeyword) {
+                            this.report(Errors.PrivateFieldConstructor);
+                        }
                         state |= Clob.PrivateName;
-                        key = this.parsePrivateName1(context, pos);
+                        key = this.parsePrivateName(context, pos);
                     } else {
 
                         if (t & Token.IsGenerator) {
@@ -4450,6 +4453,11 @@ export class Parser {
                 this.token === Token.Assign) {
 
                 if (tokenValue === 'constructor') this.report(Errors.Unexpected);
+                if (state & Clob.Static) {
+                    if (state & Clob.Generator) {
+                        this.report(Errors.Unexpected);
+                    }
+                }
                 if (!(state & Clob.Computed)) if (state & Clob.Async) this.report(Errors.StaticPrototype);
 
                 return this.parseFieldDefinition(context, state, key, pos);
@@ -4492,7 +4500,7 @@ export class Parser {
         });
     }
 
-    private parsePrivateName1(context: Context, pos: Location): ESTree.PrivateName {
+    private parsePrivateName(context: Context, pos: Location): ESTree.PrivateName {
         const name = this.tokenValue;
         this.nextToken(context);
         return this.finishNode(context, pos, {

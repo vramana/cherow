@@ -232,6 +232,7 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/arrow-function/dstr-ary-ptrn-rest-not-final-ary.js',
         'test/language/expressions/arrow-function/dstr-ary-ptrn-rest-not-final-id.js',
         'test/language/expressions/arrow-function/dstr-ary-ptrn-rest-not-final-obj.js',
+        'test/language/expressions/tagged-template/cache-eval-inner-function.js',
 
         /** This are commented out because of "static field" support (stage 2) */
         'test/language/expressions/class/fields-initializer-static-public-fields-forbidden.js',

@@ -110,7 +110,7 @@ describe('Next - Class fields', () => {
       line: 1
   });
 
-  fail('class A { static a = 0\n *b(){} }', {
+    fail('class A { static a = 0\n *b(){} }', {
       source: 'class A { static a = 0\n *b(){} }',
       next: true,
       line: 2
@@ -140,8 +140,7 @@ describe('Next - Class fields', () => {
       line: 1
   });
 
-
-  fail('class A { a = 0\n ["b"](){} }', {
+    fail('class A { a = 0\n ["b"](){} }', {
       source: 'class A { a = 0\n ["b"](){} }',
       next: true,
       line: 2
@@ -153,8 +152,7 @@ describe('Next - Class fields', () => {
       line: 1
   });
 
-
-  fail('class A { #a = 0\n ["b"](){} }', {
+    fail('class A { #a = 0\n ["b"](){} }', {
       source: 'class A { #a = 0\n ["b"](){} }',
       next: true,
       line: 2
@@ -335,13 +333,13 @@ describe('Next - Class fields', () => {
       next: true,
       index: 21
   });
-  
-  fail('class C { "constructor"; }', {
+
+    fail('class C { "constructor"; }', {
   source: 'class C { "constructor"; }',
   next: true,
   index: 23
   });
-  
+
     fail('class C { x = {} == super(); }', {
       source: 'class C { x = {} == super(); }',
       next: true,
@@ -366,62 +364,149 @@ describe('Next - Class fields', () => {
       index: 11
   });
 
-  pass('class A { #a foo() { #a} }', {
+    pass(`class Foo extends Bar {
+      bar = "foo";
+
+      constructor() {
+        super();
+      }
+    }`, {
+    source: `class Foo extends Bar {
+        bar = "foo";
+
+        constructor() {
+          super();
+        }
+      }`,
+    next: true,
+    raw: true,
+    expected: {
+          body: [
+            {
+              body: {
+                body: [
+                  {
+                    computed: false,
+                    key: {
+                      name: 'bar',
+                      type: 'Identifier'
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: {
+                      raw: '"foo"',
+                      type: 'Literal',
+                      value: 'foo',
+                    }
+                  },
+                  {
+                    computed: false,
+                    key: {
+                      name: 'constructor',
+                      type: 'Identifier',
+                    },
+                    kind: 'constructor',
+                    static: false,
+                    type: 'MethodDefinition',
+                    value: {
+                      async: false,
+                      body: {
+                        body: [
+                          {
+                            expression: {
+                              arguments: [],
+                              callee: {
+                                type: 'Super',
+                              },
+                              type: 'CallExpression'
+                           },
+                            type: 'ExpressionStatement'
+                          }
+                        ],
+                        type: 'BlockStatement'
+                      },
+                      expression: false,
+                      generator: false,
+                      id: null,
+                      params: [],
+                      type: 'FunctionExpression'
+                   }
+                  }
+                ],
+                type: 'ClassBody'
+              },
+              id: {
+                name: 'Foo',
+                type: 'Identifier',
+              },
+              superClass: {
+                name: 'Bar',
+                type: 'Identifier',
+              },
+             type: 'ClassDeclaration'
+            },
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+  });
+
+    pass('class A { #a foo() { #a} }', {
     source: 'class A { #a foo() { #a } }',
     next: true,
     raw: true,
     expected: {
-        "type": "Program",
-        "sourceType": "script",
-        "body": [
+        type: 'Program',
+        sourceType: 'script',
+        body: [
             {
-                "type": "ClassDeclaration",
-                "id": {
-                    "type": "Identifier",
-                    "name": "A"
+                type: 'ClassDeclaration',
+                id: {
+                    type: 'Identifier',
+                    name: 'A'
                 },
-                "superClass": null,
-                "body": {
-                    "type": "ClassBody",
-                    "body": [
+                superClass: null,
+                body: {
+                    type: 'ClassBody',
+                    body: [
                         {
-                            "type": "FieldDefinition",
-                            "key": {
-                                "type": "PrivateName",
-                                "name": "a"
+                            type: 'FieldDefinition',
+                            key: {
+                                type: 'PrivateName',
+                                name: 'a'
                             },
-                            "value": null,
-                            "computed": false,
+                            value: null,
+                            computed: false,
                             static: false,
                         },
                         {
-                            "type": "MethodDefinition",
-                            "kind": "method",
-                            "static": false,
-                            "computed": false,
-                            "key": {
-                                "type": "Identifier",
-                                "name": "foo"
+                            type: 'MethodDefinition',
+                            kind: 'method',
+                            static: false,
+                            computed: false,
+                            key: {
+                                type: 'Identifier',
+                                name: 'foo'
                             },
-                            "value": {
-                                "type": "FunctionExpression",
-                                "params": [],
-                                "body": {
-                                    "type": "BlockStatement",
-                                    "body": [
+                            value: {
+                                type: 'FunctionExpression',
+                                params: [],
+                                body: {
+                                    type: 'BlockStatement',
+                                    body: [
                                         {
-                                            "type": "ExpressionStatement",
-                                            "expression": {
-                                                "type": "PrivateName",
-                                                "name": "a"
+                                            type: 'ExpressionStatement',
+                                            expression: {
+                                                type: 'PrivateName',
+                                                name: 'a'
                                             }
                                         }
                                     ]
                                 },
-                                "async": false,
-                                "generator": false,
-                                "expression": false,
-                                "id": null
+                                async: false,
+                                generator: false,
+                                expression: false,
+                                id: null
                             }
                         }
                     ]
