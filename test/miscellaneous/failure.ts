@@ -742,8 +742,8 @@ describe('Miscellaneous - Failure', () => {
     fail('class A {get constructor(){}}', {
         source: `class A {get constructor(){}}`,
         line: 1,
-        column: 13,
-        index: 13
+        column: 12,
+        index: 12
     });
 
     fail('x %*= y', {

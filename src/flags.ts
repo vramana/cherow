@@ -76,6 +76,7 @@ export const enum Clob {
     Prototype       = 1 << 9,
     Heritage        = 1 << 10,
     HasConstructor  = 1 << 11,
+    PrivateName     = 1 << 12,
 
     Accessors = Get | Set,
 

@@ -166,16 +166,16 @@ describe('Declarations - Class', () => {
         source: `class a{ get get a() {} }`,
         message: 'Unexpected token identifier',
         line: 1,
-        column: 13,
-        index: 13
+        column: 16,
+        index: 16
     });
 
     fail('class A { get constructor() {} }', {
         source: `class A { get constructor() {} }`,
         message: 'Class member named constructor (or \'constructor\') may not be an accessor',
         line: 1,
-        column: 14,
-        index: 14
+        column: 13,
+        index: 13
     });
 
     fail(`class A {
@@ -186,24 +186,24 @@ describe('Declarations - Class', () => {
           }`,
           message: 'Classes may not have static property named prototype',
           line: 2,
-          column: 23,
-          index: 33
+          column: 32,
+          index: 42
     });
 
     fail('class A { set constructor(_) {} }', {
         source: `class A { set constructor(_) {} }`,
         message: 'Class member named constructor (or \'constructor\') may not be an accessor',
         line: 1,
-        column: 14,
-        index: 14
+        column: 13,
+        index: 13
     });
 
     fail(`class a{ get async a() {} }`, {
         source: `class a{ get async a() {} }`,
         message: 'Unexpected token identifier',
         line: 1,
-        column: 13,
-        index: 13
+        column: 18,
+        index: 18
     });
 
     fail('class C { *method() { with ({}) {} } }', {

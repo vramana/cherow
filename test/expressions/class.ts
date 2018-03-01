@@ -40,11 +40,6 @@ describe('Expressions - Class', () => {
         line: 2,
     });
 
-    fail(`class C {  static set ['prototype'](x) {}  }`, {
-        source: 'class C {  static set ["prototype"](x) {}  }',
-        line: 1,
-    });
-
     fail(`() => { class a extends b { static get prototype(){} } }`, {
         source: '() => { class a extends b { static get prototype(){} } }',
         line: 1,

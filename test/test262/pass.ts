@@ -232,6 +232,12 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/arrow-function/dstr-ary-ptrn-rest-not-final-ary.js',
         'test/language/expressions/arrow-function/dstr-ary-ptrn-rest-not-final-id.js',
         'test/language/expressions/arrow-function/dstr-ary-ptrn-rest-not-final-obj.js',
+
+        /** This are commented out because of "static field" support (stage 2) */
+        'test/language/expressions/class/fields-initializer-static-public-fields-forbidden.js',
+        'test/language/expressions/class/fields-literal-name-static-public-fields-forbidden.js',
+        'test/language/statements/class/fields-initializer-static-public-fields-forbidden.js',
+        'test/language/statements/class/fields-literal-name-static-public-fields-forbidden.js',
     ],
     parse: (file: string, source: string, opts: any) => {
         const cherowOpts = {

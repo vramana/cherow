@@ -21,6 +21,8 @@ export const enum Errors {
     DuplicateProtoProperty,
     ConstructorSpecialMethod,
     StaticPrototype,
+    PrivateFieldConstructor,
+    ConstructorClassField,
     DuplicateConstructor,
     ForbiddenAsStatement,
     StrictLHSPrefixPostFix,
@@ -106,7 +108,9 @@ export const enum Errors {
     UndefinedUnicodeCodePoint,
     InvalidOrUnexpectedToken,
     ForInOfLoopInitializer,
-    DeletePrivateField
+    DeletePrivateField,
+    InvalidStaticField,
+    InvalidPrivateFieldAccess
 }
 
 export const ErrorMessages: {
@@ -133,7 +137,10 @@ export const ErrorMessages: {
     [Errors.DuplicateProtoProperty]: 'Property name __proto__ appears more than once in object literal',
     [Errors.ConstructorSpecialMethod]: 'Class member named constructor (or \'constructor\') may not be an accessor',
     [Errors.StaticPrototype]: 'Classes may not have static property named prototype',
+    [Errors.PrivateFieldConstructor]: 'Classes may not have a private field named \'#constructor\'',
+    [Errors.ConstructorClassField]: 'Classes may not have a field named \'#constructor\'',
     [Errors.DuplicateConstructor]: 'A class may only have one constructor',
+    [Errors.InvalidStaticField]: 'Classes may not have a non-static field named \'%0\'',
     [Errors.ForbiddenAsStatement]: '%0 can\'t appear in single-statement context',
     [Errors.StrictLHSPrefixPostFix]: '%0 increment/decrement may not have eval or arguments operand in strict mode',
     [Errors.InvalidLhsInPrefixPostFixOp]: 'Invalid left-hand side expression in %0 operation',
@@ -219,6 +226,7 @@ export const ErrorMessages: {
     [Errors.InvalidOrUnexpectedToken]: 'Invalid or unexpected token',
     [Errors.ForInOfLoopInitializer]: '\'for-%0\' loop variable declaration may not have an initializer',
     [Errors.DeletePrivateField]: 'Private fields can not be deleted',
+    [Errors.InvalidPrivateFieldAccess]: 'Invalid private field \'%0\'',
 
 };
 
@@ -245,7 +253,7 @@ export function createError(type: Errors, index: number, line: number, column: n
     if (loc) {
         index = loc.index;
         line = loc.line;
-        column = loc.column
+        column = loc.column;
     }
     const description = ErrorMessages[type].replace(/%(\d+)/g, (_: string, i: number) => params[i]);
     const error: any = constructError(description + ' at ' + ':' + line + ':' + column, column);

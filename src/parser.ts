@@ -904,7 +904,7 @@ export class Parser {
                     case Chars.Backslash:
                         const index = this.index;
                         ret += this.source.slice(start, index);
-                        ret += this.scanUnicodeEscapeValue(context);
+                        ret += this.scanUnicodeCodePointEscape(context);
                         hasEscape = true;
                         start = this.index;
                         break;
@@ -937,7 +937,7 @@ export class Parser {
         return Token.Identifier;
     }
 
-    private scanUnicodeEscapeValue(context: Context): any {
+    private scanUnicodeCodePointEscape(context: Context): any {
 
         const index = this.index;
 
@@ -1892,7 +1892,7 @@ export class Parser {
         const pos = this.getLocation();
         const directive = this.tokenRaw.slice(1, -1);
         const expr = this.parseExpression(context | Context.AllowIn, pos);
-        this.expectSemicolon(context);
+        this.consumeSemicolon(context);
         return this.finishNode(context, pos, {
             type: 'ExpressionStatement',
             expression: expr,
@@ -1900,7 +1900,7 @@ export class Parser {
         });
     }
 
-    private expectSemicolon(context: Context): boolean | void {
+    private consumeSemicolon(context: Context): boolean | void {
         switch (this.token) {
             case Token.Semicolon:
                 this.nextToken(context);
@@ -2010,7 +2010,7 @@ export class Parser {
     }
 
     private tolerate(context: Context, type: Errors, ...value: string[]) {
-        let error = createError(type, this.lastIndex, this.lastLine, this.lastColumn, this.errorLocation, ...value);
+        const error = createError(type, this.lastIndex, this.lastLine, this.lastColumn, this.errorLocation, ...value);
         if (!(context & Context.OptionsTolerate)) throw error;
         this.errors.push(error);
     }
@@ -2063,7 +2063,7 @@ export class Parser {
                 {
                     // export default [lookahead ∉ {function, class}] AssignmentExpression[In] ;
                     declaration = this.parseAssignmentExpression(context | Context.AllowIn);
-                    this.expectSemicolon(context);
+                    this.consumeSemicolon(context);
                 }
         }
 
@@ -2126,7 +2126,7 @@ export class Parser {
                         this.tolerate(context, Errors.UnexpectedKeyword, tokenDesc(t));
                     }
 
-                    this.expectSemicolon(context);
+                    this.consumeSemicolon(context);
 
                     break;
                 }
@@ -2195,7 +2195,7 @@ export class Parser {
     private parseExportAllDeclaration(context: Context, pos: Location): ESTree.ExportAllDeclaration {
         this.expect(context, Token.Multiply);
         const source = this.parseModuleSpecifier(context);
-        this.expectSemicolon(context);
+        this.consumeSemicolon(context);
         return this.finishNode(context, pos, {
             type: 'ExportAllDeclaration',
             source
@@ -2299,7 +2299,7 @@ export class Parser {
         // 'import' ModuleSpecifier ';'
         if (this.token === Token.StringLiteral) {
             source = this.parseLiteral(context);
-            this.expectSemicolon(context);
+            this.consumeSemicolon(context);
 
             return this.finishNode(context, pos, {
                 type: 'ImportDeclaration',
@@ -2312,7 +2312,7 @@ export class Parser {
 
         source = this.parseModuleSpecifier(context);
 
-        this.expectSemicolon(context);
+        this.consumeSemicolon(context);
 
         return this.finishNode(context, pos, {
             type: 'ImportDeclaration',
@@ -2557,7 +2557,7 @@ export class Parser {
             });
         } else {
 
-            this.expectSemicolon(context);
+            this.consumeSemicolon(context);
             return this.finishNode(context, pos, {
                 type: 'ExpressionStatement',
                 expression: expr
@@ -2673,7 +2673,7 @@ export class Parser {
                 this.tolerate(context, Errors.UnknownLabel, (label as ESTree.Identifier).name);
             }
         }
-        this.expectSemicolon(context);
+        this.consumeSemicolon(context);
         return this.finishNode(context, pos, {
             type: 'ContinueStatement',
             label
@@ -2694,7 +2694,7 @@ export class Parser {
         } else if (!(this.flags & Flags.AllowBreak)) {
             this.tolerate(context, Errors.InvalidNestedStatement, 'break');
         }
-        this.expectSemicolon(context);
+        this.consumeSemicolon(context);
         return this.finishNode(context, pos, {
             type: 'BreakStatement',
             label
@@ -2708,7 +2708,7 @@ export class Parser {
         this.expect(context, Token.ThrowKeyword);
         if (this.flags & Flags.LineTerminator) this.tolerate(context, Errors.NewlineAfterThrow);
         const argument: ESTree.Expression = this.parseExpression(context | Context.AllowIn, pos);
-        this.expectSemicolon(context);
+        this.consumeSemicolon(context);
         return this.finishNode(context, pos, {
             type: 'ThrowStatement',
             argument
@@ -2855,7 +2855,7 @@ export class Parser {
             argument = this.parseExpression(context | Context.AllowIn, pos);
         }
 
-        this.expectSemicolon(context);
+        this.consumeSemicolon(context);
 
         return this.finishNode(context, pos, {
             type: 'ReturnStatement',
@@ -2871,7 +2871,7 @@ export class Parser {
             this.tolerate(context, Errors.UnexpectedEscapedKeyword);
         }
         this.expect(context, Token.DebuggerKeyword);
-        this.expectSemicolon(context);
+        this.consumeSemicolon(context);
         return this.finishNode(context, pos, {
             type: 'DebuggerStatement'
         });
@@ -2912,7 +2912,7 @@ export class Parser {
         if (this.flags & Flags.HasEscapedKeyword) this.tolerate(context, Errors.UnexpectedEscapedKeyword);
         this.nextToken(context);
         const declarations = this.parseVariableDeclarationList(context);
-        this.expectSemicolon(context);
+        this.consumeSemicolon(context);
         return this.finishNode(context, pos, {
             type: 'VariableDeclaration',
             declarations,
@@ -2968,7 +2968,7 @@ export class Parser {
     private parseExpressionStatement(context: Context): ESTree.ExpressionStatement {
         const pos = this.getLocation();
         const expr = this.parseExpression(context, pos);
-        this.expectSemicolon(context);
+        this.consumeSemicolon(context);
         return this.finishNode(context, pos, {
             type: 'ExpressionStatement',
             expression: expr
@@ -3455,7 +3455,9 @@ export class Parser {
     }
 
     private parseIdentifierNameOrPrivateName(context: Context): ESTree.PrivateName | ESTree.Identifier {
+
         if (!this.consume(context, Token.Hash)) return this.parseIdentifierName(context, this.token);
+        if (!(this.token & Token.IsIdentifier)) this.report(Errors.Unexpected);
         const pos = this.getLocation();
         const name = this.tokenValue;
         this.nextToken(context);
@@ -3781,7 +3783,7 @@ export class Parser {
                 }
 
             case Token.Hash:
-                return this.parsePrivateName(context);
+                return this.parseIdentifierNameOrPrivateName(context);
             default:
                 return this.parseAndClassifyIdentifier(context);
         }
@@ -4181,8 +4183,6 @@ export class Parser {
                 return this.parseLiteral(context);
             case Token.LeftBracket:
                 return this.parseComputedPropertyName(context);
-            case Token.Hash:
-                return this.parsePrivateName(context, state);
             default:
                 return this.parseIdentifier(context);
         }
@@ -4324,124 +4324,163 @@ export class Parser {
 
     // http://www.ecma-international.org/ecma-262/8.0/#prod-ClassElement
 
-    private parseClassElement(context: Context, state: Clob) {
+    private parseClassElement(context: Context, state: Clob): ESTree.FieldDefinition | ESTree.MethodDefinition | void {
 
         let t = this.token;
-
+        let tokenValue = this.tokenValue;
         const pos = this.getLocation();
 
         let key;
 
-        if (this.consume(context, Token.Multiply)) state |= Clob.Generator;
+        if (context & Context.OptionsNext && this.token === Token.Hash) {
+            this.expect(context, Token.Hash);
+            if (this.token === Token.ConstructorKeyword) this.report(Errors.Unexpected);
+            state |= Clob.PrivateName;
+            key = this.parsePrivateName1(context, pos);
+        } else {
 
-        if (this.token === Token.LeftBracket) state |= Clob.Computed;
+            if (t & Token.IsGenerator) {
+                this.expect(context, Token.Multiply);
+                state |= Clob.Generator;
+            }
 
-        key = this.parsePropertyName(context, state);
+            if (this.token === Token.LeftBracket) state |= Clob.Computed;
 
-        if (t === Token.StaticKeyword) {
-            if (this.token !== Token.LeftParen) {
-                state |= Clob.Static;
+            key = this.parsePropertyName(context);
+
+            if (t === Token.StaticKeyword) {
+
+                if (this.token & Token.IsShorthand) {
+
+                    return this.token === Token.LeftParen ?
+                        this.parseFieldOrMethodDeclaration(context, state | Clob.Method, key, pos) :
+                        this.parseFieldDefinition(context, state, key, pos);
+                }
+
+                if (this.token === Token.Hash) this.report(Errors.Unexpected);
 
                 t = this.token;
 
-                if (this.consume(context, Token.Multiply)) state |= Clob.Generator;
+                state |= Clob.Static;
+
+                if (t & Token.IsGenerator) {
+                    this.expect(context, Token.Multiply);
+                    state |= Clob.Generator;
+                }
+
+                if (this.tokenValue === 'prototype') {
+                    this.report(Errors.StaticPrototype);
+                }
+
+                if (this.tokenValue === 'constructor') {
+                    // this.report(Errors.StaticPrototype);
+                    //state |= Clob.Constructor;
+                    tokenValue = this.tokenValue;
+                }
 
                 if (this.token === Token.LeftBracket) state |= Clob.Computed;
 
-                if (this.tokenValue === 'prototype') this.tolerate(context, Errors.StaticPrototype);
+                key = this.parsePropertyName(context);
+            }
 
-                key = this.parsePropertyName(context, state);
+            // Forbids:  (',  '}',  ',',  ':',  '='
+            if (!(this.token & Token.IsShorthand)) {
+
+                if (t & Token.IsAsync && !(state & Clob.Generator) && !(this.flags & Flags.LineTerminator)) {
+
+                    state |= Clob.Async;
+
+                    t = this.token;
+
+                    if (context & Context.OptionsNext && this.token === Token.Hash) {
+                        this.expect(context, Token.Hash);
+                        if (this.token === Token.ConstructorKeyword) this.report(Errors.Unexpected);
+                        state |= Clob.PrivateName;
+                        key = this.parsePrivateName1(context, pos);
+                    } else {
+
+                        if (t & Token.IsGenerator) {
+                            state |= Clob.Generator;
+                            this.expect(context, Token.Multiply);
+                        }
+                        if (this.token === Token.LeftBracket) state |= Clob.Computed;
+
+                        key = this.parsePropertyName(context);
+                    }
+                } else if ((t === Token.GetKeyword || t === Token.SetKeyword)) {
+
+                    if (!(state & Clob.Static) && this.token === Token.ConstructorKeyword) {
+                        this.report(Errors.ConstructorSpecialMethod);
+                    }
+                    state |= t === Token.GetKeyword ? Clob.Get : Clob.Set;
+                    if (this.token === Token.LeftBracket) state |= Clob.Computed;
+                    key = this.parsePropertyName(context);
+                }
             }
         }
 
-        if (!(this.token & Token.IsShorthand) && !(state & Clob.Computed)) {
-
-            if (t & Token.IsAsync && !(state & Clob.Generator)) {
-
-                // No linebreak after async
-                if (this.flags & Flags.LineTerminator) this.tolerate(context, Errors.LineBreakAfterAsync);
-
-                state |= Clob.Async;
-
-                if (this.consume(context, Token.Multiply)) state |= Clob.Generator;
-
-                if (this.token === Token.LeftBracket) state |= Clob.Computed;
-
-                key = this.parsePropertyName(context, state);
+        if (!(state & Clob.Computed)) {
+            if (state & Clob.Static && this.tokenValue === 'prototype') {
+                this.report(Errors.StaticPrototype);
             }
+            if (!(state & Clob.Static) && this.tokenValue === 'constructor') {
+                state |= Clob.Constructor;
+                if (state & Clob.Special) {
+                    this.tolerate(context, Errors.ConstructorSpecialMethod);
+                }
 
-            if (!(state & (Clob.Async | Clob.Generator)) && (t === Token.GetKeyword || t === Token.SetKeyword)) {
-
-                state |= t === Token.GetKeyword ? Clob.Get : Clob.Set;
-
-                if (this.token === Token.LeftBracket) state |= Clob.Computed;
-
-                this.errorLocation = this.getLocation();
-                key = this.parsePropertyName(context, state);
-
-                if (this.tokenValue === 'prototype') this.tolerate(context, Errors.StaticPrototype);
+                if (state & Clob.HasConstructor) {
+                    this.tolerate(context, Errors.DuplicateConstructor);
+                }
             }
         }
 
-        if (!(state & (Clob.Computed | Clob.Static)) && this.tokenValue === 'constructor') {
-            state |= Clob.Constructor;
-        }
-
-        if (this.token === Token.LeftParen) {
-            // MethodDefinition
-            //    PropertyName '(' StrictFormalParameters ')' '{' FunctionBody '}'
-            //    '*' PropertyName '(' StrictFormalParameters ')' '{' FunctionBody '}'
-            //    async PropertyName '(' StrictFormalParameters ')'
-            //        '{' FunctionBody '}'
-            //    async '*' PropertyName '(' StrictFormalParameters ')'
-            //        '{' FunctionBody '}'
-            return this.parseFieldOrMethodDeclaration(context, state, key, pos);
+        if (key && this.token === Token.LeftParen) {
+            if (state & Clob.Heritage && state & Clob.Constructor) {
+                context |= Context.AllowSuperProperty;
+            }
+            return this.parseFieldOrMethodDeclaration(context, state | Clob.Method, key, pos);
         }
 
         if (context & Context.OptionsNext) {
-            if (this.token & (Token.IsIdentifier | Token.IsKeyword) ||
-                this.token === Token.Period ||
+
+            if (t & (Token.IsIdentifier | Token.Keyword) ||
+                state & (Clob.PrivateName | Clob.Computed) ||
                 this.token === Token.Semicolon ||
                 this.token === Token.Assign) {
-                let value = null;
 
-                // static public class fields forbidden
-                if (state & Clob.Static) this.tolerate(context, Errors.Unexpected);
-                if (this.consume(context, Token.Assign)) {
-                    if (this.token & Token.IsEvalArguments) this.tolerate(context, Errors.UnexpectedStrictEvalOrArguments);
-                    value = this.parseAssignmentExpression(context);
-                }
+                if (tokenValue === 'constructor') this.report(Errors.Unexpected);
+                if (!(state & Clob.Computed)) if (state & Clob.Async) this.report(Errors.StaticPrototype);
 
-                this.consume(context, Token.Comma);
-
-                return this.finishNode(context, pos, {
-                    type: 'FieldDefinition',
-                    key,
-                    value,
-                    computed: !!(state & Clob.Computed)
-                });
+                return this.parseFieldDefinition(context, state, key, pos);
             }
         }
 
         this.report(Errors.UnexpectedToken, tokenDesc(this.token));
     }
 
+    private parseFieldDefinition(context: Context, state: Clob, key: any, pos: Location): ESTree.FieldDefinition {
+
+        let value: ESTree.Expression | null = null;
+
+        if (this.consume(context, Token.Assign)) {
+            if (this.token & Token.IsEvalArguments) this.tolerate(context, Errors.UnexpectedStrictEvalOrArguments);
+            value = this.parseAssignmentExpression(context);
+        }
+
+        this.consume(context, Token.Comma);
+
+        return this.finishNode(context, pos, {
+            type: 'FieldDefinition',
+            key,
+            value,
+            computed: !!(state & Clob.Computed),
+            static: !!(state & Clob.Static)
+        });
+    }
+
     private parseFieldOrMethodDeclaration(context: Context, state: Clob, key: ESTree.Expression, pos: Location): ESTree.MethodDefinition {
 
-        if (state & Clob.Heritage && state & Clob.Constructor) {
-            context |= Context.AllowSuperProperty;
-        }
-
-        if (state & Clob.Constructor) {
-
-            if (state & Clob.Special) {
-                this.tolerate(context, Errors.ConstructorSpecialMethod);
-            }
-
-            if (state & Clob.HasConstructor) {
-                this.tolerate(context, Errors.DuplicateConstructor);
-            }
-        }
         return this.finishNode(context, pos, {
             type: 'MethodDefinition',
             kind: (state & Clob.Constructor) ? 'constructor' : (state & Clob.Get) ? 'get' :
@@ -4453,20 +4492,7 @@ export class Parser {
         });
     }
 
-    private parsePrivateName(context: Context, state: Clob = Clob.None): ESTree.PrivateName {
-
-        const pos = this.getLocation();
-
-        if (state & Clob.Static) {
-            this.tolerate(context, Errors.Unexpected);
-        }
-
-        this.expect(context, Token.Hash);
-
-        if (this.token === Token.ConstructorKeyword) {
-            this.tolerate(context, Errors.Unexpected);
-        }
-
+    private parsePrivateName1(context: Context, pos: Location): ESTree.PrivateName {
         const name = this.tokenValue;
         this.nextToken(context);
         return this.finishNode(context, pos, {
@@ -4779,6 +4805,7 @@ export class Parser {
     }
 
     private parseIdentifier(context: Context): ESTree.Identifier {
+
         const pos = this.getLocation();
         const name = this.tokenValue;
         this.nextToken(context | Context.TaggedTemplate);
