@@ -138,7 +138,7 @@ export const ErrorMessages: {
     [Errors.ConstructorSpecialMethod]: 'Class member named constructor (or \'constructor\') may not be an accessor',
     [Errors.StaticPrototype]: 'Classes may not have static property named prototype',
     [Errors.PrivateFieldConstructor]: 'Classes may not have a private field named \'#constructor\'',
-    [Errors.ConstructorClassField]: 'Classes may not have a field named \'#constructor\'',
+    [Errors.ConstructorClassField]: 'Classes may not have a field named \'constructor\'',
     [Errors.DuplicateConstructor]: 'A class may only have one constructor',
     [Errors.InvalidStaticField]: 'Classes may not have a non-static field named \'%0\'',
     [Errors.ForbiddenAsStatement]: '%0 can\'t appear in single-statement context',

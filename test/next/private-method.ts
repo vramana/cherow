@@ -1,7 +1,25 @@
 import { pass, fail } from '../test-utils';
 
 describe('Next - Private Methods', () => {
+/*
+  fail('class A { #[ab]() {} }', {
+    source: 'class A { #[ab]() {} }',
+    next: true,
+    index: 39
+  });
 
+  fail('class A { #[ab]() {} }', {
+    source: 'class A { #[ab]() {} }',
+    next: true,
+    index: 39
+  });
+
+  fail('class A { a() { this.#a } b() { this.#b } }', {
+    source: 'class A { a() { this.#a } b() { this.#b } }',
+    next: true,
+    index: 39
+  });
+*/
   fail('class A { #a() {}; f() { delete this.#a } }', {
     source: 'class A { #a() {}; f() { delete this.#a } }',
     next: true,

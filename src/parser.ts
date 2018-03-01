@@ -4335,8 +4335,9 @@ export class Parser {
 
         if (context & Context.OptionsNext && this.token === Token.Hash) {
             this.expect(context, Token.Hash);
-            if (this.token === Token.ConstructorKeyword) {
-                this.report(Errors.ConstructorClassField);
+            // E.g. 'class A { #constructor }'
+            if (this.tokenValue === 'constructor') {
+                this.report(Errors.PrivateFieldConstructor);
             }
             state |= Clob.PrivateName;
             key = this.parsePrivateName(context, pos);
@@ -4350,7 +4351,7 @@ export class Parser {
             if (this.token === Token.LeftBracket) state |= Clob.Computed;
 
             key = this.parsePropertyName(context);
-
+            
             if (t === Token.StaticKeyword) {
 
                 if (this.token & Token.IsShorthand) {
@@ -4451,8 +4452,8 @@ export class Parser {
                 state & (Clob.PrivateName | Clob.Computed) ||
                 this.token === Token.Semicolon ||
                 this.token === Token.Assign) {
-
-                if (tokenValue === 'constructor') this.report(Errors.Unexpected);
+                if (tokenValue === 'constructor') this.report(Errors.ConstructorClassField);
+                
                 if (state & Clob.Static) {
                     if (state & Clob.Generator) {
                         this.report(Errors.Unexpected);
@@ -4552,21 +4553,7 @@ export class Parser {
         } else {
             // Single-expression body
             expression = true;
-            // Here we do 3 validations:
-            //
-            // 1) Arrow Function formal parameters parsed as StrictFormalParameterList.
-            // 2) Eval & arguments for class fields.
-            // 3) Strict octal literals.
-            //
             this.validateParams(context, formalArgs);
-            // Validate eval & arguments for class fields ( stage 3 proposal)
-            if (context & Context.InClass && this.token & Token.IsEvalArguments) {
-                this.tolerate(context, Errors.ArgumentsDisallowedInInitializer, tokenDesc(this.token));
-                // Validate strict mode.
-            } else if (context & Context.Strict && this.flags & Flags.Octal) {
-                this.tolerate(context, Errors.StrictOctalLiteral);
-            }
-
             body = this.parseAssignmentExpression(context | Context.AllowIn);
         }
 

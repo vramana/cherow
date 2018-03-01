@@ -41,6 +41,14 @@ describe('Next - Class fields', () => {
     fail('class A { async #constructor }', {
         source: 'class A { async #constructor }',
         next: true,
+        message: 'Classes may not have a private field named \'#constructor\'',
+        line: 1
+    });
+
+    fail('class A { async #constructor }', {
+        source: 'class A { async #"constructor" }',
+        next: true,
+        message: 'Invalid or unexpected token',
         line: 1
     });
 
@@ -53,6 +61,7 @@ describe('Next - Class fields', () => {
     fail('class A { static constructor }', {
       source: 'class A { static constructor }',
       next: true,
+      message:'Classes may not have a field named \'constructor\'',
       line: 1
   });
 
@@ -185,8 +194,22 @@ describe('Next - Class fields', () => {
     fail('class A { #constructor = function() {} }', {
       source: 'class A { #constructor = function() {} }',
       next: true,
+      message: 'Classes may not have a private field named \'#constructor\'',
       line: 1
   });
+
+  fail('class A { #constructor = function() {} }', {
+    source: 'class A { static #"constructor" = function() {} }',
+    next: true,
+    message: 'Invalid or unexpected token',
+    line: 1
+});
+
+fail('class A { #constructor = function() {} }', {
+    source: 'class A { #"constructor" = function() {} }',
+    line: 1,
+    message: 'Invalid or unexpected token'
+});
 
     fail('class A { # a = 0 }', {
       source: 'class A { # a = 0 }',
