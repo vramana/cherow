@@ -30,7 +30,7 @@ export const enum Context {
     ForStatement            = 1 << 23,
     InParenthesis           = 1 << 24,
     InClass                 = 1 << 25,
-    OptionalIdentifier      = 1 << 26,
+    NameRequired            = 1 << 26,
     DisallowArrow           = 1 << 27,
     InTypeAnnotation        = 1 << 28, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
     AllowFunctionStatement  = 1 << 29,

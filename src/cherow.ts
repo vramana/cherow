@@ -14,7 +14,7 @@ export interface Options {
     loc?: boolean;
     raw?: boolean;
     jsx?: boolean;
-    tolerate ?: boolean;
+    tolerate?: boolean;
     impliedStrict ?: boolean;
 }
 

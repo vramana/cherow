@@ -670,6 +670,889 @@ describe('Statements - Super', () => {
         }
     });
 
+    pass(`class C { get m() { super.x; } }`, {
+        source: 'class C { get m() { super.x; } }',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'C',
+                        start: 6,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [
+                            {
+                                type: 'MethodDefinition',
+                                kind: 'get',
+                                static: false,
+                                computed: false,
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'm',
+                                    start: 14,
+                                    end: 15,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 14
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 15
+                                        }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'ExpressionStatement',
+                                                expression: {
+                                                    type: 'MemberExpression',
+                                                    object: {
+                                                        type: 'Super',
+                                                        start: 20,
+                                                        end: 25,
+                                                        loc: {
+                                                            start: {
+                                                                line: 1,
+                                                                column: 20
+                                                            },
+                                                            end: {
+                                                                line: 1,
+                                                                column: 25
+                                                            }
+                                                        }
+                                                    },
+                                                    computed: false,
+                                                    property: {
+                                                        type: 'Identifier',
+                                                        name: 'x',
+                                                        start: 26,
+                                                        end: 27,
+                                                        loc: {
+                                                            start: {
+                                                                line: 1,
+                                                                column: 26
+                                                            },
+                                                            end: {
+                                                                line: 1,
+                                                                column: 27
+                                                            }
+                                                        }
+                                                    },
+                                                    start: 20,
+                                                    end: 27,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 20
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 27
+                                                        }
+                                                    }
+                                                },
+                                                start: 20,
+                                                end: 28,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 20
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 28
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        start: 18,
+                                        end: 30,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 18
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 30
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 15,
+                                    end: 30,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 30
+                                        }
+                                    }
+                                },
+                                start: 10,
+                                end: 30,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 10
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 30
+                                    }
+                                }
+                            }
+                        ],
+                        start: 8,
+                        end: 32,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 8
+                            },
+                            end: {
+                                line: 1,
+                                column: 32
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 32,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 32
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 32,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 32
+                }
+            }
+        }
+    });
+
+    pass(`class C { get m() { new super[27]() } }`, {
+        source: 'class C { get m() {new super[27]() } }',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'C',
+                        start: 6,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [
+                            {
+                                type: 'MethodDefinition',
+                                kind: 'get',
+                                static: false,
+                                computed: false,
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'm',
+                                    start: 14,
+                                    end: 15,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 14
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 15
+                                        }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'ExpressionStatement',
+                                                expression: {
+                                                    type: 'NewExpression',
+                                                    callee: {
+                                                        type: 'MemberExpression',
+                                                        object: {
+                                                            type: 'Super',
+                                                            start: 23,
+                                                            end: 28,
+                                                            loc: {
+                                                                start: {
+                                                                    line: 1,
+                                                                    column: 23
+                                                                },
+                                                                end: {
+                                                                    line: 1,
+                                                                    column: 28
+                                                                }
+                                                            }
+                                                        },
+                                                        computed: true,
+                                                        property: {
+                                                            type: 'Literal',
+                                                            value: 27,
+                                                            start: 29,
+                                                            end: 31,
+                                                            loc: {
+                                                                start: {
+                                                                    line: 1,
+                                                                    column: 29
+                                                                },
+                                                                end: {
+                                                                    line: 1,
+                                                                    column: 31
+                                                                }
+                                                            },
+                                                            raw: '27'
+                                                        },
+                                                        start: 19,
+                                                        end: 32,
+                                                        loc: {
+                                                            start: {
+                                                                line: 1,
+                                                                column: 19
+                                                            },
+                                                            end: {
+                                                                line: 1,
+                                                                column: 32
+                                                            }
+                                                        }
+                                                    },
+                                                    arguments: [],
+                                                    start: 19,
+                                                    end: 34,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 19
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 34
+                                                        }
+                                                    }
+                                                },
+                                                start: 19,
+                                                end: 34,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 19
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 34
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        start: 18,
+                                        end: 36,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 18
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 36
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 15,
+                                    end: 36,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 36
+                                        }
+                                    }
+                                },
+                                start: 10,
+                                end: 36,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 10
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 36
+                                    }
+                                }
+                            }
+                        ],
+                        start: 8,
+                        end: 38,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 8
+                            },
+                            end: {
+                                line: 1,
+                                column: 38
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 38,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 38
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 38,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 38
+                }
+            }
+        }
+    });
+
+    pass(`class C { get m() { super.x; } }`, {
+        source: 'class C { get m() { super.x; } }',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'C',
+                        start: 6,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [
+                            {
+                                type: 'MethodDefinition',
+                                kind: 'get',
+                                static: false,
+                                computed: false,
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'm',
+                                    start: 14,
+                                    end: 15,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 14
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 15
+                                        }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'ExpressionStatement',
+                                                expression: {
+                                                    type: 'MemberExpression',
+                                                    object: {
+                                                        type: 'Super',
+                                                        start: 20,
+                                                        end: 25,
+                                                        loc: {
+                                                            start: {
+                                                                line: 1,
+                                                                column: 20
+                                                            },
+                                                            end: {
+                                                                line: 1,
+                                                                column: 25
+                                                            }
+                                                        }
+                                                    },
+                                                    computed: false,
+                                                    property: {
+                                                        type: 'Identifier',
+                                                        name: 'x',
+                                                        start: 26,
+                                                        end: 27,
+                                                        loc: {
+                                                            start: {
+                                                                line: 1,
+                                                                column: 26
+                                                            },
+                                                            end: {
+                                                                line: 1,
+                                                                column: 27
+                                                            }
+                                                        }
+                                                    },
+                                                    start: 20,
+                                                    end: 27,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 20
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 27
+                                                        }
+                                                    }
+                                                },
+                                                start: 20,
+                                                end: 28,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 20
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 28
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        start: 18,
+                                        end: 30,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 18
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 30
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 15,
+                                    end: 30,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 30
+                                        }
+                                    }
+                                },
+                                start: 10,
+                                end: 30,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 10
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 30
+                                    }
+                                }
+                            }
+                        ],
+                        start: 8,
+                        end: 32,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 8
+                            },
+                            end: {
+                                line: 1,
+                                column: 32
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 32,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 32
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 32,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 32
+                }
+            }
+        }
+    });
+
+    pass(`class C { set m(a) { () => z.super ; } }`, {
+        source: 'class C { set m(a) { () => z.super ; } }',
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ClassDeclaration',
+                    id: {
+                        type: 'Identifier',
+                        name: 'C',
+                        start: 6,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 6
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        }
+                    },
+                    superClass: null,
+                    body: {
+                        type: 'ClassBody',
+                        body: [
+                            {
+                                type: 'MethodDefinition',
+                                kind: 'set',
+                                static: false,
+                                computed: false,
+                                key: {
+                                    type: 'Identifier',
+                                    name: 'm',
+                                    start: 14,
+                                    end: 15,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 14
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 15
+                                        }
+                                    }
+                                },
+                                value: {
+                                    type: 'FunctionExpression',
+                                    params: [
+                                        {
+                                            type: 'Identifier',
+                                            name: 'a',
+                                            start: 16,
+                                            end: 17,
+                                            loc: {
+                                                start: {
+                                                    line: 1,
+                                                    column: 16
+                                                },
+                                                end: {
+                                                    line: 1,
+                                                    column: 17
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    body: {
+                                        type: 'BlockStatement',
+                                        body: [
+                                            {
+                                                type: 'ExpressionStatement',
+                                                expression: {
+                                                    type: 'ArrowFunctionExpression',
+                                                    body: {
+                                                        type: 'MemberExpression',
+                                                        object: {
+                                                            type: 'Identifier',
+                                                            name: 'z',
+                                                            start: 27,
+                                                            end: 28,
+                                                            loc: {
+                                                                start: {
+                                                                    line: 1,
+                                                                    column: 27
+                                                                },
+                                                                end: {
+                                                                    line: 1,
+                                                                    column: 28
+                                                                }
+                                                            }
+                                                        },
+                                                        computed: false,
+                                                        property: {
+                                                            type: 'Identifier',
+                                                            name: 'super',
+                                                            start: 29,
+                                                            end: 34,
+                                                            loc: {
+                                                                start: {
+                                                                    line: 1,
+                                                                    column: 29
+                                                                },
+                                                                end: {
+                                                                    line: 1,
+                                                                    column: 34
+                                                                }
+                                                            }
+                                                        },
+                                                        start: 27,
+                                                        end: 34,
+                                                        loc: {
+                                                            start: {
+                                                                line: 1,
+                                                                column: 27
+                                                            },
+                                                            end: {
+                                                                line: 1,
+                                                                column: 34
+                                                            }
+                                                        }
+                                                    },
+                                                    params: [],
+                                                    id: null,
+                                                    async: false,
+                                                    generator: false,
+                                                    expression: true,
+                                                    start: 21,
+                                                    end: 34,
+                                                    loc: {
+                                                        start: {
+                                                            line: 1,
+                                                            column: 21
+                                                        },
+                                                        end: {
+                                                            line: 1,
+                                                            column: 34
+                                                        }
+                                                    }
+                                                },
+                                                start: 21,
+                                                end: 36,
+                                                loc: {
+                                                    start: {
+                                                        line: 1,
+                                                        column: 21
+                                                    },
+                                                    end: {
+                                                        line: 1,
+                                                        column: 36
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        start: 19,
+                                        end: 38,
+                                        loc: {
+                                            start: {
+                                                line: 1,
+                                                column: 19
+                                            },
+                                            end: {
+                                                line: 1,
+                                                column: 38
+                                            }
+                                        }
+                                    },
+                                    async: false,
+                                    generator: false,
+                                    expression: false,
+                                    id: null,
+                                    start: 15,
+                                    end: 38,
+                                    loc: {
+                                        start: {
+                                            line: 1,
+                                            column: 15
+                                        },
+                                        end: {
+                                            line: 1,
+                                            column: 38
+                                        }
+                                    }
+                                },
+                                start: 10,
+                                end: 38,
+                                loc: {
+                                    start: {
+                                        line: 1,
+                                        column: 10
+                                    },
+                                    end: {
+                                        line: 1,
+                                        column: 38
+                                    }
+                                }
+                            }
+                        ],
+                        start: 8,
+                        end: 40,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 8
+                            },
+                            end: {
+                                line: 1,
+                                column: 40
+                            }
+                        }
+                    },
+                    start: 0,
+                    end: 40,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 40
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 40,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 40
+                }
+            }
+        }
+    });
+
     pass(`class A extends B { "constructor"() { super() } }`, {
         source: 'class A extends B { "constructor"() { super() } }',
         loc: true,

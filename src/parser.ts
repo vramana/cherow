@@ -2042,19 +2042,19 @@ export class Parser {
 
             // export default HoistableDeclaration[Default]
             case Token.FunctionKeyword:
-                declaration = this.parseFunctionDeclaration(context | Context.OptionalIdentifier);
+                declaration = this.parseFunctionDeclaration(context | Context.NameRequired);
                 break;
 
                 // export default ClassDeclaration[Default]
             case Token.ClassKeyword:
-                declaration = this.parseClass(context & ~Context.AllowIn | Context.OptionalIdentifier);
+                declaration = this.parseClass(context & ~Context.AllowIn | Context.NameRequired);
                 break;
 
                 // export default HoistableDeclaration[Default]
             case Token.AsyncKeyword:
                 {
                     if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                        declaration = this.parseFunctionDeclaration(context | Context.OptionalIdentifier);
+                        declaration = this.parseFunctionDeclaration(context | Context.NameRequired);
                         break;
                     }
                 }
@@ -4278,7 +4278,7 @@ export class Parser {
 
         if (this.token !== Token.LeftBrace && this.token !== Token.ExtendsKeyword) {
             id = this.parseBindingIdentifier(context);
-        } else if (!(context & Context.Expression) && !(context & Context.OptionalIdentifier)) {
+        } else if (!(context & Context.Expression) && !(context & Context.NameRequired)) {
             this.tolerate(context, Errors.UnexpectedToken, tokenDesc(t));
         }
 
@@ -4347,7 +4347,7 @@ export class Parser {
 
         let t = this.token;
         let tokenValue = this.tokenValue;
-        let currentFlags = Flags.None;
+        let mutuableFlag = Flags.None;
         let key;
 
         if (t & Token.IsGenerator) {
@@ -4418,22 +4418,29 @@ export class Parser {
 
                     key = this.parsePropertyName(context);
                 }
-            } else if ((t === Token.GetKeyword || t === Token.SetKeyword)) {
+            } else if (t === Token.GetKeyword || t === Token.SetKeyword) {
 
-                if (!(state & Clob.Static) && this.token === Token.ConstructorKeyword) {
+                if (!(state & Clob.Static) && this.tokenValue === 'constructor') {
                     this.report(Errors.ConstructorSpecialMethod);
                 }
                 state |= t === Token.GetKeyword ? Clob.Get : Clob.Set;
+                
                 if (this.token === Token.LeftBracket) state |= Clob.Computed;
-                currentFlags = this.flags;
+                
+                mutuableFlag = this.flags;
+
                 key = this.parsePropertyName(context);
+
+                if (this.token === Token.LeftParen) {
+                    if (state & Clob.Static && this.tokenValue === 'prototype') {
+                        this.report(Errors.StaticPrototype);
+                    }
+                    return this.parseFieldOrMethodDeclaration(context, state | Clob.Method, key, pos);
+                }
             }
         }
 
         if (!(state & Clob.Computed)) {
-            if (state & Clob.Static && this.tokenValue === 'prototype') {
-                this.report(Errors.StaticPrototype);
-            }
             if (!(state & Clob.Static) && this.tokenValue === 'constructor') {
                 state |= Clob.Constructor;
                 if (state & Clob.Special) {
@@ -4446,6 +4453,7 @@ export class Parser {
             }
         }
 
+        // Method
         if (key && this.token === Token.LeftParen) {
             if (state & Clob.Heritage && state & Clob.Constructor) {
                 context |= Context.AllowSuperProperty;
@@ -4463,7 +4471,7 @@ export class Parser {
 
                 if (state & Clob.Static) {
                     // Edge case - 'static a\n get', 'static get\n *a(){}'
-                    if (state & Clob.Accessors && !(currentFlags & Flags.LineTerminator)) {
+                    if (state & Clob.Accessors && !(mutuableFlag & Flags.LineTerminator)) {
                         this.report(Errors.Unexpected)
                     }
                     if (state & Clob.Generator) {
@@ -5083,7 +5091,7 @@ export class Parser {
 
             id = this.parseFunctionName(context);
 
-        } else if (!(context & Context.OptionalIdentifier)) {
+        } else if (!(context & Context.NameRequired)) {
             this.tolerate(context, Errors.UnNamedFunctionStmt);
         }
 
@@ -5138,7 +5146,7 @@ export class Parser {
 
         const args = formalParameters.args;
         const params = formalParameters.params;
-        const body = this.parseFunctionBody(context & ~(Context.AnnexB | Context.OptionalIdentifier | Context.Expression | Context.TopLevel), args);
+        const body = this.parseFunctionBody(context & ~(Context.AnnexB | Context.NameRequired | Context.Expression | Context.TopLevel), args);
 
         return this.finishNode(context, pos, {
             type: context & (Context.Expression | Context.Method) ? 'FunctionExpression' : 'FunctionDeclaration',
