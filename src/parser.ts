@@ -2042,19 +2042,19 @@ export class Parser {
 
             // export default HoistableDeclaration[Default]
             case Token.FunctionKeyword:
-                declaration = this.parseFunctionDeclaration(context | Context.NameRequired);
+                declaration = this.parseFunctionDeclaration(context | Context.RequireIdentifier);
                 break;
 
                 // export default ClassDeclaration[Default]
             case Token.ClassKeyword:
-                declaration = this.parseClass(context & ~Context.AllowIn | Context.NameRequired);
+                declaration = this.parseClass(context & ~Context.AllowIn | Context.RequireIdentifier);
                 break;
 
                 // export default HoistableDeclaration[Default]
             case Token.AsyncKeyword:
                 {
                     if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                        declaration = this.parseFunctionDeclaration(context | Context.NameRequired);
+                        declaration = this.parseFunctionDeclaration(context | Context.RequireIdentifier);
                         break;
                     }
                 }
@@ -3744,7 +3744,7 @@ export class Parser {
             case Token.ClassKeyword:
                 return this.parseClass(context & ~Context.AllowIn | Context.Expression);
             case Token.FunctionKeyword:
-                return this.parseFunctionExpression(context & ~(Context.AllowYield | Context.AnnexB) | Context.Expression);
+                return this.parseFunctionExpression(context & ~Context.AllowYield | Context.Expression);
             case Token.NewKeyword:
                 return this.parseNewExpression(context);
             case Token.TemplateTail:
@@ -4141,30 +4141,14 @@ export class Parser {
     }
 
     private parseMethodDeclaration(context: Context, state: Clob): ESTree.FunctionExpression {
+
         const pos = this.getLocation();
 
-        if (state & Clob.Generator) {
-            context |= Context.AllowYield;
-        }
+        if (state & Clob.Generator) context |= Context.AllowYield;
 
-        if (state & Clob.Async) {
-            context |= Context.AllowAsync;
-        }
-
-        const formalParameters = this.parseFormalParameterList(context | (Context.Method | Context.InParameter), state);
-        const args = formalParameters.args;
-        const params = formalParameters.params;
-        const body = this.parseFunctionBody(context & ~Context.TopLevel | Context.Method, args);
-
-        return this.finishNode(context, pos, {
-            type: 'FunctionExpression',
-            params,
-            body,
-            async: !!(state & Clob.Async),
-            generator: !!(state & Clob.Generator),
-            expression: false,
-            id: null
-        });
+        if (state & Clob.Async)  context |= Context.AllowAsync;
+        
+        return this.parseFunction(context  & ~Context.TopLevel | Context.Expression | Context.Method, null, pos, state) as ESTree.FunctionExpression
     }
 
     private parseComputedPropertyName(context: Context): ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression {
@@ -4278,7 +4262,7 @@ export class Parser {
 
         if (this.token !== Token.LeftBrace && this.token !== Token.ExtendsKeyword) {
             id = this.parseBindingIdentifier(context);
-        } else if (!(context & Context.Expression) && !(context & Context.NameRequired)) {
+        } else if (!(context & Context.Expression) && !(context & Context.RequireIdentifier)) {
             this.tolerate(context, Errors.UnexpectedToken, tokenDesc(t));
         }
 
@@ -5091,11 +5075,11 @@ export class Parser {
 
             id = this.parseFunctionName(context);
 
-        } else if (!(context & Context.NameRequired)) {
+        } else if (!(context & Context.RequireIdentifier)) {
             this.tolerate(context, Errors.UnNamedFunctionStmt);
         }
 
-        return this.parseFunction(context, id, pos) as ESTree.FunctionDeclaration;
+        return this.parseFunction(context & ~(Context.AnnexB | Context.RequireIdentifier), id, pos) as ESTree.FunctionDeclaration;
     }
 
     private parseFunctionExpression(
@@ -5139,14 +5123,15 @@ export class Parser {
     private parseFunction(
         context: Context,
         id: ESTree.Identifier | null = null,
-        pos: Location
+        pos: Location,
+        state: Clob = Clob.None
     ): ESTree.FunctionExpression | ESTree.FunctionDeclaration {
 
-        const formalParameters = this.parseFormalParameterList(context | Context.Expression | Context.InParameter);
+        const formalParameters = this.parseFormalParameterList(context | Context.InParameter, state);
 
         const args = formalParameters.args;
         const params = formalParameters.params;
-        const body = this.parseFunctionBody(context & ~(Context.AnnexB | Context.NameRequired | Context.Expression | Context.TopLevel), args);
+        const body = this.parseFunctionBody(context & ~Context.Expression, args);
 
         return this.finishNode(context, pos, {
             type: context & (Context.Expression | Context.Method) ? 'FunctionExpression' : 'FunctionDeclaration',
@@ -5213,7 +5198,7 @@ export class Parser {
         });
     }
 
-    private parseFormalParameterList(context: Context, state = Clob.None): any {
+    private parseFormalParameterList(context: Context, state: Clob): any {
 
         this.flags &= ~Flags.SimpleParameterList;
 
