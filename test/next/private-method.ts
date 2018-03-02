@@ -110,23 +110,7 @@ describe('Next - Private Methods', () => {
         type: 'Program'
       }
   });
-  /*
-  "async\n a(){}",  // a field named async, and a method named a.
-    "async\n a",
-    "await;",
 
-      "#a = 0\n",
-    "#a = 0\n #b",
-    "#a = 0\n b",
-    "#a = 0\n b(){}",
-    "#a\n",
-    "#a\n #b\n",
-    "#a\n b\n",
-    "#a\n b(){}",
-    "#a\n *b(){}",
-    "#a\n ['b'](){}",
-
-    */
   pass('class A { #a = 0\n #b }', {
     source: 'class A { #a = 0\n #b }',
     next: true,

@@ -7,29 +7,23 @@ describe('Next - Class fields', () => {
         next: true,
         line: 1
     });
-/*
-    fail('class A { #a = () => { arguments } }', {
-        source: 'class A { #a = () => { arguments } }',
-        next: true,
-        line: 1
-    });*/
 
     fail('class A { #a = arguments[0] }', {
         source: 'class A { #a = arguments[0] }',
         next: true,
         line: 1
     });
-/*
-    fail('class A { #a = f(arguments) }', {
-        source: 'class A { #a = f(arguments) }',
-        next: true,
-        line: 1
-    });*/
 
     fail('class A { #a = () => () => arguments }', {
         source: 'class A { #a = () => () => arguments }',
         next: true,
         line: 1
+    });
+
+    fail('class A { a = 0\n *b(){} }', {
+        source: 'class A { a = 0\n *b(){} }',
+        next: true,
+        line: 2
     });
 
     fail('class A { static #a }', {
@@ -61,7 +55,7 @@ describe('Next - Class fields', () => {
     fail('class A { static constructor }', {
       source: 'class A { static constructor }',
       next: true,
-      message:'Classes may not have a field named \'constructor\'',
+      message: 'Classes may not have a field named \'constructor\'',
       line: 1
   });
 
@@ -198,14 +192,14 @@ describe('Next - Class fields', () => {
       line: 1
   });
 
-  fail('class A { #constructor = function() {} }', {
+    fail('class A { #constructor = function() {} }', {
     source: 'class A { static #"constructor" = function() {} }',
     next: true,
     message: 'Invalid or unexpected token',
     line: 1
 });
 
-fail('class A { #constructor = function() {} }', {
+    fail('class A { #constructor = function() {} }', {
     source: 'class A { #"constructor" = function() {} }',
     line: 1,
     message: 'Invalid or unexpected token'
@@ -537,6 +531,360 @@ fail('class A { #constructor = function() {} }', {
             }
         ]
     }
+  });
+
+    pass('class A { ["a"]\n ["b"](){} }', {
+    source: 'class A { ["a"]\n ["b"](){} }',
+    next: true,
+    raw: true,
+    expected: {
+          body: [
+            {
+              body: {
+                body: [
+                  {
+                    computed: true,
+                    key: {
+                     raw: '"a"',
+                      type: 'Literal',
+                      value: 'a',
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: null,
+                  },
+                  {
+                    computed: true,
+                    key: {
+                     raw: '"b"',
+                      type: 'Literal',
+                      value: 'b',
+                    },
+                    kind: 'method',
+                    static: false,
+                    type: 'MethodDefinition',
+                   value: {
+                      async: false,
+                     body: {
+                        body: [],
+                        type: 'BlockStatement',
+                      },
+                      expression: false,
+                      generator: false,
+                      id: null,
+                      params: [],
+                      type: 'FunctionExpression'
+                    }
+                  }
+                ],
+                type: 'ClassBody'
+              },
+              id: {
+                name: 'A',
+                type: 'Identifier',
+              },
+              superClass: null,
+              type: 'ClassDeclaration'
+            }
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+  });
+
+    pass('class A { a = 0; b }', {
+    source: 'class A { a = 0; b }',
+    next: true,
+    raw: true,
+    expected: {
+          body: [
+            {
+              body: {
+                body: [
+                  {
+                    computed: false,
+                    key: {
+                      name: 'a',
+                      type: 'Identifier'
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: {
+                      raw: '0',
+                      type: 'Literal',
+                      value: 0,
+                    }
+                  },
+                  {
+                    computed: false,
+                    key: {
+                      name: 'b',
+                      type: 'Identifier',
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: null,
+                  },
+                ],
+                type: 'ClassBody'
+              },
+              id: {
+                name: 'A',
+                type: 'Identifier',
+              },
+              superClass: null,
+              type: 'ClassDeclaration'
+           }
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+  });
+
+    pass('class A { a; b; }', {
+    source: 'class A { a, b }',
+    next: true,
+    raw: true,
+    expected: {
+          body: [
+            {
+              body: {
+                body: [
+                  {
+                    computed: false,
+                    key: {
+                      name: 'a',
+                      type: 'Identifier'
+                    },
+                   static: false,
+                    type: 'FieldDefinition',
+                    value: null,
+                  },
+                  {
+                    computed: false,
+                    key: {
+                      name: 'b',
+                      type: 'Identifier'
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: null,
+                  }
+               ],
+                type: 'ClassBody'
+              },
+              id: {
+                name: 'A',
+                type: 'Identifier',
+              },
+              superClass: null,
+              type: 'ClassDeclaration'
+            }
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+  });
+
+    pass('class A { a; b; }', {
+    source: 'class A { a; b; }',
+    next: true,
+    raw: true,
+    expected: {
+          body: [
+            {
+              body: {
+                body: [
+                  {
+                    computed: false,
+                    key: {
+                      name: 'a',
+                      type: 'Identifier',
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: null,
+                  },
+                  {
+                    computed: false,
+                    key: {
+                      name: 'b',
+                      type: 'Identifier',
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: null,
+                  },
+                ],
+                type: 'ClassBody',
+              },
+              id: {
+                name: 'A',
+                type: 'Identifier',
+              },
+              superClass: null,
+              type: 'ClassDeclaration',
+            },
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+  });
+
+    pass('class A { ["a"]\n *b(){} }', {
+    source: 'class A { ["a"]\n *b(){} }',
+    next: true,
+    raw: true,
+    expected: {
+          body: [
+            {
+             body: {
+                body: [
+                  {
+                    computed: true,
+                    key: {
+                      raw: '"a"',
+                      type: 'Literal',
+                      value: 'a',
+                    },
+                    static: false,
+                   type: 'FieldDefinition',
+                    value: null,
+                  },
+                  {
+                    computed: false,
+                    key: {
+                      name: 'b',
+                      type: 'Identifier',
+                    },
+                    kind: 'method',
+                    static: false,
+                    type: 'MethodDefinition',
+                    value: {
+                      async: false,
+                      body: {
+                        body: [],
+                        type: 'BlockStatement',
+                      },
+                      expression: false,
+                      generator: true,
+                      id: null,
+                      params: [],
+                      type: 'FunctionExpression'
+                    }
+                  }
+                ],
+                type: 'ClassBody'
+              },
+              id: {
+                name: 'A',
+                type: 'Identifier'
+              },
+              superClass: null,
+              type: 'ClassDeclaration'
+            }
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+  });
+
+    pass('class A { a\n ["b"](){} }', {
+    source: 'class A { a\n ["b"](){} }',
+    next: true,
+    raw: true,
+    expected: {
+          body: [
+            {
+              body: {
+                body: [
+                 {
+                   computed: false,
+                    key: {
+                      name: 'a',
+                      type: 'Identifier'
+                    },
+                   static: false,
+                    type: 'FieldDefinition',
+                    value: null,
+                  },
+                  {
+                   computed: true,
+                    key: {
+                      raw: '"b"',
+                      type: 'Literal',
+                      value: 'b',
+                   },
+                    kind: 'method',
+                    static: false,
+                    type: 'MethodDefinition',
+                    value: {
+                      async: false,
+                      body: {
+                        body: [],
+                        type: 'BlockStatement',
+                      },
+                      expression: false,
+                      generator: false,
+                      id: null,
+                      params: [],
+                      type: 'FunctionExpression'
+                    }
+                  }
+                ],
+                type: 'ClassBody'
+              },
+              id: {
+                name: 'A',
+                type: 'Identifier',
+              },
+              superClass: null,
+              type: 'ClassDeclaration'
+            }
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+  });
+
+    pass('class A { "a" = 0 }', {
+    source: 'class A { "a" = 0 }',
+    next: true,
+    raw: true,
+    expected: {
+          body: [
+            {
+              body: {
+                body: [
+                  {
+                    computed: false,
+                    key: {
+                      raw: '"a"',
+                      type: 'Literal',
+                      value: 'a',
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: {
+                      raw: '0',
+                      type: 'Literal',
+                      value: 0,
+                    }
+                  }
+                ],
+                type: 'ClassBody'
+              },
+              id: {
+                name: 'A',
+                type: 'Identifier',
+              },
+              superClass: null,
+              type: 'ClassDeclaration'
+            }
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
   });
 
     pass('class A { toString() { return `maldito<${ this.#x },${ this.#y }>` } }', {
@@ -4508,6 +4856,244 @@ fail('class A { #constructor = function() {} }', {
             }
         }
     }
+  });
+
+    pass('class A { #a; b; }', {
+    source: 'class A { #a; b; }',
+    next: true,
+    expected: {
+          body: [
+            {
+              body: {
+                body: [
+                  {
+                    computed: false,
+                    key: {
+                      name: 'a',
+                      type: 'PrivateName',
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: null,
+                  },
+                  {
+                    computed: false,
+                    key: {
+                      name: 'b',
+                      type: 'Identifier',
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: null,
+                  }
+                ],
+                type: 'ClassBody',
+              },
+              id: {
+                name: 'A',
+                type: 'Identifier',
+              },
+              superClass: null,
+              type: 'ClassDeclaration'
+            },
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+  });
+
+    pass('class A { #a = 0\n #b }', {
+    source: 'class A { #a = 0\n #b }',
+    next: true,
+    expected: {
+          body: [
+            {
+              body: {
+                body: [
+                  {
+                    computed: false,
+                    key: {
+                      name: 'a',
+                      type: 'PrivateName'
+                    },
+                   static: false,
+                    type: 'FieldDefinition',
+                    value: {
+                      type: 'Literal',
+                      value: 0,
+                    }
+                 },
+                  {
+                   computed: false,
+                    key: {
+                      name: 'b',
+                      type: 'PrivateName',
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: null,
+                  }
+               ],
+                type: 'ClassBody'
+              },
+              id: {
+                name: 'A',
+                type: 'Identifier'
+              },
+              superClass: null,
+              type: 'ClassDeclaration'
+            }
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+  });
+
+    pass('class A { #a = 0; #b }', {
+    source: 'class A { #a = 0; #b }',
+    next: true,
+    expected: {
+          body: [
+            {
+              body: {
+                body: [
+                  {
+                    computed: false,
+                    key: {
+                      name: 'a',
+                      type: 'PrivateName'
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: {
+                      type: 'Literal',
+                      value: 0,
+                   }
+                  },
+                  {
+                    computed: false,
+                    key: {
+                      name: 'b',
+                      type: 'PrivateName',
+                    },
+                    static: false,
+                   type: 'FieldDefinition',
+                    value: null,
+                  }
+                ],
+                type: 'ClassBody',
+              },
+              id: {
+                name: 'A',
+                type: 'Identifier',
+              },
+              superClass: null,
+              type: 'ClassDeclaration'
+            }
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+  });
+
+    pass('class A { #a\n *b(){} }', {
+    source: 'class A { #a\n *b(){} }',
+    next: true,
+    expected: {
+          body: [
+            {
+              body: {
+                body: [
+                  {
+                    computed: false,
+                    key: {
+                      name: 'a',
+                      type: 'PrivateName'
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: null,
+                  },
+                  {
+                    computed: false,
+                    key: {
+                      name: 'b',
+                      type: 'Identifier',
+                    },
+                    kind: 'method',
+                    static: false,
+                    type: 'MethodDefinition',
+                    value: {
+                      async: false,
+                      body: {
+                        body: [],
+                        type: 'BlockStatement',
+                     },
+                      expression: false,
+                      generator: true,
+                      id: null,
+                      params: [],
+                      type: 'FunctionExpression'
+                    }
+                  }
+                ],
+                type: 'ClassBody'
+              },
+              id: {
+                name: 'A',
+                type: 'Identifier'
+              },
+              superClass: null,
+              type: 'ClassDeclaration'
+            }
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
+  });
+
+    pass('class A { #a; #b }', {
+    source: 'class A { #a; #b }',
+    next: true,
+    expected: {
+        body: [
+            {
+              body: {
+                body: [
+                  {
+                    computed: false,
+                    key: {
+                      name: 'a',
+                      type: 'PrivateName',
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: null,
+                  },
+                  {
+                    computed: false,
+                    key: {
+                      name: 'b',
+                      type: 'PrivateName',
+                    },
+                    static: false,
+                    type: 'FieldDefinition',
+                    value: null
+                  }
+                ],
+                type: 'ClassBody',
+              },
+              id: {
+                name: 'A',
+                type: 'Identifier',
+              },
+              superClass: null,
+              type: 'ClassDeclaration'
+            }
+          ],
+          sourceType: 'script',
+          type: 'Program'
+        }
   });
 
     pass('class A { #a\n get }', {

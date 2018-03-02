@@ -1,12 +1,18 @@
 import { pass, fail } from '../test-utils';
 
-describe('Next - Statoc public fields', () => {
+describe('Next - Statc public fields', () => {
 
   fail('class A { static a : 0 }', {
       source: 'class A { static a : 0 }',
       next: true,
       line: 1
   });
+
+  fail('class A { static a = 0\n ["b"](){} }', {
+    source: 'class A { static a = 0\n ["b"](){} }',
+    next: true,
+    line: 2
+});
 
   fail('class A { static a = }', {
       source: 'class A { static a = }',
@@ -50,6 +56,177 @@ describe('Next - Statoc public fields', () => {
       index: 16
   });
 
+  fail('class C extends Base { static get a }', {
+      source: 'class C extends Base { static get a }',
+      next: true,
+      index: 35
+  });
+
+  fail('class C extends Base { static a = () => arguments }', {
+      source: 'class C extends Base { static a = () => arguments }',
+      next: true,
+      index: 39
+  });
+
+  fail('class C extends Base { static a = arguments }', {
+      source: 'class C extends Base { static a = arguments }',
+      next: true,
+      index: 33
+  });
+
+  fail('class C extends Base { static a = arguments }', {
+      source: 'class C extends Base { static a = arguments }',
+      next: true,
+      index: 33
+  });
+
+  pass('(class { static yield = 0 });', {
+      source: '(class { static yield = 0 });',
+      next: true,
+      expected: {
+          body: [{
+              expression: {
+                  body: {
+                      body: [{
+                          computed: false,
+                          key: {
+                              name: 'yield',
+                              type: 'Identifier',
+                          },
+                          static: true,
+                          type: 'FieldDefinition',
+                          value: {
+                              type: 'Literal',
+                              value: 0,
+                          }
+                      }],
+                      type: 'ClassBody',
+                  },
+                  id: null,
+                  superClass: null,
+                  type: 'ClassExpression'
+              },
+              type: 'ExpressionStatement'
+          }],
+          sourceType: 'script',
+          type: 'Program'
+      }
+  });
+
+  pass('(class { static yield\n a });', {
+      source: '(class { static yield\n a });',
+      next: true,
+      expected: {
+          body: [{
+              expression: {
+                  body: {
+                      body: [{
+                              computed: false,
+                              key: {
+                                  name: 'yield',
+                                  type: 'Identifier',
+                              },
+                              static: true,
+                              type: 'FieldDefinition',
+                              value: null,
+                          },
+                          {
+                              computed: false,
+                              key: {
+                                  name: 'a',
+                                  type: 'Identifier',
+                              },
+                              static: false,
+                              type: 'FieldDefinition',
+                              value: null,
+                          },
+                      ],
+                      type: 'ClassBody',
+                  },
+                  id: null,
+                  superClass: null,
+                  type: 'ClassExpression'
+              },
+              type: 'ExpressionStatement'
+          }],
+          sourceType: 'script',
+          type: 'Program'
+      }
+  });
+
+  pass('(class { static await = 0 });', {
+      source: '(class { static await = 0 });',
+      next: true,
+      expected: {
+          body: [{
+              expression: {
+                  body: {
+                      body: [{
+                          computed: false,
+                          key: {
+                              name: 'await',
+                              type: 'Identifier',
+                          },
+                          static: true,
+                          type: 'FieldDefinition',
+                          value: {
+                              type: 'Literal',
+                              value: 0,
+                          }
+                      }],
+                      type: 'ClassBody',
+                  },
+                  id: null,
+                  superClass: null,
+                  type: 'ClassExpression'
+              },
+              type: 'ExpressionStatement'
+          }],
+          sourceType: 'script',
+          type: 'Program'
+      }
+  });
+
+  pass('(class { static await\n a });', {
+      source: '(class { static await\n a });',
+      next: true,
+      expected: {
+          body: [{
+              expression: {
+                  body: {
+                      body: [{
+                              computed: false,
+                              key: {
+                                  name: 'await',
+                                  type: 'Identifier',
+                              },
+                              static: true,
+                              type: 'FieldDefinition',
+                              value: null,
+                          },
+                          {
+                              computed: false,
+                              key: {
+                                  name: 'a',
+                                  type: 'Identifier',
+                              },
+                              static: false,
+                              type: 'FieldDefinition',
+                              value: null,
+                          },
+                      ],
+                      type: 'ClassBody',
+                  },
+                  id: null,
+                  superClass: null,
+                  type: 'ClassExpression'
+              },
+              type: 'ExpressionStatement'
+          }],
+          sourceType: 'script',
+          type: 'Program'
+      }
+  });
   pass('(class { static a = 0; });', {
       source: '(class { static a = 0; });',
       next: true,
@@ -752,6 +929,304 @@ describe('Next - Statoc public fields', () => {
       }
   });
 
+  pass('(class { static ["a"]; b(){}; });', {
+      source: '(class { static ["a"]; b(){};; });',
+      next: true,
+      expected: {
+          body: [{
+              expression: {
+                  body: {
+                      body: [{
+                              computed: true,
+                              key: {
+                                  type: 'Literal',
+                                  value: 'a',
+                              },
+                              static: true,
+                              type: 'FieldDefinition',
+                              value: null,
+                          },
+                          {
+                              computed: false,
+                              key: {
+                                  name: 'b',
+                                  type: 'Identifier',
+                              },
+                              kind: 'method',
+                              static: false,
+                              type: 'MethodDefinition',
+                              value: {
+                                  async: false,
+                                  body: {
+                                      body: [],
+                                      type: 'BlockStatement',
+                                  },
+                                  expression: false,
+                                  generator: false,
+                                  id: null,
+                                  params: [],
+                                  type: 'FunctionExpression'
+                              }
+                          }
+                      ],
+                      type: 'ClassBody'
+                  },
+                  id: null,
+                  superClass: null,
+                  type: 'ClassExpression'
+              },
+              type: 'ExpressionStatement'
+          }],
+          sourceType: 'script',
+          type: 'Program'
+      }
+  });
+
+  pass('(class { ["a"]; static b(){}; });', {
+      source: '(class { ["a"]; static b(){};; });',
+      next: true,
+      expected: {
+          body: [{
+              expression: {
+                  body: {
+                      body: [{
+                              computed: true,
+                              key: {
+                                  type: 'Literal',
+                                  value: 'a',
+                              },
+                              static: false,
+                              type: 'FieldDefinition',
+                              value: null
+                          },
+                          {
+                              computed: false,
+                              key: {
+                                  name: 'b',
+                                  type: 'Identifier',
+                              },
+                              kind: 'method',
+                              static: true,
+                              type: 'MethodDefinition',
+                              value: {
+                                  async: false,
+                                  body: {
+                                      body: [],
+                                      type: 'BlockStatement',
+                                  },
+                                  expression: false,
+                                  generator: false,
+                                  id: null,
+                                  params: [],
+                                  type: 'FunctionExpression'
+                              }
+                          }
+                      ],
+                      type: 'ClassBody'
+                  },
+                  id: null,
+                  superClass: null,
+                  type: 'ClassExpression'
+              },
+              type: 'ExpressionStatement'
+          }],
+          sourceType: 'script',
+          type: 'Program'
+      }
+  });
+
+  pass('(class { static ["a"]; static b(){}; });', {
+      source: '(class { static ["a"]; static b(){};; });',
+      next: true,
+      expected: {
+          body: [{
+              expression: {
+                  body: {
+                      body: [{
+                              computed: true,
+                              key: {
+                                  type: 'Literal',
+                                  value: 'a',
+                              },
+                              static: true,
+                              type: 'FieldDefinition',
+                              value: null,
+                          },
+                          {
+                              computed: false,
+                              key: {
+                                  name: 'b',
+                                  type: 'Identifier',
+                              },
+                              kind: 'method',
+                              static: true,
+                              type: 'MethodDefinition',
+                              value: {
+                                  async: false,
+                                  body: {
+                                      body: [],
+                                      type: 'BlockStatement',
+                                  },
+                                  expression: false,
+                                  generator: false,
+                                  id: null,
+                                  params: [],
+                                  type: 'FunctionExpression'
+                              }
+                          }
+                      ],
+                      type: 'ClassBody'
+                  },
+                  id: null,
+                  superClass: null,
+                  type: 'ClassExpression'
+              },
+              type: 'ExpressionStatement'
+          }],
+          sourceType: 'script',
+          type: 'Program'
+      }
+  });
+
+  pass('(class { static ["a"]; #b(){}; });', {
+      source: '(class { static ["a"]; #b(){};; });',
+      next: true,
+      expected: {
+          body: [{
+              expression: {
+                  body: {
+                      body: [{
+                              computed: true,
+                              key: {
+                                  type: 'Literal',
+                                  value: 'a',
+                              },
+                              static: true,
+                              type: 'FieldDefinition',
+                              value: null,
+                          },
+                          {
+                              computed: false,
+                              key: {
+                                  name: 'b',
+                                  type: 'PrivateName',
+                              },
+                              kind: 'method',
+                              static: false,
+                              type: 'MethodDefinition',
+                              value: {
+                                  async: false,
+                                  body: {
+                                      body: [],
+                                      type: 'BlockStatement'
+                                  },
+                                  expression: false,
+                                  generator: false,
+                                  id: null,
+                                  params: [],
+                                  type: 'FunctionExpression'
+                              }
+                          }
+                      ],
+                      type: 'ClassBody'
+                  },
+                  id: null,
+                  superClass: null,
+                  type: 'ClassExpression'
+              },
+              type: 'ExpressionStatement'
+          }, ],
+          sourceType: 'script',
+          type: 'Program'
+      }
+  });
+
+  pass('(class { static ["a"]; #b(){}; });', {
+      source: '(class { #a, b; static ["c"]; #d(){ this.#a; }; });',
+      next: true,
+      expected: {
+          body: [{
+              expression: {
+                  body: {
+                      body: [{
+                              computed: false,
+                              key: {
+                                  name: 'a',
+                                  type: 'PrivateName'
+                              },
+                              static: false,
+                              type: 'FieldDefinition',
+                              value: null,
+                          },
+                          {
+                              computed: false,
+                              key: {
+                                  name: 'b',
+                                  type: 'Identifier',
+                              },
+                              static: false,
+                              type: 'FieldDefinition',
+                              value: null,
+                          },
+                          {
+                              computed: true,
+                              key: {
+                                  type: 'Literal',
+                                  value: 'c',
+                              },
+                              static: true,
+                              type: 'FieldDefinition',
+                              value: null,
+                          },
+                          {
+                              computed: false,
+                              key: {
+                                  name: 'd',
+                                  type: 'PrivateName'
+                              },
+                              kind: 'method',
+                              static: false,
+                              type: 'MethodDefinition',
+                              value: {
+                                  async: false,
+                                  body: {
+                                      body: [{
+                                          expression: {
+                                              computed: false,
+                                              object: {
+                                                  type: 'ThisExpression'
+                                              },
+                                              property: {
+                                                  name: 'a',
+                                                  type: 'PrivateName'
+                                              },
+                                              type: 'MemberExpression'
+                                          },
+                                          type: 'ExpressionStatement'
+                                      }, ],
+                                      type: 'BlockStatement'
+                                  },
+                                  expression: false,
+                                  generator: false,
+                                  id: null,
+                                  params: [],
+                                  type: 'FunctionExpression'
+                              }
+                          }
+                      ],
+                      type: 'ClassBody',
+                  },
+                  id: null,
+                  superClass: null,
+                  type: 'ClassExpression'
+              },
+              type: 'ExpressionStatement'
+          }],
+          sourceType: 'script',
+          type: 'Program'
+      }
+  });
+
   pass('(class { static ["a"]; b; });', {
       source: '(class { static ["a"]; b; });',
       next: true,
@@ -800,24 +1275,24 @@ const bar = () => {};
 const four = 4;
 
 class Static {
- static [one()] = "test";
-  static [2 * 4 + 7] = "247";
-  static [2 * four + 7] = "247";
-  static [2 * four + seven] = "247";
-  [null] = "null";
-  [undefined] = "undefined";
-  [(a = "foo")] = false;
-  [void 0] = "void 0";
-  get ["giraffe"]() {}
-  set ["tiger"](value) {}
-  get [monkey()]() {}
-  set [computed()](value) {}
-  ["test" + one]() {}
- static [10]() {}
-  [/regex/] = "regex";
-  [foo] = "foo";
-  [bar] = "bar";
-  [baz] = "baz";
+static [one()] = "test";
+static [2 * 4 + 7] = "247";
+static [2 * four + 7] = "247";
+static [2 * four + seven] = "247";
+[null] = "null";
+[undefined] = "undefined";
+[(a = "foo")] = false;
+[void 0] = "void 0";
+get ["giraffe"]() {}
+set ["tiger"](value) {}
+get [monkey()]() {}
+set [computed()](value) {}
+["test" + one]() {}
+static [10]() {}
+[/regex/] = "regex";
+[foo] = "foo";
+[bar] = "bar";
+[baz] = "baz";
 }`,
       next: true,
       expected: {
@@ -1365,12 +1840,12 @@ static field = 23;
   });
 
   pass(`class Foo {
-  static num = 0;
-  static str = "bar";
+static num = 0;
+static str = "bar";
 }`, {
       source: `class Foo {
-  static num = 0;
-  static str = "bar";
+static num = 0;
+static str = "bar";
 }`,
       next: true,
       expected: {
@@ -1461,6 +1936,17 @@ static field = 23;
   pass(`export default param =>
 class Foo {
 static props = {
+prop1: 'prop1',
+prop2: 'prop2'
+}
+
+getParam() {
+return param;
+}
+}`, {
+      source: `export default param =>
+class Foo {
+static props = {
   prop1: 'prop1',
   prop2: 'prop2'
 }
@@ -1468,18 +1954,7 @@ static props = {
 getParam() {
   return param;
 }
-}`, {
-      source: `export default param =>
-  class Foo {
-    static props = {
-      prop1: 'prop1',
-      prop2: 'prop2'
-    }
-
-    getParam() {
-      return param;
-    }
-  }`,
+}`,
       next: true,
       module: true,
       expected: {
@@ -1584,5 +2059,4 @@ getParam() {
           type: 'Program'
       }
   });
-
 });

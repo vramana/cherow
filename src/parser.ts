@@ -4328,98 +4328,105 @@ export class Parser {
 
         const pos = this.getLocation();
 
+        // Private fields / Private methods
+        if (context & Context.OptionsNext && this.token === Token.Hash) {
+
+            this.expect(context, Token.Hash);
+
+            // E.g. 'class A { #constructor }'
+            if (this.tokenValue === 'constructor') this.report(Errors.PrivateFieldConstructor);
+
+            state |= Clob.PrivateName;
+
+            const privateFieldKey = this.parsePrivateName(context, pos);
+
+            return this.token === Token.LeftParen ?
+                this.parseFieldOrMethodDeclaration(context, state | Clob.Method, privateFieldKey, pos) :
+                this.parseFieldDefinition(context, state, privateFieldKey, pos);
+        }
+
         let t = this.token;
         let tokenValue = this.tokenValue;
-
+        let currentFlags = Flags.None;
         let key;
 
-        if (context & Context.OptionsNext && this.token === Token.Hash) {
-            this.expect(context, Token.Hash);
-            // E.g. 'class A { #constructor }'
-            if (this.tokenValue === 'constructor') {
-                this.report(Errors.PrivateFieldConstructor);
+        if (t & Token.IsGenerator) {
+            this.expect(context, Token.Multiply);
+            state |= Clob.Generator;
+        }
+
+        if (this.token === Token.LeftBracket) state |= Clob.Computed;
+
+        key = this.parsePropertyName(context);
+
+        if (t === Token.StaticKeyword) {
+
+            if (this.token & Token.IsShorthand) {
+
+                return this.token === Token.LeftParen ?
+                    this.parseFieldOrMethodDeclaration(context, state | Clob.Method, key, pos) :
+                    this.parseFieldDefinition(context, state, key, pos);
             }
-            state |= Clob.PrivateName;
-            key = this.parsePrivateName(context, pos);
-        } else {
+
+            if (this.token === Token.Hash) this.report(Errors.Unexpected);
+
+            t = this.token;
+
+            state |= Clob.Static;
 
             if (t & Token.IsGenerator) {
                 this.expect(context, Token.Multiply);
                 state |= Clob.Generator;
             }
 
+            if (this.tokenValue === 'prototype') {
+                this.report(Errors.StaticPrototype);
+            }
+
+            if (this.tokenValue === 'constructor') {
+                tokenValue = this.tokenValue;
+            }
+
             if (this.token === Token.LeftBracket) state |= Clob.Computed;
 
             key = this.parsePropertyName(context);
-            
-            if (t === Token.StaticKeyword) {
+        }
 
-                if (this.token & Token.IsShorthand) {
+        // Forbids:  (',  '}',  ',',  ':',  '='
+        if (!(this.token & Token.IsShorthand)) {
 
-                    return this.token === Token.LeftParen ?
-                        this.parseFieldOrMethodDeclaration(context, state | Clob.Method, key, pos) :
-                        this.parseFieldDefinition(context, state, key, pos);
-                }
+            if (t & Token.IsAsync && !(state & Clob.Generator) && !(this.flags & Flags.LineTerminator)) {
 
-                if (this.token === Token.Hash) this.report(Errors.Unexpected);
+                state |= Clob.Async;
 
                 t = this.token;
 
-                state |= Clob.Static;
-
-                if (t & Token.IsGenerator) {
-                    this.expect(context, Token.Multiply);
-                    state |= Clob.Generator;
-                }
-
-                if (this.tokenValue === 'prototype') {
-                    this.report(Errors.StaticPrototype);
-                }
-
-                if (this.tokenValue === 'constructor') {
-                    tokenValue = this.tokenValue;
-                }
-
-                if (this.token === Token.LeftBracket) state |= Clob.Computed;
-
-                key = this.parsePropertyName(context);
-            }
-
-            // Forbids:  (',  '}',  ',',  ':',  '='
-            if (!(this.token & Token.IsShorthand)) {
-
-                if (t & Token.IsAsync && !(state & Clob.Generator) && !(this.flags & Flags.LineTerminator)) {
-
-                    state |= Clob.Async;
-
-                    t = this.token;
-
-                    if (context & Context.OptionsNext && this.token === Token.Hash) {
-                        this.expect(context, Token.Hash);
-                        if (this.token === Token.ConstructorKeyword) {
-                            this.report(Errors.PrivateFieldConstructor);
-                        }
-                        state |= Clob.PrivateName;
-                        key = this.parsePrivateName(context, pos);
-                    } else {
-
-                        if (t & Token.IsGenerator) {
-                            state |= Clob.Generator;
-                            this.expect(context, Token.Multiply);
-                        }
-                        if (this.token === Token.LeftBracket) state |= Clob.Computed;
-
-                        key = this.parsePropertyName(context);
+                if (context & Context.OptionsNext && this.token === Token.Hash) {
+                    this.expect(context, Token.Hash);
+                    if (this.token === Token.ConstructorKeyword) {
+                        this.report(Errors.PrivateFieldConstructor);
                     }
-                } else if ((t === Token.GetKeyword || t === Token.SetKeyword)) {
+                    state |= Clob.PrivateName;
+                    key = this.parsePrivateName(context, pos);
+                } else {
 
-                    if (!(state & Clob.Static) && this.token === Token.ConstructorKeyword) {
-                        this.report(Errors.ConstructorSpecialMethod);
+                    if (t & Token.IsGenerator) {
+                        state |= Clob.Generator;
+                        this.expect(context, Token.Multiply);
                     }
-                    state |= t === Token.GetKeyword ? Clob.Get : Clob.Set;
                     if (this.token === Token.LeftBracket) state |= Clob.Computed;
+
                     key = this.parsePropertyName(context);
                 }
+            } else if ((t === Token.GetKeyword || t === Token.SetKeyword)) {
+
+                if (!(state & Clob.Static) && this.token === Token.ConstructorKeyword) {
+                    this.report(Errors.ConstructorSpecialMethod);
+                }
+                state |= t === Token.GetKeyword ? Clob.Get : Clob.Set;
+                if (this.token === Token.LeftBracket) state |= Clob.Computed;
+                currentFlags = this.flags;
+                key = this.parsePropertyName(context);
             }
         }
 
@@ -4453,13 +4460,20 @@ export class Parser {
                 this.token === Token.Semicolon ||
                 this.token === Token.Assign) {
                 if (tokenValue === 'constructor') this.report(Errors.ConstructorClassField);
-                
+
                 if (state & Clob.Static) {
+                    // Edge case - 'static a\n get', 'static get\n *a(){}'
+                    if (state & Clob.Accessors && !(currentFlags & Flags.LineTerminator)) {
+                        this.report(Errors.Unexpected)
+                    }
                     if (state & Clob.Generator) {
                         this.report(Errors.Unexpected);
                     }
                 }
-                if (!(state & Clob.Computed)) if (state & Clob.Async) this.report(Errors.StaticPrototype);
+
+                if (state & Clob.Async) {
+                    this.report(Errors.StaticPrototype);
+                }
 
                 return this.parseFieldDefinition(context, state, key, pos);
             }
@@ -4475,6 +4489,10 @@ export class Parser {
         if (this.consume(context, Token.Assign)) {
             if (this.token & Token.IsEvalArguments) this.tolerate(context, Errors.UnexpectedStrictEvalOrArguments);
             value = this.parseAssignmentExpression(context);
+            // ASI requires that the next token is not part of any legal production
+            if (state & Clob.Static) {
+                this.consumeSemicolon(context);
+            }
         }
 
         this.consume(context, Token.Comma);
