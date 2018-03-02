@@ -7,7 +7,7 @@
 [![CircleCI](https://circleci.com/gh/cherow/cherow.svg?style=svg)](https://circleci.com/gh/cherow/cherow)
 [![Coverage Status](https://coveralls.io/repos/github/cherow/cherow/badge.svg?branch=master)](https://coveralls.io/github/cherow/cherow?branch=master)
 
-A very fast, standards-compliant, self-hosted ECMAScript parser with high focus on both performance and stability.
+A very fast, standards-compliant, self-hosted javascript parser with high focus on both performance and stability.
 
 It strictly follows the [ECMAScript® 2018 Language Specification](https://tc39.github.io/ecma262/) and should parse according to these specifications.
 
