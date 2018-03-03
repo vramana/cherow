@@ -34,7 +34,7 @@ export const enum Context {
     DisallowArrow           = 1 << 27,
     InTypeAnnotation        = 1 << 28, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
     AllowSingleStatement    = 1 << 29,
-    InBlock                 = 1 << 30,
+
     BlockScoped = Let | Const
 }
 

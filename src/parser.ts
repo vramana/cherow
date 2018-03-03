@@ -2894,7 +2894,7 @@ export class Parser {
         this.expect(context, Token.LeftBrace);
         if (this.token !== Token.RightBrace) {
             while (this.token !== Token.RightBrace) {
-                body.push(this.parseStatementListItem(context | Context.InBlock));
+                body.push(this.parseStatementListItem(context));
             }
         }
 
