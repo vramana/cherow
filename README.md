@@ -99,6 +99,7 @@ There is a second argument to both methods that allows you to specify various op
 | ----------- | ------------------------------------------------------------ |
 | `comments`        | Create a top-level comments array containing all comments |
 | `tolerant`        | Create a top-level error array containing all "skipped" errors |
+| `delegate`        | Accepts a callback function invoked for each syntax node (as the node is constructed) |
 | `jsx`             | Enable React JSX parsing |
 | `loc      `       | Attach line/column location information to each node |
 | `ranges`          | Append start and end offsets to each node |

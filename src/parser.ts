@@ -124,9 +124,10 @@ export class Parser {
             if (options.tolerate) context |= Context.OptionsTolerate;
             if (options.impliedStrict) context |= Context.Strict;
             if (options.comments) context |= Context.OptionsComments;
-            if (options.delegate) {context |= Context.OptionsDelegate;
+            if (this.delegate) {
+                context |= Context.OptionsDelegate;
             }
-    
+
         }
 
         const node: ESTree.Program = {
@@ -815,7 +816,7 @@ export class Parser {
                         this.advance();
                         state &= ~Scanner.LastIsCR;
                         if (this.consumeOpt(Chars.Slash)) {
-                            if (context & Context.OptionsComments) {
+                            if (context & (Context.OptionsComments | Context.OptionsDelegate)) {
                                 this.addComment(context, state | Scanner.Multiline, start);
                             }
 
@@ -853,7 +854,9 @@ export class Parser {
                 }
             }
 
-        if (context & Context.OptionsComments) this.addComment(context, state, start);
+        if (context & (Context.OptionsComments | Context.OptionsDelegate)) {
+            this.addComment(context, state, start);
+        }
 
         return state;
     }
@@ -880,7 +883,13 @@ export class Parser {
             };
         }
 
-        this.comments.push(comment);
+        if (context & Context.OptionsDelegate) {
+            this.delegate(comment);
+        }
+
+        if (context & Context.OptionsComments) {
+            this.comments.push(comment);
+        }
     }
 
     private scanPrivateName(context: Context, ch: number): Token {
@@ -1558,9 +1567,9 @@ export class Parser {
                 return;
 
             case Escape.StrictOctal:
-                this.tolerate(context, context & Context.TaggedTemplate 
-                    ? Errors.TemplateOctalLiteral 
-                    : Errors.StrictOctalEscape);
+                this.tolerate(context, context & Context.TaggedTemplate ?
+                    Errors.TemplateOctalLiteral :
+                    Errors.StrictOctalEscape);
 
             case Escape.EightOrNine:
                 this.tolerate(context, Errors.InvalidEightAndNine);
@@ -1974,11 +1983,11 @@ export class Parser {
         const t = this.nextToken(context);
         this.rewindState(savedState);
         return !!(t & (Token.IsIdentifier | Token.IsBindingPattern | Token.IsYield | Token.IsAwait) ||
-                t === Token.LetKeyword ||
-                (t & Token.Contextual) === Token.Contextual) && !(savedFlag & Flags.HasEscapedKeyword);
+            t === Token.LetKeyword ||
+            (t & Token.Contextual) === Token.Contextual) && !(savedFlag & Flags.HasEscapedKeyword);
     }
 
-    private finishNode < T extends ESTree.Node > (
+    private finishNode < T extends ESTree.Node >(
         context: Context,
         pos: Location,
         node: any,
@@ -2652,7 +2661,7 @@ export class Parser {
 
         this.expect(context, Token.WhileKeyword);
         this.expect(context, Token.LeftParen);
-        
+
         const test = this.parseExpression(context | Context.AllowIn, pos);
 
         this.expect(context, Token.RightParen);
@@ -2664,7 +2673,7 @@ export class Parser {
             test
         });
     }
-    
+
     // https://tc39.github.io/ecma262/#sec-continue-statement
 
     private parseContinueStatement(context: Context): ESTree.ContinueStatement {
@@ -2918,7 +2927,7 @@ export class Parser {
     private parseVariableStatement(context: Context): ESTree.VariableDeclaration {
         const pos = this.getLocation();
         const t = this.token;
-        
+
         if (this.flags & Flags.HasEscapedKeyword) this.tolerate(context, Errors.UnexpectedEscapedKeyword);
         this.nextToken(context);
         const declarations = this.parseVariableDeclarationList(context);
@@ -3786,14 +3795,14 @@ export class Parser {
                     const name = this.tokenValue;
 
                     this.nextToken(context);
-            
+
                     this.errorLocation = pos;
 
                     // ExpressionStatement has a lookahead restriction for `let [`.
-                     if (this.flags & Flags.LineTerminator) {
-                         if( this.token === Token.LeftBracket) {
-                        this.tolerate(context, Errors.UnexpectedToken, 'let');
-                         }
+                    if (this.flags & Flags.LineTerminator) {
+                        if (this.token === Token.LeftBracket) {
+                            this.tolerate(context, Errors.UnexpectedToken, 'let');
+                        }
                     } else if (!(context & Context.AllowSingleStatement)) {
                         this.tolerate(context, Errors.UnexpectedLexicalDeclaration);
                     }
@@ -4168,9 +4177,9 @@ export class Parser {
 
         if (state & Clob.Generator) context |= Context.AllowYield;
 
-        if (state & Clob.Async)  context |= Context.AllowAsync;
-        
-        return this.parseFunction(context  & ~Context.TopLevel | Context.Expression | Context.Method, null, pos, state) as ESTree.FunctionExpression
+        if (state & Clob.Async) context |= Context.AllowAsync;
+
+        return this.parseFunction(context & ~Context.TopLevel | Context.Expression | Context.Method, null, pos, state) as ESTree.FunctionExpression;
     }
 
     private parseComputedPropertyName(context: Context): ESTree.AssignmentExpression | ESTree.ArrowFunctionExpression | ESTree.YieldExpression {
@@ -4430,9 +4439,9 @@ export class Parser {
                     this.report(Errors.ConstructorSpecialMethod);
                 }
                 state |= t === Token.GetKeyword ? Clob.Get : Clob.Set;
-                
+
                 if (this.token === Token.LeftBracket) state |= Clob.Computed;
-                
+
                 mutuableFlag = this.flags;
 
                 key = this.parsePropertyName(context);
@@ -4478,7 +4487,7 @@ export class Parser {
                 if (state & Clob.Static) {
                     // Edge case - 'static a\n get', 'static get\n *a(){}'
                     if (state & Clob.Accessors && !(mutuableFlag & Flags.LineTerminator)) {
-                        this.report(Errors.Unexpected)
+                        this.report(Errors.Unexpected);
                     }
                     if (state & Clob.Generator) {
                         this.report(Errors.Unexpected);

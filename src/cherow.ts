@@ -34,7 +34,7 @@ function parse(source: string, context: Context, options: Options | void) {
     if (options != null) {
 
         if (options.source) sourceFile = options.source;
-        if (options.delegate) delegate = options.delegate;
+        if (typeof options.delegate === 'function') delegate = options.delegate;
 
         if (options.plugins) {
             const key = options.plugins.join('/');

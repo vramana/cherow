@@ -294,8 +294,7 @@ describe('Cherow', () => {
     line: 1
 });
 
-
-fail('`\\033`;', {
+      fail('`\\033`;', {
     source: '`\\033`;',
     line: 1,
     message: 'Template literals may not contain octal escape sequences',
@@ -303,7 +302,7 @@ fail('`\\033`;', {
     index: 0
 });
 
-fail('"use strict"; `${test}\\02`', {
+      fail('"use strict"; `${test}\\02`', {
     source: '"use strict"; `${test}\\02`',
     line: 1,
     message: 'Template literals may not contain octal escape sequences',
