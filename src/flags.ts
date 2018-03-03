@@ -33,8 +33,9 @@ export const enum Context {
     RequireIdentifier       = 1 << 26,
     DisallowArrow           = 1 << 27,
     InTypeAnnotation        = 1 << 28, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
-    AllowFunctionStatement  = 1 << 29,
-    BlockScoped  = Let | Const
+    AllowSingleStatement    = 1 << 29,
+    InBlock                 = 1 << 30,
+    BlockScoped = Let | Const
 }
 
 /* Mutable parser flags */
@@ -57,7 +58,7 @@ export const enum Flags {
     HasYield                = 1 << 13,
     ReservedWords           = 1 << 14,
     HasCommaSeparator       = 1 << 15,
-    CoverInitializedName    = 1 << 16,
+    CoverInitializedName    = 1 << 16
 }
 
 /** Shared between class and objects */

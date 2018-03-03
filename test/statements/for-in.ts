@@ -4733,8 +4733,8 @@ describe('Statements - For in', () => {
         source: 'for(let ? b : c in 0);',
         message: 'Invalid left-hand side in for-loop',
         line: 1,
-        column: 20,
-        index: 20
+        column: 4,
+        index: 4
     });
 
     fail(`for (var {x}=0 in y);`, {

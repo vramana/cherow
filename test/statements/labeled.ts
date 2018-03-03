@@ -4,18 +4,20 @@ describe('Statements - Labelled', () => {
 
     fail(`aw\\u0061it: 1;`, {
         source: 'aw\\u0061it: 1;',
-      message: 'Unexpected token await',
+      message: '\'await\' may not be used as an identifier in this context',
       module: true,
       line: 1
     });
 
     fail(`label: function* g() {}`, {
         source: 'label: function* g() {}',
+        message: 'Generator functions cannot be labelled',
       line: 1,
     });
 
     fail(`await: 1;`, {
         source: 'await: 1;',
+        message:  '\'await\' may not be used as an identifier in this context',
       line: 1,
       module: true
     });

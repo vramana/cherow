@@ -192,7 +192,7 @@ export class Parser {
         return statements;
     }
 
-    public parseModuleItemList(context: Context): ESTree.Statement[] {
+    private parseModuleItemList(context: Context): ESTree.Statement[] {
 
         // Prime the scanner
         this.nextToken(context);
@@ -1546,14 +1546,16 @@ export class Parser {
         return Token.StringLiteral;
     }
 
-    private throwStringError(context: Context, code: Escape, isTemplate: boolean = false) {
+    private throwStringError(context: Context, code: Escape) {
 
         switch (code) {
             case Escape.Empty:
                 return;
 
             case Escape.StrictOctal:
-                this.tolerate(context, isTemplate ? Errors.TemplateOctalLiteral : Errors.StrictOctalEscape);
+                this.tolerate(context, context & Context.TaggedTemplate 
+                    ? Errors.TemplateOctalLiteral 
+                    : Errors.StrictOctalEscape);
 
             case Escape.EightOrNine:
                 this.tolerate(context, Errors.InvalidEightAndNine);
@@ -1778,7 +1780,7 @@ export class Parser {
                                     }
                                     break loop;
                                 } else {
-                                    this.throwStringError(context, code as Escape);
+                                    this.throwStringError(context | Context.TaggedTemplate, code as Escape);
                                 }
                                 ch = this.lastChar;
                             }
@@ -1965,12 +1967,10 @@ export class Parser {
         const savedState = this.lookahead();
         const savedFlag = this.flags;
         const t = this.nextToken(context);
-        const flags = this.flags;
         this.rewindState(savedState);
-        return !(savedFlag & Flags.HasEscapedKeyword && flags & Flags.LineTerminator) &&
-            !!(t & (Token.IsBindingPattern | Token.IsIdentifier | Token.IsYield | Token.IsAwait) ||
+        return !!(t & (Token.IsIdentifier | Token.IsBindingPattern | Token.IsYield | Token.IsAwait) ||
                 t === Token.LetKeyword ||
-                (t & Token.Contextual) === Token.Contextual);
+                (t & Token.Contextual) === Token.Contextual) && !(savedFlag & Flags.HasEscapedKeyword);
     }
 
     private finishNode < T extends ESTree.Node > (
@@ -2418,7 +2418,7 @@ export class Parser {
             default: // ignore
         }
 
-        return this.parseStatement(context | Context.AllowFunctionStatement);
+        return this.parseStatement(context | Context.AllowSingleStatement);
     }
 
     // https://tc39.github.io/ecma262/#sec-ecmascript-language-statements-and-declarations
@@ -2488,7 +2488,7 @@ export class Parser {
             case Token.AsyncKeyword:
                 {
                     if (this.nextTokenIsFuncKeywordOnSameLine(context)) {
-                        if (context & Context.AnnexB || !(context & Context.AllowFunctionStatement)) {
+                        if (context & Context.AnnexB || !(context & Context.AllowSingleStatement)) {
                             this.tolerate(context, Errors.AsyncFunctionInSingleStatementContext);
                         }
                         // Async and async generator declaration is not allowed in statement position,
@@ -2542,7 +2542,7 @@ export class Parser {
             if (t === Token.ContinueKeyword && this.flags & Flags.AllowContinue) {
                 this.tolerate(context, Errors.InvalidNestedStatement, tokenDesc(t));
             } else if (!(context & Context.Strict) && t === Token.FunctionKeyword &&
-                context & Context.AllowFunctionStatement) {
+                context & Context.AllowSingleStatement) {
                 body = this.parseFunctionDeclaration(context | Context.AnnexB);
             } else {
                 body = this.parseStatement(context | Context.AnnexB);
@@ -2568,7 +2568,7 @@ export class Parser {
     private parseIfStatementChild(context: Context): ESTree.Statement | ESTree.FunctionDeclaration {
 
         if (context & Context.Strict || this.token !== Token.FunctionKeyword) {
-            return this.parseStatement(context & ~Context.AllowFunctionStatement | Context.AnnexB);
+            return this.parseStatement(context & ~Context.AllowSingleStatement | Context.AnnexB);
         }
         return this.parseFunctionDeclaration(context | Context.AnnexB) as ESTree.FunctionDeclaration;
     }
@@ -2604,7 +2604,7 @@ export class Parser {
         this.expect(context, Token.RightParen);
         const savedFlag = this.flags;
         this.flags |= (Flags.AllowContinue | Flags.AllowBreak);
-        const body = this.parseStatement(context & ~Context.AllowFunctionStatement | Context.ValidateEscape);
+        const body = this.parseStatement(context & ~Context.AllowSingleStatement | Context.ValidateEscape);
         this.flags = savedFlag;
         return this.finishNode(context, pos, {
             type: 'WhileStatement',
@@ -2622,7 +2622,7 @@ export class Parser {
         this.expect(context, Token.LeftParen);
         const object = this.parseExpression(context | Context.AllowIn, pos);
         this.expect(context, Token.RightParen);
-        const body = this.parseStatement(context & ~Context.AllowFunctionStatement | Context.ValidateEscape);
+        const body = this.parseStatement(context & ~Context.AllowSingleStatement | Context.ValidateEscape);
         return this.finishNode(context, pos, {
             type: 'WithStatement',
             object,
@@ -2638,12 +2638,12 @@ export class Parser {
 
         const savedFlag = this.flags;
         this.flags |= (Flags.AllowBreak | Flags.AllowContinue);
-        const body = this.parseStatement(context & ~Context.AllowFunctionStatement);
+        const body = this.parseStatement(context & ~Context.AllowSingleStatement);
         this.flags = savedFlag;
 
         this.expect(context, Token.WhileKeyword);
         this.expect(context, Token.LeftParen);
-
+        
         const test = this.parseExpression(context | Context.AllowIn, pos);
 
         this.expect(context, Token.RightParen);
@@ -2655,7 +2655,7 @@ export class Parser {
             test
         });
     }
-
+    
     // https://tc39.github.io/ecma262/#sec-continue-statement
 
     private parseContinueStatement(context: Context): ESTree.ContinueStatement {
@@ -2894,7 +2894,7 @@ export class Parser {
         this.expect(context, Token.LeftBrace);
         if (this.token !== Token.RightBrace) {
             while (this.token !== Token.RightBrace) {
-                body.push(this.parseStatementListItem(context));
+                body.push(this.parseStatementListItem(context | Context.InBlock));
             }
         }
 
@@ -2909,6 +2909,7 @@ export class Parser {
     private parseVariableStatement(context: Context): ESTree.VariableDeclaration {
         const pos = this.getLocation();
         const t = this.token;
+        
         if (this.flags & Flags.HasEscapedKeyword) this.tolerate(context, Errors.UnexpectedEscapedKeyword);
         this.nextToken(context);
         const declarations = this.parseVariableDeclarationList(context);
@@ -3232,6 +3233,7 @@ export class Parser {
         if (this.flags & Flags.HasEscapedKeyword) {
             this.tolerate(context, Errors.UnexpectedEscapedKeyword);
         }
+        // AwaitExpressionFormalParameter
         this.expect(context, Token.AwaitKeyword);
         return this.finishNode(context, pos, {
             type: 'AwaitExpression',
@@ -3689,10 +3691,10 @@ export class Parser {
 
             // Module code is also "strict mode code"
             if (context & Context.Module && t & Token.IsAwait) {
-                this.tolerate(context, Errors.UnexpectedToken, tokenDesc(this.token));
+                this.tolerate(context, Errors.DisallowedInContext, tokenDesc(t));
             }
 
-            if (t & Token.IsYield) this.report(Errors.DisallowedInContext, tokenDesc(t));
+            if (t & Token.IsYield) this.tolerate(context, Errors.DisallowedInContext, tokenDesc(t));
 
             if ((t & Token.IsIdentifier) === Token.IsIdentifier ||
                 (t & Token.Contextual) === Token.Contextual) {
@@ -3703,7 +3705,7 @@ export class Parser {
         }
 
         if (context & Context.AllowYield && t & Token.IsYield) {
-            this.report(Errors.DisallowedInContext, tokenDesc(t));
+            this.tolerate(context, Errors.DisallowedInContext, tokenDesc(t));
         }
 
         if ((t & Token.IsIdentifier) === Token.IsIdentifier ||
@@ -3771,15 +3773,26 @@ export class Parser {
                     if (context & Context.Strict) {
                         this.tolerate(context, Errors.InvalidStrictExpPostion, 'let');
                     }
-                    const id = this.parseIdentifier(context);
+
+                    const name = this.tokenValue;
+
+                    this.nextToken(context);
+            
+                    this.errorLocation = pos;
 
                     // ExpressionStatement has a lookahead restriction for `let [`.
-                    if (this.token === Token.LeftBracket &&
-                        this.flags & Flags.LineTerminator) {
+                     if (this.flags & Flags.LineTerminator) {
+                         if( this.token === Token.LeftBracket) {
                         this.tolerate(context, Errors.UnexpectedToken, 'let');
+                         }
+                    } else if (!(context & Context.AllowSingleStatement)) {
+                        this.tolerate(context, Errors.UnexpectedLexicalDeclaration);
                     }
 
-                    return id;
+                    return this.finishNode(context, pos, {
+                        type: 'Identifier',
+                        name
+                    });
                 }
 
             case Token.Hash:
@@ -5025,9 +5038,7 @@ export class Parser {
     }
 
     private parseIdentifierName(context: Context, t: Token): ESTree.Identifier {
-        if (!(t & (Token.IsIdentifier | Token.Keyword))) {
-            this.tolerate(context, Errors.UnexpectedToken, tokenDesc(t));
-        }
+        if (!(t & (Token.IsIdentifier | Token.Keyword))) this.reportUnexpectedTokenOrKeyword();
         return this.parseIdentifier(context);
     }
 
@@ -5416,7 +5427,7 @@ export class Parser {
 
         this.expect(context, Token.RightParen);
 
-        const body = this.parseStatement(context & ~Context.AllowFunctionStatement);
+        const body = this.parseStatement(context & ~Context.AllowSingleStatement);
 
         this.flags = savedFlag;
 

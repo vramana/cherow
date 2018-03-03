@@ -110,7 +110,10 @@ export const enum Errors {
     ForInOfLoopInitializer,
     DeletePrivateField,
     InvalidStaticField,
-    InvalidPrivateFieldAccess
+    InvalidPrivateFieldAccess,
+    AwaitBindingIdentifier,
+    AwaitExpressionFormalParameter,
+    UnexpectedLexicalDeclaration
 }
 
 export const ErrorMessages: {
@@ -227,7 +230,9 @@ export const ErrorMessages: {
     [Errors.ForInOfLoopInitializer]: '\'for-%0\' loop variable declaration may not have an initializer',
     [Errors.DeletePrivateField]: 'Private fields can not be deleted',
     [Errors.InvalidPrivateFieldAccess]: 'Invalid private field \'%0\'',
-
+    [Errors.AwaitBindingIdentifier]: '\'await\' is not a valid identifier name in an async function',
+    [Errors.AwaitExpressionFormalParameter]: 'Illegal await-expression in formal parameters of async function',
+    [Errors.UnexpectedLexicalDeclaration]: 'Lexical declaration cannot appear in a single-statement context',
 };
 
 function constructError(msg: string, column: number): Error {

@@ -14,8 +14,8 @@ describe('Declarations - Let', () => {
         source: 'let default',
         message: 'Unexpected keyword \'default\'',
         line: 1,
-        column: 3,
-        index: 3
+        column: 0,
+        index: 0
     });
 
     fail('let let| split across two lines', {
@@ -35,8 +35,8 @@ describe('Declarations - Let', () => {
         while (false);`,
         message: 'Unexpected token let',
         line: 1,
-        column: 6,
-        index: 6
+        column: 3,
+        index: 3
     });
 
     fail(`for (var x in null) let
@@ -45,8 +45,8 @@ describe('Declarations - Let', () => {
         [a] = 0;`,
         message: 'Unexpected token let',
         line: 1,
-        column: 23,
-        index: 23
+        column: 20,
+        index: 20
     });
 
     fail(`if (false) let
@@ -55,8 +55,8 @@ describe('Declarations - Let', () => {
         [a] = 0;`,
         message: 'Unexpected token let',
         line: 1,
-        column: 14,
-        index: 14
+        column: 11,
+        index: 11
     });
 
     fail('let [x]', {
@@ -77,42 +77,42 @@ describe('Declarations - Let', () => {
 
     fail('for (;false;) let x;', {
         source: 'for (;false;) let x;',
-        message:  'Unexpected token identifier',
+        message: 'Lexical declaration cannot appear in a single-statement context',
         line: 1,
-        column: 17,
-        index: 17
+        column: 14,
+        index: 14
     });
 
     fail('if (true) {} else let x;', {
         source: 'if (true) {} else let x;',
-        message: 'Unexpected token identifier',
+        message: 'Lexical declaration cannot appear in a single-statement context',
         line: 1,
-        column: 21,
-        index: 21
+        column: 18,
+        index: 18
     });
 
     fail('a: let a', {
         source: 'a: let a',
         message: 'Unexpected token identifier',
         line: 1,
-        column: 6,
-        index: 6
+        column: 3,
+        index: 3
     });
 
     fail('if (true) let x = 1;', {
         source: 'if (true) let x = 1;',
-        message: 'Unexpected token identifier',
+        message: 'Lexical declaration cannot appear in a single-statement context',
         line: 1,
-        column: 13,
-        index: 13
+        column: 10,
+        index: 10
     });
 
     fail('while (false) let x;', {
         source: 'while (false) let x;',
-        message: 'Unexpected token identifier',
+        message: 'Lexical declaration cannot appear in a single-statement context',
         line: 1,
-        column: 17,
-        index: 17
+        column: 14,
+        index: 14
     });
 
     fail(`function f() {

@@ -225,12 +225,14 @@ describe('Cherow', () => {
 
       fail('`$', {
     source: '`$',
-    line: 1
+    line: 1,
+    message: 'Unexpected token'
 });
 
       fail('`left${0}\\xg${1}right`', {
     source: '`left${0}\\xg${1}right`',
-    line: 1
+    line: 1,
+    message: 'Invalid hexadecimal escape sequence'
 });
 
       fail('`left${0}\\u0g`', {
@@ -292,6 +294,22 @@ describe('Cherow', () => {
     line: 1
 });
 
+
+fail('`\\033`;', {
+    source: '`\\033`;',
+    line: 1,
+    message: 'Template literals may not contain octal escape sequences',
+    column: 0,
+    index: 0
+});
+
+fail('"use strict"; `${test}\\02`', {
+    source: '"use strict"; `${test}\\02`',
+    line: 1,
+    message: 'Template literals may not contain octal escape sequences',
+    column: 21,
+    index: 21
+});
       fail('`\\56`', {
     source: '`\\56`',
     line: 1

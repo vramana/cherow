@@ -1839,7 +1839,7 @@ describe('Miscellaneous - Failure', () => {
 
     fail('if (1) let x = 10;', {
         source: `if (1) let x = 10;`,
-        message: 'Unexpected token identifier',
+        message: 'Lexical declaration cannot appear in a single-statement context',
         line: 1,
     });
 
