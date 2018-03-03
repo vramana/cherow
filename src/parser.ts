@@ -1,5 +1,5 @@
 import * as ESTree from './estree';
-import { Options } from './cherow';
+import { Options, Delegate } from './cherow';
 import { Chars } from './chars';
 import { Token, tokenDesc, descKeyword } from './token';
 import { createError, Errors, ErrorMessages } from './errors';
@@ -82,8 +82,9 @@ export class Parser {
     private errors: any;
     private labelSet: any;
     private errorLocation: Location | void;
+    private delegate: any;
 
-    constructor(source: string, sourceFile: string) {
+    constructor(source: string, delegate: Delegate | void, sourceFile: string) {
         this.source = source;
         this.token = Token.EndOfSource;
         this.flags = Flags.None;
@@ -106,6 +107,7 @@ export class Parser {
         this.sourceFile = sourceFile;
         this.comments = [];
         this.errors = [];
+        this.delegate = delegate;
     }
 
     // https://tc39.github.io/ecma262/#sec-scripts
@@ -122,6 +124,9 @@ export class Parser {
             if (options.tolerate) context |= Context.OptionsTolerate;
             if (options.impliedStrict) context |= Context.Strict;
             if (options.comments) context |= Context.OptionsComments;
+            if (options.delegate) {context |= Context.OptionsDelegate;
+            }
+    
         }
 
         const node: ESTree.Program = {
@@ -2000,6 +2005,10 @@ export class Parser {
             if (this.sourceFile) {
                 node.loc.source = this.sourceFile;
             }
+        }
+
+        if (context & Context.OptionsDelegate) {
+            this.delegate(node);
         }
 
         return node;

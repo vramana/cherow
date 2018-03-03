@@ -4,6 +4,8 @@ import { Context } from './flags';
 
 export type PluginHandler = (core: any) => void;
 
+export type Delegate = (node: any) => void;
+
 export interface Options {
     comments?: boolean;
     plugins?: PluginHandler[];
@@ -15,6 +17,7 @@ export interface Options {
     raw?: boolean;
     jsx?: boolean;
     tolerate?: boolean;
+    delegate?: Delegate;
     impliedStrict ?: boolean;
 }
 
@@ -26,10 +29,12 @@ function parse(source: string, context: Context, options: Options | void) {
 
     let sourceFile: string = '';
     let Cherow;
+    let delegate;
 
     if (options != null) {
 
         if (options.source) sourceFile = options.source;
+        if (options.delegate) delegate = options.delegate;
 
         if (options.plugins) {
             const key = options.plugins.join('/');
@@ -42,11 +47,11 @@ function parse(source: string, context: Context, options: Options | void) {
                 pluginClassCache[key] = Cherow;
             }
 
-            return new Cherow(source, sourceFile).parseProgram(context, options);
+            return new Cherow(source, delegate, sourceFile).parseProgram(context, options);
         }
     }
 
-    return new Parser(source, sourceFile).parseProgram(context, options);
+    return new Parser(source, delegate, sourceFile).parseProgram(context, options);
 }
 
 // https://tc39.github.io/ecma262/#sec-scripts
