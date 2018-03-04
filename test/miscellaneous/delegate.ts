@@ -5,6 +5,7 @@ describe('Miscellaneous - Delegate', () => {
     const delegate: any = [];
     pass('answer = 42', {
         source: 'answer = 42',
+        delegate: function(node: any) {},
         expected: {
               body: [
                 {
@@ -26,12 +27,13 @@ describe('Miscellaneous - Delegate', () => {
               sourceType: 'script',
               type: 'Program'
             }
-    }, function(node: any) {
-    });
+    }
+    );
 
     // multiline comment
     pass('foo /* comment */', {
         source: 'foo /* comment */',
+        delegate: function(node: any) {},
         expected: {
               body: [
                 {
@@ -45,12 +47,12 @@ describe('Miscellaneous - Delegate', () => {
               sourceType: 'script',
               type: 'Program'
             }
-    }, function(node: any) {
     });
 
     // single line comment
     pass('foo // comment', {
         source: 'foo // comment',
+        delegate: function(node: any) {},
         expected: {
               body: [
                 {
@@ -64,13 +66,14 @@ describe('Miscellaneous - Delegate', () => {
               sourceType: 'script',
               type: 'Program'
             }
-    }, function(node: any) {
     });
 
      // single line comment
     pass('foo // comment', {
         source: 'foo // comment',
         comments: true,
+        
+        delegate: function(node: any) {},
         expected: {
               body: [
                 {
@@ -92,6 +95,5 @@ describe('Miscellaneous - Delegate', () => {
               sourceType: 'script',
               type: 'Program'
             }
-    }, function(node: any) {
     });
 });

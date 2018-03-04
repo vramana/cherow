@@ -99,6 +99,7 @@ There is a second argument to both methods that allows you to specify various op
 | ----------- | ------------------------------------------------------------ |
 | `comments`        | Create a top-level comments array containing all comments |
 | `tolerant`        | Create a top-level error array containing all "skipped" errors |
+| `delegate`        | Accepts a callback function to be invoked for each syntax node (as the node is constructed) |
 | `jsx`             | Enable React JSX parsing |
 | `loc      `       | Attach line/column location information to each node |
 | `ranges`          | Append start and end offsets to each node |
@@ -175,15 +176,14 @@ Cherow.parseScript("let x = do {}", { plugins: [do-expressions] }
 
 ## Walk / Syntax Delegate
 
-A third parameter in parseScript/parseModule accepts a callback function to be invoked for each syntax 
-node (as the node is constructed). 
+The `delegate` option accepts a callback function to be invoked for each syntax node (as the node is constructed). 
 
 Both ESTree AST nodes and comments can be delegated.
 
 Here is an quick example:
 
 ```js
-    cherow.parseScript('foo // comment', { comments: true }, function(node) {} )
+    cherow.parseScript('foo // comment', { delegate: function(node) { console.log(node) } } )
 ```
 
 This will output:
@@ -191,8 +191,7 @@ This will output:
 ```js
     { type: 'SingleLine', value: ' comment', start: 4, end: 14 }
     { type: 'Identifier', name: 'foo' }
-    { type: 'ExpressionStatement',
-    expression: { type: 'Identifier', name: 'foo' } }
+    { type: 'ExpressionStatement', expression: { type: 'Identifier', name: 'foo' } }
 ```        
 
 ## Bug reporting

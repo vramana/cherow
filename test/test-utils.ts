@@ -26,9 +26,10 @@ interface Opts {
     line ?: any;
     column ?: any;
     index ?: any;
+    delegate?: Delegate;
 }
 
-export const pass = (name: string, opts: Opts, delegate?: Delegate) => {
+export const pass = (name: string, opts: Opts) => {
 
     const CherowOpts: any = {
         module: opts.module,
@@ -42,15 +43,15 @@ export const pass = (name: string, opts: Opts, delegate?: Delegate) => {
         jsx: opts.jsx,
         impliedStrict: opts.impliedStrict,
         comments: opts.comments,
-        attachComment: opts.attachComment,
         tolerate: opts.tolerate,
         offset: opts.offset,
+        delegate: opts.delegate,
     };
 
     it('Should pass "' + name + '"', () => {
         opts.module ?
-            t.deepEqual(parseModule(opts.source, CherowOpts, delegate) as any, opts.expected) :
-            t.deepEqual(parseScript(opts.source, CherowOpts, delegate) as any, opts.expected);
+            t.deepEqual(parseModule(opts.source, CherowOpts) as any, opts.expected) :
+            t.deepEqual(parseScript(opts.source, CherowOpts) as any, opts.expected);
     });
 };
 
@@ -68,7 +69,6 @@ export const fail = (name: string, opts: Opts) => {
         jsx: opts.jsx,
         impliedStrict: opts.impliedStrict,
         comments: opts.comments,
-        attachComment: opts.attachComment
     };
     it('Should fail on ' + name, () => {
         try {

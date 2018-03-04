@@ -84,7 +84,7 @@ export class Parser {
     private errorLocation: Location | void;
     private delegate: any;
 
-    constructor(source: string, delegate: Delegate | void, sourceFile: string) {
+    constructor(source: string, sourceFile: string, delegate: Delegate | null | void) {
         this.source = source;
         this.token = Token.EndOfSource;
         this.flags = Flags.None;
@@ -853,7 +853,7 @@ export class Parser {
     }
 
     private addComment(context: Context, state: Scanner, commentStart: number) {
-        if (context & Context.OptionsComments || this.delegate) {
+        if (!(context & (Context.OptionsComments | Context.OptionsDelegate))) return;
             const comment: ESTree.Comment = {
                 type: getCommentType(state),
                 value: this.source.slice(commentStart, state & Scanner.Multiline ? this.index - 2 : this.index),
@@ -874,14 +874,11 @@ export class Parser {
                 };
             }
 
-            if (this.delegate) {
+            if (context & Context.OptionsDelegate) {
                 this.delegate(comment);
             }
 
-            if (context & Context.OptionsComments) {
                 this.comments.push(comment);
-            }
-        }
     }
 
     private scanPrivateName(context: Context, ch: number): Token {
@@ -2008,7 +2005,7 @@ export class Parser {
             }
         }
 
-        if (this.delegate) {
+        if (context & Context.OptionsDelegate) {
             this.delegate(node);
         }
 
