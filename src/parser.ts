@@ -878,7 +878,7 @@ export class Parser {
                 this.delegate(comment);
             }
 
-                this.comments.push(comment);
+        this.comments.push(comment);
     }
 
     private scanPrivateName(context: Context, ch: number): Token {
@@ -2006,7 +2006,7 @@ export class Parser {
         }
 
         if (context & Context.OptionsDelegate) {
-            this.delegate(node);
+            this.delegate(node, node.start, node.end, node.loc);
         }
 
         return node;
