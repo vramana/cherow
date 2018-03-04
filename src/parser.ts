@@ -84,7 +84,7 @@ export class Parser {
     private errorLocation: Location | void;
     private delegate: any;
 
-    constructor(source: string, sourceFile: string, delegate: Delegate | null | void) {
+    constructor(source: string, sourceFile: string) {
         this.source = source;
         this.token = Token.EndOfSource;
         this.flags = Flags.None;
@@ -107,12 +107,11 @@ export class Parser {
         this.sourceFile = sourceFile;
         this.comments = [];
         this.errors = [];
-        this.delegate = delegate;
     }
 
     // https://tc39.github.io/ecma262/#sec-scripts
     // https://tc39.github.io/ecma262/#sec-modules
-    public parseProgram(context: Context, options: Options | void): ESTree.Program {
+    public parseProgram(context: Context, options: Options | void, delegate ?: Delegate | null | void): ESTree.Program {
 
         if (options != null) {
             if (options.next) context |= Context.OptionsNext;
@@ -124,6 +123,7 @@ export class Parser {
             if (options.tolerate) context |= Context.OptionsTolerate;
             if (options.impliedStrict) context |= Context.Strict;
             if (options.comments) context |= Context.OptionsComments;
+            if (context & Context.OptionsDelegate) this.delegate = delegate;
         }
 
         const node: ESTree.Program = {
@@ -854,29 +854,29 @@ export class Parser {
 
     private addComment(context: Context, state: Scanner, commentStart: number) {
         if (!(context & (Context.OptionsComments | Context.OptionsDelegate))) return;
-            const comment: ESTree.Comment = {
-                type: getCommentType(state),
-                value: this.source.slice(commentStart, state & Scanner.Multiline ? this.index - 2 : this.index),
-                start: this.startIndex,
-                end: this.index,
+        const comment: ESTree.Comment = {
+            type: getCommentType(state),
+            value: this.source.slice(commentStart, state & Scanner.Multiline ? this.index - 2 : this.index),
+            start: this.startIndex,
+            end: this.index,
+        };
+
+        if (context & Context.OptionsLoc) {
+            comment.loc = {
+                start: {
+                    line: this.startLine,
+                    column: this.startColumn,
+                },
+                end: {
+                    line: this.lastLine,
+                    column: this.column
+                }
             };
+        }
 
-            if (context & Context.OptionsLoc) {
-                comment.loc = {
-                    start: {
-                        line: this.startLine,
-                        column: this.startColumn,
-                    },
-                    end: {
-                        line: this.lastLine,
-                        column: this.column
-                    }
-                };
-            }
-
-            if (context & Context.OptionsDelegate) {
-                this.delegate(comment);
-            }
+        if (context & Context.OptionsDelegate) {
+            this.delegate(comment);
+        }
 
         this.comments.push(comment);
     }
@@ -2006,7 +2006,7 @@ export class Parser {
         }
 
         if (context & Context.OptionsDelegate) {
-            this.delegate(node, node.start, node.end, node.loc);
+            this.delegate(node);
         }
 
         return node;

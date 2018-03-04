@@ -2,6 +2,7 @@ import { pass, fail } from '../test-utils';
 import * as t from 'assert';
 import { parseScript, parseModule, Delegate } from '../../src/cherow';
 import { Program } from '../../src/estree';
+import { Token } from '../../src/token';
 
 describe('Miscellaneous - Delegate', () => {
   const delegate: any = [];
@@ -88,7 +89,7 @@ describe('Miscellaneous - Delegate', () => {
   });
 
   it('should work with delegate', () => {
-      var options = {
+      let options = {
           range: false
       };
       t.doesNotThrow(function() {
@@ -106,7 +107,7 @@ describe('Miscellaneous - Delegate', () => {
 
         const entries: any[] = [];
 
-          parseScript(source, {
+        parseScript(source, {
               ranges: true,
               delegate: (node: any) => {
                   if (node.type === 'CallExpression') {
@@ -118,12 +119,60 @@ describe('Miscellaneous - Delegate', () => {
               }
           });
 
-          return entries;
-      };
+        return entries;
+      }
 
-      const node = findCallNodeAt('if (x === 1) call("hello");')
+      const node = findCallNodeAt('if (x === 1) call("hello");');
 
       t.deepEqual(node[0].start, 13);
       t.deepEqual(node[0].end, 26);
   });
+
+  it('should work with plugins', () => {
+
+    // Create the do-expression plugin
+ const doExpressions = function(Parser: any) {
+
+   return class extends Parser {
+
+       public parsePrimaryExpression(context: any, pos: any) {
+           return this.token === Token.DoKeyword
+           ? this.parseDoExpression(context)
+           : super.parsePrimaryExpression(context, pos);
+
+       }
+
+       public parseDoExpression(context: any) {
+           const pos = this.getLocation();
+           this.expect(context, Token.DoKeyword);
+           const body = this.parseBlockStatement(context);
+           return this.finishNode(context, pos, {
+               type: 'DoExpression',
+               body
+           });
+       }
+    };
+ };
+
+ function findElseNode(source: any) {
+
+       const entries: any[] = [];
+
+       parseScript(source, {
+             plugins: [doExpressions],
+             delegate: (node: any) => {
+                 if (node.type === 'DoExpression') {
+                     entries.push(node);
+                 }
+             }
+         });
+
+       return entries;
+     }
+
+ const node = findElseNode('let x = do {}');
+ t.deepEqual(node[0].type, 'DoExpression');
+
+ });
+
 });

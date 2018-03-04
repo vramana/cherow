@@ -7,17 +7,17 @@ export type PluginHandler = (core: any) => void;
 export type Delegate = (node: any) => void;
 
 export interface Options {
-    comments?: boolean;
-    plugins?: PluginHandler[];
-    next?: boolean;
-    ranges?: boolean;
-    offset?: boolean;
-    source?: string;
-    loc?: boolean;
-    raw?: boolean;
-    jsx?: boolean;
-    delegate?: Delegate;
-    tolerate?: boolean;
+    comments ?: boolean;
+    plugins ?: PluginHandler[];
+    next ?: boolean;
+    ranges ?: boolean;
+    offset ?: boolean;
+    source ?: string;
+    loc ?: boolean;
+    raw ?: boolean;
+    jsx ?: boolean;
+    delegate ?: Delegate;
+    tolerate ?: boolean;
     impliedStrict ?: boolean;
 }
 
@@ -52,22 +52,22 @@ function parse(source: string, context: Context, options: Options | void) {
                 pluginClassCache[key] = Cherow;
             }
 
-            return new Cherow(source, delegate, sourceFile).parseProgram(context, options);
+            return new Cherow(source, sourceFile).parseProgram(context, options, delegate);
         }
     }
 
-    return new Parser(source, sourceFile, delegate).parseProgram(context, options);
+    return new Parser(source, sourceFile).parseProgram(context, options, delegate);
 }
 
 // https://tc39.github.io/ecma262/#sec-scripts
 
-export const parseScript = (source: string, options?: Options) => {
+export const parseScript = (source: string, options ?: Options) => {
     return parse(source, Context.TopLevel, options);
 };
 
 // https://tc39.github.io/ecma262/#sec-modules
 
-export const parseModule = (source: string, options?: Options) => {
+export const parseModule = (source: string, options ?: Options) => {
     return parse(source, Context.Strict | Context.Module | Context.TopLevel, options);
 };
 
