@@ -180,7 +180,9 @@ The `delegate` option accepts a callback function to be invoked for each syntax 
 
 Both ESTree AST nodes and comments can be delegated.
 
-Here is an quick example:
+An advanced example can be seen [here](https://github.com/cherow/cherow/blob/master/test/miscellaneous/delegate.ts#L103)
+
+And here is an quick example:
 
 ```js
     cherow.parseScript('foo // comment', { delegate: function(node) { console.log(node) } } )
