@@ -124,10 +124,6 @@ export class Parser {
             if (options.tolerate) context |= Context.OptionsTolerate;
             if (options.impliedStrict) context |= Context.Strict;
             if (options.comments) context |= Context.OptionsComments;
-            if (this.delegate) {
-                context |= Context.OptionsDelegate;
-            }
-
         }
 
         const node: ESTree.Program = {
@@ -816,10 +812,7 @@ export class Parser {
                         this.advance();
                         state &= ~Scanner.LastIsCR;
                         if (this.consumeOpt(Chars.Slash)) {
-                            if (context & (Context.OptionsComments | Context.OptionsDelegate)) {
-                                this.addComment(context, state | Scanner.Multiline, start);
-                            }
-
+                            this.addComment(context, state | Scanner.Multiline, start);
                             return state;
                         }
                         break;
@@ -854,41 +847,40 @@ export class Parser {
                 }
             }
 
-        if (context & (Context.OptionsComments | Context.OptionsDelegate)) {
-            this.addComment(context, state, start);
-        }
+        this.addComment(context, state, start);
 
         return state;
     }
 
     private addComment(context: Context, state: Scanner, commentStart: number) {
-
-        const comment: ESTree.Comment = {
-            type: getCommentType(state),
-            value: this.source.slice(commentStart, state & Scanner.Multiline ? this.index - 2 : this.index),
-            start: this.startIndex,
-            end: this.index,
-        };
-
-        if (context & Context.OptionsLoc) {
-            comment.loc = {
-                start: {
-                    line: this.startLine,
-                    column: this.startColumn,
-                },
-                end: {
-                    line: this.lastLine,
-                    column: this.column
-                }
+        if (context & Context.OptionsComments || this.delegate) {
+            const comment: ESTree.Comment = {
+                type: getCommentType(state),
+                value: this.source.slice(commentStart, state & Scanner.Multiline ? this.index - 2 : this.index),
+                start: this.startIndex,
+                end: this.index,
             };
-        }
 
-        if (context & Context.OptionsDelegate) {
-            this.delegate(comment);
-        }
+            if (context & Context.OptionsLoc) {
+                comment.loc = {
+                    start: {
+                        line: this.startLine,
+                        column: this.startColumn,
+                    },
+                    end: {
+                        line: this.lastLine,
+                        column: this.column
+                    }
+                };
+            }
 
-        if (context & Context.OptionsComments) {
-            this.comments.push(comment);
+            if (this.delegate) {
+                this.delegate(comment);
+            }
+
+            if (context & Context.OptionsComments) {
+                this.comments.push(comment);
+            }
         }
     }
 
@@ -2016,7 +2008,7 @@ export class Parser {
             }
         }
 
-        if (context & Context.OptionsDelegate) {
+        if (this.delegate) {
             this.delegate(node);
         }
 

@@ -9,32 +9,31 @@ export const enum Context {
     OptionsComments         = 1 << 4,
     OptionsTolerate         = 1 << 5,
     OptionsJSX              = 1 << 6,
-    OptionsDelegate         = 1 << 7,
 
     /* miscellaneous */
-    AllowIn                 = 1 << 8,  // Node was parsed in a context where 'in-expressions' are allowed
-    Strict                  = 1 << 9,  // Node was parsed in a strict mode context
-    Module                  = 1 << 10,  // Node was parsed in a module code context
-    TaggedTemplate          = 1 << 11,
-    AnnexB                  = 1 << 12, // Node was parsed in a AnnexB context
-    Expression              = 1 << 13, // Node was parsed within an expression context
-    InParameter             = 1 << 14, //
-    AllowYield              = 1 << 15, // Node was parsed in the 'yield' context created when parsing an generator function
-    AllowAsync              = 1 << 16, // Node was parsed in the 'async' context created when parsing an async function
-    ArrowFunction           = 1 << 17,
-    TopLevel                = 1 << 18, // Allow super property
-    AllowSuperProperty      = 1 << 19,
-    ValidateEscape          = 1 << 20,
-    Let                     = 1 << 21,  // Variable declaration
-    Const                   = 1 << 22,  // Variable declaration
-    Method                  = 1 << 23,  // Used when parsing an async function
-    ForStatement            = 1 << 24,
-    InParenthesis           = 1 << 25,
-    InClass                 = 1 << 26,
-    RequireIdentifier       = 1 << 27,
-    DisallowArrow           = 1 << 28,
-    InTypeAnnotation        = 1 << 29, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
-    AllowSingleStatement    = 1 << 30,
+    AllowIn                 = 1 << 7,  // Node was parsed in a context where 'in-expressions' are allowed
+    Strict                  = 1 << 8,  // Node was parsed in a strict mode context
+    Module                  = 1 << 9,  // Node was parsed in a module code context
+    TaggedTemplate          = 1 << 10,
+    AnnexB                  = 1 << 11, // Node was parsed in a AnnexB context
+    Expression              = 1 << 12, // Node was parsed within an expression context
+    InParameter             = 1 << 13, //
+    AllowYield              = 1 << 14, // Node was parsed in the 'yield' context created when parsing an generator function
+    AllowAsync              = 1 << 15, // Node was parsed in the 'async' context created when parsing an async function
+    ArrowFunction           = 1 << 16,
+    TopLevel                = 1 << 17, // Allow super property
+    AllowSuperProperty      = 1 << 18,
+    ValidateEscape          = 1 << 19,
+    Let                     = 1 << 20,  // Variable declaration
+    Const                   = 1 << 21,  // Variable declaration
+    Method                  = 1 << 22,  // Used when parsing an async function
+    ForStatement            = 1 << 23,
+    InParenthesis           = 1 << 24,
+    InClass                 = 1 << 25,
+    RequireIdentifier       = 1 << 26,
+    DisallowArrow           = 1 << 27,
+    InTypeAnnotation        = 1 << 28, // Node was parsed in an type annotation context. Either Flow or TypeScript (*for plugins*)
+    AllowSingleStatement    = 1 << 29,
 
     BlockScoped = Let | Const
 }

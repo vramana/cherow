@@ -1,6 +1,6 @@
 import { writeFileSync, readdir, readFileSync, statSync } from 'fs';
 import { join, resolve, extname, basename } from 'path';
-import { parseScript, parseModule } from '../src/cherow';
+import { parseScript, parseModule, Delegate } from '../src/cherow';
 
 import { Program } from '../src/estree';
 import * as t from 'assert';
@@ -26,10 +26,9 @@ interface Opts {
     line ?: any;
     column ?: any;
     index ?: any;
-    delegate ?: any;
 }
 
-export const pass = (name: string, opts: Opts) => {
+export const pass = (name: string, opts: Opts, delegate?: Delegate) => {
 
     const CherowOpts: any = {
         module: opts.module,
@@ -46,13 +45,12 @@ export const pass = (name: string, opts: Opts) => {
         attachComment: opts.attachComment,
         tolerate: opts.tolerate,
         offset: opts.offset,
-        delegate: opts.delegate,
     };
 
     it('Should pass "' + name + '"', () => {
         opts.module ?
-            t.deepEqual(parseModule(opts.source, CherowOpts) as any, opts.expected) :
-            t.deepEqual(parseScript(opts.source, CherowOpts) as any, opts.expected);
+            t.deepEqual(parseModule(opts.source, CherowOpts, delegate) as any, opts.expected) :
+            t.deepEqual(parseScript(opts.source, CherowOpts, delegate) as any, opts.expected);
     });
 };
 

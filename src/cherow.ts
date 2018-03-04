@@ -17,7 +17,6 @@ export interface Options {
     raw?: boolean;
     jsx?: boolean;
     tolerate?: boolean;
-    delegate?: Delegate;
     impliedStrict ?: boolean;
 }
 
@@ -25,16 +24,14 @@ export const pluginClassCache: {
     [key: string]: any
 } = {};
 
-function parse(source: string, context: Context, options: Options | void) {
+function parse(source: string, context: Context, options: Options | void, delegate: Delegate | void) {
 
     let sourceFile: string = '';
     let Cherow;
-    let delegate;
 
     if (options != null) {
 
         if (options.source) sourceFile = options.source;
-        if (typeof options.delegate === 'function') delegate = options.delegate;
 
         if (options.plugins) {
             const key = options.plugins.join('/');
@@ -56,14 +53,14 @@ function parse(source: string, context: Context, options: Options | void) {
 
 // https://tc39.github.io/ecma262/#sec-scripts
 
-export const parseScript = (source: string, options ?: Options) => {
-    return parse(source, Context.TopLevel, options);
+export const parseScript = (source: string, options?: Options, delegate?: Delegate) => {
+    return parse(source, Context.TopLevel, options, delegate);
 };
 
 // https://tc39.github.io/ecma262/#sec-modules
 
-export const parseModule = (source: string, options ?: Options) => {
-    return parse(source, Context.Strict | Context.Module | Context.TopLevel, options);
+export const parseModule = (source: string, options?: Options, delegate?: Delegate) => {
+    return parse(source, Context.Strict | Context.Module | Context.TopLevel, options, delegate);
 };
 
 export const version = '__VERSION__';
