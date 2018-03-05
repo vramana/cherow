@@ -3,7 +3,7 @@
         "allowJs": false,
         "allowUnreachableCode": false,
         "forceConsistentCasingInFileNames": true,
-        "declaration": false,
+        "declaration": true,
         "experimentalDecorators": true,
         "moduleResolution": "node",
         "target": "es2015",

@@ -4,7 +4,7 @@ import { parseScript, parseModule, Delegate } from '../src/cherow';
 
 import { Program } from '../src/estree';
 import * as t from 'assert';
-interface Opts {
+export interface Opts {
     source: string;
     expected ?: any;
     module ?: boolean;

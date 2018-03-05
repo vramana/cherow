@@ -25,7 +25,7 @@ export const pluginClassCache: {
     [key: string]: any
 } = {};
 
-function parse(source: string, context: Context, options: Options | void) {
+function parse(source: string, context: Context, options: Options | void): ESTree.Program {
 
     let sourceFile: string = '';
 

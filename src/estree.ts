@@ -1,4 +1,4 @@
-interface _Node<T extends string> {
+export interface _Node<T extends string> {
     type: T;
     loc?: SourceLocation | null;
     start?: number;
@@ -73,9 +73,9 @@ export type Node =
     | JSXAttribute
     | JSXSpreadAttribute;
 
-interface _Statement<T extends string> extends _Node<T> {}
+export interface _Statement<T extends string> extends _Node<T> {}
 
-interface T_Statement extends T_Declaration {
+export interface T_Statement extends T_Declaration {
     'ExpressionStatement': ExpressionStatement;
     'BlockStatement': BlockStatement;
     'EmptyStatement': EmptyStatement;
@@ -116,10 +116,8 @@ export type Statement =
     | ForInStatement
     | ForOfStatement
     | Declaration;
-
-interface _TypeAnnotation<T extends string> extends _Node<T> {}
-
-interface T_TypeAnnotation {
+export interface _TypeAnnotation<T extends string> extends _Node<T> {}
+export interface T_TypeAnnotation {
     'Identifier': Identifier;
     'FunctionExpression': FunctionExpression;
     'ObjectPattern': ObjectPattern;
@@ -133,10 +131,8 @@ export type TypeAnnotation  =
 | ArrayPattern
 | ObjectPattern
 | RestElement;
-
-interface _Expression<T extends string> extends _Node<T> {}
-
-interface T_Expression {
+export interface _Expression<T extends string> extends _Node<T> {}
+export interface T_Expression {
     'Identifier': Identifier;
     'Literal': Literal | RegExpLiteral | BigIntLiteral;
     'BigIntLiteral': Literal;
@@ -195,10 +191,8 @@ export type Expression =
     | MetaProperty
     | AwaitExpression
     | JSXElement;
-
-interface _Pattern<T extends string> extends _Node<T> {}
-
-interface T_Pattern {
+export interface _Pattern<T extends string> extends _Node<T> {}
+export interface T_Pattern {
     'Identifier': Identifier;
     'ObjectPattern': ObjectPattern;
     'ArrayPattern': ArrayPattern;
@@ -211,10 +205,8 @@ interface T_Pattern {
 export type PatternTop = Identifier | ObjectPattern | ArrayPattern | MemberExpression;
 export type PatternNoRest = PatternTop | AssignmentPattern;
 export type Pattern = PatternTop | AssignmentPattern | RestElement;
-
-interface _Declaration<T extends string> extends _Statement<T> {}
-
-interface T_Declaration {
+export interface _Declaration<T extends string> extends _Statement<T> {}
+export interface T_Declaration {
     'FunctionDeclaration': FunctionDeclaration;
     'VariableDeclaration': VariableDeclaration;
     'ClassDeclaration': ClassDeclaration;
@@ -224,10 +216,8 @@ export type Declaration =
     | FunctionDeclaration
     | VariableDeclaration
     | ClassDeclaration;
-
-interface _ModuleDeclaration<T extends string> extends _Node<T> {}
-
-interface T_ModuleDeclaration {
+export interface _ModuleDeclaration<T extends string> extends _Node<T> {}
+export interface T_ModuleDeclaration {
     'ImportDeclaration': ImportDeclaration;
     'ExportNamedDeclaration': ExportNamedDeclaration;
     'ExportDefaultDeclaration': ExportDefaultDeclaration;
@@ -239,12 +229,10 @@ export type ModuleDeclaration =
     | ExportNamedDeclaration
     | ExportDefaultDeclaration
     | ExportAllDeclaration;
-
-interface _ModuleSpecifier<T extends string> extends _Node<T> {
+export interface _ModuleSpecifier<T extends string> extends _Node<T> {
     local: Identifier;
 }
-
-interface T_ModuleSpecifier {
+export interface T_ModuleSpecifier {
     'ImportSpecifier': ImportSpecifier;
     'ImportDefaultSpecifier': ImportDefaultSpecifier;
     'ImportNamespaceSpecifier': ImportNamespaceSpecifier;
@@ -698,8 +686,7 @@ export interface JSXExpressionContainer extends _Node<'JSXExpressionContainer'> 
 export interface JSXSpreadChild extends _Node<'JSXSpreadChild'> {
     expression: Expression;
 }
-
-interface _JSXBoundaryElement<T extends string> extends _Node<T> {
+export interface _JSXBoundaryElement<T extends string> extends _Node<T> {
     name: JSXIdentifier | JSXMemberExpression | JSXNamespacedName;
 }
 type JSXBoundaryElement = JSXOpeningElement | JSXClosingElement;
