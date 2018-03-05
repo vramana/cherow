@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "Fast, standard-compliant ECMAScript parser written in ECMAScript",
   "main": "lib/cherow.js",
   "types": "lib/cherow.d.ts",
@@ -34,6 +34,7 @@
   ],
   "files": [
     "dist",
+    "lib",
     "CODE_OF_CONDUCT.md",
     "CONTRIBUTING.md",
     "README.md",

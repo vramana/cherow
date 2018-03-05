@@ -15,7 +15,7 @@
  * Improved performance
  * Fixed a couple of slip-ups
  
- *2018-3.7: Version 1.3.0*
+ *2018-3.5: Version 1.2.8
 
  * Added options for walk / syntax delegate as third argument
- * Performance improvements
+ * Exposed *.TSD files
