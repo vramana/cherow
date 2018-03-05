@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import buble from 'rollup-plugin-buble';
 import uglify from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
+
 const format = process.env.NODE_ENV;
 const isMinify = format === 'minify';
 
