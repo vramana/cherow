@@ -37,7 +37,7 @@ var setupBenchmarks,
 parsers = [
 {
     name: 'Cherow',
-    src: 'https://unpkg.com/cherow',
+    src: '../cherow.js',
     version: function () {
         return window.cherow.version;
     },
