@@ -163,7 +163,7 @@ export default function(Parser) {
 }
 
 //  Use the plugin
-Cherow.parseScript("let x = do {}", { plugins: [do-expressions] }
+Cherow.parseScript("let x = do {}", { plugins: [doExpressions] }
 ```
 
 ### Existing plugins
