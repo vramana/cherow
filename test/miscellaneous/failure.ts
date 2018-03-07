@@ -2,6 +2,12 @@ import { pass, fail } from '../test-utils';
 
 describe('Miscellaneous - Failure', () => {
 
+    fail(`class default`, {
+        source: `class default`,
+        message: 'Unexpected keyword \'default\'',
+        line: 1,
+    });
+
     fail(`/*`, {
         source: `/*`,
         message: 'Unterminated MultiLineComment',

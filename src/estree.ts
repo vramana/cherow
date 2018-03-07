@@ -248,6 +248,7 @@ export type ModuleSpecifier =
 export interface SourceLocation {
     start: Position;
     end: Position;
+    source?: string;
 }
 
 export interface Position {

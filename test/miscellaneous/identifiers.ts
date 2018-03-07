@@ -74,53 +74,53 @@ describe('Miscellaneous - Identifiers', () => {
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 4,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 4,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 1,
-                "column": 4
+              end: {
+                line: 1,
+                column: 4
               }
             },
-            "body": [
+            body: [
               {
-                "type": "ExpressionStatement",
-                "start": 0,
-                "end": 4,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 4,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 1,
-                    "column": 4
+                  end: {
+                    line: 1,
+                    column: 4
                   }
                 },
-                "expression": {
-                  "type": "Identifier",
-                  "start": 0,
-                  "end": 4,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 0
+                expression: {
+                  type: 'Identifier',
+                  start: 0,
+                  end: 4,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 4
+                    end: {
+                      line: 1,
+                      column: 4
                     }
                   },
-                  "name": "a123"
+                  name: 'a123'
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
     });
 
@@ -130,53 +130,53 @@ describe('Miscellaneous - Identifiers', () => {
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 5,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 5,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 1,
-                "column": 5
+              end: {
+                line: 1,
+                column: 5
               }
             },
-            "body": [
+            body: [
               {
-                "type": "ExpressionStatement",
-                "start": 0,
-                "end": 5,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 5,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 1,
-                    "column": 5
+                  end: {
+                    line: 1,
+                    column: 5
                   }
                 },
-                "expression": {
-                  "type": "Identifier",
-                  "start": 0,
-                  "end": 5,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 0
+                expression: {
+                  type: 'Identifier',
+                  start: 0,
+                  end: 5,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 5
+                    end: {
+                      line: 1,
+                      column: 5
                     }
                   },
-                  "name": "a_123"
+                  name: 'a_123'
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
     });
 
@@ -186,53 +186,53 @@ describe('Miscellaneous - Identifiers', () => {
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 4,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 4,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 1,
-                "column": 4
+              end: {
+                line: 1,
+                column: 4
               }
             },
-            "body": [
+            body: [
               {
-                "type": "ExpressionStatement",
-                "start": 0,
-                "end": 4,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 4,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 1,
-                    "column": 4
+                  end: {
+                    line: 1,
+                    column: 4
                   }
                 },
-                "expression": {
-                  "type": "Identifier",
-                  "start": 0,
-                  "end": 4,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 0
+                expression: {
+                  type: 'Identifier',
+                  start: 0,
+                  end: 4,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 4
+                    end: {
+                      line: 1,
+                      column: 4
                     }
                   },
-                  "name": "$foo"
+                  name: '$foo'
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
     });
 
@@ -242,53 +242,53 @@ describe('Miscellaneous - Identifiers', () => {
         ranges: true,
         raw: true,
         expected: {
-            "type": "Program",
-            "start": 0,
-            "end": 5,
-            "loc": {
-              "start": {
-                "line": 1,
-                "column": 0
+            type: 'Program',
+            start: 0,
+            end: 5,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
               },
-              "end": {
-                "line": 1,
-                "column": 5
+              end: {
+                line: 1,
+                column: 5
               }
             },
-            "body": [
+            body: [
               {
-                "type": "ExpressionStatement",
-                "start": 0,
-                "end": 5,
-                "loc": {
-                  "start": {
-                    "line": 1,
-                    "column": 0
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 5,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
                   },
-                  "end": {
-                    "line": 1,
-                    "column": 5
+                  end: {
+                    line: 1,
+                    column: 5
                   }
                 },
-                "expression": {
-                  "type": "Identifier",
-                  "start": 0,
-                  "end": 5,
-                  "loc": {
-                    "start": {
-                      "line": 1,
-                      "column": 0
+                expression: {
+                  type: 'Identifier',
+                  start: 0,
+                  end: 5,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
                     },
-                    "end": {
-                      "line": 1,
-                      "column": 5
+                    end: {
+                      line: 1,
+                      column: 5
                     }
                   },
-                  "name": "$_123"
+                  name: '$_123'
                 }
               }
             ],
-            "sourceType": "script"
+            sourceType: 'script'
           }
     });
 

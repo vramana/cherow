@@ -203,6 +203,689 @@ describe('Literals - Numbers', () => {
         line: 1
     });
 
+    pass(`-0`, {
+        source: '-0',
+        raw: true,
+        ranges: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 2,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 2
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 2,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 2
+                  }
+                },
+                expression: {
+                  type: 'UnaryExpression',
+                  start: 0,
+                  end: 2,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 2
+                    }
+                  },
+                  operator: '-',
+                  prefix: true,
+                  argument: {
+                    type: 'Literal',
+                    start: 1,
+                    end: 2,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 1
+                      },
+                      end: {
+                        line: 1,
+                        column: 2
+                      }
+                    },
+                    value: 0,
+                    raw: '0'
+                  }
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`[-0]`, {
+        source: '[-0]',
+        raw: true,
+        ranges: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 4,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 4
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 4,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 4
+                  }
+                },
+                expression: {
+                  type: 'ArrayExpression',
+                  start: 0,
+                  end: 4,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 4
+                    }
+                  },
+                  elements: [
+                    {
+                      type: 'UnaryExpression',
+                      start: 1,
+                      end: 3,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 1
+                        },
+                        end: {
+                          line: 1,
+                          column: 3
+                        }
+                      },
+                      operator: '-',
+                      prefix: true,
+                      argument: {
+                        type: 'Literal',
+                        start: 2,
+                        end: 3,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 2
+                          },
+                          end: {
+                            line: 1,
+                            column: 3
+                          }
+                        },
+                        value: 0,
+                        raw: '0'
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`({ a: 0, b: -0, c: +0 })`, {
+        source: '({ a: 0, b: -0, c: +0 })',
+        raw: true,
+        ranges: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 24,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 24
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 24,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 24
+                  }
+                },
+                expression: {
+                  type: 'ObjectExpression',
+                  start: 1,
+                  end: 23,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 1
+                    },
+                    end: {
+                      line: 1,
+                      column: 23
+                    }
+                  },
+                  properties: [
+                    {
+                      type: 'Property',
+                      start: 3,
+                      end: 7,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 3
+                        },
+                        end: {
+                          line: 1,
+                          column: 7
+                        }
+                      },
+                      method: false,
+                      shorthand: false,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 3,
+                        end: 4,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 3
+                          },
+                          end: {
+                            line: 1,
+                            column: 4
+                          }
+                        },
+                        name: 'a'
+                      },
+                      value: {
+                        type: 'Literal',
+                        start: 6,
+                        end: 7,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 6
+                          },
+                          end: {
+                            line: 1,
+                            column: 7
+                          }
+                        },
+                        value: 0,
+                        raw: '0'
+                      },
+                      kind: 'init'
+                    },
+                    {
+                      type: 'Property',
+                      start: 9,
+                      end: 14,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 9
+                        },
+                        end: {
+                          line: 1,
+                          column: 14
+                        }
+                      },
+                      method: false,
+                      shorthand: false,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 9,
+                        end: 10,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 9
+                          },
+                          end: {
+                            line: 1,
+                            column: 10
+                          }
+                        },
+                        name: 'b'
+                      },
+                      value: {
+                        type: 'UnaryExpression',
+                        start: 12,
+                        end: 14,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 12
+                          },
+                          end: {
+                            line: 1,
+                            column: 14
+                          }
+                        },
+                        operator: '-',
+                        prefix: true,
+                        argument: {
+                          type: 'Literal',
+                          start: 13,
+                          end: 14,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 13
+                            },
+                            end: {
+                              line: 1,
+                              column: 14
+                            }
+                          },
+                          value: 0,
+                          raw: '0'
+                        }
+                      },
+                      kind: 'init'
+                    },
+                    {
+                      type: 'Property',
+                      start: 16,
+                      end: 21,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 16
+                        },
+                        end: {
+                          line: 1,
+                          column: 21
+                        }
+                      },
+                      method: false,
+                      shorthand: false,
+                      computed: false,
+                      key: {
+                        type: 'Identifier',
+                        start: 16,
+                        end: 17,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 16
+                          },
+                          end: {
+                            line: 1,
+                            column: 17
+                          }
+                        },
+                        name: 'c'
+                      },
+                      value: {
+                        type: 'UnaryExpression',
+                        start: 19,
+                        end: 21,
+                        loc: {
+                          start: {
+                            line: 1,
+                            column: 19
+                          },
+                          end: {
+                            line: 1,
+                            column: 21
+                          }
+                        },
+                        operator: '+',
+                        prefix: true,
+                        argument: {
+                          type: 'Literal',
+                          start: 20,
+                          end: 21,
+                          loc: {
+                            start: {
+                              line: 1,
+                              column: 20
+                            },
+                            end: {
+                              line: 1,
+                              column: 21
+                            }
+                          },
+                          value: 0,
+                          raw: '0'
+                        }
+                      },
+                      kind: 'init'
+                    }
+                  ]
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`-0 >= +0`, {
+        source: '-0 >= +0',
+        raw: true,
+        ranges: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 8,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 8
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 8,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 8
+                  }
+                },
+                expression: {
+                  type: 'BinaryExpression',
+                  start: 0,
+                  end: 8,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 8
+                    }
+                  },
+                  left: {
+                    type: 'UnaryExpression',
+                    start: 0,
+                    end: 2,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 2
+                      }
+                    },
+                    operator: '-',
+                    prefix: true,
+                    argument: {
+                      type: 'Literal',
+                      start: 1,
+                      end: 2,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 1
+                        },
+                        end: {
+                          line: 1,
+                          column: 2
+                        }
+                      },
+                      value: 0,
+                      raw: '0'
+                    }
+                  },
+                  operator: '>=',
+                  right: {
+                    type: 'UnaryExpression',
+                    start: 6,
+                    end: 8,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 6
+                      },
+                      end: {
+                        line: 1,
+                        column: 8
+                      }
+                    },
+                    operator: '+',
+                    prefix: true,
+                    argument: {
+                      type: 'Literal',
+                      start: 7,
+                      end: 8,
+                      loc: {
+                        start: {
+                          line: 1,
+                          column: 7
+                        },
+                        end: {
+                          line: 1,
+                          column: 8
+                        }
+                      },
+                      value: 0,
+                      raw: '0'
+                    }
+                  }
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`0 >= 0`, {
+        source: '0 >= 0',
+        raw: true,
+        ranges: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 6,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 6
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 6,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 6
+                  }
+                },
+                expression: {
+                  type: 'BinaryExpression',
+                  start: 0,
+                  end: 6,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 6
+                    }
+                  },
+                  left: {
+                    type: 'Literal',
+                    start: 0,
+                    end: 1,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 0
+                      },
+                      end: {
+                        line: 1,
+                        column: 1
+                      }
+                    },
+                    value: 0,
+                    raw: '0'
+                  },
+                  operator: '>=',
+                  right: {
+                    type: 'Literal',
+                    start: 5,
+                    end: 6,
+                    loc: {
+                      start: {
+                        line: 1,
+                        column: 5
+                      },
+                      end: {
+                        line: 1,
+                        column: 6
+                      }
+                    },
+                    value: 0,
+                    raw: '0'
+                  }
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
+    pass(`0`, {
+        source: '0',
+        raw: true,
+        ranges: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            start: 0,
+            end: 1,
+            loc: {
+              start: {
+                line: 1,
+                column: 0
+              },
+              end: {
+                line: 1,
+                column: 1
+              }
+            },
+            body: [
+              {
+                type: 'ExpressionStatement',
+                start: 0,
+                end: 1,
+                loc: {
+                  start: {
+                    line: 1,
+                    column: 0
+                  },
+                  end: {
+                    line: 1,
+                    column: 1
+                  }
+                },
+                expression: {
+                  type: 'Literal',
+                  start: 0,
+                  end: 1,
+                  loc: {
+                    start: {
+                      line: 1,
+                      column: 0
+                    },
+                    end: {
+                      line: 1,
+                      column: 1
+                    }
+                  },
+                  value: 0,
+                  raw: '0'
+                }
+              }
+            ],
+            sourceType: 'script'
+          }
+    });
+
     pass(`0B010101`, {
         source: '0B010101',
         raw: true,

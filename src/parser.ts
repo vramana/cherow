@@ -116,7 +116,7 @@ export class Parser {
 
     // https://tc39.github.io/ecma262/#sec-scripts
     // https://tc39.github.io/ecma262/#sec-modules
-    public parseProgram(context: Context, options: Options | void, delegate ?: Delegate | null | void): ESTree.Program {
+    public parseProgram(context: Context, options: Options | void, delegate: Delegate | void): ESTree.Program {
 
         if (options != null) {
             if (options.next) context |= Context.OptionsNext;
@@ -157,7 +157,7 @@ export class Parser {
             };
 
             if (this.sourceFile) {
-                (node.loc as any).source = this.sourceFile;
+                node.loc.source = this.sourceFile;
             }
         }
 
@@ -1020,7 +1020,7 @@ export class Parser {
     }
 
     private scanDecimalAsSmi(context: Context, state: Numbers) {
-        
+
         // TODO! Fix this as soon as numeric separators reach stage 4
 
         if (context & Context.OptionsNext) {
@@ -1064,7 +1064,7 @@ export class Parser {
                     case Chars.Underscore:
                         {
                             if (!(context & Context.OptionsNext)) break;
-                            
+
                             if (state & Numbers.HasNumericSeparator) {
                                 state = state & ~Numbers.HasNumericSeparator | Numbers.isPreviousTokenSeparator;
                                 ret += this.source.substring(start, this.index);
@@ -1269,9 +1269,9 @@ export class Parser {
                     }
             }
 
-            // In cases where '8' or '9' are part of the implicit octal 
-            // value - e.g. '0128' - we would need to reset the index and column 
-            // values to the initial position so we can re-scan these 
+            // In cases where '8' or '9' are part of the implicit octal
+            // value - e.g. '0128' - we would need to reset the index and column
+            // values to the initial position so we can re-scan these
             // as a decimal value with leading zero.
 
             if (state & Numbers.EigthOrNine) {

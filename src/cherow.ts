@@ -7,30 +7,30 @@ export type PluginHandler = (core: any) => void;
 export type Delegate = (node: any) => void;
 
 export interface Options {
-    comments ?: boolean;
-    plugins ?: PluginHandler[];
-    next ?: boolean;
-    ranges ?: boolean;
-    offset ?: boolean;
-    source ?: string;
-    loc ?: boolean;
-    raw ?: boolean;
-    jsx ?: boolean;
-    delegate ?: Delegate;
-    tolerate ?: boolean;
-    impliedStrict ?: boolean;
+    comments?: boolean;
+    plugins?: PluginHandler[];
+    next?: boolean;
+    ranges?: boolean;
+    offset?: boolean;
+    source?: string;
+    loc?: boolean;
+    raw?: boolean;
+    jsx?: boolean;
+    delegate?: Delegate;
+    tolerate?: boolean;
+    impliedStrict?: boolean;
 }
 
-export const pluginClassCache: {
+const pluginClassCache: {
     [key: string]: any
 } = {};
 
-function parse(source: string, context: Context, options: Options | void): ESTree.Program {
+export function parse(source: string, context: Context, options: Options | void): ESTree.Program {
 
     let sourceFile: string = '';
 
     let Cherow;
-    let delegate: Delegate | null = null;
+    let delegate: Delegate | void;
 
     if (options != null) {
 
