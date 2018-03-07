@@ -245,6 +245,7 @@ ErrorMessages[111 /* InvalidPrivateFieldAccess */] = 'Invalid private field \'%0
 ErrorMessages[112 /* AwaitBindingIdentifier */] = '\'await\' is not a valid identifier name in an async function';
 ErrorMessages[113 /* AwaitExpressionFormalParameter */] = 'Illegal await-expression in formal parameters of async function';
 ErrorMessages[114 /* UnexpectedLexicalDeclaration */] = 'Lexical declaration cannot appear in a single-statement context';
+ErrorMessages[115 /* ContinuousNumericSeparator */] = 'Only one underscore is allowed as numeric separator';
 function constructError(msg, column) {
     var error = new Error(msg);
     try {
@@ -402,9 +403,11 @@ function isQualifiedJSXName(elementName) {
         default:
     }
 }
-var isIdentifierPart = function (cp) { return isValidIdentifierPart(cp) ||
-    (cp === 36 /* Dollar */ || cp === 92 /* Backslash */); } // $ (dollar) and / (bBackslash)
-;
+var isIdentifierPart = function (code) { return isValidIdentifierPart(code) ||
+    code === 92 /* Backslash */ ||
+    code === 36 /* Dollar */ ||
+    code === 95 /* Underscore */ ||
+    (code >= 48 /* Zero */ && code <= 57 /* Nine */); }; // 0..9;
 function getCommentType(state) {
     if (state & 32 /* SingleLine */)
         { return 'SingleLine'; }
@@ -1233,11 +1236,12 @@ Parser.prototype.scanIdentifierUnicodeEscape = function scanIdentifierUnicodeEsc
     }
     return codePoint;
 };
-Parser.prototype.scanDecimalAsSmi = function scanDecimalAsSmi (context) {
+Parser.prototype.scanDecimalAsSmi = function scanDecimalAsSmi (context, state) {
         var this$1 = this;
 
+    // TODO! Fix this as soon as numeric separators reach stage 4
     if (context & 1 /* OptionsNext */) {
-        return this.scanDecimalDigitsOrFragment(context);
+        return this.scanDecimalDigitsOrFragment(context, state);
     }
     var value = 0;
     loop: while (this.hasNext()) {
@@ -1262,22 +1266,28 @@ Parser.prototype.scanDecimalAsSmi = function scanDecimalAsSmi (context) {
     }
     return value;
 };
-Parser.prototype.scanDecimalDigitsOrFragment = function scanDecimalDigitsOrFragment (context) {
+Parser.prototype.scanDecimalDigitsOrFragment = function scanDecimalDigitsOrFragment (context, state) {
         var this$1 = this;
 
     var start = this.index;
     var ret = '';
-    var hasSeparator = false;
     loop: while (this.hasNext()) {
         switch (this$1.nextChar()) {
             case 95 /* Underscore */:
                 {
-                    ret += this$1.source.substring(start, this$1.index);
-                    this$1.advance();
-                    if (this$1.nextChar() === 95 /* Underscore */) {
+                    if (!(context & 1 /* OptionsNext */))
+                        { break; }
+                    if (state & 256 /* HasNumericSeparator */) {
+                        state = state & ~256 /* HasNumericSeparator */ | 512 /* isPreviousTokenSeparator */;
+                        ret += this$1.source.substring(start, this$1.index);
+                    }
+                    else if (state & 512 /* isPreviousTokenSeparator */) {
+                        this$1.tolerate(context, 115 /* ContinuousNumericSeparator */);
+                    }
+                    else {
                         this$1.tolerate(context, 79 /* InvalidNumericSeparators */);
                     }
-                    hasSeparator = true;
+                    this$1.advance();
                     start = this$1.index;
                     continue;
                 }
@@ -1291,15 +1301,16 @@ Parser.prototype.scanDecimalDigitsOrFragment = function scanDecimalDigitsOrFragm
             case 55 /* Seven */:
             case 56 /* Eight */:
             case 57 /* Nine */:
-                hasSeparator = false;
+                state = state & ~512 /* isPreviousTokenSeparator */ | 256 /* HasNumericSeparator */;
                 this$1.advance();
                 break;
             default:
                 break loop;
         }
     }
-    if (hasSeparator)
-        { this.tolerate(context, 79 /* InvalidNumericSeparators */); }
+    if (state & 512 /* isPreviousTokenSeparator */) {
+        this.tolerate(context, 79 /* InvalidNumericSeparators */);
+    }
     return ret + this.source.substring(start, this.index);
 };
 Parser.prototype.scanNumeric = function scanNumeric (context, state, ch) {
@@ -1408,7 +1419,7 @@ Parser.prototype.scanNumeric = function scanNumeric (context, state, ch) {
                         }
                         state &= ~256 /* HasNumericSeparator */;
                         if (ch === 56 /* Eight */ || ch === 57 /* Nine */) {
-                            state = 1024 /* EigthOrNine */ | 64 /* Float */;
+                            state = 2048 /* EigthOrNine */ | 64 /* Float */;
                             break;
                         }
                         if (ch < 48 /* Zero */ || ch > 55 /* Seven */)
@@ -1426,11 +1437,11 @@ Parser.prototype.scanNumeric = function scanNumeric (context, state, ch) {
         // value - e.g. '0128' - we would need to reset the index and column 
         // values to the initial position so we can re-scan these 
         // as a decimal value with leading zero.
-        if (state & 1024 /* EigthOrNine */) {
+        if (state & 2048 /* EigthOrNine */) {
             this.index = this.startIndex;
             this.column = this.startColumn;
             this.flags |= 64 /* Octal */;
-            value = this.scanDecimalDigitsOrFragment(context);
+            value = this.scanDecimalDigitsOrFragment(context, state);
         }
         else {
             if (state & 256 /* HasNumericSeparator */) {
@@ -1440,14 +1451,14 @@ Parser.prototype.scanNumeric = function scanNumeric (context, state, ch) {
             this.column = column;
         }
     }
-    if (state & 1089 /* AllowDecimalImplicitOrFloat */) {
+    if (state & 2113 /* AllowDecimalImplicitOrFloat */) {
         if (state & 1 /* Decimal */)
-            { value = this.scanDecimalAsSmi(context); }
+            { value = this.scanDecimalAsSmi(context, state); }
         if (this.consumeOpt(46 /* Period */)) {
             state |= 64 /* Float */;
             if (this.nextChar() === 95 /* Underscore */)
                 { this.report(79 /* InvalidNumericSeparators */); }
-            value = value + '.' + this.scanDecimalDigitsOrFragment(context);
+            value = value + '.' + this.scanDecimalDigitsOrFragment(context, state);
         }
     }
     ch = this.nextChar();
@@ -1456,7 +1467,7 @@ Parser.prototype.scanNumeric = function scanNumeric (context, state, ch) {
         // It is a Syntax Error if the MV is not an integer.
         if (state & (64 /* Float */ | 16 /* ImplicitOctal */))
             { this.tolerate(context, 80 /* InvalidBigIntLiteral */); }
-        state |= 512 /* BigInt */;
+        state |= 1024 /* BigInt */;
     }
     else if (this.consumeOpt(69 /* UpperE */) || this.consumeOpt(101 /* LowerE */)) {
         var next$1 = this.nextChar();
@@ -1468,7 +1479,7 @@ Parser.prototype.scanNumeric = function scanNumeric (context, state, ch) {
             this.tolerate(context, 97 /* NonNumberAfterExponentIndicator */);
         }
         var preNumericPart = this.source.substring(end, this.index);
-        value += preNumericPart + this.scanDecimalDigitsOrFragment(context);
+        value += preNumericPart + this.scanDecimalDigitsOrFragment(context, state);
     }
     if (isValidIdentifierStart(this.nextChar())) {
         this.tolerate(context, 107 /* InvalidOrUnexpectedToken */);
@@ -1481,7 +1492,7 @@ Parser.prototype.scanNumeric = function scanNumeric (context, state, ch) {
     if (context & 8 /* OptionsRaw */) {
         this.tokenRaw = this.source.slice(this.startIndex, this.index);
     }
-    return state & 512 /* BigInt */ ? 120 /* BigInt */ : 131074 /* NumericLiteral */;
+    return state & 1024 /* BigInt */ ? 120 /* BigInt */ : 131074 /* NumericLiteral */;
 };
 Parser.prototype.scanRegularExpression = function scanRegularExpression (context) {
         var this$1 = this;
@@ -5310,7 +5321,7 @@ var parseScript = function (source, options) {
 var parseModule = function (source, options) {
     return parse(source, 512 /* Strict */ | 1024 /* Module */ | 262144 /* TopLevel */, options);
 };
-var version = '1.2.9';
+var version = '1.3.0';
 
 exports.pluginClassCache = pluginClassCache;
 exports.parseScript = parseScript;
