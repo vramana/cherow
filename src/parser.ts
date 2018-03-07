@@ -15,7 +15,6 @@ import {
     isValidSimpleAssignmentTarget,
     isValidDestructuringAssignmentTarget,
     isInOrOfKeyword,
-    isIdentifierStart,
     isIdentifierPart,
     getCommentType,
     isPropertyWithPrivateFieldKey
@@ -890,7 +889,7 @@ export class Parser {
     private scanPrivateName(context: Context, ch: number): Token {
         this.advance();
         const index = this.index;
-        if (!(context & Context.InClass) || !isIdentifierStart(this.source.charCodeAt(index))) {
+        if (!(context & Context.InClass) || !isValidIdentifierStart(this.source.charCodeAt(index))) {
             this.index--;
             this.report(Errors.InvalidOrUnexpectedToken);
         }
@@ -1324,7 +1323,7 @@ export class Parser {
             value += preNumericPart + this.scanDecimalDigitsOrFragment(context);
         }
 
-        if (isIdentifierStart(this.nextChar())) {
+        if (isValidIdentifierStart(this.nextChar())) {
             this.tolerate(context, Errors.InvalidOrUnexpectedToken);
         }
 

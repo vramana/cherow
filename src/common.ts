@@ -94,17 +94,9 @@ export function isQualifiedJSXName(elementName: any): any {
             // ignore
     }
 }
-
-export const isIdentifierStart = (cp: Chars) => (cp === Chars.Dollar) || (cp === Chars.Underscore) || // $ (dollar) and _ (underscore)
-    (cp >= Chars.UpperA && cp <= Chars.UpperZ) || // A..Z
-    (cp >= Chars.LowerA && cp <= Chars.LowerZ) || // a..z
-    isValidIdentifierStart(cp);
-
-export const isIdentifierPart = (cp: Chars) => (cp >= Chars.UpperA && cp <= Chars.UpperZ) || // A..Z
-    (cp >= Chars.LowerA && cp <= Chars.LowerZ) || // a..z
-    (cp >= Chars.Zero && cp <= Chars.Nine) || // 0..9
-    (cp === Chars.Dollar) || (cp === Chars.Underscore || cp === Chars.Backslash) || // $ (dollar) and _ (underscore)
-    isValidIdentifierPart(cp);
+export const isIdentifierPart = (cp: Chars) => isValidIdentifierPart(cp) ||
+    (cp === Chars.Dollar || cp === Chars.Backslash)  // $ (dollar) and / (bBackslash)
+    ;
 
 export function getCommentType(state: Scanner): CommentType {
     if (state & Scanner.SingleLine) return 'SingleLine';
