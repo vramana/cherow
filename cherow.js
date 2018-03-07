@@ -402,15 +402,9 @@ function isQualifiedJSXName(elementName) {
         default:
     }
 }
-var isIdentifierStart = function (cp) { return (cp === 36 /* Dollar */) || (cp === 95 /* Underscore */) || // $ (dollar) and _ (underscore)
-    (cp >= 65 /* UpperA */ && cp <= 90 /* UpperZ */) || // A..Z
-    (cp >= 97 /* LowerA */ && cp <= 122 /* LowerZ */) || // a..z
-    isValidIdentifierStart(cp); };
-var isIdentifierPart = function (cp) { return (cp >= 65 /* UpperA */ && cp <= 90 /* UpperZ */) || // A..Z
-    (cp >= 97 /* LowerA */ && cp <= 122 /* LowerZ */) || // a..z
-    (cp >= 48 /* Zero */ && cp <= 57 /* Nine */) || // 0..9
-    (cp === 36 /* Dollar */) || (cp === 95 /* Underscore */ || cp === 92 /* Backslash */) || // $ (dollar) and _ (underscore)
-    isValidIdentifierPart(cp); };
+var isIdentifierPart = function (cp) { return isValidIdentifierPart(cp) ||
+    (cp === 36 /* Dollar */ || cp === 92 /* Backslash */); } // $ (dollar) and / (bBackslash)
+;
 function getCommentType(state) {
     if (state & 32 /* SingleLine */)
         { return 'SingleLine'; }
@@ -1135,7 +1129,7 @@ Parser.prototype.addComment = function addComment (context, state, commentStart)
 Parser.prototype.scanPrivateName = function scanPrivateName (context, ch) {
     this.advance();
     var index = this.index;
-    if (!(context & 67108864 /* InClass */) || !isIdentifierStart(this.source.charCodeAt(index))) {
+    if (!(context & 67108864 /* InClass */) || !isValidIdentifierStart(this.source.charCodeAt(index))) {
         this.index--;
         this.report(107 /* InvalidOrUnexpectedToken */);
     }
@@ -1428,8 +1422,10 @@ Parser.prototype.scanNumeric = function scanNumeric (context, state, ch) {
                     state = 1 /* Decimal */;
                 }
         }
-        // In cases where we have either '8' or '9' as part of the octal number - e.g. '0128', we
-        // reset to the initial position so we can re-scan these as normal numbers.
+        // In cases where '8' or '9' are part of the implicit octal 
+        // value - e.g. '0128' - we would need to reset the index and column 
+        // values to the initial position so we can re-scan these 
+        // as a decimal value with leading zero.
         if (state & 1024 /* EigthOrNine */) {
             this.index = this.startIndex;
             this.column = this.startColumn;
@@ -1458,9 +1454,8 @@ Parser.prototype.scanNumeric = function scanNumeric (context, state, ch) {
     var end = this.index;
     if (context & 1 /* OptionsNext */ && this.consumeOpt(110 /* LowerN */)) {
         // It is a Syntax Error if the MV is not an integer.
-        if (state & (64 /* Float */ | 16 /* ImplicitOctal */)) {
-            this.tolerate(context, 80 /* InvalidBigIntLiteral */);
-        }
+        if (state & (64 /* Float */ | 16 /* ImplicitOctal */))
+            { this.tolerate(context, 80 /* InvalidBigIntLiteral */); }
         state |= 512 /* BigInt */;
     }
     else if (this.consumeOpt(69 /* UpperE */) || this.consumeOpt(101 /* LowerE */)) {
@@ -1475,10 +1470,10 @@ Parser.prototype.scanNumeric = function scanNumeric (context, state, ch) {
         var preNumericPart = this.source.substring(end, this.index);
         value += preNumericPart + this.scanDecimalDigitsOrFragment(context);
     }
-    if (isIdentifierStart(this.nextChar())) {
+    if (isValidIdentifierStart(this.nextChar())) {
         this.tolerate(context, 107 /* InvalidOrUnexpectedToken */);
     }
-    // Note! To be compatible  with other parsers, 'parseFloat'are used for 
+    // Note! To be compatible  with other parsers, 'parseFloat'are used for
     // floating numbers - e.g. '0008.324'. There are really no need to use it.
     if (state & 64 /* Float */)
         { value = parseFloat(value); }
@@ -5315,7 +5310,7 @@ var parseScript = function (source, options) {
 var parseModule = function (source, options) {
     return parse(source, 512 /* Strict */ | 1024 /* Module */ | 262144 /* TopLevel */, options);
 };
-var version = '1.2.8';
+var version = '1.2.9';
 
 exports.pluginClassCache = pluginClassCache;
 exports.parseScript = parseScript;
