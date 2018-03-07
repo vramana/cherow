@@ -41,6 +41,7 @@ const expectations = {
         'ce5f3bc27d5ccaac.js'
     ],
     fail: [
+        'a5370cb0412d7c8a.js',
         'ef2d369cccc5386c.js',
         'fd2a45941e114896.js',
         'e3fbcf63d7e43ead.js',

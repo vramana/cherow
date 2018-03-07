@@ -50,16 +50,15 @@ export const enum Flags {
     InFunctionBody          = 1 << 4, // If node was parsed inside a functions body
     SimpleParameterList     = 1 << 5,
     Octal                   = 1 << 6, // If node contains and legacy octal numbers
-    HasNumericSeparator     = 1 << 7, // Stage 3 related;
-    ProtoField              = 1 << 8, // If node contains any '__proto__' fields
-    DuplicateProtoField     = 1 << 9, // If node contains any duplicate '__proto__' fields
-    HasEscapedKeyword       = 1 << 10,
-    StrictDirective         = 1 << 11, // If node was parsed in a strict directive context
-    HasAwait                = 1 << 12,
-    HasYield                = 1 << 13,
-    ReservedWords           = 1 << 14,
-    HasCommaSeparator       = 1 << 15,
-    CoverInitializedName    = 1 << 16
+    ProtoField              = 1 << 7, // If node contains any '__proto__' fields
+    DuplicateProtoField     = 1 << 8, // If node contains any duplicate '__proto__' fields
+    HasEscapedKeyword       = 1 << 9,
+    StrictDirective         = 1 << 10, // If node was parsed in a strict directive context
+    HasAwait                = 1 << 11,
+    HasYield                = 1 << 12,
+    ReservedWords           = 1 << 13,
+    HasCommaSeparator       = 1 << 14,
+    CoverInitializedName    = 1 << 15
 }
 
 /** Shared between class and objects */
@@ -105,21 +104,20 @@ export const enum Scanner {
     SheBang     = 1 << 8,
     Multiline   = 1 << 9,
 
-    /* numeric */
+}
 
-    Decimal                 = 1 << 10,
-    DecimalWithLeadingZero  = 1 << 11,
-    Hexadecimal             = 1 << 12,
-    Octal                   = 1 << 13,
-    ImplicitOctal           = 1 << 14,
-    Binary                  = 1 << 15,
-    Float                   = 1 << 16,
-    AllowNumericSeparator   = 1 << 17, //
-    HasNumericSeparator     = 1 << 18,
-    BigInt                  = 1 << 19,
-    EigthOrNine             = 1 << 20,
-
-    Hibo = Hexadecimal | ImplicitOctal | Binary | Octal
+export const enum Numbers {
+    Decimal                 = 1 << 0,
+    DecimalWithLeadingZero  = 1 << 1,
+    Hexadecimal             = 1 << 2,
+    Octal                   = 1 << 3,
+    ImplicitOctal           = 1 << 4,
+    Binary                  = 1 << 5,
+    Float                   = 1 << 6,
+    HasNumericSeparator     = 1 << 8,
+    BigInt                  = 1 << 9,
+    EigthOrNine             = 1 << 10,
+    AllowDecimalImplicitOrFloat = Numbers.Decimal | Numbers.EigthOrNine | Numbers.Float
 }
 
 /* Shared between string literal and templates */

@@ -31,7 +31,8 @@ import {
     RegexFlags,
     CoverGrammar,
     ArrayState,
-    JSXElement
+    JSXElement,
+    Numbers
 } from './flags';
 
 export interface Lookahead {
@@ -56,6 +57,11 @@ export interface Location {
     column: number;
     index: number;
 }
+
+function isDecimalDigit(ch: number): boolean {
+    return ch >= Chars.Zero && ch <= Chars.Nine;
+}
+
 export class Parser {
 
     private readonly source: string;
@@ -548,7 +554,7 @@ export class Parser {
                         const next = this.source.charCodeAt(index);
 
                         if (next >= Chars.Zero && next <= Chars.Nine) {
-                            this.scanNumeric(context, Scanner.Float);
+                            this.scanNumeric(context, Numbers.Float, first);
                             return Token.NumericLiteral;
                         }
 
@@ -579,7 +585,7 @@ export class Parser {
                 case Chars.Seven:
                 case Chars.Eight:
                 case Chars.Nine:
-                    return this.scanNumeric(context, Scanner.Decimal);
+                    return this.scanNumeric(context, Numbers.Decimal, first);
 
                     // `=`, `==`, `===`, `=>`
                 case Chars.EqualSign:
@@ -1014,42 +1020,58 @@ export class Parser {
         return codePoint;
     }
 
-    private scanNumericFragment(context: Context, state: Scanner): Scanner {
-        this.flags |= Flags.HasNumericSeparator;
-        if (!(state & Scanner.AllowNumericSeparator)) {
-            this.tolerate(context, Errors.InvalidNumericSeparators);
+    private scanDecimalAsSmi(context: Context) {
+
+        if (context & Context.OptionsNext) {
+            return this.scanDecimalDigitsOrFragment(context);
         }
 
-        state &= ~Scanner.AllowNumericSeparator;
+        let value = 0;
 
-        this.advance();
-        return state;
+        loop: while (this.hasNext()) {
+            const ch = this.nextChar();
+            switch (ch) {
+                case Chars.Zero:
+                case Chars.One:
+                case Chars.Two:
+                case Chars.Three:
+                case Chars.Four:
+                case Chars.Five:
+                case Chars.Six:
+                case Chars.Seven:
+                case Chars.Eight:
+                case Chars.Nine:
+                    value = value * 10 + (ch - Chars.Zero);
+                    this.advance();
+                    break;
+                default:
+                    break loop;
+            }
+        }
+        return value;
     }
 
-    private scanDecimalDigitsOrFragment(context: Context): any {
+    private scanDecimalDigitsOrFragment(context: Context): string {
 
         let start = this.index;
-        let state = Scanner.None;
         let ret = '';
-
-        const next = context & Context.OptionsNext;
+        let hasSeparator = false;
 
         loop:
             while (this.hasNext()) {
 
                 switch (this.nextChar()) {
                     case Chars.Underscore:
-                        if (!next) break loop;
-                        if (!(state & Scanner.AllowNumericSeparator)) {
-                            this.tolerate(context, Errors.InvalidNumericSeparators);
+                        {
+                            ret += this.source.substring(start, this.index);
+                            this.advance();
+                            if (this.nextChar() === Chars.Underscore) {
+                                this.tolerate(context, Errors.InvalidNumericSeparators);
+                            }
+                            hasSeparator = true;
+                            start = this.index;
+                            continue;
                         }
-                        this.flags |= Flags.HasNumericSeparator;
-                        state &= ~Scanner.AllowNumericSeparator;
-
-                        ret += this.source.substring(start, this.index);
-                        this.advance();
-                        start = this.index;
-                        continue;
                     case Chars.Zero:
                     case Chars.One:
                     case Chars.Two:
@@ -1060,7 +1082,7 @@ export class Parser {
                     case Chars.Seven:
                     case Chars.Eight:
                     case Chars.Nine:
-                        state |= Scanner.AllowNumericSeparator;
+                        hasSeparator = false;
                         this.advance();
                         break;
                     default:
@@ -1068,316 +1090,255 @@ export class Parser {
                 }
             }
 
-        if (next && this.source.charCodeAt(this.index - 1) === Chars.Underscore) {
-            this.tolerate(context, Errors.InvalidNumericSeparators);
-        }
+        if (hasSeparator) this.tolerate(context, Errors.InvalidNumericSeparators);
 
         return ret + this.source.substring(start, this.index);
     }
 
-    private scanBinarOrOctalyDigits(context: Context, base: number, opt: number, state: Scanner): number {
+    private scanNumeric(context: Context, state: Numbers, ch: number): Token {
 
-        this.advance();
+        let value: any = 0;
 
-        let digits = 0;
-        let value = 0;
+        if (ch === Chars.Zero) {
 
-        while (this.hasNext()) {
+            let index = this.index + 1;
+            let column = this.column + 1;
+            const next = this.source.charCodeAt(index);
 
-            const ch = this.nextChar();
+            switch (next) {
+                case Chars.UpperX:
+                case Chars.LowerX:
+                    {
+                        state = Numbers.Hexadecimal;
 
-            if (ch === Chars.Underscore) {
-                state = this.scanNumericFragment(context, state);
-                continue;
-            }
+                        index++;
+                        column++;
 
-            const converted = ch - Chars.Zero;
+                        let ch = this.source.charCodeAt(index);
 
-            if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= base) break;
-            // Most octal and binary values fit into 4 bytes
-            if (digits < 10) value = (value << opt) | converted;
-            else value = value * base + converted;
+                        value = toHex(ch);
 
-            this.advance();
-            digits++;
-        }
+                        if (value < 0) this.tolerate(context, Errors.MissingHexDigits);
 
-        if (digits === 0) this.report(base === 8 ?
-            Errors.MissingOctalDigits :
-            Errors.MissingBinaryDigits);
+                        index++;
+                        column++;
 
-        return value;
-    }
+                        while (index < this.source.length) {
 
-    private scanHexDigits(context: Context, state: Scanner): number {
+                            ch = this.source.charCodeAt(index);
 
-        let ch = this.readNext(this.nextChar());
+                            if (ch === Chars.Underscore) {
 
-        let value = toHex(ch);
+                                index++;
+                                column++;
 
-        if (value < 0) this.tolerate(context, Errors.MissingHexDigits);
+                                // E.g. '__'
+                                if (this.source.charCodeAt(index) === Chars.Underscore) {
+                                    this.tolerate(context, Errors.InvalidNumericSeparators);
+                                }
 
-        this.advance();
+                                state |= Numbers.HasNumericSeparator;
 
-        while (this.hasNext()) {
-
-            ch = this.nextChar();
-
-            if (ch === Chars.Underscore) {
-                state = this.scanNumericFragment(context, state);
-                continue;
-            }
-
-            state |= Scanner.AllowNumericSeparator;
-
-            const digit = toHex(ch);
-
-            if (digit < 0) break;
-
-            value = value * 16 + digit;
-
-            this.advance();
-        }
-
-        return value;
-    }
-
-    private scanImplicitOctalDigits(context: Context, state: Scanner): number {
-
-        let ch: number = 0;
-        let value: number = 0;
-
-        if (context & Context.Strict) {
-            this.report(Errors.InvalidDecimalWithLeadingZero);
-        } else {
-            this.flags |= Flags.Octal;
-        }
-
-        while (this.hasNext()) {
-
-            ch = this.nextChar();
-
-            if (ch === Chars.Underscore) {
-                state = this.scanNumericFragment(context, state);
-                continue;
-            }
-
-            if (ch === Chars.Eight || ch === Chars.Nine) {
-                return value | Scanner.EigthOrNine | 6 << 24;
-            }
-
-            if (ch < Chars.Zero || ch > Chars.Seven) break;
-
-            value = value * 8 + (ch - Chars.Zero);
-
-            this.advance();
-        }
-
-        return value;
-    }
-
-    private scanNumeric(context: Context, state: Scanner): Token {
-
-        const start = this.index;
-
-        let value = 0;
-        let ch = 0;
-        let isOctal = (state & Scanner.Float) === 0;
-        let mainFragment: string = '';
-        let decimalFragment: string = '';
-        let signedFragment: string = '';
-
-        if (state & Scanner.Float) {
-            this.advance();
-            decimalFragment = this.scanDecimalDigitsOrFragment(context);
-        } else {
-
-            if (this.consumeOpt(Chars.Zero)) {
-
-                switch (this.nextChar()) {
-
-                    case Chars.LowerX:
-                    case Chars.UpperX:
-                        {
-                            state = Scanner.Hexadecimal | Scanner.AllowNumericSeparator;
-                            value = this.scanHexDigits(context, state);
-                            break;
-                        }
-
-                    case Chars.LowerO:
-                    case Chars.UpperO:
-                        {
-                            state = Scanner.Octal | Scanner.AllowNumericSeparator;
-                            value = this.scanBinarOrOctalyDigits(context, /* base */ 8, /* opt */ 3, state);
-                            break;
-                        }
-
-                    case Chars.LowerB:
-                    case Chars.UpperB:
-                        {
-                            state = Scanner.Binary | Scanner.AllowNumericSeparator;
-                            value = this.scanBinarOrOctalyDigits(context, /* base */ 2, /* opt */ 1, state);
-                            break;
-                        }
-
-                    case Chars.Zero:
-                    case Chars.One:
-                    case Chars.Two:
-                    case Chars.Three:
-                    case Chars.Four:
-                    case Chars.Five:
-                    case Chars.Six:
-                    case Chars.Seven:
-                        {
-                            state = Scanner.ImplicitOctal | Scanner.AllowNumericSeparator;
-                            value = this.scanImplicitOctalDigits(context, state);
-
-                            if (value & Scanner.EigthOrNine) {
-                                value = value >> 24 & 0x0f;
-                                isOctal = false;
-                                state = Scanner.DecimalWithLeadingZero;
-                            }
-                            break;
-                        }
-
-                    case Chars.Eight:
-                    case Chars.Nine:
-                        {
-                            context & Context.Strict ?
-                            this.report(Errors.InvalidDecimalWithLeadingZero) : this.flags |= Flags.Octal;
-                            state = Scanner.DecimalWithLeadingZero;
-                        }
-                    default: // Ignore
-                }
-
-                if (this.flags & Flags.HasNumericSeparator) {
-                    if (this.source.charCodeAt(this.index - 1) === Chars.Underscore) {
-                        this.tolerate(context, Errors.InvalidNumericSeparators);
-                    }
-                }
-            }
-
-            // Parse decimal digits and allow trailing fractional part.
-            if (state & (Scanner.Decimal | Scanner.DecimalWithLeadingZero)) {
-
-                if (isOctal) {
-
-                    loop: while (this.hasNext()) {
-                        ch = this.nextChar();
-                        switch (ch) {
-                            case Chars.Zero:
-                            case Chars.One:
-                            case Chars.Two:
-                            case Chars.Three:
-                            case Chars.Four:
-                            case Chars.Five:
-                            case Chars.Six:
-                            case Chars.Seven:
-                            case Chars.Eight:
-                            case Chars.Nine:
-                                value = value * 10 + (ch - Chars.Zero);
-                                this.advance();
                                 continue;
-                            default:
-                                break loop;
+                            }
+
+                            state &= ~Numbers.HasNumericSeparator;
+
+                            const digit = toHex(ch);
+
+                            if (digit < 0) break;
+
+                            value = value * 16 + digit;
+
+                            index++;
+                            column++;
                         }
+                        break;
+                    }
+                case Chars.UpperB:
+                case Chars.LowerB:
+                case Chars.UpperO:
+                case Chars.LowerO:
+                    {
+
+                        let base = 2;
+                        let errorMessage = Errors.MissingBinaryDigits;
+
+                        state = Numbers.Binary;
+
+                        if (next === Chars.UpperO || next === Chars.LowerO) {
+                            base = 8;
+                            state = Numbers.Octal;
+                            errorMessage = Errors.MissingOctalDigits;
+                        }
+
+                        index++;
+                        column++;
+
+                        let digits = 0;
+
+                        while (index < this.source.length) {
+
+                            ch = this.source.charCodeAt(index);
+
+                            if (ch === Chars.Underscore) {
+
+                                index++;
+                                column++;
+                                // E.g. '__'
+                                if (this.source.charCodeAt(index) === Chars.Underscore) {
+                                    this.tolerate(context, Errors.InvalidNumericSeparators);
+                                }
+
+                                state |= Numbers.HasNumericSeparator;
+
+                                continue;
+                            }
+
+                            state &= ~Numbers.HasNumericSeparator;
+
+                            const converted = ch - Chars.Zero;
+
+                            if (!(ch >= Chars.Zero && ch <= Chars.Nine) || converted >= base) break;
+                            value = value * base + converted;
+
+                            index++;
+                            column++;
+                            digits++;
+                        }
+
+                        if (digits === 0) this.report(errorMessage);
+
+                        break;
+                    }
+                default:
+
+                    state = Numbers.ImplicitOctal;
+
+                    if (next === Chars.Eight || next === Chars.Nine) {
+                        this.flags |= Flags.Octal;
                     }
 
-                    if (ch !== Chars.Period && !isIdentifierStart(ch)) {
-                        if (context & Context.OptionsRaw) this.storeRaw(start);
-                        this.tokenValue = value;
-                        return Token.NumericLiteral;
-                    }
+                    if (next >= Chars.Zero && next <= Chars.Seven ||
+                        (context & Context.OptionsNext && next === Chars.Underscore)) {
 
-                    if (context & Context.OptionsNext && this.nextChar() === Chars.Underscore) {
-                        this.advance();
-                        if (!this.hasNext()) this.tolerate(context, Errors.InvalidNumericSeparators);
-                        this.flags |= Flags.HasNumericSeparator;
-                        mainFragment = value += this.scanDecimalDigitsOrFragment(context);
-                    }
+                        this.flags |= Flags.Octal;
 
-                    if (this.consumeOpt(Chars.Period)) {
-                        // There is no 'mainFragment' in cases like '1.2_3'
-                        if (!(this.flags & Flags.HasNumericSeparator)) mainFragment = value as any;
-                        state |= Scanner.Float;
-                        decimalFragment = this.scanDecimalDigitsOrFragment(context);
+                        while (index < this.source.length) {
+
+                            ch = this.source.charCodeAt(index);
+
+                            if (ch === Chars.Underscore) {
+
+                                index++;
+                                column++;
+
+                                // E.g. '__'
+                                if (this.source.charCodeAt(index) === Chars.Underscore) {
+                                    this.tolerate(context, Errors.InvalidNumericSeparators);
+                                }
+
+                                state |= Numbers.HasNumericSeparator;
+
+                                continue;
+                            }
+
+                            state &= ~Numbers.HasNumericSeparator;
+
+                            if (ch === Chars.Eight || ch === Chars.Nine) {
+                                state = Numbers.EigthOrNine | Numbers.Float;
+                                break;
+                            }
+
+                            if (ch < Chars.Zero || ch > Chars.Seven) break;
+
+                            value = value * 8 + (ch - Chars.Zero);
+                            index++;
+                            column++;
+                        }
+
+                    } else {
+                        state = Numbers.Decimal;
                     }
+            }
+
+            // In cases where '8' or '9' are part of the implicit octal 
+            // value - e.g. '0128' - we would need to reset the index and column 
+            // values to the initial position so we can re-scan these 
+            // as a decimal value with leading zero.
+
+            if (state & Numbers.EigthOrNine) {
+
+                this.index = this.startIndex;
+                this.column = this.startColumn;
+
+                this.flags |= Flags.Octal;
+
+                value = this.scanDecimalDigitsOrFragment(context);
+
+            } else {
+
+                if (state & Numbers.HasNumericSeparator) {
+                    this.report(Errors.InvalidNumericSeparators);
                 }
-                else {
-                    mainFragment = this.scanDecimalDigitsOrFragment(context);
-                }
+
+                this.index = index;
+                this.column = column;
             }
         }
 
-        switch (this.nextChar()) {
+        if (state & Numbers.AllowDecimalImplicitOrFloat) {
 
-            // BigInt
-            case Chars.LowerN:
-                {
-                    if (!(context & Context.OptionsNext)) break;
+            if (state & Numbers.Decimal) value = this.scanDecimalAsSmi(context);
 
-                    // It is a Syntax Error if the MV is not an integer.
-                    if (state & (Scanner.ImplicitOctal | Scanner.Float)) {
-                        this.tolerate(context, Errors.InvalidBigIntLiteral);
-                    }
-
-                    state |= Scanner.BigInt;
-
-                    this.advance();
-                    break;
-                }
-                // Exponent
-            case Chars.LowerE:
-            case Chars.UpperE:
-                {
-                    const startOfPossibleFragment = this.index;
-
-                    this.advance();
-
-                    state |= Scanner.Float;
-
-                    ch = this.nextChar();
-
-                    if (ch === Chars.Plus || ch === Chars.Hyphen) {
-                        this.advance();
-                    }
-
-                    ch = this.nextChar();
-
-                    // Invalid: 'const t = 2.34e-;const b = 4.3e--3;'
-                    if (!(ch >= Chars.Zero && ch <= Chars.Nine)) this.tolerate(context, Errors.NonNumberAfterExponentIndicator);
-
-                    const preNumericPart = this.index;
-
-                    const finalFragment = this.scanDecimalDigitsOrFragment(context);
-
-                    signedFragment = this.source.substring(startOfPossibleFragment, preNumericPart) + finalFragment;
-                }
-            default: // ignore
+            if (this.consumeOpt(Chars.Period)) {
+                state |= Numbers.Float;
+                if (this.nextChar() === Chars.Underscore) this.report(Errors.InvalidNumericSeparators);
+                value = value + '.' + this.scanDecimalDigitsOrFragment(context);
+            }
         }
 
-        // https://tc39.github.io/ecma262/#sec-literals-numeric-literals
-        // The SourceCharacter immediately following a NumericLiteral must not be an IdentifierStart or DecimalDigit.
-        // For example : 3in is an error and not the two input elements 3 and in
+        ch = this.nextChar();
+
+        const end = this.index;
+
+        if (context & Context.OptionsNext && this.consumeOpt(Chars.LowerN)) {
+            // It is a Syntax Error if the MV is not an integer.
+            if (state & (Numbers.Float | Numbers.ImplicitOctal)) this.tolerate(context, Errors.InvalidBigIntLiteral);
+            state |= Numbers.BigInt;
+
+        } else if (this.consumeOpt(Chars.UpperE) || this.consumeOpt(Chars.LowerE)) {
+
+            let next = this.nextChar();
+
+            if (next === Chars.Hyphen || next === Chars.Plus) {
+                this.advance();
+                next = this.nextChar();
+            }
+
+            if (!isDecimalDigit(next)) {
+                this.tolerate(context, Errors.NonNumberAfterExponentIndicator);
+            }
+
+            const preNumericPart = this.source.substring(end, this.index);
+            value += preNumericPart + this.scanDecimalDigitsOrFragment(context);
+        }
+
         if (isIdentifierStart(this.nextChar())) {
             this.tolerate(context, Errors.InvalidOrUnexpectedToken);
         }
 
-        if (!(state & Scanner.Hibo)) {
-            if (state & Scanner.HasNumericSeparator || this.flags & Flags.HasNumericSeparator) {
-                if (decimalFragment) mainFragment += '.' + decimalFragment;
-                if (signedFragment) mainFragment += signedFragment;
-                value = (state & Scanner.Float ? parseFloat : parseInt)(mainFragment);
-            } else {
-                value = (state & Scanner.Float ? parseFloat : parseInt)(this.source.slice(start, this.index));
-            }
-        }
-
-        if (context & Context.OptionsRaw) this.storeRaw(start);
+        // Note! To be compatible  with other parsers, 'parseFloat'are used for
+        // floating numbers - e.g. '0008.324'. There are really no need to use it.
+        if (state & Numbers.Float) value = parseFloat(value);
 
         this.tokenValue = value;
 
-        return state & Scanner.BigInt ? Token.BigInt : Token.NumericLiteral;
+        if (context & Context.OptionsRaw) {
+            this.tokenRaw = this.source.slice(this.startIndex, this.index);
+        }
+
+        return state & Numbers.BigInt ? Token.BigInt : Token.NumericLiteral;
     }
 
     private scanRegularExpression(context: Context): Token {

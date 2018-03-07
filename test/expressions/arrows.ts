@@ -438,7 +438,7 @@ describe('Expressions - Arrows', () => {
 
     fail(`"use strict"; (a) => 00;`, {
         source: '"use strict"; (a) => 00;',
-        message: 'Decimal integer literals with a leading zero are forbidden in strict mode',
+        message: 'Legacy octal literals are not allowed in strict mode',
         line: 1,
         column: 20,
         index: 20

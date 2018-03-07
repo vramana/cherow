@@ -8,6 +8,27 @@ describe('Next - BigInt', () => {
         line: 1,
     });
 
+    fail('1e25n', {
+        source: `1e25n`,
+        next: true,
+        message: 'Invalid or unexpected token',
+        line: 1,
+    });
+
+    fail('0bn', {
+        source: `0bn`,
+        next: true,
+        message: 'Missing binary digits after \'0b\'',
+        line: 1,
+    });
+
+    fail('0xn', {
+        source: `0xn`,
+        next: true,
+        message: 'Missing hexadecimal digits after \'0x\'',
+        line: 1,
+    });
+
     fail('invalid float', {
         source: `1.0n`,
         next: true,

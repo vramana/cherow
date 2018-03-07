@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "Fast, standard-compliant ECMAScript parser written in ECMAScript",
   "main": "lib/cherow.js",
   "types": "lib/cherow.d.ts",
@@ -51,6 +51,7 @@
     "prepublish": "npm run build && npm run build:lib",
     "prebuild": "tsc --skipLibCheck -t es2015 --m es2015",
     "pretest": "tsc --sourceMap --skipLibCheck -t es2015 --m umd",
+    "bench": "node scripts/micro-bench",
     "lint:src": "tslint src/**/*.ts src/**/*.tsx",
     "lint:tests": "tslint test/**/*.ts test/**/*.tsx",
     "watch:tests": "mocha test/**/*.ts --watch",
@@ -62,6 +63,7 @@
     "@types/node": "^9.4.6",
     "coveralls": "^3.0.0",
     "cross-env": "^5.1.3",
+    "benchmark": "^2.1.4",
     "glob": "^7.1.2",
     "js-yaml": "^3.10.0",
     "mocha": "^5.0.1",

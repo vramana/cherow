@@ -89,7 +89,7 @@ describe('Miscellaneous - Delegate', () => {
   });
 
   it('should work with delegate', () => {
-      let options = {
+      const options = {
           range: false
       };
       t.doesNotThrow(function() {

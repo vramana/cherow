@@ -3,75 +3,68 @@ import { parseScript } from '../../src/cherow';
 
 describe('Statements - Numeric separators', () => {
 
-    for (let i = 1; i <= 7; i++) {
+    fail(`._1`, {
+        source: '._1',
+        next: true,
+        line: 1,
+        message: 'Unexpected token .',
+        column: 0,
+        index: 0
+    });
 
-        pass(`${i}_${i}`, {
-            source: `${i}_${i}`,
-            next: true,
-            expected: parseScript(`${i}_${i}`, {
-                next: true
-            })
-        });
+    fail(`1\\u005F0123456789`, {
+        source: '1\\u005F0123456789',
+        next: true,
+        line: 1,
+        message: 'Unexpected token identifier',
+        column: 1,
+        index: 1
+    });
 
-        for (let j = 2; j <= 7; j++) {
+    fail(`"\\u{12_34}"`, {
+        source: '"\\u{12_34}"',
+        next: true,
+        line: 1,
+        message: 'Invalid hexadecimal escape sequence',
+        column: 0,
+        index: 0
+    });
 
-            pass(`${i}_${j}_${j};`, {
-                source: `${i}_${j}_${j};`,
-                next: true,
-                expected: parseScript(`${i}_${j}_${j};`, {
-                    next: true
-                })
-            });
+    fail(`"let a\\u{12_34} = 5"`, {
+        source: '"let a\\u{12_34} = 5"',
+        next: true,
+        line: 1
+    });
 
-            pass(`0x${i}0_0${j};`, {
-                source: `0x${i}0_0${j};`,
-                next: true,
-                expected: parseScript(`0x${i}0_0${j};`, {
-                    next: true
-                })
-            });
+    fail(`"\\u12_34"`, {
+        source: '"\\u12_34"',
+        next: true,
+        line: 1
+    });
 
-            pass(`0o${i}0_0${j}`, {
-                source: `0o${i}0_0${j}`,
-                next: true,
-                expected: parseScript(`0o${i}0_0${j}`, {
-                    next: true
-                })
-            });
+    fail(`5_______2;`, {
+        source: '5_______2;',
+        next: true,
+        line: 1
+    });
 
-            pass(`0o${i}_${j};`, {
-                source: `0o${i}_${j};`,
-                next: true,
-                expected: parseScript(`0o${i}_${j};`, {
-                    next: true
-                })
-            });
+    fail(`0x_52`, {
+        source: '0x_52',
+        next: true,
+        line: 1
+    });
 
-            pass(`0o0${i}_${j}1;`, {
-                source: `0o0${i}_${j}1;`,
-                next: true,
-                expected: parseScript(`0o0${i}_${j}1;`, {
-                    next: true
-                })
-            });
+    fail(`1_`, {
+        source: '1_',
+        next: true,
+        line: 1
+    });
 
-            pass(`var foo = 0o0${i}_${j}1 - (0o0${i}_${j}1) / (0x${i}0_0${j}) ** ${i}_${j}`, {
-                source: `var foo = 0o0${i}_${j}1 - (0o0${i}_${j}1) / (0x${i}0_0${j}) ** ${i}_${j}`,
-                next: true,
-                expected: parseScript(`var foo = 0o0${i}_${j}1 - (0o0${i}_${j}1) / (0x${i}0_0${j}) ** ${i}_${j}`, {
-                    next: true
-                })
-            });
-
-            pass(`function a${i}_${j}() { 0o0${i}_${j}1; / 0o0${i}_${j}_1;}`, {
-                source: `function a${i}_${j}() { 0o0${i}_${j}1 / 1_${j};}`,
-                next: true,
-                expected: parseScript(`function a${i}_${j}() { 0o0${i}_${j}1 / 1_${j};}`, {
-                    next: true
-                })
-            });
-        }
-    }
+    fail(`3_.1415F;`, {
+        source: '3_.1415F;',
+        next: true,
+        line: 1
+    });
 
     fail(`0x0_`, {
         source: '0x0_',
@@ -121,13 +114,26 @@ describe('Statements - Numeric separators', () => {
         line: 1
     });
 
-    fail(`.4_3_1`, {
-        source: '.4_3_1',
+    fail(`3._1415F;`, {
+        source: '3._1415F;',
+        next: true,
         line: 1
     });
 
     fail(`3._1415F;`, {
         source: '3._1415F;',
+        next: true,
+        line: 1
+    });
+
+    fail(`0b0__0`, {
+        source: '0b0__0',
+        next: true,
+        line: 1
+    });
+
+    fail(`1__0123456789`, {
+        source: '1__0123456789',
         next: true,
         line: 1
     });
@@ -192,12 +198,6 @@ describe('Statements - Numeric separators', () => {
         line: 1
     });
 
-    fail(`(0o_1_1)`, {
-        source: '(0o_1_1)',
-        next: true,
-        line: 1
-    });
-
     fail(`0x_a_1`, {
         source: '0x_a_1',
         next: true,
@@ -236,12 +236,6 @@ describe('Statements - Numeric separators', () => {
 
     fail(`[1_1.1_e1]`, {
         source: '[1_1.1_e1]',
-        next: true,
-        line: 1
-    });
-
-    fail(`[0o_1_1]`, {
-        source: '[0o_1_1]',
         next: true,
         line: 1
     });
@@ -443,6 +437,517 @@ describe('Statements - Numeric separators', () => {
         line: 1
     });
 
+    /*
+    fail(`[0o_1_1]`, {
+        source: '[0o_1_1]',
+        next: true,
+        line: 1
+    });*/
+
+/*
+    fail(`(0o_1_1)`, {
+        source: '(0o_1_1)',
+        next: true,
+        line: 1
+    });
+*/
+/*
+    fail(`07_7_7_;`, {
+        source: '07_7_7_;',
+        next: true,
+        line: 1,
+        message: 'Numeric separators are not allowed here'
+    });*/
+
+    fail(`"use strict"; 07_1`, {
+        source: '"use strict"; 07_1',
+        next: true,
+        line: 1
+    });
+
+    fail(`\\uff__ff`, {
+        source: '\\uff__ff',
+        next: true,
+        line: 1
+    });
+
+    fail(`"\\uff__ff"`, {
+        source: '"\\uff__ff"',
+        next: true,
+        line: 1
+    });
+
+    fail(`2__4`, {
+        source: '2__4',
+        next: true,
+        line: 1
+    });
+
+    fail(`._4`, {
+        source: '._4',
+        next: true,
+        line: 1
+    });
+
+    fail(`_.4`, {
+        source: '_.4',
+        next: true,
+        line: 1
+    });
+
+    fail(`1._43`, {
+        source: '1._43',
+        next: true,
+        line: 1
+    });
+
+    fail(`1.4_e2`, {
+        source: '1.4_e2',
+        next: true,
+        line: 1
+    });
+
+    fail(`07__77;`, {
+        source: '07__77;',
+        next: true,
+        line: 1,
+        message: 'Numeric separators are not allowed here'
+    });
+
+    fail(`0__777;`, {
+        source: '0__777;',
+        next: true,
+        line: 1,
+        message: 'Numeric separators are not allowed here'
+    });
+
+    fail(`5_______2;`, {
+        source: '5_______2;',
+        next: true,
+        line: 1,
+        message: 'Numeric separators are not allowed here'
+    });
+
+    fail(`5_______2;`, {
+        source: '5_______2;',
+        next: true,
+        line: 1,
+        message: 'Numeric separators are not allowed here'
+    });
+
+    fail(`5_______2;`, {
+        source: '5_______2;',
+        next: true,
+        line: 1,
+        message: 'Numeric separators are not allowed here'
+    });
+
+    fail(`1e_1;`, {
+        source: '1e_1;',
+        next: true,
+        line: 1,
+        message: 'Invalid non-number after exponent indicator'
+    });
+
+    fail(`1e+_1;`, {
+        source: '1e+_1;',
+        next: true,
+        line: 1,
+        message: 'Invalid non-number after exponent indicator',
+    });
+
+    fail(`1_e+1;`, {
+        source: '1_e+1;',
+        next: true,
+        line: 1,
+        message: 'Numeric separators are not allowed here'
+    });
+
+    fail(`1__0;`, {
+        source: '1__0;',
+        next: true,
+        line: 1,
+        message: 'Numeric separators are not allowed here'
+    });
+
+    fail(`5_______2;`, {
+        source: '5_______2;',
+        next: true,
+        line: 1,
+        message: 'Numeric separators are not allowed here'
+    });
+
+    fail(`0.0_2_1_;`, {
+        source: '0.0_2_1_;',
+        next: true,
+        line: 1,
+        message: 'Numeric separators are not allowed here'
+    });
+
+    fail(`0.0__21;`, {
+        source: '0.0__21;',
+        next: true,
+        line: 1,
+        message: 'Numeric separators are not allowed here'
+    });
+
+    fail(`0_.01;`, {
+        source: '0_.01;',
+        next: true,
+        line: 1,
+        message: 'Unexpected token number'
+    });
+
+    pass(`0b0_1_0_1_0`, {
+        source: '0b0_1_0_1_0',
+        raw: true,
+        next: true,
+        expected: {
+              body: [
+                {
+                  expression: {
+                    raw: '0b0_1_0_1_0',
+                    type: 'Literal',
+                    value: 10,
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
+    pass(`0_777`, {
+        source: '0_777',
+        raw: true,
+        next: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Literal',
+                        value: 511,
+                        raw: '0_777'
+                    }
+                }
+            ]
+        }
+    });
+
+    pass(`0o7_7_7`, {
+        source: '0o7_7_7',
+        raw: true,
+        next: true,
+        expected: {
+              body: [
+                {
+                  expression: {
+                    raw: '0o7_7_7',
+                    type: 'Literal',
+                    value: 511,
+                  },
+                  type: 'ExpressionStatement'
+                }
+              ],
+              sourceType: 'script',
+              type: 'Program'
+            }
+    });
+
+    pass(`0xF_F_FF`, {
+        source: '0xF_F_FF',
+        raw: true,
+        ranges: true,
+        next: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Literal',
+                        value: 65535,
+                        start: 0,
+                        end: 8,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 8
+                            }
+                        },
+                        raw: '0xF_F_FF'
+                    },
+                    start: 0,
+                    end: 8,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 8
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 8,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 8
+                }
+            }
+        }
+    });
+
+    pass(`1_0e+1_0`, {
+        source: '1_0e+1_0',
+        raw: true,
+        ranges: true,
+        next: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Literal',
+                        value: 100000000000,
+                        start: 0,
+                        end: 8,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 8
+                            }
+                        },
+                        raw: '1_0e+1_0'
+                    },
+                    start: 0,
+                    end: 8,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 8
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 8,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 8
+                }
+            }
+        }
+    });
+
+    pass(`.3_2_1`, {
+        source: '.3_2_1',
+        raw: true,
+        ranges: true,
+        next: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Literal',
+                        value: 0.321,
+                        start: 0,
+                        end: 6,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 6
+                            }
+                        },
+                        raw: '.3_2_1'
+                    },
+                    start: 0,
+                    end: 6,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 6
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 6,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 6
+                }
+            }
+        }
+    });
+
+    pass(`0.0_2_1`, {
+        source: '0.0_2_1',
+        raw: true,
+        ranges: true,
+        next: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Literal',
+                        value: 0.021,
+                        start: 0,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        },
+                        raw: '0.0_2_1'
+                    },
+                    start: 0,
+                    end: 7,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 7
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 7,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 7
+                }
+            }
+        }
+    });
+
+    pass(`1_0.0_1`, {
+        source: '1_0.0_1',
+        raw: true,
+        ranges: true,
+        next: true,
+        loc: true,
+        expected: {
+            type: 'Program',
+            sourceType: 'script',
+            body: [
+                {
+                    type: 'ExpressionStatement',
+                    expression: {
+                        type: 'Literal',
+                        value: 10.01,
+                        start: 0,
+                        end: 7,
+                        loc: {
+                            start: {
+                                line: 1,
+                                column: 0
+                            },
+                            end: {
+                                line: 1,
+                                column: 7
+                            }
+                        },
+                        raw: '1_0.0_1'
+                    },
+                    start: 0,
+                    end: 7,
+                    loc: {
+                        start: {
+                            line: 1,
+                            column: 0
+                        },
+                        end: {
+                            line: 1,
+                            column: 7
+                        }
+                    }
+                }
+            ],
+            start: 0,
+            end: 7,
+            loc: {
+                start: {
+                    line: 1,
+                    column: 0
+                },
+                end: {
+                    line: 1,
+                    column: 7
+                }
+            }
+        }
+    });
+
     pass(`0_1_2`, {
         source: '0_1_2',
         loc: true,
@@ -468,7 +973,7 @@ describe('Statements - Numeric separators', () => {
                     raw: '0_1_2',
                     start: 0,
                     type: 'Literal',
-                    value: 12,
+                    value: 10,
                   },
                  loc: {
                     end: {
