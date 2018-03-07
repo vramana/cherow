@@ -12,6 +12,14 @@ describe('Statements - Numeric separators', () => {
         index: 0
     });
 
+    fail(`._1`, {
+        source: '._1',
+        line: 1,
+        message: 'Unexpected token .',
+        column: 0,
+        index: 0
+    });
+
     fail(`1\\u005F0123456789`, {
         source: '1\\u005F0123456789',
         next: true,
@@ -33,49 +41,80 @@ describe('Statements - Numeric separators', () => {
     fail(`"let a\\u{12_34} = 5"`, {
         source: '"let a\\u{12_34} = 5"',
         next: true,
-        line: 1
+        line: 1,
+        message: 'Invalid hexadecimal escape sequence',
+        column: 0,
+        index: 0
     });
 
     fail(`"\\u12_34"`, {
         source: '"\\u12_34"',
         next: true,
-        line: 1
+        line: 1,
+        message: 'Invalid hexadecimal escape sequence',
+        column: 0,
+        index: 0
     });
 
     fail(`5_______2;`, {
         source: '5_______2;',
-        next: true,
-        line: 1
+        line: 1,
+        message: 'Unexpected token identifier',
+        column: 0,
+        index: 0
     });
 
     fail(`0x_52`, {
         source: '0x_52',
         next: true,
-        line: 1
+        line: 1,
+        message:  'Missing hexadecimal digits after \'0x\'',
+        column: 0,
+        index: 0
     });
 
     fail(`1_`, {
         source: '1_',
         next: true,
-        line: 1
+        line: 1,
+        message: 'Numeric separators are not allowed here',
+        column: 0,
+        index: 0
     });
 
     fail(`3_.1415F;`, {
         source: '3_.1415F;',
         next: true,
-        line: 1
+        line: 1,
+        message: 'Numeric separators are not allowed here',
+        column: 0,
+        index: 0
+    });
+
+    fail(`3_.1415F;`, {
+        source: '3_.1415F;',
+        line: 1,
+        message: 'Unexpected token identifier',
+        column: 0,
+        index: 0
     });
 
     fail(`0x0_`, {
         source: '0x0_',
         next: true,
-        line: 1
+        line: 1,
+        message: 'Numeric separators are not allowed here',
+        column: 0,
+        index: 0
     });
 
     fail(`"\\u{12_34}"`, {
         source: '"\\u{12_34}"',
         next: true,
-        line: 1
+        line: 1,
+        message: 'Invalid hexadecimal escape sequence',
+        column: 0,
+        index: 0
     });
 
     fail(`"let a\\u{12_34} = 5"`, {
@@ -525,21 +564,7 @@ describe('Statements - Numeric separators', () => {
         source: '5_______2;',
         next: true,
         line: 1,
-        message: 'Numeric separators are not allowed here'
-    });
-
-    fail(`5_______2;`, {
-        source: '5_______2;',
-        next: true,
-        line: 1,
-        message: 'Numeric separators are not allowed here'
-    });
-
-    fail(`5_______2;`, {
-        source: '5_______2;',
-        next: true,
-        line: 1,
-        message: 'Numeric separators are not allowed here'
+        message: 'Only one underscore is allowed as numeric separator'
     });
 
     fail(`1e_1;`, {
@@ -567,14 +592,7 @@ describe('Statements - Numeric separators', () => {
         source: '1__0;',
         next: true,
         line: 1,
-        message: 'Numeric separators are not allowed here'
-    });
-
-    fail(`5_______2;`, {
-        source: '5_______2;',
-        next: true,
-        line: 1,
-        message: 'Numeric separators are not allowed here'
+        message: 'Only one underscore is allowed as numeric separator'
     });
 
     fail(`0.0_2_1_;`, {
@@ -588,7 +606,7 @@ describe('Statements - Numeric separators', () => {
         source: '0.0__21;',
         next: true,
         line: 1,
-        message: 'Numeric separators are not allowed here'
+        message: 'Only one underscore is allowed as numeric separator'
     });
 
     fail(`0_.01;`, {

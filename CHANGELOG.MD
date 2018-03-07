@@ -19,3 +19,10 @@
 
  * Added options for walk / syntax delegate as third argument
  * Exposed *.TSD files
+
+*2018-3.7: Version 1.3.0
+
+ * Refactored and optimized number scanning
+ * Fixed several issues with number scanning (*decimals with leading zero*)
+ * Reimplemnted numeric separators (*stage 3*)
+ * Improved performance

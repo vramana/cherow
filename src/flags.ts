@@ -115,8 +115,9 @@ export const enum Numbers {
     Binary                  = 1 << 5,
     Float                   = 1 << 6,
     HasNumericSeparator     = 1 << 8,
-    BigInt                  = 1 << 9,
-    EigthOrNine             = 1 << 10,
+    isPreviousTokenSeparator = 1 << 9,
+    BigInt                  = 1 << 10,
+    EigthOrNine             = 1 << 11,
     AllowDecimalImplicitOrFloat = Numbers.Decimal | Numbers.EigthOrNine | Numbers.Float
 }
 

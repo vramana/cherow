@@ -1,7 +1,7 @@
 import { Chars } from './chars';
 import { Token } from './token';
 import { Context, Scanner } from './flags';
-import { isValidIdentifierStart, isValidIdentifierPart, mustEscape } from './unicode';
+import { isValidIdentifierPart, mustEscape } from './unicode';
 import { Statement, CommentType, ExpressionStatement, Literal, Expression, Pattern, Comment } from './estree';
 import { Errors } from './errors';
 
@@ -94,9 +94,12 @@ export function isQualifiedJSXName(elementName: any): any {
             // ignore
     }
 }
-export const isIdentifierPart = (cp: Chars) => isValidIdentifierPart(cp) ||
-    (cp === Chars.Dollar || cp === Chars.Backslash)  // $ (dollar) and / (bBackslash)
-    ;
+
+export const isIdentifierPart = (code: Chars) => isValidIdentifierPart(code) ||
+        code === Chars.Backslash ||
+        code === Chars.Dollar ||
+        code === Chars.Underscore ||
+        (code >= Chars.Zero && code <= Chars.Nine); // 0..9;
 
 export function getCommentType(state: Scanner): CommentType {
     if (state & Scanner.SingleLine) return 'SingleLine';

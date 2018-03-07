@@ -113,7 +113,8 @@ export const enum Errors {
     InvalidPrivateFieldAccess,
     AwaitBindingIdentifier,
     AwaitExpressionFormalParameter,
-    UnexpectedLexicalDeclaration
+    UnexpectedLexicalDeclaration,
+    ContinuousNumericSeparator
 }
 
 export const ErrorMessages: {
@@ -233,6 +234,7 @@ export const ErrorMessages: {
     [Errors.AwaitBindingIdentifier]: '\'await\' is not a valid identifier name in an async function',
     [Errors.AwaitExpressionFormalParameter]: 'Illegal await-expression in formal parameters of async function',
     [Errors.UnexpectedLexicalDeclaration]: 'Lexical declaration cannot appear in a single-statement context',
+    [Errors.ContinuousNumericSeparator]: 'Only one underscore is allowed as numeric separator',
 };
 
 function constructError(msg: string, column: number): Error {

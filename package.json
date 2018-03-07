@@ -1,6 +1,6 @@
 {
   "name": "cherow",
-  "version": "1.2.9",
+  "version": "1.3.0",
   "description": "Fast, standard-compliant ECMAScript parser written in ECMAScript",
   "main": "lib/cherow.js",
   "types": "lib/cherow.d.ts",
@@ -48,7 +48,7 @@
     "coverage": "rimraf build && npm run pretest && nyc mocha ./build/test/**/*.js",
     "post_coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "clean": "rimraf lib dist build coverage",
-    "prepublish": "npm run build && npm run build:lib",
+    "prepublish": "npm run build",
     "prebuild": "tsc --skipLibCheck -t es2015 --m es2015",
     "pretest": "tsc --sourceMap --skipLibCheck -t es2015 --m umd",
     "bench": "node scripts/micro-bench",

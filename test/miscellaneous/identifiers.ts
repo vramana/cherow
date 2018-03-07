@@ -68,6 +68,230 @@ describe('Miscellaneous - Identifiers', () => {
         index: 3
     });
 
+    pass(`a123`, {
+        source: `a123`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "start": 0,
+            "end": 4,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 4
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 4,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 4
+                  }
+                },
+                "expression": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 4,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 4
+                    }
+                  },
+                  "name": "a123"
+                }
+              }
+            ],
+            "sourceType": "script"
+          }
+    });
+
+    pass(`a_123`, {
+        source: `a_123`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "start": 0,
+            "end": 5,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 5
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 5,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 5
+                  }
+                },
+                "expression": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 5,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 5
+                    }
+                  },
+                  "name": "a_123"
+                }
+              }
+            ],
+            "sourceType": "script"
+          }
+    });
+
+    pass(`$foo`, {
+        source: `$foo`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "start": 0,
+            "end": 4,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 4
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 4,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 4
+                  }
+                },
+                "expression": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 4,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 4
+                    }
+                  },
+                  "name": "$foo"
+                }
+              }
+            ],
+            "sourceType": "script"
+          }
+    });
+
+    pass(`$_123`, {
+        source: `$_123`,
+        loc: true,
+        ranges: true,
+        raw: true,
+        expected: {
+            "type": "Program",
+            "start": 0,
+            "end": 5,
+            "loc": {
+              "start": {
+                "line": 1,
+                "column": 0
+              },
+              "end": {
+                "line": 1,
+                "column": 5
+              }
+            },
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 5,
+                "loc": {
+                  "start": {
+                    "line": 1,
+                    "column": 0
+                  },
+                  "end": {
+                    "line": 1,
+                    "column": 5
+                  }
+                },
+                "expression": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 5,
+                  "loc": {
+                    "start": {
+                      "line": 1,
+                      "column": 0
+                    },
+                    "end": {
+                      "line": 1,
+                      "column": 5
+                    }
+                  },
+                  "name": "$_123"
+                }
+              }
+            ],
+            "sourceType": "script"
+          }
+    });
+
     pass(`async
     foo`, {
         source: `async

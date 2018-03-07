@@ -1019,10 +1019,12 @@ export class Parser {
         return codePoint;
     }
 
-    private scanDecimalAsSmi(context: Context) {
+    private scanDecimalAsSmi(context: Context, state: Numbers) {
+        
+        // TODO! Fix this as soon as numeric separators reach stage 4
 
         if (context & Context.OptionsNext) {
-            return this.scanDecimalDigitsOrFragment(context);
+            return this.scanDecimalDigitsOrFragment(context, state);
         }
 
         let value = 0;
@@ -1050,11 +1052,10 @@ export class Parser {
         return value;
     }
 
-    private scanDecimalDigitsOrFragment(context: Context): string {
+    private scanDecimalDigitsOrFragment(context: Context, state: Numbers): string {
 
         let start = this.index;
         let ret = '';
-        let hasSeparator = false;
 
         loop:
             while (this.hasNext()) {
@@ -1062,12 +1063,17 @@ export class Parser {
                 switch (this.nextChar()) {
                     case Chars.Underscore:
                         {
-                            ret += this.source.substring(start, this.index);
-                            this.advance();
-                            if (this.nextChar() === Chars.Underscore) {
+                            if (!(context & Context.OptionsNext)) break;
+                            
+                            if (state & Numbers.HasNumericSeparator) {
+                                state = state & ~Numbers.HasNumericSeparator | Numbers.isPreviousTokenSeparator;
+                                ret += this.source.substring(start, this.index);
+                            } else if (state & Numbers.isPreviousTokenSeparator) {
+                                this.tolerate(context, Errors.ContinuousNumericSeparator);
+                            } else {
                                 this.tolerate(context, Errors.InvalidNumericSeparators);
                             }
-                            hasSeparator = true;
+                            this.advance();
                             start = this.index;
                             continue;
                         }
@@ -1081,7 +1087,7 @@ export class Parser {
                     case Chars.Seven:
                     case Chars.Eight:
                     case Chars.Nine:
-                        hasSeparator = false;
+                        state = state & ~Numbers.isPreviousTokenSeparator | Numbers.HasNumericSeparator;
                         this.advance();
                         break;
                     default:
@@ -1089,7 +1095,9 @@ export class Parser {
                 }
             }
 
-        if (hasSeparator) this.tolerate(context, Errors.InvalidNumericSeparators);
+        if (state & Numbers.isPreviousTokenSeparator) {
+            this.tolerate(context, Errors.InvalidNumericSeparators);
+        }
 
         return ret + this.source.substring(start, this.index);
     }
@@ -1273,7 +1281,7 @@ export class Parser {
 
                 this.flags |= Flags.Octal;
 
-                value = this.scanDecimalDigitsOrFragment(context);
+                value = this.scanDecimalDigitsOrFragment(context, state);
 
             } else {
 
@@ -1288,12 +1296,12 @@ export class Parser {
 
         if (state & Numbers.AllowDecimalImplicitOrFloat) {
 
-            if (state & Numbers.Decimal) value = this.scanDecimalAsSmi(context);
+            if (state & Numbers.Decimal) value = this.scanDecimalAsSmi(context, state);
 
             if (this.consumeOpt(Chars.Period)) {
                 state |= Numbers.Float;
                 if (this.nextChar() === Chars.Underscore) this.report(Errors.InvalidNumericSeparators);
-                value = value + '.' + this.scanDecimalDigitsOrFragment(context);
+                value = value + '.' + this.scanDecimalDigitsOrFragment(context, state);
             }
         }
 
@@ -1320,7 +1328,7 @@ export class Parser {
             }
 
             const preNumericPart = this.source.substring(end, this.index);
-            value += preNumericPart + this.scanDecimalDigitsOrFragment(context);
+            value += preNumericPart + this.scanDecimalDigitsOrFragment(context, state);
         }
 
         if (isValidIdentifierStart(this.nextChar())) {
