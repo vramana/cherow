@@ -1414,7 +1414,7 @@ Parser.prototype.scanNumeric = function scanNumeric (context, state, ch) {
                         }
                         state &= ~256 /* HasNumericSeparator */;
                         if (ch === 56 /* Eight */ || ch === 57 /* Nine */) {
-                            state = 1024 /* EigthOrNine */;
+                            state = 1024 /* EigthOrNine */ | 64 /* Float */;
                             break;
                         }
                         if (ch < 48 /* Zero */ || ch > 55 /* Seven */)
@@ -1478,6 +1478,10 @@ Parser.prototype.scanNumeric = function scanNumeric (context, state, ch) {
     if (isIdentifierStart(this.nextChar())) {
         this.tolerate(context, 107 /* InvalidOrUnexpectedToken */);
     }
+    // Note! To be compatible  with other parsers, 'parseFloat'are used for 
+    // floating numbers - e.g. '0008.324'. There are really no need to use it.
+    if (state & 64 /* Float */)
+        { value = parseFloat(value); }
     this.tokenValue = value;
     if (context & 8 /* OptionsRaw */) {
         this.tokenRaw = this.source.slice(this.startIndex, this.index);
