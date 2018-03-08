@@ -807,7 +807,7 @@ describe('Miscellaneous - Failure', () => {
         message: 'Private fields can not be deleted',
         line: 6,
         column: 28,
-        index: 98
+        index: 74
     });
 
     fail(`class C {
@@ -828,7 +828,7 @@ describe('Miscellaneous - Failure', () => {
         message: 'Private fields can not be deleted',
         line: 4,
         column: 24,
-        index: 63
+        index: 51
     });
 
     fail(`var callCount = 0;
