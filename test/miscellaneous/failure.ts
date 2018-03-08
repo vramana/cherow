@@ -8,6 +8,102 @@ describe('Miscellaneous - Failure', () => {
         line: 1,
     });
 
+    /* Test262 failing tests */
+
+    fail(`class A { static set prototype() {} }`, {
+        source: `class A { static set prototype() {} }`,
+        message: 'Classes may not have static property named prototype',
+        line: 1,
+        column: 30,
+        index: 30
+    });
+
+    fail(`class A { static prototype() {} }`, {
+        source: `class A { static prototype() {} }`,
+        message: 'Classes may not have static property named prototype',
+        line: 1,
+        column: 16,
+        index: 16
+    });
+    
+    fail(`class A { static set method(_) { super(); } }`, {
+        source: `class A { static set method(_) { super(); } }`,
+        message: 'super() is not allowed in this context',
+        line: 1,
+        column: 38,
+        index: 38
+    });
+
+    fail(`class A { * constructor() {} }`, {
+        source: `class A { * constructor() {} }`,
+        message: 'Class constructor may not be a generator',
+        line: 1,
+        column: 23,
+        index: 23
+    });
+
+    fail(`class A { constructor() { super(); } }`, {
+        source: `class A { constructor() { super(); } }`,
+        message: 'super() is not allowed in this context',
+        line: 1,
+        column: 31,
+        index: 31
+    });
+
+    fail(`var af = ()
+    => {};`, {
+        source: `var af = ()
+        => {};`,
+        message: 'No line break is allowed after \'=>\'',
+        line: 1,
+        column: 11,
+        index: 11
+    });
+
+    fail(`var af = ()
+    => {};`, {
+        source: `var af = ()
+        => {};`,
+        message: 'No line break is allowed after \'=>\'',
+        line: 1,
+        column: 11,
+        index: 11
+    });
+    
+    fail(`var af = (x, x) => 1;`, {
+        source: `var af = (x, x) => 1;`,
+        message: 'Duplicate binding x',
+        line: 1,
+        column: 18,
+        index: 18
+    });
+
+    fail(`"use strict"; var af = eval => 1;`, {
+        source: `"use strict"; var af = eval => 1;`,
+        message: 'The identifier \'eval\' must not be in binding position in strict mode',
+        line: 1,
+        column: 27,
+        index: 27
+    });
+
+    fail(`for (;false;) let x;`, {
+        source: `for (;false;) let x;`,
+        message: 'Lexical declaration cannot appear in a single-statement context',
+        line: 1,
+        column: 14,
+        index: 14
+    });
+
+    fail(`"use strict"; var af = eval => 1;`, {
+        source: `"use strict"; var af = eval => 1;`,
+        message: 'The identifier \'eval\' must not be in binding position in strict mode',
+        line: 1,
+        column: 27,
+        index: 27
+    });
+
+    /* Others */
+
     fail(`/*`, {
         source: `/*`,
         message: 'Unterminated MultiLineComment',

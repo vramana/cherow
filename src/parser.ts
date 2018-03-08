@@ -4375,7 +4375,7 @@ export class Parser {
 
                 if (context & Context.OptionsNext && this.token === Token.Hash) {
                     this.expect(context, Token.Hash);
-                    if (this.token === Token.ConstructorKeyword) {
+                    if (this.tokenValue === 'constructor') {
                         this.report(Errors.PrivateFieldConstructor);
                     }
                     state |= Clob.PrivateName;
@@ -4413,10 +4413,11 @@ export class Parser {
         }
 
         if (!(state & Clob.Computed)) {
+            
             if (!(state & Clob.Static) && this.tokenValue === 'constructor') {
                 state |= Clob.Constructor;
                 if (state & Clob.Special) {
-                    this.tolerate(context, Errors.ConstructorSpecialMethod);
+                    this.tolerate(context, state & Clob.Generator ? Errors.ConstructorIsGenerator : Errors.ConstructorSpecialMethod);
                 }
 
                 if (state & Clob.HasConstructor) {

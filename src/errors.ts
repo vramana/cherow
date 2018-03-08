@@ -114,7 +114,8 @@ export const enum Errors {
     AwaitBindingIdentifier,
     AwaitExpressionFormalParameter,
     UnexpectedLexicalDeclaration,
-    ContinuousNumericSeparator
+    ContinuousNumericSeparator,
+    ConstructorIsGenerator
 }
 
 export const ErrorMessages: {
@@ -139,6 +140,7 @@ export const ErrorMessages: {
     [Errors.InvalidNestedStatement]: '%0  statement must be nested within an iteration statement',
     [Errors.DisallowedInContext]: '\'%0\' may not be used as an identifier in this context',
     [Errors.DuplicateProtoProperty]: 'Property name __proto__ appears more than once in object literal',
+    [Errors.ConstructorIsGenerator]: 'Class constructor may not be a generator',
     [Errors.ConstructorSpecialMethod]: 'Class member named constructor (or \'constructor\') may not be an accessor',
     [Errors.StaticPrototype]: 'Classes may not have static property named prototype',
     [Errors.PrivateFieldConstructor]: 'Classes may not have a private field named \'#constructor\'',
