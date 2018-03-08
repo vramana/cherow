@@ -197,7 +197,7 @@ export const ErrorMessages: {
     [Errors.UnexpectedNewlineRegExp]: 'Regular expressions can not contain escaped newlines',
     [Errors.UnexpectedTokenRegExp]: 'Unexpected regular expression',
     [Errors.UnexpectedTokenRegExpFlag]: 'Unexpected regular expression flag',
-    [Errors.UnterminatedRegExp]: 'Unterminated regular expression literal -- a / was expected',
+    [Errors.UnterminatedRegExp]: 'Unterminated regular expression literal',
     [Errors.UnterminatedComment]: 'Unterminated MultiLineComment',
     [Errors.YieldInParameter]: 'Yield expression not allowed in formal parameter',
     [Errors.InvalidNumericSeparators]: 'Numeric separators are not allowed here',

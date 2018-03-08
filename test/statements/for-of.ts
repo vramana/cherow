@@ -5161,52 +5161,52 @@ describe('Statements - For of', () => {
             }
         });
 
-        pass(`for (const a of ([...b, c])) {}`, {
+    pass(`for (const a of ([...b, c])) {}`, {
             source: `for (const a of ([...b, c])) {}`,
             raw: true,
             expected: {
-                  "body": [
+                  body: [
                     {
-                      "await": false,
-                      "body": {
-                        "body": [],
-                        "type": "BlockStatement",
+                      await: false,
+                      body: {
+                        body: [],
+                        type: 'BlockStatement',
                       },
-                      "left": {
-                        "declarations": [
+                      left: {
+                        declarations: [
                           {
-                            "id": {
-                              "name": "a",
-                              "type": "Identifier",
+                            id: {
+                              name: 'a',
+                              type: 'Identifier',
                             },
-                            "init": null,
-                            "type": "VariableDeclarator"
+                            init: null,
+                            type: 'VariableDeclarator'
                           }
                         ],
-                        "kind": "const",
-                        "type": "VariableDeclaration",
+                        kind: 'const',
+                        type: 'VariableDeclaration',
                       },
-                      "right": {
-                        "elements": [
+                      right: {
+                        elements: [
                           {
-                            "argument": {
-                              "name": "b",
-                              "type": "Identifier",
+                            argument: {
+                              name: 'b',
+                              type: 'Identifier',
                             },
-                            "type": "SpreadElement",
+                            type: 'SpreadElement',
                           },
                           {
-                            "name": "c",
-                            "type": "Identifier",
+                            name: 'c',
+                            type: 'Identifier',
                           },
                         ],
-                        "type": "ArrayExpression",
+                        type: 'ArrayExpression',
                       },
-                     "type": "ForOfStatement"
+                     type: 'ForOfStatement'
                     },
                   ],
-                  "sourceType": "script",
-                  "type": "Program"
+                  sourceType: 'script',
+                  type: 'Program'
                 }
         });
 });

@@ -4407,7 +4407,7 @@ export class Parser {
         }
 
         if (!(state & Clob.Computed)) {
-            
+
             if (!(state & Clob.Static) && this.tokenValue === 'constructor') {
                 state |= Clob.Constructor;
                 if (state & Clob.Special) {

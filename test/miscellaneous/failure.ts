@@ -10,6 +10,899 @@ describe('Miscellaneous - Failure', () => {
 
     /* Test262 failing tests */
 
+    fail(`  class C {
+        static get ['prototype']() {}
+      }
+    });`, {
+        source: `  class C {
+            static get ['prototype']() {}
+          }
+        });`,
+        message: 'Classes may not have static property named prototype',
+        line: 2,
+        column: 36,
+        index: 48
+    });
+
+    fail(` class C {
+        static set ['prototype'](x) {}
+      }`, {
+        source: ` class C {
+            static set ['prototype'](x) {}
+          }`,
+        message: 'Classes may not have static property named prototype',
+        line: 2,
+        column: 36,
+        index: 47
+    });
+
+    fail(`var obj = {
+        async method() {
+          var await;
+        }
+      };`, {
+        source: `var obj = {
+            async method() {
+              var await;
+            }
+          };`,
+        message:  'Unexpected reserved word',
+        line: 3,
+        column: 17,
+        index: 58
+    });
+
+    fail(`var obj = {
+        async method() {
+          var \\u0061wait;
+        }
+      };`, {
+        source: `var obj = {
+            async method() {
+              var \\u0061wait;
+            }
+          };`,
+        message:  'Unexpected reserved word',
+        line: 3,
+        column: 17,
+        index: 58
+    });
+
+    fail(`while (false) async function* g() {}`, {
+        source: `while (false) async function* g() {}`,
+        message: 'Async functions can only be declared at the top level or inside a block',
+        line: 1,
+        column: 13,
+        index: 13
+    });
+
+    fail(`while true break;`, {
+        source: `while true break;`,
+        message: 'Unexpected keyword \'true\'',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    fail(`while 1 break;`, {
+        source: `while 1 break;`,
+        message: 'Unexpected token number',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    fail(`var x in __arr;`, {
+        source: `var x in __arr;`,
+        message: 'Unexpected keyword \'in\'',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    fail(`var x += 1;`, {
+        source: `var x += 1;`,
+        message:  'Unexpected token +=',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    fail(`label: async function* g() {}`, {
+        source: `label: async function* g() {}`,
+        message: 'Async functions can only be declared at the top level or inside a block',
+        line: 1,
+        column: 6,
+        index: 6
+    });
+
+    fail(`if (false) let
+    [a] = 0;`, {
+        source: `if (false) let
+        [a] = 0;`,
+        message:  'Unexpected token let',
+        line: 1,
+        column: 11,
+        index: 11
+    });
+
+    fail(`if true;`, {
+        source: `if true;`,
+        message: 'Unexpected keyword \'true\'',
+        line: 1,
+        column: 2,
+        index: 2
+    });
+
+    fail(`if({1})
+    {
+      ;
+    }else
+    {
+      ;
+    }`, {
+        source: `if({1})
+        {
+          ;
+        }else
+        {
+          ;
+        }`,
+        message: 'Unexpected token number',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    fail(`function *gen() {
+        yield: ;
+      }`, {
+        source: `function *gen() {
+            yield: ;
+          }`,
+        message: 'Unexpected token :',
+        line: 2,
+        column: 17,
+        index: 35
+    });
+
+    fail(`function* f([...{ x }, y] = [1, 2, 3]) {};`, {
+        source: `function* f([...{ x }, y] = [1, 2, 3]) {};`,
+        message: 'Unexpected token ,',
+        line: 1,
+        column: 21,
+        index: 21
+    });
+
+    fail(`function _13_1_16_fun(eval) { 'use strict'; }`, {
+        source: `function _13_1_16_fun(eval) { 'use strict'; }`,
+        message: 'Unexpected strict mode reserved word',
+        line: 1,
+        column: 22,
+        index: 22
+    });
+
+    fail(`"use strict"; function _13_1_3_fun(arguments) { }`, {
+        source: `"use strict"; function _13_1_3_fun(arguments) { }`,
+        message: 'Eval or arguments can\'t be assigned to in strict mode code',
+        line: 1,
+        column: 35,
+        index: 35
+    });
+
+    fail(`"use strict"; function arguments() { }`, {
+        source: `"use strict"; function arguments() { }`,
+        message: 'Eval or arguments can\'t be assigned to in strict mode code',
+        line: 1,
+        column: 22,
+        index: 22
+    });
+
+    fail(`function __func(){/ ABC}`, {
+        source: `function __func(){/ ABC}`,
+        message: 'Unterminated regular expression literal',
+        line: 1,
+        column: 18,
+        index: 18
+    });
+
+    fail(`function __func(){&1}`, {
+        source: `function __func(){&1}`,
+        message: 'Unexpected token &',
+        line: 1,
+        column: 18,
+        index: 18
+    });
+
+    fail(`function x,y,z(){}`, {
+        source: `function x,y,z(){}`,
+        message:  'Unexpected token ,',
+        line: 1,
+        column: 10,
+        index: 10
+    });
+
+    fail(`function _13_0_11_fun() {
+        "use strict";
+        function _13_0_11_inner() {
+            eval = 42;
+        }
+    }`, {
+        source: `function _13_0_11_fun() {
+            "use strict";
+            function _13_0_11_inner() {
+                eval = 42;
+            }
+        }`,
+        message: 'Eval or arguments can\'t be assigned to in strict mode code',
+        line: 4,
+        column: 20,
+        index: 112
+    });
+
+    fail(`function f(x = super.x) {}`, {
+        source: `function f(x = super.x) {}`,
+        message: 'Member access from super not allowed in this context',
+        line: 1,
+        column: 20,
+        index: 20
+    });
+
+    fail(`function f() {
+        super();
+      }`, {
+        source: `function f() {
+            super();
+          }`,
+        message: 'super() is not allowed in this context',
+        line: 2,
+        column: 17,
+        index: 32
+    });
+
+    fail(`function f([...{ x }, y] = [1, 2, 3]) {}`, {
+        source: `function f([...{ x }, y] = [1, 2, 3]) {}`,
+        message: 'Unexpected token ,',
+        line: 1,
+        column: 20,
+        index: 20
+    });
+
+    fail(`function f([...x = []] = []) {}`, {
+        source: `function f([...x = []] = []) {}`,
+        message: 'Unexpected token =',
+        line: 1,
+        column: 16,
+        index: 16
+    });
+
+    fail(`function f([...[x], y]) {}`, {
+        source: `function f([...[x], y]) {}`,
+        message: 'Unexpected token ,',
+        line: 1,
+        column: 18,
+        index: 18
+    });
+
+    fail(`function f(...x = []) {}`, {
+        source: `function f(...x = []) {}`,
+        message: 'Rest elements cannot have a initializer',
+        line: 1,
+        column: 15,
+        index: 15
+    });
+
+    fail(`for (const x of []) label1: label2: function f() {}`, {
+        source: `for (const x of []) label1: label2: function f() {}`,
+        message: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
+        line: 1,
+        column: 35,
+        index: 35
+    });
+
+    fail(`for ( let of [] ) ;`, {
+        source: `for ( let of [] ) ;`,
+        message: 'Unexpected token [',
+        line: 1,
+        column: 12,
+        index: 12
+    });
+
+    fail(`for ([(x, y)] of []) {}`, {
+        source: `for ([(x, y)] of []) {}`,
+        message: '\'SequenceExpression\' is not a valid assignment left hand side',
+        line: 1,
+        column: 19,
+        index: 19
+    });
+
+    fail(`for ((this) of []) {}`, {
+        source: `for ((this) of []) {}`,
+        message: '\'ThisExpression\' is not a valid assignment left hand side',
+        line: 1,
+        column: 17,
+        index: 17
+    });
+
+    fail(`
+    var x;
+    for (x of [], []) {}`, {
+        source: `
+        var x;
+        for (x of [], []) {}`,
+        message:  'Unexpected token ,',
+        line: 3,
+        column: 20,
+        index: 36
+    });
+
+    fail(`for (let x of [], []) {}`, {
+        source: `for (let x of [], []) {}`,
+        message: 'Unexpected token ,',
+        line: 1,
+        column: 16,
+        index: 16
+    });
+
+    fail(`for (var [...[x], y] of [[1, 2, 3]]) {}`, {
+        source: `for (var [...[x], y] of [[1, 2, 3]]) {}`,
+        message: 'Unexpected token ,',
+        line: 1,
+        column: 16,
+        index: 16
+    });
+
+    fail(`for ([...x = 1] of [[]]) ;`, {
+        source: `for ([...x = 1] of [[]]) ;`,
+        message: 'Rest elements cannot have a default value',
+        line: 1,
+        column: 23,
+        index: 23
+    });
+
+    fail(`for (var x of []) function* g() {}`, {
+        source: `for (var x of []) function* g() {}`,
+        message: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
+        line: 1,
+        column: 17,
+        index: 17
+    });
+
+    fail(`for (var x of []) class C {}`, {
+        source: `for (var x of []) class C {}`,
+        message:  'class can\'t appear in single-statement context',
+        line: 1,
+        column: 17,
+        index: 17
+    });
+
+    fail(`for (var x of []) async function f() {}`, {
+        source: `for (var x of []) async function f() {}`,
+        message: 'Async functions can only be declared at the top level or inside a block',
+        line: 1,
+        column: 17,
+        index: 17
+    });
+
+    fail(`for ((this) in {}) {}`, {
+        source: `for ((this) in {}) {}`,
+        message: 'Invalid left-hand side in for-loop',
+        line: 1,
+        column: 17,
+        index: 17
+    });
+
+    fail(`for ({ x: [(x, y)] } in [{ x: [] }]) ;`, {
+        source: `for ({ x: [(x, y)] } in [{ x: [] }]) ;`,
+        message: '\'SequenceExpression\' is not a valid assignment left hand side',
+        line: 1,
+        column: 35,
+        index: 35
+    });
+
+    fail(`"use strict"; for ({ eval = 0 } in [{}]) ;`, {
+        source: `"use strict"; for ({ eval = 0 } in [{}]) ;`,
+        message: 'Unexpected eval or arguments in strict mode',
+        line: 1,
+        column: 25,
+        index: 25
+    });
+
+    fail(`for ([...{ get x() {} }] in [[[]]]) ;`, {
+        source: `for ([...{ get x() {} }] in [[[]]]) ;`,
+        message: 'Invalid destructuring assignment target',
+        line: 1,
+        column: 34,
+        index: 34
+    });
+
+    fail(`for ([...x = 1] in [[]]) ;`, {
+        source: `for ([...x = 1] in [[]]) ;`,
+        message:  'Rest elements cannot have a default value',
+        line: 1,
+        column: 23,
+        index: 23
+    });
+
+    fail(`for ([{ get x() {} }] in [[{}]]) ;`, {
+        source: `for ([{ get x() {} }] in [[{}]]) ;`,
+        message: 'Invalid destructuring assignment target',
+        line: 1,
+        column: 31,
+        index: 31
+    });
+
+    fail(`for ([[(x, y)]] in [[[]]]) ;`, {
+        source: `for ([[(x, y)]] in [[[]]]) ;`,
+        message: '\'SequenceExpression\' is not a valid assignment left hand side',
+        line: 1,
+        column: 25,
+        index: 25
+    });
+
+    fail(`for (var x in {}) let y;`, {
+        source: `for (var x in {}) let y;`,
+        message: 'Lexical declaration cannot appear in a single-statement context',
+        line: 1,
+        column: 18,
+        index: 18
+    });
+
+    fail(`for (var x in {}) function* g() {}`, {
+        source: `for (var x in {}) function* g() {}`,
+        message: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
+        line: 1,
+        column: 17,
+        index: 17
+    });
+
+    fail(`for (var x in {}) async function* g() {}`, {
+        source: `for (var x in {}) async function* g() {}`,
+        message: 'Async functions can only be declared at the top level or inside a block',
+        line: 1,
+        column: 17,
+        index: 17
+    });
+
+    fail(`async function* f() {
+        for await (var x o\\u0066 []) ;
+      }`, {
+        source: `async function* f() {
+            for await (var x o\\u0066 []) ;
+          }`,
+        message:  'Unexpected escaped keyword',
+        line: 2,
+        column: 28,
+        index: 50
+    });
+
+    fail(`async function *fn() {
+        for await (var [...[x], y] of asyncIter) {
+               }
+      }`, {
+        source: `async function *fn() {
+            for await (var [...[x], y] of asyncIter) {
+                   }
+          }`,
+        message:  'Unexpected token ,',
+        line: 2,
+        column: 34,
+        index: 57
+    });
+
+    fail(`async function *fn() {
+        for await (var [...{ x }, y] of [[1, 2, 3]]) {
+               }
+      }`, {
+        source: `async function *fn() {
+            for await (var [...{ x }, y] of [[1, 2, 3]]) {
+                   }
+          }`,
+        message:  'Unexpected token ,',
+        line: 2,
+        column: 36,
+        index: 59
+    });
+
+    fail(`async function *fn() {
+        for await (var [...[ x ] = []] of [[]]) {
+        }
+      }`, {
+        source: `async function *fn() {
+            for await (var [...[ x ] = []] of [[]]) {
+            }
+          }`,
+        message:  'Unexpected token =',
+        line: 2,
+        column: 36,
+        index: 59
+    });
+
+    fail(`async function *fn() {
+        for await (let [...x, y] of asyncIter) {
+        }
+      }`, {
+        source: `async function *fn() {
+            for await (let [...x, y] of asyncIter) {
+            }
+          }`,
+        message: 'Unexpected token ,',
+        line: 2,
+        column: 32,
+        index: 55
+    });
+
+    fail(`async function *fn() {
+        for await (let [...{ x } = []] of asyncIter) {
+        }
+      }`, {
+        source: `async function *fn() {
+            for await (let [...{ x } = []] of asyncIter) {
+            }
+          }`,
+        message: 'Unexpected token =',
+        line: 2,
+        column: 36,
+        index: 59
+    });
+
+    fail(`async function *fn() {
+        for await (const [...{ x }, y] of asyncIter) {
+        }
+      }`, {
+        source: `async function *fn() {
+            for await (const [...{ x }, y] of asyncIter) {
+            }
+          }`,
+        message: 'Unexpected token ,',
+        line: 2,
+        column: 38,
+        index: 61
+    });
+
+    fail(`async function fn() {
+        for await ([ x[yield] ] of [[]])
+      }`, {
+        source: `async function fn() {
+            for await ([ x[yield] ] of [[]])
+          }`,
+        message:  'Unexpected token }',
+        line: 2,
+        column: 44,
+        index: 66
+    });
+
+    fail(`for(var index=0; index<100; {index++; index*2;}) {	arr.add(""+index);};`, {
+        source: `for(var index=0; index<100; {index++; index*2;}) {	arr.add(""+index);};`,
+        message: 'Unexpected token ++',
+        line: 1,
+        column: 34,
+        index: 34
+    });
+
+    fail(`for(1 in [1,2,3,4,5];1;) {
+        break;
+    }`, {
+        source: `for(1 in [1,2,3,4,5];1;) {
+            break;
+        }`,
+        message: 'Invalid left-hand side in for-loop',
+        line: 1,
+        column: 20,
+        index: 20
+    });
+
+    fail(`for (var a in [1,2,3,4,5];1;){
+        break;
+    }`, {
+        source: `for (var a in [1,2,3,4,5];1;){
+            break;
+        }`,
+        message: 'Unexpected token ;',
+        line: 1,
+        column: 25,
+        index: 25
+    });
+
+    fail(`outer:for(var index=0;index<4;index+=1){
+        nested:for(var index_n=0;index_n<=index;index_n++){
+            if(index*index_n == 6)continue nonexist;
+            __str+=""+index+index_n;
+        }
+    }`, {
+        source: `outer:for(var index=0;index<4;index+=1){
+            nested:for(var index_n=0;index_n<=index;index_n++){
+                if(index*index_n == 6)continue nonexist;
+                __str+=""+index+index_n;
+            }
+        }`,
+        message: 'Undefined label \'nonexist\'',
+        line: 3,
+        column: 55,
+        index: 160
+    });
+
+    fail(`do let x; while (false)`, {
+        source: `do let x; while (false)`,
+        message: 'Lexical declaration cannot appear in a single-statement context',
+        line: 1,
+        column: 3,
+        index: 3
+    });
+
+    fail(`do function* g() {} while (false)`, {
+        source: `do function* g() {} while (false)`,
+        message: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
+        line: 1,
+        column: 2,
+        index: 2
+    });
+
+    fail(`do async function* g() {} while (false)`, {
+        source: `do async function* g() {} while (false)`,
+        message: 'Async functions can only be declared at the top level or inside a block',
+        line: 1,
+        column: 2,
+        index: 2
+    });
+
+    fail(`do break; while true;`, {
+        source: `do break; while true;`,
+        message: 'Unexpected keyword \'true\'',
+        line: 1,
+        column: 15,
+        index: 15
+    });
+
+    fail(`const [...x, y] = [1, 2, 3];`, {
+        source: `const [...x, y] = [1, 2, 3];`,
+        message: 'Unexpected token ,',
+        line: 1,
+        column: 11,
+        index: 11
+    });
+
+    fail(`const [...x = []] = [];`, {
+        source: `const [...x = []] = [];`,
+        message: 'Unexpected token =',
+        line: 1,
+        column: 11,
+        index: 11
+    });
+
+    fail(`new C().#x;`, {
+        source: `new C().#x;`,
+        message:  'Invalid or unexpected token',
+        next: true,
+        line: 1,
+        column: 8,
+        index: 8
+    });
+
+    fail(`class C {
+        static method(...a,) {
+
+        }
+      }`, {
+        source: `class C {
+            static method(...a,) {
+
+            }
+          }`,
+        message: 'Rest parameter must be last formal parameter',
+        line: 2,
+        column: 30,
+        index: 40
+    });
+
+    fail(`class C {
+        method(...x = []) {
+
+        }
+      }`, {
+        source: `class C {
+            method(...x = []) {
+
+            }
+          }`,
+        message:  'Rest elements cannot have a initializer',
+        line: 2,
+        column: 23,
+        index: 33
+    });
+
+    fail(`class C { get a(param = null) {} }`, {
+        source: `class C { get a(param = null) {} }`,
+        message: 'Getter functions must have no arguments',
+        line: 1,
+        column: 28,
+        index: 28
+    });
+
+    fail(`
+    class C { *gen() {
+        void yield;
+    }}`, {
+        source: `
+        class C { *gen() {
+            void yield;
+        }}`,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 3,
+        column: 16,
+        index: 44
+    });
+
+    fail(`class C {static *gen() {
+        yield: ;
+    }}`, {
+        source: `class C {static *gen() {
+            yield: ;
+        }}`,
+        message: 'Unexpected token :',
+        line: 2,
+        column: 17,
+        index: 42
+    });
+
+    fail(`class C {
+        #x = arguments;
+      }`, {
+        source: `class C {
+            #x = arguments;
+          }`,
+        message: 'Invalid or unexpected token',
+        line: 1,
+        column: 9,
+        index: 9
+    });
+
+    fail(`class C {
+        static #field;
+      }`, {
+        source: `class C {
+            static #field;
+          }`,
+        message:  'Unexpected token',
+        next: true,
+        line: 2,
+        column: 18,
+        index: 28
+    });
+
+    fail(`class C {
+        static #field = 0;
+      }`, {
+        source: `class C {
+            static #field = 0;
+          }`,
+        next: true,
+        message: 'Unexpected token',
+        line: 2,
+        column: 18,
+        index: 28
+    });
+
+    fail(`class C {
+        #x;
+
+        x() {
+
+          delete this.#x;
+        }
+
+
+      }`, {
+        source: `class C {
+            #x;
+
+            x() {
+
+              delete this.#x;
+            }
+
+
+          }`,
+          next: true,
+        message: 'Private fields can not be deleted',
+        line: 6,
+        column: 28,
+        index: 98
+    });
+
+    fail(`class C {
+        #x;
+
+        x = delete ((this.#x));
+
+
+      }`, {
+        source: `class C {
+            #x;
+
+            x = delete ((this.#x));
+
+
+          }`,
+          next: true,
+        message: 'Private fields can not be deleted',
+        line: 4,
+        column: 24,
+        index: 63
+    });
+
+    fail(`var callCount = 0;
+    class C {
+      static method([...{ x }, y]) {
+
+        callCount = callCount + 1;
+      }
+    };`, {
+        source: `var callCount = 0;
+        class C {
+          static method([...{ x }, y]) {
+
+            callCount = callCount + 1;
+          }
+        };`,
+        message: 'Unexpected token ,',
+        line: 3,
+        column: 33,
+        index: 70
+    });
+
+    fail(`var callCount = 0;
+    class C {
+      method([...{ x } = []]) {
+
+        callCount = callCount + 1;
+      }
+    };`, {
+        source: `var callCount = 0;
+        class C {
+          method([...{ x } = []]) {
+
+            callCount = callCount + 1;
+          }
+        };`,
+        message:  'Unexpected token =',
+        line: 3,
+        column: 26,
+        index: 63
+    });
+
+    fail(`class C { static async *gen() {
+        var yield;
+    }}`, {
+        source: `class C { static async *gen() {
+            var yield;
+        }}`,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 2,
+        column: 15,
+        index: 47
+    });
+
+    fail(`var x=0,y=0;
+
+    LABEL1 : do {
+        x++;
+        (function(){break LABEL1;})();
+        y++;
+    } while(0);`, {
+        source: `var x=0,y=0;
+
+        LABEL1 : do {
+            x++;
+            (function(){break LABEL1;})();
+            y++;
+        } while(0);`,
+        message:  'Undefined label \'LABEL1\'',
+        line: 5,
+        column: 36,
+        index: 89
+    });
+
     fail(`class A { static set prototype() {} }`, {
         source: `class A { static set prototype() {} }`,
         message: 'Classes may not have static property named prototype',
@@ -25,7 +918,7 @@ describe('Miscellaneous - Failure', () => {
         column: 16,
         index: 16
     });
-    
+
     fail(`class A { static set method(_) { super(); } }`, {
         source: `class A { static set method(_) { super(); } }`,
         message: 'super() is not allowed in this context',
@@ -69,7 +962,7 @@ describe('Miscellaneous - Failure', () => {
         column: 11,
         index: 11
     });
-    
+
     fail(`var af = (x, x) => 1;`, {
         source: `var af = (x, x) => 1;`,
         message: 'Duplicate binding x',
@@ -280,12 +1173,12 @@ describe('Miscellaneous - Failure', () => {
 
     fail(`0, {
         method(...a,) {
-          
+
         }
       };`, {
         source: `0, {
             method(...a,) {
-              
+
             }
           };`,
         message:  'Rest parameter must be last formal parameter',
@@ -344,12 +1237,12 @@ describe('Miscellaneous - Failure', () => {
 
     fail(`0, {
         *method(...a,) {
-          
+
         }
       };`, {
         source: `0, {
             *method(...a,) {
-              
+
             }
           };`,
         message:  'Rest parameter must be last formal parameter',
@@ -410,12 +1303,12 @@ describe('Miscellaneous - Failure', () => {
 
     fail(`({
         async *method(...a,) {
-          
+
         }
       });`, {
         source: `({
             async *method(...a,) {
-              
+
             }
           });`,
         message: 'Rest parameter must be last formal parameter',
@@ -494,12 +1387,12 @@ describe('Miscellaneous - Failure', () => {
 /*
     fail(`0, {
         async *method(x = 0, x) {
-          
+
         }
       };`, {
         source: `0, {
             async *method(x = 0, x) {
-              
+
             }
           };`,
         message: 'The identifier \'eval\' must not be in binding position in strict mode',
@@ -673,7 +1566,7 @@ describe('Miscellaneous - Failure', () => {
     try {
       throw [1, 2, 3];
     } catch ([...[x], y]) {
-      
+
       ranCatch = true;
     }`, {
         source: `var ranCatch = false;
@@ -681,7 +1574,7 @@ describe('Miscellaneous - Failure', () => {
         try {
           throw [1, 2, 3];
         } catch ([...[x], y]) {
-          
+
           ranCatch = true;
         }`,
         message: 'Unexpected token ,',
@@ -695,7 +1588,7 @@ describe('Miscellaneous - Failure', () => {
     try {
       throw [];
     } catch ([...{ x } = []]) {
-      
+
       ranCatch = true;
     }`, {
         source: `var ranCatch = false;
@@ -703,7 +1596,7 @@ describe('Miscellaneous - Failure', () => {
         try {
           throw [];
         } catch ([...{ x } = []]) {
-          
+
           ranCatch = true;
         }`,
         message:  'Unexpected token =',
@@ -724,7 +1617,6 @@ describe('Miscellaneous - Failure', () => {
         index: 20
     });
 
-    
     fail(`try
     {
     }
@@ -918,7 +1810,7 @@ describe('Miscellaneous - Failure', () => {
         column: 16,
         index: 16
     });
-    
+
     fail(`class A { static set method(_) { super(); } }`, {
         source: `class A { static set method(_) { super(); } }`,
         message: 'super() is not allowed in this context',
@@ -962,7 +1854,7 @@ describe('Miscellaneous - Failure', () => {
         column: 11,
         index: 11
     });
-    
+
     fail(`var af = (x, x) => 1;`, {
         source: `var af = (x, x) => 1;`,
         message: 'Duplicate binding x',
