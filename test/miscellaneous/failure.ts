@@ -102,6 +102,899 @@ describe('Miscellaneous - Failure', () => {
         index: 27
     });
 
+    fail(`"use strict"; var af = eval => 1;`, {
+        source: `"use strict"; var af = eval => 1;`,
+        message: 'The identifier \'eval\' must not be in binding position in strict mode',
+        line: 1,
+        column: 27,
+        index: 27
+    });
+
+    fail(`function* f() {
+        let
+        yield 0;
+    }`, {
+        source: `function* f() {
+            let
+            yield 0;
+        }`,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 2,
+        column: 15,
+        index: 31
+    });
+
+    fail(`function f() {
+        let
+        await 0;
+    }`, {
+        source: `function f() {
+            let
+            await 0;
+        }`,
+        message: 'Unexpected token number',
+        line: 3,
+        column: 17,
+        index: 48
+    });
+
+    fail(`let  // start of a LexicalDeclaration, *not* an ASI opportunity
+    let;`, {
+        source: `let  // start of a LexicalDeclaration, *not* an ASI opportunity
+        let;`,
+        message: 'let is disallowed as a lexically bound name',
+        line: 1,
+        column: 3,
+        index: 3
+    });
+
+    fail(`label: const x;`, {
+        source: `label: const x;`,
+        message: 'Unexpected keyword \'const\'',
+        line: 1,
+        column: 6,
+        index: 6
+    });
+
+    fail(`if (true) {} else const x;`, {
+        source: `if (true) {} else const x;`,
+        message: 'Unexpected keyword \'const\'',
+        line: 1,
+        column: 17,
+        index: 17
+    });
+
+    fail(`if (true) const x = 1;`, {
+        source: `if (true) const x = 1;`,
+        message: 'Unexpected keyword \'const\'',
+        line: 1,
+        column: 9,
+        index: 9
+    });
+
+    fail(`do const x = 1; while (false)`, {
+        source: `do const x = 1; while (false)`,
+        message: 'Unexpected keyword \'const\'',
+        line: 1,
+        column: 2,
+        index: 2
+    });
+
+    fail(`class A {
+        *g() { yield 3 + yield 4; }
+      }`, {
+        source: `class A {
+            *g() { yield 3 + yield 4; }
+          }`,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 2,
+        column: 28,
+        index: 38
+    });
+
+    fail(`class A {
+        *g() {
+          yield ? yield : yield;
+        }
+      }`, {
+        source: `class A {
+            *g() {
+              yield ? yield : yield;
+            }
+          }`,
+        message: 'Unexpected token ?',
+        line: 3,
+        column: 19,
+        index: 48
+    });
+
+    fail(`class Foo {
+        async foo(foo = super()) { }
+      }`, {
+        source: `class Foo {
+            async foo(foo = super()) { }
+          }`,
+        message: 'super() is not allowed in this context',
+        line: 2,
+        column: 33,
+        index: 45
+    });
+
+    fail(`var obj = {
+        *g() { yield 3 + yield 4; }
+      };`, {
+        source: `var obj = {
+            *g() { yield 3 + yield 4; }
+          };`,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 2,
+        column: 28,
+        index: 40
+    });
+
+    fail(`var obj = {
+        *g() {
+          yield
+          * 1
+        }
+      };`, {
+        source: `var obj = {
+            *g() {
+              yield
+              * 1
+            }
+          };`,
+        message: 'Unexpected token *',
+        line: 3,
+        column: 19,
+        index: 50
+    });
+
+    fail(`({
+        method(param = super) {}
+      });`, {
+        source: `({
+            method(param = super) {}
+          });`,
+        message: 'Only "(" or "." or "[" are allowed after \'super\'',
+        line: 1,
+        column: 1,
+        index: 1
+    });
+
+    fail(`({
+        method() {
+          super;
+        }
+      });`, {
+        source: `({
+            method() {
+              super;
+            }
+          });`,
+        message: 'Only "(" or "." or "[" are allowed after \'super\'',
+        line: 1,
+        column: 1,
+        index: 1
+    });
+
+    fail(`0, {
+        method(...a,) {
+          
+        }
+      };`, {
+        source: `0, {
+            method(...a,) {
+              
+            }
+          };`,
+        message:  'Rest parameter must be last formal parameter',
+        line: 2,
+        column: 23,
+        index: 28
+    });
+
+    fail(`(function*() {
+        ({
+          *method(x = yield) {}
+        });
+      });`, {
+        source: `(function*() {
+            ({
+              *method(x = yield) {}
+            });
+          });`,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 2,
+        column: 13,
+        index: 28
+    });
+
+    fail(`var obj = {
+        *method() {
+          void yield;
+        }
+      };`, {
+        source: `var obj = {
+            *method() {
+              void yield;
+            }
+          };`,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 3,
+        column: 18,
+        index: 54
+    });
+
+    fail(`var obj = {
+        *method() {
+          void yi\\u0065ld;
+        }
+      };`, {
+        source: `var obj = {
+            *method() {
+              void yi\\u0065ld;
+            }
+          };`,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 3,
+        column: 18,
+        index: 54
+    });
+
+    fail(`0, {
+        *method(...a,) {
+          
+        }
+      };`, {
+        source: `0, {
+            *method(...a,) {
+              
+            }
+          };`,
+        message:  'Rest parameter must be last formal parameter',
+        line: 2,
+        column: 24,
+        index: 29
+    });
+
+    fail(`({
+        s\\u0065t m(v) {}
+      });`, {
+        source: `({
+            s\\u0065t m(v) {}
+          });`,
+        message: 'Unexpected escaped keyword',
+        line: 1,
+        column: 1,
+        index: 1
+    });
+
+    fail(`({
+        async foo(foo = super()) { }
+      })`, {
+        source: `({
+            async foo(foo = super()) { }
+          })`,
+        message: 'super() is not allowed in this context',
+        line: 1,
+        column: 1,
+        index: 1
+    });
+
+    fail(`({
+        async foo (await) {  }
+      })`, {
+        source: `({
+            async foo (await) {  }
+          })`,
+        message: 'Unexpected reserved word',
+        line: 1,
+        column: 1,
+        index: 1
+    });
+
+    fail(`({
+        async
+        foo() { }
+      })`, {
+        source: `({
+            async
+            foo() { }
+          })`,
+        message: 'No line break is allowed after async',
+        line: 1,
+        column: 1,
+        index: 1
+    });
+
+    fail(`({
+        async *method(...a,) {
+          
+        }
+      });`, {
+        source: `({
+            async *method(...a,) {
+              
+            }
+          });`,
+        message: 'Rest parameter must be last formal parameter',
+        line: 1,
+        column: 1,
+        index: 1
+    });
+
+    fail(`"use strict"; var gen = {
+        async *method() {
+          return {
+               ...(function() {
+                  var yield;
+               }()),
+            }
+        }
+      }.method;`, {
+        source: `"use strict"; var gen = {
+            async *method() {
+              return {
+                   ...(function() {
+                      var yield;
+                   }()),
+                }
+            }
+          }.method;`,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 5,
+        column: 25,
+        index: 140
+    });
+
+    fail(`var obj = {
+        async *method() {
+          void yield;
+        }
+      };`, {
+        source: `var obj = {
+            async *method() {
+              void yield;
+            }
+          };`,
+        message: '\'yield\' may not be used as an identifier in this context',
+        line: 3,
+        column: 18,
+        index: 60
+    });
+
+    fail(`var obj = {
+        async *method() {
+          var yield;
+        }
+      };`, {
+        source: `var obj = {
+            async *method() {
+              var yield;
+            }
+          };`,
+        message:  '\'yield\' may not be used as an identifier in this context',
+        line: 3,
+        column: 17,
+        index: 59
+    });
+
+    fail(`({
+        \\u0061sync* m(){}
+    });`, {
+        source: `({
+            \\u0061sync* m(){}
+        });`,
+        message: 'Unexpected escaped keyword',
+        line: 1,
+        column: 1,
+        index: 1
+    });
+/*
+    fail(`0, {
+        async *method(x = 0, x) {
+          
+        }
+      };`, {
+        source: `0, {
+            async *method(x = 0, x) {
+              
+            }
+          };`,
+        message: 'The identifier \'eval\' must not be in binding position in strict mode',
+        line: 1,
+        column: 27,
+        index: 27
+    });
+*/
+    fail(`var obj = {
+        async *method() {
+            \\u0061wait: ;
+        }
+      };`, {
+        source: `var obj = {
+            async *method() {
+                \\u0061wait: ;
+            }
+          };`,
+        message: 'Unexpected escaped keyword',
+        line: 2,
+        column: 29,
+        index: 41
+    });
+
+    fail(`for (let x = 3, y in {}) { }`, {
+        source: `for (let x = 3, y in {}) { }`,
+        message: 'Invalid left-hand side in for-in loop: Must have a single binding.',
+        line: 1,
+        column: 17,
+        index: 17
+    });
+
+    fail(`for (var {a} = 0 in {});`, {
+        source: `for (var {a} = 0 in {});`,
+        message: '\'for-in\' loop variable declaration may not have an initializer',
+        line: 1,
+        column: 16,
+        index: 16
+    });
+
+    fail(`for (a = 0 in {});`, {
+        source: `for (a = 0 in {});`,
+        message: 'Unexpected token )',
+        line: 1,
+        column: 16,
+        index: 16
+    });
+
+    fail(`var str = ';`, {
+        source: `var str = ';`,
+        message: 'Unexpected token',
+        line: 1,
+        column: 9,
+        index: 9
+    });
+
+    fail(`with ({}) const x = null;`, {
+        source: `with ({}) const x = null;`,
+        message: 'Unexpected keyword \'const\'',
+        line: 1,
+        column: 9,
+        index: 9
+    });
+
+    fail(`while (false) class C {}`, {
+        source: `while (false) class C {}`,
+        message: 'class can\'t appear in single-statement context',
+        line: 1,
+        column: 13,
+        index: 13
+    });
+
+    fail(`while 'hood' break;`, {
+        source: `while 'hood' break;`,
+        message: 'Unexpected token string',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    fail(`while 0 break;`, {
+        source: `while 0 break;`,
+        message: 'Unexpected token number',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    fail(`var [...{ x }, y] = [1, 2, 3];`, {
+        source: `var [...{ x }, y] = [1, 2, 3];`,
+        message: 'Unexpected token ,',
+        line: 1,
+        column: 13,
+        index: 13
+    });
+
+    fail(`var [...[x], y] = [1, 2, 3];`, {
+        source: `var [...[x], y] = [1, 2, 3];`,
+        message: 'Unexpected token ,',
+        line: 1,
+        column: 11,
+        index: 11
+    });
+
+    fail(`var [...x = []] = [];`, {
+        source: `var [...x = []] = [];`,
+        message:  'Unexpected token =',
+        line: 1,
+        column: 9,
+        index: 9
+    });
+
+    fail(`var [...[ x ] = []] = [];`, {
+        source: `var [...[ x ] = []] = [];`,
+        message: 'Unexpected token =',
+        line: 1,
+        column: 13,
+        index: 13
+    });
+
+    fail(`var x>>1;`, {
+        source: `var x>>1;`,
+        message: 'Unexpected token >>',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    fail(`var x*1;`, {
+        source: `var x*1;`,
+        message:  'Unexpected token *',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    fail(`var --x;`, {
+        source: `var --x;`,
+        message:  'Unexpected token --',
+        line: 1,
+        column: 3,
+        index: 3
+    });
+
+    fail(`var x | true;`, {
+        source: `var x | true;`,
+        message: 'Unexpected token |',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    fail(`"use strict"; var arguments;`, {
+        source: `"use strict"; var arguments;`,
+        message:  'The identifier \'arguments\' must not be in binding position in strict mode',
+        line: 1,
+        column: 17,
+        index: 17
+    });
+
+    fail(`try {} catch () {}`, {
+        source: `try {} catch () {}`,
+        message: 'Unexpected token )',
+        line: 1,
+        column: 14,
+        index: 14
+    });
+
+    fail(`var ranCatch = false;
+
+    try {
+      throw [1, 2, 3];
+    } catch ([...[x], y]) {
+      
+      ranCatch = true;
+    }`, {
+        source: `var ranCatch = false;
+
+        try {
+          throw [1, 2, 3];
+        } catch ([...[x], y]) {
+          
+          ranCatch = true;
+        }`,
+        message: 'Unexpected token ,',
+        line: 5,
+        column: 24,
+        index: 88
+    });
+
+    fail(`var ranCatch = false;
+
+    try {
+      throw [];
+    } catch ([...{ x } = []]) {
+      
+      ranCatch = true;
+    }`, {
+        source: `var ranCatch = false;
+
+        try {
+          throw [];
+        } catch ([...{ x } = []]) {
+          
+          ranCatch = true;
+        }`,
+        message:  'Unexpected token =',
+        line: 5,
+        column: 26,
+        index: 83
+    });
+
+    fail(`try{}
+    catch(){
+    finally{}`, {
+        source: `try{}
+        catch(){
+        finally{}`,
+        message: 'Unexpected token )',
+        line: 2,
+        column: 14,
+        index: 20
+    });
+
+    
+    fail(`try
+    {
+    }
+    catch("22")
+    {
+    }`, {
+        source: `try
+        {
+        }
+        catch("22")
+        {
+        }`,
+        message: 'Unexpected token string',
+        line: 4,
+        column: 14,
+        index: 38
+    });
+
+    fail(`try
+    {
+      try
+      {
+      }
+    }
+    catch(e1){}
+    catch(e2){}`, {
+        source: `try
+        {
+          try
+          {
+          }
+        }
+        catch(e1){}
+        catch(e2){}`,
+        message: 'Missing catch or finally after try',
+        line: 5,
+        column: 11,
+        index: 51
+    });
+
+    fail(` switch {
+        case 0:
+          result += 2;
+        default:
+          result += 32;
+          break;
+      }`, {
+        source: ` switch {
+            case 0:
+              result += 2;
+            default:
+              result += 32;
+              break;
+          }`,
+        message: 'Unexpected token {',
+        line: 1,
+        column: 7,
+        index: 7
+    });
+
+    fail(`switch(value) {
+        case 0:
+          result += 2;
+        default:
+          result += 32;
+          break;
+        default:
+          result += 32;
+          break;
+      }`, {
+        source: `switch(value) {
+            case 0:
+              result += 2;
+            default:
+              result += 32;
+              break;
+            default:
+              result += 32;
+              break;
+          }`,
+        message: 'More than one default clause in switch statement',
+        line: 6,
+        column: 20,
+        index: 132
+    });
+
+    fail(`{
+        var x=1;
+        return x;
+        var y=2;
+    }`, {
+        source: `{
+            var x=1;
+            return x;
+            var y=2;
+        }`,
+        message: 'Illegal return statement',
+        line: 2,
+        column: 20,
+        index: 22
+    });
+
+    fail(`try {
+        return 1;
+    } catch(e){
+        return 1;
+    }`, {
+        source: `try {
+            return 1;
+        } catch(e){
+            return 1;
+        }`,
+        message:  'Illegal return statement',
+        line: 1,
+        column: 5,
+        index: 5
+    });
+
+    fail(`return (0);`, {
+        source: `return (0);`,
+        message:  'Illegal return statement',
+        line: 1,
+        column: 0,
+        index: 0
+    });
+
+    fail(`let [...x, y] = [1, 2, 3];`, {
+        source: `let [...x, y] = [1, 2, 3];`,
+        message: 'Unexpected token ,',
+        line: 1,
+        column: 9,
+        index: 9
+    });
+
+    fail(`let [...x = []] = [];`, {
+        source: `let [...x = []] = [];`,
+        message:  'Unexpected token =',
+        line: 1,
+        column: 9,
+        index: 9
+    });
+
+    fail(`if (false) label1: label2: function test262() {}`, {
+        source: `if (false) label1: label2: function test262() {}`,
+        message: 'In non-strict mode code, functions can only be declared at top level, inside a block, or as the body of an if statement',
+        line: 1,
+        column: 26,
+        index: 26
+    });
+
+    fail(`if (false) ; else const x = null;`, {
+        source: `if (false) ; else const x = null;`,
+        message: 'Unexpected keyword \'const\'',
+        line: 1,
+        column: 17,
+        index: 17
+    });
+
+    fail(`if (true) let x;`, {
+        source: `if (true) let x;`,
+        message:  'Lexical declaration cannot appear in a single-statement context',
+        line: 1,
+        column: 10,
+        index: 10
+    });
+
+    fail(`function *gen() {
+        yi\\u0065ld: ;
+      }`, {
+        source: `function *gen() {
+            yi\\u0065ld: ;
+          }`,
+        message: 'Unexpected escaped keyword',
+        line: 1,
+        column: 17,
+        index: 17
+    });
+
+    fail(`class A { static set prototype() {} }`, {
+        source: `class A { static set prototype() {} }`,
+        message: 'Classes may not have static property named prototype',
+        line: 1,
+        column: 30,
+        index: 30
+    });
+
+    fail(`class A { static prototype() {} }`, {
+        source: `class A { static prototype() {} }`,
+        message: 'Classes may not have static property named prototype',
+        line: 1,
+        column: 16,
+        index: 16
+    });
+    
+    fail(`class A { static set method(_) { super(); } }`, {
+        source: `class A { static set method(_) { super(); } }`,
+        message: 'super() is not allowed in this context',
+        line: 1,
+        column: 38,
+        index: 38
+    });
+
+    fail(`class A { * constructor() {} }`, {
+        source: `class A { * constructor() {} }`,
+        message: 'Class constructor may not be a generator',
+        line: 1,
+        column: 23,
+        index: 23
+    });
+
+    fail(`class A { constructor() { super(); } }`, {
+        source: `class A { constructor() { super(); } }`,
+        message: 'super() is not allowed in this context',
+        line: 1,
+        column: 31,
+        index: 31
+    });
+
+    fail(`var af = ()
+    => {};`, {
+        source: `var af = ()
+        => {};`,
+        message: 'No line break is allowed after \'=>\'',
+        line: 1,
+        column: 11,
+        index: 11
+    });
+
+    fail(`var af = ()
+    => {};`, {
+        source: `var af = ()
+        => {};`,
+        message: 'No line break is allowed after \'=>\'',
+        line: 1,
+        column: 11,
+        index: 11
+    });
+    
+    fail(`var af = (x, x) => 1;`, {
+        source: `var af = (x, x) => 1;`,
+        message: 'Duplicate binding x',
+        line: 1,
+        column: 18,
+        index: 18
+    });
+
+    fail(`"use strict"; var af = eval => 1;`, {
+        source: `"use strict"; var af = eval => 1;`,
+        message: 'The identifier \'eval\' must not be in binding position in strict mode',
+        line: 1,
+        column: 27,
+        index: 27
+    });
+
+    fail(`for (;false;) let x;`, {
+        source: `for (;false;) let x;`,
+        message: 'Lexical declaration cannot appear in a single-statement context',
+        line: 1,
+        column: 14,
+        index: 14
+    });
+
+    fail(`"use strict"; var af = eval => 1;`, {
+        source: `"use strict"; var af = eval => 1;`,
+        message: 'The identifier \'eval\' must not be in binding position in strict mode',
+        line: 1,
+        column: 27,
+        index: 27
+    });
+
     /* Others */
 
     fail(`/*`, {

@@ -2777,4 +2777,2051 @@ describe('Module - Import', () => {
             sourceType: 'module'
         }
     });
+
+    pass(`import * as ns from './define-own-property.js';
+    export var local1;
+    var local2;
+    export { local2 as renamed };
+    export { local1 as indirect } from './define-own-property.js';
+    var sym = Symbol('test262');
+    
+    const exported = ['local1', 'renamed', 'indirect'];
+    
+    
+    // Non-existant properties.
+    
+    for (const key of ['local2', 0, sym, Symbol.iterator]) {
+      assert.sameValue(
+        Reflect.defineProperty(ns, key, {}),
+        false,
+        'Reflect.defineProperty: ' + key.toString()
+      );
+      assert.throws(TypeError, function() {
+        Object.defineProperty(ns, key, {});
+      }, 'Object.defineProperty: ' + key.toString());
+    }
+    
+    
+    // Own properties. No change requested.
+    
+    for (const key of ([...exported, Symbol.toStringTag])) {
+      assert.sameValue(
+        Reflect.defineProperty(ns, key, {}),
+        true,
+        'Reflect.defineProperty: ' + key.toString()
+      );
+      assert.sameValue(
+        Object.defineProperty(ns, key, {}),
+        ns,
+        'Object.defineProperty: ' + key.toString()
+      );
+    
+    }
+    
+    assert.sameValue(
+      Reflect.defineProperty(ns, 'indirect',
+          {writable: true, enumerable: true, configurable: false}),
+      true,
+      'Reflect.defineProperty: indirect'
+    );
+    assert.sameValue(
+      Object.defineProperty(ns, 'indirect',
+          {writable: true, enumerable: true, configurable: false}),
+      ns,
+      'Object.defineProperty: indirect'
+    );
+    
+    assert.sameValue(
+      Reflect.defineProperty(ns, Symbol.toStringTag,
+          {value: "Module", writable: false, enumerable: false,
+           configurable: false}),
+      true,
+      'Reflect.defineProperty: Symbol.toStringTag'
+    );
+    assert.sameValue(
+      Object.defineProperty(ns, Symbol.toStringTag,
+          {value: "Module", writable: false, enumerable: false,
+           configurable: false}),
+      ns,
+      'Object.defineProperty: Symbol.toStringTag'
+    );
+    
+    
+    // Own properties. Change requested.
+    
+    for (const key of ([...exported, Symbol.toStringTag])) {
+      assert.sameValue(
+        Reflect.defineProperty(ns, key, {value: 123}),
+        false,
+        'Reflect.defineProperty: ' + key.toString()
+      );
+      assert.throws(TypeError, function() {
+        Object.defineProperty(ns, key, {value: 123});
+      }, 'Object.defineProperty: ' + key.toString());
+    }
+    
+    assert.sameValue(
+      Reflect.defineProperty(ns, 'indirect',
+          {writable: true, enumerable: true, configurable: true}),
+      false,
+      'Reflect.defineProperty: indirect'
+    );
+    assert.throws(TypeError, function() {
+      Object.defineProperty(ns, 'indirect',
+          {writable: true, enumerable: true, configurable: true});
+    }, 'Object.defineProperty: indirect');
+    
+    assert.sameValue(
+      Reflect.defineProperty(ns, Symbol.toStringTag,
+          {value: "module", writable: false, enumerable: false,
+           configurable: false}),
+      false,
+      'Reflect.defineProperty: Symbol.toStringTag'
+    );
+    assert.throws(TypeError, function() {
+      Object.defineProperty(ns, Symbol.toStringTag,
+          {value: "module", writable: false, enumerable: false,
+           configurable: false});
+    }, 'Object.defineProperty: Symbol.toStringTag');`, {
+        source: `import * as ns from './define-own-property.js';
+        export var local1;
+        var local2;
+        export { local2 as renamed };
+        export { local1 as indirect } from './define-own-property.js';
+        var sym = Symbol('test262');
+        
+        const exported = ['local1', 'renamed', 'indirect'];
+        
+        
+        // Non-existant properties.
+        
+        for (const key of ['local2', 0, sym, Symbol.iterator]) {
+          assert.sameValue(
+            Reflect.defineProperty(ns, key, {}),
+            false,
+            'Reflect.defineProperty: ' + key.toString()
+          );
+          assert.throws(TypeError, function() {
+            Object.defineProperty(ns, key, {});
+          }, 'Object.defineProperty: ' + key.toString());
+        }
+        
+        
+        // Own properties. No change requested.
+        
+        for (const key of ([...exported, Symbol.toStringTag])) {
+          assert.sameValue(
+            Reflect.defineProperty(ns, key, {}),
+            true,
+            'Reflect.defineProperty: ' + key.toString()
+          );
+          assert.sameValue(
+            Object.defineProperty(ns, key, {}),
+            ns,
+            'Object.defineProperty: ' + key.toString()
+          );
+        
+        }
+        
+        assert.sameValue(
+          Reflect.defineProperty(ns, 'indirect',
+              {writable: true, enumerable: true, configurable: false}),
+          true,
+          'Reflect.defineProperty: indirect'
+        );
+        assert.sameValue(
+          Object.defineProperty(ns, 'indirect',
+              {writable: true, enumerable: true, configurable: false}),
+          ns,
+          'Object.defineProperty: indirect'
+        );
+        
+        assert.sameValue(
+          Reflect.defineProperty(ns, Symbol.toStringTag,
+              {value: "Module", writable: false, enumerable: false,
+               configurable: false}),
+          true,
+          'Reflect.defineProperty: Symbol.toStringTag'
+        );
+        assert.sameValue(
+          Object.defineProperty(ns, Symbol.toStringTag,
+              {value: "Module", writable: false, enumerable: false,
+               configurable: false}),
+          ns,
+          'Object.defineProperty: Symbol.toStringTag'
+        );
+        
+        
+        // Own properties. Change requested.
+        
+        for (const key of ([...exported, Symbol.toStringTag])) {
+          assert.sameValue(
+            Reflect.defineProperty(ns, key, {value: 123}),
+            false,
+            'Reflect.defineProperty: ' + key.toString()
+          );
+          assert.throws(TypeError, function() {
+            Object.defineProperty(ns, key, {value: 123});
+          }, 'Object.defineProperty: ' + key.toString());
+        }
+        
+        assert.sameValue(
+          Reflect.defineProperty(ns, 'indirect',
+              {writable: true, enumerable: true, configurable: true}),
+          false,
+          'Reflect.defineProperty: indirect'
+        );
+        assert.throws(TypeError, function() {
+          Object.defineProperty(ns, 'indirect',
+              {writable: true, enumerable: true, configurable: true});
+        }, 'Object.defineProperty: indirect');
+        
+        assert.sameValue(
+          Reflect.defineProperty(ns, Symbol.toStringTag,
+              {value: "module", writable: false, enumerable: false,
+               configurable: false}),
+          false,
+          'Reflect.defineProperty: Symbol.toStringTag'
+        );
+        assert.throws(TypeError, function() {
+          Object.defineProperty(ns, Symbol.toStringTag,
+              {value: "module", writable: false, enumerable: false,
+               configurable: false});
+        }, 'Object.defineProperty: Symbol.toStringTag');`,
+        raw: true,
+        module: true,
+        expected: {
+            "type": "Program",
+            "sourceType": "module",
+            "body": [
+                {
+                    "type": "ImportDeclaration",
+                    "specifiers": [
+                        {
+                            "type": "ImportNamespaceSpecifier",
+                            "local": {
+                                "type": "Identifier",
+                                "name": "ns"
+                            }
+                        }
+                    ],
+                    "source": {
+                        "type": "Literal",
+                        "value": "./define-own-property.js",
+                        "raw": "'./define-own-property.js'"
+                    }
+                },
+                {
+                    "type": "ExportNamedDeclaration",
+                    "source": null,
+                    "specifiers": [],
+                    "declaration": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "init": null,
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "local1"
+                                }
+                            }
+                        ],
+                        "kind": "var"
+                    }
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": null,
+                            "id": {
+                                "type": "Identifier",
+                                "name": "local2"
+                            }
+                        }
+                    ],
+                    "kind": "var"
+                },
+                {
+                    "type": "ExportNamedDeclaration",
+                    "source": null,
+                    "specifiers": [
+                        {
+                            "type": "ExportSpecifier",
+                            "local": {
+                                "type": "Identifier",
+                                "name": "local2"
+                            },
+                            "exported": {
+                                "type": "Identifier",
+                                "name": "renamed"
+                            }
+                        }
+                    ],
+                    "declaration": null
+                },
+                {
+                    "type": "ExportNamedDeclaration",
+                    "source": {
+                        "type": "Literal",
+                        "value": "./define-own-property.js",
+                        "raw": "'./define-own-property.js'"
+                    },
+                    "specifiers": [
+                        {
+                            "type": "ExportSpecifier",
+                            "local": {
+                                "type": "Identifier",
+                                "name": "local1"
+                            },
+                            "exported": {
+                                "type": "Identifier",
+                                "name": "indirect"
+                            }
+                        }
+                    ],
+                    "declaration": null
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": {
+                                "type": "CallExpression",
+                                "callee": {
+                                    "type": "Identifier",
+                                    "name": "Symbol"
+                                },
+                                "arguments": [
+                                    {
+                                        "type": "Literal",
+                                        "value": "test262",
+                                        "raw": "'test262'"
+                                    }
+                                ]
+                            },
+                            "id": {
+                                "type": "Identifier",
+                                "name": "sym"
+                            }
+                        }
+                    ],
+                    "kind": "var"
+                },
+                {
+                    "type": "VariableDeclaration",
+                    "declarations": [
+                        {
+                            "type": "VariableDeclarator",
+                            "init": {
+                                "type": "ArrayExpression",
+                                "elements": [
+                                    {
+                                        "type": "Literal",
+                                        "value": "local1",
+                                        "raw": "'local1'"
+                                    },
+                                    {
+                                        "type": "Literal",
+                                        "value": "renamed",
+                                        "raw": "'renamed'"
+                                    },
+                                    {
+                                        "type": "Literal",
+                                        "value": "indirect",
+                                        "raw": "'indirect'"
+                                    }
+                                ]
+                            },
+                            "id": {
+                                "type": "Identifier",
+                                "name": "exported"
+                            }
+                        }
+                    ],
+                    "kind": "const"
+                },
+                {
+                    "type": "ForOfStatement",
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                        "type": "MemberExpression",
+                                        "object": {
+                                            "type": "Identifier",
+                                            "name": "assert"
+                                        },
+                                        "computed": false,
+                                        "property": {
+                                            "type": "Identifier",
+                                            "name": "sameValue"
+                                        }
+                                    },
+                                    "arguments": [
+                                        {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                                "type": "MemberExpression",
+                                                "object": {
+                                                    "type": "Identifier",
+                                                    "name": "Reflect"
+                                                },
+                                                "computed": false,
+                                                "property": {
+                                                    "type": "Identifier",
+                                                    "name": "defineProperty"
+                                                }
+                                            },
+                                            "arguments": [
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "ns"
+                                                },
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "key"
+                                                },
+                                                {
+                                                    "type": "ObjectExpression",
+                                                    "properties": []
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "Literal",
+                                            "value": false,
+                                            "raw": "false"
+                                        },
+                                        {
+                                            "type": "BinaryExpression",
+                                            "left": {
+                                                "type": "Literal",
+                                                "value": "Reflect.defineProperty: ",
+                                                "raw": "'Reflect.defineProperty: '"
+                                            },
+                                            "right": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                    "type": "MemberExpression",
+                                                    "object": {
+                                                        "type": "Identifier",
+                                                        "name": "key"
+                                                    },
+                                                    "computed": false,
+                                                    "property": {
+                                                        "type": "Identifier",
+                                                        "name": "toString"
+                                                    }
+                                                },
+                                                "arguments": []
+                                            },
+                                            "operator": "+"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                        "type": "MemberExpression",
+                                        "object": {
+                                            "type": "Identifier",
+                                            "name": "assert"
+                                        },
+                                        "computed": false,
+                                        "property": {
+                                            "type": "Identifier",
+                                            "name": "throws"
+                                        }
+                                    },
+                                    "arguments": [
+                                        {
+                                            "type": "Identifier",
+                                            "name": "TypeError"
+                                        },
+                                        {
+                                            "type": "FunctionExpression",
+                                            "params": [],
+                                            "body": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                    {
+                                                        "type": "ExpressionStatement",
+                                                        "expression": {
+                                                            "type": "CallExpression",
+                                                            "callee": {
+                                                                "type": "MemberExpression",
+                                                                "object": {
+                                                                    "type": "Identifier",
+                                                                    "name": "Object"
+                                                                },
+                                                                "computed": false,
+                                                                "property": {
+                                                                    "type": "Identifier",
+                                                                    "name": "defineProperty"
+                                                                }
+                                                            },
+                                                            "arguments": [
+                                                                {
+                                                                    "type": "Identifier",
+                                                                    "name": "ns"
+                                                                },
+                                                                {
+                                                                    "type": "Identifier",
+                                                                    "name": "key"
+                                                                },
+                                                                {
+                                                                    "type": "ObjectExpression",
+                                                                    "properties": []
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "async": false,
+                                            "generator": false,
+                                            "expression": false,
+                                            "id": null
+                                        },
+                                        {
+                                            "type": "BinaryExpression",
+                                            "left": {
+                                                "type": "Literal",
+                                                "value": "Object.defineProperty: ",
+                                                "raw": "'Object.defineProperty: '"
+                                            },
+                                            "right": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                    "type": "MemberExpression",
+                                                    "object": {
+                                                        "type": "Identifier",
+                                                        "name": "key"
+                                                    },
+                                                    "computed": false,
+                                                    "property": {
+                                                        "type": "Identifier",
+                                                        "name": "toString"
+                                                    }
+                                                },
+                                                "arguments": []
+                                            },
+                                            "operator": "+"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    "left": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "init": null,
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "key"
+                                }
+                            }
+                        ],
+                        "kind": "const"
+                    },
+                    "right": {
+                        "type": "ArrayExpression",
+                        "elements": [
+                            {
+                                "type": "Literal",
+                                "value": "local2",
+                                "raw": "'local2'"
+                            },
+                            {
+                                "type": "Literal",
+                                "value": "",
+                                "raw": "0"
+                            },
+                            {
+                                "type": "Identifier",
+                                "name": "sym"
+                            },
+                            {
+                                "type": "MemberExpression",
+                                "object": {
+                                    "type": "Identifier",
+                                    "name": "Symbol"
+                                },
+                                "computed": false,
+                                "property": {
+                                    "type": "Identifier",
+                                    "name": "iterator"
+                                }
+                            }
+                        ]
+                    },
+                    "await": false
+                },
+                {
+                    "type": "ForOfStatement",
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                        "type": "MemberExpression",
+                                        "object": {
+                                            "type": "Identifier",
+                                            "name": "assert"
+                                        },
+                                        "computed": false,
+                                        "property": {
+                                            "type": "Identifier",
+                                            "name": "sameValue"
+                                        }
+                                    },
+                                    "arguments": [
+                                        {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                                "type": "MemberExpression",
+                                                "object": {
+                                                    "type": "Identifier",
+                                                    "name": "Reflect"
+                                                },
+                                                "computed": false,
+                                                "property": {
+                                                    "type": "Identifier",
+                                                    "name": "defineProperty"
+                                                }
+                                            },
+                                            "arguments": [
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "ns"
+                                                },
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "key"
+                                                },
+                                                {
+                                                    "type": "ObjectExpression",
+                                                    "properties": []
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "Literal",
+                                            "value": true,
+                                            "raw": "true"
+                                        },
+                                        {
+                                            "type": "BinaryExpression",
+                                            "left": {
+                                                "type": "Literal",
+                                                "value": "Reflect.defineProperty: ",
+                                                "raw": "'Reflect.defineProperty: '"
+                                            },
+                                            "right": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                    "type": "MemberExpression",
+                                                    "object": {
+                                                        "type": "Identifier",
+                                                        "name": "key"
+                                                    },
+                                                    "computed": false,
+                                                    "property": {
+                                                        "type": "Identifier",
+                                                        "name": "toString"
+                                                    }
+                                                },
+                                                "arguments": []
+                                            },
+                                            "operator": "+"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                        "type": "MemberExpression",
+                                        "object": {
+                                            "type": "Identifier",
+                                            "name": "assert"
+                                        },
+                                        "computed": false,
+                                        "property": {
+                                            "type": "Identifier",
+                                            "name": "sameValue"
+                                        }
+                                    },
+                                    "arguments": [
+                                        {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                                "type": "MemberExpression",
+                                                "object": {
+                                                    "type": "Identifier",
+                                                    "name": "Object"
+                                                },
+                                                "computed": false,
+                                                "property": {
+                                                    "type": "Identifier",
+                                                    "name": "defineProperty"
+                                                }
+                                            },
+                                            "arguments": [
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "ns"
+                                                },
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "key"
+                                                },
+                                                {
+                                                    "type": "ObjectExpression",
+                                                    "properties": []
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "Identifier",
+                                            "name": "ns"
+                                        },
+                                        {
+                                            "type": "BinaryExpression",
+                                            "left": {
+                                                "type": "Literal",
+                                                "value": "Object.defineProperty: ",
+                                                "raw": "'Object.defineProperty: '"
+                                            },
+                                            "right": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                    "type": "MemberExpression",
+                                                    "object": {
+                                                        "type": "Identifier",
+                                                        "name": "key"
+                                                    },
+                                                    "computed": false,
+                                                    "property": {
+                                                        "type": "Identifier",
+                                                        "name": "toString"
+                                                    }
+                                                },
+                                                "arguments": []
+                                            },
+                                            "operator": "+"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    "left": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "init": null,
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "key"
+                                }
+                            }
+                        ],
+                        "kind": "const"
+                    },
+                    "right": {
+                        "type": "ArrayExpression",
+                        "elements": [
+                            {
+                                "type": "SpreadElement",
+                                "argument": {
+                                    "type": "Identifier",
+                                    "name": "exported"
+                                }
+                            },
+                            {
+                                "type": "MemberExpression",
+                                "object": {
+                                    "type": "Identifier",
+                                    "name": "Symbol"
+                                },
+                                "computed": false,
+                                "property": {
+                                    "type": "Identifier",
+                                    "name": "toStringTag"
+                                }
+                            }
+                        ]
+                    },
+                    "await": false
+                },
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "MemberExpression",
+                            "object": {
+                                "type": "Identifier",
+                                "name": "assert"
+                            },
+                            "computed": false,
+                            "property": {
+                                "type": "Identifier",
+                                "name": "sameValue"
+                            }
+                        },
+                        "arguments": [
+                            {
+                                "type": "CallExpression",
+                                "callee": {
+                                    "type": "MemberExpression",
+                                    "object": {
+                                        "type": "Identifier",
+                                        "name": "Reflect"
+                                    },
+                                    "computed": false,
+                                    "property": {
+                                        "type": "Identifier",
+                                        "name": "defineProperty"
+                                    }
+                                },
+                                "arguments": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "ns"
+                                    },
+                                    {
+                                        "type": "Literal",
+                                        "value": "indirect",
+                                        "raw": "'indirect'"
+                                    },
+                                    {
+                                        "type": "ObjectExpression",
+                                        "properties": [
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "writable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": true,
+                                                    "raw": "true"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "enumerable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": true,
+                                                    "raw": "true"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "configurable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": false,
+                                                    "raw": "false"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Literal",
+                                "value": true,
+                                "raw": "true"
+                            },
+                            {
+                                "type": "Literal",
+                                "value": "Reflect.defineProperty: indirect",
+                                "raw": "'Reflect.defineProperty: indirect'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "MemberExpression",
+                            "object": {
+                                "type": "Identifier",
+                                "name": "assert"
+                            },
+                            "computed": false,
+                            "property": {
+                                "type": "Identifier",
+                                "name": "sameValue"
+                            }
+                        },
+                        "arguments": [
+                            {
+                                "type": "CallExpression",
+                                "callee": {
+                                    "type": "MemberExpression",
+                                    "object": {
+                                        "type": "Identifier",
+                                        "name": "Object"
+                                    },
+                                    "computed": false,
+                                    "property": {
+                                        "type": "Identifier",
+                                        "name": "defineProperty"
+                                    }
+                                },
+                                "arguments": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "ns"
+                                    },
+                                    {
+                                        "type": "Literal",
+                                        "value": "indirect",
+                                        "raw": "'indirect'"
+                                    },
+                                    {
+                                        "type": "ObjectExpression",
+                                        "properties": [
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "writable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": true,
+                                                    "raw": "true"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "enumerable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": true,
+                                                    "raw": "true"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "configurable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": false,
+                                                    "raw": "false"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Identifier",
+                                "name": "ns"
+                            },
+                            {
+                                "type": "Literal",
+                                "value": "Object.defineProperty: indirect",
+                                "raw": "'Object.defineProperty: indirect'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "MemberExpression",
+                            "object": {
+                                "type": "Identifier",
+                                "name": "assert"
+                            },
+                            "computed": false,
+                            "property": {
+                                "type": "Identifier",
+                                "name": "sameValue"
+                            }
+                        },
+                        "arguments": [
+                            {
+                                "type": "CallExpression",
+                                "callee": {
+                                    "type": "MemberExpression",
+                                    "object": {
+                                        "type": "Identifier",
+                                        "name": "Reflect"
+                                    },
+                                    "computed": false,
+                                    "property": {
+                                        "type": "Identifier",
+                                        "name": "defineProperty"
+                                    }
+                                },
+                                "arguments": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "ns"
+                                    },
+                                    {
+                                        "type": "MemberExpression",
+                                        "object": {
+                                            "type": "Identifier",
+                                            "name": "Symbol"
+                                        },
+                                        "computed": false,
+                                        "property": {
+                                            "type": "Identifier",
+                                            "name": "toStringTag"
+                                        }
+                                    },
+                                    {
+                                        "type": "ObjectExpression",
+                                        "properties": [
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "value"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": "Module",
+                                                    "raw": "\"Module\""
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "writable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": false,
+                                                    "raw": "false"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "enumerable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": false,
+                                                    "raw": "false"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "configurable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": false,
+                                                    "raw": "false"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Literal",
+                                "value": true,
+                                "raw": "true"
+                            },
+                            {
+                                "type": "Literal",
+                                "value": "Reflect.defineProperty: Symbol.toStringTag",
+                                "raw": "'Reflect.defineProperty: Symbol.toStringTag'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "MemberExpression",
+                            "object": {
+                                "type": "Identifier",
+                                "name": "assert"
+                            },
+                            "computed": false,
+                            "property": {
+                                "type": "Identifier",
+                                "name": "sameValue"
+                            }
+                        },
+                        "arguments": [
+                            {
+                                "type": "CallExpression",
+                                "callee": {
+                                    "type": "MemberExpression",
+                                    "object": {
+                                        "type": "Identifier",
+                                        "name": "Object"
+                                    },
+                                    "computed": false,
+                                    "property": {
+                                        "type": "Identifier",
+                                        "name": "defineProperty"
+                                    }
+                                },
+                                "arguments": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "ns"
+                                    },
+                                    {
+                                        "type": "MemberExpression",
+                                        "object": {
+                                            "type": "Identifier",
+                                            "name": "Symbol"
+                                        },
+                                        "computed": false,
+                                        "property": {
+                                            "type": "Identifier",
+                                            "name": "toStringTag"
+                                        }
+                                    },
+                                    {
+                                        "type": "ObjectExpression",
+                                        "properties": [
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "value"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": "Module",
+                                                    "raw": "\"Module\""
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "writable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": false,
+                                                    "raw": "false"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "enumerable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": false,
+                                                    "raw": "false"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "configurable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": false,
+                                                    "raw": "false"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Identifier",
+                                "name": "ns"
+                            },
+                            {
+                                "type": "Literal",
+                                "value": "Object.defineProperty: Symbol.toStringTag",
+                                "raw": "'Object.defineProperty: Symbol.toStringTag'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "ForOfStatement",
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": [
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                        "type": "MemberExpression",
+                                        "object": {
+                                            "type": "Identifier",
+                                            "name": "assert"
+                                        },
+                                        "computed": false,
+                                        "property": {
+                                            "type": "Identifier",
+                                            "name": "sameValue"
+                                        }
+                                    },
+                                    "arguments": [
+                                        {
+                                            "type": "CallExpression",
+                                            "callee": {
+                                                "type": "MemberExpression",
+                                                "object": {
+                                                    "type": "Identifier",
+                                                    "name": "Reflect"
+                                                },
+                                                "computed": false,
+                                                "property": {
+                                                    "type": "Identifier",
+                                                    "name": "defineProperty"
+                                                }
+                                            },
+                                            "arguments": [
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "ns"
+                                                },
+                                                {
+                                                    "type": "Identifier",
+                                                    "name": "key"
+                                                },
+                                                {
+                                                    "type": "ObjectExpression",
+                                                    "properties": [
+                                                        {
+                                                            "type": "Property",
+                                                            "key": {
+                                                                "type": "Identifier",
+                                                                "name": "value"
+                                                            },
+                                                            "value": {
+                                                                "type": "Literal",
+                                                                "value": "123",
+                                                                "raw": "123"
+                                                            },
+                                                            "kind": "init",
+                                                            "computed": false,
+                                                            "method": false,
+                                                            "shorthand": false
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "Literal",
+                                            "value": false,
+                                            "raw": "false"
+                                        },
+                                        {
+                                            "type": "BinaryExpression",
+                                            "left": {
+                                                "type": "Literal",
+                                                "value": "Reflect.defineProperty: ",
+                                                "raw": "'Reflect.defineProperty: '"
+                                            },
+                                            "right": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                    "type": "MemberExpression",
+                                                    "object": {
+                                                        "type": "Identifier",
+                                                        "name": "key"
+                                                    },
+                                                    "computed": false,
+                                                    "property": {
+                                                        "type": "Identifier",
+                                                        "name": "toString"
+                                                    }
+                                                },
+                                                "arguments": []
+                                            },
+                                            "operator": "+"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "ExpressionStatement",
+                                "expression": {
+                                    "type": "CallExpression",
+                                    "callee": {
+                                        "type": "MemberExpression",
+                                        "object": {
+                                            "type": "Identifier",
+                                            "name": "assert"
+                                        },
+                                        "computed": false,
+                                        "property": {
+                                            "type": "Identifier",
+                                            "name": "throws"
+                                        }
+                                    },
+                                    "arguments": [
+                                        {
+                                            "type": "Identifier",
+                                            "name": "TypeError"
+                                        },
+                                        {
+                                            "type": "FunctionExpression",
+                                            "params": [],
+                                            "body": {
+                                                "type": "BlockStatement",
+                                                "body": [
+                                                    {
+                                                        "type": "ExpressionStatement",
+                                                        "expression": {
+                                                            "type": "CallExpression",
+                                                            "callee": {
+                                                                "type": "MemberExpression",
+                                                                "object": {
+                                                                    "type": "Identifier",
+                                                                    "name": "Object"
+                                                                },
+                                                                "computed": false,
+                                                                "property": {
+                                                                    "type": "Identifier",
+                                                                    "name": "defineProperty"
+                                                                }
+                                                            },
+                                                            "arguments": [
+                                                                {
+                                                                    "type": "Identifier",
+                                                                    "name": "ns"
+                                                                },
+                                                                {
+                                                                    "type": "Identifier",
+                                                                    "name": "key"
+                                                                },
+                                                                {
+                                                                    "type": "ObjectExpression",
+                                                                    "properties": [
+                                                                        {
+                                                                            "type": "Property",
+                                                                            "key": {
+                                                                                "type": "Identifier",
+                                                                                "name": "value"
+                                                                            },
+                                                                            "value": {
+                                                                                "type": "Literal",
+                                                                                "value": "123",
+                                                                                "raw": "123"
+                                                                            },
+                                                                            "kind": "init",
+                                                                            "computed": false,
+                                                                            "method": false,
+                                                                            "shorthand": false
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "async": false,
+                                            "generator": false,
+                                            "expression": false,
+                                            "id": null
+                                        },
+                                        {
+                                            "type": "BinaryExpression",
+                                            "left": {
+                                                "type": "Literal",
+                                                "value": "Object.defineProperty: ",
+                                                "raw": "'Object.defineProperty: '"
+                                            },
+                                            "right": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                    "type": "MemberExpression",
+                                                    "object": {
+                                                        "type": "Identifier",
+                                                        "name": "key"
+                                                    },
+                                                    "computed": false,
+                                                    "property": {
+                                                        "type": "Identifier",
+                                                        "name": "toString"
+                                                    }
+                                                },
+                                                "arguments": []
+                                            },
+                                            "operator": "+"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    "left": {
+                        "type": "VariableDeclaration",
+                        "declarations": [
+                            {
+                                "type": "VariableDeclarator",
+                                "init": null,
+                                "id": {
+                                    "type": "Identifier",
+                                    "name": "key"
+                                }
+                            }
+                        ],
+                        "kind": "const"
+                    },
+                    "right": {
+                        "type": "ArrayExpression",
+                        "elements": [
+                            {
+                                "type": "SpreadElement",
+                                "argument": {
+                                    "type": "Identifier",
+                                    "name": "exported"
+                                }
+                            },
+                            {
+                                "type": "MemberExpression",
+                                "object": {
+                                    "type": "Identifier",
+                                    "name": "Symbol"
+                                },
+                                "computed": false,
+                                "property": {
+                                    "type": "Identifier",
+                                    "name": "toStringTag"
+                                }
+                            }
+                        ]
+                    },
+                    "await": false
+                },
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "MemberExpression",
+                            "object": {
+                                "type": "Identifier",
+                                "name": "assert"
+                            },
+                            "computed": false,
+                            "property": {
+                                "type": "Identifier",
+                                "name": "sameValue"
+                            }
+                        },
+                        "arguments": [
+                            {
+                                "type": "CallExpression",
+                                "callee": {
+                                    "type": "MemberExpression",
+                                    "object": {
+                                        "type": "Identifier",
+                                        "name": "Reflect"
+                                    },
+                                    "computed": false,
+                                    "property": {
+                                        "type": "Identifier",
+                                        "name": "defineProperty"
+                                    }
+                                },
+                                "arguments": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "ns"
+                                    },
+                                    {
+                                        "type": "Literal",
+                                        "value": "indirect",
+                                        "raw": "'indirect'"
+                                    },
+                                    {
+                                        "type": "ObjectExpression",
+                                        "properties": [
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "writable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": true,
+                                                    "raw": "true"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "enumerable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": true,
+                                                    "raw": "true"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "configurable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": true,
+                                                    "raw": "true"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Literal",
+                                "value": false,
+                                "raw": "false"
+                            },
+                            {
+                                "type": "Literal",
+                                "value": "Reflect.defineProperty: indirect",
+                                "raw": "'Reflect.defineProperty: indirect'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "MemberExpression",
+                            "object": {
+                                "type": "Identifier",
+                                "name": "assert"
+                            },
+                            "computed": false,
+                            "property": {
+                                "type": "Identifier",
+                                "name": "throws"
+                            }
+                        },
+                        "arguments": [
+                            {
+                                "type": "Identifier",
+                                "name": "TypeError"
+                            },
+                            {
+                                "type": "FunctionExpression",
+                                "params": [],
+                                "body": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                        {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                    "type": "MemberExpression",
+                                                    "object": {
+                                                        "type": "Identifier",
+                                                        "name": "Object"
+                                                    },
+                                                    "computed": false,
+                                                    "property": {
+                                                        "type": "Identifier",
+                                                        "name": "defineProperty"
+                                                    }
+                                                },
+                                                "arguments": [
+                                                    {
+                                                        "type": "Identifier",
+                                                        "name": "ns"
+                                                    },
+                                                    {
+                                                        "type": "Literal",
+                                                        "value": "indirect",
+                                                        "raw": "'indirect'"
+                                                    },
+                                                    {
+                                                        "type": "ObjectExpression",
+                                                        "properties": [
+                                                            {
+                                                                "type": "Property",
+                                                                "key": {
+                                                                    "type": "Identifier",
+                                                                    "name": "writable"
+                                                                },
+                                                                "value": {
+                                                                    "type": "Literal",
+                                                                    "value": true,
+                                                                    "raw": "true"
+                                                                },
+                                                                "kind": "init",
+                                                                "computed": false,
+                                                                "method": false,
+                                                                "shorthand": false
+                                                            },
+                                                            {
+                                                                "type": "Property",
+                                                                "key": {
+                                                                    "type": "Identifier",
+                                                                    "name": "enumerable"
+                                                                },
+                                                                "value": {
+                                                                    "type": "Literal",
+                                                                    "value": true,
+                                                                    "raw": "true"
+                                                                },
+                                                                "kind": "init",
+                                                                "computed": false,
+                                                                "method": false,
+                                                                "shorthand": false
+                                                            },
+                                                            {
+                                                                "type": "Property",
+                                                                "key": {
+                                                                    "type": "Identifier",
+                                                                    "name": "configurable"
+                                                                },
+                                                                "value": {
+                                                                    "type": "Literal",
+                                                                    "value": true,
+                                                                    "raw": "true"
+                                                                },
+                                                                "kind": "init",
+                                                                "computed": false,
+                                                                "method": false,
+                                                                "shorthand": false
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
+                                "async": false,
+                                "generator": false,
+                                "expression": false,
+                                "id": null
+                            },
+                            {
+                                "type": "Literal",
+                                "value": "Object.defineProperty: indirect",
+                                "raw": "'Object.defineProperty: indirect'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "MemberExpression",
+                            "object": {
+                                "type": "Identifier",
+                                "name": "assert"
+                            },
+                            "computed": false,
+                            "property": {
+                                "type": "Identifier",
+                                "name": "sameValue"
+                            }
+                        },
+                        "arguments": [
+                            {
+                                "type": "CallExpression",
+                                "callee": {
+                                    "type": "MemberExpression",
+                                    "object": {
+                                        "type": "Identifier",
+                                        "name": "Reflect"
+                                    },
+                                    "computed": false,
+                                    "property": {
+                                        "type": "Identifier",
+                                        "name": "defineProperty"
+                                    }
+                                },
+                                "arguments": [
+                                    {
+                                        "type": "Identifier",
+                                        "name": "ns"
+                                    },
+                                    {
+                                        "type": "MemberExpression",
+                                        "object": {
+                                            "type": "Identifier",
+                                            "name": "Symbol"
+                                        },
+                                        "computed": false,
+                                        "property": {
+                                            "type": "Identifier",
+                                            "name": "toStringTag"
+                                        }
+                                    },
+                                    {
+                                        "type": "ObjectExpression",
+                                        "properties": [
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "value"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": "module",
+                                                    "raw": "\"module\""
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "writable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": false,
+                                                    "raw": "false"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "enumerable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": false,
+                                                    "raw": "false"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            },
+                                            {
+                                                "type": "Property",
+                                                "key": {
+                                                    "type": "Identifier",
+                                                    "name": "configurable"
+                                                },
+                                                "value": {
+                                                    "type": "Literal",
+                                                    "value": false,
+                                                    "raw": "false"
+                                                },
+                                                "kind": "init",
+                                                "computed": false,
+                                                "method": false,
+                                                "shorthand": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Literal",
+                                "value": false,
+                                "raw": "false"
+                            },
+                            {
+                                "type": "Literal",
+                                "value": "Reflect.defineProperty: Symbol.toStringTag",
+                                "raw": "'Reflect.defineProperty: Symbol.toStringTag'"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "ExpressionStatement",
+                    "expression": {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "MemberExpression",
+                            "object": {
+                                "type": "Identifier",
+                                "name": "assert"
+                            },
+                            "computed": false,
+                            "property": {
+                                "type": "Identifier",
+                                "name": "throws"
+                            }
+                        },
+                        "arguments": [
+                            {
+                                "type": "Identifier",
+                                "name": "TypeError"
+                            },
+                            {
+                                "type": "FunctionExpression",
+                                "params": [],
+                                "body": {
+                                    "type": "BlockStatement",
+                                    "body": [
+                                        {
+                                            "type": "ExpressionStatement",
+                                            "expression": {
+                                                "type": "CallExpression",
+                                                "callee": {
+                                                    "type": "MemberExpression",
+                                                    "object": {
+                                                        "type": "Identifier",
+                                                        "name": "Object"
+                                                    },
+                                                    "computed": false,
+                                                    "property": {
+                                                        "type": "Identifier",
+                                                        "name": "defineProperty"
+                                                    }
+                                                },
+                                                "arguments": [
+                                                    {
+                                                        "type": "Identifier",
+                                                        "name": "ns"
+                                                    },
+                                                    {
+                                                        "type": "MemberExpression",
+                                                        "object": {
+                                                            "type": "Identifier",
+                                                            "name": "Symbol"
+                                                        },
+                                                        "computed": false,
+                                                        "property": {
+                                                            "type": "Identifier",
+                                                            "name": "toStringTag"
+                                                        }
+                                                    },
+                                                    {
+                                                        "type": "ObjectExpression",
+                                                        "properties": [
+                                                            {
+                                                                "type": "Property",
+                                                                "key": {
+                                                                    "type": "Identifier",
+                                                                    "name": "value"
+                                                                },
+                                                                "value": {
+                                                                    "type": "Literal",
+                                                                    "value": "module",
+                                                                    "raw": "\"module\""
+                                                                },
+                                                                "kind": "init",
+                                                                "computed": false,
+                                                                "method": false,
+                                                                "shorthand": false
+                                                            },
+                                                            {
+                                                                "type": "Property",
+                                                                "key": {
+                                                                    "type": "Identifier",
+                                                                    "name": "writable"
+                                                                },
+                                                                "value": {
+                                                                    "type": "Literal",
+                                                                    "value": false,
+                                                                    "raw": "false"
+                                                                },
+                                                                "kind": "init",
+                                                                "computed": false,
+                                                                "method": false,
+                                                                "shorthand": false
+                                                            },
+                                                            {
+                                                                "type": "Property",
+                                                                "key": {
+                                                                    "type": "Identifier",
+                                                                    "name": "enumerable"
+                                                                },
+                                                                "value": {
+                                                                    "type": "Literal",
+                                                                    "value": false,
+                                                                    "raw": "false"
+                                                                },
+                                                                "kind": "init",
+                                                                "computed": false,
+                                                                "method": false,
+                                                                "shorthand": false
+                                                            },
+                                                            {
+                                                                "type": "Property",
+                                                                "key": {
+                                                                    "type": "Identifier",
+                                                                    "name": "configurable"
+                                                                },
+                                                                "value": {
+                                                                    "type": "Literal",
+                                                                    "value": false,
+                                                                    "raw": "false"
+                                                                },
+                                                                "kind": "init",
+                                                                "computed": false,
+                                                                "method": false,
+                                                                "shorthand": false
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
+                                "async": false,
+                                "generator": false,
+                                "expression": false,
+                                "id": null
+                            },
+                            {
+                                "type": "Literal",
+                                "value": "Object.defineProperty: Symbol.toStringTag",
+                                "raw": "'Object.defineProperty: Symbol.toStringTag'"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    });
 });

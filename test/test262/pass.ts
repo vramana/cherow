@@ -239,6 +239,18 @@ describe('test262 tests', () => parserTest262({
         'test/language/expressions/class/fields-literal-name-static-public-fields-forbidden.js',
         'test/language/statements/class/fields-initializer-static-public-fields-forbidden.js',
         'test/language/statements/class/fields-literal-name-static-public-fields-forbidden.js',
+
+        'test/language/statements/for-in/dstr-array-rest-before-element.js',
+        'test/language/statements/for-in/dstr-array-rest-before-elision.js',
+        'test/language/statements/for-in/dstr-array-rest-before-rest.js',
+        'test/language/statements/for-in/dstr-array-rest-before-rest.js',
+        'test/language/statements/for-in/dstr-array-rest-elision-invalid.js',
+        'test/language/statements/for-in/dstr-obj-rest-not-last-element-invalid.js',
+        'test/language/statements/for-of/dstr-array-rest-before-element.js',
+        'test/language/statements/for-of/dstr-array-rest-before-elision.js',
+        'test/language/statements/for-of/dstr-array-rest-before-rest.js',
+        'test/language/statements/for-of/dstr-array-rest-elision-invalid.js',
+        'test/language/statements/for-of/dstr-obj-rest-not-last-element-invalid.js',
     ],
     parse: (file: string, source: string, opts: any) => {
         const cherowOpts = {

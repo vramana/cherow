@@ -3646,12 +3646,6 @@ export class Parser {
         const t = this.token;
         this.expect(context, Token.Ellipsis);
         const arg = this.parseAssignmentExpression(context | Context.AllowIn);
-        // Object rest element needs to be the last AssignmenProperty in
-        // ObjectAssignmentPattern. (For..in / of statement)
-        if (context & Context.ForStatement && this.token === Token.Comma) {
-            this.tolerate(context, Errors.UnexpectedToken, tokenDesc(t));
-        }
-
         return this.finishNode(context, pos, {
             type: 'SpreadElement',
             argument: arg

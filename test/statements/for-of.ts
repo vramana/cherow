@@ -5160,4 +5160,53 @@ describe('Statements - For of', () => {
                 }
             }
         });
+
+        pass(`for (const a of ([...b, c])) {}`, {
+            source: `for (const a of ([...b, c])) {}`,
+            raw: true,
+            expected: {
+                  "body": [
+                    {
+                      "await": false,
+                      "body": {
+                        "body": [],
+                        "type": "BlockStatement",
+                      },
+                      "left": {
+                        "declarations": [
+                          {
+                            "id": {
+                              "name": "a",
+                              "type": "Identifier",
+                            },
+                            "init": null,
+                            "type": "VariableDeclarator"
+                          }
+                        ],
+                        "kind": "const",
+                        "type": "VariableDeclaration",
+                      },
+                      "right": {
+                        "elements": [
+                          {
+                            "argument": {
+                              "name": "b",
+                              "type": "Identifier",
+                            },
+                            "type": "SpreadElement",
+                          },
+                          {
+                            "name": "c",
+                            "type": "Identifier",
+                          },
+                        ],
+                        "type": "ArrayExpression",
+                      },
+                     "type": "ForOfStatement"
+                    },
+                  ],
+                  "sourceType": "script",
+                  "type": "Program"
+                }
+        });
 });

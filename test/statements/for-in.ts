@@ -4555,14 +4555,6 @@ describe('Statements - For in', () => {
         index: 17
     });
 
-    fail(`for ({...rest, b} in [{} ]) ;`, {
-        source: 'for ({...rest, b} in [{} ]) ;',
-        message:  'Unexpected token ...',
-        line: 1,
-        column: 13,
-        index: 13
-    });
-
     fail(`for(let [,] = 0 in {});`, {
         source: 'for(let [,] = 0 in {});',
         message: '\'for-in\' loop variable declaration may not have an initializer',
