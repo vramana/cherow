@@ -14,7 +14,7 @@ import {
     nextToken,
     consume,
     getLocation,
-    isolateCoverGrammar
+    storeCoverGrammar
 } from './utilities';
 
 // 12.15.5Destructuring Assignment
@@ -49,6 +49,7 @@ export function parseBindingIdentifierOrPattern(parser: Parser, context: Context
 export function parseBindingIdentifier(parser: Parser, context: Context): ESTree.Identifier {
     const pos = getLocation(parser);
     const name = parser.tokenValue;
+    // TODO! Validation
     nextToken(parser, context);
     return finishNode(context, parser, pos, {
         type: 'Identifier',
@@ -190,7 +191,7 @@ export function parseAssignmentPattern(parser: Parser, context: Context, left: E
     return finishNode(context, parser, pos, {
         type: 'AssignmentPattern',
         left,
-        right: isolateCoverGrammar(parser, context, parseAssignmentExpression)
+        right: storeCoverGrammar(parser, context, parseAssignmentExpression)
     });
 }
 
