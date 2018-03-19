@@ -97,7 +97,7 @@ var DescKeywordTable = Object.create(null, {
     static: { value: 20586 /* StaticKeyword */ },
     super: { value: 143453 /* SuperKeyword */ },
     switch: { value: 143454 /* SwitchKeyword */ },
-    this: { value: 12383 /* ThisKeyword */ },
+    this: { value: 143455 /* ThisKeyword */ },
     throw: { value: 12384 /* ThrowKeyword */ },
     true: { value: 143366 /* TrueKeyword */ },
     try: { value: 12385 /* TryKeyword */ },
@@ -144,6 +144,7 @@ ErrorMessages[17 /* SloppyFunction */] = 'In non-strict mode code, functions can
 ErrorMessages[16 /* InvalidNestedStatement */] = '%0  statement must be nested within an iteration statement';
 ErrorMessages[18 /* DisallowedInContext */] = '\'%0\' may not be used as an identifier in this context';
 ErrorMessages[19 /* DuplicateProtoProperty */] = 'Property name __proto__ appears more than once in object literal';
+ErrorMessages[116 /* ConstructorIsGenerator */] = 'Class constructor may not be a generator';
 ErrorMessages[20 /* ConstructorSpecialMethod */] = 'Class member named constructor (or \'constructor\') may not be an accessor';
 ErrorMessages[21 /* StaticPrototype */] = 'Classes may not have static property named prototype';
 ErrorMessages[22 /* PrivateFieldConstructor */] = 'Classes may not have a private field named \'#constructor\'';
@@ -200,7 +201,7 @@ ErrorMessages[75 /* DuplicateRegExpFlag */] = 'Duplicate regular expression flag
 ErrorMessages[74 /* UnexpectedNewlineRegExp */] = 'Regular expressions can not contain escaped newlines';
 ErrorMessages[73 /* UnexpectedTokenRegExp */] = 'Unexpected regular expression';
 ErrorMessages[76 /* UnexpectedTokenRegExpFlag */] = 'Unexpected regular expression flag';
-ErrorMessages[72 /* UnterminatedRegExp */] = 'Unterminated regular expression literal -- a / was expected';
+ErrorMessages[72 /* UnterminatedRegExp */] = 'Unterminated regular expression literal';
 ErrorMessages[77 /* UnterminatedComment */] = 'Unterminated MultiLineComment';
 ErrorMessages[78 /* YieldInParameter */] = 'Yield expression not allowed in formal parameter';
 ErrorMessages[79 /* InvalidNumericSeparators */] = 'Numeric separators are not allowed here';
@@ -1427,9 +1428,9 @@ Parser.prototype.scanNumeric = function scanNumeric (context, state, ch) {
                     state = 1 /* Decimal */;
                 }
         }
-        // In cases where '8' or '9' are part of the implicit octal 
-        // value - e.g. '0128' - we would need to reset the index and column 
-        // values to the initial position so we can re-scan these 
+        // In cases where '8' or '9' are part of the implicit octal
+        // value - e.g. '0128' - we would need to reset the index and column
+        // values to the initial position so we can re-scan these
         // as a decimal value with leading zero.
         if (state & 2048 /* EigthOrNine */) {
             this.index = this.startIndex;
@@ -3484,11 +3485,6 @@ Parser.prototype.parseSpreadElement = function parseSpreadElement (context) {
     var t = this.token;
     this.expect(context, 14 /* Ellipsis */);
     var arg = this.parseAssignmentExpression(context | 256 /* AllowIn */);
-    // Object rest element needs to be the last AssignmenProperty in
-    // ObjectAssignmentPattern. (For..in / of statement)
-    if (context & 16777216 /* ForStatement */ && this.token === 1073741842 /* Comma */) {
-        this.tolerate(context, 1 /* UnexpectedToken */, tokenDesc(t));
-    }
     return this.finishNode(context, pos, {
         type: 'SpreadElement',
         argument: arg
@@ -3531,7 +3527,7 @@ Parser.prototype.parsePrimaryExpression = function parsePrimaryExpression (conte
         case 143366 /* TrueKeyword */:
         case 143365 /* FalseKeyword */:
             return this.parseNullOrTrueOrFalseExpression(context, pos);
-        case 12383 /* ThisKeyword */:
+        case 143455 /* ThisKeyword */:
             return this.parseThisExpression(context);
         case 120 /* BigInt */:
             return this.parseBigIntLiteral(context, pos);
@@ -4089,7 +4085,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
             t = this.token;
             if (context & 1 /* OptionsNext */ && this.token === 118 /* Hash */) {
                 this.expect(context, 118 /* Hash */);
-                if (this.token === 69743 /* ConstructorKeyword */) {
+                if (this.tokenValue === 'constructor') {
                     this.report(22 /* PrivateFieldConstructor */);
                 }
                 state |= 4096 /* PrivateName */;
@@ -4126,7 +4122,7 @@ Parser.prototype.parseClassElement = function parseClassElement (context, state)
         if (!(state & 1 /* Static */) && this.tokenValue === 'constructor') {
             state |= 64 /* Constructor */;
             if (state & 60 /* Special */) {
-                this.tolerate(context, 20 /* ConstructorSpecialMethod */);
+                this.tolerate(context, state & 16 /* Generator */ ? 116 /* ConstructorIsGenerator */ : 20 /* ConstructorSpecialMethod */);
             }
             if (state & 2048 /* HasConstructor */) {
                 this.tolerate(context, 24 /* DuplicateConstructor */);
@@ -5282,7 +5278,7 @@ var pluginClassCache = {};
 function parse(source, context, options) {
     var sourceFile = '';
     var Cherow;
-    var delegate = null;
+    var delegate;
     if (options != null) {
         if (options.source)
             { sourceFile = options.source; }
@@ -5315,6 +5311,6 @@ var parseScript = function (source, options) {
 var parseModule = function (source, options) {
     return parse(source, 512 /* Strict */ | 1024 /* Module */ | 262144 /* TopLevel */, options);
 };
-var version = '1.3.0';
+var version = '1.3.3';
 
-export { pluginClassCache, parseScript, parseModule, version };
+export { parse, parseScript, parseModule, version };
