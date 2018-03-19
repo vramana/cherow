@@ -4368,6 +4368,7 @@ Parser.prototype.parseExpressionCoverGrammar = function parseExpressionCoverGram
         }
         return this.parseArrowFunctionExpression(context & ~(65536 /* AllowAsync */ | 32768 /* AllowYield */), pos, isSequence ? expr.expressions : [expr], params);
     }
+    this.flags &= ~4096 /* HasYield */;
     return expr;
 };
 Parser.prototype.parseRegularExpressionLiteral = function parseRegularExpressionLiteral (context) {
@@ -5307,6 +5308,6 @@ var parseScript = function (source, options) {
 var parseModule = function (source, options) {
     return parse(source, 512 /* Strict */ | 1024 /* Module */ | 262144 /* TopLevel */, options);
 };
-var version = '1.3.4';
+var version = '1.3.6';
 
 export { parse, parseScript, parseModule, version };
