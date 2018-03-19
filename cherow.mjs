@@ -4274,8 +4274,8 @@ Parser.prototype.parseExpressionCoverGrammar = function parseExpressionCoverGram
     var sequencepos = this.getLocation();
     var isSequence = false;
     if (context & 32768 /* AllowYield */ && hasBit(this.token, 268435456 /* IsYield */)) {
-        this.errorLocation = this.getLocation();
-        this.flags |= 4096 /* HasYield */;
+        //this.errorLocation = this.getLocation();
+        //this.flags |= Flags.HasYield;
     }
     // Maybe nested parenthesis - ((foo))
     if (this.token === 1073872907 /* LeftParen */) {
