@@ -2404,7 +2404,7 @@ export class Parser {
 
             // VariableStatement[?Yield]
             case Token.VarKeyword:
-                return this.parseVariableStatement(context | Context.AllowIn);
+                return this.parseVariableStatement(context);
 
                 // BlockStatement[?Yield, ?Return]
             case Token.LeftBrace:
@@ -4711,8 +4711,6 @@ export class Parser {
             return this.parseArrowFunctionExpression(context & ~(Context.AllowAsync | Context.AllowYield), pos, isSequence ? (expr as any).expressions : [expr], params);
         }
 
-        this.flags &= ~Flags.HasYield;
-
         return expr;
     }
 
@@ -5073,7 +5071,7 @@ export class Parser {
         let id: ESTree.Identifier | undefined | null = null;
 
         // Unset masks Object / Class Method, and disallow derived class constructors in this context
-        context &= ~(Context.Method | Context.AnnexB | Context.AllowSuperProperty | Context.AllowYield);
+        context &= ~(Context.Method | Context.AllowSuperProperty | Context.AllowYield);
 
         const prevContext = context;
 
