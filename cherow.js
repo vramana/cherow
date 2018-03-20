@@ -2436,7 +2436,7 @@ Parser.prototype.parseStatement = function parseStatement (context) {
     switch (this.token) {
         // VariableStatement[?Yield]
         case 143431 /* VarKeyword */:
-            return this.parseVariableStatement(context);
+            return this.parseVariableStatement(context | 256 /* AllowIn */);
         // BlockStatement[?Yield, ?Return]
         case 537001996 /* LeftBrace */:
             return this.parseBlockStatement(context);
@@ -4280,8 +4280,8 @@ Parser.prototype.parseExpressionCoverGrammar = function parseExpressionCoverGram
     var sequencepos = this.getLocation();
     var isSequence = false;
     if (context & 32768 /* AllowYield */ && hasBit(this.token, 268435456 /* IsYield */)) {
-        //this.errorLocation = this.getLocation();
-        //this.flags |= Flags.HasYield;
+        this.errorLocation = this.getLocation();
+        this.flags |= 4096 /* HasYield */;
     }
     // Maybe nested parenthesis - ((foo))
     if (this.token === 1073872907 /* LeftParen */) {
@@ -4678,7 +4678,7 @@ Parser.prototype.parseFunctionExpression = function parseFunctionExpression (con
 
     var id = null;
     // Unset masks Object / Class Method, and disallow derived class constructors in this context
-    context &= ~(8388608 /* Method */ | 524288 /* AllowSuperProperty */ | 32768 /* AllowYield */);
+    context &= ~(8388608 /* Method */ | 4096 /* AnnexB */ | 524288 /* AllowSuperProperty */ | 32768 /* AllowYield */);
     if (!isAsync) {
         if (this.consume(context, 33624173 /* AsyncKeyword */))
             { context |= 65536 /* AllowAsync */; }
@@ -5314,7 +5314,7 @@ var parseScript = function (source, options) {
 var parseModule = function (source, options) {
     return parse(source, 512 /* Strict */ | 1024 /* Module */ | 262144 /* TopLevel */, options);
 };
-var version = '1.3.6';
+var version = '1.3.7';
 
 exports.parse = parse;
 exports.parseScript = parseScript;
