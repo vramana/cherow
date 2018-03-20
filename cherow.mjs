@@ -2256,8 +2256,6 @@ Parser.prototype.parseImportSpecifier = function parseImportSpecifier (context) 
         if (t & 8388608 /* IsEvalArguments */ && this.token === 1073741839 /* RightBrace */) {
             this.tolerate(context, 92 /* UnexpectedStrictEvalOrArguments */);
         }
-        else if (t & 12288 /* Reserved */)
-            { this.tolerate(context, 100 /* UnexpectedKeyword */, tokenDesc(t)); }
         local = imported;
     }
     return this.finishNode(context, pos, {
@@ -5308,6 +5306,6 @@ var parseScript = function (source, options) {
 var parseModule = function (source, options) {
     return parse(source, 512 /* Strict */ | 1024 /* Module */ | 262144 /* TopLevel */, options);
 };
-var version = '1.3.7';
+var version = '1.3.8';
 
 export { parse, parseScript, parseModule, version };
