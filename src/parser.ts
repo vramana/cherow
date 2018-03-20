@@ -5073,7 +5073,7 @@ export class Parser {
         let id: ESTree.Identifier | undefined | null = null;
 
         // Unset masks Object / Class Method, and disallow derived class constructors in this context
-        context &= ~(Context.Method | | Context.AnnexB | Context.AllowSuperProperty | Context.AllowYield);
+        context &= ~(Context.Method | Context.AnnexB | Context.AllowSuperProperty | Context.AllowYield);
 
         const prevContext = context;
 
