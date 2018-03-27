@@ -72,3 +72,12 @@ export const parseModule = (source: string, options ?: Options) => {
 };
 
 export const version = '__VERSION__';
+
+export * from './chars';
+export * from './common';
+export * from './errors';
+export * from './estree';
+export * from './flags';
+export * from './parser';
+export * from './token';
+export * from './unicode';
