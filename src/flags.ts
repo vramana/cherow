@@ -165,7 +165,7 @@ export const enum ArrayState {
     EvalOrArguments     = 1 << 1,
 }
 
-export const enum JSXElement {
+export const enum JSXElementState {
     None        = 0,
     SelfClosing = 1 << 0,
     Fragment    = 1 << 1,
