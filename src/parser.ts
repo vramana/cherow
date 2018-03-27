@@ -30,7 +30,7 @@ import {
     RegexFlags,
     CoverGrammar,
     ArrayState,
-    JSXElement,
+    JSXElementState,
     Numbers
 } from './flags';
 
@@ -5506,11 +5506,11 @@ export class Parser {
         });
     }
 
-    private parseJSXClosingElement(context: Context, state: JSXElement) {
+    private parseJSXClosingElement(context: Context, state: JSXElementState) {
         const pos = this.getLocation();
         this.expect(context, Token.JSXClose);
 
-        if (state & JSXElement.Fragment) {
+        if (state & JSXElementState.Fragment) {
             this.expect(context, Token.GreaterThan);
             return this.finishNode(context, pos, {
                 type: 'JSXClosingFragment'
@@ -5738,27 +5738,27 @@ export class Parser {
 
         let openingElement = null;
 
-        let state = JSXElement.None;
+        let state = JSXElementState.None;
 
         if (this.token === Token.GreaterThan) {
-            state |= JSXElement.Fragment;
+            state |= JSXElementState.Fragment;
             openingElement = this.parseJSXOpeningFragment(context, pos);
         } else {
             openingElement = this.parseJSXOpeningElement(context, state, pos);
-            if (openingElement.selfClosing) state |= JSXElement.SelfClosing;
+            if (openingElement.selfClosing) state |= JSXElementState.SelfClosing;
         }
 
         let children: ESTree.JSXElement[] = [];
         let closingElement = null;
 
-        if (state & JSXElement.SelfClosing) {
+        if (state & JSXElementState.SelfClosing) {
             return this.parseJSXElement(context, children, openingElement, null, pos);
         }
 
         children = this.parseJSXChildren(context);
         closingElement = this.parseJSXClosingElement(context, state);
 
-        if (state & JSXElement.Fragment) {
+        if (state & JSXElementState.Fragment) {
             return this.parseFragment(context, children, openingElement, closingElement, pos);
         }
 
@@ -5778,7 +5778,7 @@ export class Parser {
         });
     }
 
-    private parseJSXOpeningElement(context: Context, state: JSXElement, pos: Location) {
+    private parseJSXOpeningElement(context: Context, state: JSXElementState, pos: Location) {
         const tagName = this.parseJSXElementName(context);
 
         const attributes = this.parseJSXAttributes(context);
@@ -5788,14 +5788,14 @@ export class Parser {
         } else {
             this.expect(context, Token.Divide);
             this.expect(context, Token.GreaterThan);
-            state |= JSXElement.SelfClosing;
+            state |= JSXElementState.SelfClosing;
         }
 
         return this.finishNode(context, pos, {
             type: 'JSXOpeningElement',
             name: tagName,
             attributes,
-            selfClosing: !!(state & JSXElement.SelfClosing)
+            selfClosing: !!(state & JSXElementState.SelfClosing)
         });
     }
 
