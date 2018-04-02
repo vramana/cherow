@@ -1,120 +1,142 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../src/parser';
 
 describe('Statements - For in', () => {
 
   describe('Failure', () => {
 
-      fail('for(const x = 4, y in [1,2,3]) {}', Context.Empty, {
+    const invalidSyntax = [
+        'for (var i, j in {}) {}',
+        'for (var i, j in [1, 2, 3]) {}',
+        'for (var i, j = 1 in {}) {}',
+        'for (var i, j = void 0 in [1, 2, 3]) {}',
+
+        'for (let i, j in {}) {}',
+        'for (let i, j in [1, 2, 3]) {}',
+        'for (let i, j = 1 in {}) {}',
+        'for (let i, j = void 0 in [1, 2, 3]) {}',
+
+        'for (const i, j in {}) {}',
+        'for (const i, j in [1, 2, 3]) {}',
+        'for (const i, j = 1 in {}) {}',
+        'for (const i, j = void 0 in [1, 2, 3]) {}',
+    ];
+
+    for (const arg of invalidSyntax) {
+        it(`${arg}`, () => {
+            t.throws(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+
+        it(`"use strict"; ${arg}`, () => {
+            t.throws(() => {
+                parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+            });
+        });
+    }
+    fail('for(const x = 4, y in [1,2,3]) {}', Context.Empty, {
           source: 'for(const x = 4, y in [1,2,3]) {}',
       });
 
-      fail('for (this in {}) {};', Context.Empty, {
+    fail('for (this in {}) {};', Context.Empty, {
           source: 'for (this in {}) {}',
       });
 
-      fail('for(const x,y of []) {}', Context.Empty, {
+    fail('for(const x,y of []) {}', Context.Empty, {
           source: 'for(const x,y in []) {}',
       });
 
-      // fail('for ({...rest, b} in [{}]) ;', Context.Empty, {
-      //  source: 'for ({...rest, b} in [{}]) ;',
-      // });
-
-      fail('for(x in {__arr;}){ break ; };', Context.Empty, {
+    fail('for(x in {__arr;}){ break ; };', Context.Empty, {
           source: 'for(x in {__arr;}){ break ; };',
       });
 
-      fail('for (var of [1, 2, 3]) {}', Context.Empty, {
+    fail('for (var of [1, 2, 3]) {}', Context.Empty, {
           source: 'for (var of [1, 2, 3]) {}',
       });
 
-      fail('for (var of [1, 2, 3]) {}', Context.Empty, {
+    fail('for (var of [1, 2, 3]) {}', Context.Empty, {
           source: 'for (var of [1, 2, 3]) {}',
       });
 
-      fail('for (var in {}) {}', Context.Empty, {
+    fail('for (var in {}) {}', Context.Empty, {
           source: 'for (var in {}) {}',
       });
 
-      fail('for (let i = 1 in {}) {}', Context.Empty, {
+    fail('for (let i = 1 in {}) {}', Context.Empty, {
           source: 'for (let i = 1 in {}) {}',
       });
 
-      fail('for (let i = void 0 in [1, 2, 3]) {}', Context.Empty, {
+    fail('for (let i = void 0 in [1, 2, 3]) {}', Context.Empty, {
           source: 'for (let i = void 0 in [1, 2, 3]) {}',
       });
 
-      fail('for (const i = void 0 in [1, 2, 3]) {}', Context.Empty, {
+    fail('for (const i = void 0 in [1, 2, 3]) {}', Context.Empty, {
           source: 'for (const i = void 0 in [1, 2, 3]) {}',
       });
 
-      fail('"for (var i = void 0 in [1, 2, 3]) {}', Context.Empty, {
+    fail('"for (var i = void 0 in [1, 2, 3]) {}', Context.Empty, {
           source: '"for (var i = void 0 in [1, 2, 3]) {}',
       });
 
-      fail('"use strict"; for (var i = 1 in {}) {}', Context.Empty, {
+    fail('"use strict"; for (var i = 1 in {}) {}', Context.Empty, {
           source: '"use strict"; for (var i = 1 in {}) {}',
       });
 
-      // fail('for (var i = yield in [1, 2, 3]) {}', Context.Empty, {
-         //  source: 'for (var i = yield in [1, 2, 3]) {}',
-      // });
-
-      fail('function foo() { for (let i, j = 1 in {}) {} }', Context.Empty, {
+    fail('function foo() { for (let i, j = 1 in {}) {} }', Context.Empty, {
           source: 'function foo() { for (let i, j = 1 in {}) {} }',
       });
 
-      fail('function foo() { for (const i, j = void 0 in [1, 2, 3]) {} }', Context.Empty, {
+    fail('function foo() { for (const i, j = void 0 in [1, 2, 3]) {} }', Context.Empty, {
           source: 'function foo() { for (const i, j = void 0 in [1, 2, 3]) {} }',
       });
 
-      fail('for (x=0 in y);', Context.Empty, {
+    fail('for (x=0 in y);', Context.Empty, {
           source: 'for (x=0 in y);',
       });
-      fail('for (var x = y = z in q);', Context.Empty, {
+    fail('for (var x = y = z in q);', Context.Empty, {
           source: 'for (var x = y = z in q);',
       });
 
-      fail('for (x=0 in y);', Context.Empty, {
+    fail('for (x=0 in y);', Context.Empty, {
           source: 'for (x=0 in y);',
       });
 
-      fail('for (var a = b = c = (d in e) in z);', Context.Empty, {
+    fail('for (var a = b = c = (d in e) in z);', Context.Empty, {
           source: 'for (var a = b = c = (d in e) in z);',
       });
 
-      fail('"use strict"; for(var [,] = 0 in {});', Context.Empty, {
+    fail('"use strict"; for(var [,] = 0 in {});', Context.Empty, {
           source: '"use strict"; for(var [,] = 0 in {});',
       });
 
-      fail('for(let ? b : c in 0);', Context.Empty, {
+    fail('for(let ? b : c in 0);', Context.Empty, {
           source: 'for(let ? b : c in 0);',
       });
 
-      fail('for (a 12 b; 12) break;', Context.Empty, {
+    fail('for (a 12 b; 12) break;', Context.Empty, {
           source: 'for (a 12 b; 12) break;',
       });
 
-      fail('for (a in b 5', Context.Empty, {
+    fail('for (a in b 5', Context.Empty, {
           source: 'for (a in b 5',
       });
 
-      fail('for (var a, b in e) break;', Context.Empty, {
+    fail('for (var a, b in e) break;', Context.Empty, {
           source: 'for (var a, b in e) break;',
       });
 
-      fail('for (const x = 0 in {});', Context.Empty, {
+    fail('for (const x = 0 in {});', Context.Empty, {
         source: 'for (const x = 0 in {});',
     });
 
-      fail('for (let x = 0 in {});', Context.Empty, {
+    fail('for (let x = 0 in {});', Context.Empty, {
         source: 'for (let x = 0 in {});',
     });
 
-      fail('for (a=12 in e) break;', Context.Empty, {
+    fail('for (a=12 in e) break;', Context.Empty, {
           source: 'for (a=12 in e) break;',
       });
 
@@ -122,110 +144,106 @@ describe('Statements - For in', () => {
          //  source: 'for (var [arguments] = ({ get y(){} }) in y ) (x);',
       // });
 
-      // fail('for (var [x] = [] in null);', Context.Empty, {
-         //  source: 'for (var [x] = [] in null);',
-      // });
-
-      fail('for (0 = 0 in {});', Context.Empty, {
+    fail('for (0 = 0 in {});', Context.Empty, {
           source: 'for (0 = 0 in {});',
       });
 
-      fail('for (i++ = 0 in {});', Context.Empty, {
+    fail('for (i++ = 0 in {});', Context.Empty, {
           source: 'for (i++ = 0 in {});',
       });
 
-      fail('for(let a = 0 in b);', Context.Empty, {
+    fail('for(let a = 0 in b);', Context.Empty, {
           source: 'for(let a = 0 in b);',
       });
 
-      fail('for(const a = 0 in b);', Context.Empty, {
+    fail('for(const a = 0 in b);', Context.Empty, {
           source: 'for(const a = 0 in b);',
       });
 
-      fail('for(let ? b : c in 0);', Context.Empty, {
+    fail('for(let ? b : c in 0);', Context.Empty, {
           source: 'for(let ? b : c in 0);',
       });
 
-      fail('for(({a}) in 0);', Context.Empty, {
+    fail('for(({a}) in 0);', Context.Empty, {
           source: 'for(({a}) in 0);',
       });
 
-      fail('for(([a]) in 0);', Context.Empty, {
+    fail('for(([a]) in 0);', Context.Empty, {
           source: 'for(([a]) in 0);',
       });
 
-      fail('for(let ? b : c in 0);', Context.Empty, {
+    fail('for(let ? b : c in 0);', Context.Empty, {
           source: 'for(let ? b : c in 0);',
       });
 
-      fail('for (var i, j in {}) {}', Context.Empty, {
+    fail('for (var i, j in {}) {}', Context.Empty, {
           source: 'for (var i, j in {}) {}',
       });
 
-      fail('for (var i, j in [1, 2, 3]) {}', Context.Empty, {
+    fail('for (var i, j in [1, 2, 3]) {}', Context.Empty, {
           source: 'for (var i, j in [1, 2, 3]) {}',
       });
 
-      fail('for (var i, j = 1 in {}) {}', Context.Empty, {
+    fail('for (var i, j = 1 in {}) {}', Context.Empty, {
           source: 'for (var i, j = 1 in {}) {}',
       });
 
-      fail('for (var i, j = void 0 in [1, 2, 3]) {}', Context.Empty, {
+    fail('for (var i, j = void 0 in [1, 2, 3]) {}', Context.Empty, {
           source: 'for (var i, j = void 0 in [1, 2, 3]) {}',
       });
 
-      fail('for (let i, j in {}) {}', Context.Empty, {
+    fail('for (let i, j in {}) {}', Context.Empty, {
           source: 'for (let i, j in {}) {}',
       });
 
-      fail('for (let i, j in [1, 2, 3]) {}', Context.Empty, {
+    fail('for (let i, j in [1, 2, 3]) {}', Context.Empty, {
           source: 'for (let i, j in [1, 2, 3]) {}',
       });
 
-      fail('for (const i, j in [1, 2, 3]) {}', Context.Empty, {
+    fail('for (const i, j in [1, 2, 3]) {}', Context.Empty, {
           source: 'for (const i, j in [1, 2, 3]) {}',
       });
 
-      fail('for (const i, j = 1 in {}) {}', Context.Empty, {
+    fail('for (const i, j = 1 in {}) {}', Context.Empty, {
           source: 'for (const i, j = 1 in {}) {}',
       });
 
-      fail('function foo() { for (var i, j of {}) {} }', Context.Empty, {
+    fail('function foo() { for (var i, j of {}) {} }', Context.Empty, {
           source: 'function foo() { for (var i, j of {}) {} }',
       });
 
-      fail('for (var i, j in [1, 2, 3]) {}', Context.Empty, {
+    fail('for (var i, j in [1, 2, 3]) {}', Context.Empty, {
           source: 'for (var i, j in [1, 2, 3]) {}',
       });
 
-      fail('for (var i, j = 1 in {}) {}', Context.Empty, {
+    fail('for (var i, j = 1 in {}) {}', Context.Empty, {
           source: 'for (var i, j = 1 in {}) {}',
       });
 
-      fail('"use strict"; for ([ x = yield ] in [[]]) ;', Context.Empty, {
+    fail('"use strict"; for ([ x = yield ] in [[]]) ;', Context.Empty, {
           source: '"use strict"; for ([ x = yield ] in [[]]) ;',
       });
 
-      fail('for (var in {}) {}', Context.Empty, {
+    fail('for (var in {}) {}', Context.Empty, {
           source: 'for (var in {}) {}',
       });
-      fail('for(([a]) in 0);', Context.Empty, {
+    fail('for(([a]) in 0);', Context.Empty, {
           source: 'for(([a]) in 0);',
       });
 
-      fail('for ([[(x, y)]] in [[[]]]) ;', Context.Empty, {
+    fail('for ([[(x, y)]] in [[[]]]) ;', Context.Empty, {
           source: 'for ([[(x, y)]] in [[[]]]) ;',
       });
 
-      fail('"use strict"; for ([[x[yield]]] in [[[]]]) ;', Context.Empty, {
+    fail('"use strict"; for ([[x[yield]]] in [[[]]]) ;', Context.Empty, {
           source: '"use strict"; for ([[x[yield]]] in [[[]]]) ;',
       });
 
-      fail('for ([{ get x() {} }] in [[{}]]) ;', Context.Empty, {
+    fail('for ([{ get x() {} }] in [[{}]]) ;', Context.Empty, {
           source: 'for ([{ get x() {} }] in [[{}]]) ;',
       });
 
-      fail('"use strict"; for ([{ x = yield }] in [[{}]]) ;', Context.Empty, {
+    fail('"use strict"; for ([{ x = yield }] in [[{}]]) ;', Context.Empty, {
           source: '"use strict"; for ([{ x = yield }] in [[{}]]) ;',
       });
 
@@ -233,23 +251,23 @@ describe('Statements - For in', () => {
       // source: '"use strict"; for ([arguments] in [[]]) ;',
       // });
 
-      fail('"use strict"; for ([ x[yield] ] in [[]]) ;', Context.Empty, {
+    fail('"use strict"; for ([ x[yield] ] in [[]]) ;', Context.Empty, {
           source: '"use strict"; for ([ x[yield] ] in [[]]) ;',
       });
 
-      fail('for ([...x, y] in [[]]) ;', Context.Empty, {
+    fail('for ([...x, y] in [[]]) ;', Context.Empty, {
           source: 'for ([...x, y] in [[]]) ;',
       });
 
-      fail('for ([...x,] in [[]]) ;', Context.Empty, {
+    fail('for ([...x,] in [[]]) ;', Context.Empty, {
           source: 'for ([...x,] in [[]]) ;',
       });
 
-      fail('for ([...x, ...y] in [[]]) ;', Context.Empty, {
+    fail('for ([...x, ...y] in [[]]) ;', Context.Empty, {
           source: 'for ([...x, ...y] in [[]]) ;',
       });
 
-      fail('for ([...x,] in [[]]) ;', Context.Empty, {
+    fail('for ([...x,] in [[]]) ;', Context.Empty, {
           source: 'for ([...x,] in [[]]) ;',
       });
 
@@ -257,67 +275,53 @@ describe('Statements - For in', () => {
       //  source: 'for ([...x = 1] in [[]]) ;',
       // });
 
-      fail('for ([...[(x, y)]] in [[[]]]) ;', Context.Empty, {
+    fail('for ([...[(x, y)]] in [[[]]]) ;', Context.Empty, {
           source: 'for ([...[(x, y)]] in [[[]]]) ;',
       });
 
-      fail('"use strict"; for ([...[x[yield]]] in [[]]) ;', Context.Empty, {
+    fail('"use strict"; for ([...[x[yield]]] in [[]]) ;', Context.Empty, {
           source: '"use strict"; for ([...[x[yield]]] in [[]]) ;',
       });
 
-      fail('for ([...{ get x() {} }] in [[[]]]) ;', Context.Empty, {
+    fail('for ([...{ get x() {} }] in [[[]]]) ;', Context.Empty, {
           source: 'for ([...{ get x() {} }] in [[[]]]) ;',
       });
 
-      fail('for ([...{ get x() {} }] in [[[]]]) ;', Context.Empty, {
+    fail('for ([...{ get x() {} }] in [[[]]]) ;', Context.Empty, {
           source: 'for ([...{ get x() {} }] in [[[]]]) ;',
       });
 
-      fail('for ([...{ get x() {} }] in [[[]]]) ;', Context.Empty, {
+    fail('for ([...{ get x() {} }] in [[[]]]) ;', Context.Empty, {
           source: 'for ([...{ get x() {} }] in [[[]]]) ;',
       });
 
-      fail('"use strict"; for ([...{ x = yield }] in [[{}]]) ;', Context.Empty, {
+    fail('"use strict"; for ([...{ x = yield }] in [[{}]]) ;', Context.Empty, {
           source: '"use strict"; for ([...{ x = yield }] in [[{}]]) ;',
       });
 
-      fail('for ([...{ get x() {} }] in [[[]]]) ;', Context.Empty, {
+    fail('for ([...{ get x() {} }] in [[[]]]) ;', Context.Empty, {
           source: 'for ([...{ get x() {} }] in [[[]]]) ;',
       });
 
-      // fail('for ({ yield } in [{}]) ;', Context.Empty, {
-      // source: 'for ({ yield } in [{}]) ;',
-      // });
+    fail('"use strict"; for ({ yield } in [{}]) ;', Context.Empty, {
+       source: '"use strict"; for ({ yield } in [{}]) ;',
+       });
 
-      // fail('"use strict"; for ({ yield } in [{}]) ;', Context.Empty, {
-      // source: 'for ({ yield } in [{}]) ;',
-      // });
-
-      //fail('"use strict"; for ({ eval = 0 } in [{}]) ;', Context.Empty, {
-      //    source: '"use strict"; for ({ eval = 0 } in [{}]) ;',
-      //});
-
-      fail('"use strict"; for ({ x = yield } in [{}]) ;', Context.Empty, {
+    fail('"use strict"; for ({ x = yield } in [{}]) ;', Context.Empty, {
           source: '"use strict"; for ({ x = yield } in [{}]) ;',
       });
 
-      fail('for (const x in {}) label1: label2: function f() {}', Context.Empty, {
+    fail('for (const x in {}) label1: label2: function f() {}', Context.Empty, {
           source: 'for (const x in {}) label1: label2: function f() {}',
       });
 
-      fail('for (let x in {}) label1: label2: function f() {}', Context.Empty, {
+    fail('for (let x in {}) label1: label2: function f() {}', Context.Empty, {
           source: 'for (let x in {}) label1: label2: function f() {}',
       });
 
-      fail('for (x in {}) label1: label2: function f() {}', Context.Empty, {
+    fail('for (x in {}) label1: label2: function f() {}', Context.Empty, {
           source: 'for (x in {}) label1: label2: function f() {}',
       });
-
-      /*fail(`for (var x in null) let // ASI
-{}`, Context.Empty, {
-          source: `for (var x in null) let // ASI
-  {}`,
-      }); */
   });
 
   describe('Pass', () => {

@@ -1,3 +1,7 @@
+
+/**
+ * The token types and attributes.
+ */
 export const enum Token {
     Type = 0xff,
 
@@ -166,10 +170,10 @@ export const enum Token {
     Hash               = 115,
     Eval               = 116 | IsIdentifier | IsEvalOrArguments,
     Arguments          = 117 | IsIdentifier | IsEvalOrArguments,
-    EnumKeyword        = 118 | Reserved | IsIdentifier,
+    EnumKeyword        = 118 | Reserved,
     BigIntLiteral      = 119 | IsExpressionStart,
     At                 = 120,
-
+    
 }
 
 // Note: this *must* be kept in sync with the enum's order.
@@ -225,7 +229,11 @@ const KeywordDescTable = [
  * The conversion function between token and its string description/representation.
  */
 export function tokenDesc(token: Token): string {
-   return KeywordDescTable[token & Token.Type];
+    if ((token & Token.Type) < KeywordDescTable.length) {
+        return KeywordDescTable[token & Token.Type];
+    } else {
+        throw new Error('unreachable');
+    }
 }
 
 // Used `Object.create(null)` to avoid potential `Object.prototype`

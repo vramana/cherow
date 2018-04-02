@@ -1,19 +1,70 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../src/parser';
 
 describe('Expressions - Await', () => {
 
     describe('Failures', () => {
 
+        const invalidInModule = [
+            'await;',
+            'await: ;',
+            'var await;',
+            'var [await] = [];',
+         //   "var { await } = {};",
+            'var { x: await } = {};',
+            '{ var await; }',
+            'let await;',
+            'let [await] = [];',
+           // "let { await } = {};",
+            'let { x: await } = {};',
+            '{ let await; }',
+            'const await = null;',
+            'const [await] = [];',
+         //   "const { await } = {};",
+            'const { x: await } = {};',
+            '{ const await = null; }',
+            'function await() {}',
+            'function f(await) {}',
+            'function* await() {}',
+            'function* g(await) {}',
+            '(function await() {});',
+            '(function (await) {});',
+            '(function* await() {});',
+            '(function* (await) {});',
+            '(await) => {};',
+            'await => {};',
+            'class await {}',
+            'class C { constructor(await) {} }',
+            'class C { m(await) {} }',
+            'class C { static m(await) {} }',
+            'class C { *m(await) {} }',
+            'class C { static *m(await) {} }',
+            '(class await {})',
+            '(class { constructor(await) {} });',
+            '(class { m(await) {} });',
+            '(class { static m(await) {} });',
+            '(class { *m(await) {} });',
+            '(class { static *m(await) {} });',
+            '({ m(await) {} });',
+            '({ *m(await) {} });',
+            '({ set p(await) {} });',
+            'try {} catch (await) {}',
+            'try {} catch (await) {} finally {}'
+        ];
+
+        for (const arg of invalidInModule) {
+            it(`${arg}`, () => {
+                t.throws(() => {
+                    parse(`${arg}`, undefined, Context.Strict | Context.Module);
+                });
+            });
+        }
+
         // Testing invalid async await formal params
 
         const formalParams = [
-            //"{ await }",
-            // "{ await = 1 }",
-            //"{ await } = {}",
-            //"{ await = 1 } = {}",
             '[await]',
             '[await] = []',
             '[await = 1]',

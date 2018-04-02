@@ -1,17 +1,86 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
+import * as t from 'assert';
+import { parse } from '../../../src/parser';
 
 describe('Miscellaneous - Unicode', () => {
 
-      fail('no digits', Context.Empty, {
+    describe('Failure', () => {
+
+        const invalidSyntax = [
+        'var foob\\u123r = 0;',
+        'var \\u123roo = 0;',
+        '"foob\\u123rr"',
+        '/regex/\\u0069g',
+        '/regex/\\u006g',
+        'var foob\\u{c481r = 0;',
+        'var foob\\uc481}r = 0;',
+        'var \\u{0052oo = 0;',
+        'var \\u0052}oo = 0;',
+        '"foob\\u{c481r"',
+        'var foob\\u{}ar = 0;',
+        '"\\u{110000}"',
+        'var foob\\v1234r = 0;',
+        'var foob\\U1234r = 0;',
+       'var foob\\v{1234}r = 0;',
+       'var foob\\U{1234}r = 0;'
+    ];
+
+        for (const arg of invalidSyntax) {
+
+        it(`${arg}`, () => {
+            t.throws(() => {
+                parse(`${arg}`, undefined, Context.Empty);
+            });
+        });
+
+        it(`"use strict"; ${arg}`, () => {
+            t.throws(() => {
+                parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+            });
+        });
+    }
+
+        fail('no digits', Context.Empty, {
           source: '\\u{}',
       });
 
-      fail('out of range', Context.Empty, {
+        fail('out of range', Context.Empty, {
           source: '\\u{125400}',
       });
+    });
 
-      pass(`"T\\u203F = []"`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+    describe('Pass', () => {
+
+        const validSyntax = [
+       'var \\u0052oo = 0;',
+       'var \\u{0052}oo = 0;',
+       'var \\u{52}oo = 0;',
+       'var \\u{00000000052}oo = 0;',
+       'var foob\\uc481r = 0;',
+       'var foob\\u{c481}r = 0;',
+       '"foob\\uc481r"',
+       '"foob\\{uc481}r"',
+       '"foo\\u{10e6d}"',
+       '"\\u{10ffff}"',
+        ];
+
+        for (const arg of validSyntax) {
+
+            it(`${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`${arg}`, undefined, Context.Empty);
+                });
+            });
+
+            it(`"use strict"; ${arg}`, () => {
+                t.doesNotThrow(() => {
+                    parse(`"use strict"; ${arg}`, undefined, Context.Empty);
+                });
+            });
+        }
+
+        pass(`"T\\u203F = []"`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '"T\\u203F = []"',
           expected: {
               body: [
@@ -66,7 +135,7 @@ describe('Miscellaneous - Unicode', () => {
             }
       });
 
-      pass(`"T\\u200C";`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`"T\\u200C";`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '"T\\u200C";',
           expected: {
               body: [
@@ -121,7 +190,7 @@ describe('Miscellaneous - Unicode', () => {
             }
       });
 
-      pass(`"\\u2163\\u2161"'`, Context.Empty, {
+        pass(`"\\u2163\\u2161"'`, Context.Empty, {
           source: '"\\u2163\\u2161"',
           expected: {
               body: [
@@ -139,7 +208,7 @@ describe('Miscellaneous - Unicode', () => {
             }
       });
 
-      pass(`"\\u2163\\u2161\\u200A; \\u2009"`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`"\\u2163\\u2161\\u200A; \\u2009"`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '"\\u2163\\u2161\\u200A; \\u2009"',
           expected: {
               body: [{
@@ -192,7 +261,7 @@ describe('Miscellaneous - Unicode', () => {
           }
       });
 
-      pass(`var source = "\\u{00000000034}";`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`var source = "\\u{00000000034}";`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: 'var source = "\\u{00000000034}";',
           expected: {
               type: 'Program',
@@ -276,7 +345,7 @@ describe('Miscellaneous - Unicode', () => {
           }
       });
 
-      pass(`"\\u{20BB7}\\u{91CE}\\u{5BB6}"`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
+        pass(`"\\u{20BB7}\\u{91CE}\\u{5BB6}"`, Context.OptionsRanges | Context.OptionsLoc | Context.OptionsRaw, {
           source: '"\\u{20BB7}\\u{91CE}\\u{5BB6}"',
           expected: {
               type: 'Program',
@@ -328,4 +397,5 @@ describe('Miscellaneous - Unicode', () => {
               sourceType: 'script'
           }
       });
+    });
     });
