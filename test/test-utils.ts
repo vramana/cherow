@@ -1,6 +1,6 @@
 import * as assert from 'clean-assert';
 import * as t from 'assert';
-import { parse } from '../src/parser';
+import { parse } from '../src/parser/parser';
 import { Context } from '../src/utilities';
 import * as ESTree from '../src/estree';
 
