@@ -33,16 +33,9 @@ import {
     parseAndDisallowDestructuringAndBinding,
     parseDirective,
     ObjectState,
-    ClassState
+    ClassState,
+    CoverParenthesizedState
 } from '../utilities';
-
-const enum CoverParenthesizedState {
-    None,
-    SequenceExpression = 1 << 0,
-    HasEvalOrArguments = 1 << 1,
-    HasReservedWords = 1 << 2,
-    HasYield = 1 << 3,
-}
 
 /**
  * Parse expression
@@ -888,12 +881,13 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
     }
 
     let expr: any;
-
+    
     // '(...'
     if (parser.token === Token.Ellipsis) {
+        parser.flags |= Flags.SimpleParameterList;
         expr = parseRestElement(parser, context);
         expect(parser, context, Token.RightParen);
-        return parseArrowFunction(parser, context, pos, [expr]);
+        return parseSequenceArrow(parser, context, [expr], pos);
     }
 
     let state = CoverParenthesizedState.None;
@@ -906,6 +900,8 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
     } else if (parser.token & Token.Reserved) {
         state |= CoverParenthesizedState.HasReservedWords;
     }
+    
+    if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding
 
     expr = restoreExpressionCoverGrammar(parser, context | Context.AllowIn, parseAssignmentExpression);
 
@@ -919,7 +915,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
         const expressions: ESTree.Expression[] = [expr];
 
         while (consume(parser, context, Token.Comma)) {
-
+            
             switch (parser.token) {
 
                 // '...'
@@ -928,7 +924,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
 
                 // ')'
                 case Token.RightParen:
-                    return parseSequenceArrow(parser, context, expressions, pos);
+                    return parseSequenceArrow(parser, context, expressions, pos);    
 
                 default: {
 
@@ -939,7 +935,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
                     } else if (parser.token & Token.IsEvalOrArguments) {
                         state |= CoverParenthesizedState.HasEvalOrArguments;
                     }
-
+                    if (parser.token & Token.IsBindingPattern) state |= CoverParenthesizedState.HasBinding
                     expressions.push(restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression));
                 }
             }
@@ -964,7 +960,7 @@ function parseCoverParenthesizedExpressionAndArrowParameterList(parser: Parser, 
         } else if (!(parser.flags & Flags.AllowBinding)) {
             report(parser, Errors.Unexpected);
         }
-
+        if (state & CoverParenthesizedState.HasBinding) parser.flags |= Flags.SimpleParameterList
         const params = (state & CoverParenthesizedState.SequenceExpression ? expr.expressions : [expr]);
         return parseArrowFunction(parser, context, pos, params);
     }

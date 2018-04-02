@@ -100,6 +100,16 @@ export const enum Labels {
     NotNested = 1 << 0,
     Nested    = 1 << 1
 }
+
+export const enum CoverParenthesizedState {
+    None,
+    SequenceExpression  = 1 << 0,
+    HasEvalOrArguments  = 1 << 1,
+    HasReservedWords    = 1 << 2,
+    HasYield            = 1 << 3,
+    HasBinding          = 1 << 4,
+}
+
 /**
  * Validate break and continue statement
  *

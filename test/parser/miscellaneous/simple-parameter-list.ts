@@ -7,7 +7,7 @@ describe('Miscellaneous - Simple parameter list', () => {
 
     describe('Failure', () => {
 
-        const programs = [
+        const invalidSyntax = [
             // Array destructuring.
             '[]',
             '[a]',
@@ -75,73 +75,89 @@ describe('Miscellaneous - Simple parameter list', () => {
 
             // All non-simple cases combined.
             'x, d = 123, [a], {p: 0}, ...rest',
+
+            // Misc
+            'a, {b}',
+            "{}",
+            "[]",
+            "[{}]",
+            "{a}",
+            "a, {b}",
+            "a, b, {c, d, e}",
+            "a = b",
+            "a, b, c = 1",
+            "...args",
+            "a, b, ...rest",
+            "[a, b, ...rest]",
+            "{ a = {} }",
+            "{ a } = { b: true }",
         ];
 
-        for (const arg of programs) {
+        for (const arg of invalidSyntax) {
             it(`function f(${arg}) { "use strict"; }`, () => {
                 t.throws(() => {
-                    parse(`function f(${arg}) { "use strict"; }`, undefined, Context.Empty);
-                });
+                    parse(`function f(${arg}) { "use strict"; }`, undefined, Context.Empty)
+                })
             });
 
             it(`void function(${arg}) { "use strict"; };`, () => {
                 t.throws(() => {
-                    parse(`void function(${arg}) { "use strict"; };`, undefined, Context.Empty);
-                });
+                    parse(`void function(${arg}) { "use strict"; };`, undefined, Context.Empty)
+                })
             });
 
             it(`function* g(${arg}) { "use strict"; }`, () => {
                 t.throws(() => {
-                    parse(`function* g(${arg}) { "use strict"; }`, undefined, Context.Empty);
-                });
+                    parse(`function* g(${arg}) { "use strict"; }`, undefined, Context.Empty)
+                })
             });
 
             it(`async function g(${arg}) { "use strict"; }`, () => {
                 t.throws(() => {
-                    parse(`async function g(${arg}) { "use strict"; }`, undefined, Context.Empty);
-                });
+                    parse(`async function g(${arg}) { "use strict"; }`, undefined, Context.Empty)
+                })
             });
 
             it(`(class { constructor(${arg}) { "use strict"; } });`, () => {
                 t.throws(() => {
-                    parse(`(class { constructor(${arg}) { "use strict"; } });`, undefined, Context.Empty);
-                });
+                    parse(`(class { constructor(${arg}) { "use strict"; } });`, undefined, Context.Empty)
+                })
             });
 
-            /*it(`async (${arg}) => { "use strict"; };`, () => {
+            it(`(${arg}) => { "use strict"; };`, () => {
                 t.throws(() => {
-                    parse(`async (${arg}) => { "use strict"; };`, undefined, Context.Empty)
+                    parse(`(${arg}) => { "use strict"; };`, undefined, Context.Empty)
                 })
-            });*/
+            });
 
             it(`({ get m(${arg}) { "use strict"; } });`, () => {
                 t.throws(() => {
-                    parse(`({ get m(${arg}) { "use strict"; } });`, undefined, Context.Empty);
-                });
+                    parse(`({ get m(${arg}) { "use strict"; } });`, undefined, Context.Empty)
+                })
             });
 
             it(`class C { async m(${arg}) { "use strict"; } }`, () => {
                 t.throws(() => {
-                    parse(`class C { async m(${arg}) { "use strict"; } }`, undefined, Context.Empty);
-                });
+                    parse(`class C { async m(${arg}) { "use strict"; } }`, undefined, Context.Empty)
+                })
             });
 
             it(`({ async set m(${arg}) { "use strict"; } });`, () => {
                 t.throws(() => {
-                    parse(`({ async set m(${arg}) { "use strict"; } });`, undefined, Context.Empty);
-                });
+                    parse(`({ async set m(${arg}) { "use strict"; } });`, undefined, Context.Empty)
+                })
             });
 
             it(`({ set m(${arg}) { "use strict"; } });`, () => {
                 t.throws(() => {
-                    parse(`({ set m(${arg}) { "use strict"; } });`, undefined, Context.Empty);
-                });
+                    parse(`({ set m(${arg}) { "use strict"; } });`, undefined, Context.Empty)
+                })
             });
 
             it(`class C { *m(${arg}) { "use strict"; } }`, () => {
                 t.throws(() => {
-                    parse(`class C { *m(${arg}) { "use strict"; } }`, undefined, Context.Empty);
-                });
+                    parse(`class C { *m(${arg}) { "use strict"; } }`, undefined, Context.Empty)
+                })
             });
         }
 
@@ -165,9 +181,9 @@ describe('Miscellaneous - Simple parameter list', () => {
             source: 'function foo({a}) { "use strict"; }',
         });
 
-        //fail(`({a}) => { "use strict"; }`, Context.Strict | Context.Module, {
-        //  source: '({a}) => { "use strict"; }',
-        //});
+        fail(`({a}) => { "use strict"; }`, Context.Strict | Context.Module, {
+          source: '({a}) => { "use strict"; }',
+        });
 
         fail(`function a([ option1, option2 ]) { "use strict"; }`, Context.Empty, {
             source: 'function a([ option1, option2 ]) { "use strict"; }',
