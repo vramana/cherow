@@ -17,7 +17,6 @@ import {
     nextToken,
     consume,
     restoreExpressionCoverGrammar,
-    resetExpressionCoverGrammar,
     isIdentifier1,
     parseExpressionCoverGrammar,
     isValidSimpleAssignmentTarget,
@@ -1454,9 +1453,9 @@ export function parseFormalListAndBody(parser: Parser, context: Context) {
 }
 
 /**
- * Parse statement list
+ * Parse funciton body
  *
- * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-FunctionBody)
  *
  * @param {Parser} Parser instance
  * @param {context} Context masks
@@ -1466,7 +1465,7 @@ export function parseFunctionBody(parser: Parser, context: Context): ESTree.Bloc
     const pos = getLocation(parser);
     expect(parser, context, Token.LeftBrace);
     const body: ESTree.Statement[] = [];
-    const t = parser.labelSet;
+    const { labelSet } = parser;
     parser.labelSet = {};
 
     while (parser.token === Token.StringLiteral) {
@@ -1477,31 +1476,28 @@ export function parseFunctionBody(parser: Parser, context: Context): ESTree.Bloc
         if (!isPrologueDirective(item)) break;
 
         if (item.expression.value === 'use strict') {
-
             if (parser.flags & Flags.SimpleParameterList) {
                 report(parser, Errors.IllegalUseStrict);
-            }
-            if (parser.flags & Flags.StrictReserved) {
+            } else if (parser.flags & Flags.StrictReserved) {
                 report(parser, Errors.UnexpectedStrictReserved);
-            }
-
-            if (parser.flags & Flags.StrictFunctionName) {
+            } else if (parser.flags & Flags.StrictFunctionName) {
                 report(parser, Errors.UnexpectedStrictReserved);
-            }
-            if (parser.flags & Flags.StrictEvalArguments) {
+            } else if (parser.flags & Flags.StrictEvalArguments) {
                 report(parser, Errors.StrictEvalArguments);
             }
-
             context |= Context.Strict;
         }
     }
 
+    // Note: This has to be unset each time we parse out a function body to 
+    // avoid conflicts with nested functions
     parser.flags &= ~(Flags.StrictFunctionName | Flags.StrictEvalArguments);
 
     while (parser.token !== Token.RightBrace) {
         body.push(parseStatementListItem(parser, context));
     }
-    parser.labelSet = t;
+
+    parser.labelSet = labelSet;
 
     expect(parser, context, Token.RightBrace);
 
@@ -1512,16 +1508,16 @@ export function parseFunctionBody(parser: Parser, context: Context): ESTree.Bloc
 }
 
 /**
- * Parse statement list
+ * Parse formal parameters
  *
- * @see [Link](https://tc39.github.io/ecma262/#prod-StatementList)
+ * @see [Link](https://tc39.github.io/ecma262/#prod-FormalParameters)
  *
  * @param {Parser} Parser instance
  * @param {context} Context masks
  */
 
-export function parseFormalParameterList(parser: Parser, context: Context): any {
-
+export function parseFormalParameters(parser: Parser, context: Context): any {
+     
     parser.flags &= ~(Flags.SimpleParameterList | Flags.StrictReserved);
 
     expect(parser, context, Token.LeftParen);
@@ -1529,59 +1525,65 @@ export function parseFormalParameterList(parser: Parser, context: Context): any 
     const params: ESTree.ArrayPattern | ESTree.RestElement | ESTree.ObjectPattern | ESTree.Identifier[] = [];
 
     while (parser.token !== Token.RightParen) {
-
         if (parser.token === Token.Ellipsis) {
             parser.flags |= Flags.SimpleParameterList;
             params.push(parseRestElement(parser, context));
             break;
-        } else {
+        } 
 
-            const pos = getLocation(parser);
-
-            if (!(parser.token & (Token.IsIdentifier | Token.Keyword))) {
-                parser.flags |= Flags.SimpleParameterList;
-            } else {
-                if (hasBit(parser.token, Token.FutureReserved)) {
-                    if (context & Context.Strict) report(parser, Errors.UnexpectedStrictReserved);
-                    parser.flags |= Flags.StrictFunctionName;
-                }
-                if (hasBit(parser.token, Token.IsEvalOrArguments)) {
-                    if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
-                    parser.flags |= Flags.StrictEvalArguments;
-                }
-            }
-
-            const left: any = parseBindingIdentifierOrPattern(parser, context);
-
-            if (consume(parser, context, Token.Assign)) {
-                if (parser.token & (Token.IsYield | Token.IsAwait) && context & (Context.Yield | Context.Async)) {
-                    report(parser, parser.token & Token.IsAwait ? Errors.AwaitInParameter : Errors.YieldInParameter);
-                }
-
-                parser.flags |= Flags.SimpleParameterList;
-
-                params.push(finishNode(context, parser, pos, {
-                    type: 'AssignmentPattern',
-                    left: left,
-                    right: parseExpressionCoverGrammar(parser, context, parseAssignmentExpression)
-                }));
-            } else {
-                params.push(left);
-            }
-        }
-
+        params.push(parseFormalParameterList(parser, context));
         if (!consume(parser, context, Token.Comma)) break;
-
-        if (parser.token === Token.RightParen) {
-            // allow the trailing comma
-            break;
-        }
+        if (parser.token === Token.RightParen)  break;
     }
 
     expect(parser, context, Token.RightParen);
 
     return params;
 }
+
+/**
+ * Parse formal parameter list
+ *
+ * @see [Link](https://tc39.github.io/ecma262/#prod-FormalParameterList)
+ *
+ * @param {Parser} Parser instance
+ * @param {context} Context masks
+ */
+
+export function parseFormalParameterList(parser: Parser, context: Context): any {
+
+    const pos = getLocation(parser);
+
+    if (parser.token & (Token.IsIdentifier | Token.Keyword)) {
+        if (hasBit(parser.token, Token.FutureReserved)) {
+            if (context & Context.Strict) report(parser, Errors.UnexpectedStrictReserved);
+            parser.flags |= Flags.StrictFunctionName;
+        }
+        if (hasBit(parser.token, Token.IsEvalOrArguments)) {
+            if (context & Context.Strict) report(parser, Errors.StrictEvalArguments);
+            parser.flags |= Flags.StrictEvalArguments;
+        }
+    } else {
+        parser.flags |= Flags.SimpleParameterList;
+    }
+
+    const left: any = parseBindingIdentifierOrPattern(parser, context);
+    if (!consume(parser, context, Token.Assign)) return left;
+
+
+    if (parser.token & (Token.IsYield | Token.IsAwait) && context & (Context.Yield | Context.Async)) {
+        report(parser, parser.token & Token.IsAwait ? Errors.AwaitInParameter : Errors.YieldInParameter);
+    }
+
+    parser.flags |= Flags.SimpleParameterList;
+
+    return finishNode(context, parser, pos, {
+        type: 'AssignmentPattern',
+        left: left,
+        right: parseExpressionCoverGrammar(parser, context, parseAssignmentExpression)
+    });
+}
+
 
 /**
  * Parse class expression
