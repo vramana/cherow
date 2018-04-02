@@ -1,7 +1,7 @@
 import { pass, fail } from '../../test-utils';
 import { Context } from '../../../src/utilities';
 import * as t from 'assert';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../src/parser';
 
 describe('Expressions - Object literal', () => {
 
@@ -70,13 +70,13 @@ describe('Expressions - Object literal', () => {
           'async *method() { void yield; }',
           'async *method(...x = []) {}',
           'foo(x = 1) {"use strict"}',
-          // "async foo (arguments) { }",
+          '"async foo (arguments) { "use strict"; }',
           `async
           foo() { }`,
           'async foo (x = await) {  }',
           'async foo (await) {  }',
           // "async foo () { super() }",
-          // "async foo(eval) { }",
+          '"async foo(eval) {"use strict"; }',
           // "async foo(foo = super()) { }",
           // "s\u0065t m(v) {}",
           'async *method() { var yi\\u0065ld; }',
@@ -142,6 +142,49 @@ describe('Expressions - Object literal', () => {
                   parse(`"use strict"; ({ ${arg}, })`, undefined, Context.OptionsNext);
               });
           });
+      }
+
+        const invalidShorthand = [
+        'break',    'case',    'catch',  'class',      'const', 'continue',
+        'debugger', 'default', 'delete', 'do',         'else',  /*"enum",*/
+        'export',   'extends', 'false',  'finally',    'for',   'function',
+        'if',       'import',  'in',     'instanceof', 'new',   'null',
+        'return',   'super',   'switch', 'this',       'throw', 'true',
+        'try',      'typeof',  'var',    'void',       'while', 'with',
+    ];
+        for (const arg of invalidShorthand) {
+
+        it(`({ ${arg}});`, () => {
+            t.throws(() => {
+                parse(`({ ${arg}});`, undefined, Context.Empty);
+            });
+        });
+
+        it(`"use strict"; ({ ${arg}});`, () => {
+          t.throws(() => {
+              parse(`"use strict"; ({ ${arg}});`, undefined, Context.Empty);
+          });
+      });
+      }
+
+        const invalidShorthandStrict = [
+        '1',
+        '1.2',
+        '0',
+        '0.1',
+        '1.0',
+        '1e1', '0x1', '"s"', '\'s\'',
+        'implements', 'interface', 'let',    'package',
+                             'private',    'protected', 'public', 'static',
+                             'yield',
+    ];
+        for (const arg of invalidShorthandStrict) {
+
+        it(`"use strict"; ({ ${arg}});`, () => {
+          t.throws(() => {
+              parse(`"use strict"; ({ ${arg}});`, undefined, Context.Empty);
+          });
+      });
       }
 
         fail(`"use strict";
@@ -442,7 +485,6 @@ describe('Expressions - Object literal', () => {
           'get width() { return width }, set width(width) { return width; } ',
           'a:0, get \'b\'(){}, set 3(d){}',
           'a',
-          'let',
           'a, b: 0, c',
           'a, b',
           'a(){}',
@@ -546,7 +588,6 @@ describe('Expressions - Object literal', () => {
           '*await() {}',
           'async *method(...a) {}',
           'async',
-          'yield',
           'await',
           'async *method() { yield [...yield]; }',
           'async *method(...a) { yield [...yield yield]; }',

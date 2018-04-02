@@ -17,7 +17,7 @@ import {
     nextToken,
     consume,
     restoreExpressionCoverGrammar,
-    isIdentifier1,
+    isIdentifier,
     parseExpressionCoverGrammar,
     isValidSimpleAssignmentTarget,
     swapContext,
@@ -1250,7 +1250,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
     // method
     if (parser.token === Token.LeftParen) {
         if (!(state & (ObjectState.Getter | ObjectState.Setter))) {
-            state |= ObjectState.Method;
+            state |= ObjectState.Method
             //parser.flags &= ~(Flags.AllowDestructuring | Flags.AllowBinding);
         }
         value = parseMethodDeclaration(parser, context | Context.Method, state);
@@ -1273,9 +1273,10 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
             value = restoreExpressionCoverGrammar(parser, context, parseAssignmentExpression);
         } else {
 
-            if (state & ObjectState.Async || !(t & (Token.IsIdentifier | Token.Keyword))) {
+            if (state & ObjectState.Async || !isIdentifier(context, t)) {
                 report(parser, Errors.UnexpectedToken, tokenDesc(t));
             }
+
             state |= ObjectState.Shorthand;
 
             if (consume(parser, context, Token.Assign)) {
@@ -1284,7 +1285,7 @@ function parsePropertyDefinition(parser: Parser, context: Context): ESTree.Prope
                     line: parser.startLine,
                     column: parser.startColumn,
                     index: parser.startIndex,
-                };
+                }
                 value = parseAssignmentPattern(parser, context | Context.AllowIn, key, pos);
             } else value = key;
         }
